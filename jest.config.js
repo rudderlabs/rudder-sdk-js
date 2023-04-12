@@ -19,19 +19,13 @@ module.exports = {
   // collectCoverage: false,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  collectCoverageFrom: [
-    'packages/**/*.{js,}',
-    'src/**/*.{js,}',
-    '!**/*.test.js',
-    '!**/test/*.js',
-  ],
+  collectCoverageFrom: ['packages/**/*.{js,}', 'src/**/*.{js,}', '!**/*.test.js', '!**/test/*.js'],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: 'reports/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: [
-  ],
+  coveragePathIgnorePatterns: [],
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: ['json', 'text', ['lcov', { projectRoot: '/' }], 'clover'],
@@ -151,7 +145,7 @@ module.exports = {
 
   // Options that will be passed to the testEnvironment
   testEnvironmentOptions: {
-    url: 'https://www.test-host.com',
+    url: 'https://www.rs-unit-test-host.com',
     runScripts: 'dangerously',
     resources: 'usable',
   },
@@ -182,7 +176,7 @@ module.exports = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.js?$': ['esbuild-jest', { sourcemap: true }],
+    '^.+\\.js?$': 'babel-jest',
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation

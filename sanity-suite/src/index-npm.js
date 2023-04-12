@@ -9,8 +9,8 @@ rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL', {
   cookieConsentManager: {
     oneTrust: {
       enabled: true,
-    },
-  },
+    }
+  }
 });
 
 rudderanalytics.ready(() => {

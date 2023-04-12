@@ -36,7 +36,8 @@ jobs:
           source_branch_name=${GITHUB_REF##*/}
           release_type=v1-release
           grep -q "v1-hotfix" <<< "${GITHUB_REF}" && release_type=v1-hotfix-release
-          git fetch origin v1-production --depth=1
+          git fetch origin v1-production
+          git fetch --tags origin
           git merge origin/v1-production
           current_version=$(jq -r .version package.json)
           npx standard-version --skip.commit --skip.tag --skip.changelog

@@ -39,6 +39,9 @@
         "tab_url": "http://localhost:4000/",
         "initial_referrer": "$direct",
         "initial_referring_domain": ""
+      },
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
       }
     },
     "type": "page",
@@ -68,7 +71,10 @@
       "category": "Cart"
     },
     "integrations": {
-      "All": true
+      "All": true,
+      "Google Analytics 4": {
+        "sessionId": "1677835184"
+      }
     },
     "user_properties": null,
     "name": "Cart Item",

@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.28.0...v2.29.0) (2023-04-03)
+
+
+### Features
+
+* **goole_ads:** enhanced conversions ([#970](https://github.com/rudderlabs/rudder-sdk-js/issues/970)) ([154589b](https://github.com/rudderlabs/rudder-sdk-js/commit/154589b09d4ab336f872ed440c881606c8b2272b))
+
+
+### Bug Fixes
+
+* event repository initialisation ([#974](https://github.com/rudderlabs/rudder-sdk-js/issues/974)) ([13ef5bd](https://github.com/rudderlabs/rudder-sdk-js/commit/13ef5bdaf026804b31d93a9b26953e3f2bc6dc53))
+* **fb pixel:** ecomm ([#967](https://github.com/rudderlabs/rudder-sdk-js/issues/967)) ([cb55955](https://github.com/rudderlabs/rudder-sdk-js/commit/cb559551213040f68a37590ed0cf5f36397d1415))
+* **ga4 and ua:** cookie conflicts ([#978](https://github.com/rudderlabs/rudder-sdk-js/issues/978)) ([0ed6f5a](https://github.com/rudderlabs/rudder-sdk-js/commit/0ed6f5a3cf242e08083c976ac3518d86cd0b1454))
+* support bingAds for multiple tagIds ([#972](https://github.com/rudderlabs/rudder-sdk-js/issues/972)) ([f736fff](https://github.com/rudderlabs/rudder-sdk-js/commit/f736fffb487f4dc197b6465a89eaa9c7d136b8ae))
+
+## [2.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.27.0...v2.28.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* mutation of user provided object values ([#958](https://github.com/rudderlabs/rudder-sdk-js/issues/958)) ([74f4974](https://github.com/rudderlabs/rudder-sdk-js/commit/74f4974377ad61b1bc86315484a7274a065c5706))
+
+
+## [2.27.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.26.0...v2.27.0) (2023-03-14)
+
+### Bug Fixes
+
+* **braze:** handle undefined products ([#940](https://github.com/rudderlabs/rudder-sdk-js/issues/940)) ([b32a074](https://github.com/rudderlabs/rudder-sdk-js/commit/b32a074f2cde42f0dd4b5c8297ed272bd9be88c6))
+* client_id mapping for ga4 ([#925](https://github.com/rudderlabs/rudder-sdk-js/issues/925)) ([a48cdff](https://github.com/rudderlabs/rudder-sdk-js/commit/a48cdff9259d5a91d2199e5e2936fb2b98b407fd))
+* duplicate page views being sent to ga4 ([#923](https://github.com/rudderlabs/rudder-sdk-js/issues/923)) ([9a5ca33](https://github.com/rudderlabs/rudder-sdk-js/commit/9a5ca3311d58e8525c0b30c31cfaa71cbb3c7f9c))
+* duplicate userid sent to ga4 ([#927](https://github.com/rudderlabs/rudder-sdk-js/issues/927)) ([1dd3f37](https://github.com/rudderlabs/rudder-sdk-js/commit/1dd3f3753815ccc39a0c358171b68d911cf3c488))
+* ga4 device mode debug_view ([#921](https://github.com/rudderlabs/rudder-sdk-js/issues/921)) ([733ea81](https://github.com/rudderlabs/rudder-sdk-js/commit/733ea81236e1ccf45eb37f95e0d604517cce9cb7))
+* type declaration of onLoaded callback loadOption ([#945](https://github.com/rudderlabs/rudder-sdk-js/issues/945)) ([1a78d6d](https://github.com/rudderlabs/rudder-sdk-js/commit/1a78d6d02709e3f133a38d4b01f4bb062eefa9ba))
+* traits are not being sent to ga4 group call ([#929](https://github.com/rudderlabs/rudder-sdk-js/issues/929)) ([66bdc64](https://github.com/rudderlabs/rudder-sdk-js/commit/66bdc64a72ba6ec525172d4ac7b33752259c80a5))
+
 ## [2.26.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.25.0...v2.26.0) (2023-03-02)
 
 ### Features

@@ -241,7 +241,6 @@ const trackMethodSuite = {
       description: 'Consent denied category Ids are attached to context object of track',
       inputData: [
         [true],
-        [],
         [
           'Order Completed',
           {
@@ -264,29 +263,11 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track7ExpectedData,
-      triggerHandler: [
-        'reset',
-        () => {
-          window.OneTrust = {
-            GetDomainData: () => ({
-              Groups: [
-                { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
-                { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
-                { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
-                { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
-                { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-                { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' },
-              ],
-            }),
-          };
-          window.OnetrustActiveGroups = ',C0001,C0003,';
-        },
-        'track',
-      ],
-      resetWindow: () => {
-        window.OneTrust = undefined;
-        window.OnetrustActiveGroups = undefined;
-      },
+      triggerHandler: ['reset', 'track'],
+      // resetWindow: () => {
+      //   window.OneTrust = undefined;
+      //   window.OnetrustActiveGroups = undefined;
+      // },
     },
   ],
 };

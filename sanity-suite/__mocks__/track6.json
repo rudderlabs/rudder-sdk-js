@@ -39,6 +39,9 @@
         "tab_url": "http://localhost:3001/index.html",
         "initial_referrer": "$direct",
         "initial_referring_domain": ""
+      },
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
       }
     },
     "type": "track",
@@ -65,7 +68,10 @@
       }
     },
     "integrations": {
-      "All": true
+      "All": true,
+      "Google Analytics 4": {
+        "sessionId": "1677835184"
+      }
     },
     "user_properties": null,
     "sentAt": "2023-01-15T02:37:59.230Z"

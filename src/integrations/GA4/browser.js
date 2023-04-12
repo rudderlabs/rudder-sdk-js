@@ -18,21 +18,18 @@ export default class GA4 {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    this.measurementId = config.measurementId;
-    this.analytics = analytics;
-    this.sendUserId = config.sendUserId || false;
-    this.blockPageView = config.blockPageViewEvent || false;
-    this.extendPageViewParams = config.extendPageViewParams || false;
-    this.extendGroupPayload = config.extendGroupPayload || false;
-    this.debugMode = config.debugMode || false;
-    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
-    this.clientId = '';
     this.sessionId = '';
+    this.analytics = analytics;
+    this.measurementId = config.measurementId;
+    this.capturePageView = config.capturePageView || 'rs';
     this.addSendToParameter = config.addSendToParameter || false;
+    this.addSendToParameter = config.addSendToParameter || false;
+    this.extendPageViewParams = config.extendPageViewParams || false;
+    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
 
-  loadScript(measurementId, userId) {
+  loadScript(measurementId) {
     window.dataLayer = window.dataLayer || [];
     window.gtag =
       window.gtag ||
@@ -42,17 +39,18 @@ export default class GA4 {
       };
     window.gtag('js', new Date());
     const gtagParameterObject = {};
-    // This condition is not working, even after disabling page view
-    // page_view is even getting called on page load
-    if (this.blockPageView) {
+
+    if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
-    if (this.sendUserId) {
-      gtagParameterObject.user_id = userId;
+    // Setting the userId as a part of configuration
+    if (this.analytics.userId) {
+      gtagParameterObject.user_id = this.analytics.userId;
     }
-    if (this.debugMode) {
-      gtagParameterObject.debug_mode = true;
-    }
+    gtagParameterObject.cookie_prefix = 'rs';
+    gtagParameterObject.client_id = this.analytics.anonymousId;
+    gtagParameterObject.debug_mode = true;
+
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
@@ -60,12 +58,9 @@ export default class GA4 {
     }
 
     /**
-     * Setting the parameter clientId and sessionId using gtag api
+     * Setting the parameter sessionId using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
-    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
-      this.clientId = clientId;
-    });
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
@@ -81,9 +76,7 @@ export default class GA4 {
   }
 
   init() {
-    // To do :: check how custom dimension and metrics is used
-    const userId = this.analytics.userId || this.analytics.anonymousId;
-    this.loadScript(this.measurementId, userId);
+    this.loadScript(this.measurementId);
   }
 
   /* utility functions ---Start here ---  */
@@ -92,7 +85,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!(this.clientId && this.sessionId);
+    return !!this.sessionId;
   }
 
   isReady() {
@@ -164,6 +157,9 @@ export default class GA4 {
     if (this.addSendToParameter) {
       params.send_to = this.measurementId;
     }
+    if (this.analytics.userId) {
+      params.user_id = this.analytics.userId;
+    }
     window.gtag('event', event, params);
   }
 
@@ -222,9 +218,10 @@ export default class GA4 {
 
     logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
-    if (this.sendUserId && rudderElement.message.userId) {
-      const userId = this.analytics.userId || this.analytics.anonymousId;
-      if (this.blockPageView) {
+    // Setting the userId as a part of configuration
+    if (rudderElement.message.userId) {
+      const { userId } = rudderElement.message;
+      if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
           user_id: userId,
           send_page_view: false,
@@ -239,20 +236,26 @@ export default class GA4 {
 
   page(rudderElement) {
     logger.debug('In GoogleAnalyticsManager Page');
-    let pageProps = rudderElement.message.properties;
-    if (!pageProps) return;
-    pageProps = flattenJsonPayload(pageProps);
-    const properties = { ...getPageViewProperty(pageProps) };
-    if (this.addSendToParameter) {
-      properties.send_to = this.measurementId;
-    }
-    if (this.extendPageViewParams) {
-      window.gtag('event', 'page_view', {
-        ...pageProps,
-        ...properties,
-      });
-    } else {
-      window.gtag('event', 'page_view', properties);
+
+    if (this.capturePageView === 'rs') {
+      let pageProps = rudderElement.message.properties;
+      if (!pageProps) return;
+      pageProps = flattenJsonPayload(pageProps);
+      const properties = { ...getPageViewProperty(pageProps) };
+      if (this.addSendToParameter) {
+        properties.send_to = this.measurementId;
+      }
+      if (this.analytics.userId) {
+        properties.user_id = this.analytics.userId;
+      }
+      if (this.extendPageViewParams) {
+        window.gtag('event', 'page_view', {
+          ...pageProps,
+          ...properties,
+        });
+      } else {
+        window.gtag('event', 'page_view', properties);
+      }
     }
   }
 
@@ -265,11 +268,14 @@ export default class GA4 {
     logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
+    if (this.analytics.userId) {
+      traits.user_id = this.analytics.userId;
+    }
 
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
       this.sendGAEvent(events.dest, {
         group_id: groupId,
-        ...(this.extendGroupPayload ? traits : {}),
+        ...(traits || {}),
       });
     });
   }
@@ -278,7 +284,6 @@ export default class GA4 {
     return {
       'Google Analytics 4': {
         sessionId: this.sessionId,
-        clientId: this.clientId,
       },
     };
   }

@@ -19,7 +19,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -36,19 +36,14 @@ jobs:
       - name: Build and sync files to S3
         env:
           HUSKY: 0
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm ci
           npm run build:browser
           npm run build:browser:modern
           npm run build:integration:all
           npm run build:integration:all:modern
-
-      - name: Fix Bugsnag API key
-        env:
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-        run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics.min.js
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/modern/rudder-analytics.min.js
 
       - name: Get new version number
         run: |

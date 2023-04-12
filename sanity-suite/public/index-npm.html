@@ -6,6 +6,21 @@
     <title>RudderStack JS SDK Sanity Suite</title>
 
     <script>
+      window.OneTrust = {
+        GetDomainData: function () {
+          return {
+            Groups: [
+              { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
+              { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
+              { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
+              { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
+              { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
+              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
+            ]
+          };
+        }
+      };
+      window.OnetrustActiveGroups = ',C0001,C0003,';
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
         'load',

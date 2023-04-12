@@ -19,31 +19,26 @@ import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
   transformToRudderNames,
   transformToServerNames,
   checkReservedKeywords,
-  getReferrer,
-  getReferringDomain,
   getConfigUrl,
   getSDKUrlInfo,
   commonNames,
-  get,
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
 } from '../utils/utils';
-import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
+import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
+import { handleError } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
   INTG_SUFFIX,
   POLYFILL_URL,
-  DEFAULT_ERROR_REPORT_PROVIDER,
-  ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
 } from '../utils/constants';
@@ -55,7 +50,6 @@ import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
 import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
-import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
 import { mergeContext, mergeTopLevelElementsMutator } from '../utils/eventProcessorUtils';
 import {
@@ -63,6 +57,7 @@ import {
   constructMessageIntegrationsObj,
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
+import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 
 /**
@@ -103,8 +98,9 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
-    this.version = 'process.package_version';
+    this.version = '__PACKAGE_VERSION__';
     this.lockIntegrationsVersion = false;
+    this.errorReporting = new ErrorReportingService(logger);
     this.deniedConsentIds = [];
   }
 
@@ -199,7 +195,7 @@ class Analytics {
    * call initialize for integrations
    *
    * @param {*} status
-   * @param {*} response
+   * @param {*} responseVal
    * @memberof Analytics
    */
   processResponse(status, responseVal) {
@@ -221,27 +217,11 @@ class Analytics {
         return;
       }
 
-      // Fetch Error reporting enable option from sourceConfig
-      const isErrorReportEnabled = get(
-        response.source.config,
-        'statsCollection.errorReports.enabled',
-      );
-
-      // Load Bugsnag only if it is enabled in the source config
-      if (isErrorReportEnabled === true) {
-        // Fetch the name of the Error reporter from sourceConfig
-        const provider =
-          get(response.source.config, 'statsCollection.errorReports.provider') ||
-          DEFAULT_ERROR_REPORT_PROVIDER;
-        if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
-          logger.error('Invalid error reporting provider value');
-        }
-
-        if (provider === 'bugsnag') {
-          // Load Bugsnag client SDK
-          BugsnagLib.load();
-          BugsnagLib.init(response.source.id);
-        }
+      // Initialise error reporting provider if set in source config
+      try {
+        this.errorReporting.init(response.source.config, response.source.id);
+      } catch (err) {
+        handleError(err);
       }
 
       // determine the dataPlaneUrl
@@ -305,7 +285,7 @@ class Analytics {
         suffix = '-staging'; // stagging suffix
       }
 
-      leaveBreadcrumb('Starting device-mode initialization');
+      this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
@@ -329,7 +309,7 @@ class Analytics {
             try {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
-              leaveBreadcrumb(msg);
+              this.errorReporting.leaveBreadcrumb(msg);
               intgInstance = new intMod[modName](intg.config, self);
               intgInstance.init();
 
@@ -380,7 +360,7 @@ class Analytics {
     //   " failed loaded count: ",
     //   object.failedToBeLoadedIntegration.length
     // );
-    leaveBreadcrumb(`Started replaying buffered events`);
+    this.errorReporting.leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = [];
     // eslint-disable-next-line no-param-reassign
@@ -487,7 +467,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
-    leaveBreadcrumb(`Page event`);
+    this.errorReporting.leaveBreadcrumb(`Page event`);
     if (!this.loaded) {
       this.toBeProcessedArray.push(['page', ...arguments]);
       return;
@@ -506,20 +486,23 @@ class Analytics {
     if (this.sendAdblockPage && category != 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
+    let clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('page').build();
-    if (!properties) {
-      properties = {};
+    if (!clonedProperties) {
+      clonedProperties = {};
     }
     if (name) {
-      rudderElement.message.name = properties.name = name;
+      rudderElement.message.name = clonedProperties.name = name;
     }
     if (category) {
-      rudderElement.message.category = properties.category = category;
+      rudderElement.message.category = clonedProperties.category = category;
     }
-    rudderElement.message.properties = this.getPageProperties(properties);
 
-    this.processAndSendDataToDestinations('page', rudderElement, options, callback);
+    rudderElement.message.properties = this.getPageProperties(clonedProperties);
+
+    this.processAndSendDataToDestinations('page', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -532,7 +515,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
-    leaveBreadcrumb(`Track event`);
+    this.errorReporting.leaveBreadcrumb(`Track event`);
     if (!this.loaded) {
       this.toBeProcessedArray.push(['track', ...arguments]);
       return;
@@ -541,13 +524,16 @@ class Analytics {
     if (typeof properties === 'function')
       (callback = properties), (options = null), (properties = null);
 
+    const clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
+
     const rudderElement = new RudderElementBuilder().setType('track').build();
     if (event) {
       rudderElement.setEventName(event);
     }
-    rudderElement.setProperty(properties || {});
+    rudderElement.setProperty(clonedProperties || {});
 
-    this.processAndSendDataToDestinations('track', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('track', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -560,7 +546,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
-    leaveBreadcrumb(`Identify event`);
+    this.errorReporting.leaveBreadcrumb(`Identify event`);
     if (!this.loaded) {
       this.toBeProcessedArray.push(['identify', ...arguments]);
       return;
@@ -575,15 +561,18 @@ class Analytics {
     this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
-    if (traits) {
-      for (const key in traits) {
-        this.userTraits[key] = traits[key];
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
+
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.userTraits[key] = clonedTraits[key];
       }
       this.storage.setUserTraits(this.userTraits);
     }
     const rudderElement = new RudderElementBuilder().setType('identify').build();
 
-    this.processAndSendDataToDestinations('identify', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('identify', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -594,7 +583,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
-    leaveBreadcrumb(`Alias event`);
+    this.errorReporting.leaveBreadcrumb(`Alias event`);
     if (!this.loaded) {
       this.toBeProcessedArray.push(['alias', ...arguments]);
       return;
@@ -610,8 +599,9 @@ class Analytics {
     rudderElement.message.previousId =
       getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = getStringId(to);
+    const clonedOptions = R.clone(options);
 
-    this.processAndSendDataToDestinations('alias', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('alias', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -622,7 +612,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
-    leaveBreadcrumb(`Group event`);
+    this.errorReporting.leaveBreadcrumb(`Group event`);
     if (!this.loaded) {
       this.toBeProcessedArray.push(['group', ...arguments]);
       return;
@@ -638,18 +628,21 @@ class Analytics {
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
-    if (traits) {
-      for (const key in traits) {
-        this.groupTraits[key] = traits[key];
+
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.groupTraits[key] = clonedTraits[key];
       }
     } else {
       this.groupTraits = {};
     }
     this.storage.setGroupTraits(this.groupTraits);
 
-    this.processAndSendDataToDestinations('group', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
 
   IsEventBlackListed(eventName, intgName) {
@@ -711,7 +704,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-      leaveBreadcrumb('Started sending data to destinations');
+      this.errorReporting.leaveBreadcrumb('Started sending data to destinations');
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
@@ -743,7 +736,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds
+          deniedConsentIds: this.deniedConsentIds,
         };
       }
 
@@ -905,7 +898,7 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
-    leaveBreadcrumb(`reset API :: flag: ${flag}`);
+    this.errorReporting.leaveBreadcrumb(`reset API :: flag: ${flag}`);
 
     if (!this.loaded) {
       this.toBeProcessedArray.push(['reset', flag]);
@@ -1005,7 +998,7 @@ class Analytics {
       throw Error('Cannot proceed as no storage is available');
     }
     if (options && options.cookieConsentManager)
-      this.cookieConsentOptions = R.clone(options.cookieConsentManager);
+      this.cookieConsentOptions = options.cookieConsentManager;
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
@@ -1083,7 +1076,6 @@ class Analytics {
       this.lockIntegrationsVersion = options.lockIntegrationsVersion === true;
     }
 
-    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
 
@@ -1130,12 +1122,14 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
+    // clone options
+    const clonedOptions = R.clone(options);
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn, unless
     // the options are configured not to.
     const polyfillIfRequired =
-      options && typeof options.polyfillIfRequired === 'boolean'
-        ? options.polyfillIfRequired
+      clonedOptions && typeof clonedOptions.polyfillIfRequired === 'boolean'
+        ? clonedOptions.polyfillIfRequired
         : true;
     if (
       polyfillIfRequired &&
@@ -1160,7 +1154,7 @@ class Analytics {
         // So, added another checking to fulfill that purpose.
         if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
           clearInterval(interval);
-          self.loadAfterPolyfill(writeKey, serverUrl, options);
+          self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
       }, 100);
 
@@ -1168,7 +1162,7 @@ class Analytics {
         clearInterval(interval);
       }, MAX_WAIT_FOR_INTEGRATION_LOAD);
     } else {
-      this.loadAfterPolyfill(writeKey, serverUrl, options);
+      this.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
     }
   }
 
