@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { ScreenInfo } from '../components/capabilitiesManager/detection/screen';
 
 export type CookieConsentOptions = {
   // OneTrust
@@ -7,7 +8,7 @@ export type CookieConsentOptions = {
   };
 };
 
-export type AppDetails = {
+export type AppInfo = {
   name: string;
   version: string;
   namespace: string;
@@ -299,11 +300,28 @@ export type StatsCollection = {
   };
 };
 
-export type RudderContext = ApiObject & {
+export type RudderContext = {
+  [index: string]:
+    | string
+    | number
+    | boolean
+    | ApiObject
+    | UADataValues
+    | Nullable<string>
+    | (string | number | boolean | ApiObject)[]
+    | undefined;
   traits: ApiObject;
   sessionId?: number;
   sessionStart?: boolean;
   consentManagement: ConsentManagement;
+  "ua-ch"?: UADataValues;
+  app: AppInfo;
+  library: LibraryInfo;
+  userAgent: Nullable<string>;
+  os: OSInfo;
+  locale: Nullable<string>;
+  screen: ScreenInfo;
+  campaign: UTMParameters;
 };
 
 export type RudderEvent = {
@@ -340,3 +358,7 @@ export type RudderGroupEvent = RudderEvent & {
   groupId: string;
   traits?: ApiObject;
 };
+
+export type UTMParameters = {
+  [index: string]: string;
+}

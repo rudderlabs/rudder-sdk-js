@@ -8,6 +8,8 @@ import * as R from 'ramda';
 import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js/components/utilities/timestamp';
 import { consentsState } from '@rudderstack/analytics-js/state/slices/consents';
+import { contextState } from '@rudderstack/analytics-js/state/slices/context';
+import { pageParametersState } from '@rudderstack/analytics-js/state/slices/page';
 import { IErrorHandler } from '../ErrorHandler/types';
 import { ILogger } from '../Logger/types';
 import { IEventsHandler } from './types';
@@ -31,7 +33,8 @@ class EventsHandler implements IEventsHandler {
     this.onError = this.onError.bind(this);
   }
 
-  processOptionsData(options: ApiObject, rudderEvent: RudderEvent) {}
+  static processOptionsData(options: ApiObject, rudderEvent: RudderEvent) {
+  }
 
   /**
    * Generate a 'track' event based on the user-input fields
@@ -63,8 +66,14 @@ class EventsHandler implements IEventsHandler {
           // TODO: Consent manager to populate this data always
           deniedConsentIds: consentsState.deniedConsentIds.value,
         },
-        // TODO: Populate and fetch this info from state
-        'ua-ch': {},
+        'ua-ch': contextState['ua-ch'].value,
+        app: contextState.app.value,
+        library: contextState.library.value,
+        userAgent: contextState.userAgent.value,
+        os: contextState.os.value,
+        locale: contextState.locale.value,
+        screen: contextState.screen.value,
+        campaign: contextState.campaign.value
       },
       originalTimestamp: getCurrentTimeFormatted(),
       integrations: {},

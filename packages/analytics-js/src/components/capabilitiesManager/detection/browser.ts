@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { UTMParameters } from '@rudderstack/analytics-js/state/types';
 
 const isBrowser = (): boolean =>
   typeof window !== 'undefined' && typeof window.document !== 'undefined';
@@ -46,4 +47,92 @@ const getLanguage = (): Nullable<string> => {
   return window.navigator.language || (window.navigator as any).browserLanguage;
 };
 
-export { isBrowser, isNode, hasCrypto, hasUAClientHints, hasBeacon, getUserAgent, getLanguage };
+/**
+ * To get the canonical URL of the page
+ * @returns canonical URL
+ */
+function getCanonicalUrl() {
+  const tags = [...document.getElementsByTagName('link')];
+  let canonicalUrl: Nullable<string> = '';
+  tags.some(tag => {
+    if (tag.getAttribute('rel') === 'canonical') {
+      canonicalUrl = tag.getAttribute('href');
+      return true;
+    }
+    return false;
+  });
+  return canonicalUrl;
+}
+
+/**
+ * To get the URL until the hash
+ * @param url The input URL
+ * @returns URL until the hash
+ */
+function getUrlWithoutHash(url: string) {
+  const hashIndex = url.indexOf('#');
+  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
+}
+
+function getReferrer() {
+  return document.referrer || '$direct';
+}
+
+function getReferringDomain(referrer: string) {
+  const split = referrer.split('/');
+  if (split.length >= 3) {
+    return split[2];
+  }
+  return '';
+}
+
+function extractUTMParameters(url: string): UTMParameters {
+  const urlObj = new URL(url);
+  const result: UTMParameters = {};
+  urlObj.searchParams.forEach((value, sParam) => {
+    if (sParam.startsWith('utm_')) {
+      let utmParam = sParam;
+      // Not sure why we're doing this
+      if (utmParam === 'campaign') {
+        utmParam = 'name';
+      }
+      result[utmParam] = value;
+    }
+  });
+
+  return result;
+}
+
+function getDefaultPageProperties() {
+  const canonicalUrl = getCanonicalUrl();
+  let path = window.location.pathname;
+  const { href: tabUrl } = window.location;
+  let pageUrl = tabUrl;
+  const { search } = window.location;
+  if (canonicalUrl) {
+    try {
+      // The logic in v1.1 was to use parse from component-url
+      const urlObj = new URL(canonicalUrl);
+      if (urlObj.search === '') pageUrl = canonicalUrl + search;
+
+      path = urlObj.pathname;
+    } catch (err) {
+      // Do nothing
+    }
+  }
+
+  const url = getUrlWithoutHash(pageUrl);
+  const { title } = document;
+  const referrer = getReferrer();
+  return {
+    path,
+    referrer,
+    referring_domain: getReferringDomain(referrer),
+    search,
+    title,
+    url,
+    tab_url: tabUrl
+  };
+}
+
+export { isBrowser, isNode, hasCrypto, hasUAClientHints, hasBeacon, getUserAgent, getLanguage, getDefaultPageProperties, extractUTMParameters };
