@@ -1,4 +1,4 @@
-import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-plugins/types/common';
 
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
@@ -28,7 +28,7 @@ const LoadIntegrations = () => ({
     load_integrations(
       clientIntegrations: any[],
       state: any,
-      externalSrcLoader: ExternalSrcLoader,
+      externalSrcLoader: IExternalSrcLoader,
       externalScriptOnLoad: (id?: string) => unknown,
     ) {
       console.log(

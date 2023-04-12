@@ -16,11 +16,13 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
 import federation from '@originjs/vite-plugin-federation';
+import externalGlobals from "rollup-plugin-external-globals";
 import * as dotenv from 'dotenv';
 import pkg from '../package.json' assert { type: 'json' };
 
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
-const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
+const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
+const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist${variantSubfolder}`;
@@ -52,6 +54,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         preventAssignment: true,
         'process.package_version': version,
         'process.module_type': moduleType,
+        '__BUNDLE_ALL_PLUGINS__': isLegacyBuild,
       }),
       resolve({
         jsnext: true,
@@ -78,19 +81,24 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      // TODO: keep checking for updates on when the sourcemaps will be fixed and remove patch
-      //  https://github.com/originjs/vite-plugin-federation/issues/355
-      //  https://github.com/originjs/vite-plugin-federation/issues/336
+      isLegacyBuild &&
+      externalGlobals({
+        './modernBuildPluginImports': 'emptyPluginImports'
+      }),
+      !isLegacyBuild &&
+      externalGlobals({
+        './legacyBuildPluginImports': 'emptyPluginImports'
+      }),
+      !isLegacyBuild &&
       federation({
         remotes: {
           remotePlugins: `${remotePluginsBasePath}/modern/remotePlugins.js`,
-        },
-        //sourcemap: sourceMapType,
+        }
       }),
       process.env.UGLIFY === 'true' &&
         terser({
-          safari10: process.env.BROWSERSLIST_ENV !== 'modern',
-          ecma: process.env.BROWSERSLIST_ENV === 'modern' ? 2017 : 2015,
+          safari10: isLegacyBuild,
+          ecma: isLegacyBuild ? 2015 : 2017,
           format: {
             comments: false,
           },
@@ -134,9 +142,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/${
-            process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
-          }/iife/index.html`,
+          openPage: `/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,
@@ -156,7 +162,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
   {
@@ -165,7 +171,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
   {
@@ -174,7 +180,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
 ];
@@ -185,7 +191,7 @@ const outputFilesCdn = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
 ];
