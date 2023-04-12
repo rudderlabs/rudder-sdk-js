@@ -78,13 +78,3 @@ export interface IStore {
   get<T = any>(key: string): Nullable<T>;
   remove(key: string): void;
 }
-
-export interface IService {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  onError: (error: Error | unknown, context?: string) => void;
-}
-
-export interface IEventsHandler extends IService {
-  initialized: boolean;
-}
