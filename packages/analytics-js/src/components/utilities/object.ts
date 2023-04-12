@@ -57,4 +57,6 @@ const mergeDeepRight = <T = Record<string, any>>(
   rightObject: Record<string, any>,
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight };
+const isObject = (obj: any) => typeof obj === 'object' && !Array.isArray(obj);
+
+export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight, isObject };

@@ -257,7 +257,7 @@ export type ReadyCallback = () => void;
 
 export type ConsentManagement = {
   deniedConsentIds: string[];
-}
+};
 
 export type SessionInfo = {
   autoTrack?: boolean;
@@ -310,55 +310,39 @@ export type RudderContext = {
     | Nullable<string>
     | (string | number | boolean | ApiObject)[]
     | undefined;
-  traits: ApiObject;
+  traits?: ApiObject;
   sessionId?: number;
   sessionStart?: boolean;
-  consentManagement: ConsentManagement;
-  "ua-ch"?: UADataValues;
+  consentManagement?: ConsentManagement;
+  'ua-ch'?: UADataValues;
   app: AppInfo;
   library: LibraryInfo;
   userAgent: Nullable<string>;
   os: OSInfo;
   locale: Nullable<string>;
   screen: ScreenInfo;
-  campaign: UTMParameters;
+  campaign?: UTMParameters;
 };
 
 export type RudderEvent = {
   type: string;
   userId?: Nullable<string>;
-  anonymousId?: string;
+  anonymousId: string;
   channel: string;
   context: RudderContext;
   originalTimestamp: string;
   sentAt?: string;
   integrations: IntegrationOpts;
   messageId: string;
-};
-
-export type RudderTrackEvent = RudderEvent & {
-  properties?: ApiObject;
-  event: string;
-};
-
-export type RudderPageEvent = RudderEvent & {
-  name?: string;
-  properties?: ApiObject;
-};
-
-export type RudderIdentifyEvent = RudderEvent & {
-  traits?: ApiObject;
-};
-
-export type RudderAliasEvent = RudderEvent & {
-  previousId: string;
-};
-
-export type RudderGroupEvent = RudderEvent & {
-  groupId: string;
-  traits?: ApiObject;
+  properties?: ApiObject; // track & page
+  event: string; // track
+  name?: string; // page
+  category?: string; // page
+  traits?: ApiObject; // group
+  groupId?: Nullable<string>; // group
+  previousId: string; // alias
 };
 
 export type UTMParameters = {
   [index: string]: string;
-}
+};
