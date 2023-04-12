@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 // import logger from "../utils/logUtil";
 
-import { handleError } from './errorHandler';
+import { handleError } from "./errorHandler";
 
 const defaultAsyncState = true;
 
