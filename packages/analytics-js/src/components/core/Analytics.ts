@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { isEmpty } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -247,7 +247,7 @@ class Analytics implements IAnalytics {
   // TODO: dummy implementation for testing until we implement device mode
   //  create proper implementation once relevant task is picked up
   loadIntegrations() {
-    if (R.isEmpty(state.nativeDestinations.clientIntegrations)) {
+    if (isEmpty(state.nativeDestinations.clientIntegrations)) {
       state.lifecycle.status.value = 'ready';
       return;
     }

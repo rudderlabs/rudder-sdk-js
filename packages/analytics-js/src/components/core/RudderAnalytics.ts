@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { isEmpty } from 'ramda';
 import Emitter from 'component-emitter';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
@@ -86,7 +86,7 @@ class RudderAnalytics implements IRudderAnalytics {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    if (R.isEmpty(this.analyticsInstances)) {
+    if (isEmpty(this.analyticsInstances)) {
       this.defaultAnalyticsKey = writeKey;
     }
   }

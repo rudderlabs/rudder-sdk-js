@@ -9,3 +9,5 @@ export interface IPluginsManager {
   invoke<T = any>(extPoint?: string, ...args: any[]): T[];
   register(plugins: ExtensionPlugin[]): void;
 }
+
+export type PluginMap<T = ExtensionPlugin> = Record<string, () => T>;

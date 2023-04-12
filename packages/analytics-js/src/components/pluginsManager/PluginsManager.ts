@@ -4,8 +4,8 @@ import {
   IPluginEngine,
 } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { state } from '@rudderstack/analytics-js/state';
-import { dummyPlugins, dummyRemotePlugins } from '@rudderstack/analytics-js/plugins/dummyToDelete';
 import { IPluginsManager } from './types';
+import { pluginsInventory, remotePluginsInventory } from './pluginsInventory';
 
 // TODO: define types for plugins
 // TODO: In register also pass automatically the state to all plugins
@@ -24,7 +24,6 @@ class PluginsManager implements IPluginsManager {
   init() {
     this.registerLocalPlugins();
     this.registerRemotePlugins();
-    this.registerDummyPlugins();
 
     // TODO: fix await until all remote plugins have been fetched, this can be
     //  done using the initialize function of the plugins with a callback to
@@ -35,32 +34,16 @@ class PluginsManager implements IPluginsManager {
     }, 3000);
   }
 
-  // TODO: remove the dummy plugins after implementing proper ones
-  registerDummyPlugins() {
-    this.register(dummyPlugins);
-
-    dummyRemotePlugins.forEach(async remotePlugin => {
-      await remotePlugin().then(remotePluginModule =>
-        defaultPluginEngine.register(remotePluginModule.default()),
-      );
+  registerLocalPlugins() {
+    Object.values(pluginsInventory).forEach(localPlugin => {
+      this.engine.register(localPlugin());
     });
   }
 
-  registerLocalPlugins() {}
-
-  getRemotePluginsList() {
-    const storageEncryptionV1 = () => import('remotePlugins/StorageEncryptionV1');
-    const googleLinker = () => import('remotePlugins/GoogleLinker');
-
-    const remotePluginsList = [storageEncryptionV1, googleLinker];
-
-    return remotePluginsList;
-  }
-
   registerRemotePlugins() {
-    this.getRemotePluginsList().forEach(async remotePlugin => {
-      await remotePlugin().then(remotePluginModule =>
-        defaultPluginEngine.register(remotePluginModule.default()),
+    Object.values(remotePluginsInventory).forEach(async remotePlugin => {
+      await remotePlugin().then((remotePluginModule: any) =>
+        this.engine.register(remotePluginModule.default()),
       );
     });
   }

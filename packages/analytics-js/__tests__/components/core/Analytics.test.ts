@@ -1,7 +1,6 @@
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
-import { state } from '@rudderstack/analytics-js/state';
+import { resetState, state } from '@rudderstack/analytics-js/state';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { batch } from '@preact/signals-core';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -15,18 +14,6 @@ jest.mock('../../../src/components/utilities/globals', () => {
 
 describe('Core - Analytics', () => {
   let analytics: Analytics;
-
-  const resetState = () => {
-    batch(() => {
-      state.lifecycle.loaded.value = false;
-      state.lifecycle.status.value = undefined;
-      state.lifecycle.writeKey.value = undefined;
-      state.lifecycle.dataPlaneUrl.value = undefined;
-      state.eventBuffer.readyCallbacksArray.value = [];
-      state.eventBuffer.toBeProcessedArray.value = [];
-      state.session.rl_user_id.value = undefined;
-    });
-  };
 
   beforeEach(() => {
     analytics = new Analytics();

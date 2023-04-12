@@ -17,7 +17,8 @@ import dts from 'rollup-plugin-dts';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
-const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
+const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
+const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist${variantSubfolder}`;
@@ -72,6 +73,7 @@ export function getDefaultConfig(distName) {
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
       }),
+      !isLegacyBuild &&
       federation({
         name: 'remotePlugins',
         filename: 'remotePlugins.js',
@@ -85,8 +87,8 @@ export function getDefaultConfig(distName) {
       }),
       process.env.UGLIFY === 'true' &&
         terser({
-          safari10: process.env.BROWSERSLIST_ENV !== 'modern',
-          ecma: process.env.BROWSERSLIST_ENV === 'modern' ? 2017 : 2015,
+          safari10: isLegacyBuild,
+          ecma: isLegacyBuild ? 2015 : 2017,
           format: {
             comments: false,
           },
@@ -125,7 +127,7 @@ const outputFiles = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
 ];

@@ -8,3 +8,5 @@ declare global {
     }
   }
 }
+
+declare const __BUNDLE_ALL_PLUGINS__: boolean;
