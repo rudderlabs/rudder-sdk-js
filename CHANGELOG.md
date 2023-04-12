@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.27.0...v1.28.0) (2023-04-03)
+
+
+### Features
+
+* **goole_ads:** enhanced conversions ([#969](https://github.com/rudderlabs/rudder-sdk-js/issues/969)) ([755a978](https://github.com/rudderlabs/rudder-sdk-js/commit/755a9781b67e61c74faffafe561d9c52b012852c))
+
+
+### Bug Fixes
+
+* **fb pixel:** ecomm ([#955](https://github.com/rudderlabs/rudder-sdk-js/issues/955)) ([5c35592](https://github.com/rudderlabs/rudder-sdk-js/commit/5c35592943502f19ffda206eadb4a750bbcaf28d))
+* support bingAds for multiple tagIds ([#957](https://github.com/rudderlabs/rudder-sdk-js/issues/957)) ([7ec2fd7](https://github.com/rudderlabs/rudder-sdk-js/commit/7ec2fd72a76b57777c6177e10977604e501c05e8))
+* **ua and ga4:** cookie conflicts ([#979](https://github.com/rudderlabs/rudder-sdk-js/issues/979)) ([6b8cb60](https://github.com/rudderlabs/rudder-sdk-js/commit/6b8cb60ffd6c4ccd5bbbf4bb46b5ebb3d827dfff))
+
+## [1.27.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.26.0...v1.27.0) (2023-03-14)
+
+
+### Bug Fixes
+
+* **braze:** handle undefined products ([#939](https://github.com/rudderlabs/rudder-sdk-js/issues/939)) ([7fd6748](https://github.com/rudderlabs/rudder-sdk-js/commit/7fd6748069a8a1ef506af57eeff103a21c33ab9d))
+* client_id mapping for ga4 ([#926](https://github.com/rudderlabs/rudder-sdk-js/issues/926)) ([5a3944e](https://github.com/rudderlabs/rudder-sdk-js/commit/5a3944e95b063750bc5ebe215137b2d898db1974))
+* duplicate page views being sent to ga4 ([#924](https://github.com/rudderlabs/rudder-sdk-js/issues/924)) ([2964d04](https://github.com/rudderlabs/rudder-sdk-js/commit/2964d0483a14059f47a9565b1caf5660f84dc1af))
+* duplicate userid sent to ga4 ([#928](https://github.com/rudderlabs/rudder-sdk-js/issues/928)) ([075fd72](https://github.com/rudderlabs/rudder-sdk-js/commit/075fd722eae53722057bd52e210698bc301f63fe))
+* ga4 device mode debug_view ([#922](https://github.com/rudderlabs/rudder-sdk-js/issues/922)) ([70eee60](https://github.com/rudderlabs/rudder-sdk-js/commit/70eee60558ccfbcb1a291caa995a1eb035a8a8a4))
+* traits are not being sent to ga4 group call ([#930](https://github.com/rudderlabs/rudder-sdk-js/issues/930)) ([4ef29d0](https://github.com/rudderlabs/rudder-sdk-js/commit/4ef29d0317f0861e05dc0e53e3657a883f047c8e))
+
 ## [1.26.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.25.0...v1.26.0) (2023-03-02)
 
 

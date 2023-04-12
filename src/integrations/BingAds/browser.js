@@ -1,13 +1,15 @@
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class BingAds {
   constructor(config) {
     this.tagID = config.tagID;
     this.name = NAME;
+    this.uniqueId = `bing${this.tagID}`;
   }
 
+  /* eslint-disable */
   // Destination ref - https://help.ads.microsoft.com/#apex/ads/en/56686/2
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
@@ -22,31 +24,32 @@ class BingAds {
         (n = d.createElement(t)),
         (n.src = r),
         (n.async = 1),
-        (n.setAttribute("data-loader", LOAD_ORIGIN)),
+        n.setAttribute('data-loader', LOAD_ORIGIN),
         (n.onload = n.onreadystatechange =
           function () {
             let s = this.readyState;
-            (s && s !== "loaded" && s !== "complete") ||
+            (s && s !== 'loaded' && s !== 'complete') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
         i.parentNode.insertBefore(n, i);
-    })(window, document, "script", "https://bat.bing.com/bat.js", "uetq");
+    })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
   };
+  /* eslint-enable */
 
   init = () => {
     this.loadBingadsScript();
-    logger.debug("===in init BingAds===");
+    logger.debug('===in init BingAds===');
   };
 
   isLoaded = () => {
-    logger.debug("in BingAds isLoaded");
-    return !!window.uetq && window.uetq.push !== Array.prototype.push;
+    logger.debug('in BingAds isLoaded');
+    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
   };
 
   isReady = () => {
-    logger.debug("in BingAds isReady");
-    return !!(window.uetq && window.uetq.push !== Array.prototype.push);
+    logger.debug('in BingAds isReady');
+    return !!(window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   };
 
   /*
@@ -79,11 +82,11 @@ class BingAds {
       payload.gv = total;
     }
 
-    window.uetq.push(payload);
+    window[this.uniqueId].push(payload);
   };
 
   page = () => {
-    window.uetq.push("pageLoad");
+    window[this.uniqueId].push('pageLoad');
   };
 }
 

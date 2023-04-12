@@ -1,17 +1,17 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
-} from "../utils/commonUtils";
+} from '../utils/commonUtils';
 import {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
-} from "./utils";
-import { NAME } from "./constants";
+} from './utils';
+import { NAME } from './constants';
 
 class GoogleAds {
   constructor(config) {
@@ -34,6 +34,7 @@ class GoogleAds {
     this.enableConversionLabel = config.enableConversionLabel || false;
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
+    this.allowEnhancedConversions = config.allowEnhancedConversions || false;
   }
 
   init() {
@@ -64,6 +65,11 @@ class GoogleAds {
       send_page_view: this.sendPageView,
       conversion_linker: this.conversionLinker,
     };
+
+    // ref:- https://support.google.com/google-ads/answer/12785474?hl=en-GB#Config&zippy=%2Cconfigure-your-conversion-page-google-tag
+    if (this.allowEnhancedConversions) {
+      config.allow_enhanced_conversions = this.allowEnhancedConversions;
+    }
 
     if (this.disableAdPersonalization) {
       window.gtag('set', 'allow_ad_personalization_signals', false);
