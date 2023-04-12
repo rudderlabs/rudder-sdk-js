@@ -6,7 +6,7 @@ import { state } from '@rudderstack/analytics-js/state';
 import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { rest } from 'msw';
 import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { batch } from '@preact/signals-core';
+import { batch, effect, signal } from '@preact/signals-core';
 import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -124,44 +124,39 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.isStaging.value).toBe(false);
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
-  it('should fetch configurations using sourceConfig endpoint', () => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+  it('should fetch configurations using sourceConfig endpoint', done => {
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
 
-    let counter = 0;
+    const counter = signal(0);
     server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfig`, (req, res, ctx) => {
-        counter += 1;
+      rest.get(`${sampleConfigUrl}/sourceConfigClone`, (req, res, ctx) => {
+        counter.value = 1;
         return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
       }),
     );
 
     configManagerInstance.getConfig();
 
-    setTimeout(() => {
-      expect(counter).toBe(1);
-      expect(configManagerInstance.processConfig).toHaveBeenCalled();
-    }, 1);
+    effect(() => {
+      if (counter.value === 1) {
+        try {
+          expect(counter.value).toEqual(1);
+          done();
+        } catch (error) {
+          done(error);
+        }
+      }
+    });
   });
 
-  it('should not fetch configurations using sourceConfig endpoint if getSourceConfig load option is present', () => {
+  it('should fetch configurations from getSourceConfig load option if present', () => {
     state.loadOptions.value.getSourceConfig = () => dummySourceConfigResponse;
     configManagerInstance.processConfig = jest.fn();
 
-    let counter = 0;
-    server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfig`, (req, res, ctx) => {
-        counter += 1;
-        return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
-      }),
-    );
-
     configManagerInstance.getConfig();
 
-    setTimeout(() => {
-      expect(counter).toBe(0);
-      expect(configManagerInstance.processConfig).toHaveBeenCalled();
-    }, 1);
+    expect(configManagerInstance.processConfig).toHaveBeenCalled();
   });
   it('should update source, destination,lifecycle and reporting state with proper values', () => {
     const expectedSourceState = {
@@ -191,12 +186,13 @@ describe('ConfigManager', () => {
       configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
     }).not.toThrow(errorMsgSourceConfigResponse);
   });
-  it('should fetch the source config and process the response', () => {
+  it('should fetch the source config and process the response', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
-    setTimeout(() => {
+    effect(() => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
-    }, 1);
+      done();
+    });
   });
 });

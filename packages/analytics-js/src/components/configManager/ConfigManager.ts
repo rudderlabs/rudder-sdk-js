@@ -63,6 +63,17 @@ class ConfigManager implements IConfigManager {
   }
 
   /**
+   * Handle errors
+   */
+  onError(error: Error | unknown) {
+    if (this.hasErrorHandler) {
+      this.errorHandler?.onError(error, 'ConfigManager');
+    } else {
+      throw error;
+    }
+  }
+
+  /**
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    * @param res source config response
@@ -80,9 +91,7 @@ class ConfigManager implements IConfigManager {
         res = response;
       }
     } catch (e) {
-      if (this.hasErrorHandler) {
-        this.errorHandler?.onError(e, 'Config Manager: processConfig');
-      }
+      this.onError(e);
       throw Error(errMessage);
     }
 
