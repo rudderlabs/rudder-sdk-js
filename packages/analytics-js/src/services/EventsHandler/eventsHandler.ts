@@ -207,6 +207,8 @@ class EventsHandler implements IEventsHandler {
     this.checkForReservedElements(rudderEvent);
 
     // TODO: Push the generated track event and callback to the event repository
+    // TODO: Handle if device mode integrations are not loaded
+    // TODO: Handle the case when SDK is not loaded 
   }
 
   /**
