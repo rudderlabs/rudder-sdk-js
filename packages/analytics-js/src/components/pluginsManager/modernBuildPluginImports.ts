@@ -1,4 +1,7 @@
-const modernBuildPluginImports = () => {
+import { PluginMap } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+
+const modernBuildPluginImports = (): PluginMap<Promise<ExtensionPlugin>> => {
   const lazyLoadRemotePlugin = () => import('remotePlugins/RemotePlugin');
   const lazyLoadRemotePlugin2 = () => import('remotePlugins/RemotePlugin2');
   const lazyLoadRemoteLoadIntegrations = () => import('remotePlugins/LoadIntegrations');

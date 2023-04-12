@@ -96,6 +96,25 @@ describe('ErrorHandler', () => {
     );
   });
 
+  it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
+    try {
+      errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message', true);
+    } catch (err) {
+      expect(defaultPluginEngine.invoke).toHaveBeenCalledTimes(1);
+      expect(defaultPluginEngine.invoke).toHaveBeenCalledWith(
+        'errorMonitoring.notify',
+        expect.any(Error),
+        expect.any(Object),
+      );
+
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        '[Analytics] Unit test:: dummy custom message dummy error',
+      );
+      expect(err.message).toStrictEqual('[Analytics] Unit test:: dummy custom message dummy error');
+    }
+  });
+
   it('should throw error for Errors with context and custom message if logger does not exist', () => {
     errorHandlerInstance = new ErrorHandler();
     try {

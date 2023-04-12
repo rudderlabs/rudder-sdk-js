@@ -1,5 +1,6 @@
-import * as R from 'ramda';
+import { clone, mergeDeepWith, path } from 'ramda';
 
+// TODO: if all are fine we can remove the original implementation comments
 // Original implementations before migrating to ramda
 
 // function _get(obj, prop) {
@@ -26,11 +27,9 @@ import * as R from 'ramda';
 //     || (Object.prototype.toString.call(value) !== '[object Date]' && (typeof value === 'object' && Object.keys(value).length === 0));
 // }
 
-//
-
-const getValueByPath = (obj: Record<string, any>, path: string): any => {
-  const pathParts = path.split('.');
-  return R.path(pathParts, obj);
+const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
+  const pathParts = keyPath.split('.');
+  return path(pathParts, obj);
 };
 
 const hasValueByPath = (obj: Record<string, any>, path: string): boolean => {
@@ -42,10 +41,10 @@ const mergeDeepRightObjectArrays = (
   rightValue: any | any[],
 ): any | any[] => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
-    return R.clone(rightValue);
+    return clone(rightValue);
   }
 
-  const mergedArray = R.clone(leftValue);
+  const mergedArray = clone(leftValue);
   rightValue.forEach((value, index) => {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     mergedArray[index] = mergeDeepRight(mergedArray[index], value);
@@ -57,6 +56,6 @@ const mergeDeepRightObjectArrays = (
 const mergeDeepRight = <T = Record<string, any>>(
   leftObject: Record<string, any>,
   rightObject: Record<string, any>,
-): T => R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
+): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
 export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight };

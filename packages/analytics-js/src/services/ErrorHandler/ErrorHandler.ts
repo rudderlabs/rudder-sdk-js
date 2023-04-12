@@ -19,7 +19,7 @@ class ErrorHandler implements IErrorHandler {
     this.pluginEngine = pluginEngine;
   }
 
-  onError(error: SDKError, context = '', customMessage = '') {
+  onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
     const isTypeOfError = error instanceof Error;
     let errorMessage = '';
 
@@ -57,6 +57,10 @@ class ErrorHandler implements IErrorHandler {
 
     if (this.logger) {
       this.logger.error(errorMessage);
+
+      if (shouldAlwaysThrow) {
+        throw isTypeOfError ? error : new Error(errorMessage);
+      }
     } else {
       throw isTypeOfError ? error : new Error(errorMessage);
     }

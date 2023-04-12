@@ -8,7 +8,7 @@ import legacyBuildPluginImports from './legacyBuildPluginImports';
 import modernBuildPluginImports from './modernBuildPluginImports';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const emptyPluginImports = () => {}; // Is used as replacement for modern builds from rollup
+(window as any).rudderEmptyPluginImports = () => {}; // Is used as replacement for modern builds from rollup
 
 const getMandatoryPluginsMap = (): PluginMap => {
   return {};
