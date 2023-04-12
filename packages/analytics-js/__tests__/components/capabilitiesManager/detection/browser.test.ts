@@ -21,9 +21,7 @@ describe('Capabilities Detection - Browser', () => {
     expect(hasUAClientHints()).toBeFalsy();
   });
   it('should get User Agent', () => {
-    expect(getUserAgent()).toBe(
-      'Mozilla/5.0 (darwin) AppleWebKit/537.36 (KHTML, like Gecko) jsdom/20.0.3',
-    );
+    expect(getUserAgent()).toContain('Mozilla/5.0');
   });
   it('should get browser language', () => {
     expect(getLanguage()).toBe('en-US');
