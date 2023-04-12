@@ -174,9 +174,8 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
 
-      if (products && Array.isArray(products)) {
-        for (let i = 0; i < products.length; i += 1) {
-          const product = products[i];
+      if (Array.isArray(products)) {
+        products.forEach((product) => {
           if (product) {
             const productId = product.product_id || product.sku || product.id;
             if (isDefined(productId)) {
@@ -188,7 +187,7 @@ class FacebookPixel {
               });
             }
           }
-        }
+        });
       }
 
       if (contentIds.length > 0) {
@@ -334,9 +333,8 @@ class FacebookPixel {
       const contentType = this.getContentType(rudderElement, 'product');
       const contentIds = [];
       const contents = [];
-      if (products) {
-        for (let i = 0; i < products.length; i += 1) {
-          const product = products[i];
+      if (Array.isArray(products)) {
+        products.forEach((product) => {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (pId) {
@@ -349,7 +347,7 @@ class FacebookPixel {
               contents.push(content);
             }
           }
-        }
+        });
       } else {
         logger.debug('No product array found');
       }
@@ -437,9 +435,8 @@ class FacebookPixel {
       let contentCategory = category;
       const contentIds = [];
       const contents = [];
-      if (products) {
-        for (let i = 0; i < products.length; i += 1) {
-          const product = products[i];
+      if (Array.isArray(products)) {
+        products.forEach((product) => {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (pId) {
@@ -452,7 +449,7 @@ class FacebookPixel {
               contents.push(content);
             }
           }
-        }
+        });
 
         if (!contentCategory && products[0] && products[0].category) {
           contentCategory = products[0].category;
