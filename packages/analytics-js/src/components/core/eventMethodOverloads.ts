@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { ApiCallback, ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
@@ -57,15 +57,15 @@ const pageArgumentsToCallOptions = (
   if (typeof callback === 'function') {
     payload.category = category as string;
     payload.name = name as string;
-    payload.properties = R.clone(properties as Nullable<ApiObject>);
-    payload.options = R.clone(options as Nullable<ApiOptions>);
+    payload.properties = clone(properties as Nullable<ApiObject>);
+    payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
     payload.category = category as string;
     payload.name = name as string;
-    payload.properties = R.clone(properties as Nullable<ApiObject>);
+    payload.properties = clone(properties as Nullable<ApiObject>);
     payload.callback = options;
   }
 
@@ -85,13 +85,13 @@ const pageArgumentsToCallOptions = (
   }
 
   if (typeof category === 'object' && category !== null) {
-    payload.options = R.clone(name as Nullable<ApiOptions>);
-    payload.properties = R.clone(category as Nullable<ApiObject>);
+    payload.options = clone(name as Nullable<ApiOptions>);
+    payload.properties = clone(category as Nullable<ApiObject>);
     delete payload.name;
     delete payload.category;
   } else if (typeof name === 'object' && name !== null) {
-    payload.options = R.clone(properties as Nullable<ApiOptions>);
-    payload.properties = R.clone(name as Nullable<ApiObject>);
+    payload.options = clone(properties as Nullable<ApiOptions>);
+    payload.properties = clone(name as Nullable<ApiObject>);
     delete payload.name;
   }
 
@@ -124,13 +124,13 @@ const trackArgumentsToCallOptions = (
   };
 
   if (typeof callback === 'function') {
-    payload.properties = R.clone(properties as Nullable<ApiObject>);
-    payload.options = R.clone(options as Nullable<ApiOptions>);
+    payload.properties = clone(properties as Nullable<ApiObject>);
+    payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.properties = R.clone(properties as Nullable<ApiObject>);
+    payload.properties = clone(properties as Nullable<ApiObject>);
     payload.callback = options;
   }
 
@@ -161,13 +161,13 @@ const identifyArgumentsToCallOptions = (
   const payload: IdentifyCallOptions = {};
 
   if (typeof callback === 'function') {
-    payload.traits = R.clone(traits as Nullable<ApiObject>);
-    payload.options = R.clone(options as Nullable<ApiOptions>);
+    payload.traits = clone(traits as Nullable<ApiObject>);
+    payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.traits = R.clone(traits as Nullable<ApiObject>);
+    payload.traits = clone(traits as Nullable<ApiObject>);
     payload.callback = options;
   }
 
@@ -177,8 +177,8 @@ const identifyArgumentsToCallOptions = (
 
   if (typeof userId === 'object') {
     delete payload.userId;
-    payload.traits = R.clone(userId as Nullable<ApiObject>);
-    payload.options = R.clone(traits as Nullable<ApiOptions>);
+    payload.traits = clone(userId as Nullable<ApiObject>);
+    payload.options = clone(traits as Nullable<ApiOptions>);
   } else {
     payload.userId = typeof userId === 'number' ? userId.toString() : userId;
   }
@@ -201,7 +201,7 @@ const aliasArgumentsToCallOptions = (
 
   if (typeof callback === 'function') {
     payload.from = from as string;
-    payload.options = R.clone(options as Nullable<ApiOptions>);
+    payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
@@ -215,7 +215,7 @@ const aliasArgumentsToCallOptions = (
   }
 
   if (typeof from === 'object') {
-    payload.options = R.clone(from as Nullable<ApiOptions>);
+    payload.options = clone(from as Nullable<ApiOptions>);
     delete payload.from;
   }
 
@@ -234,13 +234,13 @@ const groupArgumentsToCallOptions = (
   const payload: GroupCallOptions = {};
 
   if (typeof callback === 'function') {
-    payload.traits = R.clone(traits as Nullable<ApiObject>);
-    payload.options = R.clone(options as Nullable<ApiOptions>);
+    payload.traits = clone(traits as Nullable<ApiObject>);
+    payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.traits = R.clone(traits as Nullable<ApiObject>);
+    payload.traits = clone(traits as Nullable<ApiObject>);
     payload.callback = options;
   }
 
@@ -252,12 +252,12 @@ const groupArgumentsToCallOptions = (
   if (typeof groupId === 'function') {
     payload.callback = groupId;
   } else if (typeof groupId === 'object') {
-    payload.traits = R.clone(groupId as Nullable<ApiObject>);
+    payload.traits = clone(groupId as Nullable<ApiObject>);
 
     if (typeof traits === 'function') {
       payload.callback = traits;
     } else {
-      payload.options = R.clone(traits as Nullable<ApiOptions>);
+      payload.options = clone(traits as Nullable<ApiOptions>);
     }
   } else {
     payload.groupId = typeof groupId === 'number' ? groupId.toString() : groupId;

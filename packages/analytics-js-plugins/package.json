@@ -27,7 +27,7 @@
   "scripts": {
     "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
-    "build": "npm run clean && npm run build:browser:modern",
+    "build": "npm run build:browser",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
     "build:package": "exit 0",
@@ -52,7 +52,6 @@
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
     "@preact/signals-core": "1.2.3",
-    "@rudderstack/analytics-js": "*",
     "crypto-js": "4.1.1",
     "ramda": "0.29.0"
   },

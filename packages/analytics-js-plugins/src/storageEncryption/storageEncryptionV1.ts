@@ -1,6 +1,6 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-plugins/types/common';
 import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';
 
 // TODO: Migrate the existing encryption to new one

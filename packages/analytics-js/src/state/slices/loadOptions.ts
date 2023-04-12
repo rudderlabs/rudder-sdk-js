@@ -1,5 +1,5 @@
 import { Signal, signal } from '@preact/signals-core';
-import * as R from 'ramda';
+import { clone } from 'ramda';
 import {
   DEFAULT_BEACON_QUEUE_FLUSH_INTERVAL,
   DEFAULT_SESSION_TIMEOUT,
@@ -31,6 +31,6 @@ const defaultLoadOptions: LoadOptions = {
   uaChTrackLevel: 'none',
 };
 
-const loadOptionsState: LoadOptionsState = signal(R.clone(defaultLoadOptions));
+const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));
 
 export { loadOptionsState };

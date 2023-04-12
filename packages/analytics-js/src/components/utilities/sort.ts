@@ -1,8 +1,8 @@
-import * as R from 'ramda';
+import { prop, sortBy } from 'ramda';
 
 // A helper method to sort an array according to sortProp property of the array element.
 const sortObjectArrayByProp = (arr: unknown[], sortProp: string): unknown[] => {
-  const sortMethod = R.sortBy(R.prop(sortProp));
+  const sortMethod = sortBy(prop(sortProp));
   return sortMethod(arr);
 };
 

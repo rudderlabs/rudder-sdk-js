@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { cookie } from '@rudderstack/analytics-js/npmPackages/component-cookie';
 import { Nullable } from '@rudderstack/analytics-js/types';
@@ -24,7 +24,7 @@ class CookieStorage implements IStorage {
   }
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
-    this.options = R.mergeRight(this.options, options);
+    this.options = mergeRight(this.options, options);
     this.isSupportAvailable = isStorageAvailable('cookieStorage', this);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
