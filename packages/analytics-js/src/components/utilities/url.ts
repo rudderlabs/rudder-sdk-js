@@ -6,7 +6,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
  * @returns url
  */
 const removeTrailingSlashes = (url: string | null): Nullable<string> =>
-  url && url.endsWith('/') ? url.replace(/\/+$/, '') : url;
+  url && url.endsWith('/') ? url.substring(0, url.length - 1) : url;
 
 /**
  * Checks if provided url is valid or not
