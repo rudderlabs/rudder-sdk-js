@@ -12,8 +12,8 @@ import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capab
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
+import { IEventManager, RudderEventType } from '@rudderstack/analytics-js/components/eventManager/types';
+import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
@@ -330,7 +330,7 @@ class Analytics implements IAnalytics {
   }
 
   page(payload: PageCallOptions) {
-    const type = 'page';
+    const type = RudderEventType.PAGE;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
@@ -350,7 +350,7 @@ class Analytics implements IAnalytics {
   }
 
   track(payload: TrackCallOptions) {
-    const type = 'track';
+    const type = RudderEventType.TRACK;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
@@ -369,7 +369,7 @@ class Analytics implements IAnalytics {
   }
 
   identify(payload: IdentifyCallOptions) {
-    const type = 'identify';
+    const type = RudderEventType.IDENTIFY;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
@@ -392,7 +392,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager.setUserTraits(payload.traits);
 
     this.eventManager.addEvent({
-      type: 'identify',
+      type,
       userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
@@ -401,7 +401,7 @@ class Analytics implements IAnalytics {
   }
 
   alias(payload: AliasCallOptions) {
-    const type = 'alias';
+    const type = RudderEventType.ALIAS;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
@@ -420,7 +420,7 @@ class Analytics implements IAnalytics {
   }
 
   group(payload: GroupCallOptions) {
-    const type = 'group';
+    const type = RudderEventType.GROUP;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value = state.metrics.triggered.value + 1;
 

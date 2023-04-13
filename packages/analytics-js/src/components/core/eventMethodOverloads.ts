@@ -26,7 +26,7 @@ export type IdentifyCallOptions = {
 };
 
 export type AliasCallOptions = {
-  to?: string;
+  to: string;
   from?: string;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;

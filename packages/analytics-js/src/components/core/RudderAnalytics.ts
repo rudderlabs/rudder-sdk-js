@@ -70,7 +70,7 @@ class RudderAnalytics implements IRudderAnalytics {
 
     RudderAnalytics.globalSingleton = this;
 
-    // initialise the preloaded events enqueuing
+    // initialize the preloaded events enqueuing
     retrievePreloadBufferEvents(this);
 
     // TODO: remove the need for Emitter and deprecate it
