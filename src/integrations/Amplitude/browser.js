@@ -54,6 +54,9 @@ class Amplitude {
   init() {
     if (this.analytics.loadIntegration) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a98bf406 (feat: update amplitude sdk)
       !(function () {
         'use strict';
         !(function (e, t) {
@@ -171,6 +174,7 @@ class Amplitude {
           }
         })(window, document);
       })();
+<<<<<<< HEAD
 =======
       loader(window, document);
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
@@ -180,6 +184,15 @@ class Amplitude {
       attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
+=======
+    }
+
+    const initOptions = {
+      attribution: { disabled: this.attribution },
+      flushQueueSize: this.flushQueueSize,
+      flushIntervalMillis: this.flushIntervalMillis,
+      trackNewCampaigns: !this.trackNewCampaigns,
+>>>>>>> a98bf406 (feat: update amplitude sdk)
       appVersion: this.versionName,
     };
     if (this.preferAnonymousIdForDeviceId && this.analytics)
@@ -237,10 +250,14 @@ class Amplitude {
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (products && Array.isArray(products)) {
 =======
       if (products && type(products) === 'array') {
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
+=======
+      if (products && Array.isArray(products)) {
+>>>>>>> a98bf406 (feat: update amplitude sdk)
         // track all the products in a single event.
         const allProducts = [];
 
@@ -336,10 +353,14 @@ class Amplitude {
     if (this.trackAllPages) {
       const event = 'Loaded a page';
 <<<<<<< HEAD
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
 =======
       window.amplitude.getInstance().logEvent(event, properties);
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
+=======
+      amplitude.logEvent(event, properties);
+>>>>>>> a98bf406 (feat: update amplitude sdk)
     }
 
     // categorized pages
@@ -348,10 +369,14 @@ class Amplitude {
       if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
       else event = `Viewed ${category} Page`;
 <<<<<<< HEAD
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
 =======
       window.amplitude.getInstance().logEvent(event, properties);
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
+=======
+      amplitude.logEvent(event, properties);
+>>>>>>> a98bf406 (feat: update amplitude sdk)
     }
 
     // named pages
@@ -360,10 +385,14 @@ class Amplitude {
       if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
       else event = `Viewed ${name} Page`;
 <<<<<<< HEAD
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
 =======
       window.amplitude.getInstance().logEvent(event, properties);
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
+=======
+      amplitude.logEvent(event, properties);
+>>>>>>> a98bf406 (feat: update amplitude sdk)
     }
   }
 
@@ -379,9 +408,12 @@ class Amplitude {
     let groupType;
     let groupValue;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
+=======
+>>>>>>> a98bf406 (feat: update amplitude sdk)
     if (groupTypeTrait && groupValueTrait && traits) {
       groupType = traits[groupTypeTrait];
       groupValue = traits[groupValueTrait];
