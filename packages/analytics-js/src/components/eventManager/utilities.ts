@@ -2,10 +2,19 @@ import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { pagePropertiesState } from '@rudderstack/analytics-js/state/slices/page';
+import { consentsState } from '@rudderstack/analytics-js/state/slices/consents';
+import { contextState } from '@rudderstack/analytics-js/state/slices/context';
 import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
 import { RudderContext, RudderEvent } from './types';
-import { RESERVED_ELEMENTS, SYSTEM_KEYWORDS, TOP_LEVEL_ELEMENTS } from './constants';
+import {
+  RESERVED_ELEMENTS,
+  CONTEXT_RESERVED_ELEMENTS,
+  TOP_LEVEL_ELEMENTS,
+  CHANNEL,
+} from './constants';
 import { isObject, mergeDeepRight } from '../utilities/object';
+import { getCurrentTimeFormatted } from '../utilities/timestamp';
+import { generateUUID } from '../utilities/uuId';
 
 /**
  * Overrides the top-level event properties with data from API options
@@ -33,7 +42,7 @@ export const getMergedContext = (
 ): RudderContext => {
   let context = rudderContext;
   Object.keys(options).forEach(key => {
-    if (!TOP_LEVEL_ELEMENTS.includes(key) && !SYSTEM_KEYWORDS.includes(key)) {
+    if (!TOP_LEVEL_ELEMENTS.includes(key) && !CONTEXT_RESERVED_ELEMENTS.includes(key)) {
       if (key !== 'context') {
         context = mergeDeepRight(context, {
           [key]: options[key],
@@ -41,7 +50,7 @@ export const getMergedContext = (
       } else if (typeof options[key] === 'object' && options[key] !== null) {
         const tempContext: Record<string, any> = {};
         Object.keys(options[key] as Record<string, any>).forEach(e => {
-          if (!SYSTEM_KEYWORDS.includes(e)) {
+          if (!CONTEXT_RESERVED_ELEMENTS.includes(e)) {
             tempContext[e] = (options[key] as Record<string, any>)[e];
           }
         });
@@ -78,7 +87,7 @@ export const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiO
  * @param parentKeyPath Object's parent key path
  */
 export const checkForReservedElementsInObject = (
-  obj: ApiObject | RudderContext | undefined,
+  obj: Nullable<ApiObject> | RudderContext | undefined,
   eventType: string,
   parentKeyPath: string,
   logger?: ILogger,
@@ -144,3 +153,34 @@ export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   });
   return ctxPageProps;
 };
+
+export const getCommonEventData = (pageProps?: ApiObject): Partial<RudderEvent> =>
+  // TODO: Generate anonymous ID if it's already not present and remove '|| '''
+  ({
+    anonymousId: sessionState.rl_anonymous_id.value || '',
+    channel: CHANNEL,
+    context: {
+      traits: { ...sessionState.rl_trait.value },
+      sessionId: sessionState.rl_session.value.id,
+      sessionStart: sessionState.rl_session.value.sessionStart,
+      consentManagement: {
+        // TODO: Consent manager to populate this data always
+        deniedConsentIds: consentsState.deniedConsentIds.value,
+      },
+      'ua-ch': contextState['ua-ch'].value,
+      app: contextState.app.value,
+      library: contextState.library.value,
+      userAgent: contextState.userAgent.value,
+      os: contextState.os.value,
+      locale: contextState.locale.value,
+      screen: contextState.screen.value,
+      campaign: contextState.campaign.value,
+      page: getContextPageProperties(pageProps),
+    },
+    originalTimestamp: getCurrentTimeFormatted(),
+    integrations: { All: true },
+    messageId: generateUUID(),
+    userId: sessionState.rl_user_id.value,
+    groupId: sessionState.rl_group_id.value,
+    traits: { ...sessionState.rl_group_trait.value },
+  });

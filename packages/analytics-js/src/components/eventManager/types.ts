@@ -59,21 +59,21 @@ export type RudderContext = {
 
 export type RudderEvent = {
   type: RudderEventType;
-  userId?: Nullable<string>;
-  anonymousId: string;
   channel: string;
+  anonymousId: string;
   context: RudderContext;
   originalTimestamp: string;
-  sentAt?: string;
   integrations: IntegrationOpts;
   messageId: string;
-  properties?: ApiObject; // track & page
-  event: string; // track
-  name?: string; // page
-  category?: string; // page
+  event?: string; // track
+  previousId?: string; // alias
+  userId?: Nullable<string>;
+  sentAt?: string;
+  properties?: Nullable<ApiObject>; // track & page
+  name?: Nullable<string>; // page
+  category?: Nullable<string>; // page
   traits?: ApiObject; // group
   groupId?: Nullable<string>; // group
-  previousId: string; // alias
 };
 
 export interface IEventManager {

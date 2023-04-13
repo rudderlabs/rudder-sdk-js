@@ -1,6 +1,3 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { ScreenInfo } from '../components/capabilitiesManager/detection/screen';
-
 export type CookieConsentOptions = {
   // OneTrust
   oneTrust?: {

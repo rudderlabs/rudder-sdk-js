@@ -4,20 +4,15 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { ApiCallback, ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
 import { batch } from '@preact/signals-core';
-import { consentsState } from '@rudderstack/analytics-js/state/slices/consents';
-import { contextState } from '@rudderstack/analytics-js/state/slices/context';
 import * as R from 'ramda';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { CHANNEL } from './constants';
 import { IEventManager, APIEvent, RudderEvent, RudderEventType } from './types';
 import { tryStringify } from '../utilities/string';
-import { getCurrentTimeFormatted } from '../utilities/timestamp';
-import { generateUUID } from '../utilities/uuId';
 import {
   checkForReservedElements,
-  getContextPageProperties,
+  getCommonEventData,
   getUpdatedPageProperties,
   processOptions,
 } from './utilities';
@@ -56,42 +51,12 @@ class EventManager implements IEventManager {
     rudderEvent: RudderEvent,
     options?: Nullable<ApiOptions>,
     callback?: Nullable<ApiCallback>,
-    pageProps?: ApiObject,
   ): void {
-    // TODO: Generate anonymous ID if it's already not present and remove '|| '''
-    rudderEvent.anonymousId = sessionState.rl_anonymous_id.value || '';
-    rudderEvent.channel = CHANNEL;
-    rudderEvent.context = {
-      traits: { ...sessionState.rl_trait.value },
-      sessionId: sessionState.rl_session.value.id,
-      sessionStart: sessionState.rl_session.value.sessionStart,
-      consentManagement: {
-        // TODO: Consent manager to populate this data always
-        deniedConsentIds: consentsState.deniedConsentIds.value,
-      },
-      'ua-ch': contextState['ua-ch'].value,
-      app: contextState.app.value,
-      library: contextState.library.value,
-      userAgent: contextState.userAgent.value,
-      os: contextState.os.value,
-      locale: contextState.locale.value,
-      screen: contextState.screen.value,
-      campaign: contextState.campaign.value,
-      page: getContextPageProperties(pageProps),
-    };
-    rudderEvent.originalTimestamp = getCurrentTimeFormatted();
-    rudderEvent.integrations = { All: true };
-    rudderEvent.messageId = generateUUID();
-    rudderEvent.userId = sessionState.rl_user_id.value;
-    rudderEvent.groupId = sessionState.rl_group_id.value;
-    rudderEvent.traits = { ...sessionState.rl_group_trait.value };
-
-    processOptions(rudderEvent, options);
-    checkForReservedElements(rudderEvent, this.logger);
+    processOptions(rudderEvent as RudderEvent, options);
+    checkForReservedElements(rudderEvent as RudderEvent, this.logger);
 
     // TODO: Push the generated track event and callback to the event repository
     // TODO: Handle if device mode integrations are not loaded
-    // TODO: Handle the case when SDK is not loaded
   }
 
   /**
@@ -121,14 +86,15 @@ class EventManager implements IEventManager {
 
     props = getUpdatedPageProperties(props, opts);
 
-    const pageEvent: RudderEvent = {
+    const pageEvent: Partial<RudderEvent> = {
       properties: props,
       name,
       category,
       type: RudderEventType.PAGE,
-    } as RudderEvent;
+      ...getCommonEventData(props),
+    };
 
-    this.processEvent(pageEvent, opts, callback, props);
+    this.processEvent(pageEvent as RudderEvent, opts, callback);
   }
 
   /**
@@ -146,13 +112,14 @@ class EventManager implements IEventManager {
   ): void {
     const props = R.clone(properties);
     const opts = R.clone(options);
-    const trackEvent: RudderEvent = {
+    const trackEvent: Partial<RudderEvent> = {
       properties: props,
       event,
       type: RudderEventType.TRACK,
-    } as RudderEvent;
+      ...getCommonEventData(),
+    };
 
-    this.processEvent(trackEvent, opts, callback);
+    this.processEvent(trackEvent as RudderEvent, opts, callback);
   }
 
   /**
@@ -176,11 +143,12 @@ class EventManager implements IEventManager {
       sessionState.rl_trait.value = { ...sessionState.rl_trait.value, ...cTraits };
     });
 
-    const identifyEvent: RudderEvent = {
+    const identifyEvent: Partial<RudderEvent> = {
       type: RudderEventType.IDENTIFY,
-    } as RudderEvent;
+      ...getCommonEventData(),
+    };
 
-    this.processEvent(identifyEvent, opts, callback);
+    this.processEvent(identifyEvent as RudderEvent, opts, callback);
   }
 
   /**
@@ -200,13 +168,14 @@ class EventManager implements IEventManager {
 
     sessionState.rl_user_id.value = tryStringify(to);
 
-    const aliasEvent: RudderEvent = {
+    const aliasEvent: Partial<RudderEvent> = {
       previousId:
         tryStringify(from) || sessionState.rl_user_id.value || sessionState.rl_anonymous_id.value,
       type: RudderEventType.ALIAS,
-    } as RudderEvent;
+      ...getCommonEventData(),
+    };
 
-    this.processEvent(aliasEvent, opts, callback);
+    this.processEvent(aliasEvent as RudderEvent, opts, callback);
   }
 
   /**
@@ -230,11 +199,12 @@ class EventManager implements IEventManager {
       sessionState.rl_group_trait.value = { ...sessionState.rl_group_trait.value, ...cTraits };
     });
 
-    const groupEvent: RudderEvent = {
+    const groupEvent: Partial<RudderEvent> = {
       type: RudderEventType.GROUP,
-    } as RudderEvent;
+      ...getCommonEventData(),
+    };
 
-    this.processEvent(groupEvent, opts, callback);
+    this.processEvent(groupEvent as RudderEvent, opts, callback);
   }
 
   /**
