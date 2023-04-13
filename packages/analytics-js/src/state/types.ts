@@ -198,7 +198,8 @@ export type ApiObject = {
     | number
     | boolean
     | ApiObject
-    | (string | number | boolean | ApiObject)[]
+    | null
+    | (string | number | boolean | null | ApiObject)[]
     | undefined;
 };
 
@@ -298,49 +299,6 @@ export type StatsCollection = {
   metrics: {
     enabled: boolean;
   };
-};
-
-export type RudderContext = {
-  [index: string]:
-    | string
-    | number
-    | boolean
-    | ApiObject
-    | UADataValues
-    | Nullable<string>
-    | (string | number | boolean | ApiObject)[]
-    | undefined;
-  traits?: ApiObject;
-  sessionId?: number;
-  sessionStart?: boolean;
-  consentManagement?: ConsentManagement;
-  'ua-ch'?: UADataValues;
-  app: AppInfo;
-  library: LibraryInfo;
-  userAgent: Nullable<string>;
-  os: OSInfo;
-  locale: Nullable<string>;
-  screen: ScreenInfo;
-  campaign?: UTMParameters;
-};
-
-export type RudderEvent = {
-  type: string;
-  userId?: Nullable<string>;
-  anonymousId: string;
-  channel: string;
-  context: RudderContext;
-  originalTimestamp: string;
-  sentAt?: string;
-  integrations: IntegrationOpts;
-  messageId: string;
-  properties?: ApiObject; // track & page
-  event: string; // track
-  name?: string; // page
-  category?: string; // page
-  traits?: ApiObject; // group
-  groupId?: Nullable<string>; // group
-  previousId: string; // alias
 };
 
 export type UTMParameters = {
