@@ -1,5 +1,5 @@
-import { Signal, signal } from "@preact/signals-core";
-import { getDefaultPageProperties } from "@rudderstack/analytics-js/components/capabilitiesManager/detection/browser";
+import { Signal, signal } from '@preact/signals-core';
+import { getDefaultPageProperties } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
 
 export type PagePropertiesState = {
   path: Signal<string>;
@@ -9,7 +9,7 @@ export type PagePropertiesState = {
   title: Signal<string>;
   url: Signal<string>;
   tab_url: Signal<string>;
-}
+};
 
 const defPageProperties = getDefaultPageProperties();
 const pageParametersState: PagePropertiesState = {
@@ -19,7 +19,7 @@ const pageParametersState: PagePropertiesState = {
   search: signal(defPageProperties.search),
   title: signal(defPageProperties.title),
   url: signal(defPageProperties.url),
-  tab_url: signal(defPageProperties.tab_url)
-}
+  tab_url: signal(defPageProperties.tab_url),
+};
 
 export { pageParametersState };

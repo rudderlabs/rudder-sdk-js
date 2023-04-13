@@ -15,7 +15,12 @@ import { IEventManager, APIEvent, RudderEvent, RudderEventType } from './types';
 import { tryStringify } from '../utilities/string';
 import { getCurrentTimeFormatted } from '../utilities/timestamp';
 import { generateUUID } from '../utilities/uuId';
-import { checkForReservedElements, getContextPageProperties, getUpdatedPageProperties, processOptions } from './utilities';
+import {
+  checkForReservedElements,
+  getContextPageProperties,
+  getUpdatedPageProperties,
+  processOptions,
+} from './utilities';
 
 /**
  * A service to generate valid event payloads and queue them for processing
@@ -86,7 +91,7 @@ class EventManager implements IEventManager {
 
     // TODO: Push the generated track event and callback to the event repository
     // TODO: Handle if device mode integrations are not loaded
-    // TODO: Handle the case when SDK is not loaded 
+    // TODO: Handle the case when SDK is not loaded
   }
 
   /**
@@ -185,7 +190,12 @@ class EventManager implements IEventManager {
    * @param options API options
    * @param callback Callback function
    */
-  private processAliasEvent(to: string, from?: Nullable<string>, options?: Nullable<ApiOptions>, callback?: Nullable<ApiCallback>): void {
+  private processAliasEvent(
+    to: string,
+    from?: Nullable<string>,
+    options?: Nullable<ApiOptions>,
+    callback?: Nullable<ApiCallback>,
+  ): void {
     const opts = R.clone(options);
 
     sessionState.rl_user_id.value = tryStringify(to);
@@ -232,12 +242,23 @@ class EventManager implements IEventManager {
    * @param event Incoming event data
    */
   addEvent(event: APIEvent) {
-    switch(event.type) {
+    switch (event.type) {
       case RudderEventType.PAGE:
-        this.processPageEvent(event.category, event.name, event.properties, event.options, event.callback);
+        this.processPageEvent(
+          event.category,
+          event.name,
+          event.properties,
+          event.options,
+          event.callback,
+        );
         break;
       case RudderEventType.TRACK:
-        this.processTrackEvent(event.name as string, event.properties, event.options, event.callback);
+        this.processTrackEvent(
+          event.name as string,
+          event.properties,
+          event.options,
+          event.callback,
+        );
         break;
       case RudderEventType.IDENTIFY:
         this.processIdentifyEvent(event.userId, event.traits, event.options, event.callback);

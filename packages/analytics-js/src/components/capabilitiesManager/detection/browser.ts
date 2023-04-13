@@ -131,8 +131,18 @@ function getDefaultPageProperties() {
     search,
     title,
     url,
-    tab_url: tabUrl
+    tab_url: tabUrl,
   };
 }
 
-export { isBrowser, isNode, hasCrypto, hasUAClientHints, hasBeacon, getUserAgent, getLanguage, getDefaultPageProperties, extractUTMParameters };
+export {
+  isBrowser,
+  isNode,
+  hasCrypto,
+  hasUAClientHints,
+  hasBeacon,
+  getUserAgent,
+  getLanguage,
+  getDefaultPageProperties,
+  extractUTMParameters,
+};

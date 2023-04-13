@@ -10,7 +10,13 @@ import {
   ScreenInfo,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { AppInfo, LibraryInfo, OSInfo, Traits, UTMParameters } from '@rudderstack/analytics-js/state/types';
+import {
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  Traits,
+  UTMParameters,
+} from '@rudderstack/analytics-js/state/types';
 import { pageParametersState } from './page';
 
 export type ContextState = {
@@ -48,7 +54,7 @@ const contextState: ContextState = {
   locale: signal(getLanguage()),
   screen: signal(getScreenDetails()),
   'ua-ch': signal(undefined),
-  campaign: signal(extractUTMParameters(pageParametersState.url.value))
+  campaign: signal(extractUTMParameters(pageParametersState.url.value)),
 };
 
 export { contextState };

@@ -1,25 +1,24 @@
-import { ApiObject, ApiOptions } from "@rudderstack/analytics-js/state/types";
-import { ILogger } from "@rudderstack/analytics-js/services/Logger/types";
-import { Nullable } from "@rudderstack/analytics-js/types";
-import { pageParametersState } from "@rudderstack/analytics-js/state/slices/page";
-import { sessionState } from "@rudderstack/analytics-js/state/slices/session";
-import { RudderContext, RudderEvent } from "./types";
-import { RESERVED_ELEMENTS, SYSTEM_KEYWORDS, TOP_LEVEL_ELEMENTS } from "./constants";
+import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { pageParametersState } from '@rudderstack/analytics-js/state/slices/page';
+import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
+import { RudderContext, RudderEvent } from './types';
+import { RESERVED_ELEMENTS, SYSTEM_KEYWORDS, TOP_LEVEL_ELEMENTS } from './constants';
 import { isObject, mergeDeepRight } from '../utilities/object';
-
 
 /**
  * Overrides the top-level event properties with data from API options
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-export const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptions): void => {
-  if (options.anonymousId)
-    rudderEvent.anonymousId = options.anonymousId;
-  if (options.integrations)
-    rudderEvent.integrations = options.integrations;
-  if (options.originalTimestamp)
-    rudderEvent.originalTimestamp = options.originalTimestamp;
+export const updateTopLevelEventElements = (
+  rudderEvent: RudderEvent,
+  options: ApiOptions,
+): void => {
+  if (options.anonymousId) rudderEvent.anonymousId = options.anonymousId;
+  if (options.integrations) rudderEvent.integrations = options.integrations;
+  if (options.originalTimestamp) rudderEvent.originalTimestamp = options.originalTimestamp;
 };
 
 /**
@@ -27,7 +26,11 @@ export const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: A
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-export const getMergedContext = (rudderContext: RudderContext, options: ApiOptions, logger?: ILogger): RudderContext => {
+export const getMergedContext = (
+  rudderContext: RudderContext,
+  options: ApiOptions,
+  logger?: ILogger,
+): RudderContext => {
   let context = rudderContext;
   Object.keys(options).forEach(key => {
     if (!TOP_LEVEL_ELEMENTS.includes(key) && !SYSTEM_KEYWORDS.includes(key)) {
@@ -68,7 +71,6 @@ export const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiO
   }
 };
 
-
 /**
  * Utility to check for reserved keys in the input object
  * @param obj Generic object
@@ -79,7 +81,7 @@ export const checkForReservedElementsInObject = (
   obj: ApiObject | RudderContext | undefined,
   eventType: string,
   parentKeyPath: string,
-  logger?: ILogger
+  logger?: ILogger,
 ): void => {
   if (isObject(obj)) {
     Object.keys(obj as object).forEach(property => {
@@ -111,9 +113,11 @@ export const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILog
  * @param properties Input page properties
  * @param options API options
  */
-export const getUpdatedPageProperties = (properties: ApiObject, options?: Nullable<ApiOptions>): ApiObject => {
-  if (!options?.page || !isObject(options.page))
-    return properties;
+export const getUpdatedPageProperties = (
+  properties: ApiObject,
+  options?: Nullable<ApiOptions>,
+): ApiObject => {
+  if (!options?.page || !isObject(options.page)) return properties;
 
   const optionsPageProps = options.page as ApiObject;
   const pageProps = properties;
@@ -157,8 +161,7 @@ export const getUpdatedPageProperties = (properties: ApiObject, options?: Nullab
 
   if (pageProps.initial_referring_domain === undefined) {
     pageProps.initial_referring_domain =
-      optionsPageProps.initial_referring_domain ||
-      sessionState.rl_page_init_referring_domain.value;
+      optionsPageProps.initial_referring_domain || sessionState.rl_page_init_referring_domain.value;
   }
   return pageProps;
 };
@@ -169,14 +172,14 @@ export const getUpdatedPageProperties = (properties: ApiObject, options?: Nullab
  * @returns page properties object for context
  */
 export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => ({
-    path: pageProps?.path || pageParametersState.path.value,
-    referrer: pageProps?.referrer || pageParametersState.referrer.value,
-    referring_domain: pageProps?.referring_domain || pageParametersState.referring_domain.value,
-    search: pageProps?.search || pageParametersState.search.value,
-    title: pageProps?.title || pageParametersState.title.value,
-    url: pageProps?.url || pageParametersState.url.value,
-    tab_url: pageProps?.tab_url || pageParametersState.tab_url.value,
-    initial_referrer: pageProps?.initial_referrer || sessionState.rl_page_init_referrer.value,
-    initial_referring_domain:
-      pageProps?.initial_referring_domain || sessionState.rl_page_init_referring_domain.value,
-  });
+  path: pageProps?.path || pageParametersState.path.value,
+  referrer: pageProps?.referrer || pageParametersState.referrer.value,
+  referring_domain: pageProps?.referring_domain || pageParametersState.referring_domain.value,
+  search: pageProps?.search || pageParametersState.search.value,
+  title: pageProps?.title || pageParametersState.title.value,
+  url: pageProps?.url || pageParametersState.url.value,
+  tab_url: pageProps?.tab_url || pageParametersState.tab_url.value,
+  initial_referrer: pageProps?.initial_referrer || sessionState.rl_page_init_referrer.value,
+  initial_referring_domain:
+    pageProps?.initial_referring_domain || sessionState.rl_page_init_referring_domain.value,
+});

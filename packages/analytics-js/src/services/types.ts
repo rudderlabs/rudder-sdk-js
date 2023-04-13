@@ -1,5 +1,5 @@
-import { IErrorHandler } from "./ErrorHandler/types";
-import { ILogger } from "./Logger/types";
+import { IErrorHandler } from './ErrorHandler/types';
+import { ILogger } from './Logger/types';
 
 export interface IService {
   errorHandler?: IErrorHandler;

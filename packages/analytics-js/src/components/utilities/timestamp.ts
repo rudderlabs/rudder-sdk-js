@@ -5,4 +5,4 @@
 export function getCurrentTimeFormatted(): string {
   const curDateTime = new Date().toISOString();
   return curDateTime;
-};
+}

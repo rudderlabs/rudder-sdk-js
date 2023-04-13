@@ -1,5 +1,14 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { ApiObject, ApiOptions, AppInfo, ConsentManagement, IntegrationOpts, LibraryInfo, OSInfo, UTMParameters } from '@rudderstack/analytics-js/state/types';
+import {
+  ApiObject,
+  ApiOptions,
+  AppInfo,
+  ConsentManagement,
+  IntegrationOpts,
+  LibraryInfo,
+  OSInfo,
+  UTMParameters,
+} from '@rudderstack/analytics-js/state/types';
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 
 export enum RudderEventType {
@@ -7,7 +16,7 @@ export enum RudderEventType {
   TRACK = 'track',
   IDENTIFY = 'identify',
   ALIAS = 'alias',
-  GROUP = 'group'
+  GROUP = 'group',
 }
 
 export type APIEvent = {
@@ -70,4 +79,4 @@ export type RudderEvent = {
 export interface IEventManager {
   init(): void;
   addEvent(event: APIEvent): void;
-};
+}

@@ -12,7 +12,10 @@ import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capab
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { IEventManager, RudderEventType } from '@rudderstack/analytics-js/components/eventManager/types';
+import {
+  IEventManager,
+  RudderEventType,
+} from '@rudderstack/analytics-js/components/eventManager/types';
 import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { Nullable } from '@rudderstack/analytics-js/types';

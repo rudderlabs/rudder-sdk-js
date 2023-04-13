@@ -204,31 +204,34 @@ const buildConfig = moduleType => {
   };
 };
 
-const buildEntries = process.env.ONLY_IIFE === 'true' ? [
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  }
-] : [
-  {
-    ...buildConfig(),
-    input: 'src/index.ts',
-    output: outputFilesNpm,
-  },
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  },
-  {
-    input: `dist/dts/packages/analytics-js/src/index.d.ts`,
-    plugins: [dts()],
-    output: {
-      file: `${outDir}/index.d.ts`,
-      format: 'es',
-    },
-  },
-];
+const buildEntries =
+  process.env.ONLY_IIFE === 'true'
+    ? [
+        {
+          ...buildConfig('cdn'),
+          input: 'src/index.ts',
+          output: outputFilesCdn,
+        },
+      ]
+    : [
+        {
+          ...buildConfig(),
+          input: 'src/index.ts',
+          output: outputFilesNpm,
+        },
+        {
+          ...buildConfig('cdn'),
+          input: 'src/index.ts',
+          output: outputFilesCdn,
+        },
+        {
+          input: `dist/dts/packages/analytics-js/src/index.d.ts`,
+          plugins: [dts()],
+          output: {
+            file: `${outDir}/index.d.ts`,
+            format: 'es',
+          },
+        },
+      ];
 
 export default buildEntries;
