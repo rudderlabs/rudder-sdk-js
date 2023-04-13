@@ -6,7 +6,7 @@ export const CONTEXT_RESERVED_ELEMENTS = ['library', 'consentManagement'];
 
 export const RESERVED_ELEMENTS = [
   'anonymous_id',
-  'id',
+  'id', // TODO: Is this valid?
   'sent_at',
   'received_at',
   'timestamp',
