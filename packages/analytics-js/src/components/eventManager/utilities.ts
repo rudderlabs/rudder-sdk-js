@@ -1,7 +1,7 @@
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { pageParametersState } from '@rudderstack/analytics-js/state/slices/page';
+import { pagePropertiesState } from '@rudderstack/analytics-js/state/slices/page';
 import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
 import { RudderContext, RudderEvent } from './types';
 import { RESERVED_ELEMENTS, SYSTEM_KEYWORDS, TOP_LEVEL_ELEMENTS } from './constants';
@@ -117,52 +117,18 @@ export const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
-  if (!options?.page || !isObject(options.page)) return properties;
+  if (!options?.page || !isObject(options.page)) {
+    return properties;
+  }
 
   const optionsPageProps = options.page as ApiObject;
   const pageProps = properties;
-  if (pageProps.path === undefined) {
-    pageProps.path = optionsPageProps.path || pageParametersState.path.value;
-  }
 
-  if (pageProps.referrer === undefined) {
-    pageProps.referrer = optionsPageProps.referrer || pageParametersState.referrer.value;
-  }
-
-  if (pageProps.referring_domain === undefined) {
-    pageProps.referring_domain =
-      optionsPageProps.referring_domain || pageParametersState.referring_domain.value;
-  }
-
-  if (pageProps.search === undefined) {
-    pageProps.search = optionsPageProps.search || pageParametersState.search.value;
-  }
-
-  if (pageProps.search === undefined) {
-    pageProps.search = optionsPageProps.search || pageParametersState.search.value;
-  }
-
-  if (pageProps.title === undefined) {
-    pageProps.title = optionsPageProps.title || pageParametersState.title.value;
-  }
-
-  if (pageProps.url === undefined) {
-    pageProps.url = optionsPageProps.url || pageParametersState.url.value;
-  }
-
-  if (pageProps.tab_url === undefined) {
-    pageProps.tab_url = optionsPageProps.tab_url || pageParametersState.tab_url.value;
-  }
-
-  if (pageProps.initial_referrer === undefined) {
-    pageProps.initial_referrer =
-      optionsPageProps.initial_referrer || sessionState.rl_page_init_referrer.value;
-  }
-
-  if (pageProps.initial_referring_domain === undefined) {
-    pageProps.initial_referring_domain =
-      optionsPageProps.initial_referring_domain || sessionState.rl_page_init_referring_domain.value;
-  }
+  Object.keys(pagePropertiesState).forEach((key: string) => {
+    if (pageProps[key] === undefined) {
+      pageProps[key] = optionsPageProps[key] || pagePropertiesState[key].value;
+    }
+  });
   return pageProps;
 };
 
@@ -171,15 +137,10 @@ export const getUpdatedPageProperties = (
  * @param pageProps Page properties
  * @returns page properties object for context
  */
-export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => ({
-  path: pageProps?.path || pageParametersState.path.value,
-  referrer: pageProps?.referrer || pageParametersState.referrer.value,
-  referring_domain: pageProps?.referring_domain || pageParametersState.referring_domain.value,
-  search: pageProps?.search || pageParametersState.search.value,
-  title: pageProps?.title || pageParametersState.title.value,
-  url: pageProps?.url || pageParametersState.url.value,
-  tab_url: pageProps?.tab_url || pageParametersState.tab_url.value,
-  initial_referrer: pageProps?.initial_referrer || sessionState.rl_page_init_referrer.value,
-  initial_referring_domain:
-    pageProps?.initial_referring_domain || sessionState.rl_page_init_referring_domain.value,
-});
+export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
+  const ctxPageProps: ApiObject = {};
+  Object.keys(pagePropertiesState).forEach((key: string) => {
+    ctxPageProps[key] = pageProps?.[key] || pagePropertiesState[key].value;
+  });
+  return ctxPageProps;
+};

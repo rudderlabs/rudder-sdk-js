@@ -17,7 +17,7 @@ import {
   Traits,
   UTMParameters,
 } from '@rudderstack/analytics-js/state/types';
-import { pageParametersState } from './page';
+import { pagePropertiesState } from './page';
 
 export type ContextState = {
   app: Signal<AppInfo>;
@@ -54,7 +54,7 @@ const contextState: ContextState = {
   locale: signal(getLanguage()),
   screen: signal(getScreenDetails()),
   'ua-ch': signal(undefined),
-  campaign: signal(extractUTMParameters(pageParametersState.url.value)),
+  campaign: signal(extractUTMParameters(pagePropertiesState.url.value)),
 };
 
 export { contextState };
