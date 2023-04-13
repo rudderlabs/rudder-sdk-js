@@ -501,6 +501,7 @@ class FacebookPixel {
         each((val, key) => {
           if (key === event.toLowerCase()) {
             payload.currency = currVal;
+            payload.value = revValue;
 
             window.fbq('trackSingle', self.pixelId, val, payload, {
               eventID: derivedEventID,
