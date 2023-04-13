@@ -332,7 +332,7 @@ class Analytics implements IAnalytics {
   page(payload: PageCallOptions) {
     const type = RudderEventType.PAGE;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -352,7 +352,7 @@ class Analytics implements IAnalytics {
   track(payload: TrackCallOptions) {
     const type = RudderEventType.TRACK;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -371,7 +371,7 @@ class Analytics implements IAnalytics {
   identify(payload: IdentifyCallOptions) {
     const type = RudderEventType.IDENTIFY;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -403,7 +403,7 @@ class Analytics implements IAnalytics {
   alias(payload: AliasCallOptions) {
     const type = RudderEventType.ALIAS;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -422,7 +422,7 @@ class Analytics implements IAnalytics {
   group(payload: GroupCallOptions) {
     const type = RudderEventType.GROUP;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
