@@ -1,4 +1,4 @@
-import { isEmpty } from 'ramda';
+import { isEmpty, clone } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -130,7 +130,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, R.clone(loadOptions));
+      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, clone(loadOptions));
       state.lifecycle.status.value = 'mounted';
     });
 

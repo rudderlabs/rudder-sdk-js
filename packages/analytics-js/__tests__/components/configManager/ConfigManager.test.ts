@@ -176,15 +176,22 @@ describe('ConfigManager', () => {
       dummySourceConfigResponse.source.config.statsCollection.metrics.enabled,
     );
   });
-  it('should throw an error for undefined sourceConfig response', () => {
-    expect(() => {
-      configManagerInstance.processConfig(undefined);
-    }).toThrow(errorMsgSourceConfigResponse);
+  it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
+    configManagerInstance.processConfig(undefined);
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
-  it('should not throw an error for sourceConfig response in string format', () => {
-    expect(() => {
-      configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
-    }).not.toThrow(errorMsgSourceConfigResponse);
+  it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
+
+    expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
+  });
+  it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    configManagerInstance.processConfig(JSON.stringify({ key: 'value' }));
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
   it('should fetch the source config and process the response', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;

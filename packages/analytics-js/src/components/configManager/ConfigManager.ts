@@ -65,9 +65,9 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: Error | unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'ConfigManager');
+      this.errorHandler?.onError(error, 'ConfigManager', customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
@@ -80,7 +80,8 @@ class ConfigManager implements IConfigManager {
    */
   processConfig(response?: SourceConfigResponse | string) {
     if (!response) {
-      throw Error('Unable to fetch source config');
+      this.onError('Unable to fetch source config', undefined, true);
+      return;
     }
     let res: SourceConfigResponse;
     const errMessage = 'Unable to process/parse source config';
@@ -91,8 +92,8 @@ class ConfigManager implements IConfigManager {
         res = response;
       }
     } catch (e) {
-      this.onError(e);
-      throw Error(errMessage);
+      this.onError(e, errMessage, true);
+      return;
     }
 
     if (
@@ -102,7 +103,8 @@ class ConfigManager implements IConfigManager {
       !res.source.config ||
       !Array.isArray(res.source.destinations)
     ) {
-      throw Error(errMessage);
+      this.onError(errMessage, undefined, true);
+      return;
     }
 
     // determine the dataPlane url
