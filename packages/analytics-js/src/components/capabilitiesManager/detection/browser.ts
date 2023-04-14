@@ -89,9 +89,10 @@ function getReferringDomain(referrer: string) {
 function extractUTMParameters(url: string): UTMParameters {
   const urlObj = new URL(url);
   const result: UTMParameters = {};
+  const UTM_PREFIX = 'utm_';
   urlObj.searchParams.forEach((value, sParam) => {
-    if (sParam.startsWith('utm_')) {
-      let utmParam = sParam;
+    if (sParam.startsWith(UTM_PREFIX)) {
+      let utmParam = sParam.substring(UTM_PREFIX.length);
       // Not sure why we're doing this
       if (utmParam === 'campaign') {
         utmParam = 'name';
