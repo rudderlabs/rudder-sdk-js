@@ -65,7 +65,11 @@ class BingAds {
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
-    const eventToSend = type || '';
+    const eventToSend = type;
+    if(!eventToSend){
+      logger.error('Event type not present');
+      return;
+    }
     const payload = {
       event_label: event,
     };
