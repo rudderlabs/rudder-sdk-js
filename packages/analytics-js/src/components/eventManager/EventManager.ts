@@ -166,11 +166,11 @@ class EventManager implements IEventManager {
   ): void {
     const opts = R.clone(options);
 
+    const previousId = tryStringify(from) || sessionState.rl_user_id.value || sessionState.rl_anonymous_id.value;
     sessionState.rl_user_id.value = tryStringify(to);
 
     const aliasEvent: Partial<RudderEvent> = {
-      previousId:
-        tryStringify(from) || sessionState.rl_user_id.value || sessionState.rl_anonymous_id.value,
+      previousId,
       type: RudderEventType.ALIAS,
       ...getCommonEventData(),
     };
