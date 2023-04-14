@@ -52,8 +52,8 @@ class EventManager implements IEventManager {
     options?: Nullable<ApiOptions>,
     callback?: Nullable<ApiCallback>,
   ): void {
-    processOptions(rudderEvent as RudderEvent, options);
-    checkForReservedElements(rudderEvent as RudderEvent, this.logger);
+    processOptions(rudderEvent, options);
+    checkForReservedElements(rudderEvent, this.logger);
 
     // TODO: Push the generated track event and callback to the event repository
     // TODO: Handle if device mode integrations are not loaded
