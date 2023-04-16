@@ -4,6 +4,7 @@ import { defaultPluginManager } from '@rudderstack/analytics-js/components/plugi
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { effect } from '@preact/signals-core';
 import {
   AnonymousIdOptions,
   ApiObject,
@@ -36,6 +37,18 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(referrer);
       this.setInitialReferringDomain(referrer);
     }
+    effect(() => {
+      console.log('rl_user_id', state.session.rl_user_id.value);
+      console.log('rl_anonymous_id', state.session.rl_anonymous_id.value);
+      console.log('rl_trait', state.session.rl_trait.value);
+      console.log('rl_group_id', state.session.rl_group_id.value);
+      console.log('rl_group_trait', state.session.rl_group_trait.value);
+      console.log('rl_page_init_referrer', state.session.rl_page_init_referrer.value);
+      console.log(
+        'rl_page_init_referring_domain',
+        state.session.rl_page_init_referring_domain.value,
+      );
+    });
   }
 
   /**
@@ -63,10 +76,13 @@ class UserSessionManager implements IUserSessionManager {
 
     if (!persistedAnonymousId) {
       // TODO: implement the storage.getAnonymousId autoCapture functionality as plugin that takes options in
-      const autoCapturedAnonymousId = [undefined];
+      const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
+        'storage.getAnonymousId',
+        options,
+      );
 
       if (autoCapturedAnonymousId[0]) {
-        persistedAnonymousId = autoCapturedAnonymousId[0];
+        [persistedAnonymousId] = autoCapturedAnonymousId;
       } else {
         return this.setAnonymousId();
       }
@@ -76,6 +92,7 @@ class UserSessionManager implements IUserSessionManager {
     return persistedAnonymousId;
   }
 
+  // TODO: session tracking
   /**
    * A function to return current session info
    */
@@ -93,6 +110,7 @@ class UserSessionManager implements IUserSessionManager {
     return null;
   }
 
+  // TODO: session tracking
   // TODO: move to utility method
   // eslint-disable-next-line class-methods-use-this
   isValidSession(sessionExpirationTimestamp?: number, timestamp = Date.now()): boolean {
@@ -187,10 +205,13 @@ class UserSessionManager implements IUserSessionManager {
     this.storage?.set('rl_page_init_referring_domain', referrer);
   }
 
+  // TODO: session tracking
   startAutoTracking() {}
 
+  // TODO: session tracking
   start(sessionId?: number) {}
 
+  // TODO: session tracking
   end() {
     this.reset(false, true);
     this.clearUserSessionStorage();
