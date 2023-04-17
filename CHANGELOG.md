@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.28.0...v1.29.0) (2023-04-17)
+
+
+### Features
+
+* bingads Upgraded to latest  ([#1002](https://github.com/rudderlabs/rudder-sdk-js/issues/1002)) ([054b79d](https://github.com/rudderlabs/rudder-sdk-js/commit/054b79d41a950dbc870e2310f84ac7d07c50366f))
+
+
+### Bug Fixes
+
+* **fb_pixel:** add value in mapped event ([#1004](https://github.com/rudderlabs/rudder-sdk-js/issues/1004)) ([76d00f5](https://github.com/rudderlabs/rudder-sdk-js/commit/76d00f53bd5133604dd20988d2d1988cb16d3930))
+* **GA4:** add send_to parameter support by default ([#994](https://github.com/rudderlabs/rudder-sdk-js/issues/994)) ([78e21c9](https://github.com/rudderlabs/rudder-sdk-js/commit/78e21c9583b8aac8400f91551ef47541de7402e1))
+* upgrade vulnerable dependencies ([#996](https://github.com/rudderlabs/rudder-sdk-js/issues/996)) ([5a178d8](https://github.com/rudderlabs/rudder-sdk-js/commit/5a178d80b81c7555e17d7ca63ad295f98b14f32e))
+
 ## [1.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.27.0...v1.28.0) (2023-04-03)
 
 
