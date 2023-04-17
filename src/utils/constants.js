@@ -11,7 +11,7 @@ const RESERVED_KEYS = [
 ];
 
 const CONFIG_URL =
-  'https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version';
+  'https://api.rudderlabs.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__';
 const SDK_CDN_BASE_URL = 'https://cdn.rudderlabs.com';
 const CDN_ARCH_VERSION_DIR = 'v1.1';
 const CDN_INT_DIR = 'js-integrations';
@@ -23,9 +23,6 @@ const INTG_SUFFIX = '_RS';
 const POLYFILL_URL =
   'https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll';
 
-const DEFAULT_ERROR_REPORT_PROVIDER = 'bugsnag';
-const ERROR_REPORT_PROVIDERS = [DEFAULT_ERROR_REPORT_PROVIDER];
-
 const GENERIC_TRUE_VALUES = ['true', 'True', 'TRUE', 't', 'T', '1'];
 const GENERIC_FALSE_VALUES = ['false', 'False', 'FALSE', 'f', 'F', '0'];
 
@@ -34,6 +31,9 @@ const SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];
 const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
 const MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
 const MIN_SESSION_ID_LENGTH = 10;
+
+const ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME = 'errorReporting';
+const LOAD_ORIGIN = 'RS_JS_SDK';
 
 const DEFAULT_REGION = 'US';
 const DEFAULT_DATAPLANE_URL = 'https://hosted.rudderlabs.com';
@@ -56,14 +56,14 @@ export {
   INTEGRATION_LOAD_CHECK_INTERVAL,
   INTG_SUFFIX,
   POLYFILL_URL,
-  DEFAULT_ERROR_REPORT_PROVIDER,
-  ERROR_REPORT_PROVIDERS,
   GENERIC_TRUE_VALUES,
   GENERIC_FALSE_VALUES,
   SAMESITE_COOKIE_OPTS,
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
+  ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
+  LOAD_ORIGIN,
   DEFAULT_REGION,
   DEFAULT_DATAPLANE_URL,
   RESIDENCY_SERVERS,
