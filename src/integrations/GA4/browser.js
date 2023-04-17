@@ -19,7 +19,6 @@ export default class GA4 {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
-    this.sessionId = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
@@ -47,11 +46,9 @@ export default class GA4 {
     }
     gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
+    gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     gtagParameterObject.debug_mode = true;
 
-    if (this.isHybridModeEnabled) {
-      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
-    }
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
@@ -65,10 +62,6 @@ export default class GA4 {
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
-
-    // To disable debug mode, exclude the 'debug_mode' parameter;
-    // Setting the parameter to false doesn't disable debug mode.
-    // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
 
     ScriptLoader(
       'google-analytics 4',
@@ -86,7 +79,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!this.sessionId;
+    return window.dataLayer.push !== Array.prototype.push;
   }
 
   isReady() {
@@ -276,13 +269,5 @@ export default class GA4 {
         ...traits,
       });
     });
-  }
-
-  getDataForIntegrationsObject() {
-    return {
-      'Google Analytics 4': {
-        sessionId: this.sessionId,
-      },
-    };
   }
 }
