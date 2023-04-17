@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.29.0...v2.30.0) (2023-04-17)
+
+
+### Features
+
+* bingads Upgraded to latest ([#1003](https://github.com/rudderlabs/rudder-sdk-js/issues/1003)) ([24976a4](https://github.com/rudderlabs/rudder-sdk-js/commit/24976a4fa5b507eba3444b27f2357c71f25df6ad))
+
+
+### Bug Fixes
+
+* bugsnag error reporting ([#856](https://github.com/rudderlabs/rudder-sdk-js/issues/856)) ([b35bd2b](https://github.com/rudderlabs/rudder-sdk-js/commit/b35bd2bca1dc372b863fb7afe028061507d2b64d))
+* dom-exception error in incognito for storejs lib ([#991](https://github.com/rudderlabs/rudder-sdk-js/issues/991)) ([66bb84f](https://github.com/rudderlabs/rudder-sdk-js/commit/66bb84fb27a1a61d5bfba47015c363cb7dcdb923))
+* **fb_pixel:** add value in mapped event ([#1005](https://github.com/rudderlabs/rudder-sdk-js/issues/1005)) ([945e3dd](https://github.com/rudderlabs/rudder-sdk-js/commit/945e3dd49742585de1b0e70337156eefe6fe3e84))
+* **GA4:** add send_to parameter support by default ([#993](https://github.com/rudderlabs/rudder-sdk-js/issues/993)) ([05cdaba](https://github.com/rudderlabs/rudder-sdk-js/commit/05cdabac31a0f246e5343b0622142cdefee94ec2))
+* upgrade vulnerable dependencies ([#995](https://github.com/rudderlabs/rudder-sdk-js/issues/995)) ([8e6d8ff](https://github.com/rudderlabs/rudder-sdk-js/commit/8e6d8ff9a0712f1fbf3672829de5b9264266f716))
+
 ## [2.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.28.0...v2.29.0) (2023-04-03)
 
 
