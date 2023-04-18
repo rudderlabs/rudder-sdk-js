@@ -1,10 +1,8 @@
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
   updateTopLevelEventElements,
   checkForReservedElementsInObject,
 } from '../../../src/components/eventManager/utilities';
 import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
-import { defaultLocalStorage } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import * as R from 'ramda';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
@@ -126,7 +124,12 @@ describe('Event Manager - Utilities', () => {
     });
 
     it('should not log a warn message if the object is not provided', () => {
-      checkForReservedElementsInObject(undefined, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(
+        undefined,
+        defaultEventType,
+        defaultParentKeyPath,
+        mockLogger,
+      );
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
