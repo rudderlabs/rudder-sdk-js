@@ -12,6 +12,7 @@ import { contextState, ContextState } from './slices/context';
 import { nativeDestinationsState, NativeDestinationsState } from './slices/nativeDestinations';
 import { EventBufferState, eventBufferState } from './slices/eventBuffer';
 import { pluginsState, PluginsState } from './slices/plugins';
+import { PagePropertiesState, pagePropertiesState } from './slices/page';
 
 export type ApplicationState = {
   capabilities: CapabilitiesState;
@@ -27,6 +28,7 @@ export type ApplicationState = {
   nativeDestinations: NativeDestinationsState;
   eventBuffer: EventBufferState;
   plugins: PluginsState;
+  page: PagePropertiesState;
 };
 
 const defaultStateValues: ApplicationState = {
@@ -43,6 +45,7 @@ const defaultStateValues: ApplicationState = {
   reporting: reportingState,
   session: sessionState,
   source: sourceConfigState,
+  page: pagePropertiesState,
 };
 
 const state: ApplicationState = {
@@ -63,6 +66,7 @@ const resetState = () => {
   state.reporting = clone(defaultStateValues.reporting);
   state.session = clone(defaultStateValues.session);
   state.source = clone(defaultStateValues.source);
+  state.page = clone(defaultStateValues.page);
 };
 
 export { state, resetState };

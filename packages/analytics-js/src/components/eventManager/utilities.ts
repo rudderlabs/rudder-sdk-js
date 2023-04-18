@@ -1,10 +1,7 @@
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { pagePropertiesState } from '@rudderstack/analytics-js/state/slices/page';
-import { consentsState } from '@rudderstack/analytics-js/state/slices/consents';
-import { contextState } from '@rudderstack/analytics-js/state/slices/context';
-import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
+import { state } from '@rudderstack/analytics-js/state';
 import { RudderContext, RudderEvent } from './types';
 import {
   RESERVED_ELEMENTS,
@@ -133,9 +130,9 @@ export const getUpdatedPageProperties = (
   const optionsPageProps = options.page as ApiObject;
   const pageProps = properties;
 
-  Object.keys(pagePropertiesState).forEach((key: string) => {
+  Object.keys(state.page).forEach((key: string) => {
     if (pageProps[key] === undefined) {
-      pageProps[key] = optionsPageProps[key] || pagePropertiesState[key].value;
+      pageProps[key] = optionsPageProps[key] || state.page[key].value;
     }
   });
   return pageProps;
@@ -148,39 +145,41 @@ export const getUpdatedPageProperties = (
  */
 export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   const ctxPageProps: ApiObject = {};
-  Object.keys(pagePropertiesState).forEach((key: string) => {
-    ctxPageProps[key] = pageProps?.[key] || pagePropertiesState[key].value;
+  Object.keys(state.page).forEach((key: string) => {
+    ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
   });
   return ctxPageProps;
 };
 
-export const getCommonEventData = (pageProps?: ApiObject): Partial<RudderEvent> =>
-  // TODO: Generate anonymous ID if it's already not present and remove '|| '''
-  ({
-    anonymousId: sessionState.rl_anonymous_id.value || '',
-    channel: CHANNEL,
-    context: {
-      traits: { ...sessionState.rl_trait.value },
-      sessionId: sessionState.rl_session.value.id,
-      sessionStart: sessionState.rl_session.value.sessionStart,
-      consentManagement: {
-        // TODO: Consent manager to populate this data always
-        deniedConsentIds: consentsState.deniedConsentIds.value,
-      },
-      'ua-ch': contextState['ua-ch'].value,
-      app: contextState.app.value,
-      library: contextState.library.value,
-      userAgent: contextState.userAgent.value,
-      os: contextState.os.value,
-      locale: contextState.locale.value,
-      screen: contextState.screen.value,
-      campaign: contextState.campaign.value,
-      page: getContextPageProperties(pageProps),
+/**
+ * Builds the common event data for all the events
+ * @param pageProps Page properties
+ * @returns Rudder event object with common event data
+ */
+export const getCommonEventData = (pageProps?: ApiObject): Partial<RudderEvent> => ({
+  anonymousId: state.session.rl_anonymous_id.value || '',
+  channel: CHANNEL,
+  context: {
+    traits: { ...state.session.rl_trait.value },
+    sessionId: state.session.rl_session.value.id,
+    sessionStart: state.session.rl_session.value.sessionStart,
+    consentManagement: {
+      deniedConsentIds: state.consents.deniedConsentIds.value,
     },
-    originalTimestamp: getCurrentTimeFormatted(),
-    integrations: { All: true },
-    messageId: generateUUID(),
-    userId: sessionState.rl_user_id.value,
-    groupId: sessionState.rl_group_id.value,
-    traits: { ...sessionState.rl_group_trait.value },
-  });
+    'ua-ch': state.context['ua-ch'].value,
+    app: state.context.app.value,
+    library: state.context.library.value,
+    userAgent: state.context.userAgent.value,
+    os: state.context.os.value,
+    locale: state.context.locale.value,
+    screen: state.context.screen.value,
+    campaign: state.context.campaign.value,
+    page: getContextPageProperties(pageProps),
+  },
+  originalTimestamp: getCurrentTimeFormatted(),
+  integrations: { All: true },
+  messageId: generateUUID(),
+  userId: state.session.rl_user_id.value,
+  groupId: state.session.rl_group_id.value,
+  traits: { ...state.session.rl_group_trait.value },
+});

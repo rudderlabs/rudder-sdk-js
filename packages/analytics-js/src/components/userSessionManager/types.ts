@@ -9,6 +9,7 @@ export interface IUserSessionManager {
   getAnonymousId(options?: AnonymousIdOptions): string;
   getSessionInfo(): Nullable<SessionInfo>;
   getGroupId(): Nullable<string>;
+  getUserId(): Nullable<string>;
   setUserId(userId?: null | string): void;
   setUserTraits(traits?: Nullable<ApiObject>): void;
   getGroupTraits(): Nullable<ApiObject>;

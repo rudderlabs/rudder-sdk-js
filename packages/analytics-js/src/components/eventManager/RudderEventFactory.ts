@@ -1,14 +1,12 @@
-import { Nullable } from "@rudderstack/analytics-js/types";
-import { ApiObject, ApiOptions } from "@rudderstack/analytics-js/state/types";
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import * as R from 'ramda';
-import { batch } from "@preact/signals-core";
-import { sessionState } from "@rudderstack/analytics-js/state/slices/session";
-import { APIEvent, RudderEvent, RudderEventType } from "./types";
-import { getCommonEventData, getUpdatedPageProperties } from "./utilities";
-import { tryStringify } from "../utilities/string";
+import { APIEvent, RudderEvent, RudderEventType } from './types';
+import { getCommonEventData, getUpdatedPageProperties } from './utilities';
+import { tryStringify } from '../utilities/string';
+import { defaultUserSessionManager } from '../userSessionManager';
 
 class RudderEventFactory {
-
   /**
    * Generate a 'page' event based on the user-input fields
    * @param category Page's category
@@ -21,7 +19,7 @@ class RudderEventFactory {
     category?: Nullable<string>,
     name?: Nullable<string>,
     properties?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>
+    options?: Nullable<ApiOptions>,
   ): RudderEvent {
     let props = R.clone(properties) || {};
     const opts = R.clone(options);
@@ -47,10 +45,7 @@ class RudderEventFactory {
    * @param properties Event properties
    * @param options API options
    */
-  private static generateTrackEvent(
-    event: string,
-    properties?: Nullable<ApiObject>
-  ): RudderEvent {
+  private static generateTrackEvent(event: string, properties?: Nullable<ApiObject>): RudderEvent {
     const props = R.clone(properties);
     const trackEvent: Partial<RudderEvent> = {
       properties: props,
@@ -66,17 +61,7 @@ class RudderEventFactory {
    * @param userId New user ID
    * @param traits User traits
    */
-  private static generateIdentifyEvent(
-    userId?: Nullable<string>,
-    traits?: Nullable<ApiObject>,
-  ): RudderEvent {
-    const cTraits = R.clone(traits);
-
-    batch(() => {
-      sessionState.rl_user_id.value = tryStringify(userId);
-      sessionState.rl_trait.value = { ...sessionState.rl_trait.value, ...cTraits };
-    });
-
+  private static generateIdentifyEvent(): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
       type: RudderEventType.IDENTIFY,
       ...getCommonEventData(),
@@ -89,12 +74,14 @@ class RudderEventFactory {
    * @param to New user ID
    * @param from Old user ID
    */
-  private static generateAliasEvent(
-    to: string,
-    from?: Nullable<string>
-  ): RudderEvent {
-    const previousId = tryStringify(from) || sessionState.rl_user_id.value || sessionState.rl_anonymous_id.value;
-    sessionState.rl_user_id.value = tryStringify(to);
+  private static generateAliasEvent(to: string, from?: Nullable<string>): RudderEvent {
+    const previousId =
+      tryStringify(from) ||
+      defaultUserSessionManager.getUserId() ||
+      defaultUserSessionManager.getAnonymousId();
+
+    // Set the new user ID only after determining the previous ID
+    defaultUserSessionManager.setUserId(tryStringify(to));
 
     const aliasEvent: Partial<RudderEvent> = {
       previousId,
@@ -111,17 +98,7 @@ class RudderEventFactory {
    * @param options API options
    * @param callback Callback function
    */
-  private static generateGroupEvent(
-    groupId?: Nullable<string>,
-    traits?: Nullable<ApiObject>,
-  ): RudderEvent {
-    const cTraits = R.clone(traits);
-
-    batch(() => {
-      sessionState.rl_group_id.value = tryStringify(groupId);
-      sessionState.rl_group_trait.value = { ...sessionState.rl_group_trait.value, ...cTraits };
-    });
-
+  private static generateGroupEvent(): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
       type: RudderEventType.GROUP,
       ...getCommonEventData(),
@@ -130,7 +107,7 @@ class RudderEventFactory {
   }
 
   static create(event: APIEvent): RudderEvent | undefined {
-    let eventObj:RudderEvent | undefined;
+    let eventObj: RudderEvent | undefined;
     switch (event.type) {
       case RudderEventType.PAGE:
         eventObj = RudderEventFactory.generatePageEvent(
@@ -141,25 +118,16 @@ class RudderEventFactory {
         );
         break;
       case RudderEventType.TRACK:
-        eventObj = RudderEventFactory.generateTrackEvent(
-          event.name as string,
-          event.properties
-        );
+        eventObj = RudderEventFactory.generateTrackEvent(event.name as string, event.properties);
         break;
       case RudderEventType.IDENTIFY:
-        eventObj = RudderEventFactory.generateIdentifyEvent(
-          event.userId, event.traits
-        );
+        eventObj = RudderEventFactory.generateIdentifyEvent();
         break;
       case RudderEventType.ALIAS:
-        eventObj = RudderEventFactory.generateAliasEvent(
-          event.to as string, event.from
-        );
+        eventObj = RudderEventFactory.generateAliasEvent(event.to as string, event.from);
         break;
       case RudderEventType.GROUP:
-        eventObj = RudderEventFactory.generateIdentifyEvent(
-          event.groupId, event.traits
-        );
+        eventObj = RudderEventFactory.generateGroupEvent();
         break;
       default:
         // Do nothing
