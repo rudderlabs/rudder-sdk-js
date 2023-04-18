@@ -1,5 +1,5 @@
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { AnonymousIdOptions, ApiObject, ApiOptions, SessionInfo } from '@rudderstack/analytics-js/state/types';
+import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 
 export interface IUserSessionManager {
@@ -14,7 +14,7 @@ export interface IUserSessionManager {
   setUserTraits(traits?: Nullable<ApiObject>): void;
   getGroupTraits(): Nullable<ApiObject>;
   setGroupId(groupId?: Nullable<string>): void;
-  setGroupTraits(traits?: Nullable<ApiOptions>): void;
+  setGroupTraits(traits?: Nullable<ApiObject>): void;
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
   start(sessionId?: number): void;
   end(): void;

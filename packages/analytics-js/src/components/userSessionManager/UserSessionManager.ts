@@ -32,23 +32,32 @@ class UserSessionManager implements IUserSessionManager {
     this.setGroupTraits(this.getGroupTraits() || {});
     this.setAnonymousId(this.getAnonymousId());
 
-    if (this.getInitialReferrer() === null && this.getInitialReferringDomain() === null) {
+    const initialReferrer = this.getInitialReferrer();
+    const initialReferringDomain = this.getInitialReferringDomain();
+
+    state.session.rl_page_init_referrer.value =
+      initialReferrer !== null ? initialReferrer : undefined;
+    state.session.rl_page_init_referring_domain.value =
+      initialReferringDomain !== null ? initialReferringDomain : undefined;
+
+    if (initialReferrer === null && initialReferringDomain === null) {
       const referrer = getReferrer();
       this.setInitialReferrer(referrer);
       this.setInitialReferringDomain(referrer);
     }
-    effect(() => {
-      console.log('rl_user_id', state.session.rl_user_id.value);
-      console.log('rl_anonymous_id', state.session.rl_anonymous_id.value);
-      console.log('rl_trait', state.session.rl_trait.value);
-      console.log('rl_group_id', state.session.rl_group_id.value);
-      console.log('rl_group_trait', state.session.rl_group_trait.value);
-      console.log('rl_page_init_referrer', state.session.rl_page_init_referrer.value);
-      console.log(
-        'rl_page_init_referring_domain',
-        state.session.rl_page_init_referring_domain.value,
-      );
-    });
+    // TODO: remove this when work for this module is done
+    // effect(() => {
+    //   console.log('rl_user_id', state.session.rl_user_id.value);
+    //   console.log('rl_anonymous_id', state.session.rl_anonymous_id.value);
+    //   console.log('rl_trait', state.session.rl_trait.value);
+    //   console.log('rl_group_id', state.session.rl_group_id.value);
+    //   console.log('rl_group_trait', state.session.rl_group_trait.value);
+    //   console.log('rl_page_init_referrer', state.session.rl_page_init_referrer.value);
+    //   console.log(
+    //     'rl_page_init_referring_domain',
+    //     state.session.rl_page_init_referring_domain.value,
+    //   );
+    // });
   }
 
   /**
