@@ -83,6 +83,7 @@ describe('Event Manager - Utilities', () => {
 
     const defaultEventType = 'test';
     const defaultParentKeyPath = 'traits';
+    const defaultEvent = 'test event';
 
     it('should log a warn message if the object contains reserved elements', () => {
       const obj = {
@@ -110,6 +111,45 @@ describe('Event Manager - Utilities', () => {
       checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
+    it('should not log a warn message if the logger is not provided', () => {
+      const obj = {
+        anonymous_id: sampleAnonId,
+        original_timestamp: sampleOriginalTimestamp,
+        nonReservedKey: 123,
+      } as ApiObject;
+
+      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath);
+
+      expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
+    it('should not log a warn message if the object is not provided', () => {
+      checkForReservedElementsInObject(undefined, defaultEventType, defaultParentKeyPath, mockLogger);
+
+      expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
+    it('should log a warn message if the object contains reserved elements but with different case', () => {
+      const obj = {
+        ANONYMOUS_ID: sampleAnonId,
+        EVENT: defaultEvent,
+        nonReservedKey: 123,
+        original_timestamp: sampleOriginalTimestamp,
+      } as ApiObject;
+
+      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+
+      expect(mockLogger.warn.mock.calls[0][0]).toEqual(
+        `Reserved keyword used in ${defaultParentKeyPath} --> "ANONYMOUS_ID" for ${defaultEventType} event`,
+      );
+      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
+        `Reserved keyword used in ${defaultParentKeyPath} --> "EVENT" for ${defaultEventType} event`,
+      );
+      expect(mockLogger.warn.mock.calls[2][0]).toEqual(
+        `Reserved keyword used in ${defaultParentKeyPath} --> "original_timestamp" for ${defaultEventType} event`,
+      );
     });
   });
 });
