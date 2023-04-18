@@ -22,6 +22,7 @@ export default class GA4 {
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
+    this.overrideSessionId = config.overrideSessionId || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
@@ -46,7 +47,7 @@ export default class GA4 {
     }
     gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
-    if (this.isHybridModeEnabled) {
+    if (this.isHybridModeEnable && this.overrideSessionId) {
       gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     }
     gtagParameterObject.debug_mode = true;
