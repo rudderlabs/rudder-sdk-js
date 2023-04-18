@@ -51,7 +51,7 @@ const getLanguage = (): Nullable<string> => {
  * To get the canonical URL of the page
  * @returns canonical URL
  */
-function getCanonicalUrl() {
+const getCanonicalUrl = (): string => {
   const tags = [...document.getElementsByTagName('link')];
   let canonicalUrl: Nullable<string> = '';
   tags.some(tag => {
@@ -62,31 +62,43 @@ function getCanonicalUrl() {
     return false;
   });
   return canonicalUrl;
-}
+};
 
 /**
  * To get the URL until the hash
  * @param url The input URL
  * @returns URL until the hash
  */
-function getUrlWithoutHash(url: string) {
+const getUrlWithoutHash = (url: string): string => {
   const hashIndex = url.indexOf('#');
   return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
-function getReferrer() {
-  return document.referrer || '$direct';
-}
+/**
+ * Get the referrer URL
+ * @returns The referrer URL
+ */
+const getReferrer = (): string => document.referrer || '$direct'
 
-function getReferringDomain(referrer: string) {
+/**
+ * Get the referring domain from the referrer URL
+ * @param referrer Page referrer
+ * @returns Page referring domain
+ */
+const getReferringDomain = (referrer: string) => {
   const split = referrer.split('/');
   if (split.length >= 3) {
     return split[2];
   }
   return '';
-}
+};
 
-function extractUTMParameters(url: string): UTMParameters {
+/**
+ * Extracts UTM parameters from the URL
+ * @param url Page URL
+ * @returns UTM parameters
+ */
+const extractUTMParameters = (url: string): UTMParameters => {
   const urlObj = new URL(url);
   const result: UTMParameters = {};
   const UTM_PREFIX = 'utm_';
@@ -104,7 +116,11 @@ function extractUTMParameters(url: string): UTMParameters {
   return result;
 }
 
-function getDefaultPageProperties() {
+/**
+ * Default page properties
+ * @returns Default page properties
+ */
+const getDefaultPageProperties = () => {
   const canonicalUrl = getCanonicalUrl();
   let path = window.location.pathname;
   const { href: tabUrl } = window.location;
