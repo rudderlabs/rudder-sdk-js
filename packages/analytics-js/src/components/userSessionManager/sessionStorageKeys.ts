@@ -1,12 +1,12 @@
 const persistedSessionStorageKeys = {
-  user_storage_key: 'rl_user_id',
-  user_storage_trait: 'rl_trait',
-  user_storage_anonymousId: 'rl_anonymous_id',
-  group_storage_key: 'rl_group_id',
-  group_storage_trait: 'rl_group_trait',
-  page_storage_init_referrer: 'rl_page_init_referrer',
-  page_storage_init_referring_domain: 'rl_page_init_referring_domain',
-  session_info: 'rl_session',
+  userId: 'rl_user_id',
+  userTraits: 'rl_trait',
+  userAnonymousId: 'rl_anonymous_id',
+  groupId: 'rl_group_id',
+  groupTraits: 'rl_group_trait',
+  initialReferrer: 'rl_page_init_referrer',
+  initialReferringDomain: 'rl_page_init_referring_domain',
+  sessionInfo: 'rl_session',
   key: 'Rudder',
 };
 
