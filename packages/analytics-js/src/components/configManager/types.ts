@@ -3,7 +3,11 @@ import {
   DestinationConfig,
   RegionDetails,
   ResidencyServerRegion,
-} from '@rudderstack/analytics-js/state/types';
+  StatsCollection
+} from "@rudderstack/analytics-js/state/types";
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 
 export type DestinationDefinition = {
   name: string;
@@ -20,8 +24,6 @@ export type ConfigResponseDestinationItem = {
   enabled: boolean;
   id: string;
   name: string;
-  workspaceId: string;
-  destinationDefinitionId: string;
 };
 
 export type Connection = {
@@ -32,15 +34,6 @@ export type Connection = {
   id: string;
   sourceId: string;
   updatedAt: string;
-};
-
-export type StatsCollection = {
-  errorReports: {
-    enabled: boolean;
-  };
-  metrics: {
-    enabled: boolean;
-  };
 };
 
 export type SourceDefinition = {
@@ -81,6 +74,15 @@ export type SourceConfigResponse = {
     createdAt: string;
     createdBy: string;
     deleted: boolean;
-    dataplanes?: Record<ResidencyServerRegion, RegionDetails>;
+    dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
   };
 };
+
+export interface IConfigManager {
+  httpClient: IHttpClient;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  init: () => void;
+  getConfig: () => void;
+  processConfig: () => void;
+}

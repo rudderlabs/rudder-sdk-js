@@ -66,6 +66,61 @@ const dummyInitOptions = {
   enable: true,
 };
 
+const dummySourceConfigResponse = {
+  source: {
+    config: {
+      statsCollection: {
+        errors: {
+          enabled: false,
+        },
+        metrics: {
+          enabled: false,
+        },
+      },
+    },
+    id: 'validSourceId',
+    name: 'JS SDK Prod',
+    writeKey: 'dummyWriteKey',
+    enabled: true,
+    workspaceId: 'dummyWorkspaceId',
+    updatedAt: '2023-02-03T13:53:35.731Z',
+    dataplanes: {},
+    destinations: [
+      {
+        config: {
+          measurementId: 'G-SC6JGS1234',
+          capturePageView: 'rs',
+          whitelistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          blacklistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          useNativeSDKToSend: false,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'dummyDestinationId',
+        name: 'GA4 for JS SDK',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: true,
+        deleted: false,
+        destinationDefinition: {
+          name: 'GA4',
+          displayName: 'Google Analytics 4 (GA4)',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        areTransformationsConnected: false,
+      },
+    ],
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
@@ -76,4 +131,5 @@ export {
   dummyWriteKey,
   dummyInitOptions,
   dummyDataplaneHost,
+  dummySourceConfigResponse,
 };

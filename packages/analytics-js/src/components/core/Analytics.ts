@@ -1,4 +1,4 @@
-import { isEmpty } from 'ramda';
+import { isEmpty, clone } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -7,7 +7,6 @@ import { defaultExternalSrcLoader } from '@rudderstack/analytics-js/services/Ext
 import { defaultStoreManager, Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
@@ -32,6 +31,7 @@ import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsMan
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import {
   AliasCallOptions,
@@ -54,7 +54,7 @@ class Analytics implements IAnalytics {
   pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
   storeManager: IStoreManager;
-  configManager: ConfigManager;
+  configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;
   userSessionManager: IUserSessionManager;
@@ -130,7 +130,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, clone(loadOptions));
       state.lifecycle.status.value = 'mounted';
     });
 

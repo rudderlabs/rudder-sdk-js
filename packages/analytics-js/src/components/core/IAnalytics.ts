@@ -12,11 +12,11 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   AliasCallOptions,
@@ -35,7 +35,7 @@ export interface IAnalytics {
   pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
   storeManager: IStoreManager;
-  configManager: ConfigManager;
+  configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;
   userSessionManager: IUserSessionManager;
