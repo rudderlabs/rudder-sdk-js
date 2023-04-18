@@ -48,7 +48,9 @@ export default class GA4 {
 
     gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
-    gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+    if (this.isHybridModeEnabled) {
+      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+    }
     gtagParameterObject.debug_mode = true;
 
     if (Object.keys(gtagParameterObject).length === 0) {
@@ -81,7 +83,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return window.dataLayer.push !== Array.prototype.push;;
+    return window.dataLayer.push !== Array.prototype.push;
   }
 
   isReady() {
