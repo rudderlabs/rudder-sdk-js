@@ -22,9 +22,9 @@ export const updateTopLevelEventElements = (
   rudderEvent: RudderEvent,
   options: ApiOptions,
 ): void => {
-  if (options.anonymousId) rudderEvent.anonymousId = options.anonymousId;
-  if (options.integrations) rudderEvent.integrations = options.integrations;
-  if (options.originalTimestamp) rudderEvent.originalTimestamp = options.originalTimestamp;
+  if (options.anonymousId && typeof options.anonymousId === 'string') rudderEvent.anonymousId = options.anonymousId;
+  if (options.integrations && isObject(options.integrations)) rudderEvent.integrations = options.integrations;
+  if (options.originalTimestamp && typeof options.originalTimestamp === 'string') rudderEvent.originalTimestamp = options.originalTimestamp;
 };
 
 /**
