@@ -11,8 +11,8 @@ const externalAnonymousId: ExtensionPlugin = {
   storage: {
     getAnonymousId(options?: AnonymousIdOptions) {
       let anonymousId;
-      if (options?.autoCapture?.enabled && options?.autoCapture?.source) {
-        const source = options?.autoCapture?.source.toLowerCase();
+      if (options?.autoCapture?.enabled && options.autoCapture.source) {
+        const source = options.autoCapture.source.toLowerCase();
         if (!Object.keys(externallyLoadedSessionStorageKeys).includes(source)) {
           return anonymousId;
         }
