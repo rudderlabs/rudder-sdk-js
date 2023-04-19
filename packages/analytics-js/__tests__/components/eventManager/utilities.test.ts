@@ -4,16 +4,34 @@ import {
   checkForReservedElements,
   getUpdatedPageProperties,
   getContextPageProperties,
+  getCommonEventData,
 } from '../../../src/components/eventManager/utilities';
 import {
   RudderEvent,
   RudderContext,
 } from '@rudderstack/analytics-js/components/eventManager/types';
-import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
+import {
+  ApiObject,
+  ApiOptions,
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  SessionInfo,
+  UTMParameters,
+} from '@rudderstack/analytics-js/state/types';
 import * as R from 'ramda';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
+import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
+
+jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
+  getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
+}));
+
+jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+  generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
 
 const defaultAnonId = 'default-anon-id';
 const defaultIntegrations = { All: false, 'Default Integration': true };
@@ -26,14 +44,20 @@ const sampleOriginalTimestamp = 'sample-timestamp';
 const resetPageState = () => {
   batch(() => {
     state.page.initial_referrer.value = undefined;
-    state.page.initial_referrer_domain.value = undefined;
+    state.page.initial_referring_domain.value = undefined;
     state.page.referrer.value = '';
-    state.page.referrer_domain.value = '';
+    state.page.referring_domain.value = '';
     state.page.search.value = '';
     state.page.title.value = '';
     state.page.url.value = '';
     state.page.path.value = '';
     state.page.tab_url.value = '';
+  });
+};
+
+const resetApplicationState = () => {
+  batch(() => {
+    resetPageState();
   });
 };
 
@@ -235,6 +259,7 @@ describe('Event Manager - Utilities', () => {
         initial_referring_domain: 'www.google.com',
         anonymous_id: defaultAnonId,
       } as ApiObject;
+      resetPageState();
     });
 
     it('should return the input page properties if options is invalid', () => {
@@ -312,9 +337,11 @@ describe('Event Manager - Utilities', () => {
 
     it('should return updated page properties from state if some page properties are not defined in options and input page parameters are not defined', () => {
       // Set some specific page properties in state
-      state.page.initial_referrer.value = 'https://www.google.com/test3';
-      state.page.initial_referring_domain.value = 'www.google3.com';
-      state.page.tab_url.value = 'https://www.rudderlabs.com/test3';
+      batch(() => {
+        state.page.initial_referrer.value = 'https://www.google.com/test3';
+        state.page.initial_referring_domain.value = 'www.google3.com';
+        state.page.tab_url.value = 'https://www.rudderlabs.com/test3';
+      });
 
       // Reset the page properties
       pageProperties.initial_referrer = undefined;
@@ -384,8 +411,10 @@ describe('Event Manager - Utilities', () => {
 
     it('should return page properties from state if some input page parameters are not defined', () => {
       // Set some specific page properties in state
-      state.page.path.value = 'https://www.google.com/test3.html';
-      state.page.search.value = '?asdf=1234';
+      batch(() => {
+        state.page.path.value = 'https://www.google.com/test3.html';
+        state.page.search.value = '?asdf=1234';
+      });
 
       // Reset the input page properties
       pageProperties.path = undefined;
@@ -404,6 +433,101 @@ describe('Event Manager - Utilities', () => {
       expect(updatedPageProperties.initial_referring_domain).toEqual(
         pageProperties.initial_referring_domain,
       );
+    });
+  });
+
+  describe('getCommonEventData', () => {
+    let pageProperties: ApiObject = {
+      path: '/test',
+      referrer: 'https://www.google.com/test',
+      search: '?test=true',
+      title: 'test page',
+      url: 'https://www.rudderlabs.com/test',
+      referring_domain: 'www.google.com',
+      tab_url: 'https://www.rudderlabs.com/test1',
+      initial_referrer: 'https://www.google.com/test1',
+      initial_referring_domain: 'www.google.com',
+    } as ApiObject;
+
+    beforeEach(() => {
+      resetApplicationState();
+    });
+
+    it('should return common event data using the date in state', () => {
+      batch(() => {
+        state.session.rl_anonymous_id.value = 'modified_anon_id';
+        state.session.rl_trait.value = { test: 'test' };
+        state.session.rl_user_id.value = 'modified_user_id';
+        state.session.rl_session.value = { sessionStart: true, id: 1234 } as SessionInfo;
+        state.session.rl_group_id.value = 'modified_group_id';
+        state.session.rl_group_trait.value = { test: 'test' };
+        state.consents.deniedConsentIds.value = ['id1', 'id2'];
+        state.context['ua-ch'].value = { mobile: true } as UADataValues;
+        state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
+        state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
+        state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
+        state.context.locale.value = 'en-US';
+        state.context.userAgent.value = 'test';
+        state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
+        state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
+      });
+
+      const commonEventData = getCommonEventData(pageProperties);
+
+      expect(commonEventData).toEqual({
+        anonymousId: 'modified_anon_id',
+        channel: 'web',
+        context: {
+          page: {
+            path: pageProperties.path,
+            referrer: pageProperties.referrer,
+            search: pageProperties.search,
+            title: pageProperties.title,
+            url: pageProperties.url,
+            referring_domain: pageProperties.referring_domain,
+            tab_url: pageProperties.tab_url,
+            initial_referrer: pageProperties.initial_referrer,
+            initial_referring_domain: pageProperties.initial_referring_domain,
+          },
+          traits: { test: 'test' },
+          sessionId: 1234,
+          sessionStart: true,
+          consentManagement: {
+            deniedConsentIds: ['id1', 'id2'],
+          },
+          campaign: {
+            name: 'test',
+            source: 'test',
+          },
+          library: {
+            name: 'test',
+            version: '1.0',
+          },
+          locale: 'en-US',
+          userAgent: 'test',
+          screen: {
+            width: 100,
+            height: 100,
+          },
+          os: {
+            name: 'test',
+            version: '1.0',
+          },
+          app: {
+            name: 'test',
+            version: '1.0',
+          },
+          'ua-ch': {
+            mobile: true,
+          },
+        },
+        originalTimestamp: '2020-01-01T00:00:00.000Z',
+        integrations: { All: true },
+        messageId: 'test_uuid',
+        userId: 'modified_user_id',
+        groupId: 'modified_group_id',
+        traits: { test: 'test' },
+      });
     });
   });
 });

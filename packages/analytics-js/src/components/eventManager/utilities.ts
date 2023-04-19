@@ -22,9 +22,12 @@ export const updateTopLevelEventElements = (
   rudderEvent: RudderEvent,
   options: ApiOptions,
 ): void => {
-  if (options.anonymousId && typeof options.anonymousId === 'string') rudderEvent.anonymousId = options.anonymousId;
-  if (options.integrations && isObject(options.integrations)) rudderEvent.integrations = options.integrations;
-  if (options.originalTimestamp && typeof options.originalTimestamp === 'string') rudderEvent.originalTimestamp = options.originalTimestamp;
+  if (options.anonymousId && typeof options.anonymousId === 'string')
+    rudderEvent.anonymousId = options.anonymousId;
+  if (options.integrations && isObject(options.integrations))
+    rudderEvent.integrations = options.integrations;
+  if (options.originalTimestamp && typeof options.originalTimestamp === 'string')
+    rudderEvent.originalTimestamp = options.originalTimestamp;
 };
 
 /**
@@ -157,7 +160,8 @@ export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
  * @returns Rudder event object with common event data
  */
 export const getCommonEventData = (pageProps?: ApiObject): Partial<RudderEvent> => ({
-  anonymousId: state.session.rl_anonymous_id.value || '',
+  // Type casting to string as the user session manager will take care of initializing the value
+  anonymousId: state.session.rl_anonymous_id.value as string,
   channel: CHANNEL,
   context: {
     traits: { ...state.session.rl_trait.value },
