@@ -2,7 +2,7 @@ import { ExtensionPlugin, Nullable } from '@rudderstack/analytics-js-plugins/typ
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import parseLinker from './utils';
 
-// TODO: refactor this plugin and all related source code to be type-safe
+// TODO: refactor this plugin and all related sourcecode to be typesafe
 const googleLinker = (): ExtensionPlugin => ({
   name: 'googleLinker',
   userSession: {

@@ -13,10 +13,11 @@ const integrationSDKLoaded = (pluginName: string, modName: string) => {
   }
 };
 
-const pause = (time: number) =>
-  new Promise(resolve => {
+const pause = (time: number) => {
+  return new Promise(resolve => {
     setTimeout(resolve, time);
   });
+};
 
 const LoadIntegrations = () => ({
   name: 'loadIntegrationsTest',
@@ -38,8 +39,8 @@ const LoadIntegrations = () => ({
         externalScriptOnLoad,
       );
 
-      const isInitialized = (instance: any, time = 0) =>
-        new Promise(resolve => {
+      const isInitialized = (instance: any, time = 0) => {
+        return new Promise(resolve => {
           if (instance.isLoaded()) {
             console.log('instance.isLoaded');
             state.nativeDestinations.successfullyLoadedIntegration.value = [
@@ -58,6 +59,7 @@ const LoadIntegrations = () => ({
             pause(1000).then(() => isInitialized(instance, time + 1000).then(resolve));
           }
         });
+      };
 
       clientIntegrations.forEach(intg => {
         console.log(intg);
