@@ -5,6 +5,7 @@ import {
   getUpdatedPageProperties,
   getContextPageProperties,
   getCommonEventData,
+  getMergedContext,
 } from '../../../src/components/eventManager/utilities';
 import {
   RudderEvent,
@@ -524,6 +525,97 @@ describe('Event Manager - Utilities', () => {
         userId: 'modified_user_id',
         groupId: 'modified_group_id',
         traits: { test: 'test' },
+      });
+    });
+  });
+
+  describe('getMergeContext', () => {
+    const context: ApiObject = {
+      library: {
+        name: 'test',
+        version: '1.0',
+      },
+      locale: 'en-US',
+      app: {
+        name: 'test',
+        version: '1.0',
+      },
+      campaign: {
+        name: 'test',
+        source: 'test',
+      },
+    };
+
+    it('should return context with data merged from options', () => {
+      // Set specific contextual data in options to override
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        app: {
+          name: 'test1',
+          isNew: true,
+        },
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-US',
+        app: {
+          name: 'test1',
+          isNew: true,
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test',
+          source: 'test',
+        },
+        newContextKey1: 'newContextValue1',
+      });
+    });
+
+    it('should return context with data the context object merged from options', () => {
+      // Set specific contextual data in options to override
+      const apiOptions = {
+        newContextKey1: {
+          someKey: 'someValue',
+        },
+        context: {
+          campaign: {
+            name: 'test1',
+            isNew: true,
+          },
+          locale: 'en-UK',
+          app: {
+            name: 'test3',
+            version: '2.0',
+          }
+        },
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-UK',
+        app: {
+          name: 'test3',
+          version: '2.0',
+        },
+        campaign: {
+          name: 'test1',
+          isNew: true,
+          source: 'test',
+        },
+        newContextKey1: {
+          someKey: 'someValue',
+        },
       });
     });
   });
