@@ -6,12 +6,15 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { trigger } from './utils';
 
 class ConvertFlow {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.websiteId = config.websiteId;
     this.toggleToSendData = config.toggleToSendData;
     this.eventsList = config.eventsList;
     this.eventsMappping = config.eventsMappping;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

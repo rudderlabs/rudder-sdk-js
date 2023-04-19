@@ -14,7 +14,7 @@ import {
 } from './utils';
 
 class DCMFloodlight {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -29,6 +29,8 @@ class DCMFloodlight {
     this.googleNetworkId = config.googleNetworkId;
     this.tagFormat = config.tagFormat || GTAG;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   /**
