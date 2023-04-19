@@ -6,6 +6,7 @@ import {
   getContextPageProperties,
   getCommonEventData,
   getMergedContext,
+  processOptions,
 } from '../../../src/components/eventManager/utilities';
 import {
   RudderEvent,
@@ -41,6 +42,22 @@ const defaultOriginalTimestamp = 'default-timestamp';
 const sampleAnonId = 'sample-anon-id';
 const sampleIntegrations = { All: true, 'Sample Integration': true };
 const sampleOriginalTimestamp = 'sample-timestamp';
+
+const defaultContext: ApiObject = {
+  library: {
+    name: 'test',
+    version: '1.0',
+  },
+  locale: 'en-US',
+  app: {
+    name: 'test',
+    version: '1.0',
+  },
+  campaign: {
+    name: 'test',
+    source: 'test',
+  },
+};
 
 const resetPageState = () => {
   batch(() => {
@@ -530,22 +547,6 @@ describe('Event Manager - Utilities', () => {
   });
 
   describe('getMergeContext', () => {
-    const context: ApiObject = {
-      library: {
-        name: 'test',
-        version: '1.0',
-      },
-      locale: 'en-US',
-      app: {
-        name: 'test',
-        version: '1.0',
-      },
-      campaign: {
-        name: 'test',
-        source: 'test',
-      },
-    };
-
     it('should return context with data merged from options', () => {
       // Set specific contextual data in options to override
       const apiOptions = {
@@ -556,7 +557,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(context, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions);
 
       expect(mergedContext).toEqual({
         library: {
@@ -597,7 +598,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(context, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions);
 
       expect(mergedContext).toEqual({
         library: {
@@ -644,7 +645,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(context, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions);
 
       expect(mergedContext).toEqual({
         library: {
@@ -674,7 +675,7 @@ describe('Event Manager - Utilities', () => {
         context: 'test',
       };
 
-      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -706,7 +707,7 @@ describe('Event Manager - Utilities', () => {
         context: null,
       };
 
-      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -737,7 +738,7 @@ describe('Event Manager - Utilities', () => {
         context: undefined,
       };
 
-      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -758,6 +759,86 @@ describe('Event Manager - Utilities', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'The "context" element passed in the options is not a valid object',
       );
+    });
+  });
+
+  describe('processOptions', () => {
+    const rudderEvent: RudderEvent = {
+      event: 'test_event',
+      properties: {
+        someKey: 'someValue',
+      },
+      anonymousId: defaultAnonId,
+      originalTimestamp: defaultOriginalTimestamp,
+      context: defaultContext
+    };
+
+    it('should update event context with data from options', () => {
+      // Set specific contextual data in options to override
+      // Both top-level elements and context elements should be updated
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        originalTimestamp: '2020-01-01T00:00:00.000Z',
+        anonymousId: 'test_anon_id',
+        app: {
+          name: 'test1',
+          isNew: true,
+        },
+        context: {
+          campaign: {
+            name: 'test1',
+            isNew: true,
+          },
+          locale: 'en-UK',
+        }
+      };
+
+      processOptions(rudderEvent, apiOptions);
+
+      expect(rudderEvent).toEqual({
+        event: 'test_event',
+        properties: {
+          someKey: 'someValue',
+        },
+        anonymousId: 'test_anon_id',
+        originalTimestamp: '2020-01-01T00:00:00.000Z',
+        context: {
+          library: {
+            name: 'test',
+            version: '1.0',
+          },
+          locale: 'en-UK',
+          app: {
+            name: 'test1',
+            version: '1.0',
+            isNew: true,
+          },
+          campaign: {
+            name: 'test1',
+            isNew: true,
+            source: 'test',
+          },
+          newContextKey1: 'newContextValue1',
+        },
+      });
+    });
+
+    it('should not update event if options is not a valid object', () => {
+      processOptions(rudderEvent, 'test');
+
+      expect(rudderEvent).toEqual(rudderEvent);
+    });
+
+    it('should not update event if options is null', () => {
+      processOptions(rudderEvent, null);
+
+      expect(rudderEvent).toEqual(rudderEvent);
+    });
+
+    it('should not update event if options is undefined', () => {
+      processOptions(rudderEvent, undefined);
+
+      expect(rudderEvent).toEqual(rudderEvent);
     });
   });
 });
