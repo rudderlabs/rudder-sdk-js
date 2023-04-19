@@ -318,21 +318,17 @@ describe('Event Manager - Utilities', () => {
 
       const updatedPageProperties = getUpdatedPageProperties(pageProperties, apiOptions);
 
-      expect(updatedPageProperties.path).toEqual(optionsPageProperties.path);
-      expect(updatedPageProperties.referrer).toEqual(optionsPageProperties.referrer);
-      expect(updatedPageProperties.search).toEqual(optionsPageProperties.search);
-      expect(updatedPageProperties.title).toEqual(optionsPageProperties.title);
-      expect(updatedPageProperties.url).toEqual(optionsPageProperties.url);
-      expect(updatedPageProperties.referring_domain).toEqual(
-        optionsPageProperties.referring_domain,
-      );
-      expect(updatedPageProperties.tab_url).toEqual(optionsPageProperties.tab_url);
-      expect(updatedPageProperties.initial_referrer).toEqual(
-        optionsPageProperties.initial_referrer,
-      );
-      expect(updatedPageProperties.initial_referring_domain).toEqual(
-        optionsPageProperties.initial_referring_domain,
-      );
+      expect(updatedPageProperties).toEqual({
+        path: optionsPageProperties.path,
+        referrer: optionsPageProperties.referrer,
+        search: optionsPageProperties.search,
+        title: optionsPageProperties.title,
+        url: optionsPageProperties.url,
+        referring_domain: optionsPageProperties.referring_domain,
+        tab_url: optionsPageProperties.tab_url,
+        initial_referrer: optionsPageProperties.initial_referrer,
+        initial_referring_domain: optionsPageProperties.initial_referring_domain,
+      });
     });
 
     it('should return updated page properties from state if some page properties are not defined in options and input page parameters are not defined', () => {
@@ -362,17 +358,18 @@ describe('Event Manager - Utilities', () => {
 
       const updatedPageProperties = getUpdatedPageProperties(pageProperties, apiOptions);
 
-      expect(updatedPageProperties.path).toEqual(optionsPageProperties.path);
-      expect(updatedPageProperties.referrer).toEqual(optionsPageProperties.referrer);
-      expect(updatedPageProperties.search).toEqual(pageProperties.search);
-      expect(updatedPageProperties.title).toEqual(pageProperties.title);
-      expect(updatedPageProperties.url).toEqual(pageProperties.url);
-      expect(updatedPageProperties.referring_domain).toEqual(pageProperties.referring_domain);
-      expect(updatedPageProperties.tab_url).toEqual(state.page.tab_url.value);
-      expect(updatedPageProperties.initial_referrer).toEqual(state.page.initial_referrer.value);
-      expect(updatedPageProperties.initial_referring_domain).toEqual(
-        state.page.initial_referring_domain.value,
-      );
+      expect(updatedPageProperties).toEqual({
+        path: optionsPageProperties.path,
+        referrer: optionsPageProperties.referrer,
+        search: pageProperties.search,
+        title: pageProperties.title,
+        url: pageProperties.url,
+        referring_domain: pageProperties.referring_domain,
+        tab_url: state.page.tab_url.value,
+        initial_referrer: state.page.initial_referrer.value,
+        initial_referring_domain: state.page.initial_referring_domain.value,
+        anonymous_id: pageProperties.anonymous_id,
+      });
     });
   });
 
@@ -396,17 +393,17 @@ describe('Event Manager - Utilities', () => {
     it('should return input page properties if input page properties are valid', () => {
       const contextPageProperties = getContextPageProperties(pageProperties);
 
-      expect(contextPageProperties.path).toEqual(pageProperties.path);
-      expect(contextPageProperties.referrer).toEqual(pageProperties.referrer);
-      expect(contextPageProperties.search).toEqual(pageProperties.search);
-      expect(contextPageProperties.title).toEqual(pageProperties.title);
-      expect(contextPageProperties.url).toEqual(pageProperties.url);
-      expect(contextPageProperties.referring_domain).toEqual(pageProperties.referring_domain);
-      expect(contextPageProperties.tab_url).toEqual(pageProperties.tab_url);
-      expect(contextPageProperties.initial_referrer).toEqual(pageProperties.initial_referrer);
-      expect(contextPageProperties.initial_referring_domain).toEqual(
-        pageProperties.initial_referring_domain,
-      );
+      expect(contextPageProperties).toEqual({
+        path: pageProperties.path,
+        referrer: pageProperties.referrer,
+        search: pageProperties.search,
+        title: pageProperties.title,
+        url: pageProperties.url,    
+        referring_domain: pageProperties.referring_domain,
+        tab_url: pageProperties.tab_url,
+        initial_referrer: pageProperties.initial_referrer,
+        initial_referring_domain: pageProperties.initial_referring_domain,
+      });
     });
 
     it('should return page properties from state if some input page parameters are not defined', () => {
@@ -422,17 +419,17 @@ describe('Event Manager - Utilities', () => {
 
       const updatedPageProperties = getContextPageProperties(pageProperties);
 
-      expect(updatedPageProperties.path).toEqual(state.page.path.value);
-      expect(updatedPageProperties.referrer).toEqual(pageProperties.referrer);
-      expect(updatedPageProperties.search).toEqual(state.page.search.value);
-      expect(updatedPageProperties.title).toEqual(pageProperties.title);
-      expect(updatedPageProperties.url).toEqual(pageProperties.url);
-      expect(updatedPageProperties.referring_domain).toEqual(pageProperties.referring_domain);
-      expect(updatedPageProperties.tab_url).toEqual(pageProperties.tab_url);
-      expect(updatedPageProperties.initial_referrer).toEqual(pageProperties.initial_referrer);
-      expect(updatedPageProperties.initial_referring_domain).toEqual(
-        pageProperties.initial_referring_domain,
-      );
+      expect(updatedPageProperties).toEqual({
+        path: state.page.path.value,
+        referrer: pageProperties.referrer,
+        search: state.page.search.value,
+        title: pageProperties.title,
+        url: pageProperties.url,
+        referring_domain: pageProperties.referring_domain,
+        tab_url: pageProperties.tab_url,
+        initial_referrer: pageProperties.initial_referrer,
+        initial_referring_domain: pageProperties.initial_referring_domain,
+      });
     });
   });
 
