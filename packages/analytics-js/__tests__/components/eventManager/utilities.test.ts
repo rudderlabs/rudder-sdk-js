@@ -476,7 +476,11 @@ describe('Event Manager - Utilities', () => {
         state.session.rl_session.value = { sessionStart: true, id: 1234 } as SessionInfo;
         state.session.rl_group_id.value = 'modified_group_id';
         state.session.rl_group_trait.value = { test: 'test' };
+        state.session.rl_page_init_referrer.value = 'initial_referrer';
+        state.session.rl_page_init_referring_domain.value = 'initial_referring_domain';
+
         state.consents.deniedConsentIds.value = ['id1', 'id2'];
+
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
         state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
@@ -770,7 +774,7 @@ describe('Event Manager - Utilities', () => {
       },
       anonymousId: defaultAnonId,
       originalTimestamp: defaultOriginalTimestamp,
-      context: defaultContext
+      context: defaultContext,
     };
 
     it('should update event context with data from options', () => {
@@ -790,7 +794,7 @@ describe('Event Manager - Utilities', () => {
             isNew: true,
           },
           locale: 'en-UK',
-        }
+        },
       };
 
       processOptions(rudderEvent, apiOptions);
