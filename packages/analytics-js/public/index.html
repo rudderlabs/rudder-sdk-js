@@ -22,7 +22,7 @@
         'startSession',
         'endSession',
         'getSessionId',
-        'getSessionInfo',
+        'getSessionInfo'
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -55,7 +55,7 @@
           street: 'Sample Address',
           state: 'TX',
         },
-        function () {
+        function() {
           console.log('in identify call');
         },
       );
@@ -70,7 +70,7 @@
           title: '',
           url: '',
         },
-        function () {
+        function() {
           console.log('in page call');
         },
       );
@@ -82,7 +82,7 @@
           currency: 'USD',
           user_actual_id: 12345,
         },
-        function () {
+        function() {
           console.log('in track call 1');
         },
       );
@@ -94,7 +94,7 @@
           currency: 'INR',
           user_actual_id: 333,
         },
-        function () {
+        function() {
           console.log('in track call 2');
         },
       );
@@ -106,12 +106,12 @@
           currency: 'EUR',
           user_actual_id: 5678,
         },
-        function () {
+        function() {
           console.log('in track call 3');
         },
       );
 
-      rudderanalytics.ready(function () {
+      rudderanalytics.ready(function() {
         console.log('All ready!!!');
       });
 

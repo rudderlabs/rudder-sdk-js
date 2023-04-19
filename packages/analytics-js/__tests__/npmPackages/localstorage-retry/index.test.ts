@@ -137,7 +137,7 @@ describe('Queue', () => {
   it('should respect maxItems', () => {
     queue.maxItems = 100;
 
-    for (let i = 0; i < 105; i += 1) {
+    for (let i = 0; i < 105; i = i + 1) {
       jest.advanceTimersByTime(1);
       queue.addItem(i);
     }
@@ -551,7 +551,7 @@ describe('Queue', () => {
       done(new Error());
     };
 
-    for (let i = 0; i < calls.length; i += 1) {
+    for (let i = 0; i < calls.length; i = i + 1) {
       queue.addItem({ index: i });
     }
 
@@ -587,7 +587,7 @@ describe('Queue', () => {
     expect(size(queue).inProgress).toEqual(queue.maxItems);
 
     // while the items are in progress let's add maxItems times two items
-    for (i = 0; i < queue.maxItems * 2; i += 1) {
+    for (i = 0; i < queue.maxItems * 2; i = i + 1) {
       queue.addItem({ index: i });
     }
 

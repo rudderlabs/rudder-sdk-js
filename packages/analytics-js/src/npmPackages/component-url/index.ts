@@ -54,7 +54,9 @@ const isAbsolute = (url: string): boolean => url.indexOf('//') === 0 || url.inde
 /**
  * Check if `url` is relative
  */
-const isRelative = (url: string) => !isAbsolute(url);
+const isRelative = (url: string) => {
+  return !isAbsolute(url);
+};
 
 /**
  * Check if `url` is cross domain
