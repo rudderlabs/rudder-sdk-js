@@ -20,6 +20,7 @@ export default class GA4 {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
+    this.sessionId = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
@@ -84,7 +85,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return window.dataLayer.push !== Array.prototype.push;
+    return !!this.sessionId;
   }
 
   isReady() {
@@ -273,5 +274,13 @@ export default class GA4 {
         ...traits,
       });
     });
+  }
+
+  getDataForIntegrationsObject() {
+    return {
+      'Google Analytics 4': {
+        sessionId: this.sessionId,
+      },
+    };
   }
 }
