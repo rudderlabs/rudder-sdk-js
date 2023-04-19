@@ -1,7 +1,7 @@
 const persistedSessionStorageKeys = {
   userId: 'rl_user_id',
   userTraits: 'rl_trait',
-  userAnonymousId: 'rl_anonymous_id',
+  anonymousUserId: 'rl_anonymous_id',
   groupId: 'rl_group_id',
   groupTraits: 'rl_group_trait',
   initialReferrer: 'rl_page_init_referrer',
