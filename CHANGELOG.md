@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.29.0...v2.30.0) (2023-04-17)
+
+
+### Features
+
+* bingads Upgraded to latest ([#1003](https://github.com/rudderlabs/rudder-sdk-js/issues/1003)) ([24976a4](https://github.com/rudderlabs/rudder-sdk-js/commit/24976a4fa5b507eba3444b27f2357c71f25df6ad))
+
+
+### Bug Fixes
+
+* bugsnag error reporting ([#856](https://github.com/rudderlabs/rudder-sdk-js/issues/856)) ([b35bd2b](https://github.com/rudderlabs/rudder-sdk-js/commit/b35bd2bca1dc372b863fb7afe028061507d2b64d))
+* dom-exception error in incognito for storejs lib ([#991](https://github.com/rudderlabs/rudder-sdk-js/issues/991)) ([66bb84f](https://github.com/rudderlabs/rudder-sdk-js/commit/66bb84fb27a1a61d5bfba47015c363cb7dcdb923))
+* **fb_pixel:** add value in mapped event ([#1005](https://github.com/rudderlabs/rudder-sdk-js/issues/1005)) ([945e3dd](https://github.com/rudderlabs/rudder-sdk-js/commit/945e3dd49742585de1b0e70337156eefe6fe3e84))
+* **GA4:** add send_to parameter support by default ([#993](https://github.com/rudderlabs/rudder-sdk-js/issues/993)) ([05cdaba](https://github.com/rudderlabs/rudder-sdk-js/commit/05cdabac31a0f246e5343b0622142cdefee94ec2))
+* upgrade vulnerable dependencies ([#995](https://github.com/rudderlabs/rudder-sdk-js/issues/995)) ([8e6d8ff](https://github.com/rudderlabs/rudder-sdk-js/commit/8e6d8ff9a0712f1fbf3672829de5b9264266f716))
+
+## [2.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.28.0...v2.29.0) (2023-04-03)
+
+
+### Features
+
+* **goole_ads:** enhanced conversions ([#970](https://github.com/rudderlabs/rudder-sdk-js/issues/970)) ([154589b](https://github.com/rudderlabs/rudder-sdk-js/commit/154589b09d4ab336f872ed440c881606c8b2272b))
+
+
+### Bug Fixes
+
+* event repository initialisation ([#974](https://github.com/rudderlabs/rudder-sdk-js/issues/974)) ([13ef5bd](https://github.com/rudderlabs/rudder-sdk-js/commit/13ef5bdaf026804b31d93a9b26953e3f2bc6dc53))
+* **fb pixel:** ecomm ([#967](https://github.com/rudderlabs/rudder-sdk-js/issues/967)) ([cb55955](https://github.com/rudderlabs/rudder-sdk-js/commit/cb559551213040f68a37590ed0cf5f36397d1415))
+* **ga4 and ua:** cookie conflicts ([#978](https://github.com/rudderlabs/rudder-sdk-js/issues/978)) ([0ed6f5a](https://github.com/rudderlabs/rudder-sdk-js/commit/0ed6f5a3cf242e08083c976ac3518d86cd0b1454))
+* support bingAds for multiple tagIds ([#972](https://github.com/rudderlabs/rudder-sdk-js/issues/972)) ([f736fff](https://github.com/rudderlabs/rudder-sdk-js/commit/f736fffb487f4dc197b6465a89eaa9c7d136b8ae))
+
 ## [2.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.27.0...v2.28.0) (2023-03-21)
 
 

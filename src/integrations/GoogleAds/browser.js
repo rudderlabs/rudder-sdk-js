@@ -36,6 +36,7 @@ class GoogleAds {
     this.eventMappingFromConfig = config.eventMappingFromConfig;
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
+    this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
     this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo.destinationId;
@@ -69,6 +70,11 @@ class GoogleAds {
       send_page_view: this.sendPageView,
       conversion_linker: this.conversionLinker,
     };
+
+    // ref:- https://support.google.com/google-ads/answer/12785474?hl=en-GB#Config&zippy=%2Cconfigure-your-conversion-page-google-tag
+    if (this.allowEnhancedConversions) {
+      config.allow_enhanced_conversions = this.allowEnhancedConversions;
+    }
 
     if (this.disableAdPersonalization) {
       window.gtag('set', 'allow_ad_personalization_signals', false);

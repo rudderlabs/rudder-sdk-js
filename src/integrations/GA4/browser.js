@@ -23,8 +23,6 @@ export default class GA4 {
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
-    this.addSendToParameter = config.addSendToParameter || false;
-    this.addSendToParameter = config.addSendToParameter || false;
     this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo.destinationId;
     this.extendPageViewParams = config.extendPageViewParams || false;
@@ -49,7 +47,7 @@ export default class GA4 {
     if (this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
-
+    gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
     gtagParameterObject.debug_mode = true;
 
@@ -156,9 +154,7 @@ export default class GA4 {
       throw Error('Payload must have required parameters..');
     }
     const params = { ...parameters };
-    if (this.addSendToParameter) {
-      params.send_to = this.measurementId;
-    }
+    params.send_to = this.measurementId;
     if (this.analytics.userId) {
       params.user_id = this.analytics.userId;
     }
@@ -244,9 +240,7 @@ export default class GA4 {
       if (!pageProps) return;
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
-      if (this.addSendToParameter) {
-        properties.send_to = this.measurementId;
-      }
+      properties.send_to = this.measurementId;
       if (this.analytics.userId) {
         properties.user_id = this.analytics.userId;
       }
@@ -273,11 +267,12 @@ export default class GA4 {
     if (this.analytics.userId) {
       traits.user_id = this.analytics.userId;
     }
+    traits.send_to = this.measurementId;
 
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
       this.sendGAEvent(events.dest, {
         group_id: groupId,
-        ...(traits || {}),
+        ...traits,
       });
     });
   }

@@ -25,82 +25,86 @@
           };
         })(method);
       }
+
       rudderanalytics.load(
         '__WRITE_KEY__',
         '__DATAPLANE_URL__',
         { logLevel: "DEBUG" }
       );
-      rudderanalytics.identify(
-        "customUserID",
-        {
-          name: "John Doe",
-          title: "CEO",
-          email: "name.surname@domain.com",
-          company: "Company123",
-          phone: "123-456-7890",
-          rating: "Hot",
-          city: "Austin",
-          postalCode: "12345",
-          country: "US",
-          street: "Sample Address",
-          state: "TX",
-        },
-        () => {
-          console.log("in identify call");
-        }
-      );
-      rudderanalytics.page(
-        "Home",
-        "Cart Viewed",
-        {
-          path: "",
-          referrer: "",
-          search: "",
-          title: "",
-          url: "",
-        },
-        () => {
-          console.log("in page call");
-        }
-      );
 
-      rudderanalytics.track(
-        "test track event 1",
-        {
-          revenue: 30,
-          currency: "USD",
-          user_actual_id: 12345,
-        },
-        () => {
-          console.log("in track call 1");
-        }
-      );
+      setTimeout(function() {
+        rudderanalytics.identify(
+          "customUserID",
+          {
+            name: "John Doe",
+            title: "CEO",
+            email: "name.surname@domain.com",
+            company: "Company123",
+            phone: "123-456-7890",
+            rating: "Hot",
+            city: "Austin",
+            postalCode: "12345",
+            country: "US",
+            street: "Sample Address",
+            state: "TX",
+          },
+          () => {
+            console.log("in identify call");
+          }
+        );
+        rudderanalytics.page(
+          "Home",
+          "Cart Viewed",
+          {
+            path: "",
+            referrer: "",
+            search: "",
+            title: "",
+            url: "",
+          },
+          () => {
+            console.log("in page call");
+          }
+        );
 
-      rudderanalytics.track(
-        "test track event 2",
-        {
-          revenue: 45,
-          currency: "INR",
-          user_actual_id: 333,
-        },
-        () => {
-          console.log("in track call 2");
-        }
-      );
+        rudderanalytics.track(
+          "test track event 1",
+          {
+            revenue: 30,
+            currency: "USD",
+            user_actual_id: 12345,
+          },
+          () => {
+            console.log("in track call 1");
+          }
+        );
 
-      rudderanalytics.track(
-        "test track event 3",
-        {
-          revenue: 10003,
-          currency: "EUR",
-          user_actual_id: 5678,
-        },
-        () => {
-          console.log("in track call 3");
-        }
-      );
+        rudderanalytics.track(
+          "test track event 2",
+          {
+            revenue: 45,
+            currency: "INR",
+            user_actual_id: 333,
+          },
+          () => {
+            console.log("in track call 2");
+          }
+        );
 
-      // TODO: Call other APIs here
+        rudderanalytics.track(
+          "test track event 3",
+          {
+            revenue: 10003,
+            currency: "EUR",
+            user_actual_id: 5678,
+          },
+          () => {
+            console.log("in track call 3");
+          }
+        );
+
+        // TODO: Call other APIs here
+      }, 5000)
     </script>
 
     <!-- ============ V1 ============ -->
@@ -137,7 +141,7 @@
     <!-- <script src="../dist/rudder-analytics.min.js"></script> -->
 
     <!-- Local UNMINIFIED -->
-    <script src="./rudder-analytics.js"></script>
+    <!-- <script src="./rudder-analytics.js"></script> -->
     <!-- ============ LOCAl ================= -->
   </head>
   <body>
