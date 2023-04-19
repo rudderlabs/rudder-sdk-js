@@ -10,12 +10,15 @@ import { isObject } from '../../utils/utils';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class SnapEngage {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.widgetId = config.widgetId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {

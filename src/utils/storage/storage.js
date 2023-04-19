@@ -15,6 +15,7 @@ const defaults = {
   page_storage_init_referrer: 'rl_page_init_referrer',
   page_storage_init_referring_domain: 'rl_page_init_referring_domain',
   session_info: 'rl_session',
+  auth_token: 'rl_auth_token',
   prefix: 'RudderEncrypt:',
   key: 'Rudder',
 };
@@ -191,6 +192,14 @@ class Storage {
   }
 
   /**
+   * Set auth token for CT server
+   * @param {*} value
+   */
+  setAuthToken(value) {
+    this.setItem(defaults.auth_token, value);
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -335,6 +344,13 @@ class Storage {
   }
 
   /**
+   * get the auth token
+   */
+  getAuthToken() {
+    return this.getItem(defaults.auth_token);
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -354,6 +370,7 @@ class Storage {
     this.storage.remove(defaults.user_storage_trait);
     this.storage.remove(defaults.group_storage_key);
     this.storage.remove(defaults.group_storage_trait);
+    this.storage.remove(defaults.auth_token);
     if (flag) {
       this.storage.remove(defaults.user_storage_anonymousId);
     }

@@ -10,7 +10,7 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class Drip {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -30,6 +30,8 @@ class Drip {
       'eu_consent_message',
       'euConsentMessage',
     ];
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {
