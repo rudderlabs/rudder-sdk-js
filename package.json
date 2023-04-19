@@ -29,7 +29,7 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky install",
-    "pre-commit": "npm run test -- --concurrency 1 --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npm run check:size:build --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npx lint-staged",
+    "pre-commit": "npm run test -- --concurrency 1 --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npm run check:size:build -- --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
     "release": "npx standard-version",
