@@ -399,7 +399,7 @@ describe('Event Manager - Utilities', () => {
         referrer: pageProperties.referrer,
         search: pageProperties.search,
         title: pageProperties.title,
-        url: pageProperties.url,    
+        url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
         tab_url: pageProperties.tab_url,
         initial_referrer: pageProperties.initial_referrer,
@@ -579,6 +579,7 @@ describe('Event Manager - Utilities', () => {
 
     it('should return context with data the context object merged from options', () => {
       // Set specific contextual data in options to override
+      // Moreover, directly specify the 'context' object itself
       const apiOptions = {
         newContextKey1: {
           someKey: 'someValue',
@@ -592,7 +593,7 @@ describe('Event Manager - Utilities', () => {
           app: {
             name: 'test3',
             version: '2.0',
-          }
+          },
         },
       };
 
@@ -617,6 +618,146 @@ describe('Event Manager - Utilities', () => {
           someKey: 'someValue',
         },
       });
+    });
+
+    it('should skip merging into context if options contain either top-level or context reserved elements', () => {
+      // Set specific contextual data in options to override
+      // Include top-level elements and reserved elements in options and options context object
+      // which should be skipped
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        anonymousId: 'test_anon_id',
+        originalTimestamp: '2020-01-01T00:00:00.000Z',
+        library: {
+          name: 'test1',
+          isNew: true,
+        },
+        context: {
+          campaign: {
+            name: 'test1',
+            isNew: true,
+          },
+          locale: 'en-UK',
+          consentManagement: {
+            deniedConsentIds: ['id1', 'id2'],
+          },
+        },
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        newContextKey1: 'newContextValue1',
+        locale: 'en-UK',
+        app: {
+          name: 'test',
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test1',
+          isNew: true,
+          source: 'test',
+        },
+      });
+    });
+
+    it('should log warning if the context inside the options is not a valid object', () => {
+      // Set specific contextual data in options to override
+      // Set the 'context' object to be a string
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        newContextKey2: 'newContextValue2',
+        context: 'test',
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-US',
+        app: {
+          name: 'test',
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test',
+          source: 'test',
+        },
+        newContextKey1: 'newContextValue1',
+        newContextKey2: 'newContextValue2',
+      });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'The "context" element passed in the options is not a valid object',
+      );
+    });
+
+    it('should log warning if the context inside the options is null', () => {
+      // Set specific contextual data in options to override
+      // Set the 'context' object to be a null
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        context: null,
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-US',
+        app: {
+          name: 'test',
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test',
+          source: 'test',
+        },
+        newContextKey1: 'newContextValue1',
+      });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'The "context" element passed in the options is not a valid object',
+      );
+    });
+
+    it('should log warning if the context inside the options is undefined', () => {
+      // Set specific contextual data in options to override
+      // Set the 'context' object to be undefined
+      const apiOptions = {
+        newContextKey1: 'newContextValue1',
+        context: undefined,
+      };
+
+      const mergedContext = getMergedContext(context, apiOptions, mockLogger);
+
+      expect(mergedContext).toEqual({
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-US',
+        app: {
+          name: 'test',
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test',
+          source: 'test',
+        },
+        newContextKey1: 'newContextValue1',
+      });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'The "context" element passed in the options is not a valid object',
+      );
     });
   });
 });

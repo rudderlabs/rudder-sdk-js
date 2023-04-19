@@ -47,7 +47,7 @@ export const getMergedContext = (
         context = mergeDeepRight(context, {
           [key]: options[key],
         });
-      } else if (typeof options[key] === 'object' && options[key] !== null) {
+      } else if (options[key] && typeof options[key] === 'object' && options[key] !== null) {
         const tempContext: Record<string, any> = {};
         Object.keys(options[key] as Record<string, any>).forEach(e => {
           if (!CONTEXT_RESERVED_ELEMENTS.includes(e)) {
@@ -58,9 +58,7 @@ export const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.error(
-          `[Analytics: processOptionsParam] context passed in options "${key}" is not an object`,
-        );
+        logger?.warn('The "context" element passed in the options is not a valid object');
       }
     }
   });
