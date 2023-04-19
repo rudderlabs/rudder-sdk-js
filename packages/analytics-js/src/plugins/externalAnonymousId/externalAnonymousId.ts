@@ -15,7 +15,7 @@ const externalAnonymousId: ExtensionPlugin = {
         }
         switch (source) {
           case 'segment':
-            fetchAnonymousIdFromSegment('segment');
+            anonymousId = getSegmentAnonymousId('segment');
             break;
 
           default:
