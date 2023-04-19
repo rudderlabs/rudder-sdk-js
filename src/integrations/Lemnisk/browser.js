@@ -8,14 +8,15 @@ import { NAME } from './constants';
 
 const logger = new Logger(NAME);
 class Lemnisk{
-    constructor(config, analytics) {
+    constructor(config, analytics, destinationInfo) {
         if (analytics.logLevel) {
             logger.setLogLevel(analytics.logLevel);
         }
         this.accountId = config.accountId;
         this.sdkWriteKey = config.sdkWriteKey;
         this.name = NAME;
-
+        this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+        this.destinationId = destinationInfo.destinationId;
     }
 
     init() {

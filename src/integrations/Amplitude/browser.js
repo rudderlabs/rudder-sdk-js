@@ -8,7 +8,10 @@ import { NAME } from './constants';
 const logger = new Logger(NAME);
 
 class Amplitude {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.analytics = analytics;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
@@ -26,6 +29,8 @@ class Amplitude {
     this.traitsToIncrement = [];
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {

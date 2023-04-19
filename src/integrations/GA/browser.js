@@ -7,7 +7,7 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 export default class GA {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -44,6 +44,8 @@ export default class GA {
       'product viewed',
       'product removed',
     ];
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   initializeGlobalObject() {

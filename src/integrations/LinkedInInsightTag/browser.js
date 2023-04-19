@@ -5,13 +5,15 @@ import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { NAME } from './constants';
 
 class LinkedInInsightTag {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.partnerId = config.partnerId;
     this.eventToConversionIdMap = config.eventToConversionIdMap;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

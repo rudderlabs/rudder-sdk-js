@@ -14,7 +14,7 @@ import {
 import { NAME } from './constants';
 
 class GoogleAds {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -38,6 +38,8 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

@@ -14,7 +14,7 @@ import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
 
 export default class GA4 {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -23,6 +23,8 @@ export default class GA4 {
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
