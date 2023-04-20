@@ -3,7 +3,6 @@ import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import {
-  eventMapping,
   searchPropertyMapping,
   productPropertyMapping,
   propertyMapping,
@@ -15,9 +14,9 @@ import {
   getDataFromSource,
   getDefinedTraits,
 } from '../../utils/utils';
-import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
+import { getDestinationEventName } from './utils';
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -203,64 +202,17 @@ export default class PinterestTag {
     return pinterestObject;
   }
 
-  getDestinationEventName(event) {
-    let eventNames;
-    /*
-    Step 1: At first we will look for
-            the event mapping in the UI. In case it is similar, will map to that.
-     */
-    if (this.userDefinedEventsMapping.length > 0) {
-      const keyMap = getHashFromArrayWithDuplicate(
-        this.userDefinedEventsMapping,
-        'from',
-        'to',
-        false,
-      );
-      eventNames = keyMap[event];
-    }
-    if (eventNames) {
-      return eventNames;
-    }
-    /*
-    Step 2: To find if the particular event is amongst the list of standard
-            Rudderstack ecommerce events, used specifically for Pinterest Conversion API
-            mappings.
-    */
-    const eventMapInfo = eventMapping.find((eventMap) => {
-      if (eventMap.src.includes(event.toLowerCase())) {
-        return eventMap;
-      }
-      return false;
-    });
-    if (isDefinedAndNotNull(eventMapInfo)) {
-      return [eventMapInfo.dest];
-    }
-
-    /*
-    Step 3: In case both of the above stated cases fail, will check if sendAsCustomEvent toggle is enabled in UI. 
-            If yes, then we will send it as custom event
-    */
-    if (this.sendAsCustomEvent) {
-      return ['Custom'];
-    }
-
-    /*
-    Step 4: In case all of the above stated cases fail, will send the event name as it is.
-          This is going to be reflected as "unknown" event in pinterest tag dashboard.
-   */
-    logger.warn(
-      `'${event}' is not mapped in UI. Make sure to mapped the event in UI or enable the 'send as custom event' setting`,
-    );
-    return [event];
-  }
-
   track(rudderElement) {
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
     const { message } = rudderElement;
     const { properties, event, messageId } = message;
-    const destEventArray = this.getDestinationEventName(event);
+    const destEventArray = getDestinationEventName(
+      event,
+      this.userDefinedEventsMapping,
+      this.sendAsCustomEvent,
+    );
     destEventArray.forEach((eventName) => {
       const pinterestObject = this.generatePinterestObject(properties);
       pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
