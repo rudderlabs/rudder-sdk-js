@@ -31,9 +31,10 @@ export default class PinterestTag {
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-    logger.debug('config', config);
+    this.sendAsCustomEvent = config.sendAsCustomEvent || false;
   }
 
   loadScript() {
@@ -242,9 +243,20 @@ export default class PinterestTag {
     }
 
     /*
-    Step 3: In case both of the above stated cases fail, will send the event name as it is.
+    Step 3: In case both of the above stated cases fail, will check if sendAsCustomEvent toggle is enabled in UI. 
+            If yes, then we will send it as custom event
+    */
+    if (this.sendAsCustomEvent) {
+      return ['Custom'];
+    }
+
+    /*
+    Step 4: In case all of the above stated cases fail, will send the event name as it is.
           This is going to be reflected as "unknown" event in pinterest tag dashboard.
-   */
+    */
+    logger.warn(
+      `'${event}' is not mapped in UI. Make sure to mapped the event in UI or enable the 'send as custom event' setting`,
+    );
     return [event];
   }
 
