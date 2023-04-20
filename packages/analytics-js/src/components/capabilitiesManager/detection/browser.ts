@@ -1,22 +1,22 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { UTMParameters } from '@rudderstack/analytics-js/state/types';
 
-const isBrowser = (): boolean =>
+export const isBrowser = (): boolean =>
   typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
-const isNode = (): boolean =>
+export const isNode = (): boolean =>
   typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
-const hasCrypto = (): boolean =>
+export const hasCrypto = (): boolean =>
   Boolean(window.crypto && typeof window.crypto.getRandomValues === 'function');
 
 // eslint-disable-next-line compat/compat
-const hasUAClientHints = (): boolean => Boolean(window.navigator.userAgentData);
+export const hasUAClientHints = (): boolean => Boolean(window.navigator.userAgentData);
 
 // eslint-disable-next-line compat/compat
-const hasBeacon = (): boolean => Boolean(window.navigator.sendBeacon);
+export const hasBeacon = (): boolean => Boolean(window.navigator.sendBeacon);
 
-const getUserAgent = (): Nullable<string> => {
+export const getUserAgent = (): Nullable<string> => {
   if (typeof window.navigator === 'undefined') {
     return null;
   }
@@ -39,7 +39,7 @@ const getUserAgent = (): Nullable<string> => {
   return userAgent;
 };
 
-const getLanguage = (): Nullable<string> => {
+export const getLanguage = (): Nullable<string> => {
   if (typeof window.navigator === 'undefined') {
     return null;
   }
@@ -51,7 +51,7 @@ const getLanguage = (): Nullable<string> => {
  * To get the canonical URL of the page
  * @returns canonical URL
  */
-const getCanonicalUrl = (): string => {
+export const getCanonicalUrl = (): string => {
   const tags = [...document.getElementsByTagName('link')];
   let canonicalUrl: Nullable<string> = '';
   tags.some(tag => {
@@ -69,28 +69,37 @@ const getCanonicalUrl = (): string => {
  * @param url The input URL
  * @returns URL until the hash
  */
-const getUrlWithoutHash = (url: string): string => {
-  const hashIndex = url.indexOf('#');
-  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
+export const getUrlWithoutHash = (url: string): string => {
+  let urlWithoutHash = url;
+  try {
+    const urlObj = new URL(url);
+    urlWithoutHash = urlObj.origin + urlObj.pathname + urlObj.search;
+  } catch (error) {
+    // Do nothing
+  }
+  return urlWithoutHash;
 }
 
 /**
  * Get the referrer URL
  * @returns The referrer URL
  */
-const getReferrer = (): string => document.referrer || '$direct'
+export const getReferrer = (): string => document.referrer || '$direct'
 
 /**
  * Get the referring domain from the referrer URL
  * @param referrer Page referrer
  * @returns Page referring domain
  */
-const getReferringDomain = (referrer: string) => {
-  const split = referrer.split('/');
-  if (split.length >= 3) {
-    return split[2];
+export const getReferringDomain = (referrer: string) => {
+  let referringDomain = '';
+  try {
+    const url = new URL(referrer);
+    referringDomain = url.host;
+  } catch (error) {
+    // Do nothing
   }
-  return '';
+  return referringDomain;
 };
 
 /**
@@ -98,21 +107,24 @@ const getReferringDomain = (referrer: string) => {
  * @param url Page URL
  * @returns UTM parameters
  */
-const extractUTMParameters = (url: string): UTMParameters => {
-  const urlObj = new URL(url);
+export const extractUTMParameters = (url: string): UTMParameters => {
   const result: UTMParameters = {};
-  const UTM_PREFIX = 'utm_';
-  urlObj.searchParams.forEach((value, sParam) => {
-    if (sParam.startsWith(UTM_PREFIX)) {
-      let utmParam = sParam.substring(UTM_PREFIX.length);
-      // Not sure why we're doing this
-      if (utmParam === 'campaign') {
-        utmParam = 'name';
+  try {
+    const urlObj = new URL(url);
+    const UTM_PREFIX = 'utm_';
+    urlObj.searchParams.forEach((value, sParam) => {
+      if (sParam.startsWith(UTM_PREFIX)) {
+        let utmParam = sParam.substring(UTM_PREFIX.length);
+        // Not sure why we're doing this
+        if (utmParam === 'campaign') {
+          utmParam = 'name';
+        }
+        result[utmParam] = value;
       }
-      result[utmParam] = value;
-    }
-  });
-
+    });
+  } catch (error) {
+    // Do nothing
+  }
   return result;
 }
 
@@ -120,7 +132,7 @@ const extractUTMParameters = (url: string): UTMParameters => {
  * Default page properties
  * @returns Default page properties
  */
-const getDefaultPageProperties = () => {
+export const getDefaultPageProperties = () => {
   const canonicalUrl = getCanonicalUrl();
   let path = window.location.pathname;
   const { href: tabUrl } = window.location;
@@ -150,16 +162,4 @@ const getDefaultPageProperties = () => {
     url,
     tab_url: tabUrl,
   };
-}
-
-export {
-  isBrowser,
-  isNode,
-  hasCrypto,
-  hasUAClientHints,
-  hasBeacon,
-  getUserAgent,
-  getLanguage,
-  getDefaultPageProperties,
-  extractUTMParameters,
 };
