@@ -1,6 +1,10 @@
-import { getCanonicalUrl } from "@rudderstack/analytics-js/components/utilities/page";
-import { getLanguage, getUserAgent } from "rudder-sdk-js/utils/navigator";
-import { getDefaultPageProperties, getReferrer } from "rudder-sdk-js/utils/utils";
+import {
+  getCanonicalUrl,
+  getLanguage,
+  getUserAgent,
+  getDefaultPageProperties,
+  getReferrer,
+} from '@rudderstack/analytics-js/components/utilities/page';
 
 describe('utilities - page', () => {
   let windowSpy: any;

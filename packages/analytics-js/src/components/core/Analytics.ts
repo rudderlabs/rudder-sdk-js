@@ -23,6 +23,7 @@ import {
   AnonymousIdOptions,
   ApiCallback,
   ApiObject,
+  ApiOptions,
   LifecycleStatus,
   LoadOptions,
   SessionInfo,
@@ -433,7 +434,8 @@ class Analytics implements IAnalytics {
     }
 
     this.userSessionManager.setGroupId(payload.groupId);
-    this.userSessionManager.setGroupTraits(payload.traits);
+    // TODO: Need to remove the type conversion here
+    this.userSessionManager.setGroupTraits(payload.traits as ApiOptions);
 
     this.eventManager.addEvent({
       type,
