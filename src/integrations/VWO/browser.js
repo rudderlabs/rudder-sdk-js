@@ -19,8 +19,8 @@ class VWO {
     this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 

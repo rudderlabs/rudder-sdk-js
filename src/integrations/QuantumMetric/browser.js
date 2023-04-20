@@ -12,8 +12,8 @@ class QuantumMetric {
     this.siteId = config.siteID; // 1549611
     this.name = NAME;
     this._ready = false;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
