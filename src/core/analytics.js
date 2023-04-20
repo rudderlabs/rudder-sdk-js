@@ -232,6 +232,8 @@ class Analytics {
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
+      // Initialize transformation handler once we determine the dataPlaneUrl
+      this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
 
       // Execute onLoaded callback if provided in load options
       if (this.options && typeof this.options.onLoaded === 'function') {
@@ -1152,7 +1154,6 @@ class Analytics {
 
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.transformationHandler.init(writeKey, serverUrl, this.storage.getAuthToken());
 
     this.destSDKBaseURL = getIntegrationsCDNPath(
       this.version,
