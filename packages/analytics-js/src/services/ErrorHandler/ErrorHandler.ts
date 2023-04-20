@@ -3,6 +3,7 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
 import { IPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
@@ -42,10 +43,7 @@ class ErrorHandler implements IErrorHandler {
       return;
     }
 
-    errorMessage = `[Analytics] ${context}:: ${customMessage} ${errorMessage}`.replace(
-      / {2,}/g,
-      ' ',
-    ); // remove double spaces
+    errorMessage = removeDoubleSpaces(`[Analytics] ${context}:: ${customMessage} ${errorMessage}`);
 
     // Enhance error message
     if (isTypeOfError) {
@@ -53,16 +51,18 @@ class ErrorHandler implements IErrorHandler {
       (error as Error).message = errorMessage;
     }
 
-    this.notifyError(isTypeOfError ? error : new Error(errorMessage));
+    const normalisedError = isTypeOfError ? error : new Error(errorMessage);
+
+    this.notifyError(normalisedError);
 
     if (this.logger) {
       this.logger.error(errorMessage);
 
       if (shouldAlwaysThrow) {
-        throw isTypeOfError ? error : new Error(errorMessage);
+        throw normalisedError;
       }
     } else {
-      throw isTypeOfError ? error : new Error(errorMessage);
+      throw normalisedError;
     }
   }
 

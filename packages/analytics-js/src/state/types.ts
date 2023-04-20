@@ -244,6 +244,7 @@ export type LifecycleStatus =
   | 'polyfillLoaded'
   | 'initialized'
   | 'configured'
+  | 'pluginsLoading'
   | 'pluginsReady'
   | 'loaded'
   | 'integrationsReady'

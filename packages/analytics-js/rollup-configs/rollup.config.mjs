@@ -83,11 +83,11 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       }),
       isLegacyBuild &&
       externalGlobals({
-        './modernBuildPluginImports': 'rudderEmptyPluginImports'
+        './modernBuildPluginImports': 'null'
       }),
       !isLegacyBuild &&
       externalGlobals({
-        './legacyBuildPluginImports': 'rudderEmptyPluginImports'
+        './legacyBuildPluginImports': 'null'
       }),
       !isLegacyBuild &&
       federation({

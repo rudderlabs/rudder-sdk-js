@@ -9,7 +9,7 @@ export interface ExtensionPoint {
  */
 export interface ExtensionPlugin {
   name: string;
-  initialize?: () => void;
+  initialize?: (state?: any) => void;
   deps?: string[];
   [key: string]:
     | string
@@ -29,7 +29,7 @@ export interface IPluginEngine {
   byName: Record<string, ExtensionPlugin>;
   cache: Record<string, ExtensionPlugin[]>;
   config: PluginEngineConfig;
-  register: (plugin: ExtensionPlugin) => void;
+  register: (plugin: ExtensionPlugin, state?: Record<string, any>) => void;
   unregister: (name: string) => void;
   getPlugin: (name: string) => ExtensionPlugin | undefined;
   getPlugins: (extPoint?: string) => ExtensionPlugin[];

@@ -1,8 +1,15 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
+import { ApplicationState } from '@rudderstack/analytics-js/state';
+
+const pluginName = 'dummyMultiLifeCyclePlugin';
 
 const dummyMultiLifeCyclePlugin = (): ExtensionPlugin => ({
-  name: 'dummyMultiLifeCyclePlugin',
+  name: pluginName,
+  deps: [],
+  initialize: (state: ApplicationState) => {
+    state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+  },
   init: {
     pre(configData: any, state: any) {
       console.log(`init.pre lifecycle event: ${JSON.stringify(state.config.value)}`);

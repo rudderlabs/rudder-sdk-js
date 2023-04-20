@@ -1,4 +1,10 @@
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-plugins/types/common';
+import {
+  ExtensionPlugin,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js-plugins/types/common';
+import { ApplicationState } from '@rudderstack/analytics-js/state';
+
+const pluginName = 'loadIntegrationsTest';
 
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
@@ -19,8 +25,11 @@ const pause = (time: number) => {
   });
 };
 
-const LoadIntegrations = () => ({
-  name: 'loadIntegrationsTest',
+const LoadIntegrations = (): ExtensionPlugin => ({
+  name: pluginName,
+  initialize: (state: ApplicationState) => {
+    state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+  },
   remote: {
     test() {
       console.log('loadIntegrationsTest');

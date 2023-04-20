@@ -1,8 +1,15 @@
 import { effect } from '@preact/signals-core';
+import { ApplicationState } from '@rudderstack/analytics-js/state';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-plugins/types/common';
 import { getExposedGlobal } from '../utilities/globals';
 
-const RemotePlugin2 = () => ({
-  name: 'remoteTest2',
+const pluginName = 'remoteTest2';
+
+const RemotePlugin2 = (): ExtensionPlugin => ({
+  name: pluginName,
+  initialize: (state: ApplicationState) => {
+    state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+  },
   remote: {
     test(data: any[], cb: (data: any[]) => void) {
       console.log('state in remote plugin2', getExposedGlobal('state'));

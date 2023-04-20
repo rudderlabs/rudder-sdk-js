@@ -7,12 +7,9 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin
 import legacyBuildPluginImports from './legacyBuildPluginImports';
 import modernBuildPluginImports from './modernBuildPluginImports';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-(window as any).rudderEmptyPluginImports = () => {}; // Is used as replacement for modern builds from rollup
-
-const getMandatoryPluginsMap = (): PluginMap => {
-  return {};
-};
+const getMandatoryPluginsMap = (): PluginMap => ({
+  dummyMultiLifeCyclePlugin,
+});
 
 const getOptionalPluginsMap = (): PluginMap => {
   if (!__BUNDLE_ALL_PLUGINS__) {
@@ -20,7 +17,6 @@ const getOptionalPluginsMap = (): PluginMap => {
       localTest,
       localTest2,
       localTest3,
-      dummyMultiLifeCyclePlugin,
     };
   }
 
@@ -28,14 +24,12 @@ const getOptionalPluginsMap = (): PluginMap => {
     localTest,
     localTest2,
     localTest3,
-    dummyMultiLifeCyclePlugin,
-    ...legacyBuildPluginImports(),
+    ...((legacyBuildPluginImports && legacyBuildPluginImports()) || {}),
   };
 };
 
-const getRemotePluginsMap = (): PluginMap<Promise<ExtensionPlugin>> => {
-  return modernBuildPluginImports();
-};
+const getRemotePluginsMap = (): PluginMap<Promise<ExtensionPlugin>> =>
+  (modernBuildPluginImports && modernBuildPluginImports()) || {};
 
 const pluginsInventory: PluginMap = {
   ...getMandatoryPluginsMap(),
@@ -46,4 +40,4 @@ const remotePluginsInventory: PluginMap<Promise<ExtensionPlugin>> = {
   ...getRemotePluginsMap(),
 };
 
-export { pluginsInventory, remotePluginsInventory };
+export { pluginsInventory, remotePluginsInventory, getMandatoryPluginsMap };

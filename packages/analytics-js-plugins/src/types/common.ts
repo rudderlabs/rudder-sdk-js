@@ -4,7 +4,7 @@ export interface ExtensionPoint {
 
 export interface ExtensionPlugin {
   name: string;
-  initialize?: () => void;
+  initialize?: (state?: any) => void;
   deps?: string[];
   [key: string]:
     | string

@@ -163,6 +163,8 @@ class Analytics implements IAnalytics {
         case 'initialized':
           this.loadPlugins();
           break;
+        case 'pluginsLoading':
+          break;
         case 'pluginsReady':
           this.onLoaded();
           break;

@@ -6,25 +6,25 @@ import {
 import { isPluginEngineDebugMode } from './debug';
 import { ExtensionPlugin, IPluginEngine, PluginEngineConfig } from './types';
 
+// TODO: remove the global singleton
 // TODO: pass and use here the logger and the error handler
-// TODO: make this a singleton in the constructor
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
 //  plugin that is the normal invoke
 class PluginEngine implements IPluginEngine {
-  plugins: ExtensionPlugin[];
-  byName: Record<string, ExtensionPlugin>;
-  cache: Record<string, ExtensionPlugin[]>;
-  config: PluginEngineConfig;
+  plugins: ExtensionPlugin[] = [];
+  byName: Record<string, ExtensionPlugin> = {};
+  cache: Record<string, ExtensionPlugin[]> = {};
+  config: PluginEngineConfig = { throws: true };
 
   constructor(options: PluginEngineConfig = {}) {
-    this.plugins = [];
-    this.byName = {};
-    this.cache = {};
-    this.config = { ...options };
+    this.config = {
+      throws: true,
+      ...options,
+    };
   }
 
-  register(plugin: ExtensionPlugin) {
+  register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
       console.log('error: Every plugin should have a name.');
       console.log(plugin);
@@ -50,7 +50,7 @@ class PluginEngine implements IPluginEngine {
     this.byName[plugin.name] = plugin;
 
     if (plugin.initialize && isFunction(plugin.initialize)) {
-      plugin.initialize();
+      plugin.initialize(state);
     }
   }
 
@@ -160,6 +160,6 @@ class PluginEngine implements IPluginEngine {
   }
 }
 
-const defaultPluginEngine = new PluginEngine({ throws: true });
+const defaultPluginEngine = new PluginEngine();
 
 export { PluginEngine, defaultPluginEngine };
