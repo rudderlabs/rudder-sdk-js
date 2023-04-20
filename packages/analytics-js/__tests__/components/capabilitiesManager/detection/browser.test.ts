@@ -14,48 +14,112 @@ import {
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
 
 describe('Capabilities Detection - Browser', () => {
+  let windowSpy;
+  let documentSpy;
+
+  beforeEach(() => {
+    windowSpy = jest.spyOn(window, 'window', 'get');
+    documentSpy = jest.spyOn(window, 'document', 'get');
+  });
+
+  afterEach(() => {
+    windowSpy.mockRestore();
+    documentSpy.mockRestore();
+  });
+
   it('should detect browser', () => {
     expect(isBrowser()).toBeTruthy();
   });
+
   it('should detect node', () => {
     expect(isNode()).toBeTruthy();
   });
+
   it('should detect hasCrypto', () => {
     expect(hasCrypto()).toBeTruthy();
   });
+
   it('should detect Client Hints', () => {
     expect(hasUAClientHints()).toBeFalsy();
   });
+
   it('should get User Agent', () => {
     expect(getUserAgent()).toContain('Mozilla/5.0');
   });
+
+  it('should not get user agent if window navigator is undefined', () => {
+    windowSpy.mockImplementation(() => ({
+      navigator: undefined,
+    }));
+
+    expect(getUserAgent()).toBe(null);
+  });
+
+  it('should get Brave user agent for Brave browser', () => {
+    windowSpy.mockImplementation(() => {
+      const brave = {};
+      Object.setPrototypeOf(brave, { isBrave: true });
+      return {
+        navigator: {
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36',
+          brave,
+        },
+      };
+    });
+
+    expect(getUserAgent()).toBe(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Brave/103.0.5060.114',
+    );
+  });
+
   it('should get browser language', () => {
     expect(getLanguage()).toBe('en-US');
+  });
+
+  it('should not get browser language if window navigator is undefined', () => {
+    windowSpy.mockImplementation(() => ({
+      navigator: undefined,
+    }));
+
+    expect(getLanguage()).toBe(null);
   });
 
   it('should get canonical URL if present in the DOM', () => {
     const linkScript = document.createElement('link');
     linkScript.rel = 'canonical';
     linkScript.href = 'https://rudderlabs.com/';
-    document.head.appendChild(linkScript);
 
     const anotherLinkScript = document.createElement('link');
     anotherLinkScript.rel = 'canonical';
     anotherLinkScript.href = 'https://rudderlabs.com/blog';
-    document.head.appendChild(anotherLinkScript);
+
+    documentSpy.mockImplementation(() => ({
+      getElementsByTagName: () => [linkScript, anotherLinkScript],
+    }));
 
     expect(getCanonicalUrl()).toBe('https://rudderlabs.com/');
-
-    document.head.removeChild(linkScript);
-    document.head.removeChild(anotherLinkScript);
   });
 
   it('should get empty string if canonical URL is not present in the DOM', () => {
     expect(getCanonicalUrl()).toBe('');
   });
 
+  it('should get empty canonical URL if no valid canonical tags are present in the DOM', () => {
+    const linkScript = document.createElement('link');
+    linkScript.href = 'https://rudderlabs.com/';
+
+    documentSpy.mockImplementation(() => ({
+      getElementsByTagName: () => [linkScript],
+    }));
+
+    expect(getCanonicalUrl()).toBe('');
+  });
+
   it('should get URL without hash', () => {
-    expect(getUrlWithoutHash('https://rudderlabs.com/?abc=def#blog')).toBe('https://rudderlabs.com/?abc=def');
+    expect(getUrlWithoutHash('https://rudderlabs.com/?abc=def#blog')).toBe(
+      'https://rudderlabs.com/?abc=def',
+    );
   });
 
   it('should get URL same as the input if it does not contain any hash', () => {
@@ -67,21 +131,19 @@ describe('Capabilities Detection - Browser', () => {
   });
 
   it('should get referrer if defined', () => {
-    const originalReferrer = document.referrer;
-    Object.defineProperty(document, 'referrer', { value: 'https://rudderlabs.com/', configurable: true });
+    documentSpy.mockImplementation(() => ({
+      referrer: 'https://rudderlabs.com/',
+    }));
 
     expect(getReferrer()).toBe('https://rudderlabs.com/');
-
-    Object.defineProperty(document, 'referrer', { value: originalReferrer });
   });
 
   it('should get default referrer string if referrer is not defined', () => {
-    const originalReferrer = document.referrer;
-    Object.defineProperty(document, 'referrer', { value: '', configurable: true });
+    documentSpy.mockImplementation(() => ({
+      referrer: '',
+    }));
 
     expect(getReferrer()).toBe('$direct');
-
-    Object.defineProperty(document, 'referrer', { value: originalReferrer });
   });
 
   it('should get referring domain if referrer is a valid URL', () => {
@@ -93,7 +155,11 @@ describe('Capabilities Detection - Browser', () => {
   });
 
   it('should get UTM parameters if present in the URL', () => {
-    expect(extractUTMParameters('https://rudderlabs.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand&utm_term=rudderstack&utm_content=homepage&non_utm=value')).toEqual({
+    expect(
+      extractUTMParameters(
+        'https://rudderlabs.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand&utm_term=rudderstack&utm_content=homepage&non_utm=value',
+      ),
+    ).toEqual({
       source: 'google',
       medium: 'cpc',
       name: 'brand',
@@ -111,24 +177,23 @@ describe('Capabilities Detection - Browser', () => {
   });
 
   it('should get default page properties', () => {
-    // Set DOM properties
+    // Create a script tag
     const linkScript = document.createElement('link');
     linkScript.rel = 'canonical';
     linkScript.href = 'https://rudderlabs.com/';
-    document.head.appendChild(linkScript);
 
-    const originalReferrer = document.referrer;
-    Object.defineProperty(document, 'referrer', { value: 'https://google.com/', configurable: true });
-    const originalTitle = document.title;
-    document.title = 'RudderStack';
+    documentSpy.mockImplementation(() => ({
+      referrer: 'https://google.com/',
+      title: 'RudderStack',
+      getElementsByTagName: () => [linkScript],
+    }));
 
-    const originalLocationHref = window.location.href;
-    const originalLocationSearch = window.location.search;
-    Object.defineProperty(window, 'location', { value: { href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal', search: '?someKey=someVal' }, configurable: true });
-    // Object.defineProperties(window.location, {
-    //   href: { value: 'https://rudderlabs.com/docs/#some-page?someKey=someVal', configurable: true },
-    //   search: { value: '?someKey=someVal', configurable: true },
-    // });
+    windowSpy.mockImplementation(() => ({
+      location: {
+        href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+        search: '?someKey=someVal',
+      },
+    }));
 
     expect(getDefaultPageProperties()).toEqual({
       url: 'https://rudderlabs.com/?someKey=someVal',
@@ -140,12 +205,7 @@ describe('Capabilities Detection - Browser', () => {
       tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
     });
 
-
     // Reset the mutated properties
-    window.location.search = originalLocationSearch;
-    window.location.href = originalLocationHref;
-    Object.defineProperty(document, 'referrer', { value: originalReferrer });
-    document.title = originalTitle;
-    document.head.removeChild(linkScript);
+    // document.head.removeChild(linkScript);
   });
 });
