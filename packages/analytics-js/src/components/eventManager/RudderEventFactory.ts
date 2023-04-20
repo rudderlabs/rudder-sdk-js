@@ -1,6 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
-import * as R from 'ramda';
 import { APIEvent, RudderEvent, RudderEventType } from './types';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 import { tryStringify } from '../utilities/string';
@@ -21,7 +20,7 @@ class RudderEventFactory {
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
-    let props = R.clone(properties) || {};
+    let props = properties || {};
 
     props.name = name;
     props.category = category;
@@ -49,9 +48,8 @@ class RudderEventFactory {
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
-    const props = R.clone(properties);
     const trackEvent: Partial<RudderEvent> = {
-      properties: props,
+      properties,
       event,
       type: RudderEventType.TRACK,
     };
@@ -115,31 +113,30 @@ class RudderEventFactory {
 
   static create(event: APIEvent): RudderEvent | undefined {
     let eventObj: RudderEvent | undefined;
-    const options = R.clone(event.options);
     switch (event.type) {
       case RudderEventType.PAGE:
         eventObj = RudderEventFactory.generatePageEvent(
           event.category,
           event.name,
           event.properties,
-          options,
+          event.options,
         );
         break;
       case RudderEventType.TRACK:
         eventObj = RudderEventFactory.generateTrackEvent(
           event.name as string,
           event.properties,
-          options,
+          event.options,
         );
         break;
       case RudderEventType.IDENTIFY:
-        eventObj = RudderEventFactory.generateIdentifyEvent(options);
+        eventObj = RudderEventFactory.generateIdentifyEvent(event.options);
         break;
       case RudderEventType.ALIAS:
-        eventObj = RudderEventFactory.generateAliasEvent(event.to as string, event.from, options);
+        eventObj = RudderEventFactory.generateAliasEvent(event.to as string, event.from, event.options);
         break;
       case RudderEventType.GROUP:
-        eventObj = RudderEventFactory.generateGroupEvent(options);
+        eventObj = RudderEventFactory.generateGroupEvent(event.options);
         break;
       default:
         // Do nothing
