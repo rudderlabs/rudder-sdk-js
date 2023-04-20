@@ -24,8 +24,8 @@ class Podsights {
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

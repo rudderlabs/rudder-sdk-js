@@ -28,8 +28,8 @@ class MoEngage {
     this.region = config.region;
     this.name = NAME;
     this.analyticsinstance = analyticsinstance;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

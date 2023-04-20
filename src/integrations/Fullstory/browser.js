@@ -11,8 +11,8 @@ class Fullstory {
     this.fs_debug_mode = config.fs_debug_mode;
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   static getFSProperties(properties) {

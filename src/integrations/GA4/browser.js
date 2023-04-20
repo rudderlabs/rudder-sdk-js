@@ -24,8 +24,8 @@ export default class GA4 {
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
     this.overrideSessionId = config.overrideSessionId || false;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
