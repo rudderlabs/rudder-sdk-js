@@ -2,8 +2,6 @@ import { RudderEventFactory } from '../../../src/components/eventManager/RudderE
 import { APIEvent, RudderEventType } from '../../../src/components/eventManager/types';
 import { state } from '@rudderstack/analytics-js/state';
 import {
-  ApiObject,
-  ApiOptions,
   AppInfo,
   LibraryInfo,
   OSInfo,
@@ -12,6 +10,7 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { batch } from '@preact/signals-core';
+import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -20,6 +19,9 @@ jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
+
+// This is needed for the event processor plugin to get activated
+defaultPluginManager.registerLocalPlugins();
 
 describe('RudderEventFactory', () => {
   beforeEach(() => {
@@ -144,10 +146,6 @@ describe('RudderEventFactory', () => {
         initial_referring_domain: 'https://test.com',
       },
       messageId: 'test_uuid',
-      groupId: 'group_id',
-      traits: {
-        test: 'test',
-      },
       integrations: { All: true },
       userId: 'user_id',
     });
@@ -223,10 +221,6 @@ describe('RudderEventFactory', () => {
         key3: 'value3',
       },
       messageId: 'test_uuid',
-      groupId: 'group_id',
-      traits: {
-        test: 'test',
-      },
       integrations: { All: true },
       userId: 'user_id',
     });
@@ -309,11 +303,7 @@ describe('RudderEventFactory', () => {
         },
       },
       originalTimestamp: '2020-01-01T00:00:00.000Z',
-      traits: {
-        test: 'test',
-      },
       messageId: 'test_uuid',
-      groupId: 'group_id',
       integrations: { All: true },
       userId: 'new_user_id',
     });
@@ -379,11 +369,7 @@ describe('RudderEventFactory', () => {
         },
       },
       originalTimestamp: '2020-01-01T00:00:00.000Z',
-      traits: {
-        test: 'test',
-      },
       messageId: 'test_uuid',
-      groupId: 'group_id',
       integrations: { All: true },
       previousId: 'user_id',
       userId: 'new_user_id_alias',
@@ -450,11 +436,7 @@ describe('RudderEventFactory', () => {
         },
       },
       originalTimestamp: '2020-01-01T00:00:00.000Z',
-      traits: {
-        test: 'test',
-      },
       messageId: 'test_uuid',
-      groupId: 'group_id',
       integrations: { All: true },
       previousId: 'user_id',
       userId: 'new_user_id_alias',
@@ -524,11 +506,7 @@ describe('RudderEventFactory', () => {
         },
       },
       originalTimestamp: '2020-01-01T00:00:00.000Z',
-      traits: {
-        test: 'test',
-      },
       messageId: 'test_uuid',
-      groupId: 'group_id',
       integrations: { All: true },
       previousId: 'test_uuid',
       userId: 'new_user_id_alias',

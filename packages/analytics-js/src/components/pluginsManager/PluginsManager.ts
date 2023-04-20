@@ -55,6 +55,12 @@ class PluginsManager implements IPluginsManager {
   register(plugins: ExtensionPlugin[]) {
     plugins.forEach(plugin => this.engine.register(plugin));
   }
+
+  unregisterLocalPlugins() {
+    Object.values(pluginsInventory).forEach(localPlugin => {
+      this.engine.unregister(localPlugin().name);
+    });
+  }
 }
 
 const defaultPluginManager = new PluginsManager();

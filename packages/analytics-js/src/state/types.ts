@@ -181,6 +181,7 @@ export type ApiOptions = {
     | number
     | boolean
     | ApiObject
+    | null
     | (string | number | boolean | ApiObject)[]
     | undefined;
 };

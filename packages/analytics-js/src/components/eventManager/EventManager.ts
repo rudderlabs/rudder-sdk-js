@@ -4,10 +4,6 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IEventManager, APIEvent } from './types';
-import {
-  checkForReservedElements,
-  processOptions,
-} from './utilities';
 import { RudderEventFactory } from './RudderEventFactory';
 
 /**
@@ -31,7 +27,7 @@ class EventManager implements IEventManager {
     // TODO: status.value = 'initialized';
     //  once eventManager event repository is ready in order to start enqueueing any events
     state.lifecycle.status.value = 'initialized';
-    this.logger?.info("Event manager initialized");
+    this.logger?.info('Event manager initialized');
   }
 
   /**
@@ -41,12 +37,9 @@ class EventManager implements IEventManager {
   addEvent(event: APIEvent) {
     const rudderEvent = RudderEventFactory.create(event);
     if (rudderEvent) {
-      processOptions(rudderEvent, event.options);
-      checkForReservedElements(rudderEvent, this.logger);
-
       // TODO: Add the event and callback to the event repository
     } else {
-      this.onError("Unable to generate RudderStack event object");
+      this.onError('Unable to generate RudderStack event object');
     }
   }
 

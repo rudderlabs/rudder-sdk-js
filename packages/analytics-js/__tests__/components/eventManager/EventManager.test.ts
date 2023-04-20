@@ -4,6 +4,8 @@ import { EventManager } from '@rudderstack/analytics-js/components/eventManager/
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
     onError = jest.fn();
+    leaveBreadcrumb = jest.fn();
+    notifyError = jest.fn();
   }
 
   const mockErrorHandler = new MockErrorHandler();
@@ -11,6 +13,7 @@ describe('EventManager', () => {
 
   it('should raise error if the event data is invalid', () => {
     eventManager.addEvent({
+      // @ts-ignore
       type: 'test',
       event: 'test',
       properties: {
@@ -28,6 +31,7 @@ describe('EventManager', () => {
     const eventManager = new EventManager();
     expect(() => {
       eventManager.addEvent({
+        // @ts-ignore
         type: 'test',
         event: 'test',
         properties: {
