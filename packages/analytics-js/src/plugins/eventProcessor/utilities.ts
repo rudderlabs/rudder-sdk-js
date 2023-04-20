@@ -68,12 +68,17 @@ export const updateTopLevelEventElements = (
   rudderEvent: RudderEvent,
   options: ApiOptions,
 ): void => {
-  if (options.anonymousId && typeof options.anonymousId === 'string')
+  if (options.anonymousId && typeof options.anonymousId === 'string') {
     rudderEvent.anonymousId = options.anonymousId;
-  if (options.integrations && isObject(options.integrations))
+  }
+
+  if (options.integrations && isObject(options.integrations)) {
     rudderEvent.integrations = options.integrations;
-  if (options.originalTimestamp && typeof options.originalTimestamp === 'string')
+  }
+
+  if (options.originalTimestamp && typeof options.originalTimestamp === 'string') {
     rudderEvent.originalTimestamp = options.originalTimestamp;
+  }
 };
 
 /**
