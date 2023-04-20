@@ -29,8 +29,8 @@ class DCMFloodlight {
     this.googleNetworkId = config.googleNetworkId;
     this.tagFormat = config.tagFormat || GTAG;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   /**

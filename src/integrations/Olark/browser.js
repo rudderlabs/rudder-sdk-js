@@ -19,8 +19,8 @@ class Olark {
     this.standardToEvent = config.standardToEvent;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

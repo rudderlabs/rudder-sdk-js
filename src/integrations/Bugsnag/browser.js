@@ -12,8 +12,8 @@ class Bugsnag {
     this.apiKey = config.apiKey;
     this.name = NAME;
     this.setIntervalHandler = undefined;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

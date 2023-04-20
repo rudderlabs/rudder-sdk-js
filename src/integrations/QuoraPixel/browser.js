@@ -10,8 +10,8 @@ class QuoraPixel {
     this.name = NAME;
     this.pixelId = config.pixelId;
     this.eventsToQPEvents = config.eventsToQPEvents;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

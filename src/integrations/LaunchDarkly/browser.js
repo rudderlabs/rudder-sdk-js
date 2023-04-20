@@ -13,8 +13,8 @@ class LaunchDarkly {
     this.name = NAME;
     this.clientSideId = config.clientSideId;
     this.anonymousUsersSharedKey = config.anonymousUsersSharedKey;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

@@ -29,8 +29,8 @@ class Amplitude {
     this.traitsToIncrement = [];
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {

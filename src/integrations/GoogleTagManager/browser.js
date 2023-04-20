@@ -11,8 +11,8 @@ class GoogleTagManager {
     this.containerID = config.containerID;
     this.name = NAME;
     this.serverUrl = config.serverUrl;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

@@ -20,8 +20,8 @@ class RedditPixel {
     this.advertiserId = config.advertiserId;
     this.name = NAME;
     this.eventMappingFromConfig = config.eventMappingFromConfig;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

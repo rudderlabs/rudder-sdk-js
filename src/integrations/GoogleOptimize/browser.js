@@ -15,8 +15,8 @@ class GoogleOptimize {
     this.containerId = config.containerId;
     this.async = config.async;
     this.aflicker = config.aflicker;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

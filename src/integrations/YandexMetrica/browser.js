@@ -18,8 +18,8 @@ class YandexMetrica {
     this.goalId = config.goalId;
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {
