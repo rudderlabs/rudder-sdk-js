@@ -7,11 +7,13 @@ import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 class Engage {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     this.api_key = config.publicKey;
     this.api_secret = config.privateKey;
     this.name = NAME;
     this.listsIds = config.listsIds;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }

@@ -14,7 +14,7 @@ import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
 
 export default class GA4 {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -23,6 +23,9 @@ export default class GA4 {
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
+    this.overrideSessionId = config.overrideSessionId || false;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
@@ -47,6 +50,9 @@ export default class GA4 {
     }
     gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
+    if (this.isHybridModeEnabled && this.overrideSessionId) {
+      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+    }
     gtagParameterObject.debug_mode = true;
 
     if (Object.keys(gtagParameterObject).length === 0) {
@@ -62,10 +68,6 @@ export default class GA4 {
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
-
-    // To disable debug mode, exclude the 'debug_mode' parameter;
-    // Setting the parameter to false doesn't disable debug mode.
-    // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
 
     ScriptLoader(
       'google-analytics 4',
