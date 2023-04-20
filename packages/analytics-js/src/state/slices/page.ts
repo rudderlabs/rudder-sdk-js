@@ -1,5 +1,5 @@
 import { Signal, signal } from '@preact/signals-core';
-import { getDefaultPageProperties } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
+import { getDefaultPageProperties } from '@rudderstack/analytics-js/components/utilities/page';
 import { sessionState } from './session';
 
 export type PagePropertiesState = {

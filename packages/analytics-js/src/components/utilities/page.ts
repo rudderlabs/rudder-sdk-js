@@ -1,0 +1,92 @@
+import { Nullable } from "@rudderstack/analytics-js/types";
+import { getReferringDomain, getUrlWithoutHash } from "./url";
+
+/**
+ * Get the referrer URL
+ * @returns The referrer URL
+ */
+export const getReferrer = (): string => document.referrer || '$direct'
+
+/**
+ * To get the canonical URL of the page
+ * @returns canonical URL
+ */
+export const getCanonicalUrl = (): string => {
+  const tags = [...document.getElementsByTagName('link')];
+  let canonicalUrl: Nullable<string> = '';
+  tags.some(tag => {
+    if (tag.getAttribute('rel') === 'canonical') {
+      canonicalUrl = tag.getAttribute('href');
+      return true;
+    }
+    return false;
+  });
+  return canonicalUrl;
+};
+
+export const getUserAgent = (): Nullable<string> => {
+  if (typeof window.navigator === 'undefined') {
+    return null;
+  }
+
+  let { userAgent } = window.navigator;
+  const { brave } = window.navigator as any;
+
+  // For supporting Brave browser detection,
+  // add "Brave/<version>" to the user agent with the version value from the Chrome component
+  if (brave && Object.getPrototypeOf(brave).isBrave) {
+    // Example:
+    // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
+    const matchedArr = userAgent.match(/(chrome)\/([\w.]+)/i);
+
+    if (matchedArr) {
+      userAgent = `${userAgent} Brave/${matchedArr[2]}`;
+    }
+  }
+
+  return userAgent;
+};
+
+export const getLanguage = (): Nullable<string> => {
+  if (typeof window.navigator === 'undefined') {
+    return null;
+  }
+
+  return window.navigator.language || (window.navigator as any).browserLanguage;
+};
+
+/**
+ * Default page properties
+ * @returns Default page properties
+ */
+export const getDefaultPageProperties = () => {
+  const canonicalUrl = getCanonicalUrl();
+  let path = window.location.pathname;
+  const { href: tabUrl } = window.location;
+  let pageUrl = tabUrl;
+  const { search } = window.location;
+  if (canonicalUrl) {
+    try {
+      // The logic in v1.1 was to use parse from component-url
+      const urlObj = new URL(canonicalUrl);
+      if (urlObj.search === '') pageUrl = canonicalUrl + search;
+
+      path = urlObj.pathname;
+    } catch (err) {
+      // Do nothing
+    }
+  }
+
+  const url = getUrlWithoutHash(pageUrl);
+  const { title } = document;
+  const referrer = getReferrer();
+  return {
+    path,
+    referrer,
+    referring_domain: getReferringDomain(referrer),
+    search,
+    title,
+    url,
+    tab_url: tabUrl,
+  };
+};

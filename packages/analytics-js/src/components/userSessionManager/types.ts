@@ -12,9 +12,9 @@ export interface IUserSessionManager {
   getUserId(): Nullable<string>;
   setUserId(userId?: null | string): void;
   setUserTraits(traits?: Nullable<ApiObject>): void;
-  getGroupTraits(): Nullable<ApiOptions>;
+  getGroupTraits(): Nullable<ApiObject>;
   setGroupId(groupId?: Nullable<string>): void;
-  setGroupTraits(traits?: Nullable<ApiObject>): void;
+  setGroupTraits(traits?: Nullable<ApiOptions>): void;
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
   start(sessionId?: number): void;
   end(): void;

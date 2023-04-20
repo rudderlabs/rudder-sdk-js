@@ -1,11 +1,6 @@
 import { signal, Signal } from '@preact/signals-core';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
-  extractUTMParameters,
-  getLanguage,
-  getUserAgent,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
-import {
   getScreenDetails,
   ScreenInfo,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
@@ -17,6 +12,8 @@ import {
   Traits,
   UTMParameters,
 } from '@rudderstack/analytics-js/state/types';
+import { getLanguage, getUserAgent } from '@rudderstack/analytics-js/components/utilities/page';
+import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
 import { pagePropertiesState } from './page';
 
 export type ContextState = {
