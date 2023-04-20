@@ -21,12 +21,7 @@ function getDestinationEventName(event, userDefinedEventsMapping, sendAsCustomEv
             Rudderstack ecommerce events, used specifically for Pinterest Conversion API
             mappings.
     */
-  const eventMapInfo = eventMapping.find((eventMap) => {
-    if (eventMap.src.includes(event.toLowerCase())) {
-      return eventMap;
-    }
-    return false;
-  });
+  const eventMapInfo = eventMapping.find((eventMap) => eventMap.src.includes(event.toLowerCase()));
   if (isDefinedAndNotNull(eventMapInfo)) {
     return [eventMapInfo.dest];
   }
