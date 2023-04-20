@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.31.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.0...v2.31.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* integrations not being compatible with older versions of analytics ([36fe09b](https://github.com/rudderlabs/rudder-sdk-js/commit/36fe09bd804a3aafc38b214308ceedce54d027a3))
+
 ## [2.31.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.30.0...v2.31.0) (2023-04-20)
 
 
