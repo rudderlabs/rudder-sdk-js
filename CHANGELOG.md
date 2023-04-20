@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.29.0...v1.30.0) (2023-04-20)
+
+
+### Features
+
+* **GA4:** override sessionId with rudderstack sessionId ([#987](https://github.com/rudderlabs/rudder-sdk-js/issues/987)) ([26ffd11](https://github.com/rudderlabs/rudder-sdk-js/commit/26ffd1173acfbd399239f540d74d2d07601d16c5))
+
 ## [1.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.28.0...v1.29.0) (2023-04-17)
 
 
