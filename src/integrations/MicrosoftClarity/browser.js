@@ -12,8 +12,8 @@ class MicrosoftClarity {
     this.name = NAME;
     this.projectId = config.projectId;
     this.cookieConsent = config.cookieConsent;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

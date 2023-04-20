@@ -13,8 +13,8 @@ class ConvertFlow {
     this.eventsList = config.eventsList;
     this.eventsMappping = config.eventsMappping;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

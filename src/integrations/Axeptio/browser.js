@@ -16,8 +16,8 @@ class Axeptio {
     this.name = NAME;
     this.clientId = config.clientId;
     this.toggleToActivateCallback = config.toggleToActivateCallback;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

@@ -43,8 +43,8 @@ class Iterable {
     this.isRequiredToDismissMessage = config.isRequiredToDismissMessage;
     this.closeButtonPosition = config.closeButtonPosition;
 
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

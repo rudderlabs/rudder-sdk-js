@@ -28,8 +28,8 @@ class FacebookPixel {
     this.useUpdatedMapping = config.useUpdatedMapping;
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

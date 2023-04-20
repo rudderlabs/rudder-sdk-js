@@ -14,8 +14,8 @@ class INTERCOM {
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 

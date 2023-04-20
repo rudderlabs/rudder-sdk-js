@@ -37,8 +37,8 @@ class Braze {
     this.name = NAME;
     this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 

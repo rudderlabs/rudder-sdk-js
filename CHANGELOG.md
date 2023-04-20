@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.31.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.0...v2.31.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* integrations not being compatible with older versions of analytics ([36fe09b](https://github.com/rudderlabs/rudder-sdk-js/commit/36fe09bd804a3aafc38b214308ceedce54d027a3))
+* remove duplicate conditional check in VWO integration ([99a5e4b](https://github.com/rudderlabs/rudder-sdk-js/commit/99a5e4b0c22a0580304a551dc6704cd0c3b2a614))
+
 ## [2.31.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.30.0...v2.31.0) (2023-04-20)
 
 

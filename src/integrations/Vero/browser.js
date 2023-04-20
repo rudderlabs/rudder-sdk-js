@@ -10,8 +10,8 @@ class Vero {
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.apiKey = config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

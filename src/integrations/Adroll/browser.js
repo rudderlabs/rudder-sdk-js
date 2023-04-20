@@ -18,8 +18,8 @@ class Adroll {
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
     this.eventsMap = config.eventsMap || [];
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

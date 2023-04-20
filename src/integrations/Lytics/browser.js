@@ -34,8 +34,8 @@ class Lytics {
     this.name = NAME;
     this.forFirstName = ['firstname', 'firstName'];
     this.forLastName = ['lastname', 'lastName'];
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadLyticsScript() {

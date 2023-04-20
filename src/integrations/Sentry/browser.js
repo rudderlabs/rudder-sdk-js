@@ -27,8 +27,8 @@ class Sentry {
     this.release = config.release;
     this.customVersionProperty = config.customVersionProperty;
     this.serverName = config.serverName;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

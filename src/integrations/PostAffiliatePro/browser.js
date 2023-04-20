@@ -26,8 +26,8 @@ class PostAffiliatePro {
     this.disableTrackingMethod = config.disableTrackingMethod;
     this.paramNameUserId = config.paramNameUserId;
     this.clickEvents = config.clickEvents;
-    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
