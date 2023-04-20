@@ -62,6 +62,17 @@ describe('utilities - page', () => {
     expect(getLanguage()).toBe(null);
   });
 
+  it('should get browser language if navigator.language is undefined', () => {
+    windowSpy.mockImplementation(() => ({
+      navigator: {
+        language: undefined,
+        browserLanguage: 'en-US',
+      }
+    }));
+
+    expect(getLanguage()).toBe('en-US');
+  });
+
   it('should get canonical URL if present in the DOM', () => {
     const linkScript = document.createElement('link');
     linkScript.rel = 'canonical';
