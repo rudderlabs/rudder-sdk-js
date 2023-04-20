@@ -299,6 +299,4 @@ export type StatsCollection = {
   };
 };
 
-export type UTMParameters = {
-  [index: string]: string;
-};
+export type UTMParameters = Record<string, string>;
