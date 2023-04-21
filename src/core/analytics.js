@@ -392,17 +392,18 @@ class Analytics {
                 let transformedEvents;
                 if (transformationServerAccess) {
                   // filter the transformed event for that destination
-                  const filteredDestination = transformedPayload.find(
+                  transformedEvents = transformedPayload.find(
                     (e) => e.id === intg.destinationId,
-                  );
-                  transformedEvents = filteredDestination ? filteredDestination.payload : undefined;
+                  )?.payload;
                 } else {
                   transformedEvents = transformedPayload;
                 }
-                if (transformedEvents) {
+                if (transformedEvents && transformedEvents.length > 0) {
                   // send transformed event to destination
                   transformedEvents.forEach((tEvent) => {
-                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                    if (tEvent.event) {
+                      this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                    }
                   });
                 }
               } catch (e) {
