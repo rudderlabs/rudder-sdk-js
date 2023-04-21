@@ -4,4 +4,12 @@
  */
 const getReferrer = () => document.referrer || '$direct';
 
-export { getReferrer };
+const getReferringDomain = referrer => {
+  const split = referrer.split('/');
+  if (split.length >= 3) {
+    return split[2];
+  }
+  return '';
+};
+
+export { getReferrer, getReferringDomain };

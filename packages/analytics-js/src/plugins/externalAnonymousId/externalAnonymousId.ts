@@ -1,7 +1,7 @@
 import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/sessionStorageKeys';
 import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js/state/types';
-import { fetchAnonymousIdFromSegment } from './util';
+import { getSegmentAnonymousId } from './util';
 
 const externalAnonymousId: ExtensionPlugin = {
   name: 'externalAnonymousId',
@@ -15,7 +15,7 @@ const externalAnonymousId: ExtensionPlugin = {
         }
         switch (source) {
           case 'segment':
-            anonymousId = getSegmentAnonymousId('segment');
+            anonymousId = getSegmentAnonymousId();
             break;
 
           default:

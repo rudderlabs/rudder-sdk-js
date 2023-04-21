@@ -13,7 +13,7 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
-import { getReferrer } from './referrer';
+import { getReferrer, getReferringDomain } from './referrer';
 import { persistedSessionStorageKeys } from './sessionStorageKeys';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
@@ -44,12 +44,12 @@ class UserSessionManager implements IUserSessionManager {
     if (initialReferrer === null && initialReferringDomain === null) {
       const referrer = getReferrer();
       this.setInitialReferrer(referrer);
-      this.setInitialReferringDomain(referrer);
+      this.setInitialReferringDomain(getReferringDomain(referrer));
     }
     // TODO: remove this when work for this module is done
     // effect(() => {
     //   console.log(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
-    //   console.log(persistedSessionStorageKeys.userAnonymousId, state.session.rl_anonymous_id.value);
+    //   console.log(persistedSessionStorageKeys.anonymousUserId, state.session.rl_anonymous_id.value);
     //   console.log(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
     //   console.log(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
     //   console.log(persistedSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
@@ -70,27 +70,29 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string {
-    let anonymousIdFromLinker;
-    if (!anonymousId) {
-      anonymousIdFromLinker = defaultPluginManager.invoke<Nullable<string>>(
+    let finalAnonymousId: string | undefined = anonymousId;
+    if (!finalAnonymousId) {
+      // TODO: Create new plugin for userSession.anonymousIdGoogleLinker
+      const linkerPluginsResult = defaultPluginManager.invoke<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
+      finalAnonymousId = (linkerPluginsResult && linkerPluginsResult[0]) || generateUUID();
     }
 
-    state.session.rl_anonymous_id.value =
-      anonymousId || (anonymousIdFromLinker && anonymousIdFromLinker[0]) || generateUUID();
+    state.session.rl_anonymous_id.value = finalAnonymousId;
     this.storage?.set(
-      persistedSessionStorageKeys.userAnonymousId,
+      persistedSessionStorageKeys.anonymousUserId,
       state.session.rl_anonymous_id.value,
     );
     return state.session.rl_anonymous_id.value;
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string {
+    console.log('getAnonymousId', this.storage ? 'storage present' : 'not present');
     // fetch the rl_anonymous_id from storage
-    let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.userAnonymousId);
-
+    let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
+    console.log('persistedAnonymousId', persistedAnonymousId);
     if (!persistedAnonymousId) {
       // TODO: implement the storage.getAnonymousId autoCapture functionality as plugin that takes options in
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
@@ -247,7 +249,7 @@ class UserSessionManager implements IUserSessionManager {
     this.storage?.remove(persistedSessionStorageKeys.groupTraits);
 
     if (resetAnonymousId) {
-      this.storage?.remove(persistedSessionStorageKeys.userAnonymousId);
+      this.storage?.remove(persistedSessionStorageKeys.anonymousUserId);
     }
   }
 }

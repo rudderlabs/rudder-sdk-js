@@ -10,13 +10,13 @@ describe('User session manager', () => {
   defaultStoreManager.init();
   const clientDataStore = defaultStoreManager.getStore('clientData') as Store;
 
-  const setCustomValuesInStorage = (store: IStore, data) => {
+  const setCustomValuesInStorage = (store: IStore, data: any) => {
     Object.entries(data).forEach(([key, value]) => {
       store.set(key, value);
     });
   };
 
-  const clearStorage = (store: IStore, keys) => {
+  const clearStorage = (store: IStore, keys: string[]) => {
     keys.forEach(key => {
       store.remove(key);
     });
@@ -81,13 +81,13 @@ describe('User session manager', () => {
       rl_group_id: '',
       rl_group_trait: {},
       rl_page_init_referrer: '$direct',
-      rl_page_init_referring_domain: '$direct',
+      rl_page_init_referring_domain: '',
     };
     userSessionManager.init(clientDataStore);
     expect(state.session.rl_user_id.value).toBe(customData.rl_user_id);
     expect(state.session.rl_trait.value).toStrictEqual(customData.rl_trait);
     expect(typeof state.session.rl_anonymous_id.value).toBe('string');
-    expect(state.session.rl_anonymous_id.value.length).toBeGreaterThan(1);
+    expect(state.session.rl_anonymous_id.value?.length).toBeGreaterThan(1);
     expect(state.session.rl_group_id.value).toBe(customData.rl_group_id);
     expect(state.session.rl_group_trait.value).toStrictEqual(customData.rl_group_trait);
     expect(state.session.rl_page_init_referrer.value).toBe(customData.rl_page_init_referrer);
@@ -151,25 +151,24 @@ describe('User session manager', () => {
     expect(state.session.rl_page_init_referring_domain.value).toBe(newReferrer);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
-  //   it('getAnonymousId', () => {
-  //     const customData = {
-  //       rl_anonymous_id: 'dummy-anonymousId-12345678',
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     // effect(() => {
-  //       const actualAnonymousId = userSessionManager.getAnonymousId();
-  //       expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
-  //     // });
-  //   });
-  //   it('getUserId', () => {
-  //     const customData = {
-  //       rl_user_id: 'dummy-userId-12345678',
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualUserId = userSessionManager.getUserId();
-  //     expect(actualUserId).toBe(customData.rl_user_id);
-  //   });
+  // it('getAnonymousId', () => {
+  //   const customData = {
+  //     rl_anonymous_id: 'dummy-anonymousId-12345678',
+  //   };
+  //   setCustomValuesInStorage(clientDataStore, customData);
+  //   userSessionManager.init(clientDataStore);
+  //   const actualAnonymousId = userSessionManager.getAnonymousId();
+  //   expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
+  // });
+  // it('getUserId', () => {
+  //   const customData = {
+  //     rl_user_id: 'dummy-userId-12345678',
+  //   };
+  //   setCustomValuesInStorage(clientDataStore, customData);
+  //   userSessionManager.init(clientDataStore);
+  //   const actualUserId = userSessionManager.getUserId();
+  //   expect(actualUserId).toBe(customData.rl_user_id);
+  // });
   //   it('getUserTraits', () => {
   //     const customData = {
   //       rl_trait: { key1: 'value1', random: '123456789' },

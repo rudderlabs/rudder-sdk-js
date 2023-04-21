@@ -7,7 +7,6 @@ const persistedSessionStorageKeys = {
   initialReferrer: 'rl_page_init_referrer',
   initialReferringDomain: 'rl_page_init_referring_domain',
   sessionInfo: 'rl_session',
-  key: 'Rudder',
 };
 
 const externallyLoadedSessionStorageKeys = {
