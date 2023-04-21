@@ -26,7 +26,7 @@ export default class GA4 {
     this.capturePageView = config.capturePageView || 'rs';
     this.overrideSessionId = config.overrideSessionId || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
-    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
+    this.isHybridModeEnabled = config.connectionMode === 'hybrid';
   }
 
   loadScript(measurementId) {
