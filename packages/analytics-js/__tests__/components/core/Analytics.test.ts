@@ -14,6 +14,7 @@ jest.mock('../../../src/components/utilities/globals', () => {
 
 describe('Core - Analytics', () => {
   let analytics: Analytics;
+  const dummyWriteKey = 'qwertyuiopasdfghjklzxcvbnm1';
 
   beforeEach(() => {
     analytics = new Analytics();
@@ -95,14 +96,15 @@ describe('Core - Analytics', () => {
   });
 
   describe('load', () => {
+    const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
       const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load('writeKey', 'dataPlaneUrl', { logLevel: 'ERROR' });
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
       expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('polyfillLoaded');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
-      expect(setExposedGlobal).toHaveBeenCalledWith('state', state, 'writeKey');
+      expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
   });
 
@@ -115,10 +117,10 @@ describe('Core - Analytics', () => {
     it('should set authentication request header', () => {
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
-      state.lifecycle.writeKey.value = 'writeKey';
+      state.lifecycle.writeKey.value = dummyWriteKey;
       analytics.loadConfig();
       expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
-      expect(setAuthHeaderSpy).toHaveBeenCalledWith('writeKey');
+      expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
       expect(initSpy).toHaveBeenCalledTimes(1);
     });
   });

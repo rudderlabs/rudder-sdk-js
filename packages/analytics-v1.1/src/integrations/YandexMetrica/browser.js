@@ -10,7 +10,7 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getDefinedTraits } from '../../utils/utils';
 
 class YandexMetrica {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.tagId = config.tagId;
     this.clickMap = config.clickMap;
@@ -21,6 +21,8 @@ class YandexMetrica {
     this.goalId = config.goalId;
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

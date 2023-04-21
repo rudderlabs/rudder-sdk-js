@@ -1,5 +1,7 @@
+import { APP_VERSION, MODULE_TYPE } from "@rudderstack/analytics-js/constants/app";
+
 export const CONFIG_URL =
-  'https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version';
+  `https://api.rudderlabs.com/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}`;
 export const SDK_CDN_BASE_URL = 'https://cdn.rudderlabs.com';
 export const CDN_ARCH_VERSION_DIR = 'v3';
 export const CDN_INT_DIR = 'js-integrations';

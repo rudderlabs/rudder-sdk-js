@@ -1,5 +1,4 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
-import { parse } from 'component-url';
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
@@ -13,7 +12,6 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-import Storage from './storage';
 import { handleError } from './errorHandler';
 
 /**
@@ -126,64 +124,6 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     }
   };
   xhr.send();
-}
-
-function getDefaultPageProperties() {
-  const canonicalUrl = getCanonicalUrl();
-  const path = canonicalUrl ? parse(canonicalUrl).pathname : window.location.pathname;
-  // const { referrer } = document;
-  const { search } = window.location;
-  const { title } = document;
-  const url = getUrl(search);
-  const tab_url = window.location.href;
-
-  const referrer = getReferrer();
-  const referring_domain = getReferringDomain(referrer);
-  const initial_referrer = Storage.getInitialReferrer();
-  const initial_referring_domain = Storage.getInitialReferringDomain();
-  return {
-    path,
-    referrer,
-    referring_domain,
-    search,
-    title,
-    url,
-    tab_url,
-    initial_referrer,
-    initial_referring_domain,
-  };
-}
-
-function getReferrer() {
-  return document.referrer || '$direct';
-}
-
-function getReferringDomain(referrer) {
-  const split = referrer.split('/');
-  if (split.length >= 3) {
-    return split[2];
-  }
-  return '';
-}
-
-function getUrl(search) {
-  const canonicalUrl = getCanonicalUrl();
-  const url = canonicalUrl
-    ? canonicalUrl.indexOf('?') > -1
-      ? canonicalUrl
-      : canonicalUrl + search
-    : window.location.href;
-  const hashIndex = url.indexOf('#');
-  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
-}
-
-function getCanonicalUrl() {
-  const tags = document.getElementsByTagName('link');
-  for (var i = 0, tag; (tag = tags[i]); i++) {
-    if (tag.getAttribute('rel') === 'canonical') {
-      return tag.getAttribute('href');
-    }
-  }
 }
 
 function getCurrency(val) {
@@ -786,7 +726,6 @@ export {
   getJSONTrimmed,
   getJSON,
   getRevenue,
-  getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
   transformToRudderNames,
@@ -795,8 +734,6 @@ export {
   type,
   flattenJsonPayload,
   checkReservedKeywords,
-  getReferrer,
-  getReferringDomain,
   extractCustomFields,
   getDefinedTraits,
   isObject,

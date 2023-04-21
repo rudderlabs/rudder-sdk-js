@@ -6,7 +6,7 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class VWO {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -19,6 +19,8 @@ class VWO {
     this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = NAME;
     this.analytics = analytics;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 

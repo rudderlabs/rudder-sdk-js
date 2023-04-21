@@ -16,8 +16,8 @@
     "build:npm:modern": "lerna run build:npm:modern",
     "build:worker": "lerna run build:worker",
     "build:package": "lerna run build:package",
-    "test": "lerna run test",
-    "test:ci": "lerna run test:ci --concurrency 1",
+    "test": "lerna run --concurrency 1 test",
+    "test:ci": "lerna run  --concurrency 1 test:ci",
     "check:lint": "lerna run check:lint",
     "check:size": "lerna run check:size",
     "check:size:build": "lerna run check:size:build",
@@ -172,7 +172,9 @@
     "user-agent-data-types": "0.3.1"
   },
   "overrides": {
+    "@xmldom/xmldom": "0.8.5",
     "debug": "4.3.4",
+    "decode-uri-component": "0.4.1",
     "dot-prop": "5.3.0",
     "http-cache-semantics": "4.1.1",
     "semver-regex": "3.1.4",

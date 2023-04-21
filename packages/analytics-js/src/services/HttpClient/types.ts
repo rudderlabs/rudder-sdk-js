@@ -15,7 +15,7 @@ export interface IAsyncRequestConfig<T> extends IRequestConfig {
 export interface IXHRRequestOptions {
   method: HTTPClientMethod;
   url: string;
-  headers: Record<string, string>;
+  headers: Record<string, string | undefined>;
   data?: XMLHttpRequestBodyInit;
 }
 

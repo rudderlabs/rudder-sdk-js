@@ -7,7 +7,7 @@ import { recordQualarooEvents, transformUserTraits } from './utils';
 import { isNotEmpty } from '../../utils/commonUtils';
 
 class Qualaroo {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -18,6 +18,8 @@ class Qualaroo {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

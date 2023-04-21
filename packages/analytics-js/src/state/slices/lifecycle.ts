@@ -10,7 +10,7 @@ export type LifecycleState = {
   activeDataplaneUrl: Signal<string | undefined>;
   integrationsCDNPath: Signal<string | undefined>;
   pluginsCDNPath: Signal<string | undefined>;
-  sourceConfigUrl: Signal<string | undefined>;
+  sourceConfigUrl: Signal<string>;
   status: Signal<LifecycleStatus>;
   isStaging: Signal<boolean>;
   initialized: Signal<boolean>;
