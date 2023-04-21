@@ -7,7 +7,7 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class Posthog {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -22,6 +22,8 @@ class Posthog {
     this.propertyBlackList = [];
     this.xhrHeaders = {};
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach(header => {

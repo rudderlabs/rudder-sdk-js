@@ -6,6 +6,11 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
+const destinationInfo = {
+  areTransformationsConnected: false,
+  destinationId: 'sample-destination-id',
+};
+
 describe('FacebookPixel init tests', () => {
   let facebookPixel;
 
@@ -22,6 +27,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -45,6 +51,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -70,6 +77,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -96,6 +104,7 @@ describe('FacebookPixel page', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     window.fbq = jest.fn();
@@ -141,8 +150,18 @@ describe('Facebook Pixel Track event', () => {
   let facebookPixel;
   beforeEach(() => {
     facebookPixel = new FacebookPixel(
-      { pixelId: '12567839', useUpdatedMapping: true },
+      {
+        pixelId: '12567839',
+        useUpdatedMapping: true,
+        eventsToEvents: [
+          {
+            from: 'ABC',
+            to: 'Purchase',
+          },
+        ],
+      },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     window.fbq = jest.fn();
@@ -271,6 +290,33 @@ describe('Facebook Pixel Track event', () => {
           image_url: 'https://www.example.com/product/bacon-jam.jpg',
         },
       ],
+    });
+    expect(window.fbq.mock.calls[0][4]).toEqual({
+      eventID: 'purchaseId',
+    });
+  });
+
+  test('Testing Track Custom Mapped Events', () => {
+    facebookPixel.track({
+      message: {
+        context: {},
+        event: 'ABC',
+        properties: {
+          customProp: 'testProp',
+          event_id: 'purchaseId',
+          revenue: 37,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+        },
+      },
+    });
+    expect(window.fbq.mock.calls[0][0]).toEqual('trackSingle');
+    expect(window.fbq.mock.calls[0][1]).toEqual('12567839');
+    expect(window.fbq.mock.calls[0][2]).toEqual('Purchase');
+    expect(window.fbq.mock.calls[0][3]).toEqual({
+      value: 37,
+      currency: 'GBP',
     });
     expect(window.fbq.mock.calls[0][4]).toEqual({
       eventID: 'purchaseId',

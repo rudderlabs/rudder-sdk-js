@@ -48,6 +48,7 @@ export function getDefaultConfig(distName) {
       replace({
         preventAssignment: true,
         'process.package_version': version,
+        __PACKAGE_VERSION__: version,
       }),
       resolve({
         jsnext: true,

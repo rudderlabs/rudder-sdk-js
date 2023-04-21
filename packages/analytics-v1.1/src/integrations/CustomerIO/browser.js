@@ -4,13 +4,15 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class CustomerIO {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

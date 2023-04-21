@@ -53,8 +53,10 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        'process.package_version': version,
-        'process.module_type': moduleType,
+        __PACKAGE_VERSION__: version,
+        __MODULE_TYPE__: moduleType,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
       nodePolyfills(),
       resolve({

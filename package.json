@@ -172,7 +172,9 @@
     "user-agent-data-types": "0.3.1"
   },
   "overrides": {
+    "@xmldom/xmldom": "0.8.5",
     "debug": "4.3.4",
+    "decode-uri-component": "0.4.1",
     "dot-prop": "5.3.0",
     "http-cache-semantics": "4.1.1",
     "semver-regex": "3.1.4",

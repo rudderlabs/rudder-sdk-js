@@ -12,7 +12,7 @@ const logger = new Logger(NAME);
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
 */
 class Braze {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -37,6 +37,8 @@ class Braze {
     this.name = NAME;
     this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 

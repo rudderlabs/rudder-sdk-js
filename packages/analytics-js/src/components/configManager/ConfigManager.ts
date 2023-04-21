@@ -9,6 +9,7 @@ import { batch } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination } from '@rudderstack/analytics-js/state/types';
+import { APP_VERSION, MODULE_TYPE } from "@rudderstack/analytics-js/constants/app";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
@@ -39,7 +40,7 @@ class ConfigManager implements IConfigManager {
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
     // determine the path to fetch integration SDK url from
     const intgCdnUrl = getIntegrationsCDNPath(
-      'process.package_version',
+      APP_VERSION,
       lockIntegrationsVersion,
       state.loadOptions.value.destSDKBaseURL,
     );
@@ -55,7 +56,7 @@ class ConfigManager implements IConfigManager {
       }
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
       state.lifecycle.isStaging.value = isStaging;
     });
@@ -166,6 +167,11 @@ class ConfigManager implements IConfigManager {
     // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: state.lifecycle.sourceConfigUrl.value,
+      options: {
+        headers: {
+          'Content-Type': undefined
+        }
+      },
       callback: this.processConfig,
     });
   }
