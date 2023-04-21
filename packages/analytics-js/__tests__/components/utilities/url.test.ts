@@ -1,5 +1,8 @@
-import { extractUTMParameters, getUrlWithoutHash } from "@rudderstack/analytics-js/components/utilities/url";
-import { getReferringDomain } from "rudder-sdk-js/utils/utils";
+import {
+  extractUTMParameters,
+  getUrlWithoutHash,
+  getReferringDomain,
+} from '@rudderstack/analytics-js/components/utilities/url';
 
 describe('utilities - url', () => {
   it('should get URL without hash', () => {
