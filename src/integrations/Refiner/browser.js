@@ -5,7 +5,7 @@ import { NAME } from './constants';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
 
 class Refiner {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -13,6 +13,8 @@ class Refiner {
     this.apiKey = config.webClientApiKey;
     this.userAttributesMapping = config.userAttributesMapping;
     this.accountAttributesMapping = config.accountAttributesMapping;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {

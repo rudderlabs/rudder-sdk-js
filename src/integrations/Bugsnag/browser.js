@@ -4,7 +4,7 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class Bugsnag {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -12,6 +12,8 @@ class Bugsnag {
     this.apiKey = config.apiKey;
     this.name = NAME;
     this.setIntervalHandler = undefined;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

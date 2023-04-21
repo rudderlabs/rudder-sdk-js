@@ -6,9 +6,11 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { setCustomVariables, addCustomVariables } from './utils';
 
 class Mouseflow {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
     this.websiteId = config.websiteId;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

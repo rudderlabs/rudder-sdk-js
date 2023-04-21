@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.31.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.0...v2.31.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* integrations not being compatible with older versions of analytics ([36fe09b](https://github.com/rudderlabs/rudder-sdk-js/commit/36fe09bd804a3aafc38b214308ceedce54d027a3))
+* remove duplicate conditional check in VWO integration ([99a5e4b](https://github.com/rudderlabs/rudder-sdk-js/commit/99a5e4b0c22a0580304a551dc6704cd0c3b2a614))
+
+## [2.31.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.30.0...v2.31.0) (2023-04-20)
+
+
+### Features
+
+* device mode destination ([#1014](https://github.com/rudderlabs/rudder-sdk-js/issues/1014)) ([cc96e22](https://github.com/rudderlabs/rudder-sdk-js/commit/cc96e22c06e9ff96fc547d22d3f1ca592122593f))
+* **GA4:** override sessionId with rudder sessionId ([#988](https://github.com/rudderlabs/rudder-sdk-js/issues/988)) ([a62717a](https://github.com/rudderlabs/rudder-sdk-js/commit/a62717a32329c889b9b33ac87cbad0e30f0feb99))
+
+
+### Bug Fixes
+
+* bugsnag typo in rollup config ([#1010](https://github.com/rudderlabs/rudder-sdk-js/issues/1010)) ([f085feb](https://github.com/rudderlabs/rudder-sdk-js/commit/f085febde59ea74d64927a112526e7e51d5fa2b4))
+
 ## [2.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.29.0...v2.30.0) (2023-04-17)
 
 
