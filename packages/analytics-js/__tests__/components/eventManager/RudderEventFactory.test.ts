@@ -62,7 +62,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a page event if page event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.PAGE,
+      type: RudderEventType.Page,
       category: 'category',
       name: 'name',
       properties: {
@@ -153,7 +153,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a track event if track event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.TRACK,
+      type: RudderEventType.Track,
       name: 'Sample event',
       properties: {
         key1: 'value1',
@@ -228,7 +228,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate an identify event if identify event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.IDENTIFY,
+      type: RudderEventType.Identify,
       userId: 'new_user_id',
       traits: {
         key1: 'value1',
@@ -311,7 +311,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate an alias event if alias event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.ALIAS,
+      type: RudderEventType.Alias,
       from: 'user_id',
       to: 'new_user_id_alias',
     } as APIEvent;
@@ -379,7 +379,7 @@ describe('RudderEventFactory', () => {
   // TODO: Re-enable this test once the user session manager is implemented completely
   it.skip('should generate an alias event if alias event data is provided but without "from" parameter', () => {
     const apiEvent = {
-      type: RudderEventType.ALIAS,
+      type: RudderEventType.Alias,
       to: 'new_user_id_alias',
     } as APIEvent;
 
@@ -445,7 +445,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate an alias event if alias event data is provided but without "from" parameter and user ID was not persisted', () => {
     const apiEvent = {
-      type: RudderEventType.ALIAS,
+      type: RudderEventType.Alias,
       to: 'new_user_id_alias',
     } as APIEvent;
 
@@ -515,7 +515,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a group event if group event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.GROUP,
+      type: RudderEventType.Group,
       groupId: 'overridden_group_id',
       traits: {
         key4: 'value4',

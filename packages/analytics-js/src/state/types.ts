@@ -112,9 +112,17 @@ export type IntegrationInstance = {
 // TODO: is this still used? const intMod = window[pluginName];
 export type DynamicallyLoadedIntegration = Record<string, any>;
 
-export type CookieSameSite = 'Strict' | 'Lax' | 'None';
+export enum CookieSameSite {
+  Strict = 'Strict',
+  Lax = 'Lax',
+  None = 'None',
+}
 
-export type UaChTrackLevel = 'none' | 'default' | 'full';
+export enum UaChTrackLevel {
+  None = 'none',
+  Default = 'default',
+  Full = 'full',
+}
 
 /**
  * Represents the integration options object
@@ -238,19 +246,25 @@ export type LoadOptions = {
 export type ApiCallback = () => void;
 export type BufferedEvent = any[];
 
-export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
+export enum LogLevel {
+  Log = 'LOG',
+  Info = 'INFO',
+  Debug = 'DEBUG',
+  Warn = 'WARN',
+  Error = 'ERROR',
+  None = 'NONE',
+}
 
-// TODO: make enum
-export type LifecycleStatus =
-  | 'mounted'
-  | 'polyfillLoaded'
-  | 'initialized'
-  | 'configured'
-  | 'pluginsReady'
-  | 'loaded'
-  | 'integrationsReady'
-  | 'ready'
-  | undefined;
+export enum LifecycleStatus {
+  Mounted = 'mounted',
+  PolyfillLoaded = 'polyfillLoaded',
+  Initialized = 'initialized',
+  Configured = 'configured',
+  PluginsReady = 'pluginsReady',
+  Loaded = 'loaded',
+  IntegrationsReady = 'integrationsReady',
+  Ready = 'ready',
+}
 
 export type ReadyCallback = () => void;
 

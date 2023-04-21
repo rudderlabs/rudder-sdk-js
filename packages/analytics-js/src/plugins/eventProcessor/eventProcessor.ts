@@ -55,7 +55,7 @@ const eventProcessor = (): ExtensionPlugin => ({
         userId: state.session.rl_user_id.value,
       } as Partial<RudderEvent>;
 
-      if (rudderEvent.type === RudderEventType.GROUP) {
+      if (rudderEvent.type === RudderEventType.Group) {
         commonEventData.groupId = state.session.rl_group_id.value;
         commonEventData.traits = { ...state.session.rl_group_trait.value };
       }

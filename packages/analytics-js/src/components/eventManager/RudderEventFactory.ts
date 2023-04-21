@@ -31,7 +31,7 @@ class RudderEventFactory {
       properties: props,
       name,
       category,
-      type: RudderEventType.PAGE,
+      type: RudderEventType.Page,
     };
 
     return getEnrichedEvent(pageEvent, options, props);
@@ -51,7 +51,7 @@ class RudderEventFactory {
     const trackEvent: Partial<RudderEvent> = {
       properties,
       event,
-      type: RudderEventType.TRACK,
+      type: RudderEventType.Track,
     };
 
     return getEnrichedEvent(trackEvent, options);
@@ -64,7 +64,7 @@ class RudderEventFactory {
    */
   private static generateIdentifyEvent(options?: Nullable<ApiOptions>): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
-      type: RudderEventType.IDENTIFY,
+      type: RudderEventType.Identify,
     };
 
     return getEnrichedEvent(identifyEvent, options);
@@ -90,7 +90,7 @@ class RudderEventFactory {
 
     const aliasEvent: Partial<RudderEvent> = {
       previousId,
-      type: RudderEventType.ALIAS,
+      type: RudderEventType.Alias,
     };
 
     return getEnrichedEvent(aliasEvent, options);
@@ -105,7 +105,7 @@ class RudderEventFactory {
    */
   private static generateGroupEvent(options?: Nullable<ApiOptions>): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
-      type: RudderEventType.GROUP,
+      type: RudderEventType.Group,
     };
 
     return getEnrichedEvent(groupEvent, options);
@@ -114,7 +114,7 @@ class RudderEventFactory {
   static create(event: APIEvent): RudderEvent | undefined {
     let eventObj: RudderEvent | undefined;
     switch (event.type) {
-      case RudderEventType.PAGE:
+      case RudderEventType.Page:
         eventObj = RudderEventFactory.generatePageEvent(
           event.category,
           event.name,
@@ -122,20 +122,24 @@ class RudderEventFactory {
           event.options,
         );
         break;
-      case RudderEventType.TRACK:
+      case RudderEventType.Track:
         eventObj = RudderEventFactory.generateTrackEvent(
           event.name as string,
           event.properties,
           event.options,
         );
         break;
-      case RudderEventType.IDENTIFY:
+      case RudderEventType.Identify:
         eventObj = RudderEventFactory.generateIdentifyEvent(event.options);
         break;
-      case RudderEventType.ALIAS:
-        eventObj = RudderEventFactory.generateAliasEvent(event.to as string, event.from, event.options);
+      case RudderEventType.Alias:
+        eventObj = RudderEventFactory.generateAliasEvent(
+          event.to as string,
+          event.from,
+          event.options,
+        );
         break;
-      case RudderEventType.GROUP:
+      case RudderEventType.Group:
         eventObj = RudderEventFactory.generateGroupEvent(event.options);
         break;
       default:

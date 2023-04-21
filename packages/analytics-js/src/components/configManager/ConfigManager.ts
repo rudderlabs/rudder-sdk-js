@@ -8,7 +8,7 @@ import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient
 import { batch } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
-import { Destination } from '@rudderstack/analytics-js/state/types';
+import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from "@rudderstack/analytics-js/constants/app";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
@@ -128,7 +128,7 @@ class ConfigManager implements IConfigManager {
 
       // set application lifecycle state
       state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
-      state.lifecycle.status.value = 'configured';
+      state.lifecycle.status.value = LifecycleStatus.Configured;
 
       // set the values in state for reporting slice
       state.reporting.isErrorReportingEnabled.value =

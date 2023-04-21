@@ -1,4 +1,5 @@
 import { state } from '@rudderstack/analytics-js/state';
+import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { ICapabilitiesManager } from './types';
 
 class CapabilitiesManager implements ICapabilitiesManager {
@@ -11,7 +12,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   }
 
   onReady() {
-    state.lifecycle.status.value = 'polyfillLoaded';
+    state.lifecycle.status.value = LifecycleStatus.PolyfillLoaded;
   }
 }
 

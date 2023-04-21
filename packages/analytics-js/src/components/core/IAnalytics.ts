@@ -28,7 +28,7 @@ import {
 
 export interface IAnalytics {
   initialized: boolean;
-  status: LifecycleStatus;
+  status?: LifecycleStatus;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;

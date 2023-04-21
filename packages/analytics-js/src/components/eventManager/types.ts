@@ -12,11 +12,11 @@ import {
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 
 export enum RudderEventType {
-  PAGE = 'page',
-  TRACK = 'track',
-  IDENTIFY = 'identify',
-  ALIAS = 'alias',
-  GROUP = 'group',
+  Page = 'page',
+  Track = 'track',
+  Identify = 'identify',
+  Alias = 'alias',
+  Group = 'group',
 }
 
 export type APIEvent = {
