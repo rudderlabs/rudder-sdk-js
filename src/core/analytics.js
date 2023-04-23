@@ -392,20 +392,27 @@ class Analytics {
                 let transformedEvents;
                 if (transformationServerAccess) {
                   // filter the transformed event for that destination
-                  transformedEvents = transformedPayload.find(
-                    (e) => e.id === intg.destinationId,
-                  )?.payload;
+                  transformedEvents = transformedPayload.find((e) => e.id === intg.destinationId);
+                  if (!transformedEvents) {
+                    logger.error(
+                      `[DMT]::[Destination:${intg.name}]:: Transformed data not available`,
+                    );
+                  }
+                  /**
+                   * Filter the successful transformed event
+                   */
+                  transformedEvents = transformedEvents?.payload.filter(
+                    (tEvent) => tEvent.status === '200',
+                  );
                 } else {
                   transformedEvents = transformedPayload;
                 }
-                if (transformedEvents && transformedEvents.length > 0) {
-                  // send transformed event to destination
-                  transformedEvents.forEach((tEvent) => {
-                    if (tEvent.event) {
-                      this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
-                    }
-                  });
-                }
+                // send transformed event to destination
+                transformedEvents?.forEach((tEvent) => {
+                  if (tEvent.event) {
+                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                  }
+                });
               } catch (e) {
                 if (e instanceof Error) {
                   e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
