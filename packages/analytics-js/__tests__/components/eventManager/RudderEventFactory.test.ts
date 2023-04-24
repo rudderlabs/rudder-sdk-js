@@ -160,12 +160,15 @@ describe('RudderEventFactory', () => {
         key2: 'value2',
         key3: 'value3',
       },
+      options: {
+        anonymousId: 'modified_anon_id',
+      },
     } as APIEvent;
     const trackEvent = RudderEventFactory.create(apiEvent);
 
     expect(trackEvent).toEqual({
       type: 'track',
-      anonymousId: 'anon_id',
+      anonymousId: 'modified_anon_id',
       channel: 'web',
       context: {
         sessionStart: true,
