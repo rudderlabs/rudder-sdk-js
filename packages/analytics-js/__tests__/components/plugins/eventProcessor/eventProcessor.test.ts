@@ -59,7 +59,7 @@ describe('eventProcessor', () => {
       resetApplicationState();
     });
 
-    it('should return common event data using the date in state', () => {
+    it('should return common event data using the data in state', () => {
       batch(() => {
         state.session.rl_anonymous_id.value = 'anon_id';
         state.session.rl_trait.value = { test: 'test' };
