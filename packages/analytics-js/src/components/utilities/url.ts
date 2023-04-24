@@ -6,7 +6,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
  * @param url
  * @returns url
  */
-export const removeTrailingSlashes = (url: string | null): Nullable<string> =>
+const removeTrailingSlashes = (url: string | null): Nullable<string> =>
   url && url.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**
@@ -14,7 +14,7 @@ export const removeTrailingSlashes = (url: string | null): Nullable<string> =>
  * @param url
  * @returns true if `url` is valid and false otherwise
  */
-export const isValidUrl = (url: string): boolean => {
+const isValidUrl = (url: string): boolean => {
   try {
     const validUrl = new URL(url); // TODO: add URL in the polyfill list
     return true;
@@ -28,7 +28,7 @@ export const isValidUrl = (url: string): boolean => {
  * @param referrer Page referrer
  * @returns Page referring domain
  */
-export const getReferringDomain = (referrer: string) => {
+const getReferringDomain = (referrer: string) => {
   let referringDomain = '';
   try {
     const url = new URL(referrer);
@@ -44,7 +44,7 @@ export const getReferringDomain = (referrer: string) => {
  * @param url Page URL
  * @returns UTM parameters
  */
-export const extractUTMParameters = (url: string): UTMParameters => {
+const extractUTMParameters = (url: string): UTMParameters => {
   const result: UTMParameters = {};
   try {
     const urlObj = new URL(url);
@@ -70,7 +70,7 @@ export const extractUTMParameters = (url: string): UTMParameters => {
  * @param url The input URL
  * @returns URL until the hash
  */
-export const getUrlWithoutHash = (url: string): string => {
+const getUrlWithoutHash = (url: string): string => {
   let urlWithoutHash = url;
   try {
     const urlObj = new URL(url);
@@ -79,4 +79,12 @@ export const getUrlWithoutHash = (url: string): string => {
     // Do nothing
   }
   return urlWithoutHash;
+};
+
+export {
+  removeTrailingSlashes,
+  isValidUrl,
+  getReferringDomain,
+  extractUTMParameters,
+  getUrlWithoutHash,
 };

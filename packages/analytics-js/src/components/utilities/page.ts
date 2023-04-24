@@ -1,17 +1,17 @@
-import { Nullable } from "@rudderstack/analytics-js/types";
-import { getReferringDomain, getUrlWithoutHash } from "./url";
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { getReferringDomain, getUrlWithoutHash } from './url';
 
 /**
  * Get the referrer URL
  * @returns The referrer URL
  */
-export const getReferrer = (): string => document.referrer || '$direct'
+const getReferrer = (): string => document.referrer || '$direct';
 
 /**
  * To get the canonical URL of the page
  * @returns canonical URL
  */
-export const getCanonicalUrl = (): string => {
+const getCanonicalUrl = (): string => {
   const tags = [...document.getElementsByTagName('link')];
   let canonicalUrl: Nullable<string> = '';
   tags.some(tag => {
@@ -24,7 +24,7 @@ export const getCanonicalUrl = (): string => {
   return canonicalUrl;
 };
 
-export const getUserAgent = (): Nullable<string> => {
+const getUserAgent = (): Nullable<string> => {
   if (typeof window.navigator === 'undefined') {
     return null;
   }
@@ -47,7 +47,7 @@ export const getUserAgent = (): Nullable<string> => {
   return userAgent;
 };
 
-export const getLanguage = (): Nullable<string> => {
+const getLanguage = (): Nullable<string> => {
   if (typeof window.navigator === 'undefined') {
     return null;
   }
@@ -59,7 +59,7 @@ export const getLanguage = (): Nullable<string> => {
  * Default page properties
  * @returns Default page properties
  */
-export const getDefaultPageProperties = () => {
+const getDefaultPageProperties = () => {
   const canonicalUrl = getCanonicalUrl();
   let path = window.location.pathname;
   const { href: tabUrl } = window.location;
@@ -90,3 +90,5 @@ export const getDefaultPageProperties = () => {
     tab_url: tabUrl,
   };
 };
+
+export { getCanonicalUrl, getReferrer, getUserAgent, getLanguage, getDefaultPageProperties };
