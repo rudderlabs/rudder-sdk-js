@@ -226,6 +226,79 @@ describe('RudderEventFactory', () => {
     });
   });
 
+  it('should generate a track event if track event data is provided even without event name', () => {
+    const apiEvent = {
+      type: RudderEventType.Track,
+      properties: {
+        key1: 'value1',
+        key2: 'value2',
+        key3: 'value3',
+      },
+    } as APIEvent;
+    const trackEvent = RudderEventFactory.create(apiEvent);
+
+    expect(trackEvent).toEqual({
+      type: 'track',
+      anonymousId: 'anon_id',
+      channel: 'web',
+      context: {
+        sessionStart: true,
+        sessionId: 1234,
+        app: {
+          name: 'test',
+          version: '1.0',
+        },
+        campaign: {
+          name: 'test',
+          source: 'test',
+        },
+        library: {
+          name: 'test',
+          version: '1.0',
+        },
+        locale: 'en-US',
+        os: {
+          name: 'test',
+          version: '1.0',
+        },
+        screen: {
+          height: 100,
+          width: 100,
+        },
+        traits: {
+          test: 'test',
+        },
+        'ua-ch': {
+          mobile: true,
+        },
+        userAgent: 'test',
+        consentManagement: {
+          deniedConsentIds: ['id1', 'id2'],
+        },
+        page: {
+          path: '/Page',
+          referrer: 'https://sample.com/Page',
+          referring_domain: 'https://sample.com',
+          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
+          title: 'title',
+          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          initial_referrer: 'https://test.com/page',
+          initial_referring_domain: 'https://test.com',
+        },
+      },
+      originalTimestamp: '2020-01-01T00:00:00.000Z',
+      properties: {
+        key1: 'value1',
+        key2: 'value2',
+        key3: 'value3',
+      },
+      messageId: 'test_uuid',
+      integrations: { All: true },
+      userId: 'user_id',
+    });
+  });
+
   it('should generate an identify event if identify event data is provided', () => {
     const apiEvent = {
       type: RudderEventType.Identify,
