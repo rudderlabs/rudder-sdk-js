@@ -43,9 +43,7 @@ const resetPageState = () => {
 };
 
 const resetApplicationState = () => {
-  batch(() => {
-    resetPageState();
-  });
+  resetPageState();
 };
 
 describe('Event Manager - Utilities', () => {

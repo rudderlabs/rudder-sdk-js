@@ -12,7 +12,6 @@ class RudderEventFactory {
    * @param name Page name
    * @param properties Page properties
    * @param options API options
-   * @param callback Callback function
    */
   private static generatePageEvent(
     category?: Nullable<string>,
@@ -59,8 +58,7 @@ class RudderEventFactory {
 
   /**
    * Generate an 'identify' event based on the user-input fields
-   * @param userId New user ID
-   * @param traits User traits
+   * @param options API options
    */
   private static generateIdentifyEvent(options?: Nullable<ApiOptions>): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
@@ -74,6 +72,7 @@ class RudderEventFactory {
    * Generate an 'alias' event based on the user-input fields
    * @param to New user ID
    * @param from Old user ID
+   * @param options API options
    */
   private static generateAliasEvent(
     to: string,
@@ -98,10 +97,7 @@ class RudderEventFactory {
 
   /**
    * Generate a 'group' event based on the user-input fields
-   * @param groupId Group ID
-   * @param traits Group traits
    * @param options API options
-   * @param callback Callback function
    */
   private static generateGroupEvent(options?: Nullable<ApiOptions>): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
@@ -111,6 +107,11 @@ class RudderEventFactory {
     return getEnrichedEvent(groupEvent, options);
   }
 
+  /**
+   * Generates a new RudderEvent object based on the user-input fields
+   * @param event API event parameters object
+   * @returns A RudderEvent object
+   */
   static create(event: APIEvent): RudderEvent | undefined {
     let eventObj: RudderEvent | undefined;
     switch (event.type) {
