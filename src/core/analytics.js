@@ -44,6 +44,7 @@ import {
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
+import { Store } from '../utils/storage/store';
 import { EventRepository } from '../utils/EventRepository';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
@@ -80,6 +81,7 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
+    this.store = Store;
     this.eventRepository = EventRepository;
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
@@ -91,6 +93,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.bufferDataPlaneEventsUntilReady = false;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -455,6 +458,31 @@ class Analytics {
     }
   }
 
+  /**
+   *
+   * @param {*} type
+   * @param {*} rudderElement
+   * @param {*} callback
+   * @param {*} clientSuppliedIntegrations
+   * Sends cloud mode events to server
+   */
+  processCloudModeEvents(type, rudderElement, callback, clientSuppliedIntegrations) {
+    // convert integrations object to server identified names, kind of hack now!
+    transformToServerNames(rudderElement.message.integrations);
+    rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+      this.integrationsData,
+      clientSuppliedIntegrations,
+    );
+
+    // self analytics process, send to rudder
+    this.eventRepository.enqueue(rudderElement, type);
+
+    // logger.debug(`${type} is called `)
+    if (callback) {
+      callback(rudderElement);
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -486,6 +514,26 @@ class Analytics {
       object.clientIntegrationsReady = true;
       // Execute the callbacks if any
       object.executeReadyCallback();
+    }
+
+    // Processing cloud mode buffered events
+    const cloudModeEvents = this.store.get('rs_events');
+    if (object.bufferDataPlaneEventsUntilReady && cloudModeEvents && cloudModeEvents.length > 0) {
+      cloudModeEvents.forEach((event) => {
+        const methodName = event[0];
+        event.shift();
+        // convert common names to sdk identified name
+        if (Object.keys(event[0].message.integrations).length > 0) {
+          transformToRudderNames(event[0].message.integrations);
+        }
+
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = event[0].message.integrations;
+
+        // event[0] -> rudderElement, event[1] -> callback
+        this.processCloudModeEvents(methodName, event[0], event[1], clientSuppliedIntegrations);
+      });
+      this.store.remove('rs_events');
     }
 
     // send the queued events to the fetched integration
@@ -851,7 +899,7 @@ class Analytics {
       if (!this.clientIntegrationObjects) {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback]);
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
@@ -868,19 +916,17 @@ class Analytics {
         );
       }
 
-      // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
-
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(rudderElement, type);
-
-      // logger.debug(`${type} is called `)
-      if (callback) {
-        callback(rudderElement);
+      // Holding the cloud mode events based on flag and integrations load check
+      if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
+        this.processCloudModeEvents(type, rudderElement, callback, clientSuppliedIntegrations);
+      } else {
+        const cloudModeEvents = this.store.get('rs_events');
+        if (cloudModeEvents && cloudModeEvents.length > 0) {
+          cloudModeEvents.push([type, rudderElement, callback]);
+          this.store.set('rs_events', cloudModeEvents);
+        } else {
+          this.store.set('rs_events', [[type, rudderElement, callback]]);
+        }
       }
     } catch (error) {
       handleError(error);
@@ -1146,6 +1192,10 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
+      this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {

@@ -27,7 +27,6 @@ class EventRepository {
     let targetUrl = removeTrailingSlashes(url);
     if (options && options.useBeacon && navigator.sendBeacon) {
       if (
-        options &&
         options.beaconQueueOptions &&
         options.beaconQueueOptions != null &&
         typeof options.beaconQueueOptions === 'object'
@@ -62,7 +61,7 @@ class EventRepository {
    * @memberof EventRepository
    */
   enqueue(rudderElement, type) {
-    const message = rudderElement.getElementContent();
+    const message = rudderElement.message || rudderElement.getElementContent();
     message.originalTimestamp = message.originalTimestamp || getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
