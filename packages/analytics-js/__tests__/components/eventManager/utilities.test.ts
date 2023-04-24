@@ -71,7 +71,7 @@ describe('Event Manager - Utilities', () => {
       expect(updatedPageProperties).toEqual(pageProperties);
     });
 
-    it('should return the input page properties if the page properties provided in options is not a valid object', () => {
+    it('should return the input page properties if the page properties provided in options is undefined', () => {
       const apiOptions = {
         tempKey: 'tempValue',
       };
