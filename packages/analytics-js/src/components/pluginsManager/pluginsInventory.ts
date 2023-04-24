@@ -4,16 +4,13 @@ import { localTest2 } from '@rudderstack/analytics-js/plugins/dummyToDelete/loca
 import { localTest3 } from '@rudderstack/analytics-js/plugins/dummyToDelete/localTest3';
 import { dummyMultiLifeCyclePlugin } from '@rudderstack/analytics-js/plugins/dummyToDelete/dummyMultiLifeCyclePlugin';
 import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
-import { eventProcessor } from '@rudderstack/analytics-js/plugins/eventProcessor/eventProcessor';
 import legacyBuildPluginImports from './legacyBuildPluginImports';
 import modernBuildPluginImports from './modernBuildPluginImports';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 (window as any).rudderEmptyPluginImports = () => {}; // Is used as replacement for modern builds from rollup
 
-const getMandatoryPluginsMap = (): PluginMap => ({
-  EventProcessor: eventProcessor,
-});
+const getMandatoryPluginsMap = (): PluginMap => ({});
 
 const getOptionalPluginsMap = (): PluginMap => {
   if (!__BUNDLE_ALL_PLUGINS__) {

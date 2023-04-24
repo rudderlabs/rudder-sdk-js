@@ -43,7 +43,7 @@ export type RudderContext = {
     | Nullable<string>
     | (string | number | boolean | ApiObject)[]
     | undefined;
-  traits?: ApiObject;
+  traits?: Nullable<ApiObject>;
   sessionId?: number;
   sessionStart?: boolean;
   consentManagement?: ConsentManagement;
@@ -72,7 +72,7 @@ export type RudderEvent = {
   properties?: Nullable<ApiObject>; // track & page
   name?: Nullable<string>; // page
   category?: Nullable<string>; // page
-  traits?: ApiObject; // group
+  traits?: Nullable<ApiObject>; // group
   groupId?: Nullable<string>; // group
 };
 

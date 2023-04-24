@@ -10,7 +10,6 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { batch } from '@preact/signals-core';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -19,9 +18,6 @@ jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
-
-// This is needed for the event processor plugin to get activated
-defaultPluginManager.registerLocalPlugins();
 
 describe('RudderEventFactory', () => {
   beforeEach(() => {

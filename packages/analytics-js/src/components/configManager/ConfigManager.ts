@@ -5,11 +5,11 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { batch } from '@preact/signals-core';
+import { batch, effect } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { APP_VERSION, MODULE_TYPE } from "@rudderstack/analytics-js/constants/app";
+import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
@@ -36,6 +36,12 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
+    effect(() => {
+      if (this.logger) {
+        this.logger.setMinLogLevel(state.lifecycle.logLevel.value);
+      }
+    });
+
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
     // determine the path to fetch integration SDK url from
@@ -169,8 +175,8 @@ class ConfigManager implements IConfigManager {
       url: state.lifecycle.sourceConfigUrl.value,
       options: {
         headers: {
-          'Content-Type': undefined
-        }
+          'Content-Type': undefined,
+        },
       },
       callback: this.processConfig,
     });

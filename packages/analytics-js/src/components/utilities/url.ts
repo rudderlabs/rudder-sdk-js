@@ -28,7 +28,7 @@ const isValidUrl = (url: string): boolean => {
  * @param referrer Page referrer
  * @returns Page referring domain
  */
-const getReferringDomain = (referrer: string) => {
+const getReferringDomain = (referrer: string): string => {
   let referringDomain = '';
   try {
     const url = new URL(referrer);

@@ -57,6 +57,7 @@ class PluginsManager implements IPluginsManager {
     plugins.forEach(plugin => this.engine.register(plugin));
   }
 
+  // TODO: Implement reset API instead
   unregisterLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
       this.engine.unregister(localPlugin().name);

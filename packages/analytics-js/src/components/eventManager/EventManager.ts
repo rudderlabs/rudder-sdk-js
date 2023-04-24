@@ -19,6 +19,7 @@ class EventManager implements IEventManager {
    * @param logger Logger object
    */
   constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
+    // TODO: Pass plugin manager instance
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.onError = this.onError.bind(this);

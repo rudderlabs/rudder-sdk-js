@@ -6,19 +6,19 @@ export type CookieConsentOptions = {
 };
 
 export type AppInfo = {
-  name: string;
-  version: string;
-  namespace: string;
+  readonly name: string;
+  readonly version: string;
+  readonly namespace: string;
 };
 
 export type LibraryInfo = {
-  name: string;
-  version: string;
+  readonly name: string;
+  readonly version: string;
 };
 
 export type OSInfo = {
-  name: string;
-  version: string;
+  readonly name: string;
+  readonly version: string;
 };
 
 // TODO: should we take the types from IdentifyTrait instead of any string key?

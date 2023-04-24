@@ -201,9 +201,6 @@ class Analytics implements IAnalytics {
     }
 
     this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
-    effect(() => {
-      this.logger.setMinLogLevel(state.lifecycle.logLevel.value);
-    });
     this.configManager.init();
   }
 

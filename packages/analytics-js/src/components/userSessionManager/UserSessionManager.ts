@@ -87,6 +87,7 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   getUserId(): Nullable<string> {
+    // TODO: Get the values from state
     return this.storage?.get('rl_user_id') || null;
   }
 
