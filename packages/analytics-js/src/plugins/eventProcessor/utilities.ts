@@ -18,7 +18,7 @@ import { CONTEXT_RESERVED_ELEMENTS, RESERVED_ELEMENTS, TOP_LEVEL_ELEMENTS } from
  * @param eventType Rudder event type
  * @param parentKeyPath Object's parent key path
  */
-export const checkForReservedElementsInObject = (
+const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
   eventType: string,
   parentKeyPath: string,
@@ -39,7 +39,7 @@ export const checkForReservedElementsInObject = (
  * Checks for reserved keys in traits, properties, and contextual traits
  * @param rudderEvent Generated rudder event
  */
-export const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
+const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits, context } = rudderEvent;
   const { traits: contextualTraits } = context;
@@ -54,7 +54,7 @@ export const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILog
  * @param pageProps Page properties
  * @returns page properties object for context
  */
-export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
+const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   const ctxPageProps: ApiObject = {};
   Object.keys(state.page).forEach((key: string) => {
     ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
@@ -67,10 +67,7 @@ export const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-export const updateTopLevelEventElements = (
-  rudderEvent: RudderEvent,
-  options: ApiOptions,
-): void => {
+const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptions): void => {
   if (options.anonymousId && typeof options.anonymousId === 'string') {
     rudderEvent.anonymousId = options.anonymousId;
   }
@@ -89,7 +86,7 @@ export const updateTopLevelEventElements = (
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-export const getMergedContext = (
+const getMergedContext = (
   rudderContext: RudderContext,
   options: ApiOptions,
   logger?: ILogger,
@@ -124,10 +121,19 @@ export const getMergedContext = (
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-export const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
+const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
   // Only allow object type for options
   if (options && isObjectAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options);
     rudderEvent.context = getMergedContext(rudderEvent.context, options);
   }
+};
+
+export {
+  checkForReservedElements,
+  checkForReservedElementsInObject,
+  updateTopLevelEventElements,
+  getContextPageProperties,
+  getMergedContext,
+  processOptions,
 };

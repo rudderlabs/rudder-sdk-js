@@ -1,4 +1,6 @@
-export const ENCRYPTION_PREFIX_V1 = 'RudderEncrypt:';
-export const ENCRYPTION_KEY_V1 = 'Rudder';
-export const ENCRYPTION_PREFIX_V3 = 'v3_RudderEncrypt:';
-export const ENCRYPTION_KEY_V3 = 'Rudder';
+const ENCRYPTION_PREFIX_V1 = 'RudderEncrypt:';
+const ENCRYPTION_KEY_V1 = 'Rudder';
+const ENCRYPTION_PREFIX_V3 = 'v3_RudderEncrypt:';
+const ENCRYPTION_KEY_V3 = 'Rudder';
+
+export { ENCRYPTION_PREFIX_V1, ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V3, ENCRYPTION_KEY_V3 };

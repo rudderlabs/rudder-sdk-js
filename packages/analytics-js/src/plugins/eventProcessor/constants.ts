@@ -1,10 +1,10 @@
-export const CHANNEL = 'web';
+const CHANNEL = 'web';
 
-export const TOP_LEVEL_ELEMENTS = ['integrations', 'anonymousId', 'originalTimestamp'];
+const TOP_LEVEL_ELEMENTS = ['integrations', 'anonymousId', 'originalTimestamp'];
 
-export const CONTEXT_RESERVED_ELEMENTS = ['library', 'consentManagement'];
+const CONTEXT_RESERVED_ELEMENTS = ['library', 'consentManagement'];
 
-export const RESERVED_ELEMENTS = [
+const RESERVED_ELEMENTS = [
   'anonymous_id',
   'id', // TODO: Is this valid?
   'sent_at',
@@ -14,3 +14,5 @@ export const RESERVED_ELEMENTS = [
   'event_text',
   'event',
 ];
+
+export { CHANNEL, TOP_LEVEL_ELEMENTS, CONTEXT_RESERVED_ELEMENTS, RESERVED_ELEMENTS };

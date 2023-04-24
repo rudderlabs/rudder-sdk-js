@@ -10,7 +10,7 @@ import { defaultPluginManager } from '../pluginsManager';
  * @param properties Input page properties
  * @param options API options
  */
-export const getUpdatedPageProperties = (
+const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
@@ -35,7 +35,7 @@ export const getUpdatedPageProperties = (
  * @param pageProps Page properties
  * @returns Enriched rudder event
  */
-export const getEnrichedEvent = (
+const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
   options?: Nullable<ApiOptions>,
   pageProps?: ApiObject,
@@ -51,3 +51,5 @@ export const getEnrichedEvent = (
   }
   return rudderEvent as RudderEvent;
 };
+
+export { getUpdatedPageProperties, getEnrichedEvent };
