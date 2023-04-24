@@ -22,8 +22,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          # node-version-file: '.nvmrc'
           # cache: 'npm'
+          node-version: '16.15.1'
 
       - name: Execute unit tests
         env:
