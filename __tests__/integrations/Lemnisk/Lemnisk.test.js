@@ -8,7 +8,7 @@ afterAll(() => {
 describe('lemnisk init tests', () => {
     let lemnisk;
 
-    test('Testing init call of Google Ads with ConversionId', () => {
+    test('Testing init call of Lemnisk', () => {
         lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" });
         lemnisk.init();
         expect(typeof window.lmSMTObj).toBe('object');
@@ -37,7 +37,6 @@ describe("lemnisk page", () => {
                 },
             },
         });
-        console.log(JSON.stringify(window.lmSMTObj.page.mock.calls)); // this has set with empty {} object when resetCustomDimensions
         expect(window.lmSMTObj.page.mock.calls[0][0]).toEqual({
             "category": "test cat",
             "path": "/test",
@@ -57,7 +56,6 @@ describe("Lemnisk Track event", () => {
         window.lmSMTObj.track = jest.fn();
     });
     test("Testing Track Custom Events", () => {
-
         lemnisk.track({
             message: {
                 context: {},
@@ -92,7 +90,6 @@ describe("Lemnisk Track event", () => {
                 },
             }
         });
-        console.log(JSON.stringify(window.lmSMTObj.track.mock.calls));
         expect(window.lmSMTObj.track.mock.calls[0][0]).toEqual("Custom");
         expect(window.lmSMTObj.track.mock.calls[0][1]).toEqual({
             "customProp": "testProp",
@@ -122,7 +119,6 @@ describe("Lemnisk Track event", () => {
                 }
             ]
         });
-
     });
 });
 describe("Lemnisk Identify event", () => {
