@@ -57,6 +57,18 @@ const mergeDeepRight = <T = Record<string, any>>(
   rightObject: Record<string, any>,
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-const isObject = (obj: any) => typeof obj === 'object' && !Array.isArray(obj);
+/**
+ * Checks if the input is an object and not null
+ * @param val Input value
+ * @returns true if the input is an object and not null
+ */
+const isObjectAndNotNull = (val: any) =>
+  typeof val === 'object' && !Array.isArray(val) && val !== null;
 
-export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight, isObject };
+export {
+  getValueByPath,
+  hasValueByPath,
+  mergeDeepRightObjectArrays,
+  mergeDeepRight,
+  isObjectAndNotNull,
+};

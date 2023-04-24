@@ -2,7 +2,7 @@ import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { RudderEvent } from './types';
-import { isObject } from '../utilities/object';
+import { isObjectAndNotNull } from '../utilities/object';
 import { defaultPluginManager } from '../pluginsManager';
 
 /**
@@ -14,7 +14,7 @@ export const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
-  if (!options?.page || !isObject(options.page)) {
+  if (!options?.page || !isObjectAndNotNull(options.page)) {
     return properties;
   }
 

@@ -4,7 +4,10 @@ import {
   RudderContext,
   RudderEvent,
 } from '@rudderstack/analytics-js/components/eventManager/types';
-import { isObject, mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  isObjectAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { CONTEXT_RESERVED_ELEMENTS, RESERVED_ELEMENTS, TOP_LEVEL_ELEMENTS } from './constants';
@@ -21,7 +24,7 @@ export const checkForReservedElementsInObject = (
   parentKeyPath: string,
   logger?: ILogger,
 ): void => {
-  if (isObject(obj)) {
+  if (isObjectAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
       if (RESERVED_ELEMENTS.includes(property.toLowerCase())) {
         logger?.warn(
@@ -72,7 +75,7 @@ export const updateTopLevelEventElements = (
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (options.integrations && isObject(options.integrations)) {
+  if (options.integrations && isObjectAndNotNull(options.integrations)) {
     rudderEvent.integrations = options.integrations;
   }
 
@@ -123,7 +126,7 @@ export const getMergedContext = (
  */
 export const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
   // Only allow object type for options
-  if (options && isObject(options)) {
+  if (options && isObjectAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options);
     rudderEvent.context = getMergedContext(rudderEvent.context, options);
   }
