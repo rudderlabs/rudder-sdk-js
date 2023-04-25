@@ -16,30 +16,28 @@ class BingAds {
 
   /* eslint-disable */
   loadBingadsScript = () => {
-    ((w, d, t, r, u) => {
-      let f;
-      let n;
-      let i;
-      (w[u] = w[u] || []),
-        (f = () => {
-          const o = {
-            ti: this.tagID,
-          };
-          (o.q = w[u]), (w[u] = new UET(o));
-        }),
-        (n = d.createElement(t)),
-        (n.src = r),
-        (n.async = 1),
-        n.setAttribute('data-loader', LOAD_ORIGIN),
-        (n.onload = n.onreadystatechange =
-          function () {
-            const s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete') ||
-              (f(), (n.onload = n.onreadystatechange = null));
-          }),
-        (i = d.getElementsByTagName(t)[0]),
-        i.parentNode.insertBefore(n, i);
-    })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
+    function initMicrosoftUET(w,d,t,r,u) {
+      var f, n, i;
+      w[u] = w[u] || [];
+      f = function () {
+        var o = { ti: this.tagID };
+        o.q = w[u];
+        if (w.UET) {w[u] = new w.UET(o) || [];} 
+        else {logger.error('Blocker faced in loading UET class. Probable solution is to unblock domain bat.bing.com in your browser');}
+      }
+      n = d.createElement(t);
+      n.src = r;
+      n.async = 1;
+      n.setAttribute('data-loader', LOAD_ORIGIN);
+      n.onload = n.onreadystatechange = function () {
+        var s = this.readyState;
+        (s && s !== "loaded" && s !== "complete") || f();
+        n.onload = n.onreadystatechange = null;
+      }
+      i = d.getElementsByTagName(t)[0];
+      i.parentNode.insertBefore(n, i);
+    };
+    initMicrosoftUET(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);  
   };
   /* eslint-enable */
 
