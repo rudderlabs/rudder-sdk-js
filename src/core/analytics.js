@@ -297,6 +297,13 @@ class Analytics {
         suffix = '-staging'; // stagging suffix
       }
 
+      if (this.bufferDataPlaneEventsUntilReady) {
+        // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
+        setTimeout(() => {
+          this.processBufferedCloudModeEvents();
+        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
+      }
+
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
@@ -466,7 +473,7 @@ class Analytics {
    * @param {*} clientSuppliedIntegrations
    * Sends cloud mode events to server
    */
-  processCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
+  sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
     // convert integrations object to server identified names, kind of hack now!
     transformToServerNames(rudderElement.message.integrations);
     rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
@@ -476,6 +483,29 @@ class Analytics {
 
     // self analytics process, send to rudder
     this.eventRepository.enqueue(rudderElement, type);
+  }
+
+  /**
+   * Processes the buffered cloud mode events and sends it to server
+   */
+  processBufferedCloudModeEvents() {
+    const cloudModeEvents = this.store.get('rs_events');
+    this.store.remove('rs_events');
+    if (this.bufferDataPlaneEventsUntilReady && cloudModeEvents && cloudModeEvents.length > 0) {
+      cloudModeEvents.forEach((event) => {
+        const methodName = event[0];
+        event.shift();
+
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = event[0].message.integrations;
+
+        // Adding the RudderElement class prototype as it's got detached while storing in localStorage
+        Object.setPrototypeOf(event[0], RudderElement.prototype);
+
+        // event[0] -> rudderElement
+        this.sendCloudModeEvents(methodName, event[0], clientSuppliedIntegrations);
+      });
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -511,24 +541,7 @@ class Analytics {
       object.executeReadyCallback();
     }
 
-    // Processing cloud mode buffered events
-    const cloudModeEvents = this.store.get('rs_events');
-    if (object.bufferDataPlaneEventsUntilReady && cloudModeEvents && cloudModeEvents.length > 0) {
-      cloudModeEvents.forEach((event) => {
-        const methodName = event[0];
-        event.shift();
-
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = event[0].message.integrations;
-
-        // Adding the RudderElement class prototype as it's got detached while storing in localStorage
-        Object.setPrototypeOf(event[0], RudderElement.prototype);
-
-        // event[0] -> rudderElement
-        this.processCloudModeEvents(methodName, event[0], clientSuppliedIntegrations);
-      });
-      this.store.remove('rs_events');
-    }
+    this.processBufferedCloudModeEvents();
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach((event) => {
@@ -912,7 +925,7 @@ class Analytics {
 
       // Holding the cloud mode events based on flag and integrations load check
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
-        this.processCloudModeEvents(type, rudderElement, clientSuppliedIntegrations);
+        this.sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations);
       } else {
         const cloudModeEvents = this.store.get('rs_events');
         if (cloudModeEvents && cloudModeEvents.length > 0) {
