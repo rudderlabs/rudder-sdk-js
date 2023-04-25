@@ -61,6 +61,7 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
+import RudderElement from '../utils/RudderElement';
 
 /**
  * class responsible for handling core
@@ -529,6 +530,9 @@ class Analytics {
 
         // if not specified at event level, All: true is default
         const clientSuppliedIntegrations = event[0].message.integrations;
+
+        // Adding the RudderElement class prototype as it's got detached while storing in localStorage
+        Object.setPrototypeOf(event[0], RudderElement.prototype);
 
         // event[0] -> rudderElement, event[1] -> callback
         this.processCloudModeEvents(methodName, event[0], event[1], clientSuppliedIntegrations);
