@@ -523,10 +523,6 @@ class Analytics {
       cloudModeEvents.forEach((event) => {
         const methodName = event[0];
         event.shift();
-        // convert common names to sdk identified name
-        if (Object.keys(event[0].message.integrations).length > 0) {
-          transformToRudderNames(event[0].message.integrations);
-        }
 
         // if not specified at event level, All: true is default
         const clientSuppliedIntegrations = event[0].message.integrations;
