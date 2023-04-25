@@ -29,9 +29,9 @@ class ErrorHandler implements IErrorHandler {
       this.notifyError(err as Error);
 
       if (this.logger) {
-        this.logger.error(`[Analytics] Exception:: ${(err as Error).message}`);
+        this.logger.error(`Exception:: ${(err as Error).message}`);
         // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError
-        this.logger.error(`[Analytics] Original error:: ${JSON.stringify(serializeError(error))}`);
+        this.logger.error(`Original error:: ${JSON.stringify(serializeError(error))}`);
       } else {
         throw err;
       }
