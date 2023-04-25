@@ -463,11 +463,10 @@ class Analytics {
    *
    * @param {*} type
    * @param {*} rudderElement
-   * @param {*} callback
    * @param {*} clientSuppliedIntegrations
    * Sends cloud mode events to server
    */
-  processCloudModeEvents(type, rudderElement, callback, clientSuppliedIntegrations) {
+  processCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
     // convert integrations object to server identified names, kind of hack now!
     transformToServerNames(rudderElement.message.integrations);
     rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
@@ -477,11 +476,6 @@ class Analytics {
 
     // self analytics process, send to rudder
     this.eventRepository.enqueue(rudderElement, type);
-
-    // logger.debug(`${type} is called `)
-    if (callback) {
-      callback(rudderElement);
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -530,8 +524,8 @@ class Analytics {
         // Adding the RudderElement class prototype as it's got detached while storing in localStorage
         Object.setPrototypeOf(event[0], RudderElement.prototype);
 
-        // event[0] -> rudderElement, event[1] -> callback
-        this.processCloudModeEvents(methodName, event[0], event[1], clientSuppliedIntegrations);
+        // event[0] -> rudderElement
+        this.processCloudModeEvents(methodName, event[0], clientSuppliedIntegrations);
       });
       this.store.remove('rs_events');
     }
@@ -918,15 +912,20 @@ class Analytics {
 
       // Holding the cloud mode events based on flag and integrations load check
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
-        this.processCloudModeEvents(type, rudderElement, callback, clientSuppliedIntegrations);
+        this.processCloudModeEvents(type, rudderElement, clientSuppliedIntegrations);
       } else {
         const cloudModeEvents = this.store.get('rs_events');
         if (cloudModeEvents && cloudModeEvents.length > 0) {
           cloudModeEvents.push([type, rudderElement, callback]);
           this.store.set('rs_events', cloudModeEvents);
         } else {
-          this.store.set('rs_events', [[type, rudderElement, callback]]);
+          this.store.set('rs_events', [[type, rudderElement]]);
         }
+      }
+
+      // logger.debug(`${type} is called `)
+      if (callback) {
+        callback(rudderElement);
       }
     } catch (error) {
       handleError(error);
