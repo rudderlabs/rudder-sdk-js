@@ -899,7 +899,7 @@ class Analytics {
       if (!this.clientIntegrationObjects) {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback]);
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
