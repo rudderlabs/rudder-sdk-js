@@ -57,6 +57,15 @@ const defaultContext = {
     name: 'test',
     source: 'test',
   },
+  screen: {
+    width: 1920,
+    height: 1080,
+  },
+  'ua-ch': {
+    brand: 'test',
+    model: 'test',
+  },
+  userAgent: 'defaultUA',
 } as RudderContext;
 
 const resetPageState = () => {
@@ -537,6 +546,15 @@ describe('Event Manager - Utilities', () => {
             source: 'test',
           },
           newContextKey1: 'newContextValue1',
+          screen: {
+            width: 1920,
+            height: 1080,
+          },
+          'ua-ch': {
+            brand: 'test',
+            model: 'test',
+          },
+          userAgent: 'defaultUA',
         },
       });
     });
@@ -650,6 +668,15 @@ describe('Event Manager - Utilities', () => {
           source: 'test',
         },
         newContextKey1: 'newContextValue1',
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
     });
 
@@ -693,6 +720,15 @@ describe('Event Manager - Utilities', () => {
         newContextKey1: {
           someKey: 'someValue',
         },
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
     });
 
@@ -704,10 +740,6 @@ describe('Event Manager - Utilities', () => {
         newContextKey1: 'newContextValue1',
         anonymousId: 'test_anon_id',
         originalTimestamp: '2020-01-01T00:00:00.000Z',
-        library: {
-          name: 'test1',
-          isNew: true,
-        },
         context: {
           campaign: {
             name: 'test1',
@@ -717,6 +749,16 @@ describe('Event Manager - Utilities', () => {
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
           },
+          userAgent: 'overridden ua',
+          screen: {
+            width: 100,
+            height: 200,
+          },
+          library: {
+            name: 'test1',
+            isNew: true,
+          },
+          'ua-ch': {},
         },
       };
 
@@ -738,6 +780,15 @@ describe('Event Manager - Utilities', () => {
           isNew: true,
           source: 'test',
         },
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
     });
 
@@ -768,6 +819,15 @@ describe('Event Manager - Utilities', () => {
         },
         newContextKey1: 'newContextValue1',
         newContextKey2: 'newContextValue2',
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'The "context" element passed in the options is not a valid object',
@@ -799,6 +859,15 @@ describe('Event Manager - Utilities', () => {
           source: 'test',
         },
         newContextKey1: 'newContextValue1',
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'The "context" element passed in the options is not a valid object',
@@ -830,6 +899,15 @@ describe('Event Manager - Utilities', () => {
           source: 'test',
         },
         newContextKey1: 'newContextValue1',
+        screen: {
+          width: 1920,
+          height: 1080,
+        },
+        'ua-ch': {
+          brand: 'test',
+          model: 'test',
+        },
+        userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'The "context" element passed in the options is not a valid object',
