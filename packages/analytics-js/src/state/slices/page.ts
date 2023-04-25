@@ -10,8 +10,6 @@ export type PagePropertiesState = {
   readonly title: Signal<string>;
   readonly url: Signal<string>;
   readonly tab_url: Signal<string>;
-  readonly initial_referrer: Signal<string | undefined>;
-  readonly initial_referring_domain: Signal<string | undefined>;
   readonly [index: string]: Signal<string | undefined>;
 };
 
@@ -24,9 +22,6 @@ const pagePropertiesState: PagePropertiesState = {
   title: signal(defPageProperties.title),
   url: signal(defPageProperties.url),
   tab_url: signal(defPageProperties.tab_url),
-  // Assigning the same signals to make it easy to loop through the entries
-  initial_referrer: sessionState.rl_page_init_referrer,
-  initial_referring_domain: sessionState.rl_page_init_referring_domain,
 };
 
 export { pagePropertiesState };

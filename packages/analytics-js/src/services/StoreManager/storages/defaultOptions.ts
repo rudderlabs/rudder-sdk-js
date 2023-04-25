@@ -1,7 +1,7 @@
 import { DEFAULT_COOKIE_MAX_AGE } from '@rudderstack/analytics-js/constants/timeouts';
 import { domain } from '@rudderstack/analytics-js/npmPackages/top-domain';
-import { ICookieStorageOptions, IInMemoryStorageOptions, ILocalStorageOptions } from '../types';
 import { CookieSameSite } from '@rudderstack/analytics-js/state/types';
+import { ICookieStorageOptions, IInMemoryStorageOptions, ILocalStorageOptions } from '../types';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
   const topDomain = domain(window.location.href);
