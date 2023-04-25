@@ -25,7 +25,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w[u] = new UET(o));
+          (o.q = w[u]), (w[u] = w.UET ? new UET(o): logger.error('Blocker faced in loading UET class. Probable solution is to unblock domain bat.bing.com in your browser'));
         }),
         (n = d.createElement(t)),
         (n.src = r),
