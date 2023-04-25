@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics-js-sdk-sanity-suite",
-  "version": "2.22.3",
+  "version": "2.32.0",
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/testBook.js",
   "scripts": {
