@@ -42,8 +42,6 @@ describe('RudderEventFactory', () => {
       state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
       state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
 
-      state.page.initial_referrer.value = 'https://test.com/page';
-      state.page.initial_referring_domain.value = 'https://test.com';
       state.page.referrer.value = 'https://sample.com/Page';
       state.page.referring_domain.value = 'https://sample.com';
       state.page.search.value = '?a=1&b=2&utm_campaign=test&utm_source=test';

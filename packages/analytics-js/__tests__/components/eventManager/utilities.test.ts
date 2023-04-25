@@ -61,8 +61,6 @@ const defaultContext = {
 
 const resetPageState = () => {
   batch(() => {
-    state.page.initial_referrer.value = undefined;
-    state.page.initial_referring_domain.value = undefined;
     state.page.referrer.value = '';
     state.page.referring_domain.value = '';
     state.page.search.value = '';
@@ -75,6 +73,10 @@ const resetPageState = () => {
 
 const resetApplicationState = () => {
   resetPageState();
+  batch(() => {
+    state.session.rl_page_init_referrer.value = undefined;
+    state.session.rl_page_init_referring_domain.value = undefined;
+  });
 };
 
 describe('Event Manager - Utilities', () => {
@@ -185,8 +187,8 @@ describe('Event Manager - Utilities', () => {
     it('should return updated page properties from state if some page properties are not defined in options and input page parameters are not defined', () => {
       // Set some specific page properties in state
       batch(() => {
-        state.page.initial_referrer.value = 'https://www.google.com/test3';
-        state.page.initial_referring_domain.value = 'www.google3.com';
+        state.session.rl_page_init_referrer.value = 'https://www.google.com/test3';
+        state.session.rl_page_init_referring_domain.value = 'www.google3.com';
         state.page.tab_url.value = 'https://www.rudderlabs.com/test3';
       });
 
@@ -217,8 +219,8 @@ describe('Event Manager - Utilities', () => {
         url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
         tab_url: state.page.tab_url.value,
-        initial_referrer: state.page.initial_referrer.value,
-        initial_referring_domain: state.page.initial_referring_domain.value,
+        initial_referrer: state.session.rl_page_init_referrer.value,
+        initial_referring_domain: state.session.rl_page_init_referring_domain.value,
         anonymous_id: pageProperties.anonymous_id,
       });
     });
@@ -252,8 +254,6 @@ describe('Event Manager - Utilities', () => {
         state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
         state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
 
-        state.page.initial_referrer.value = 'https://test.com/page';
-        state.page.initial_referring_domain.value = 'https://test.com';
         state.page.referrer.value = 'https://sample.com/Page';
         state.page.referring_domain.value = 'https://sample.com';
         state.page.search.value = '?a=1&b=2&utm_campaign=test&utm_source=test';

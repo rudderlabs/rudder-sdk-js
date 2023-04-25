@@ -3,6 +3,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { clone } from 'ramda';
 import { RudderContext, RudderEvent, RudderEventType } from './types';
 import { isObjectAndNotNull, mergeDeepRight } from '../utilities/object';
 import { getCurrentTimeFormatted } from '../utilities/timestamp';
@@ -13,7 +14,6 @@ import {
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
 } from './constants';
-import { clone } from 'ramda';
 
 /**
  * Add any missing default page properties using values from options and defaults
@@ -36,6 +36,18 @@ const getUpdatedPageProperties = (
       pageProps[key] = optionsPageProps[key] || state.page[key].value;
     }
   });
+
+  if (pageProps.initial_referrer === undefined) {
+    pageProps.initial_referrer =
+      optionsPageProps.initial_referrer || state.session.rl_page_init_referrer.value;
+  }
+
+  if (pageProps.initial_referring_domain === undefined) {
+    pageProps.initial_referring_domain =
+      optionsPageProps.initial_referring_domain ||
+      state.session.rl_page_init_referring_domain.value;
+  }
+
   return pageProps;
 };
 
@@ -86,6 +98,12 @@ const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   Object.keys(state.page).forEach((key: string) => {
     ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
   });
+
+  ctxPageProps.initial_referrer =
+    pageProps?.initial_referrer || state.session.rl_page_init_referrer.value;
+
+  ctxPageProps.initial_referring_domain =
+    pageProps?.initial_referring_domain || state.session.rl_page_init_referring_domain.value;
   return ctxPageProps;
 };
 
