@@ -9,7 +9,7 @@ import { getDefinedTraits } from '../../utils/utils';
 
 const logger = new Logger(NAME);
 class Olark {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -19,6 +19,8 @@ class Olark {
     this.standardToEvent = config.standardToEvent;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {
