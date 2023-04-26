@@ -119,7 +119,7 @@ describe('Event Manager - Utilities', () => {
         tab_url: 'https://www.rudderlabs.com/test1',
         initial_referrer: 'https://www.google.com/test1',
         initial_referring_domain: 'www.google.com',
-        anonymous_id: defaultAnonId,
+        anonymousId: defaultAnonId,
       } as ApiObject;
       resetPageState();
     });
@@ -168,7 +168,7 @@ describe('Event Manager - Utilities', () => {
         tab_url: 'https://www.rudderlabs.com/test2',
         initial_referrer: 'https://www.google.com/test2',
         initial_referring_domain: 'www.google.com',
-        anonymous_id: defaultAnonId,
+        anonymousId: defaultAnonId,
       };
 
       const apiOptions: ApiOptions = {
@@ -230,7 +230,7 @@ describe('Event Manager - Utilities', () => {
         tab_url: state.page.tab_url.value,
         initial_referrer: state.session.rl_page_init_referrer.value,
         initial_referring_domain: state.session.rl_page_init_referring_domain.value,
-        anonymous_id: pageProperties.anonymous_id,
+        anonymousId: pageProperties.anonymousId,
       });
     });
   });
@@ -375,18 +375,22 @@ describe('Event Manager - Utilities', () => {
 
     it('should log a warn message if the object contains reserved elements', () => {
       const obj = {
-        anonymous_id: sampleAnonId,
-        original_timestamp: sampleOriginalTimestamp,
+        anonymousId: sampleAnonId,
+        originalTimestamp: sampleOriginalTimestamp,
         nonReservedKey: 123,
+        messageId: 'myMsgId',
       } as ApiObject;
 
       checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn.mock.calls[0][0]).toEqual(
-        `Reserved keyword used in ${defaultParentKeyPath} --> "anonymous_id" for ${defaultEventType} event`,
+        `Reserved keyword used in ${defaultParentKeyPath} --> "anonymousId" for ${defaultEventType} event`,
       );
       expect(mockLogger.warn.mock.calls[1][0]).toEqual(
-        `Reserved keyword used in ${defaultParentKeyPath} --> "original_timestamp" for ${defaultEventType} event`,
+        `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
+      );
+      expect(mockLogger.warn.mock.calls[2][0]).toEqual(
+        `Reserved keyword used in ${defaultParentKeyPath} --> "messageId" for ${defaultEventType} event`,
       );
     });
 
@@ -403,8 +407,8 @@ describe('Event Manager - Utilities', () => {
 
     it('should not log a warn message if the logger is not provided', () => {
       const obj = {
-        anonymous_id: sampleAnonId,
-        original_timestamp: sampleOriginalTimestamp,
+        anonymousId: sampleAnonId,
+        originalTimestamp: sampleOriginalTimestamp,
         nonReservedKey: 123,
       } as ApiObject;
 
@@ -426,22 +430,18 @@ describe('Event Manager - Utilities', () => {
 
     it('should log a warn message if the object contains reserved elements but with different case', () => {
       const obj = {
-        ANONYMOUS_ID: sampleAnonId,
         EVENT: 'test event',
         nonReservedKey: 123,
-        original_timestamp: sampleOriginalTimestamp,
+        originalTimestamp: sampleOriginalTimestamp,
       } as ApiObject;
 
       checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn.mock.calls[0][0]).toEqual(
-        `Reserved keyword used in ${defaultParentKeyPath} --> "ANONYMOUS_ID" for ${defaultEventType} event`,
-      );
-      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
         `Reserved keyword used in ${defaultParentKeyPath} --> "EVENT" for ${defaultEventType} event`,
       );
-      expect(mockLogger.warn.mock.calls[2][0]).toEqual(
-        `Reserved keyword used in ${defaultParentKeyPath} --> "original_timestamp" for ${defaultEventType} event`,
+      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
+        `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
       );
     });
   });
@@ -452,17 +452,17 @@ describe('Event Manager - Utilities', () => {
       const rudderEvent = {
         type: defaultEventType,
         properties: {
-          anonymous_id: sampleAnonId,
-          original_timestamp: sampleOriginalTimestamp,
+          anonymousId: sampleAnonId,
+          originalTimestamp: sampleOriginalTimestamp,
         },
         traits: {
-          original_timestamp: sampleOriginalTimestamp,
+          originalTimestamp: sampleOriginalTimestamp,
           event: 'test event',
         },
         // @ts-ignore
         context: {
           traits: {
-            anonymous_id: sampleAnonId,
+            anonymousId: sampleAnonId,
           },
           locale: 'en-US',
         } as RudderContext,
@@ -470,20 +470,25 @@ describe('Event Manager - Utilities', () => {
 
       checkForReservedElements(rudderEvent, mockLogger);
 
-      expect(mockLogger.warn.mock.calls[0][0]).toEqual(
-        `Reserved keyword used in properties --> "anonymous_id" for ${rudderEvent.type} event`,
+      expect(mockLogger.warn).nthCalledWith(
+        1,
+        `Reserved keyword used in properties --> "anonymousId" for ${rudderEvent.type} event`,
       );
-      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
-        `Reserved keyword used in properties --> "original_timestamp" for ${rudderEvent.type} event`,
+      expect(mockLogger.warn).nthCalledWith(
+        2,
+        `Reserved keyword used in properties --> "originalTimestamp" for ${rudderEvent.type} event`,
       );
-      expect(mockLogger.warn.mock.calls[2][0]).toEqual(
-        `Reserved keyword used in traits --> "original_timestamp" for ${rudderEvent.type} event`,
+      expect(mockLogger.warn).nthCalledWith(
+        3,
+        `Reserved keyword used in traits --> "originalTimestamp" for ${rudderEvent.type} event`,
       );
-      expect(mockLogger.warn.mock.calls[3][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        4,
         `Reserved keyword used in traits --> "event" for ${rudderEvent.type} event`,
       );
-      expect(mockLogger.warn.mock.calls[4][0]).toEqual(
-        `Reserved keyword used in context.traits --> "anonymous_id" for ${rudderEvent.type} event`,
+      expect(mockLogger.warn).nthCalledWith(
+        5,
+        `Reserved keyword used in context.traits --> "anonymousId" for ${rudderEvent.type} event`,
       );
     });
   });
@@ -592,7 +597,7 @@ describe('Event Manager - Utilities', () => {
         tab_url: 'https://www.rudderlabs.com/test1',
         initial_referrer: 'https://www.google.com/test1',
         initial_referring_domain: 'www.google.com',
-        anonymous_id: defaultAnonId,
+        anonymousId: defaultAnonId,
       } as ApiObject;
     });
 

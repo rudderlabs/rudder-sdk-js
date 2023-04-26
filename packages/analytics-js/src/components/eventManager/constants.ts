@@ -5,14 +5,14 @@ const TOP_LEVEL_ELEMENTS = ['integrations', 'anonymousId', 'originalTimestamp'];
 const CONTEXT_RESERVED_ELEMENTS = ['library', 'consentManagement', 'userAgent', 'ua-ch', 'screen'];
 
 const RESERVED_ELEMENTS = [
-  'anonymous_id',
-  'id', // TODO: Is this valid?
-  'sent_at',
-  'received_at',
+  'anonymousId',
+  'sentAt',
+  'receivedAt',
   'timestamp',
-  'original_timestamp',
-  'event_text',
+  'originalTimestamp',
   'event',
+  'messageId',
+  'channel',
 ];
 
 export { CHANNEL, TOP_LEVEL_ELEMENTS, CONTEXT_RESERVED_ELEMENTS, RESERVED_ELEMENTS };

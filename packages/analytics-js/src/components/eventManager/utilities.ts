@@ -65,7 +65,10 @@ const checkForReservedElementsInObject = (
 ): void => {
   if (isObjectAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
-      if (RESERVED_ELEMENTS.includes(property.toLowerCase())) {
+      if (
+        RESERVED_ELEMENTS.includes(property) ||
+        RESERVED_ELEMENTS.includes(property.toLowerCase())
+      ) {
         logger?.warn(
           `Reserved keyword used in ${parentKeyPath} --> "${property}" for ${eventType} event`,
         );
