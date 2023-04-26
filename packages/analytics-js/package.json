@@ -44,7 +44,6 @@
     "build:worker": "exit 0",
     "build:package": "npm run build:npm && npm run build:worker",
     "test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/iife/index.js > __mocks__/cdnSDKv3.js && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
-    "test:single": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/iife/index.js > __mocks__/cdnSDKv3.js && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage $npm_config_file",
     "test:ci": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/iife/index.js > __mocks__/cdnSDKv3.js && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:size:build": "npm run clean && npm run build:browser && npm run build:package",

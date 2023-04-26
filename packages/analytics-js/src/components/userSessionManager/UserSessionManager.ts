@@ -55,28 +55,24 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      // console.log(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
       this.storage?.set(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
       this.storage?.set(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
       this.storage?.set(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(persistedSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
       this.storage?.set(
         persistedSessionStorageKeys.groupTraits,
         state.session.rl_group_trait.value,
@@ -86,7 +82,6 @@ class UserSessionManager implements IUserSessionManager {
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(persistedSessionStorageKeys.anonymousUserId, state.session.rl_anonymous_id.value);
       this.storage?.set(
         persistedSessionStorageKeys.anonymousUserId,
         state.session.rl_anonymous_id.value,
@@ -96,10 +91,6 @@ class UserSessionManager implements IUserSessionManager {
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(
-      //   persistedSessionStorageKeys.initialReferrer,
-      //   state.session.rl_page_init_referrer.value,
-      // );
       this.storage?.set(
         persistedSessionStorageKeys.initialReferrer,
         state.session.rl_page_init_referrer.value,
@@ -109,10 +100,6 @@ class UserSessionManager implements IUserSessionManager {
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      // console.log(
-      //   persistedSessionStorageKeys.initialReferringDomain,
-      //   state.session.rl_page_init_referring_domain.value,
-      // );
       this.storage?.set(
         persistedSessionStorageKeys.initialReferringDomain,
         state.session.rl_page_init_referring_domain.value,
