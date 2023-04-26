@@ -65,7 +65,7 @@ import { DeviceModeTransformations } from '../features/core/deviceModeTransforma
  * class responsible for handling core
  * event tracking functionalities
  */
-class Analytics {
+export class Analytics {
   /**
    * Creates an instance of Analytics.
    * @memberof Analytics
@@ -104,6 +104,90 @@ class Analytics {
     this.errorReporting = new ErrorReportingService(logger);
     this.deniedConsentIds = [];
     this.transformationHandler = DeviceModeTransformations;
+
+    /**
+     * parse the given query string into usable Rudder object
+     * @param {*} query
+     */
+    function parseQueryString(query) {
+      const queryDefaults = {
+        trait: 'ajs_trait_',
+        prop: 'ajs_prop_',
+      };
+
+      function getDataFromQueryObj(qObj, dataType) {
+        const data = {};
+        Object.keys(qObj).forEach((key) => {
+          if (key.startsWith(dataType)) {
+            data[key.substr(dataType.length)] = qObj[key];
+          }
+        });
+        return data;
+      }
+
+      const queryObject = parse(query);
+      if (queryObject.ajs_aid) {
+        this.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
+      }
+
+      if (queryObject.ajs_uid) {
+        this.toBeProcessedArray.push([
+          'identify',
+          queryObject.ajs_uid,
+          getDataFromQueryObj(queryObject, queryDefaults.trait),
+        ]);
+      }
+
+      if (queryObject.ajs_event) {
+        this.toBeProcessedArray.push([
+          'track',
+          queryObject.ajs_event,
+          getDataFromQueryObj(queryObject, queryDefaults.prop),
+        ]);
+      }
+    }
+
+    Emitter(this);
+
+    window.addEventListener(
+        'error',
+        (e) => {
+          handleError(e, undefined, instance);
+        },
+        true,
+    );
+
+    const defaultMethod = 'load';
+    const argumentsArray = window.rudderanalytics;
+    const isValidArgsArray = Array.isArray(argumentsArray);
+    let defaultEvent;
+    if (isValidArgsArray) {
+      /**
+       * Iterate the buffered API calls until we find load call and
+       * queue it first for processing
+       */
+      let i = 0;
+      while (i < argumentsArray.length) {
+        if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
+          defaultEvent = argumentsArray[i];
+          argumentsArray.splice(i, 1);
+          break;
+        }
+        i += 1;
+      }
+    }
+
+    // parse querystring of the page url to send events
+    parseQueryString(window.location.search);
+
+    if (isValidArgsArray) argumentsArray.forEach((x) => this.toBeProcessedArray.push(x));
+
+    // Process load method if present in the buffered requests
+    if (defaultEvent && defaultEvent.length > 0) {
+      defaultEvent.shift();
+      this[defaultMethod](...defaultEvent);
+    }
+
   }
 
   /**
@@ -1342,8 +1426,6 @@ class Analytics {
   }
 }
 
-const instance = new Analytics();
-
 function processDataInAnalyticsArray(analytics) {
   if (analytics.toBeProcessedArray.length > 0) {
     while (analytics.toBeProcessedArray.length > 0) {
@@ -1360,133 +1442,3 @@ function processDataInAnalyticsArray(analytics) {
   }
 }
 
-/**
- * parse the given query string into usable Rudder object
- * @param {*} query
- */
-function parseQueryString(query) {
-  const queryDefaults = {
-    trait: 'ajs_trait_',
-    prop: 'ajs_prop_',
-  };
-
-  function getDataFromQueryObj(qObj, dataType) {
-    const data = {};
-    Object.keys(qObj).forEach((key) => {
-      if (key.startsWith(dataType)) {
-        data[key.substr(dataType.length)] = qObj[key];
-      }
-    });
-    return data;
-  }
-
-  const queryObject = parse(query);
-  if (queryObject.ajs_aid) {
-    instance.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
-  }
-
-  if (queryObject.ajs_uid) {
-    instance.toBeProcessedArray.push([
-      'identify',
-      queryObject.ajs_uid,
-      getDataFromQueryObj(queryObject, queryDefaults.trait),
-    ]);
-  }
-
-  if (queryObject.ajs_event) {
-    instance.toBeProcessedArray.push([
-      'track',
-      queryObject.ajs_event,
-      getDataFromQueryObj(queryObject, queryDefaults.prop),
-    ]);
-  }
-}
-
-Emitter(instance);
-
-window.addEventListener(
-  'error',
-  (e) => {
-    handleError(e, undefined, instance);
-  },
-  true,
-);
-
-// initialize supported callbacks
-instance.initializeCallbacks();
-
-// register supported callbacks
-instance.registerCallbacks(false);
-
-const defaultMethod = 'load';
-const argumentsArray = window.rudderanalytics;
-const isValidArgsArray = Array.isArray(argumentsArray);
-let defaultEvent;
-if (isValidArgsArray) {
-  /**
-   * Iterate the buffered API calls until we find load call and
-   * queue it first for processing
-   */
-  let i = 0;
-  while (i < argumentsArray.length) {
-    if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      defaultEvent = argumentsArray[i];
-      argumentsArray.splice(i, 1);
-      break;
-    }
-    i += 1;
-  }
-}
-
-// parse querystring of the page url to send events
-parseQueryString(window.location.search);
-
-if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
-
-// Process load method if present in the buffered requests
-if (defaultEvent && defaultEvent.length > 0) {
-  defaultEvent.shift();
-  instance[defaultMethod](...defaultEvent);
-}
-
-const ready = instance.ready.bind(instance);
-const identify = instance.identify.bind(instance);
-const page = instance.page.bind(instance);
-const track = instance.track.bind(instance);
-const alias = instance.alias.bind(instance);
-const group = instance.group.bind(instance);
-const reset = instance.reset.bind(instance);
-const load = instance.load.bind(instance);
-const initialized = (instance.initialized = true);
-const getUserId = instance.getUserId.bind(instance);
-const getSessionId = instance.getSessionId.bind(instance);
-const getUserTraits = instance.getUserTraits.bind(instance);
-const getAnonymousId = instance.getAnonymousId.bind(instance);
-const setAnonymousId = instance.setAnonymousId.bind(instance);
-const getGroupId = instance.getGroupId.bind(instance);
-const getGroupTraits = instance.getGroupTraits.bind(instance);
-const startSession = instance.startSession.bind(instance);
-const endSession = instance.endSession.bind(instance);
-const setAuthToken = instance.setAuthToken.bind(instance);
-
-export {
-  initialized,
-  ready,
-  page,
-  track,
-  load,
-  identify,
-  reset,
-  alias,
-  group,
-  getUserId,
-  getSessionId,
-  getUserTraits,
-  getAnonymousId,
-  setAnonymousId,
-  getGroupId,
-  getGroupTraits,
-  startSession,
-  endSession,
-  setAuthToken,
-};
