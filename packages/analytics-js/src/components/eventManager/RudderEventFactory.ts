@@ -74,21 +74,9 @@ class RudderEventFactory {
    * @param from Old user ID
    * @param options API options
    */
-  private static generateAliasEvent(
-    to: string,
-    from?: Nullable<string>,
-    options?: Nullable<ApiOptions>,
-  ): RudderEvent {
-    const previousId =
-      tryStringify(from) ||
-      defaultUserSessionManager.getUserId() ||
-      defaultUserSessionManager.getAnonymousId();
-
-    // Set the new user ID only after determining the previous ID
-    defaultUserSessionManager.setUserId(tryStringify(to));
-
+  private static generateAliasEvent(from?: string, options?: Nullable<ApiOptions>): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
-      previousId,
+      previousId: from,
       type: RudderEventType.Alias,
     };
 
@@ -134,11 +122,7 @@ class RudderEventFactory {
         eventObj = RudderEventFactory.generateIdentifyEvent(event.options);
         break;
       case RudderEventType.Alias:
-        eventObj = RudderEventFactory.generateAliasEvent(
-          event.to as string,
-          event.from,
-          event.options,
-        );
+        eventObj = RudderEventFactory.generateAliasEvent(event.from, event.options);
         break;
       case RudderEventType.Group:
         eventObj = RudderEventFactory.generateGroupEvent(event.options);

@@ -45,6 +45,7 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
+import { tryStringify } from '../utilities/string';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -414,10 +415,18 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    const previousId =
+      tryStringify(payload.from) ||
+      this.userSessionManager.getUserId() ||
+      this.userSessionManager.getAnonymousId();
+
+    // Set the new user ID only after determining the previous ID
+    this.userSessionManager.setUserId(tryStringify(payload.to));
+
     this.eventManager.addEvent({
       type,
       to: payload.to,
-      from: payload.from,
+      from: previousId,
       options: payload.options,
       callback: payload.callback,
     });
