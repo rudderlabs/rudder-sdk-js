@@ -383,13 +383,16 @@ describe('Event Manager - Utilities', () => {
 
       checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
 
-      expect(mockLogger.warn.mock.calls[0][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        1,
         `Reserved keyword used in ${defaultParentKeyPath} --> "anonymousId" for ${defaultEventType} event`,
       );
-      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        2,
         `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
       );
-      expect(mockLogger.warn.mock.calls[2][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        3,
         `Reserved keyword used in ${defaultParentKeyPath} --> "messageId" for ${defaultEventType} event`,
       );
     });
@@ -437,10 +440,12 @@ describe('Event Manager - Utilities', () => {
 
       checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
 
-      expect(mockLogger.warn.mock.calls[0][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        1,
         `Reserved keyword used in ${defaultParentKeyPath} --> "EVENT" for ${defaultEventType} event`,
       );
-      expect(mockLogger.warn.mock.calls[1][0]).toEqual(
+      expect(mockLogger.warn).nthCalledWith(
+        2,
         `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
       );
     });
