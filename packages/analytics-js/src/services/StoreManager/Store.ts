@@ -147,8 +147,7 @@ class Store implements IStore {
       }
 
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-      // return JSON.parse(str); // was original value for localstorage retry store
-      return typeof str === 'object' ? str : JSON.parse(str);
+      return JSON.parse(str); // was original value for localstorage retry store
     } catch (err) {
       this.onError(
         new Error(

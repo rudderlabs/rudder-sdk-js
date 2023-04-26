@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
@@ -27,6 +28,7 @@ class UserSessionManager implements IUserSessionManager {
   init(storage: IStore) {
     this.storage = storage;
 
+    // get the values from storage and set it again
     this.setUserId(this.getUserId() || '');
     this.setUserTraits(this.getUserTraits() || {});
     this.setGroupId(this.getGroupId() || '');
@@ -36,29 +38,86 @@ class UserSessionManager implements IUserSessionManager {
     const initialReferrer = this.getInitialReferrer();
     const initialReferringDomain = this.getInitialReferringDomain();
 
-    state.session.rl_page_init_referrer.value =
-      initialReferrer !== null ? initialReferrer : undefined;
-    state.session.rl_page_init_referring_domain.value =
-      initialReferringDomain !== null ? initialReferringDomain : undefined;
-
-    if (initialReferrer === null && initialReferringDomain === null) {
+    if (initialReferrer && initialReferringDomain) {
+      this.setInitialReferrer(initialReferrer);
+      this.setInitialReferringDomain(initialReferringDomain);
+    } else {
+      if (initialReferrer) {
+        this.setInitialReferrer(initialReferrer);
+        this.setInitialReferringDomain(getReferringDomain(initialReferrer));
+      }
       const referrer = getReferrer();
       this.setInitialReferrer(referrer);
       this.setInitialReferringDomain(getReferringDomain(referrer));
     }
-    // TODO: remove this when work for this module is done
-    // effect(() => {
-    //   console.log(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
-    //   console.log(persistedSessionStorageKeys.anonymousUserId, state.session.rl_anonymous_id.value);
-    //   console.log(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
-    //   console.log(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
-    //   console.log(persistedSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
-    //   console.log(persistedSessionStorageKeys.initialReferrer, state.session.rl_page_init_referrer.value);
-    //   console.log(
-    //     persistedSessionStorageKeys.initialReferringDomain,
-    //     state.session.rl_page_init_referring_domain.value,
-    //   );
-    // });
+
+    /**
+     * Update userId in storage automatically when userId is updated in state
+     */
+    effect(() => {
+      // console.log(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
+      this.storage?.set(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
+    });
+    /**
+     * Update user traits in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
+      this.storage?.set(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
+    });
+    /**
+     * Update group id in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
+      this.storage?.set(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
+    });
+    /**
+     * Update group traits in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(persistedSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
+      this.storage?.set(
+        persistedSessionStorageKeys.groupTraits,
+        state.session.rl_group_trait.value,
+      );
+    });
+    /**
+     * Update anonymous user id in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(persistedSessionStorageKeys.anonymousUserId, state.session.rl_anonymous_id.value);
+      this.storage?.set(
+        persistedSessionStorageKeys.anonymousUserId,
+        state.session.rl_anonymous_id.value,
+      );
+    });
+    /**
+     * Update initial referrer in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(
+      //   persistedSessionStorageKeys.initialReferrer,
+      //   state.session.rl_page_init_referrer.value,
+      // );
+      this.storage?.set(
+        persistedSessionStorageKeys.initialReferrer,
+        state.session.rl_page_init_referrer.value,
+      );
+    });
+    /**
+     * Update initial referring domain in storage automatically when it is updated in state
+     */
+    effect(() => {
+      // console.log(
+      //   persistedSessionStorageKeys.initialReferringDomain,
+      //   state.session.rl_page_init_referring_domain.value,
+      // );
+      this.storage?.set(
+        persistedSessionStorageKeys.initialReferringDomain,
+        state.session.rl_page_init_referring_domain.value,
+      );
+    });
   }
 
   /**
@@ -81,18 +140,12 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     state.session.rl_anonymous_id.value = finalAnonymousId;
-    this.storage?.set(
-      persistedSessionStorageKeys.anonymousUserId,
-      state.session.rl_anonymous_id.value,
-    );
     return state.session.rl_anonymous_id.value;
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string {
-    console.log('getAnonymousId', this.storage ? 'storage present' : 'not present');
     // fetch the rl_anonymous_id from storage
     let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
-    console.log('persistedAnonymousId', persistedAnonymousId);
     if (!persistedAnonymousId) {
       // TODO: implement the storage.getAnonymousId autoCapture functionality as plugin that takes options in
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
@@ -186,22 +239,17 @@ class UserSessionManager implements IUserSessionManager {
 
   setUserId(userId?: Nullable<string>) {
     state.session.rl_user_id.value = userId;
-    this.storage?.set(persistedSessionStorageKeys.userId, userId);
   }
 
   // TODO: should we reset traits in value is null?
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
       state.session.rl_trait.value = mergeDeepRight(state.session.rl_trait.value || {}, traits);
-      window.setTimeout(() => {
-        this.storage?.set(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
-      }, 1);
     }
   }
 
   setGroupId(groupId?: Nullable<string>) {
     state.session.rl_group_id.value = groupId;
-    this.storage?.set(persistedSessionStorageKeys.groupId, groupId);
   }
 
   // TODO: should we reset traits in value is null?
@@ -211,23 +259,15 @@ class UserSessionManager implements IUserSessionManager {
         state.session.rl_group_trait.value || {},
         traits,
       );
-      window.setTimeout(() => {
-        this.storage?.set(
-          persistedSessionStorageKeys.groupTraits,
-          state.session.rl_group_trait.value,
-        );
-      }, 1);
     }
   }
 
   setInitialReferrer(referrer?: string) {
     state.session.rl_page_init_referrer.value = referrer;
-    this.storage?.set(persistedSessionStorageKeys.initialReferrer, referrer);
   }
 
   setInitialReferringDomain(referrer?: string) {
     state.session.rl_page_init_referring_domain.value = referrer;
-    this.storage?.set(persistedSessionStorageKeys.initialReferringDomain, referrer);
   }
 
   // TODO: session tracking
