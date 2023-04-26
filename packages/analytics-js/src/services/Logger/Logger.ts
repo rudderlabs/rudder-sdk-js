@@ -50,10 +50,6 @@ class Logger implements ILogger {
   }
 
   outputLog(logMethod: LogLevel, data: any[]) {
-    if (logMethod === LogLevel.None) {
-      return;
-    }
-
     if (this.minLogLevel <= LOG_LEVEL_MAP[logMethod]) {
       this.logProvider[
         logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>
@@ -68,7 +64,10 @@ class Logger implements ILogger {
   // TODO: should we allow to change the level via global variable on run time
   //  to assist on the fly debugging?
   setMinLogLevel(logLevel: LogLevel) {
-    this.minLogLevel = LOG_LEVEL_MAP[logLevel] || LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
+    this.minLogLevel = LOG_LEVEL_MAP[logLevel];
+    if (this.minLogLevel === undefined) {
+      this.minLogLevel = LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
+    };
   }
 
   /**
