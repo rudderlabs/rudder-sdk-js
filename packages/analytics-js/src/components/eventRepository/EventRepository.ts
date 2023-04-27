@@ -1,7 +1,6 @@
 import { QueueOptions, Queue } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
 import { ApiCallback } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { state } from '@rudderstack/analytics-js/state';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
