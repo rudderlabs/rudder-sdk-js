@@ -5,8 +5,6 @@ import {
 } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { dummyPlugins, dummyRemotePlugins } from '@rudderstack/analytics-js/plugins/dummyToDelete';
-import { externalAnonymousId } from '@rudderstack/analytics-js/plugins/externalAnonymousId';
 import { IPluginsManager } from './types';
 import { pluginsInventory, remotePluginsInventory } from './pluginsInventory';
 

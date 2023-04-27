@@ -6,12 +6,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { effect } from '@preact/signals-core';
-import {
-  AnonymousIdOptions,
-  ApiObject,
-  ApiOptions,
-  SessionInfo,
-} from '@rudderstack/analytics-js/state/types';
+import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
 import { getReferrer, getReferringDomain } from './referrer';
@@ -299,7 +294,7 @@ class UserSessionManager implements IUserSessionManager {
    * Set group traits
    * @param userId
    */
-  setGroupTraits(traits?: Nullable<ApiOptions>) {
+  setGroupTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
       state.session.rl_group_trait.value = mergeDeepRight(
         state.session.rl_group_trait.value || {},

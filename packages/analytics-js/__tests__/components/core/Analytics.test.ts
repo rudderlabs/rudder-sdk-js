@@ -12,6 +12,10 @@ jest.mock('../../../src/components/utilities/globals', () => {
   };
 });
 
+jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+  generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
+
 describe('Core - Analytics', () => {
   let analytics: Analytics;
   const dummyWriteKey = 'qwertyuiopasdfghjklzxcvbnm1';
@@ -302,7 +306,7 @@ describe('Core - Analytics', () => {
       expect(addEventSpy).toHaveBeenCalledWith({
         type: 'alias',
         to: 'to',
-        from: 'userId',
+        from: 'test_uuid', // this is the mocked value from UUID generation
       });
     });
   });
