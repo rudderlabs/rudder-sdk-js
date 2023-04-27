@@ -42,6 +42,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
+    this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
     // determine the path to fetch integration SDK url from
