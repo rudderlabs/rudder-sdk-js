@@ -62,6 +62,7 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
+import RudderElement from '../utils/RudderElement';
 
 /**
  * class responsible for handling core
@@ -474,12 +475,12 @@ class Analytics {
    * Sends cloud mode events to server
    */
   sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
-    // convert integrations object to server identified names, kind of hack now!
-    transformToServerNames(rudderElement.message.integrations);
     rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
       this.integrationsData,
       clientSuppliedIntegrations,
     );
+
+    Object.setPrototypeOf(rudderElement, RudderElement.prototype);
     // self analytics process, send to rudder
     this.eventRepository.enqueue(rudderElement, type);
   }
@@ -489,8 +490,7 @@ class Analytics {
    */
   processBufferedCloudModeEvents() {
     if (this.bufferDataPlaneEventsUntilReady) {
-      // start queue
-      this.preProcessQueue.execute(this.integrationsData);
+      this.preProcessQueue.processCloudModeIntegrationsObjData(this.integrationsData);
     }
   }
 
@@ -909,11 +909,15 @@ class Analytics {
         );
       }
 
+      const clonedRudderElement = R.clone(rudderElement);
+      // convert integrations object to server identified names, kind of hack now!
+      transformToServerNames(clonedRudderElement.message.integrations);
+
       // Holding the cloud mode events based on flag and integrations load check
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
-        this.sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations);
+        this.sendCloudModeEvents(type, clonedRudderElement, clientSuppliedIntegrations);
       } else {
-        this.preProcessQueue.enqueue(type, rudderElement);
+        this.preProcessQueue.enqueue(type, clonedRudderElement);
       }
 
       // logger.debug(`${type} is called `)
@@ -1189,7 +1193,7 @@ class Analytics {
     if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
       this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
       if (this.bufferDataPlaneEventsUntilReady) {
-        this.preProcessQueue.init();
+        this.preProcessQueue.init(this.options, this.sendCloudModeEvents.bind(this));
       }
     }
 
