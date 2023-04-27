@@ -46,6 +46,7 @@ import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
 import { Store } from '../utils/storage/store';
 import { EventRepository } from '../utils/EventRepository';
+import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
@@ -61,7 +62,6 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
-import RudderElement from '../utils/RudderElement';
 
 /**
  * class responsible for handling core
@@ -84,6 +84,7 @@ class Analytics {
     this.storage = Storage;
     this.store = Store;
     this.eventRepository = EventRepository;
+    this.preProcessQueue = new PreProcessQueue();
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -301,7 +302,7 @@ class Analytics {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
           this.processBufferedCloudModeEvents();
-        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
+        }, 5000);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
@@ -480,7 +481,6 @@ class Analytics {
       this.integrationsData,
       clientSuppliedIntegrations,
     );
-
     // self analytics process, send to rudder
     this.eventRepository.enqueue(rudderElement, type);
   }
@@ -489,22 +489,9 @@ class Analytics {
    * Processes the buffered cloud mode events and sends it to server
    */
   processBufferedCloudModeEvents() {
-    const cloudModeEvents = this.store.get('rs_events');
-    this.store.remove('rs_events');
-    if (this.bufferDataPlaneEventsUntilReady && cloudModeEvents && cloudModeEvents.length > 0) {
-      cloudModeEvents.forEach((event) => {
-        const methodName = event[0];
-        event.shift();
-
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = event[0].message.integrations;
-
-        // Adding the RudderElement class prototype as it's got detached while storing in localStorage
-        Object.setPrototypeOf(event[0], RudderElement.prototype);
-
-        // event[0] -> rudderElement
-        this.sendCloudModeEvents(methodName, event[0], clientSuppliedIntegrations);
-      });
+    if (this.bufferDataPlaneEventsUntilReady) {
+      // start queue
+      this.preProcessQueue.execute(this.integrationsData);
     }
   }
 
@@ -927,13 +914,7 @@ class Analytics {
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
         this.sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations);
       } else {
-        const cloudModeEvents = this.store.get('rs_events');
-        if (cloudModeEvents && cloudModeEvents.length > 0) {
-          cloudModeEvents.push([type, rudderElement, callback]);
-          this.store.set('rs_events', cloudModeEvents);
-        } else {
-          this.store.set('rs_events', [[type, rudderElement]]);
-        }
+        this.preProcessQueue.enqueue(type, rudderElement);
       }
 
       // logger.debug(`${type} is called `)
@@ -1208,6 +1189,9 @@ class Analytics {
 
     if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
       this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
+      if (this.bufferDataPlaneEventsUntilReady) {
+        this.preProcessQueue.init();
+      }
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
