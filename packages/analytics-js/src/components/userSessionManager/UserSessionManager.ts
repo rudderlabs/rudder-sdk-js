@@ -9,8 +9,9 @@ import { effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
-import { getReferrer, getReferringDomain } from './referrer';
 import { persistedSessionStorageKeys } from './sessionStorageKeys';
+import { getReferrer } from '../utilities/page';
+import { getReferringDomain } from '../utilities/url';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
