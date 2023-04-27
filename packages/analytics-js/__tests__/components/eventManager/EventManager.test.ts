@@ -1,5 +1,6 @@
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
+import { defaultEventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
@@ -9,7 +10,7 @@ describe('EventManager', () => {
   }
 
   const mockErrorHandler = new MockErrorHandler();
-  const eventManager = new EventManager(mockErrorHandler);
+  const eventManager = new EventManager(defaultEventRepository, mockErrorHandler);
 
   it('should raise error if the event data is invalid', () => {
     eventManager.addEvent({

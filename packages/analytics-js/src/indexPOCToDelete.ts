@@ -4,7 +4,7 @@ import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/service
 import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 import {
-  defaultPluginManager,
+  defaultPluginsManager,
   PluginsManager,
 } from '@rudderstack/analytics-js/components/pluginsManager';
 import {
@@ -51,7 +51,7 @@ class AnalyticsV3 implements IV3 {
     this.httpClient = defaultHttpClient;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
-    this.pluginsManager = defaultPluginManager;
+    this.pluginsManager = defaultPluginsManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storageManager = defaultStoreManager;
     // TODO: pass values from sdk init config too

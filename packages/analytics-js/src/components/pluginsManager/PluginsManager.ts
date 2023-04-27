@@ -65,6 +65,6 @@ class PluginsManager implements IPluginsManager {
   }
 }
 
-const defaultPluginManager = new PluginsManager();
+const defaultPluginsManager = new PluginsManager();
 
-export { PluginsManager, defaultPluginManager };
+export { PluginsManager, defaultPluginsManager };

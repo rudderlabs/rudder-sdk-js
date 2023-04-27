@@ -2,7 +2,7 @@ import { isEmpty, clone } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { defaultStoreManager, Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
@@ -73,7 +73,7 @@ class Analytics implements IAnalytics {
     this.httpClient = defaultHttpClient;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
-    this.pluginsManager = defaultPluginManager;
+    this.pluginsManager = defaultPluginsManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storeManager = defaultStoreManager;
     this.configManager = defaultConfigManager;

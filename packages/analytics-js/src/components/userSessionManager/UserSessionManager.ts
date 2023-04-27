@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
