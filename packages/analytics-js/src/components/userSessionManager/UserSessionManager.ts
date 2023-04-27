@@ -134,7 +134,7 @@ class UserSessionManager implements IUserSessionManager {
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
-      finalAnonymousId = (linkerPluginsResult && linkerPluginsResult[0]) || generateUUID();
+      finalAnonymousId = linkerPluginsResult?.[0] || generateUUID();
     }
 
     state.session.rl_anonymous_id.value = finalAnonymousId;
