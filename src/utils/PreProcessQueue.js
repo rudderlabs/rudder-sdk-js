@@ -36,7 +36,7 @@ class PreProcessQueue {
     this.payloadQueue.start();
   }
 
-  processCloudModeIntegrationsObjData(integrationsData) {
+  setCloudModeEventsIntegrationObjData(integrationsData) {
     // An indicator to process elements in queue
     this.data = integrationsData;
   }

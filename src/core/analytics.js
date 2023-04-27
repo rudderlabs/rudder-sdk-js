@@ -490,7 +490,7 @@ class Analytics {
    */
   processBufferedCloudModeEvents() {
     if (this.bufferDataPlaneEventsUntilReady) {
-      this.preProcessQueue.processCloudModeIntegrationsObjData(this.integrationsData);
+      this.preProcessQueue.setCloudModeEventsIntegrationObjData(this.integrationsData);
     }
   }
 
