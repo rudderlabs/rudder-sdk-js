@@ -5,7 +5,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 export interface IUserSessionManager {
   storage?: IStore;
   init(storage: IStore): void;
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string;
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;
   getSessionInfo(): Nullable<SessionInfo>;
   getGroupId(): Nullable<string>;

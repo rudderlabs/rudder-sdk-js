@@ -4,8 +4,13 @@ import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 
+jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+  generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
+
 describe('User session manager', () => {
-  let userSessionManager: UserSessionManager;
+  const userSessionManager: UserSessionManager = new UserSessionManager();
+
   defaultStoreManager.init();
   const clientDataStore = defaultStoreManager.getStore('clientData') as Store;
 
@@ -14,10 +19,6 @@ describe('User session manager', () => {
       store.set(key, value);
     });
   };
-
-  beforeEach(() => {
-    userSessionManager = new UserSessionManager();
-  });
 
   afterEach(() => {
     resetState();
@@ -58,7 +59,7 @@ describe('User session manager', () => {
     expect(state.session.rl_user_id.value).toBe(customData.rl_user_id);
     expect(state.session.rl_trait.value).toStrictEqual(customData.rl_trait);
     expect(typeof state.session.rl_anonymous_id.value).toBe('string');
-    expect(state.session.rl_anonymous_id.value?.length).toBeGreaterThan(1);
+    expect(state.session.rl_anonymous_id.value).toBe('test_uuid');
     expect(state.session.rl_group_id.value).toBe(customData.rl_group_id);
     expect(state.session.rl_group_trait.value).toStrictEqual(customData.rl_group_trait);
     expect(state.session.rl_page_init_referrer.value).toBe(customData.rl_page_init_referrer);
@@ -66,6 +67,7 @@ describe('User session manager', () => {
       customData.rl_page_init_referring_domain,
     );
   });
+  // TODO: mode test cases need to be covered
   it('setAnonymousId', () => {
     clientDataStore.set = jest.fn();
     const newAnonymousId = 'new-dummy-anonymous-id';

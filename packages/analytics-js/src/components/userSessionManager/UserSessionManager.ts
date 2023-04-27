@@ -121,10 +121,9 @@ class UserSessionManager implements IUserSessionManager {
    *    using parseLinker util.
    * 3. generateUUID: A new unique id is generated and assigned.
    */
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string {
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined = anonymousId;
     if (!finalAnonymousId) {
-      // TODO: Create new plugin for userSession.anonymousIdGoogleLinker
       const linkerPluginsResult = defaultPluginManager.invoke<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
@@ -133,7 +132,6 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     state.session.rl_anonymous_id.value = finalAnonymousId;
-    return state.session.rl_anonymous_id.value;
   }
 
   /**
@@ -146,19 +144,21 @@ class UserSessionManager implements IUserSessionManager {
     let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
 
     if (!persistedAnonymousId) {
+      // fetch anonymousId from external source
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
         'storage.getAnonymousId',
         options,
       );
-      if (autoCapturedAnonymousId[0]) {
+      if (autoCapturedAnonymousId?.[0]) {
         [persistedAnonymousId] = autoCapturedAnonymousId;
       } else {
-        return this.setAnonymousId();
+        // set a new anonymousId if not available from previous step
+        this.setAnonymousId();
       }
     }
-
-    state.session.rl_anonymous_id.value = persistedAnonymousId;
-    return persistedAnonymousId;
+    state.session.rl_anonymous_id.value =
+      persistedAnonymousId || state.session.rl_anonymous_id.value;
+    return state.session.rl_anonymous_id.value as string;
   }
 
   // TODO: session tracking

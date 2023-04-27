@@ -472,8 +472,8 @@ class Analytics implements IAnalytics {
     return this.userSessionManager.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string {
-    return this.userSessionManager.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
+    this.userSessionManager.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
   // eslint-disable-next-line class-methods-use-this
