@@ -31,17 +31,17 @@ class ConfigManager implements IConfigManager {
     this.hasLogger = Boolean(this.logger);
   }
 
+  attachEffects() {
+    effect(() => {
+      this.logger?.setMinLogLevel(state.lifecycle.logLevel.value);
+    });
+  }
+
   /**
    * A function to validate, construct and store loadOption, lifecycle, source and destination
    * config related information in global state
    */
   init() {
-    effect(() => {
-      if (this.logger) {
-        this.logger.setMinLogLevel(state.lifecycle.logLevel.value);
-      }
-    });
-
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
     // determine the path to fetch integration SDK url from
