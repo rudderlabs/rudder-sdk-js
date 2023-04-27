@@ -32,4 +32,18 @@ describe('Common Utils - String', () => {
   it('should stringify array', () => {
     expect(tryStringify([1, 2, 3])).toBe('[1,2,3]');
   });
+
+  it('should return null if value contains circular dependency in the object', () => {
+    function Foo() {
+      this.abc = 'Hello';
+      this.circular = this;
+    }
+    var foo = new Foo();
+    expect(tryStringify(foo)).toBe(null);
+  });
+
+  it('should return null if for BigInt values', () => {
+    // JSON.stringify fails for BigInt values
+    expect(tryStringify(BigInt(9007199254740991))).toBe(null);
+  });
 });

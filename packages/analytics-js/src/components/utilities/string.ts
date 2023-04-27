@@ -6,7 +6,16 @@ const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
  * @param val input value
  * @returns stringified value
  */
-const tryStringify = (val: any) =>
-  typeof val === 'string' || typeof val === 'undefined' || val === null ? val : JSON.stringify(val);
+const tryStringify = (val: any) => {
+  let retVal = val;
+  if (typeof val !== 'string' && typeof val !== 'undefined' && val !== null) {
+    try {
+      retVal = JSON.stringify(val);
+    } catch (e) {
+      retVal = null;
+    }
+  }
+  return retVal;
+};
 
 export { trim, tryStringify };
