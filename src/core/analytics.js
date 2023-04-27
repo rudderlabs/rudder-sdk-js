@@ -41,10 +41,10 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
+  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
-import { Store } from '../utils/storage/store';
 import { EventRepository } from '../utils/EventRepository';
 import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
@@ -82,7 +82,6 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
-    this.store = Store;
     this.eventRepository = EventRepository;
     this.preProcessQueue = new PreProcessQueue();
     this.sendAdblockPage = false;
@@ -302,7 +301,7 @@ class Analytics {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
           this.processBufferedCloudModeEvents();
-        }, 5000);
+        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
