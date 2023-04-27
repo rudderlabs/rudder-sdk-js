@@ -4,6 +4,7 @@ import {
   IPluginEngine,
 } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { state } from '@rudderstack/analytics-js/state';
+import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { IPluginsManager } from './types';
 import { pluginsInventory, remotePluginsInventory } from './pluginsInventory';
 
@@ -30,7 +31,7 @@ class PluginsManager implements IPluginsManager {
     //  notify state that the plugin is loaded and calculate signal when all are
     //  loaded, once all loaded then set status to pluginsReady
     window.setTimeout(() => {
-      state.lifecycle.status.value = 'pluginsReady';
+      state.lifecycle.status.value = LifecycleStatus.PluginsReady;
     }, 3000);
   }
 
@@ -54,6 +55,13 @@ class PluginsManager implements IPluginsManager {
 
   register(plugins: ExtensionPlugin[]) {
     plugins.forEach(plugin => this.engine.register(plugin));
+  }
+
+  // TODO: Implement reset API instead
+  unregisterLocalPlugins() {
+    Object.values(pluginsInventory).forEach(localPlugin => {
+      this.engine.unregister(localPlugin().name);
+    });
   }
 }
 

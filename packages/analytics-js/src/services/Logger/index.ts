@@ -1,1 +1,1 @@
-export { Logger, DEFAULT_LOG_LEVEL, LOG_LEVEL, defaultLogger } from './Logger';
+export { Logger, DEFAULT_LOG_LEVEL, LOG_LEVEL_MAP, defaultLogger } from './Logger';

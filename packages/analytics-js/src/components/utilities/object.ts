@@ -32,9 +32,8 @@ const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   return path(pathParts, obj);
 };
 
-const hasValueByPath = (obj: Record<string, any>, path: string): boolean => {
-  return Boolean(getValueByPath(obj, path));
-};
+const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
+  Boolean(getValueByPath(obj, path));
 
 const mergeDeepRightObjectArrays = (
   leftValue: any | any[],
@@ -58,4 +57,18 @@ const mergeDeepRight = <T = Record<string, any>>(
   rightObject: Record<string, any>,
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight };
+/**
+ * Checks if the input is an object and not null
+ * @param val Input value
+ * @returns true if the input is an object and not null
+ */
+const isObjectAndNotNull = (val: any) =>
+  typeof val === 'object' && !Array.isArray(val) && val !== null;
+
+export {
+  getValueByPath,
+  hasValueByPath,
+  mergeDeepRightObjectArrays,
+  mergeDeepRight,
+  isObjectAndNotNull,
+};

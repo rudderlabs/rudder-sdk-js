@@ -10,9 +10,7 @@ import modernBuildPluginImports from './modernBuildPluginImports';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 (window as any).rudderEmptyPluginImports = () => {}; // Is used as replacement for modern builds from rollup
 
-const getMandatoryPluginsMap = (): PluginMap => {
-  return {};
-};
+const getMandatoryPluginsMap = (): PluginMap => ({});
 
 const getOptionalPluginsMap = (): PluginMap => {
   if (!__BUNDLE_ALL_PLUGINS__) {
@@ -33,9 +31,7 @@ const getOptionalPluginsMap = (): PluginMap => {
   };
 };
 
-const getRemotePluginsMap = (): PluginMap<Promise<ExtensionPlugin>> => {
-  return modernBuildPluginImports();
-};
+const getRemotePluginsMap = (): PluginMap<Promise<ExtensionPlugin>> => modernBuildPluginImports();
 
 const pluginsInventory: PluginMap = {
   ...getMandatoryPluginsMap(),

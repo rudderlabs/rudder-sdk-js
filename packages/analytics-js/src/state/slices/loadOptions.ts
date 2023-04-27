@@ -5,13 +5,18 @@ import {
   DEFAULT_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { DEFAULT_BEACON_QUEUE_MAX_SIZE } from '@rudderstack/analytics-js/constants/sizes';
-import { LoadOptions } from '@rudderstack/analytics-js/state/types';
+import {
+  CookieSameSite,
+  LoadOptions,
+  LogLevel,
+  UaChTrackLevel,
+} from '@rudderstack/analytics-js/state/types';
 import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 
 export type LoadOptionsState = Signal<LoadOptions>;
 
 const defaultLoadOptions: LoadOptions = {
-  logLevel: 'ERROR',
+  logLevel: LogLevel.Error,
   configUrl: CONFIG_URL,
   loadIntegration: true,
   sessions: {
@@ -23,12 +28,12 @@ const defaultLoadOptions: LoadOptions = {
     maxItems: DEFAULT_BEACON_QUEUE_MAX_SIZE,
     flushQueueInterval: DEFAULT_BEACON_QUEUE_FLUSH_INTERVAL,
   },
-  sameSiteCookie: 'Lax',
+  sameSiteCookie: CookieSameSite.Lax,
   polyfillIfRequired: true,
   integrations: { All: true },
   useBeacon: false,
   lockIntegrationsVersion: false,
-  uaChTrackLevel: 'none',
+  uaChTrackLevel: UaChTrackLevel.None,
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

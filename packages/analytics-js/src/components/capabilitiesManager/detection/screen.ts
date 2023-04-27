@@ -1,13 +1,13 @@
 export type ScreenInfo = {
-  density: number;
-  width: number;
-  height: number;
-  innerWidth: number;
-  innerHeight: number;
+  readonly density: number;
+  readonly width: number;
+  readonly height: number;
+  readonly innerWidth: number;
+  readonly innerHeight: number;
 };
 
 const getScreenDetails = (): ScreenInfo => {
-  const screenDetails: ScreenInfo = {
+  let screenDetails: ScreenInfo = {
     density: 0,
     width: 0,
     height: 0,
@@ -17,16 +17,15 @@ const getScreenDetails = (): ScreenInfo => {
 
   // Depending on environment within which the code is executing, screen
   // dimensions can be set, when execution is in SSR window will be undefined
-  if (typeof window === 'undefined') {
-    return screenDetails;
+  if (typeof window !== 'undefined') {
+    screenDetails = {
+      width: window.screen.width,
+      height: window.screen.height,
+      density: window.devicePixelRatio,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+    };
   }
-
-  screenDetails.width = window.screen.width;
-  screenDetails.height = window.screen.height;
-  screenDetails.density = window.devicePixelRatio;
-  screenDetails.innerWidth = window.innerWidth;
-  screenDetails.innerHeight = window.innerHeight;
-
   return screenDetails;
 };
 

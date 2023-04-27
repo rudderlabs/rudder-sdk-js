@@ -11,7 +11,7 @@ export type LifecycleState = {
   integrationsCDNPath: Signal<string | undefined>;
   pluginsCDNPath: Signal<string | undefined>;
   sourceConfigUrl: Signal<string>;
-  status: Signal<LifecycleStatus>;
+  status: Signal<LifecycleStatus | undefined>;
   isStaging: Signal<boolean>;
   initialized: Signal<boolean>;
   logLevel: Signal<LogLevel>;
@@ -29,7 +29,7 @@ const lifecycleState: LifecycleState = {
   status: signal(undefined),
   isStaging: signal(false),
   initialized: signal(false),
-  logLevel: signal('ERROR'),
+  logLevel: signal(LogLevel.Error),
   loaded: signal(false),
   readyCallbacks: signal([]),
   writeKey: signal(undefined),

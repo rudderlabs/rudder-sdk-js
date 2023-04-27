@@ -164,7 +164,7 @@ class AnalyticsV3 implements IV3 {
   }
 
   startSessionTracking() {
-    //this.userSession.setStorage(this.clientDataStore);
+    // this.userSession.setStorage(this.clientDataStore);
   }
 
   pluginRegister(customPlugins: any[] = []) {
