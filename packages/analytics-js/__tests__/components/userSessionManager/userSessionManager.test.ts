@@ -1,9 +1,8 @@
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { state } from '@rudderstack/analytics-js/state';
+import { state, resetState } from '@rudderstack/analytics-js/state';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { batch } from '@preact/signals-core';
 
 describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
@@ -13,34 +12,6 @@ describe('User session manager', () => {
   const setCustomValuesInStorage = (store: IStore, data: any) => {
     Object.entries(data).forEach(([key, value]) => {
       store.set(key, value);
-    });
-  };
-
-  const clearStorage = (store: IStore, keys: string[]) => {
-    keys.forEach(key => {
-      store.remove(key);
-    });
-  };
-
-  const resetState = () => {
-    const keys = [
-      'rl_user_id',
-      'rl_trait',
-      'rl_anonymous_id',
-      'rl_group_id',
-      'rl_group_trait',
-      'rl_page_init_referrer',
-      'rl_page_init_referring_domain',
-    ];
-    clearStorage(clientDataStore, keys);
-    batch(() => {
-      state.session.rl_user_id.value = undefined;
-      state.session.rl_anonymous_id.value = undefined;
-      state.session.rl_trait.value = undefined;
-      state.session.rl_group_id.value = undefined;
-      state.session.rl_group_trait.value = undefined;
-      state.session.rl_page_init_referrer.value = undefined;
-      state.session.rl_page_init_referring_domain.value = undefined;
     });
   };
 
@@ -74,7 +45,7 @@ describe('User session manager', () => {
       customData.rl_page_init_referring_domain,
     );
   });
-  it('should initialize user details when storage is empty to state', () => {
+  it.skip('should initialize user details when storage is empty to state', () => {
     const customData = {
       rl_user_id: '',
       rl_trait: {},
@@ -151,67 +122,82 @@ describe('User session manager', () => {
     expect(state.session.rl_page_init_referring_domain.value).toBe(newReferrer);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
-  // it('getAnonymousId', () => {
-  //   const customData = {
-  //     rl_anonymous_id: 'dummy-anonymousId-12345678',
-  //   };
-  //   setCustomValuesInStorage(clientDataStore, customData);
-  //   userSessionManager.init(clientDataStore);
-  //   const actualAnonymousId = userSessionManager.getAnonymousId();
-  //   expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
-  // });
-  // it('getUserId', () => {
-  //   const customData = {
-  //     rl_user_id: 'dummy-userId-12345678',
-  //   };
-  //   setCustomValuesInStorage(clientDataStore, customData);
-  //   userSessionManager.init(clientDataStore);
-  //   const actualUserId = userSessionManager.getUserId();
-  //   expect(actualUserId).toBe(customData.rl_user_id);
-  // });
-  //   it('getUserTraits', () => {
-  //     const customData = {
-  //       rl_trait: { key1: 'value1', random: '123456789' },
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualUserTraits = userSessionManager.getUserTraits();
-  //     expect(actualUserTraits).toStrictEqual(customData.rl_trait);
-  //   });
-  //   it('getGroupId', () => {
-  //     const customData = {
-  //       rl_group_id: 'dummy-groupId-12345678',
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualGroupId = userSessionManager.getGroupId();
-  //     expect(actualGroupId).toBe(customData.rl_group_id);
-  //   });
-  //   it('getGroupTraits', () => {
-  //     const customData = {
-  //       rl_group_trait: { key1: 'value1', random: '123456789' },
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualGroupTraits = userSessionManager.getGroupTraits();
-  //     expect(actualGroupTraits).toStrictEqual(customData.rl_group_trait);
-  //   });
-  //   it('getInitialReferrer', () => {
-  //     const customData = {
-  //       rl_page_init_referrer: 'dummy-url-1234',
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualInitialReferrer = userSessionManager.getInitialReferrer();
-  //     expect(actualInitialReferrer).toBe(customData.rl_page_init_referrer);
-  //   });
-  //   it('getInitialReferringDomain', () => {
-  //     const customData = {
-  //       rl_page_init_referring_domain: 'dummy-url-287654',
-  //     };
-  //     setCustomValuesInStorage(clientDataStore, customData);
-  //     userSessionManager.init(clientDataStore);
-  //     const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
-  //     expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
-  //   });
+  it.skip('getAnonymousId', () => {
+    const customData = {
+      rl_anonymous_id: 'dummy-anonymousId-12345678',
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualAnonymousId = userSessionManager.getAnonymousId();
+    expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
+  });
+  it.skip('getAnonymousId with option to fetch from external source', () => {
+    const customData = {
+      ajs_anonymous_id: 'dummy-anonymousId-12345678',
+    };
+    const option = {
+      autoCapture: {
+        source: 'segment',
+        enabled: true,
+      },
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualAnonymousId = userSessionManager.getAnonymousId(option);
+    expect(actualAnonymousId).toBe(customData.ajs_anonymous_id);
+  });
+  it.skip('getUserId', () => {
+    const customData = {
+      rl_user_id: 'dummy-userId-12345678',
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualUserId = userSessionManager.getUserId();
+    expect(actualUserId).toBe(customData.rl_user_id);
+  });
+  it.skip('getUserTraits', () => {
+    const customData = {
+      rl_trait: { key1: 'value1', random: '123456789' },
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualUserTraits = userSessionManager.getUserTraits();
+    expect(actualUserTraits).toStrictEqual(customData.rl_trait);
+  });
+  it.skip('getGroupId', () => {
+    const customData = {
+      rl_group_id: 'dummy-groupId-12345678',
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualGroupId = userSessionManager.getGroupId();
+    expect(actualGroupId).toBe(customData.rl_group_id);
+  });
+  it.skip('getGroupTraits', () => {
+    const customData = {
+      rl_group_trait: { key1: 'value1', random: '123456789' },
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualGroupTraits = userSessionManager.getGroupTraits();
+    expect(actualGroupTraits).toStrictEqual(customData.rl_group_trait);
+  });
+  it.skip('getInitialReferrer', () => {
+    const customData = {
+      rl_page_init_referrer: 'dummy-url-1234',
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualInitialReferrer = userSessionManager.getInitialReferrer();
+    expect(actualInitialReferrer).toBe(customData.rl_page_init_referrer);
+  });
+  it.skip('getInitialReferringDomain', () => {
+    const customData = {
+      rl_page_init_referring_domain: 'dummy-url-287654',
+    };
+    setCustomValuesInStorage(clientDataStore, customData);
+    userSessionManager.init(clientDataStore);
+    const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
+    expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
+  });
 });

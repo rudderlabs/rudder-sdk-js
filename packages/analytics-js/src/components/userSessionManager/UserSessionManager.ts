@@ -50,7 +50,11 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(referrer);
       this.setInitialReferringDomain(getReferringDomain(referrer));
     }
+    // Register the effect to sync with storage
+    this.syncSessionWithStorage();
+  }
 
+  syncSessionWithStorage() {
     /**
      * Update userId in storage automatically when userId is updated in state
      */
@@ -133,13 +137,13 @@ class UserSessionManager implements IUserSessionManager {
   getAnonymousId(options?: AnonymousIdOptions): string {
     // fetch the rl_anonymous_id from storage
     let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
+
     if (!persistedAnonymousId) {
       // TODO: implement the storage.getAnonymousId autoCapture functionality as plugin that takes options in
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
         'storage.getAnonymousId',
         options,
       );
-
       if (autoCapturedAnonymousId[0]) {
         [persistedAnonymousId] = autoCapturedAnonymousId;
       } else {
