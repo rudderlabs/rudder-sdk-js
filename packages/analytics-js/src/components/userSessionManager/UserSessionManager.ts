@@ -25,6 +25,10 @@ class UserSessionManager implements IUserSessionManager {
     this.storage = storage;
   }
 
+  /**
+   * Initialize User session with values from storage
+   * @param storage Selected storage
+   */
   init(storage: IStore) {
     this.storage = storage;
 
@@ -54,6 +58,9 @@ class UserSessionManager implements IUserSessionManager {
     this.syncSessionWithStorage();
   }
 
+  /**
+   * Function to update storage whenever state value changes
+   */
   syncSessionWithStorage() {
     /**
      * Update userId in storage automatically when userId is updated in state
@@ -134,12 +141,16 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.rl_anonymous_id.value;
   }
 
+  /**
+   * Fetches anonymousId
+   * @param options option to fetch it from external source
+   * @returns anonymousId
+   */
   getAnonymousId(options?: AnonymousIdOptions): string {
     // fetch the rl_anonymous_id from storage
     let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
 
     if (!persistedAnonymousId) {
-      // TODO: implement the storage.getAnonymousId autoCapture functionality as plugin that takes options in
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
         'storage.getAnonymousId',
         options,
@@ -180,30 +191,60 @@ class UserSessionManager implements IUserSessionManager {
     return Boolean(sessionExpirationTimestamp && timestamp <= sessionExpirationTimestamp);
   }
 
+  /**
+   * Fetches User Id
+   * @returns
+   */
   getUserId(): Nullable<string> {
     return this.storage?.get(persistedSessionStorageKeys.userId) || null;
   }
 
+  /**
+   * Fetches User Traits
+   * @returns
+   */
   getUserTraits(): Nullable<ApiObject> {
     return this.storage?.get(persistedSessionStorageKeys.userTraits) || null;
   }
 
+  /**
+   * Fetches Group Id
+   * @returns
+   */
   getGroupId(): Nullable<string> {
     return this.storage?.get(persistedSessionStorageKeys.groupId) || null;
   }
 
+  /**
+   * Fetches Group Traits
+   * @returns
+   */
   getGroupTraits(): Nullable<ApiObject> {
     return this.storage?.get(persistedSessionStorageKeys.groupTraits) || null;
   }
 
+  /**
+   * Fetches Initial Referrer
+   * @returns
+   */
   getInitialReferrer(): Nullable<string> {
     return this.storage?.get(persistedSessionStorageKeys.initialReferrer) || null;
   }
 
+  /**
+   * Fetches Initial Referring domain
+   * @returns
+   */
   getInitialReferringDomain(): Nullable<string> {
     return this.storage?.get(persistedSessionStorageKeys.initialReferringDomain) || null;
   }
 
+  /**
+   * Reset state values
+   * @param resetAnonymousId
+   * @param noNewSessionStart
+   * @returns
+   */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
     const { manualTrack, autoTrack } = state.session.rl_session.value;
 
@@ -228,22 +269,36 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
+  /**
+   * Set user Id
+   * @param userId
+   */
   setUserId(userId?: Nullable<string>) {
     state.session.rl_user_id.value = userId;
   }
 
-  // TODO: should we reset traits in value is null?
+  /**
+   * Set user traits
+   * @param userId
+   */
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
       state.session.rl_trait.value = mergeDeepRight(state.session.rl_trait.value || {}, traits);
     }
   }
 
+  /**
+   * Set group Id
+   * @param userId
+   */
   setGroupId(groupId?: Nullable<string>) {
     state.session.rl_group_id.value = groupId;
   }
 
-  // TODO: should we reset traits in value is null?
+  /**
+   * Set group traits
+   * @param userId
+   */
   setGroupTraits(traits?: Nullable<ApiOptions>) {
     if (traits) {
       state.session.rl_group_trait.value = mergeDeepRight(
@@ -253,10 +308,18 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
+  /**
+   * Set initial referrer
+   * @param userId
+   */
   setInitialReferrer(referrer?: string) {
     state.session.rl_page_init_referrer.value = referrer;
   }
 
+  /**
+   * Set initial referring domain
+   * @param userId
+   */
   setInitialReferringDomain(referrer?: string) {
     state.session.rl_page_init_referring_domain.value = referrer;
   }
@@ -273,6 +336,10 @@ class UserSessionManager implements IUserSessionManager {
     this.clearUserSessionStorage();
   }
 
+  /**
+   * Clear storage
+   * @param resetAnonymousId
+   */
   clearUserSessionStorage(resetAnonymousId?: boolean) {
     this.storage?.remove(persistedSessionStorageKeys.userId);
     this.storage?.remove(persistedSessionStorageKeys.userTraits);
