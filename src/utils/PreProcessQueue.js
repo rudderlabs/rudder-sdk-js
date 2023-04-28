@@ -4,7 +4,7 @@ import Queue from '@segment/localstorage-retry';
 import RudderElement from './RudderElement';
 
 /**
- * Keeping maxAttempts to Infinity to retry cloud mode events until processQueueElements flag is not set to true
+ * Keeping maxAttempts to Infinity to retry cloud mode events and throw an error until processQueueElements flag is not set to true
  */
 const queueOptions = {
   maxRetryDelay: 360000,
