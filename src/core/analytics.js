@@ -401,7 +401,7 @@ class Analytics {
           }
 
           // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations || { All: true };
+          const clientSuppliedIntegrations = event[0].message.integrations;
 
           // get intersection between config plane native enabled destinations
           // (which were able to successfully load on the page) vs user supplied integrations
