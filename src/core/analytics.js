@@ -470,7 +470,6 @@ class Analytics {
    *
    * @param {*} type
    * @param {*} rudderElement
-   * @param {*} clientSuppliedIntegrations
    * Sends cloud mode events to server
    */
   queueEventForDataPlane(type, rudderElement) {
