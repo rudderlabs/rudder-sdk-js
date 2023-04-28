@@ -9,7 +9,7 @@ import { effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
-import { persistedSessionStorageKeys } from './sessionStorageKeys';
+import { userSessionStorageKeys } from './sessionStorageKeys';
 import { getReferrer } from '../utilities/page';
 import { getReferringDomain } from '../utilities/url';
 
@@ -62,35 +62,32 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      this.storage?.set(persistedSessionStorageKeys.userId, state.session.rl_user_id.value);
+      this.storage?.set(userSessionStorageKeys.userId, state.session.rl_user_id.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(persistedSessionStorageKeys.userTraits, state.session.rl_trait.value);
+      this.storage?.set(userSessionStorageKeys.userTraits, state.session.rl_trait.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(persistedSessionStorageKeys.groupId, state.session.rl_group_id.value);
+      this.storage?.set(userSessionStorageKeys.groupId, state.session.rl_group_id.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(
-        persistedSessionStorageKeys.groupTraits,
-        state.session.rl_group_trait.value,
-      );
+      this.storage?.set(userSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
       this.storage?.set(
-        persistedSessionStorageKeys.anonymousUserId,
+        userSessionStorageKeys.anonymousUserId,
         state.session.rl_anonymous_id.value,
       );
     });
@@ -99,7 +96,7 @@ class UserSessionManager implements IUserSessionManager {
      */
     effect(() => {
       this.storage?.set(
-        persistedSessionStorageKeys.initialReferrer,
+        userSessionStorageKeys.initialReferrer,
         state.session.rl_page_init_referrer.value,
       );
     });
@@ -108,7 +105,7 @@ class UserSessionManager implements IUserSessionManager {
      */
     effect(() => {
       this.storage?.set(
-        persistedSessionStorageKeys.initialReferringDomain,
+        userSessionStorageKeys.initialReferringDomain,
         state.session.rl_page_init_referring_domain.value,
       );
     });
@@ -123,16 +120,24 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    let finalAnonymousId: string | undefined = anonymousId;
-    if (!finalAnonymousId) {
+    let finalAnonymousId: string | undefined | null = anonymousId;
+    if (!finalAnonymousId && rudderAmpLinkerParam) {
       const linkerPluginsResult = defaultPluginManager.invoke<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
-      finalAnonymousId = linkerPluginsResult?.[0] || generateUUID();
+      finalAnonymousId = linkerPluginsResult?.[0];
     }
+    state.session.rl_anonymous_id.value = finalAnonymousId || generateUUID();
+  }
 
-    state.session.rl_anonymous_id.value = finalAnonymousId;
+  /**
+   * Generate a new anonymousId
+   * @returns string anonymousID
+   */
+  generateAnonymousId(): string {
+    this.setAnonymousId();
+    return state.session.rl_anonymous_id.value as string;
   }
 
   /**
@@ -142,23 +147,17 @@ class UserSessionManager implements IUserSessionManager {
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
     // fetch the rl_anonymous_id from storage
-    let persistedAnonymousId = this.storage?.get(persistedSessionStorageKeys.anonymousUserId);
+    let persistedAnonymousId = this.storage?.get(userSessionStorageKeys.anonymousUserId);
 
-    if (!persistedAnonymousId) {
+    if (!persistedAnonymousId && options) {
       // fetch anonymousId from external source
       const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
         'storage.getAnonymousId',
         options,
       );
-      if (autoCapturedAnonymousId?.[0]) {
-        [persistedAnonymousId] = autoCapturedAnonymousId;
-      } else {
-        // set a new anonymousId if not available from previous step
-        this.setAnonymousId();
-      }
+      persistedAnonymousId = autoCapturedAnonymousId?.[0];
     }
-    state.session.rl_anonymous_id.value =
-      persistedAnonymousId || state.session.rl_anonymous_id.value;
+    state.session.rl_anonymous_id.value = persistedAnonymousId || this.generateAnonymousId();
     return state.session.rl_anonymous_id.value as string;
   }
 
@@ -192,7 +191,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.storage?.get(persistedSessionStorageKeys.userId) || null;
+    return this.storage?.get(userSessionStorageKeys.userId) || null;
   }
 
   /**
@@ -200,7 +199,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.storage?.get(persistedSessionStorageKeys.userTraits) || null;
+    return this.storage?.get(userSessionStorageKeys.userTraits) || null;
   }
 
   /**
@@ -208,7 +207,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.storage?.get(persistedSessionStorageKeys.groupId) || null;
+    return this.storage?.get(userSessionStorageKeys.groupId) || null;
   }
 
   /**
@@ -216,7 +215,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.storage?.get(persistedSessionStorageKeys.groupTraits) || null;
+    return this.storage?.get(userSessionStorageKeys.groupTraits) || null;
   }
 
   /**
@@ -224,7 +223,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.storage?.get(persistedSessionStorageKeys.initialReferrer) || null;
+    return this.storage?.get(userSessionStorageKeys.initialReferrer) || null;
   }
 
   /**
@@ -232,7 +231,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.storage?.get(persistedSessionStorageKeys.initialReferringDomain) || null;
+    return this.storage?.get(userSessionStorageKeys.initialReferringDomain) || null;
   }
 
   /**
@@ -337,13 +336,13 @@ class UserSessionManager implements IUserSessionManager {
    * @param resetAnonymousId
    */
   clearUserSessionStorage(resetAnonymousId?: boolean) {
-    this.storage?.remove(persistedSessionStorageKeys.userId);
-    this.storage?.remove(persistedSessionStorageKeys.userTraits);
-    this.storage?.remove(persistedSessionStorageKeys.groupId);
-    this.storage?.remove(persistedSessionStorageKeys.groupTraits);
+    this.storage?.remove(userSessionStorageKeys.userId);
+    this.storage?.remove(userSessionStorageKeys.userTraits);
+    this.storage?.remove(userSessionStorageKeys.groupId);
+    this.storage?.remove(userSessionStorageKeys.groupTraits);
 
     if (resetAnonymousId) {
-      this.storage?.remove(persistedSessionStorageKeys.anonymousUserId);
+      this.storage?.remove(userSessionStorageKeys.anonymousUserId);
     }
   }
 }

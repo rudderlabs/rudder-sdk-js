@@ -1,4 +1,4 @@
-const persistedSessionStorageKeys = {
+const userSessionStorageKeys = {
   userId: 'rl_user_id',
   userTraits: 'rl_trait',
   anonymousUserId: 'rl_anonymous_id',
@@ -17,4 +17,4 @@ const inMemorySessionKeys = {
   session_id: 'sessionId',
 };
 
-export { persistedSessionStorageKeys, externallyLoadedSessionStorageKeys, inMemorySessionKeys };
+export { userSessionStorageKeys, externallyLoadedSessionStorageKeys, inMemorySessionKeys };
