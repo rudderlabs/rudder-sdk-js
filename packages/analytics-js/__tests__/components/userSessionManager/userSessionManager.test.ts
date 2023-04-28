@@ -20,7 +20,7 @@ describe('User session manager', () => {
     });
   };
 
-  afterEach(() => {
+  beforeEach(() => {
     resetState();
   });
 
