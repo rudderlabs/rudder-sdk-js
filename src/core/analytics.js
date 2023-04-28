@@ -62,7 +62,6 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
-import RudderElement from '../utils/RudderElement';
 
 /**
  * class responsible for handling core
@@ -474,13 +473,13 @@ class Analytics {
    * @param {*} clientSuppliedIntegrations
    * Sends cloud mode events to server
    */
-  sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
+  queueEventForDataPlane(type, rudderElement) {
+    // if not specified at event level, All: true is default
+    const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
     rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
       this.integrationsData,
       clientSuppliedIntegrations,
     );
-
-    Object.setPrototypeOf(rudderElement, RudderElement.prototype);
     // self analytics process, send to rudder
     this.eventRepository.enqueue(rudderElement, type);
   }
@@ -490,7 +489,7 @@ class Analytics {
    */
   processBufferedCloudModeEvents() {
     if (this.bufferDataPlaneEventsUntilReady) {
-      this.preProcessQueue.setCloudModeEventsIntegrationObjData(this.integrationsData);
+      this.preProcessQueue.activateProcessor();
     }
   }
 
@@ -915,7 +914,7 @@ class Analytics {
 
       // Holding the cloud mode events based on flag and integrations load check
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
-        this.sendCloudModeEvents(type, clonedRudderElement, clientSuppliedIntegrations);
+        this.queueEventForDataPlane(type, clonedRudderElement);
       } else {
         this.preProcessQueue.enqueue(type, clonedRudderElement);
       }
@@ -1193,7 +1192,7 @@ class Analytics {
     if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
       this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
       if (this.bufferDataPlaneEventsUntilReady) {
-        this.preProcessQueue.init(this.options, this.sendCloudModeEvents.bind(this));
+        this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
       }
     }
 
