@@ -395,8 +395,9 @@ class Analytics {
                   transformedEvents = transformedPayload.find((e) => e.id === intg.destinationId);
                   if (!transformedEvents) {
                     logger.error(
-                      `[DMT]::[Destination:${intg.name}]:: Transformed data not available`,
+                      `[DMT]::[Destination:${intg.name}]:: Transformed data for destination not available from server`,
                     );
+                    return;
                   }
                   /**
                    * Filter the successful transformed event
