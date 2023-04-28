@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.32.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.1...v2.32.0) (2023-04-24)
+
+
+### Features
+
+* **pinterest:** custom event ([#1027](https://github.com/rudderlabs/rudder-sdk-js/issues/1027)) ([636b0b8](https://github.com/rudderlabs/rudder-sdk-js/commit/636b0b8a3ee7137ca9b637d054a7a88c116c8ae9))
+
 ### [2.31.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.0...v2.31.1) (2023-04-20)
 
 
