@@ -220,7 +220,7 @@ export type SessionOpts = {
 export type LoadOptions = {
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
-  configUrl: string; // defaults to https://api.rudderlabs.com
+  configUrl: string; // defaults to https://api.rudderstack.com
   queueOptions?: QueueOpts;
   loadIntegration?: boolean; // defaults to true.
   sessions: SessionOpts;

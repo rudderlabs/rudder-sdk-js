@@ -11,7 +11,7 @@ const RESERVED_KEYS = [
 ];
 
 const CONFIG_URL =
-  'https://api.rudderlabs.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__';
+  'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__';
 const SDK_CDN_BASE_URL = 'https://cdn.rudderlabs.com';
 const CDN_ARCH_VERSION_DIR = 'v1.1';
 const CDN_INT_DIR = 'js-integrations';
