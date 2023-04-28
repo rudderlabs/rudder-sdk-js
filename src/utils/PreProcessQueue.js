@@ -1,7 +1,11 @@
 /* eslint-disable consistent-return */
 
 import Queue from '@segment/localstorage-retry';
+import RudderElement from './RudderElement';
 
+/**
+ * Keeping maxAttempts to Infinity to retry cloud mode events and throw an error until processQueueElements flag is not set to true
+ */
 const queueOptions = {
   maxRetryDelay: 360000,
   minRetryDelay: 1000,
@@ -12,8 +16,8 @@ const queueOptions = {
 
 class PreProcessQueue {
   constructor() {
-    this.data = undefined;
     this.callback = undefined;
+    this.processQueueElements = false;
   }
 
   init(options, callback) {
@@ -25,8 +29,7 @@ class PreProcessQueue {
       this.callback = callback;
     }
     this.payloadQueue = new Queue('rs_events', queueOptions, (item, done) => {
-      const { type, rudderElement } = item;
-      this.processQueueElement(type, rudderElement, (err, res) => {
+      this.processQueueElement(item.type, item.rudderElement, (err, res) => {
         if (err) {
           return done(err);
         }
@@ -36,20 +39,19 @@ class PreProcessQueue {
     this.payloadQueue.start();
   }
 
-  setCloudModeEventsIntegrationObjData(integrationsData) {
+  activateProcessor() {
     // An indicator to process elements in queue
-    this.data = integrationsData;
+    this.processQueueElements = true;
   }
 
   processQueueElement(type, rudderElement, queueFn) {
     try {
-      if (this.data) {
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
-        this.callback(type, rudderElement, clientSuppliedIntegrations);
+      if (this.processQueueElements) {
+        Object.setPrototypeOf(rudderElement, RudderElement.prototype);
+        this.callback(type, rudderElement);
         queueFn(null);
       } else {
-        queueFn(new Error("Events can't be process without integrationsData"));
+        queueFn(new Error('The queue elements are not ready to be processed yet'));
       }
     } catch (error) {
       queueFn(error);

@@ -62,7 +62,6 @@ import {
   constructMessageIntegrationsObj,
 } from "../utils/IntegrationsData";
 import { getUserAgentClientHint } from '../utils/clientHint';
-import RudderElement from '../utils/RudderElement';
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -332,20 +331,16 @@ class Analytics {
    *
    * @param {*} type
    * @param {*} rudderElement
-   * @param {*} clientSuppliedIntegrations
    * Sends cloud mode events to server
    */
-  sendCloudModeEvents(type, rudderElement, clientSuppliedIntegrations) {
+  queueEventForDataPlane(type, rudderElement) {
+    // if not specified at event level, All: true is default
+    const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
     rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
       this.integrationsData,
       clientSuppliedIntegrations,
     );
-
-    Object.setPrototypeOf(rudderElement, RudderElement.prototype);
     // self analytics process, send to rudder
-    if (!this.eventRepository) {
-     this.eventRepository = EventRepository;
-    }
     this.eventRepository.enqueue(rudderElement, type);
   }
 
@@ -354,7 +349,7 @@ class Analytics {
    */
   processBufferedCloudModeEvents() {
     if (this.bufferDataPlaneEventsUntilReady) {
-      this.preProcessQueue.setCloudModeEventsIntegrationObjData(this.integrationsData);
+      this.preProcessQueue.activateProcessor();
     }
   }
 
@@ -406,7 +401,7 @@ class Analytics {
           }
 
           // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations;
+          const clientSuppliedIntegrations = event[0].message.integrations || { All: true };
 
           // get intersection between config plane native enabled destinations
           // (which were able to successfully load on the page) vs user supplied integrations
@@ -961,7 +956,7 @@ class Analytics {
 
       // Holding the cloud mode events based on flag and integrations load check
       if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
-        this.sendCloudModeEvents(type, clonedRudderElement, clientSuppliedIntegrations);
+        this.queueEventForDataPlane(type, clonedRudderElement);
       } else {
         this.preProcessQueue.enqueue(type, clonedRudderElement);
       }
@@ -1252,7 +1247,7 @@ class Analytics {
     if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
       this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
       if (this.bufferDataPlaneEventsUntilReady) {
-        this.preProcessQueue.init(this.options, this.sendCloudModeEvents.bind(this));
+        this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
       }
     }
 
