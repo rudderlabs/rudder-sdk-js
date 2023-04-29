@@ -44,13 +44,13 @@ describe('User session manager', () => {
     };
     setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
-    expect(state.session.rl_user_id.value).toBe(customData.rl_user_id);
-    expect(state.session.rl_trait.value).toStrictEqual(customData.rl_trait);
-    expect(state.session.rl_anonymous_id.value).toBe(customData.rl_anonymous_id);
-    expect(state.session.rl_group_id.value).toBe(customData.rl_group_id);
-    expect(state.session.rl_group_trait.value).toStrictEqual(customData.rl_group_trait);
-    expect(state.session.rl_page_init_referrer.value).toBe(customData.rl_page_init_referrer);
-    expect(state.session.rl_page_init_referring_domain.value).toBe(
+    expect(state.session.userId.value).toBe(customData.rl_user_id);
+    expect(state.session.userTraits.value).toStrictEqual(customData.rl_trait);
+    expect(state.session.anonymousUserId.value).toBe(customData.rl_anonymous_id);
+    expect(state.session.groupId.value).toBe(customData.rl_group_id);
+    expect(state.session.groupTraits.value).toStrictEqual(customData.rl_group_trait);
+    expect(state.session.initialReferrer.value).toBe(customData.rl_page_init_referrer);
+    expect(state.session.initialReferringDomain.value).toBe(
       customData.rl_page_init_referring_domain,
     );
   });
@@ -64,14 +64,14 @@ describe('User session manager', () => {
       rl_page_init_referring_domain: '',
     };
     userSessionManager.init(clientDataStore);
-    expect(state.session.rl_user_id.value).toBe(customData.rl_user_id);
-    expect(state.session.rl_trait.value).toStrictEqual(customData.rl_trait);
-    expect(typeof state.session.rl_anonymous_id.value).toBe('string');
-    expect(state.session.rl_anonymous_id.value).toBe('test_uuid');
-    expect(state.session.rl_group_id.value).toBe(customData.rl_group_id);
-    expect(state.session.rl_group_trait.value).toStrictEqual(customData.rl_group_trait);
-    expect(state.session.rl_page_init_referrer.value).toBe(customData.rl_page_init_referrer);
-    expect(state.session.rl_page_init_referring_domain.value).toBe(
+    expect(state.session.userId.value).toBe(customData.rl_user_id);
+    expect(state.session.userTraits.value).toStrictEqual(customData.rl_trait);
+    expect(typeof state.session.anonymousUserId.value).toBe('string');
+    expect(state.session.anonymousUserId.value).toBe('test_uuid');
+    expect(state.session.groupId.value).toBe(customData.rl_group_id);
+    expect(state.session.groupTraits.value).toStrictEqual(customData.rl_group_trait);
+    expect(state.session.initialReferrer.value).toBe(customData.rl_page_init_referrer);
+    expect(state.session.initialReferringDomain.value).toBe(
       customData.rl_page_init_referring_domain,
     );
   });
@@ -81,7 +81,7 @@ describe('User session manager', () => {
     const newAnonymousId = 'new-dummy-anonymous-id';
     userSessionManager.init(clientDataStore);
     userSessionManager.setAnonymousId(newAnonymousId);
-    expect(state.session.rl_anonymous_id.value).toBe(newAnonymousId);
+    expect(state.session.anonymousUserId.value).toBe(newAnonymousId);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setUserId', () => {
@@ -89,7 +89,7 @@ describe('User session manager', () => {
     const newUserId = 'new-dummy-user-id';
     userSessionManager.init(clientDataStore);
     userSessionManager.setUserId(newUserId);
-    expect(state.session.rl_user_id.value).toBe(newUserId);
+    expect(state.session.userId.value).toBe(newUserId);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setUserTraits', () => {
@@ -97,7 +97,7 @@ describe('User session manager', () => {
     const newUserTraits = { key1: 'value1', key2: 'value2' };
     userSessionManager.init(clientDataStore);
     userSessionManager.setUserTraits(newUserTraits);
-    expect(state.session.rl_trait.value).toStrictEqual(newUserTraits);
+    expect(state.session.userTraits.value).toStrictEqual(newUserTraits);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setGroupId', () => {
@@ -105,7 +105,7 @@ describe('User session manager', () => {
     const newGroupId = 'new-dummy-group-id';
     userSessionManager.init(clientDataStore);
     userSessionManager.setGroupId(newGroupId);
-    expect(state.session.rl_group_id.value).toBe(newGroupId);
+    expect(state.session.groupId.value).toBe(newGroupId);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setGroupTraits', () => {
@@ -113,7 +113,7 @@ describe('User session manager', () => {
     const newGroupTraits = { key1: 'value1', key2: 'value2' };
     userSessionManager.init(clientDataStore);
     userSessionManager.setGroupTraits(newGroupTraits);
-    expect(state.session.rl_group_trait.value).toStrictEqual(newGroupTraits);
+    expect(state.session.groupTraits.value).toStrictEqual(newGroupTraits);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setInitialReferrer', () => {
@@ -121,7 +121,7 @@ describe('User session manager', () => {
     const newReferrer = 'new-dummy-referrer-1';
     userSessionManager.init(clientDataStore);
     userSessionManager.setInitialReferrer(newReferrer);
-    expect(state.session.rl_page_init_referrer.value).toBe(newReferrer);
+    expect(state.session.initialReferrer.value).toBe(newReferrer);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it('setInitialReferringDomain', () => {
@@ -129,7 +129,7 @@ describe('User session manager', () => {
     const newReferrer = 'new-dummy-referrer-2';
     userSessionManager.init(clientDataStore);
     userSessionManager.setInitialReferringDomain(newReferrer);
-    expect(state.session.rl_page_init_referring_domain.value).toBe(newReferrer);
+    expect(state.session.initialReferringDomain.value).toBe(newReferrer);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
   it.skip('getAnonymousId', () => {

@@ -62,25 +62,25 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      this.storage?.set(userSessionStorageKeys.userId, state.session.rl_user_id.value);
+      this.storage?.set(userSessionStorageKeys.userId, state.session.userId.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(userSessionStorageKeys.userTraits, state.session.rl_trait.value);
+      this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(userSessionStorageKeys.groupId, state.session.rl_group_id.value);
+      this.storage?.set(userSessionStorageKeys.groupId, state.session.groupId.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.storage?.set(userSessionStorageKeys.groupTraits, state.session.rl_group_trait.value);
+      this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
@@ -88,7 +88,7 @@ class UserSessionManager implements IUserSessionManager {
     effect(() => {
       this.storage?.set(
         userSessionStorageKeys.anonymousUserId,
-        state.session.rl_anonymous_id.value,
+        state.session.anonymousUserId.value,
       );
     });
     /**
@@ -97,7 +97,7 @@ class UserSessionManager implements IUserSessionManager {
     effect(() => {
       this.storage?.set(
         userSessionStorageKeys.initialReferrer,
-        state.session.rl_page_init_referrer.value,
+        state.session.initialReferrer.value,
       );
     });
     /**
@@ -106,7 +106,7 @@ class UserSessionManager implements IUserSessionManager {
     effect(() => {
       this.storage?.set(
         userSessionStorageKeys.initialReferringDomain,
-        state.session.rl_page_init_referring_domain.value,
+        state.session.initialReferringDomain.value,
       );
     });
   }
@@ -128,7 +128,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       finalAnonymousId = linkerPluginsResult?.[0];
     }
-    state.session.rl_anonymous_id.value = finalAnonymousId || this.generateAnonymousId();
+    state.session.anonymousUserId.value = finalAnonymousId || this.generateAnonymousId();
   }
 
   /**
@@ -145,7 +145,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns anonymousId
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
-    // fetch the rl_anonymous_id from storage
+    // fetch the anonymousUserId from storage
     let persistedAnonymousId = this.storage?.get(userSessionStorageKeys.anonymousUserId);
 
     if (!persistedAnonymousId && options) {
@@ -156,8 +156,8 @@ class UserSessionManager implements IUserSessionManager {
       );
       persistedAnonymousId = autoCapturedAnonymousId?.[0];
     }
-    state.session.rl_anonymous_id.value = persistedAnonymousId || this.generateAnonymousId();
-    return state.session.rl_anonymous_id.value as string;
+    state.session.anonymousUserId.value = persistedAnonymousId || this.generateAnonymousId();
+    return state.session.anonymousUserId.value as string;
   }
 
   // TODO: session tracking
@@ -166,13 +166,13 @@ class UserSessionManager implements IUserSessionManager {
    */
   getSessionInfo(): Nullable<SessionInfo> {
     const shouldReturnInfo = Boolean(
-      state.session.rl_session.value.manualTrack ||
-        (state.session.rl_session.value.autoTrack &&
-          this.isValidSession(state.session.rl_session.value.expiresAt)),
+      state.session.sessionInfo.value.manualTrack ||
+        (state.session.sessionInfo.value.autoTrack &&
+          this.isValidSession(state.session.sessionInfo.value.expiresAt)),
     );
 
     if (shouldReturnInfo) {
-      return state.session.rl_session.value || null;
+      return state.session.sessionInfo.value || null;
     }
 
     return null;
@@ -240,15 +240,15 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
-    const { manualTrack, autoTrack } = state.session.rl_session.value;
+    const { manualTrack, autoTrack } = state.session.sessionInfo.value;
 
-    state.session.rl_user_id.value = '';
-    state.session.rl_trait.value = {};
-    state.session.rl_group_id.value = '';
-    state.session.rl_group_trait.value = {};
+    state.session.userId.value = '';
+    state.session.userTraits.value = {};
+    state.session.groupId.value = '';
+    state.session.groupTraits.value = {};
 
     if (resetAnonymousId) {
-      state.session.rl_anonymous_id.value = '';
+      state.session.anonymousUserId.value = '';
     }
 
     if (noNewSessionStart) {
@@ -256,7 +256,7 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     if (autoTrack) {
-      state.session.rl_session.value = { ...defaultSessionInfo };
+      state.session.sessionInfo.value = { ...defaultSessionInfo };
       this.startAutoTracking();
     } else if (manualTrack) {
       this.start();
@@ -268,7 +268,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    state.session.rl_user_id.value = userId;
+    state.session.userId.value = userId;
   }
 
   /**
@@ -277,7 +277,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
-      state.session.rl_trait.value = mergeDeepRight(state.session.rl_trait.value || {}, traits);
+      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value || {}, traits);
     }
   }
 
@@ -286,7 +286,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setGroupId(groupId?: Nullable<string>) {
-    state.session.rl_group_id.value = groupId;
+    state.session.groupId.value = groupId;
   }
 
   /**
@@ -295,8 +295,8 @@ class UserSessionManager implements IUserSessionManager {
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
-      state.session.rl_group_trait.value = mergeDeepRight(
-        state.session.rl_group_trait.value || {},
+      state.session.groupTraits.value = mergeDeepRight(
+        state.session.groupTraits.value || {},
         traits,
       );
     }
@@ -307,7 +307,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setInitialReferrer(referrer?: string) {
-    state.session.rl_page_init_referrer.value = referrer;
+    state.session.initialReferrer.value = referrer;
   }
 
   /**
@@ -315,7 +315,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setInitialReferringDomain(referrer?: string) {
-    state.session.rl_page_init_referring_domain.value = referrer;
+    state.session.initialReferringDomain.value = referrer;
   }
 
   // TODO: session tracking

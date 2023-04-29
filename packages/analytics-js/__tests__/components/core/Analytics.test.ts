@@ -253,7 +253,7 @@ describe('Core - Analytics', () => {
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
-      state.session.rl_user_id.value = 'userId';
+      state.session.userId.value = 'userId';
       analytics.identify({ userId: 'userId' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
@@ -273,7 +273,7 @@ describe('Core - Analytics', () => {
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
-      state.session.rl_user_id.value = 'dummyUserId';
+      state.session.userId.value = 'dummyUserId';
       analytics.identify({ userId: 'userId' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(2);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
