@@ -128,7 +128,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       finalAnonymousId = linkerPluginsResult?.[0];
     }
-    state.session.rl_anonymous_id.value = finalAnonymousId || generateUUID();
+    state.session.rl_anonymous_id.value = finalAnonymousId || this.generateAnonymousId();
   }
 
   /**
@@ -136,8 +136,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns string anonymousID
    */
   generateAnonymousId(): string {
-    this.setAnonymousId();
-    return state.session.rl_anonymous_id.value as string;
+    return generateUUID();
   }
 
   /**

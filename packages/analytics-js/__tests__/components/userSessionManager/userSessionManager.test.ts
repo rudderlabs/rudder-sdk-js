@@ -1,27 +1,35 @@
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
+import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/sessionStorageKeys';
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 
 describe('User session manager', () => {
-  const userSessionManager: UserSessionManager = new UserSessionManager();
+  let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
   const clientDataStore = defaultStoreManager.getStore('clientData') as Store;
 
-  const setCustomValuesInStorage = (store: IStore, data: any) => {
+  const setCustomValuesInStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
-      store.set(key, value);
+      clientDataStore.set(key, value);
+    });
+  };
+
+  const clearStorage = () => {
+    Object.values(userSessionStorageKeys).forEach(key => {
+      clientDataStore.remove(key);
     });
   };
 
   beforeEach(() => {
     resetState();
+    clearStorage();
+    userSessionManager = new UserSessionManager();
   });
 
   it('should initialize user details from storage to state', () => {
@@ -34,7 +42,7 @@ describe('User session manager', () => {
       rl_page_init_referrer: 'dummy-url-1',
       rl_page_init_referring_domain: 'dummy-url-2',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     expect(state.session.rl_user_id.value).toBe(customData.rl_user_id);
     expect(state.session.rl_trait.value).toStrictEqual(customData.rl_trait);
@@ -46,7 +54,7 @@ describe('User session manager', () => {
       customData.rl_page_init_referring_domain,
     );
   });
-  it.skip('should initialize user details when storage is empty to state', () => {
+  it('should initialize user details when storage is empty to state', () => {
     const customData = {
       rl_user_id: '',
       rl_trait: {},
@@ -128,7 +136,7 @@ describe('User session manager', () => {
     const customData = {
       rl_anonymous_id: 'dummy-anonymousId-12345678',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualAnonymousId = userSessionManager.getAnonymousId();
     expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
@@ -143,7 +151,7 @@ describe('User session manager', () => {
         enabled: true,
       },
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualAnonymousId = userSessionManager.getAnonymousId(option);
     expect(actualAnonymousId).toBe(customData.ajs_anonymous_id);
@@ -152,7 +160,7 @@ describe('User session manager', () => {
     const customData = {
       rl_user_id: 'dummy-userId-12345678',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualUserId = userSessionManager.getUserId();
     expect(actualUserId).toBe(customData.rl_user_id);
@@ -161,7 +169,7 @@ describe('User session manager', () => {
     const customData = {
       rl_trait: { key1: 'value1', random: '123456789' },
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualUserTraits = userSessionManager.getUserTraits();
     expect(actualUserTraits).toStrictEqual(customData.rl_trait);
@@ -170,7 +178,7 @@ describe('User session manager', () => {
     const customData = {
       rl_group_id: 'dummy-groupId-12345678',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualGroupId = userSessionManager.getGroupId();
     expect(actualGroupId).toBe(customData.rl_group_id);
@@ -179,7 +187,7 @@ describe('User session manager', () => {
     const customData = {
       rl_group_trait: { key1: 'value1', random: '123456789' },
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualGroupTraits = userSessionManager.getGroupTraits();
     expect(actualGroupTraits).toStrictEqual(customData.rl_group_trait);
@@ -188,7 +196,7 @@ describe('User session manager', () => {
     const customData = {
       rl_page_init_referrer: 'dummy-url-1234',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualInitialReferrer = userSessionManager.getInitialReferrer();
     expect(actualInitialReferrer).toBe(customData.rl_page_init_referrer);
@@ -197,7 +205,7 @@ describe('User session manager', () => {
     const customData = {
       rl_page_init_referring_domain: 'dummy-url-287654',
     };
-    setCustomValuesInStorage(clientDataStore, customData);
+    setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
     const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
     expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
