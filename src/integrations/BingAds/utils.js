@@ -1,16 +1,4 @@
 /* eslint-disable camelcase */
-import logger from '../../utils/logUtil';
-
-const ECOMM_PAGE_TYPES = [
-  'home',
-  'category',
-  'searchresults',
-  'product',
-  'cart',
-  'purchase',
-  'other',
-];
-
 const EXCLUSION_KEYS = [
   'event',
   'category',
@@ -30,9 +18,6 @@ const EXCLUSION_KEYS = [
   'sku',
   'eventAction',
 ];
-
-const allowedEcommPageType = (pageType) =>
-  !!(pageType && ECOMM_PAGE_TYPES.includes(pageType.trim().toLowerCase()));
 
 const buildCommonPayload = (message) => {
   const { event, properties = {} } = message;
@@ -119,18 +104,8 @@ const buildEcommPayload = (message) => {
     ecomm_query: query,
     ecomm_category: ecommCategory || category,
     transaction_id: transaction_id || order_id || checkout_id,
+    ecomm_pagetype: ecommPageType || pagetype,
   };
-  const pageType = ecommPageType || pagetype;
-
-  if (allowedEcommPageType(pageType)) {
-    ecommPayload.ecomm_pagetype = pageType;
-  } else if (pageType) {
-    logger.warn(
-      `'${pageType}' is not a valid 'pagetype'. Hence, dropping this parameter. Valid values are: [${ECOMM_PAGE_TYPES.join(
-        ', ',
-      )}]`,
-    );
-  }
 
   const payload = handleProductsArray(properties);
   if (ecommPayload.ecomm_totalvalue) {
@@ -140,10 +115,4 @@ const buildEcommPayload = (message) => {
   return { ...ecommPayload, ...payload };
 };
 
-export {
-  buildCommonPayload,
-  buildEcommPayload,
-  allowedEcommPageType,
-  handleProductsArray,
-  EXCLUSION_KEYS,
-};
+export { buildCommonPayload, buildEcommPayload, handleProductsArray, EXCLUSION_KEYS };

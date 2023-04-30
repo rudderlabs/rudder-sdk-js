@@ -70,6 +70,7 @@ class BingAds {
       logger.error('Event type not present');
       return;
     }
+
     let payload = {
       ...buildCommonPayload(rudderElement.message),
       ...buildEcommPayload(rudderElement.message),

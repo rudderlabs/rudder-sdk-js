@@ -1,24 +1,9 @@
 import {
   buildCommonPayload,
   buildEcommPayload,
-  allowedEcommPageType,
   handleProductsArray,
 } from '../../../src/integrations/BingAds/utils';
 import { query, products } from './__mocks__/data';
-
-describe('Allowed ecomm pagetype utility tests', () => {
-  test('Test for empty/null pagetype', () => {
-    expect(allowedEcommPageType()).toEqual(false);
-  });
-
-  test('Test for allowed pagetype', () => {
-    expect(allowedEcommPageType('Cart ')).toEqual(true);
-  });
-
-  test('Test for unallowed pagetype', () => {
-    expect(allowedEcommPageType('index')).toEqual(false);
-  });
-});
 
 describe('Build common payload utility tests', () => {
   test('Test for all properties not null', () => {
