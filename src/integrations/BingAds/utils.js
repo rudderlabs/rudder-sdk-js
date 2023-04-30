@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+import logger from '../../utils/logUtil';
+
 const ECOMM_PAGE_TYPES = [
   'home',
   'category',
@@ -89,7 +91,9 @@ const handleProductsArray = (properties) => {
   if (items.length > 0) {
     payload.ecomm_prodid = productIds;
     payload.items = items;
-    payload.ecomm_totalvalue = ecommTotalValue;
+    if (ecommTotalValue !== 0) {
+      payload.ecomm_totalvalue = ecommTotalValue;
+    }
   }
   return payload;
 };
@@ -120,6 +124,12 @@ const buildEcommPayload = (message) => {
 
   if (allowedEcommPageType(pageType)) {
     ecommPayload.ecomm_pagetype = pageType;
+  } else if (pageType) {
+    logger.warn(
+      `'${pageType}' is not a valid 'pagetype'. Hence, dropping this parameter. Valid values are: [${ECOMM_PAGE_TYPES.join(
+        ', ',
+      )}]`,
+    );
   }
 
   const payload = handleProductsArray(properties);
