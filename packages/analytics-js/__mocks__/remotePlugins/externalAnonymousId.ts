@@ -1,5 +1,3 @@
-import { AnonymousIdOptions } from '@rudderstack/analytics-js/state/types';
-
 const externalAnonymousId = () => ({
   name: 'externalAnonymousId',
   storage: {
