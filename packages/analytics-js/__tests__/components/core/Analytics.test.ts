@@ -362,16 +362,11 @@ describe('Core - Analytics', () => {
     it('should reset session if loaded', () => {
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
-      const clearUserSessionStorageSpy = jest.spyOn(
-        analytics.userSessionManager,
-        'clearUserSessionStorage',
-      );
 
       state.lifecycle.loaded.value = true;
       analytics.reset(true);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(clearUserSessionStorageSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
     });
   });

@@ -463,7 +463,6 @@ class Analytics implements IAnalytics {
     }
 
     this.userSessionManager.reset(resetAnonymousId);
-    this.userSessionManager.clearUserSessionStorage(resetAnonymousId);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string {
