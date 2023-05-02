@@ -1188,7 +1188,7 @@ class Analytics {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
+    if (options && typeof options.bufferDataPlaneEventsUntilReady === 'boolean') {
       this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
       if (this.bufferDataPlaneEventsUntilReady) {
         this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
