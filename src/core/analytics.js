@@ -298,6 +298,11 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
+        // Do not continue loading integration that doesn't have mapping
+        if (!modName) {
+          logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+          return;
+        }
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
 
