@@ -912,7 +912,9 @@ class Analytics {
       transformToServerNames(clonedRudderElement.message.integrations);
 
       // Holding the cloud mode events based on flag and integrations load check
-      if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
+      const shouldNotBufferDataPlaneEvents =
+        !this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects;
+      if (shouldNotBufferDataPlaneEvents) {
         this.queueEventForDataPlane(type, clonedRudderElement);
       } else {
         this.preProcessQueue.enqueue(type, clonedRudderElement);
