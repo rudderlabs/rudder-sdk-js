@@ -83,19 +83,8 @@ class TransformationsHandler {
                       }]
                     } 
                 */
-                /**
-                 * Filter the successful transformed event
-                 */
-                const transformationResponse = [];
-                response.transformedBatch.forEach((dest) => {
-                  transformationResponse.push({
-                    id: dest.id,
-                    payload: dest.payload.filter((tEvent) => tEvent.status === '200'),
-                  });
-                });
-
                 resolve({
-                  transformedPayload: transformationResponse,
+                  transformedPayload: response.transformedBatch,
                   transformationServerAccess: true,
                 });
                 return;
