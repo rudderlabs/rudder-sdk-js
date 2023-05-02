@@ -45,7 +45,7 @@ class PluginsManager implements IPluginsManager {
   }
 
   init() {
-    state.lifecycle.status.value = 'pluginsLoading';
+    state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
     this.setActivePlugins();
     this.registerLocalPlugins();
     this.registerRemotePlugins();

@@ -8,6 +8,7 @@
   "scripts": {
     "setup": "npx lerna bootstrap && lerna run build && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
+    "clean:cache": "lerna clean --yes && rimraf -rf ./node_modules/.cache",
     "start": "lerna run start",
     "build": "lerna run build",
     "build:browser": "lerna run build:browser",

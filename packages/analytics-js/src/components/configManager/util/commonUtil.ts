@@ -21,7 +21,7 @@ const getSDKUrlInfo = () => {
     }
     return false;
   });
-  // TODO: Return the URL object instead of the plane URL string
+  // TODO: Return the URL object instead of the plain URL string
   return { sdkURL, isStaging };
 };
 

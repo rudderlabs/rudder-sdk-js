@@ -163,6 +163,7 @@ class Analytics implements IAnalytics {
           this.loadConfig();
           break;
         case LifecycleStatus.Configured:
+          // TODO: call the loadPlugins just after the config manager ends
           this.init();
           break;
         case LifecycleStatus.Initialized:
@@ -226,7 +227,6 @@ class Analytics implements IAnalytics {
   // TODO: dummy implementation for testing until we implement plugin manager
   //  create proper implementation once relevant task is picked up
   loadPlugins() {
-    // TODO: maybe we need to separate the plugins that are required before the eventManager init and after
     this.pluginsManager.init();
     // TODO: are we going to enable custom plugins to be passed as load options?
     // registerCustomPlugins(state.loadOptions.value.customPlugins);
