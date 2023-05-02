@@ -86,6 +86,11 @@ class UserSessionManager implements IUserSessionManager {
     return Boolean(sessionExpirationTimestamp && timestamp <= sessionExpirationTimestamp);
   }
 
+  getUserId(): Nullable<string> {
+    // TODO: Get the values from state
+    return this.storage?.get('rl_user_id') || null;
+  }
+
   getGroupId(): Nullable<string> {
     return this.storage?.get('rl_group_id') || null;
   }

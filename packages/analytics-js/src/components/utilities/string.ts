@@ -3,4 +3,21 @@ const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
 
 const removeDoubleSpaces = (value: string): string => value.replace(/ {2,}/g, ' ');
 
-export { trim, removeDoubleSpaces };
+/**
+ * A function to convert values to string
+ * @param val input value
+ * @returns stringified value
+ */
+const tryStringify = (val: any) => {
+  let retVal = val;
+  if (typeof val !== 'string' && typeof val !== 'undefined' && val !== null) {
+    try {
+      retVal = JSON.stringify(val);
+    } catch (e) {
+      retVal = null;
+    }
+  }
+  return retVal;
+};
+
+export { trim, removeDoubleSpaces, tryStringify };

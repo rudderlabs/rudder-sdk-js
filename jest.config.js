@@ -49,7 +49,7 @@ module.exports = {
     '<rootDir>/reports/',
   ],
   testMatch: [
-    '<rootDir>/packages/**/src/**/__tests__/**/*.(j|t)s?(x)',
+    '<rootDir>/packages/**/__tests__/**/*.(j|t)s?(x)',
     '<rootDir>/packages/**/src/**/*.?(spec|test).(j|t)s?(x)',
     '!<rootDir>/**/__mocks__/**/*',
   ],

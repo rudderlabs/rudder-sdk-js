@@ -5,20 +5,20 @@ export type CookieConsentOptions = {
   };
 };
 
-export type AppDetails = {
-  name: string;
-  version: string;
-  namespace: string;
+export type AppInfo = {
+  readonly name: string;
+  readonly version: string;
+  readonly namespace: string;
 };
 
 export type LibraryInfo = {
-  name: string;
-  version: string;
+  readonly name: string;
+  readonly version: string;
 };
 
 export type OSInfo = {
-  name: string;
-  version: string;
+  readonly name: string;
+  readonly version: string;
 };
 
 // TODO: should we take the types from IdentifyTrait instead of any string key?
@@ -99,12 +99,12 @@ export type IntegrationInstance = {
   isReady?: () => boolean;
 };
 
-// TODO: is this still used? only lotame used it for mg1
+// TODO: is this still used? only lotame used it for 1mg
 // export type ClientSuppliedCallbacks = {
 //   syncPixel?: () => void;
 // };
 //
-// // TODO: is this still used? only lotame used it for mg1
+// // TODO: is this still used? only lotame used it for 1mg
 // export type MethodToCallbackMap = {
 //   syncPixel: string;
 // };
@@ -112,15 +112,24 @@ export type IntegrationInstance = {
 // TODO: is this still used? const intMod = window[pluginName];
 export type DynamicallyLoadedIntegration = Record<string, any>;
 
-export type CookieSameSite = 'Strict' | 'Lax' | 'None';
+export enum CookieSameSite {
+  Strict = 'Strict',
+  Lax = 'Lax',
+  None = 'None',
+}
 
-export type UaChTrackLevel = 'none' | 'default' | 'full';
+export enum UaChTrackLevel {
+  None = 'none',
+  Default = 'default',
+  Full = 'full',
+}
 
 /**
  * Represents the integration options object
  * Example usages:
  * integrationOptions { All: false, "Google Analytics": true, "Braze": true}
  * integrationOptions { All: true, "Chartbeat": false, "Customer.io": false}
+ * integrationOptions { All: true, "GA4": { "clientId": "1234" }, "Google Analytics": false }
  */
 export type IntegrationOpts = {
   // Defaults to true
@@ -180,8 +189,8 @@ export type ApiOptions = {
     | number
     | boolean
     | ApiObject
+    | null
     | (string | number | boolean | ApiObject)[]
-    | IntegrationOpts
     | undefined;
 };
 
@@ -195,7 +204,8 @@ export type ApiObject = {
     | number
     | boolean
     | ApiObject
-    | (string | number | boolean | ApiObject)[]
+    | null
+    | (string | number | boolean | null | ApiObject)[]
     | undefined;
 };
 
@@ -236,22 +246,32 @@ export type LoadOptions = {
 export type ApiCallback = () => void;
 export type BufferedEvent = any[];
 
-export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
+export enum LogLevel {
+  Log = 'LOG',
+  Info = 'INFO',
+  Debug = 'DEBUG',
+  Warn = 'WARN',
+  Error = 'ERROR',
+  None = 'NONE',
+}
 
-// TODO: make enum
-export type LifecycleStatus =
-  | 'mounted'
-  | 'polyfillLoaded'
-  | 'initialized'
-  | 'configured'
-  | 'pluginsLoading'
-  | 'pluginsReady'
-  | 'loaded'
-  | 'integrationsReady'
-  | 'ready'
-  | undefined;
+export enum LifecycleStatus {
+  Mounted = 'mounted',
+  PolyfillLoaded = 'polyfillLoaded',
+  Initialized = 'initialized',
+  Configured = 'configured',
+  PluginsReady = 'pluginsReady',
+  PluginsLoading = 'pluginsLoading',
+  Loaded = 'loaded',
+  IntegrationsReady = 'integrationsReady',
+  Ready = 'ready',
+}
 
 export type ReadyCallback = () => void;
+
+export type ConsentManagement = {
+  deniedConsentIds: string[];
+};
 
 export type SessionInfo = {
   autoTrack?: boolean;
@@ -293,3 +313,5 @@ export type StatsCollection = {
     enabled: boolean;
   };
 };
+
+export type UTMParameters = Record<string, string>;

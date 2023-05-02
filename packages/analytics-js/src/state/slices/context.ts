@@ -1,18 +1,23 @@
 import { signal, Signal } from '@preact/signals-core';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
-  getLanguage,
-  getUserAgent,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
-import {
   getScreenDetails,
   ScreenInfo,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { AppDetails, LibraryInfo, OSInfo, Traits } from '@rudderstack/analytics-js/state/types';
+import {
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  Traits,
+  UTMParameters,
+} from '@rudderstack/analytics-js/state/types';
+import { getLanguage, getUserAgent } from '@rudderstack/analytics-js/components/utilities/page';
+import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
+import { pagePropertiesState } from './page';
 
 export type ContextState = {
-  app: Signal<AppDetails>;
+  app: Signal<AppInfo>;
   traits: Signal<Nullable<Traits>>;
   library: Signal<LibraryInfo>;
   userAgent: Signal<Nullable<string>>;
@@ -22,6 +27,7 @@ export type ContextState = {
   locale: Signal<Nullable<string>>;
   screen: Signal<ScreenInfo>;
   'ua-ch': Signal<UADataValues | undefined>;
+  campaign: Signal<UTMParameters>;
 };
 
 const contextState: ContextState = {
@@ -45,6 +51,7 @@ const contextState: ContextState = {
   locale: signal(getLanguage()),
   screen: signal(getScreenDetails()),
   'ua-ch': signal(undefined),
+  campaign: signal(extractUTMParameters(pagePropertiesState.url.value)),
 };
 
 export { contextState };

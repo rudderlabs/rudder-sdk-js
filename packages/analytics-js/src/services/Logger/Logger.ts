@@ -1,15 +1,16 @@
-import { ILogger, LoggerLevel, LoggerProvider } from './types';
+import { LogLevel } from '@rudderstack/analytics-js/state/types';
+import { ILogger, LoggerProvider } from './types';
 
-const LOG_LEVEL: Record<LoggerLevel, number> = {
-  log: 0,
-  info: 1,
-  debug: 2,
-  warn: 3,
-  error: 4,
-  none: 5,
+const LOG_LEVEL_MAP: Record<LogLevel, number> = {
+  [LogLevel.Log]: 0,
+  [LogLevel.Info]: 1,
+  [LogLevel.Debug]: 2,
+  [LogLevel.Warn]: 3,
+  [LogLevel.Error]: 4,
+  [LogLevel.None]: 5,
 };
 
-const DEFAULT_LOG_LEVEL: LoggerLevel = 'error';
+const DEFAULT_LOG_LEVEL = LogLevel.Error;
 const LOG_MSG_PREFIX = 'RS SDK';
 const LOG_MSG_PREFIX_STYLE = 'font-weight: bold; background: black; color: white;';
 const LOG_MSG_STYLE = 'font-weight: normal;';
@@ -22,39 +23,37 @@ class Logger implements ILogger {
   scope?: string;
   logProvider: LoggerProvider;
 
-  constructor(minLogLevel: LoggerLevel = DEFAULT_LOG_LEVEL, scope = '', logProvider = console) {
-    this.minLogLevel = LOG_LEVEL[minLogLevel];
+  constructor(minLogLevel: LogLevel = DEFAULT_LOG_LEVEL, scope = '', logProvider = console) {
+    this.minLogLevel = LOG_LEVEL_MAP[minLogLevel];
     this.scope = scope;
     this.logProvider = logProvider;
   }
 
   log(...data: any[]) {
-    this.outputLog('log', data);
+    this.outputLog(LogLevel.Log, data);
   }
 
   info(...data: any[]) {
-    this.outputLog('info', data);
+    this.outputLog(LogLevel.Info, data);
   }
 
   debug(...data: any[]) {
-    this.outputLog('debug', data);
+    this.outputLog(LogLevel.Debug, data);
   }
 
   warn(...data: any[]) {
-    this.outputLog('warn', data);
+    this.outputLog(LogLevel.Warn, data);
   }
 
   error(...data: any[]) {
-    this.outputLog('error', data);
+    this.outputLog(LogLevel.Error, data);
   }
 
-  outputLog(logMethod: LoggerLevel, data: any[]) {
-    if (logMethod === 'none') {
-      return;
-    }
-
-    if (this.minLogLevel <= LOG_LEVEL[logMethod]) {
-      this.logProvider[logMethod](...this.formatLogData(data));
+  outputLog(logMethod: LogLevel, data: any[]) {
+    if (this.minLogLevel <= LOG_LEVEL_MAP[logMethod]) {
+      this.logProvider[
+        logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>
+      ](...this.formatLogData(data));
     }
   }
 
@@ -64,8 +63,11 @@ class Logger implements ILogger {
 
   // TODO: should we allow to change the level via global variable on run time
   //  to assist on the fly debugging?
-  setMinLogLevel(logLevel: LoggerLevel) {
-    this.minLogLevel = LOG_LEVEL[logLevel];
+  setMinLogLevel(logLevel: LogLevel) {
+    this.minLogLevel = LOG_LEVEL_MAP[logLevel];
+    if (this.minLogLevel === undefined) {
+      this.minLogLevel = LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
+    };
   }
 
   /**
@@ -112,7 +114,7 @@ const defaultLogger = new Logger();
 export {
   Logger,
   DEFAULT_LOG_LEVEL,
-  LOG_LEVEL,
+  LOG_LEVEL_MAP,
   LOG_MSG_PREFIX,
   LOG_MSG_PREFIX_STYLE,
   LOG_MSG_STYLE,

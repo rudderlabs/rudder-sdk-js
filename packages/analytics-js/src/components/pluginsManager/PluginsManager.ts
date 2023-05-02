@@ -9,6 +9,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { batch, effect } from '@preact/signals-core';
+import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { IPluginsManager } from './types';
 import {
   getMandatoryPluginsMap,
@@ -57,7 +58,7 @@ class PluginsManager implements IPluginsManager {
       ) {
         batch(() => {
           state.plugins.ready.value = true;
-          state.lifecycle.status.value = 'pluginsReady';
+          state.lifecycle.status.value = LifecycleStatus.PluginsReady;
         });
       }
     });
@@ -146,6 +147,13 @@ class PluginsManager implements IPluginsManager {
     } else {
       throw error;
     }
+  }
+
+  // TODO: Implement reset API instead
+  unregisterLocalPlugins() {
+    Object.values(pluginsInventory).forEach(localPlugin => {
+      this.engine.unregister(localPlugin().name);
+    });
   }
 }
 

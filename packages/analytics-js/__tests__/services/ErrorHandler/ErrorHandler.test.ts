@@ -150,9 +150,9 @@ describe('ErrorHandler', () => {
     expect(defaultLogger.error).toHaveBeenCalledTimes(2);
     expect(defaultLogger.error).nthCalledWith(
       1,
-      "[Analytics] Exception:: Cannot read properties of null (reading 'message')",
+      "Exception:: Cannot read properties of null (reading 'message')",
     );
-    expect(defaultLogger.error).nthCalledWith(2, '[Analytics] Original error:: null');
+    expect(defaultLogger.error).nthCalledWith(2, 'Original error:: null');
   });
 
   it('should swallow Errors based on processError logic', () => {

@@ -12,14 +12,18 @@ import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capab
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
+import {
+  IEventManager,
+  RudderEventType,
+} from '@rudderstack/analytics-js/components/eventManager/types';
+import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   AnonymousIdOptions,
   ApiCallback,
   ApiObject,
+  ApiOptions,
   LifecycleStatus,
   LoadOptions,
   SessionInfo,
@@ -41,13 +45,14 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
+import { tryStringify } from '../utilities/string';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
  */
 class Analytics implements IAnalytics {
   initialized: boolean;
-  status: LifecycleStatus;
+  status?: LifecycleStatus;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;
@@ -131,7 +136,7 @@ class Analytics implements IAnalytics {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
       state.loadOptions.value = mergeDeepRight(state.loadOptions.value, clone(loadOptions));
-      state.lifecycle.status.value = 'mounted';
+      state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 
     // Expose state to global objects
@@ -151,30 +156,30 @@ class Analytics implements IAnalytics {
   startLifecycle() {
     effect(() => {
       switch (state.lifecycle.status.value) {
-        case 'mounted':
+        case LifecycleStatus.Mounted:
           this.loadPolyfill();
           break;
-        case 'polyfillLoaded':
+        case LifecycleStatus.PolyfillLoaded:
           this.loadConfig();
           break;
-        case 'configured':
+        case LifecycleStatus.Configured:
           this.init();
           break;
-        case 'initialized':
+        case LifecycleStatus.Initialized:
           this.loadPlugins();
           break;
-        case 'pluginsLoading':
+        case LifecycleStatus.PluginsLoading:
           break;
-        case 'pluginsReady':
+        case LifecycleStatus.PluginsReady:
           this.onLoaded();
           break;
-        case 'loaded':
+        case LifecycleStatus.Loaded:
           this.loadIntegrations();
           break;
-        case 'integrationsReady':
+        case LifecycleStatus.IntegrationsReady:
           this.onReady();
           break;
-        case 'ready':
+        case LifecycleStatus.Ready:
           break;
         default:
           break;
@@ -234,7 +239,7 @@ class Analytics implements IAnalytics {
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = 'loaded';
+      state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
 
     // Execute onLoaded callback if provided in load options
@@ -250,7 +255,7 @@ class Analytics implements IAnalytics {
   //  create proper implementation once relevant task is picked up
   loadIntegrations() {
     if (isEmpty(state.nativeDestinations.clientIntegrations)) {
-      state.lifecycle.status.value = 'ready';
+      state.lifecycle.status.value = LifecycleStatus.Ready;
       return;
     }
 
@@ -290,7 +295,7 @@ class Analytics implements IAnalytics {
     //  done using a callback to notify state that the integration is loaded and
     //  calculate signal when all are loaded, once all loaded then set status to ready
     window.setTimeout(() => {
-      state.lifecycle.status.value = 'ready';
+      state.lifecycle.status.value = LifecycleStatus.Ready;
     }, 3000);
   }
 
@@ -324,7 +329,7 @@ class Analytics implements IAnalytics {
      * execute the callback immediately else push the callbacks to a queue that
      * will be executed after loading completes
      */
-    if (state.lifecycle.status.value === 'ready') {
+    if (state.lifecycle.status.value === LifecycleStatus.Ready) {
       callback();
     } else {
       state.eventBuffer.readyCallbacksArray.value.push(callback);
@@ -332,9 +337,9 @@ class Analytics implements IAnalytics {
   }
 
   page(payload: PageCallOptions) {
-    const type = 'page';
+    const type = RudderEventType.Page;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -352,9 +357,9 @@ class Analytics implements IAnalytics {
   }
 
   track(payload: TrackCallOptions) {
-    const type = 'track';
+    const type = RudderEventType.Track;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -371,9 +376,9 @@ class Analytics implements IAnalytics {
   }
 
   identify(payload: IdentifyCallOptions) {
-    const type = 'identify';
+    const type = RudderEventType.Identify;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -394,7 +399,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager.setUserTraits(payload.traits);
 
     this.eventManager.addEvent({
-      type: 'identify',
+      type,
       userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
@@ -403,28 +408,36 @@ class Analytics implements IAnalytics {
   }
 
   alias(payload: AliasCallOptions) {
-    const type = 'alias';
+    const type = RudderEventType.Alias;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
 
+    const previousId =
+      tryStringify(payload.from) ||
+      this.userSessionManager.getUserId() ||
+      this.userSessionManager.getAnonymousId();
+
+    // Set the new user ID only after determining the previous ID
+    this.userSessionManager.setUserId(tryStringify(payload.to));
+
     this.eventManager.addEvent({
       type,
       to: payload.to,
-      from: payload.from,
+      from: previousId,
       options: payload.options,
       callback: payload.callback,
     });
   }
 
   group(payload: GroupCallOptions) {
-    const type = 'group';
+    const type = RudderEventType.Group;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value = state.metrics.triggered.value + 1;
+    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
@@ -432,7 +445,8 @@ class Analytics implements IAnalytics {
     }
 
     this.userSessionManager.setGroupId(payload.groupId);
-    this.userSessionManager.setGroupTraits(payload.traits);
+    // TODO: Need to remove the type conversion here
+    this.userSessionManager.setGroupTraits(payload.traits as ApiOptions);
 
     this.eventManager.addEvent({
       type,

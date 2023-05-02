@@ -1,6 +1,7 @@
-export type LoggerLevel = 'log' | 'info' | 'debug' | 'warn' | 'error' | 'none';
+import { LogLevel } from '@rudderstack/analytics-js/state/types';
+
 export type LoggerProvider = Record<
-  'log' | 'info' | 'debug' | 'warn' | 'error',
+  Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>,
   (...data: any[]) => void
 >;
 
@@ -14,5 +15,5 @@ export interface ILogger {
   warn(...data: any[]): void;
   error(...data: any[]): void;
   setScope(scopeVal: string): void;
-  setMinLogLevel(logLevel: LoggerLevel): void;
+  setMinLogLevel(logLevel: LogLevel): void;
 }

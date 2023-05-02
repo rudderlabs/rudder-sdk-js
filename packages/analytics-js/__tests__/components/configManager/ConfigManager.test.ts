@@ -18,6 +18,7 @@ jest.mock('../../../src/services/Logger', () => {
     ...originalModule,
     defaultLogger: {
       error: jest.fn((): void => {}),
+      setMinLogLevel: jest.fn((): void => {}),
     },
   };
 });

@@ -307,6 +307,7 @@ describe('Core - Analytics', () => {
       expect(addEventSpy).toHaveBeenCalledWith({
         type: 'alias',
         to: 'to',
+        from: 'userId',
       });
     });
   });
