@@ -389,7 +389,42 @@ class Analytics {
           if (transformedPayload) {
             destWithTransformation.forEach((intg) => {
               try {
-                let transformedEvents;
+              try {
+                let transformedEvents = [];
+                if (transformationServerAccess) {
+                  // filter the transformed event for that destination
+                  const destTransformedResult = transformedPayload.find((e) => e.id === intg.destinationId);
+                  if (!destTransformedResult) {
+                    logger.error(
+                      `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
+                    );
+                    return;
+                  }
+
+                  destTransformedResult?.payload.forEach((tEvent) => {
+                    if (tEvent.status === '200') {
+                      transformedEvents.push(tEvent);
+                    } else {
+                      logger.error(
+                        `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
+                      );
+                    }
+                  });
+                } else {
+                  transformedEvents = transformedPayload;
+                }
+                // send transformed event to destination
+                transformedEvents?.forEach((tEvent) => {
+                  if (tEvent.event) {
+                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                  }
+                });
+              } catch (e) {
+                if (e instanceof Error) {
+                  e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+                }
+                handleError(e);
+              }
                 if (transformationServerAccess) {
                   // filter the transformed event for that destination
                   transformedEvents = transformedPayload.find((e) => e.id === intg.destinationId);
