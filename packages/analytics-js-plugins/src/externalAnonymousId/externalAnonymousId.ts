@@ -1,4 +1,4 @@
-import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/sessionStorageKeys';
+import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-plugins/types/common';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js/state/types';
 import { getSegmentAnonymousId } from './util';

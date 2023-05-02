@@ -1,5 +1,5 @@
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
-import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/sessionStorageKeys';
+import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
@@ -27,8 +27,8 @@ describe('User session manager', () => {
   };
 
   beforeEach(() => {
-    resetState();
     clearStorage();
+    resetState();
     userSessionManager = new UserSessionManager();
   });
 

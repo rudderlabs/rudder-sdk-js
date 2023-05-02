@@ -5,11 +5,11 @@ import { defaultPluginManager } from '@rudderstack/analytics-js/components/plugi
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { effect } from '@preact/signals-core';
+import { batch, effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
-import { userSessionStorageKeys } from './sessionStorageKeys';
+import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
 import { getReferringDomain } from '../utilities/url';
 
@@ -242,25 +242,27 @@ class UserSessionManager implements IUserSessionManager {
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
     const { manualTrack, autoTrack } = state.session.sessionInfo.value;
 
-    state.session.userId.value = '';
-    state.session.userTraits.value = {};
-    state.session.groupId.value = '';
-    state.session.groupTraits.value = {};
+    batch(() => {
+      state.session.userId.value = '';
+      state.session.userTraits.value = {};
+      state.session.groupId.value = '';
+      state.session.groupTraits.value = {};
 
-    if (resetAnonymousId) {
-      state.session.anonymousUserId.value = '';
-    }
+      if (resetAnonymousId) {
+        state.session.anonymousUserId.value = '';
+      }
 
-    if (noNewSessionStart) {
-      return;
-    }
+      if (noNewSessionStart) {
+        return;
+      }
 
-    if (autoTrack) {
-      state.session.sessionInfo.value = { ...defaultSessionInfo };
-      this.startAutoTracking();
-    } else if (manualTrack) {
-      this.start();
-    }
+      if (autoTrack) {
+        state.session.sessionInfo.value = { ...defaultSessionInfo };
+        this.startAutoTracking();
+      } else if (manualTrack) {
+        this.start();
+      }
+    });
   }
 
   /**
