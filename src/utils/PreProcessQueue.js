@@ -11,7 +11,6 @@ const queueOptions = {
   minRetryDelay: 1000,
   backoffFactor: 2,
   maxAttempts: Infinity,
-  maxItems: 100,
 };
 
 class PreProcessQueue {

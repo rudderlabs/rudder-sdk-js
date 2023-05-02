@@ -33,7 +33,6 @@ describe('PreProcessQueue', () => {
             expect(preProcessQueue.payloadQueue.backoff.MAX_RETRY_DELAY).toEqual(options.maxRetryDelay);
             expect(preProcessQueue.payloadQueue.backoff.MIN_RETRY_DELAY).toEqual(options.minRetryDelay);
             expect(preProcessQueue.payloadQueue.maxAttempts).toEqual(options.maxAttempts);
-            expect(preProcessQueue.payloadQueue.maxItems).toEqual(options.maxItems);
         });
 
         it('should set the callback', () => {
