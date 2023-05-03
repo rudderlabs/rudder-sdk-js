@@ -27,6 +27,7 @@ export default class GA4 {
     this.overrideSessionId = config.overrideSessionId || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
   }
 
   loadScript(measurementId) {
@@ -49,8 +50,10 @@ export default class GA4 {
     }
 
     gtagParameterObject.cookie_prefix = 'rs';
-    gtagParameterObject.client_id = this.analytics.anonymousId;
-    if (this.isHybridModeEnabled && this.overrideSessionId) {
+    if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
+      gtagParameterObject.client_id = this.analytics.anonymousId;
+    }
+    if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
       gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     }
     gtagParameterObject.debug_mode = true;
@@ -62,11 +65,15 @@ export default class GA4 {
     }
 
     /**
-     * Setting the parameter sessionId using gtag api
+     * Setting the parameter sessionId and clientId using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
+    });
+
+    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
+      this.clientId = clientId;
     });
 
     ScriptLoader(
@@ -85,7 +92,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!this.sessionId;
+    return !!(this.sessionId && this.clientId);;
   }
 
   isReady() {
@@ -279,6 +286,7 @@ export default class GA4 {
   getDataForIntegrationsObject() {
     return {
       'Google Analytics 4': {
+        clientId: this.clientId,
         sessionId: this.sessionId,
       },
     };
