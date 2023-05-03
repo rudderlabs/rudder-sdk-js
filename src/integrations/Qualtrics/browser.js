@@ -14,7 +14,7 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class Qualtrics {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -22,6 +22,8 @@ class Qualtrics {
     this.projectId = config.projectId;
     this.brandId = config.brandId;
     this.enableGenericPageTitle = config.enableGenericPageTitle;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

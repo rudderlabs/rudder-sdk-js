@@ -14,7 +14,7 @@ import {
 import { NAME } from './constants';
 
 class GoogleAds {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -34,10 +34,13 @@ class GoogleAds {
     this.eventsToTrackConversions = config.eventsToTrackConversions || [];
     this.eventsToTrackDynamicRemarketing = config.eventsToTrackDynamicRemarketing || [];
     this.eventMappingFromConfig = config.eventMappingFromConfig;
+    this.enableConversionLabel = config.enableConversionLabel || false;
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
@@ -127,7 +130,8 @@ class GoogleAds {
       };
       properties = removeUndefinedAndNullValues(properties);
 
-      window.gtag('event', eventName, properties);
+      const eventLabel = this.enableConversionLabel ? 'conversion' : eventName;
+      window.gtag('event', eventLabel, properties);
     }
 
     if (!event) {
@@ -189,7 +193,9 @@ class GoogleAds {
     ) {
       const { conversionLabel } = conversionData;
       const { eventName } = conversionData;
-      window.gtag('event', eventName, {
+
+      const eventLabel = this.enableConversionLabel ? 'conversion' : eventName;
+      window.gtag('event', eventLabel, {
         send_to: `${this.conversionId}/${conversionLabel}`,
       });
     }

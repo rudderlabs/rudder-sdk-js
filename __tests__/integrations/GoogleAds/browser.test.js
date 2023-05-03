@@ -11,12 +11,13 @@ import {
 afterAll(() => {
   jest.restoreAllMocks();
 });
+const destinationInfo = { areTransformationsConnected: false, destinationId: 'sample-destination-id' };
 
 describe('GoogleAds init tests', () => {
   let googleAds;
 
   test('Testing init call of Google Ads with ConversionId', () => {
-    googleAds = new GoogleAds({ conversionID: 'AW-11071053757' }, {});
+    googleAds = new GoogleAds({ conversionID: 'AW-11071053757' }, {}, destinationInfo);
     googleAds.init();
     expect(typeof window.gtag).toBe('function');
   });
@@ -26,7 +27,7 @@ describe('GoogleAds init tests', () => {
 describe('Scenario to test conversion event by keeping dynamicRemarketing flag disabled', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[0], {});
+    googleAds = new GoogleAds(googleAdsConfigs[0], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -48,7 +49,7 @@ describe('Scenario to test conversion event by keeping dynamicRemarketing flag d
 describe('Scenario to test dynamic remarketing event by enabling the dynamicRemarketing flag', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[1], {});
+    googleAds = new GoogleAds(googleAdsConfigs[1], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -75,7 +76,7 @@ describe('Scenario to test dynamic remarketing event by enabling the dynamicRema
 describe('Scenario to test conversion and dynamic remarketing events', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[2], {});
+    googleAds = new GoogleAds(googleAdsConfigs[2], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -110,7 +111,7 @@ describe('Scenario to test conversion and dynamic remarketing events', () => {
 describe('Scenario to test only conversion events when track conversion button is enabled', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[3], {});
+    googleAds = new GoogleAds(googleAdsConfigs[3], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -132,7 +133,7 @@ describe('Scenario to test only conversion events when track conversion button i
 describe('Scenario to test only dynamic remarketing events when track dynamic remarketing button is enabled', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[4], {});
+    googleAds = new GoogleAds(googleAdsConfigs[4], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -158,7 +159,7 @@ describe('Scenario to test only dynamic remarketing events when track dynamic re
 describe('Scenario to test only conversion events when track conversion button and event filtering is enabled', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[5], {});
+    googleAds = new GoogleAds(googleAdsConfigs[5], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
@@ -181,7 +182,7 @@ describe('Scenario to test only conversion events when track conversion button a
 describe('Scenario to test both configs together, old config should be given first priority', () => {
   let googleAds;
   beforeEach(() => {
-    googleAds = new GoogleAds(googleAdsConfigs[6], {});
+    googleAds = new GoogleAds(googleAdsConfigs[6], {}, destinationInfo);
     googleAds.init();
     window.gtag = jest.fn();
   });
