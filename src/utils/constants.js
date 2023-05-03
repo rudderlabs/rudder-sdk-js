@@ -45,6 +45,8 @@ const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
 const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
 const UA_CH_LEVELS = ['none', 'default', 'full'];
 
+const DEFAULT_INTEGRATION_OPTION = { All: true };
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -70,4 +72,5 @@ export {
   SUPPORTED_CONSENT_MANAGERS,
   SYSTEM_KEYWORDS,
   UA_CH_LEVELS,
+  DEFAULT_INTEGRATION_OPTION,
 };

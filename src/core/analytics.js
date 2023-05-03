@@ -41,6 +41,7 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
+  DEFAULT_INTEGRATION_OPTION,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -852,10 +853,20 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+      let clientSuppliedIntegrations = rudderElement.message.integrations;
 
-      // structure user supplied integrations object to rudder format
-      transformToRudderNames(clientSuppliedIntegrations);
+      if (clientSuppliedIntegrations) {
+        // structure user supplied integrations object to rudder format
+        transformToRudderNames(clientSuppliedIntegrations);
+      } else if (
+        this.useIntegrationsInEvents &&
+        Object.keys(this.loadOnlyIntegrations).length > 0
+      ) {
+        clientSuppliedIntegrations = this.loadOnlyIntegrations;
+      } else {
+        clientSuppliedIntegrations = DEFAULT_INTEGRATION_OPTION;
+      }
+
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
       try {
@@ -1131,6 +1142,10 @@ class Analytics {
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
+    }
+
+    if (options && options.useIntegrationsInEvents) {
+      this.useIntegrationsInEvents = true;
     }
 
     if (options && options.sendAdblockPage) {
