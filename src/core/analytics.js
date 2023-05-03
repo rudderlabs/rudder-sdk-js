@@ -852,7 +852,6 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
-      // if not specified at event level, All: true is default
       let clientSuppliedIntegrations = rudderElement.message.integrations;
 
       if (clientSuppliedIntegrations) {
@@ -862,8 +861,11 @@ class Analytics {
         this.useIntegrationsInEvents &&
         Object.keys(this.loadOnlyIntegrations).length > 0
       ) {
+        // when useIntegrationsInEvents load option is set to true and integration object provided in load
+        // is not empty use it at event level
         clientSuppliedIntegrations = this.loadOnlyIntegrations;
       } else {
+        // if not specified at event level, use default integration option
         clientSuppliedIntegrations = DEFAULT_INTEGRATION_OPTION;
       }
 
