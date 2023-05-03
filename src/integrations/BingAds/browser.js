@@ -51,7 +51,7 @@ class BingAds {
     } else {
       logger.debug('BingAds: UET class is successfully loaded');
     }
-    return (!!window.UET && window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
+    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   };
 
   isReady = () => {
