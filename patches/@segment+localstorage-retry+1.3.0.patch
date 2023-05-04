@@ -1,0 +1,13 @@
+diff --git a/node_modules/@segment/localstorage-retry/lib/engine.js b/node_modules/@segment/localstorage-retry/lib/engine.js
+index 5e3fffe..656a774 100644
+--- a/node_modules/@segment/localstorage-retry/lib/engine.js
++++ b/node_modules/@segment/localstorage-retry/lib/engine.js
+@@ -1,7 +1,7 @@
+ 'use strict';
+ 
+ var keys = require('@ndhoule/keys');
+-var uuid = require('uuid').v4;
++var uuid = require('@lukeed/uuid').v4;
+ 
+ var inMemoryStore = {
+   _data: {},
