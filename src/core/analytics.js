@@ -41,10 +41,12 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
+  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
 import { EventRepository } from '../utils/EventRepository';
+import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
@@ -81,6 +83,7 @@ class Analytics {
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
     this.eventRepository = EventRepository;
+    this.preProcessQueue = new PreProcessQueue();
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -91,6 +94,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.bufferDataPlaneEventsUntilReady = false;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -293,6 +297,13 @@ class Analytics {
         suffix = '-staging'; // stagging suffix
       }
 
+      if (this.bufferDataPlaneEventsUntilReady) {
+        // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
+        setTimeout(() => {
+          this.processBufferedCloudModeEvents();
+        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
+      }
+
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
@@ -473,6 +484,32 @@ class Analytics {
     }
   }
 
+  /**
+   *
+   * @param {*} type
+   * @param {*} rudderElement
+   * Sends cloud mode events to server
+   */
+  queueEventForDataPlane(type, rudderElement) {
+    // if not specified at event level, All: true is default
+    const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+    rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+      this.integrationsData,
+      clientSuppliedIntegrations,
+    );
+    // self analytics process, send to rudder
+    this.eventRepository.enqueue(rudderElement, type);
+  }
+
+  /**
+   * Processes the buffered cloud mode events and sends it to server
+   */
+  processBufferedCloudModeEvents() {
+    if (this.bufferDataPlaneEventsUntilReady) {
+      this.preProcessQueue.activateProcessor();
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -505,6 +542,8 @@ class Analytics {
       // Execute the callbacks if any
       object.executeReadyCallback();
     }
+
+    this.processBufferedCloudModeEvents();
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach((event) => {
@@ -886,15 +925,18 @@ class Analytics {
         );
       }
 
+      const clonedRudderElement = R.clone(rudderElement);
       // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
+      transformToServerNames(clonedRudderElement.message.integrations);
 
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(rudderElement, type);
+      // Holding the cloud mode events based on flag and integrations load check
+      const shouldNotBufferDataPlaneEvents =
+        !this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects;
+      if (shouldNotBufferDataPlaneEvents) {
+        this.queueEventForDataPlane(type, clonedRudderElement);
+      } else {
+        this.preProcessQueue.enqueue(type, clonedRudderElement);
+      }
 
       // logger.debug(`${type} is called `)
       if (callback) {
@@ -1164,6 +1206,13 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && typeof options.bufferDataPlaneEventsUntilReady === 'boolean') {
+      this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
+      if (this.bufferDataPlaneEventsUntilReady) {
+        this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
+      }
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
