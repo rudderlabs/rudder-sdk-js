@@ -420,12 +420,9 @@ class Analytics implements IAnalytics {
       this.userSessionManager.getUserId() ||
       this.userSessionManager.getAnonymousId();
 
-    // Set the new user ID only after determining the previous ID
-    this.userSessionManager.setUserId(tryStringify(payload.to));
-
     this.eventManager.addEvent({
       type,
-      to: payload.to,
+      to: tryStringify(payload.to),
       from: previousId,
       options: payload.options,
       callback: payload.callback,

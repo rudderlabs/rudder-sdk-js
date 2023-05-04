@@ -2,8 +2,6 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { APIEvent, RudderEvent, RudderEventType } from './types';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
-import { tryStringify } from '../utilities/string';
-import { defaultUserSessionManager } from '../userSessionManager';
 
 class RudderEventFactory {
   /**
@@ -74,13 +72,20 @@ class RudderEventFactory {
    * @param from Old user ID
    * @param options API options
    */
-  private static generateAliasEvent(from?: string, options?: Nullable<ApiOptions>): RudderEvent {
+  private static generateAliasEvent(
+    to: string,
+    from?: string,
+    options?: Nullable<ApiOptions>,
+  ): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
       previousId: from,
       type: RudderEventType.Alias,
     };
 
-    return getEnrichedEvent(aliasEvent, options);
+    const enrichedEvent = getEnrichedEvent(aliasEvent, options);
+    // override the User ID from the API inputs
+    enrichedEvent.userId = to;
+    return enrichedEvent;
   }
 
   /**
@@ -122,7 +127,11 @@ class RudderEventFactory {
         eventObj = RudderEventFactory.generateIdentifyEvent(event.options);
         break;
       case RudderEventType.Alias:
-        eventObj = RudderEventFactory.generateAliasEvent(event.from, event.options);
+        eventObj = RudderEventFactory.generateAliasEvent(
+          event.to as string,
+          event.from,
+          event.options,
+        );
         break;
       case RudderEventType.Group:
         eventObj = RudderEventFactory.generateGroupEvent(event.options);
