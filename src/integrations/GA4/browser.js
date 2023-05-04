@@ -20,13 +20,14 @@ export default class GA4 {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
+    this.clientId = '';
     this.sessionId = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
+    this.sendUserId = config.sendUserId || false;
     this.capturePageView = config.capturePageView || 'rs';
-    this.overrideSessionId = config.overrideSessionId || false;
-    this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
   }
 
@@ -45,7 +46,7 @@ export default class GA4 {
       gtagParameterObject.send_page_view = false;
     }
     // Setting the userId as a part of configuration
-    if (this.analytics.userId) {
+    if (this.sendUserId && this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
 
@@ -162,7 +163,7 @@ export default class GA4 {
     }
     const params = { ...parameters };
     params.send_to = this.measurementId;
-    if (this.analytics.userId) {
+    if (this.sendUserId && this.analytics.userId) {
       params.user_id = this.analytics.userId;
     }
     window.gtag('event', event, params);
@@ -224,7 +225,7 @@ export default class GA4 {
     logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     // Setting the userId as a part of configuration
-    if (rudderElement.message.userId) {
+    if (this.sendUserId && rudderElement.message.userId) {
       const { userId } = rudderElement.message;
       if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
@@ -247,7 +248,7 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (this.analytics.userId) {
+      if (this.isHybridModeEnabled || (this.sendUserId && this.analytics.userId)) {
         properties.user_id = this.analytics.userId;
       }
       if (this.extendPageViewParams) {
@@ -270,7 +271,7 @@ export default class GA4 {
     logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
-    if (this.analytics.userId) {
+    if (this.sendUserId && this.analytics.userId) {
       traits.user_id = this.analytics.userId;
     }
     traits.send_to = this.measurementId;
