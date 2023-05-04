@@ -249,7 +249,8 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (this.isHybridModeEnabled || (this.sendUserId && this.analytics.userId)) {
+      const sendUserIdToGA4 = (this.isHybridModeEnabled && this.analytics.userId) || (this.sendUserId && this.analytics.userId);
+      if (sendUserIdToGA4) {
         properties.user_id = this.analytics.userId;
       }
       if (this.extendPageViewParams) {
