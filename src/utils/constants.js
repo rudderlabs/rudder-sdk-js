@@ -46,7 +46,7 @@ const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
 const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
 const UA_CH_LEVELS = ['none', 'default', 'full'];
 
-const DEFAULT_INTEGRATION_OPTION = { All: true };
+const DEFAULT_INTEGRATIONS_CONFIG = { All: true };
 
 export {
   RESERVED_KEYS,
