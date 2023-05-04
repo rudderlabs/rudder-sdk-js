@@ -28,8 +28,8 @@ export type APIEvent = {
   callback?: () => void;
   userId?: Nullable<string>;
   traits?: Nullable<ApiObject>;
-  to?: string;
-  from?: string;
+  to?: Nullable<string>;
+  from?: Nullable<string>;
   groupId?: Nullable<string>;
 };
 

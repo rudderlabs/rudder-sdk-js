@@ -2,6 +2,7 @@ import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { ApiCallback, ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { tryStringify } from '../utilities/string';
 
 export type PageCallOptions = {
   category?: string;
@@ -26,8 +27,8 @@ export type IdentifyCallOptions = {
 };
 
 export type AliasCallOptions = {
-  to: string;
-  from?: string;
+  to: Nullable<string>;
+  from?: Nullable<string>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
 };
@@ -180,7 +181,7 @@ const identifyArgumentsToCallOptions = (
     payload.traits = clone(userId as Nullable<ApiObject>);
     payload.options = clone(traits as Nullable<ApiOptions>);
   } else {
-    payload.userId = typeof userId === 'number' ? userId.toString() : userId;
+    payload.userId = tryStringify(userId);
   }
 
   return payload;
@@ -190,13 +191,13 @@ const identifyArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the alias call facade
  */
 const aliasArgumentsToCallOptions = (
-  to: string,
-  from?: string | Nullable<ApiOptions> | ApiCallback,
+  to: Nullable<string>,
+  from?: Nullable<string> | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): AliasCallOptions => {
   const payload: AliasCallOptions = {
-    to,
+    to: tryStringify(to),
   };
 
   if (typeof callback === 'function') {
@@ -212,11 +213,11 @@ const aliasArgumentsToCallOptions = (
 
   if (typeof from === 'function') {
     payload.callback = from;
-  }
-
-  if (typeof from === 'object') {
+  } else if (typeof from === 'object') {
     payload.options = clone(from as Nullable<ApiOptions>);
     delete payload.from;
+  } else {
+    payload.from = tryStringify(from);
   }
 
   return payload;
@@ -260,7 +261,7 @@ const groupArgumentsToCallOptions = (
       payload.options = clone(traits as Nullable<ApiOptions>);
     }
   } else {
-    payload.groupId = typeof groupId === 'number' ? groupId.toString() : groupId;
+    payload.groupId = tryStringify(groupId);
   }
 
   return payload;
