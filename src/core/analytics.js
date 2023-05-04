@@ -1188,9 +1188,7 @@ class Analytics {
       transformToRudderNames(this.loadOnlyIntegrations);
     }
 
-    if (options && options.useIntegrationsInEvents) {
-      this.useIntegrationsInEvents = true;
-    }
+    this.useIntegrationsInEvents = options && options.useIntegrationsInEvents === true;
 
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
