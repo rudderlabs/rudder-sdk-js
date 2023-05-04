@@ -62,79 +62,85 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      if (state.session.userId.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.userId);
-      } else {
+      if (state.session.userId.value) {
         this.storage?.set(userSessionStorageKeys.userId, state.session.userId.value);
+      } else {
+        this.storage?.remove(userSessionStorageKeys.userId);
       }
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.userTraits.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.userTraits);
-      } else {
+      if (
+        state.session.userTraits.value &&
+        Object.keys(state.session.userTraits.value).length > 0
+      ) {
         this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
+      } else {
+        this.storage?.remove(userSessionStorageKeys.userTraits);
       }
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.groupId.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.groupId);
-      } else {
+      if (state.session.groupId.value) {
         this.storage?.set(userSessionStorageKeys.groupId, state.session.groupId.value);
+      } else {
+        this.storage?.remove(userSessionStorageKeys.groupId);
       }
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.groupTraits.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.groupTraits);
-      } else {
+      if (
+        state.session.groupTraits.value &&
+        Object.keys(state.session.groupTraits.value).length > 0
+      ) {
         this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
+      } else {
+        this.storage?.remove(userSessionStorageKeys.groupTraits);
       }
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.anonymousUserId.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.anonymousUserId);
-      } else {
+      if (state.session.anonymousUserId.value) {
         this.storage?.set(
           userSessionStorageKeys.anonymousUserId,
           state.session.anonymousUserId.value,
         );
+      } else {
+        this.storage?.remove(userSessionStorageKeys.anonymousUserId);
       }
     });
     /**
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferrer.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.initialReferrer);
-      } else {
+      if (state.session.initialReferrer.value) {
         this.storage?.set(
           userSessionStorageKeys.initialReferrer,
           state.session.initialReferrer.value,
         );
+      } else {
+        this.storage?.remove(userSessionStorageKeys.initialReferrer);
       }
     });
     /**
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferringDomain.value === undefined) {
-        this.storage?.remove(userSessionStorageKeys.initialReferringDomain);
-      } else {
+      if (state.session.initialReferringDomain.value) {
         this.storage?.set(
           userSessionStorageKeys.initialReferringDomain,
           state.session.initialReferringDomain.value,
         );
+      } else {
+        this.storage?.remove(userSessionStorageKeys.initialReferringDomain);
       }
     });
   }
@@ -271,13 +277,13 @@ class UserSessionManager implements IUserSessionManager {
     const { manualTrack, autoTrack } = state.session.sessionInfo.value;
 
     batch(() => {
-      state.session.userId.value = undefined;
-      state.session.userTraits.value = undefined;
-      state.session.groupId.value = undefined;
-      state.session.groupTraits.value = undefined;
+      state.session.userId.value = '';
+      state.session.userTraits.value = {};
+      state.session.groupId.value = '';
+      state.session.groupTraits.value = {};
 
       if (resetAnonymousId) {
-        state.session.anonymousUserId.value = undefined;
+        state.session.anonymousUserId.value = '';
       }
 
       if (noNewSessionStart) {
