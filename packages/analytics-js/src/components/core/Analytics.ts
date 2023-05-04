@@ -212,7 +212,7 @@ class Analytics implements IAnalytics {
     // Initialise storage
     this.storeManager.init();
     this.clientDataStore = this.storeManager.getStore('clientData') as Store;
-    this.userSessionManager.setStorage(this.clientDataStore);
+    this.userSessionManager.init(this.clientDataStore);
 
     // Initialise event manager
     this.eventManager.init();
@@ -384,9 +384,7 @@ class Analytics implements IAnalytics {
     }
 
     const shouldResetSession = Boolean(
-      payload.userId &&
-        state.session.rl_user_id.value &&
-        payload.userId !== state.session.rl_user_id.value,
+      payload.userId && state.session.userId.value && payload.userId !== state.session.userId.value,
     );
 
     if (shouldResetSession) {
@@ -465,35 +463,34 @@ class Analytics implements IAnalytics {
     }
 
     this.userSessionManager.reset(resetAnonymousId);
-    this.userSessionManager.clearUserSessionStorage(resetAnonymousId);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string {
     return this.userSessionManager.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string {
-    return this.userSessionManager.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
+    this.userSessionManager.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
   // eslint-disable-next-line class-methods-use-this
   getUserId(): Nullable<string> | undefined {
-    return state.session.rl_user_id.value;
+    return state.session.userId.value;
   }
 
   // eslint-disable-next-line class-methods-use-this
   getUserTraits(): Nullable<ApiObject> | undefined {
-    return state.session.rl_trait.value;
+    return state.session.userTraits.value;
   }
 
   // eslint-disable-next-line class-methods-use-this
   getGroupId(): Nullable<string> | undefined {
-    return state.session.rl_group_id.value;
+    return state.session.groupId.value;
   }
 
   // eslint-disable-next-line class-methods-use-this
   getGroupTraits(): Nullable<ApiObject> | undefined {
-    return state.session.rl_group_trait.value;
+    return state.session.groupTraits.value;
   }
 
   startSession(sessionId?: number) {

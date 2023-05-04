@@ -39,13 +39,12 @@ const getUpdatedPageProperties = (
 
   if (pageProps.initial_referrer === undefined) {
     pageProps.initial_referrer =
-      optionsPageProps.initial_referrer || state.session.rl_page_init_referrer.value;
+      optionsPageProps.initial_referrer || state.session.initialReferrer.value;
   }
 
   if (pageProps.initial_referring_domain === undefined) {
     pageProps.initial_referring_domain =
-      optionsPageProps.initial_referring_domain ||
-      state.session.rl_page_init_referring_domain.value;
+      optionsPageProps.initial_referring_domain || state.session.initialReferringDomain.value;
   }
 
   return pageProps;
@@ -103,10 +102,10 @@ const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   });
 
   ctxPageProps.initial_referrer =
-    pageProps?.initial_referrer || state.session.rl_page_init_referrer.value;
+    pageProps?.initial_referrer || state.session.initialReferrer.value;
 
   ctxPageProps.initial_referring_domain =
-    pageProps?.initial_referring_domain || state.session.rl_page_init_referring_domain.value;
+    pageProps?.initial_referring_domain || state.session.initialReferringDomain.value;
   return ctxPageProps;
 };
 
@@ -184,12 +183,12 @@ const getEnrichedEvent = (
 ): RudderEvent => {
   const commonEventData = {
     // Type casting to string as the user session manager will take care of initializing the value
-    anonymousId: state.session.rl_anonymous_id.value as string,
+    anonymousId: state.session.anonymousUserId.value as string,
     channel: CHANNEL,
     context: {
-      traits: clone(state.session.rl_trait.value),
-      sessionId: state.session.rl_session.value.id,
-      sessionStart: state.session.rl_session.value.sessionStart,
+      traits: clone(state.session.userTraits.value),
+      sessionId: state.session.sessionInfo.value.id,
+      sessionStart: state.session.sessionInfo.value.sessionStart,
       consentManagement: {
         deniedConsentIds: clone(state.consents.deniedConsentIds.value),
       },
@@ -206,12 +205,12 @@ const getEnrichedEvent = (
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: { All: true },
     messageId: generateUUID(),
-    userId: state.session.rl_user_id.value,
+    userId: state.session.userId.value,
   } as Partial<RudderEvent>;
 
   if (rudderEvent.type === RudderEventType.Group) {
-    commonEventData.groupId = state.session.rl_group_id.value;
-    commonEventData.traits = clone(state.session.rl_group_trait.value);
+    commonEventData.groupId = state.session.groupId.value;
+    commonEventData.traits = clone(state.session.groupTraits.value);
   }
 
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;

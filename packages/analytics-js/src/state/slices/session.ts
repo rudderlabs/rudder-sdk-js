@@ -4,14 +4,14 @@ import { ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 
 export type SessionState = {
-  readonly rl_user_id: Signal<Nullable<string> | undefined>;
-  readonly rl_trait: Signal<Nullable<ApiObject> | undefined>;
-  readonly rl_anonymous_id: Signal<string | undefined>;
-  readonly rl_group_id: Signal<Nullable<string> | undefined>;
-  readonly rl_group_trait: Signal<Nullable<ApiObject> | undefined>;
-  readonly rl_page_init_referrer: Signal<string | undefined>;
-  readonly rl_page_init_referring_domain: Signal<string | undefined>;
-  readonly rl_session: Signal<SessionInfo>;
+  readonly userId: Signal<Nullable<string> | undefined>;
+  readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
+  readonly anonymousUserId: Signal<string | undefined>;
+  readonly groupId: Signal<Nullable<string> | undefined>;
+  readonly groupTraits: Signal<Nullable<ApiObject> | undefined>;
+  readonly initialReferrer: Signal<string | undefined>;
+  readonly initialReferringDomain: Signal<string | undefined>;
+  readonly sessionInfo: Signal<SessionInfo>;
 };
 
 const defaultSessionInfo = {
@@ -20,14 +20,14 @@ const defaultSessionInfo = {
 };
 
 const sessionState: SessionState = {
-  rl_user_id: signal(undefined),
-  rl_trait: signal(undefined),
-  rl_anonymous_id: signal(undefined),
-  rl_group_id: signal(undefined),
-  rl_group_trait: signal(undefined),
-  rl_page_init_referrer: signal(undefined),
-  rl_page_init_referring_domain: signal(undefined),
-  rl_session: signal({ ...defaultSessionInfo }),
+  userId: signal(undefined),
+  userTraits: signal(undefined),
+  anonymousUserId: signal(undefined),
+  groupId: signal(undefined),
+  groupTraits: signal(undefined),
+  initialReferrer: signal(undefined),
+  initialReferringDomain: signal(undefined),
+  sessionInfo: signal({ ...defaultSessionInfo }),
 };
 
 export { sessionState, defaultSessionInfo };

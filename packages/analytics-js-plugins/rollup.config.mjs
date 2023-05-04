@@ -75,17 +75,18 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
       }),
       !isLegacyBuild &&
-      federation({
-        name: 'remotePlugins',
-        filename: 'remotePlugins.js',
-        exposes: {
-          './StorageEncryptionV1': './src/storageEncryption/storageEncryptionV1.ts',
-          './GoogleLinker': './src/googleLinker/googleLinker.ts',
-          './RemotePlugin': './src/pocToDelete/RemotePlugin.ts',
-          './RemotePlugin2': './src/pocToDelete/RemotePlugin2.ts',
-          './LoadIntegrations': './src/pocToDelete/LoadIntegrations.ts',
-        },
-      }),
+        federation({
+          name: 'remotePlugins',
+          filename: 'remotePlugins.js',
+          exposes: {
+            './StorageEncryptionV1': './src/storageEncryption/storageEncryptionV1.ts',
+            './externalAnonymousId': './src/externalAnonymousId/externalAnonymousId.ts',
+            './GoogleLinker': './src/googleLinker/googleLinker.ts',
+            './RemotePlugin': './src/pocToDelete/RemotePlugin.ts',
+            './RemotePlugin2': './src/pocToDelete/RemotePlugin2.ts',
+            './LoadIntegrations': './src/pocToDelete/LoadIntegrations.ts',
+          },
+        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
