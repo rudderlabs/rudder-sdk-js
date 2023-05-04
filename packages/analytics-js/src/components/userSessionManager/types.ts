@@ -12,6 +12,7 @@ export interface IUserSessionManager {
   getUserId(): Nullable<string>;
   setUserId(userId?: null | string): void;
   setUserTraits(traits?: Nullable<ApiObject>): void;
+  getUserTraits(): Nullable<ApiObject>;
   getGroupTraits(): Nullable<ApiObject>;
   setGroupId(groupId?: Nullable<string>): void;
   setGroupTraits(traits?: Nullable<ApiObject>): void;

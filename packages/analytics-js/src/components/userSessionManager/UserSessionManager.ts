@@ -12,6 +12,7 @@ import { IUserSessionManager } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
 import { getReferringDomain } from '../utilities/url';
+import { isValidTraitsValue } from './utils';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
@@ -72,10 +73,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (
-        state.session.userTraits.value &&
-        Object.keys(state.session.userTraits.value).length > 0
-      ) {
+      if (isValidTraitsValue(state.session.userTraits.value)) {
         this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
       } else {
         this.storage?.remove(userSessionStorageKeys.userTraits);
@@ -95,10 +93,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (
-        state.session.groupTraits.value &&
-        Object.keys(state.session.groupTraits.value).length > 0
-      ) {
+      if (isValidTraitsValue(state.session.groupTraits.value)) {
         this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
       } else {
         this.storage?.remove(userSessionStorageKeys.groupTraits);
