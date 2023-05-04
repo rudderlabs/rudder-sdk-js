@@ -38,19 +38,17 @@ const handleProductsArray = (properties) => {
   const { products } = properties;
   if (Array.isArray(products)) {
     products.forEach((product) => {
-      if (product) {
-        const { product_id, sku, price, quantity = 1 } = product;
-        const productId = product_id || sku;
-        if (productId) {
-          productIds.push(productId);
-          items.push({
-            id: productId,
-            quantity,
-            price,
-          });
-          if (price) {
-            ecommTotalValue += parseFloat(price) * parseInt(quantity, 10);
-          }
+      const { product_id, sku, price, quantity = 1 } = product;
+      const productId = product_id || sku;
+      if (productId) {
+        productIds.push(productId);
+        items.push({
+          id: productId,
+          quantity,
+          price,
+        });
+        if (price) {
+          ecommTotalValue += parseFloat(price) * parseInt(quantity, 10);
         }
       }
     });
