@@ -285,6 +285,15 @@ class Analytics {
         }
       }
 
+      // filter destination that doesn't have mapping config-->Integration names
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        if (configToIntNames[intg.name]) {
+          return true;
+        }
+        logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+        return false;
+      });
+
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
@@ -298,11 +307,6 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
-        // Do not continue loading integration that doesn't have mapping
-        if (!modName) {
-          logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
-          return;
-        }
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
 
