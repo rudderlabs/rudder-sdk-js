@@ -66,7 +66,7 @@ export type RudderEvent = {
   integrations: IntegrationOpts;
   messageId: string;
   event?: string; // track
-  previousId?: string; // alias
+  previousId?: Nullable<string>; // alias
   userId?: Nullable<string>;
   sentAt?: string;
   properties?: Nullable<ApiObject>; // track & page
