@@ -192,7 +192,7 @@ const identifyArgumentsToCallOptions = (
  */
 const aliasArgumentsToCallOptions = (
   to: Nullable<string>,
-  from?: Nullable<string> | Nullable<ApiOptions> | ApiCallback,
+  from?: string | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): AliasCallOptions => {

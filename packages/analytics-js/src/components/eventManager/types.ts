@@ -29,7 +29,7 @@ export type APIEvent = {
   userId?: Nullable<string>;
   traits?: Nullable<ApiObject>;
   to?: Nullable<string>;
-  from?: Nullable<string>;
+  from?: string;
   groupId?: Nullable<string>;
 };
 
@@ -66,7 +66,7 @@ export type RudderEvent = {
   integrations: IntegrationOpts;
   messageId: string;
   event?: string; // track
-  previousId?: Nullable<string>; // alias
+  previousId?: string; // alias
   userId?: Nullable<string>;
   sentAt?: string;
   properties?: Nullable<ApiObject>; // track & page

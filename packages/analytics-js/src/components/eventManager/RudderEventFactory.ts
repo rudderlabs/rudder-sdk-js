@@ -74,10 +74,7 @@ class RudderEventFactory {
    * @param from Old user ID
    * @param options API options
    */
-  private static generateAliasEvent(
-    from?: Nullable<string>,
-    options?: Nullable<ApiOptions>,
-  ): RudderEvent {
+  private static generateAliasEvent(from?: string, options?: Nullable<ApiOptions>): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
       previousId: from,
       type: RudderEventType.Alias,
