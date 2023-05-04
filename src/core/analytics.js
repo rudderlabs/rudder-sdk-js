@@ -41,7 +41,7 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
-  DEFAULT_INTEGRATION_OPTION,
+  DEFAULT_INTEGRATIONS_CONFIG,
   MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
@@ -834,6 +834,18 @@ class Analytics {
   }
 
   /**
+   * A function to determine whether SDK should use the integration option provided in load call
+   * @returns boolean
+   */
+  shouldUseGlobalIntegrationsConfigInEvents() {
+    return (
+      this.useGlobalIntegrationsConfigInEvents &&
+      this.loadOnlyIntegrations &&
+      Object.keys(this.loadOnlyIntegrations).length > 0
+    );
+  }
+
+  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -896,16 +908,13 @@ class Analytics {
       if (clientSuppliedIntegrations) {
         // structure user supplied integrations object to rudder format
         transformToRudderNames(clientSuppliedIntegrations);
-      } else if (
-        this.useIntegrationsInEvents &&
-        Object.keys(this.loadOnlyIntegrations).length > 0
-      ) {
-        // when useIntegrationsInEvents load option is set to true and integration object provided in load
+      } else if (this.shouldUseGlobalIntegrationsConfigInEvents()) {
+        // when useGlobalIntegrationsConfigInEvents load option is set to true and integration object provided in load
         // is not empty use it at event level
         clientSuppliedIntegrations = this.loadOnlyIntegrations;
       } else {
         // if not specified at event level, use default integration option
-        clientSuppliedIntegrations = DEFAULT_INTEGRATION_OPTION;
+        clientSuppliedIntegrations = DEFAULT_INTEGRATIONS_CONFIG;
       }
 
       rudderElement.message.integrations = clientSuppliedIntegrations;
@@ -1188,7 +1197,8 @@ class Analytics {
       transformToRudderNames(this.loadOnlyIntegrations);
     }
 
-    this.useIntegrationsInEvents = options && options.useIntegrationsInEvents === true;
+    this.useGlobalIntegrationsConfigInEvents =
+      options && options.useGlobalIntegrationsConfigInEvents === true;
 
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
