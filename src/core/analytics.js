@@ -289,6 +289,15 @@ class Analytics {
         }
       }
 
+      // filter destination that doesn't have mapping config-->Integration names
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        if (configToIntNames[intg.name]) {
+          return true;
+        }
+        logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+        return false;
+      });
+
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
