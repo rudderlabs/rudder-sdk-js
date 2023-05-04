@@ -22,14 +22,14 @@ jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
 describe('RudderEventFactory', () => {
   beforeEach(() => {
     batch(() => {
-      state.session.rl_anonymous_id.value = 'anon_id';
-      state.session.rl_trait.value = { test: 'test' };
-      state.session.rl_user_id.value = 'user_id';
-      state.session.rl_session.value = { sessionStart: true, id: 1234 } as SessionInfo;
-      state.session.rl_group_id.value = 'group_id';
-      state.session.rl_group_trait.value = { test: 'test' };
-      state.session.rl_page_init_referrer.value = 'https://test.com/page';
-      state.session.rl_page_init_referring_domain.value = 'https://test.com';
+      state.session.anonymousUserId.value = 'anon_id';
+      state.session.userTraits.value = { test: 'test' };
+      state.session.userId.value = 'user_id';
+      state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
+      state.session.groupId.value = 'group_id';
+      state.session.groupTraits.value = { test: 'test' };
+      state.session.initialReferrer.value = 'https://test.com/page';
+      state.session.initialReferringDomain.value = 'https://test.com';
 
       state.consents.deniedConsentIds.value = ['id1', 'id2'];
 
@@ -308,8 +308,8 @@ describe('RudderEventFactory', () => {
     } as APIEvent;
 
     batch(() => {
-      state.session.rl_user_id.value = 'new_user_id';
-      state.session.rl_trait.value = {
+      state.session.userId.value = 'new_user_id';
+      state.session.userTraits.value = {
         key1: 'value1',
         key2: 'value2',
         key3: 'value3',
@@ -456,8 +456,8 @@ describe('RudderEventFactory', () => {
     } as APIEvent;
 
     batch(() => {
-      state.session.rl_group_id.value = 'overridden_group_id';
-      state.session.rl_group_trait.value = {
+      state.session.groupId.value = 'overridden_group_id';
+      state.session.groupTraits.value = {
         key4: 'value4',
         key5: 'value5',
         test: 'test',

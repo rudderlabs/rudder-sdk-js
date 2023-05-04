@@ -12,6 +12,10 @@ jest.mock('../../../src/components/utilities/globals', () => {
   };
 });
 
+jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+  generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
+
 describe('Core - Analytics', () => {
   let analytics: Analytics;
   const dummyWriteKey = 'qwertyuiopasdfghjklzxcvbnm1';
@@ -254,7 +258,7 @@ describe('Core - Analytics', () => {
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
-      state.session.rl_user_id.value = 'userId';
+      state.session.userId.value = 'userId';
       analytics.identify({ userId: 'userId' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
@@ -274,7 +278,7 @@ describe('Core - Analytics', () => {
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
-      state.session.rl_user_id.value = 'dummyUserId';
+      state.session.userId.value = 'dummyUserId';
       analytics.identify({ userId: 'userId' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(2);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
@@ -307,7 +311,7 @@ describe('Core - Analytics', () => {
       expect(addEventSpy).toHaveBeenCalledWith({
         type: 'alias',
         to: 'to',
-        from: 'userId',
+        from: 'test_uuid', // this is the mocked value from UUID generation
       });
     });
   });
@@ -363,16 +367,11 @@ describe('Core - Analytics', () => {
     it('should reset session if loaded', () => {
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
-      const clearUserSessionStorageSpy = jest.spyOn(
-        analytics.userSessionManager,
-        'clearUserSessionStorage',
-      );
 
       state.lifecycle.loaded.value = true;
       analytics.reset(true);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(clearUserSessionStorageSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
     });
   });

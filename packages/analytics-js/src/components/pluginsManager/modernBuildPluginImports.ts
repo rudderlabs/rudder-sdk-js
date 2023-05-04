@@ -7,6 +7,7 @@ const modernBuildPluginImports = (): PluginMap<Promise<ExtensionPlugin>> => {
   const lazyLoadRemoteLoadIntegrations = () => import('remotePlugins/LoadIntegrations');
   const storageEncryptionV1 = () => import('remotePlugins/StorageEncryptionV1');
   const googleLinker = () => import('remotePlugins/GoogleLinker');
+  const externalAnonymousId = () => import('remotePlugins/externalAnonymousId');
 
   return {
     StorageEncryptionV1: storageEncryptionV1,
@@ -14,6 +15,7 @@ const modernBuildPluginImports = (): PluginMap<Promise<ExtensionPlugin>> => {
     RemotePlugin: lazyLoadRemotePlugin,
     RemotePlugin2: lazyLoadRemotePlugin2,
     LoadIntegrations: lazyLoadRemoteLoadIntegrations,
+    externalAnonymousId,
   };
 };
 

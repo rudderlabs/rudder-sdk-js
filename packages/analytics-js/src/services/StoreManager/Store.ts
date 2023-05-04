@@ -141,14 +141,13 @@ class Store implements IStore {
 
       const str = this.decrypt(this.engine.getItem(validKey));
 
-      // TODO: make isNull, isUndefined & isEmpty helpers
+      // TODO: make isNull, isUndefined, isObject & isEmpty helpers
       if (str === null || str === undefined) {
         return null;
       }
 
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-      // return JSON.parse(str); // was original value for localstorage retry store
-      return JSON.parse(str);
+      return JSON.parse(str); // was original value for localstorage retry store
     } catch (err) {
       this.onError(
         new Error(
