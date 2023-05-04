@@ -72,6 +72,7 @@ export type DestinationConfig = {
   measurementId?: string;
   capturePageView?: string;
   useNativeSDKToSend?: boolean;
+  connectionMode?: 'hybrid' | 'cloud' | 'device';
   extendPageViewParams?: boolean;
   eventMappingFromConfig?: EventMapping[];
   appKey?: string;

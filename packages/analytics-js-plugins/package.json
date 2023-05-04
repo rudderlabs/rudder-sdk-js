@@ -34,7 +34,7 @@
     "test": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
     "test:ci": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build:browser && npm run build:package",
+    "check:size:build": "npm run clean && npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",

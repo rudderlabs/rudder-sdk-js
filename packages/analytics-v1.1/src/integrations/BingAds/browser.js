@@ -25,7 +25,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w[u] = new UET(o));
+          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -35,7 +35,7 @@ class BingAds {
           function () {
             const s = this.readyState;
             (s && s !== 'loaded' && s !== 'complete') ||
-              (f(), (n.onload = n.onreadystatechange = null));
+            (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
         i.parentNode.insertBefore(n, i);
@@ -50,7 +50,12 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
+    if(typeof window.UET !== 'function') {
+      logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
+    } else {
+      logger.debug('BingAds: UET class is successfully loaded');
+    }
+    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   };
 
   isReady = () => {
@@ -64,7 +69,7 @@ class BingAds {
     Updated syntax doc ref - https://help.ads.microsoft.com/#apex/ads/en/56916/2
   */
 
-  track = rudderElement => {
+  track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const eventToSend = type;

@@ -5,8 +5,14 @@
 module.exports = [
   {
     name: 'Remote Plugins - CDN',
-    path: 'dist/legacy/remotePlugins.js',
+    path: 'dist/modern/remotePlugins.js',
     gzip: true,
     limit: '0.5 kB',
+  },
+  {
+    name: 'Remote Plugins - CDN',
+    path: 'dist/modern/__federation_expose_*.js',
+    gzip: true,
+    limit: '11 kB',
   },
 ];

@@ -14,6 +14,7 @@ describe('Test suite for the SDK', () => {
     responseText: JSON.stringify({
       source: {
         config: {},
+        id: 'id',
         destinations: [],
       },
     }),
