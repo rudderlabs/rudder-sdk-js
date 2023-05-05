@@ -28,7 +28,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), w.UET && (w[u] = new UET(o));
+          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
         }),
         (n = d.createElement(t)),
         (n.src = r),
