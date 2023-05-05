@@ -35,40 +35,22 @@ const handleProductsArray = (properties) => {
   const productIds = [];
   const items = [];
   let ecommTotalValue = 0;
-  const { products } = properties;
-  if (Array.isArray(products)) {
-    products.forEach((product) => {
-      const { product_id, sku, price, quantity = 1 } = product;
-      const productId = product_id || sku;
-      if (productId) {
-        productIds.push(productId);
-        items.push({
-          id: productId,
-          quantity,
-          price,
-        });
-        if (price) {
-          ecommTotalValue += parseFloat(price) * parseInt(quantity, 10);
-        }
-      }
-    });
-  }
 
-  if (items.length === 0) {
-    const { product_id, sku, price, quantity = 1 } = properties;
+  const products = Array.isArray(properties.products) ? properties.products : [properties];
+
+  products.forEach((product) => {
+    const { product_id, sku, price, quantity = 1 } = product;
     const productId = product_id || sku;
+
     if (productId) {
       productIds.push(productId);
-      items.push({
-        id: productId,
-        quantity,
-        price,
-      });
+      items.push({ id: productId, quantity, price });
+
       if (price) {
-        ecommTotalValue = parseFloat(price) * parseInt(quantity, 10);
+        ecommTotalValue += parseFloat(price) * parseInt(quantity, 10);
       }
     }
-  }
+  });
 
   const payload = {};
   if (items.length > 0) {
@@ -78,6 +60,7 @@ const handleProductsArray = (properties) => {
       payload.ecomm_totalvalue = ecommTotalValue;
     }
   }
+
   return payload;
 };
 
