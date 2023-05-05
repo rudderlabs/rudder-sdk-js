@@ -24,7 +24,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), w.UET && (w[u] = new UET(o));
+          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -85,6 +85,7 @@ class BingAds {
       ...buildEcommPayload(rudderElement.message),
     };
 
+    // We can pass unmapped UET parameters through custom properties
     const customProperties = extractCustomFields(
       rudderElement.message,
       {},
