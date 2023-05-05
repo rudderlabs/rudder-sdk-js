@@ -24,7 +24,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
+          (o.q = w[u]), w.UET && (w[u] = new UET(o));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -49,12 +49,14 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    if(typeof window.UET !== 'function') {
+    if (typeof window.UET !== 'function') {
       logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
     } else {
       logger.debug('BingAds: UET class is successfully loaded');
     }
-    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
@@ -83,10 +85,9 @@ class BingAds {
       ...buildEcommPayload(rudderElement.message),
     };
 
-    let customProperties = {};
-    customProperties = extractCustomFields(
+    const customProperties = extractCustomFields(
       rudderElement.message,
-      customProperties,
+      {},
       ['properties'],
       EXCLUSION_KEYS,
     );
