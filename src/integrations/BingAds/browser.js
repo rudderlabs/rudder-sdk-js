@@ -12,9 +12,8 @@ class BingAds {
     }
     this.tagID = config.tagID;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo?.areTransformationsConnected;
+    this.destinationId = destinationInfo?.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
 

@@ -140,8 +140,8 @@ describe('BingAds Track event', () => {
           },
         },
       });
-    } catch (e) {
-      expect.toEqual('Event type not present');
+    } catch (error) {
+      expect(error).toEqual('Event type not present');
     }
   });
 });

@@ -52,9 +52,7 @@ const handleProductsArray = (properties) => {
         }
       }
     });
-  }
-
-  if (items.length === 0) {
+  } else {
     const { product_id, sku, price, quantity = 1 } = properties;
     const productId = product_id || sku;
     if (productId) {
