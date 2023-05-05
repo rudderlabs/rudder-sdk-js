@@ -73,7 +73,7 @@ class RudderEventFactory {
    * @param options API options
    */
   private static generateAliasEvent(
-    to: string,
+    to: Nullable<string>,
     from?: string,
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
@@ -128,7 +128,7 @@ class RudderEventFactory {
         break;
       case RudderEventType.Alias:
         eventObj = RudderEventFactory.generateAliasEvent(
-          event.to as string,
+          event.to as Nullable<string>,
           event.from,
           event.options,
         );
