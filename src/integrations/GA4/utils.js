@@ -1,5 +1,6 @@
 import _difference from "lodash.difference";
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable guard-for-in */
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
@@ -84,12 +85,12 @@ function hasRequiredParameters(props, eventMappingObj) {
   const requiredParams = eventMappingObj.requiredParams || false;
   if (!requiredParams) return true;
   if (!Array.isArray(requiredParams)) {
-    if (props[requiredParams]) {
-      return true;
-    }
-    return false;
+    return !!props[requiredParams];   
   }
+
+  // eslint-disable-next-line no-restricted-syntax
   for (const i in props.items) {
+    // eslint-disable-next-line no-restricted-syntax
     for (const p in requiredParams) {
       if (!props.items[i][requiredParams[p]]) {
         return false;
@@ -109,13 +110,14 @@ function hasRequiredParameters(props, eventMappingObj) {
  * @returns
  */
 function extractCustomVariables(rootObj, destination, exclusionFields) {
+  const properties = destination;
   const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
-  mappingKeys.map((mappingKey) => {
+  mappingKeys.forEach((mappingKey) => {
     if (typeof rootObj[mappingKey] !== "undefined") {
-      destination[mappingKey] = rootObj[mappingKey];
+      properties[mappingKey] = rootObj[mappingKey];
     }
   });
-  return destination;
+  return properties;
 }
 
 /**
@@ -134,7 +136,9 @@ function addCustomVariables(destinationProperties, props, contextOp) {
       destinationProperties,
       ITEM_PROP_EXCLUSION_LIST
     );
-  } else if (contextOp === "properties") {
+  } 
+  
+  if (contextOp === "properties") {
     return extractCustomVariables(
       props,
       destinationProperties,
@@ -223,11 +227,27 @@ function getPageViewProperty(props) {
   );
 }
 
+/**
+ * Validates weather to send userId property to GA4 or not
+ * @param {*} integrations
+ */
+function sendUserIdToGA4(integrations) {
+  if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
+    const { GA4 } = integrations;
+    if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
+      return GA4.sendUserId;
+    }
+    return true;
+  }
+  return true;
+}
+
 export {
   isReservedName,
+  sendUserIdToGA4,
+  getPageViewProperty,
+  hasRequiredParameters,
   getDestinationEventName,
   getDestinationEventProperties,
   getDestinationItemProperties,
-  getPageViewProperty,
-  hasRequiredParameters,
 };
