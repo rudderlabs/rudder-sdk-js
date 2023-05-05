@@ -129,7 +129,7 @@ export interface IAnalytics {
   /**
    * To set anonymousId
    */
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string;
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
 
   /**
    * Clear user information, optionally anonymousId as well

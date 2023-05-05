@@ -83,8 +83,8 @@ const resetPageState = () => {
 const resetApplicationState = () => {
   resetPageState();
   batch(() => {
-    state.session.rl_page_init_referrer.value = undefined;
-    state.session.rl_page_init_referring_domain.value = undefined;
+    state.session.initialReferrer.value = undefined;
+    state.session.initialReferringDomain.value = undefined;
   });
 };
 
@@ -196,8 +196,8 @@ describe('Event Manager - Utilities', () => {
     it('should return updated page properties from state if some page properties are not defined in options and input page parameters are not defined', () => {
       // Set some specific page properties in state
       batch(() => {
-        state.session.rl_page_init_referrer.value = 'https://www.google.com/test3';
-        state.session.rl_page_init_referring_domain.value = 'www.google3.com';
+        state.session.initialReferrer.value = 'https://www.google.com/test3';
+        state.session.initialReferringDomain.value = 'www.google3.com';
         state.page.tab_url.value = 'https://www.rudderlabs.com/test3';
       });
 
@@ -228,8 +228,8 @@ describe('Event Manager - Utilities', () => {
         url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
         tab_url: state.page.tab_url.value,
-        initial_referrer: state.session.rl_page_init_referrer.value,
-        initial_referring_domain: state.session.rl_page_init_referring_domain.value,
+        initial_referrer: state.session.initialReferrer.value,
+        initial_referring_domain: state.session.initialReferringDomain.value,
         anonymousId: pageProperties.anonymousId,
       });
     });
@@ -243,14 +243,14 @@ describe('Event Manager - Utilities', () => {
     it('should return processed event if the event processor plugin is registered', () => {
       defaultPluginManager.registerLocalPlugins();
       batch(() => {
-        state.session.rl_anonymous_id.value = 'anon_id';
-        state.session.rl_trait.value = { test: 'test' };
-        state.session.rl_user_id.value = 'user_id';
-        state.session.rl_session.value = { sessionStart: true, id: 1234 } as SessionInfo;
-        state.session.rl_group_id.value = 'group_id';
-        state.session.rl_group_trait.value = { test: 'test' };
-        state.session.rl_page_init_referrer.value = 'https://test.com/page';
-        state.session.rl_page_init_referring_domain.value = 'https://test.com';
+        state.session.anonymousUserId.value = 'anon_id';
+        state.session.userTraits.value = { test: 'test' };
+        state.session.userId.value = 'user_id';
+        state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
+        state.session.groupId.value = 'group_id';
+        state.session.groupTraits.value = { test: 'test' };
+        state.session.initialReferrer.value = 'https://test.com/page';
+        state.session.initialReferringDomain.value = 'https://test.com';
 
         state.consents.deniedConsentIds.value = ['id1', 'id2'];
 
@@ -992,12 +992,12 @@ describe('Event Manager - Utilities', () => {
 
     it('should return common event data using the data in state', () => {
       batch(() => {
-        state.session.rl_anonymous_id.value = 'anon_id';
-        state.session.rl_trait.value = { test: 'test' };
-        state.session.rl_user_id.value = 'user_id';
-        state.session.rl_session.value = { sessionStart: true, id: 1234 } as SessionInfo;
-        state.session.rl_page_init_referrer.value = 'initial_referrer';
-        state.session.rl_page_init_referring_domain.value = 'initial_referring_domain';
+        state.session.anonymousUserId.value = 'anon_id';
+        state.session.userTraits.value = { test: 'test' };
+        state.session.userId.value = 'user_id';
+        state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
+        state.session.initialReferrer.value = 'initial_referrer';
+        state.session.initialReferringDomain.value = 'initial_referring_domain';
 
         state.consents.deniedConsentIds.value = ['id1', 'id2'];
 
