@@ -416,13 +416,13 @@ class Analytics implements IAnalytics {
     }
 
     const previousId =
-      tryStringify(payload.from) ||
+      payload.from ||
       this.userSessionManager.getUserId() ||
       this.userSessionManager.getAnonymousId();
 
     this.eventManager.addEvent({
       type,
-      to: tryStringify(payload.to),
+      to: payload.to,
       from: previousId,
       options: payload.options,
       callback: payload.callback,
