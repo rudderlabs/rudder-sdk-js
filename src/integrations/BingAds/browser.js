@@ -89,6 +89,7 @@ class BingAds {
       ...buildEcommPayload(rudderElement.message),
     };
 
+    // We can pass unmapped UET parameters through custom properties
     const customProperties = extractCustomFields(
       rudderElement.message,
       {},
