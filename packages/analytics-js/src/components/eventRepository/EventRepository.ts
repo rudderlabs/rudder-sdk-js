@@ -23,7 +23,7 @@ class EventRepository implements IEventRepository {
       pluginsManager.invoke('dataplaneEvent.process', item, done);
     });
 
-    this.deviceEventsQueue = new Queue('rudder_dm', DEFAULT_QUEUE_OPTIONS, (item, done) => {
+    this.deviceEventsQueue = new Queue('rs_dm', DEFAULT_QUEUE_OPTIONS, (item, done) => {
       pluginsManager.invoke('deviceEvent.process', item, done);
     });
   }
