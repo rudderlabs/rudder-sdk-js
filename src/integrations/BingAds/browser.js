@@ -89,10 +89,9 @@ class BingAds {
       ...buildEcommPayload(rudderElement.message),
     };
 
-    let customProperties = {};
-    customProperties = extractCustomFields(
+    const customProperties = extractCustomFields(
       rudderElement.message,
-      customProperties,
+      {},
       ['properties'],
       EXCLUSION_KEYS,
     );
