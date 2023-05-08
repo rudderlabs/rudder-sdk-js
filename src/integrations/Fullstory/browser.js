@@ -131,7 +131,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug("Unable to access locaStorage");
+          logger.debug("Unable to access localStorage");
         }
 
         return null;
