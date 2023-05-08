@@ -1,4 +1,4 @@
-import Fullstory from "../../../src/integrations/Fullstory/browser.js";
+import Fullstory from "../../../src/integrations/Fullstory/browser";
 
 afterAll(() => {
     jest.restoreAllMocks();
