@@ -10,7 +10,7 @@ import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
 
 class FacebookPixel {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -28,6 +28,8 @@ class FacebookPixel {
     this.useUpdatedMapping = config.useUpdatedMapping;
     this.name = NAME;
     this.analytics = analytics;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {

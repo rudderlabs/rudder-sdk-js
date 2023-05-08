@@ -3,11 +3,14 @@ import { NAME } from './constants';
 import { generateUUID } from '../../utils/utils';
 
 class Shynet {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     const { heartBeatFrequencyInMs } = config;
     const { shynetServiceUrl } = config;
     this.scriptCheck = false;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     this.shynetScript = {
       idempotency: null,

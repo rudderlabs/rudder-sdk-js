@@ -6,6 +6,11 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
+const destinationInfo = {
+  areTransformationsConnected: false,
+  destinationId: 'sample-destination-id',
+};
+
 describe('FacebookPixel init tests', () => {
   let facebookPixel;
 
@@ -22,6 +27,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -45,6 +51,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -70,6 +77,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
@@ -96,6 +104,7 @@ describe('FacebookPixel page', () => {
     facebookPixel = new FacebookPixel(
       { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: true },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     window.fbq = jest.fn();
@@ -152,6 +161,7 @@ describe('Facebook Pixel Track event', () => {
         ],
       },
       mockAnalytics,
+      destinationInfo,
     );
     facebookPixel.init();
     window.fbq = jest.fn();

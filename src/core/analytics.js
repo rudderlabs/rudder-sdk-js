@@ -41,10 +41,13 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
+  DEFAULT_INTEGRATIONS_CONFIG,
+  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
 import { EventRepository } from '../utils/EventRepository';
+import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
@@ -59,6 +62,7 @@ import {
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
+import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
 
 /**
  * class responsible for handling core
@@ -80,6 +84,7 @@ class Analytics {
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
     this.eventRepository = EventRepository;
+    this.preProcessQueue = new PreProcessQueue();
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -90,6 +95,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.bufferDataPlaneEventsUntilReady = false;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -102,6 +108,7 @@ class Analytics {
     this.lockIntegrationsVersion = false;
     this.errorReporting = new ErrorReportingService(logger);
     this.deniedConsentIds = [];
+    this.transformationHandler = DeviceModeTransformations;
   }
 
   /**
@@ -230,6 +237,8 @@ class Analytics {
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
+      // Initialize transformation handler once we determine the dataPlaneUrl
+      this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
 
       // Execute onLoaded callback if provided in load options
       if (this.options && typeof this.options.onLoaded === 'function') {
@@ -248,6 +257,10 @@ class Analytics {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
             config: destination.config,
+            destinationInfo: {
+              areTransformationsConnected: destination.areTransformationsConnected || false,
+              destinationId: destination.id,
+            },
           });
         }
       }, this);
@@ -277,12 +290,28 @@ class Analytics {
         }
       }
 
+      // filter destination that doesn't have mapping config-->Integration names
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        if (configToIntNames[intg.name]) {
+          return true;
+        }
+        logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+        return false;
+      });
+
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
       const { isStaging } = getSDKUrlInfo();
       if (isStaging) {
         suffix = '-staging'; // stagging suffix
+      }
+
+      if (this.bufferDataPlaneEventsUntilReady) {
+        // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
+        setTimeout(() => {
+          this.processBufferedCloudModeEvents();
+        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
@@ -310,7 +339,7 @@ class Analytics {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
               this.errorReporting.leaveBreadcrumb(msg);
-              intgInstance = new intMod[modName](intg.config, self);
+              intgInstance = new intMod[modName](intg.config, self, intg.destinationInfo);
               intgInstance.init();
 
               // logger.debug(pluginName, " initializing destination");
@@ -351,6 +380,146 @@ class Analytics {
     }
   }
 
+  /**
+   * A function to send single event to a destination
+   * @param {instance} destination
+   * @param {Object} rudderElement
+   * @param {String} methodName
+   */
+  sendDataToDestination(destination, rudderElement, methodName) {
+    try {
+      if (destination[methodName]) {
+        const clonedRudderElement = R.clone(rudderElement);
+        destination[methodName](clonedRudderElement);
+      }
+    } catch (err) {
+      const message = `[sendToNative]:: [Destination: ${destination.name}]:: `;
+      handleError(err, message);
+    }
+  }
+
+  sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName) {
+    try {
+      // convert integrations object to server identified names, kind of hack now!
+      transformToServerNames(rudderElement.message.integrations);
+
+      // Process Transformation
+      this.transformationHandler.enqueue(
+        rudderElement,
+        ({ transformedPayload, transformationServerAccess }) => {
+          if (transformedPayload) {
+            destWithTransformation.forEach((intg) => {
+              try {
+                let transformedEvents = [];
+                if (transformationServerAccess) {
+                  // filter the transformed event for that destination
+                  const destTransformedResult = transformedPayload.find(
+                    (e) => e.id === intg.destinationId,
+                  );
+                  if (!destTransformedResult) {
+                    logger.error(
+                      `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
+                    );
+                    return;
+                  }
+
+                  destTransformedResult?.payload.forEach((tEvent) => {
+                    if (tEvent.status === '200') {
+                      transformedEvents.push(tEvent);
+                    } else {
+                      logger.error(
+                        `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
+                      );
+                    }
+                  });
+                } else {
+                  transformedEvents = transformedPayload;
+                }
+                // send transformed event to destination
+                transformedEvents?.forEach((tEvent) => {
+                  if (tEvent.event) {
+                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                  }
+                });
+              } catch (e) {
+                if (e instanceof Error) {
+                  e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+                }
+                handleError(e);
+              }
+            });
+          }
+        },
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        e.message = `[DMT]:: ${e.message}`;
+      }
+      handleError(e);
+    }
+  }
+
+  /**
+   * A function to process and send events to device mode destinations
+   * @param {instance} destinations
+   * @param {Object} rudderElement
+   * @param {String} methodName
+   */
+  processAndSendEventsToDeviceMode(destinations, rudderElement, methodName) {
+    const destWithoutTransformation = [];
+    const destWithTransformation = [];
+
+    // Depending on transformation is connected or not
+    // create two sets of destinations
+    destinations.forEach((intg) => {
+      const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+
+      // Block the event if it is blacklisted for the device-mode destination
+      if (sendEvent) {
+        if (intg.areTransformationsConnected) {
+          destWithTransformation.push(intg);
+        } else {
+          destWithoutTransformation.push(intg);
+        }
+      }
+    });
+    // loop through destinations that doesn't have
+    // transformation connected with it and send events
+    destWithoutTransformation.forEach((intg) => {
+      this.sendDataToDestination(intg, rudderElement, methodName);
+    });
+
+    if (destWithTransformation.length > 0) {
+      this.sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName);
+    }
+  }
+
+  /**
+   *
+   * @param {*} type
+   * @param {*} rudderElement
+   * Sends cloud mode events to server
+   */
+  queueEventForDataPlane(type, rudderElement) {
+    // if not specified at event level, All: true is default
+    const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+    rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+      this.integrationsData,
+      clientSuppliedIntegrations,
+    );
+    // self analytics process, send to rudder
+    this.eventRepository.enqueue(rudderElement, type);
+  }
+
+  /**
+   * Processes the buffered cloud mode events and sends it to server
+   */
+  processBufferedCloudModeEvents() {
+    if (this.bufferDataPlaneEventsUntilReady) {
+      this.preProcessQueue.activateProcessor();
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -384,6 +553,8 @@ class Analytics {
       object.executeReadyCallback();
     }
 
+    this.processBufferedCloudModeEvents();
+
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach((event) => {
       const methodName = event[0];
@@ -405,28 +576,11 @@ class Analytics {
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (const successfulLoadedIntersectClientSuppliedIntegration of successfulLoadedIntersectClientSuppliedIntegrations) {
-        try {
-          if (
-            (!successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
-              !successfulLoadedIntersectClientSuppliedIntegration.isFailed()) &&
-            successfulLoadedIntersectClientSuppliedIntegration[methodName]
-          ) {
-            const sendEvent = !object.IsEventBlackListed(
-              event[0].message.event,
-              successfulLoadedIntersectClientSuppliedIntegration.name,
-            );
-
-            // Block the event if it is blacklisted for the device-mode destination
-            if (sendEvent) {
-              const clonedBufferEvent = R.clone(event);
-              successfulLoadedIntersectClientSuppliedIntegration[methodName](...clonedBufferEvent);
-            }
-          }
-        } catch (error) {
-          handleError(error);
-        }
-      }
+      this.processAndSendEventsToDeviceMode(
+        successfulLoadedIntersectClientSuppliedIntegrations,
+        event[0],
+        methodName,
+      );
     });
     object.toBeProcessedByIntegrationArray = [];
   }
@@ -689,6 +843,18 @@ class Analytics {
   }
 
   /**
+   * A function to determine whether SDK should use the integration option provided in load call
+   * @returns boolean
+   */
+  shouldUseGlobalIntegrationsConfigInEvents() {
+    return (
+      this.useGlobalIntegrationsConfigInEvents &&
+      this.loadOnlyIntegrations &&
+      Object.keys(this.loadOnlyIntegrations).length > 0
+    );
+  }
+
+  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -746,11 +912,20 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+      let clientSuppliedIntegrations = rudderElement.message.integrations;
 
-      // structure user supplied integrations object to rudder format
-      transformToRudderNames(clientSuppliedIntegrations);
+      if (clientSuppliedIntegrations) {
+        // structure user supplied integrations object to rudder format
+        transformToRudderNames(clientSuppliedIntegrations);
+      } else if (this.shouldUseGlobalIntegrationsConfigInEvents()) {
+        // when useGlobalIntegrationsConfigInEvents load option is set to true and integration object provided in load
+        // is not empty use it at event level
+        clientSuppliedIntegrations = this.loadOnlyIntegrations;
+      } else {
+        // if not specified at event level, use default integration option
+        clientSuppliedIntegrations = DEFAULT_INTEGRATIONS_CONFIG;
+      }
+
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
       try {
@@ -774,33 +949,25 @@ class Analytics {
         );
 
         // try to first send to all integrations, if list populated from BE
-        successfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
-          try {
-            if ((!obj.isFailed || !obj.isFailed()) && obj[type]) {
-              const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
-
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedRudderElement = R.clone(rudderElement);
-                obj[type](clonedRudderElement);
-              }
-            }
-          } catch (err) {
-            const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
-            handleError(err, message);
-          }
-        });
+        this.processAndSendEventsToDeviceMode(
+          successfulLoadedIntersectClientSuppliedIntegrations,
+          rudderElement,
+          type,
+        );
       }
 
+      const clonedRudderElement = R.clone(rudderElement);
       // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
+      transformToServerNames(clonedRudderElement.message.integrations);
 
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(rudderElement, type);
+      // Holding the cloud mode events based on flag and integrations load check
+      const shouldNotBufferDataPlaneEvents =
+        !this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects;
+      if (shouldNotBufferDataPlaneEvents) {
+        this.queueEventForDataPlane(type, clonedRudderElement);
+      } else {
+        this.preProcessQueue.enqueue(type, clonedRudderElement);
+      }
 
       // logger.debug(`${type} is called `)
       if (callback) {
@@ -1039,6 +1206,9 @@ class Analytics {
       transformToRudderNames(this.loadOnlyIntegrations);
     }
 
+    this.useGlobalIntegrationsConfigInEvents =
+      options && options.useGlobalIntegrationsConfigInEvents === true;
+
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
@@ -1070,6 +1240,13 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && typeof options.bufferDataPlaneEventsUntilReady === 'boolean') {
+      this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
+      if (this.bufferDataPlaneEventsUntilReady) {
+        this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
+      }
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
@@ -1112,6 +1289,29 @@ class Analytics {
     }
   }
 
+  arePolyfillsRequired(options) {
+    // check if the below features are available in the browser or not
+    // If not present dynamically load from the polyfill cdn, unless
+    // the options are configured not to.
+    const polyfillIfRequired =
+      options && typeof options.polyfillIfRequired === 'boolean'
+        ? options.polyfillIfRequired
+        : true;
+    return (
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        !Promise ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable())
+    );
+  }
+
   /**
    * Call control pane to get client configs
    *
@@ -1124,26 +1324,7 @@ class Analytics {
 
     // clone options
     const clonedOptions = R.clone(options);
-    // check if the below features are available in the browser or not
-    // If not present dynamically load from the polyfill cdn, unless
-    // the options are configured not to.
-    const polyfillIfRequired =
-      clonedOptions && typeof clonedOptions.polyfillIfRequired === 'boolean'
-        ? clonedOptions.polyfillIfRequired
-        : true;
-    if (
-      polyfillIfRequired &&
-      (!String.prototype.endsWith ||
-        !String.prototype.startsWith ||
-        !String.prototype.includes ||
-        !Array.prototype.find ||
-        !Array.prototype.includes ||
-        !Promise ||
-        !Object.entries ||
-        !Object.values ||
-        !String.prototype.replaceAll ||
-        !this.isDatasetAvailable())
-    ) {
+    if (this.arePolyfillsRequired(clonedOptions)) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
@@ -1250,6 +1431,15 @@ class Analytics {
    */
   endSession() {
     this.uSession.end();
+  }
+
+  setAuthToken(token) {
+    if (typeof token !== 'string') {
+      logger.error('Provided input should be in string format');
+      return;
+    }
+    this.storage.setAuthToken(token);
+    this.transformationHandler.setAuthToken(token);
   }
 }
 
@@ -1378,6 +1568,7 @@ const getGroupId = instance.getGroupId.bind(instance);
 const getGroupTraits = instance.getGroupTraits.bind(instance);
 const startSession = instance.startSession.bind(instance);
 const endSession = instance.endSession.bind(instance);
+const setAuthToken = instance.setAuthToken.bind(instance);
 
 export {
   initialized,
@@ -1398,4 +1589,5 @@ export {
   getGroupTraits,
   startSession,
   endSession,
+  setAuthToken,
 };

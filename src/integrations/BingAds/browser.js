@@ -3,12 +3,14 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class BingAds {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.tagID = config.tagID;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
 
@@ -23,7 +25,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w[u] = new UET(o));
+          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -42,13 +44,18 @@ class BingAds {
   /* eslint-enable */
 
   init = () => {
-    this.loadBingadsScript();
+    this.loadBingadsScript();  
     logger.debug('===in init BingAds===');
   };
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
+    if(typeof window.UET !== 'function') {
+      logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
+    } else {
+      logger.debug('BingAds: UET class is successfully loaded');
+    }
+    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   };
 
   isReady = () => {
@@ -66,7 +73,7 @@ class BingAds {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const eventToSend = type;
-    if(!eventToSend){
+    if (!eventToSend) {
       logger.error('Event type not present');
       return;
     }

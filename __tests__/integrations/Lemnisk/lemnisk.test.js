@@ -3,11 +3,13 @@ import Lemnisk from "../../../src/integrations/Lemnisk/browser";
 afterAll(() => {
     jest.restoreAllMocks();
 });
+const destinationInfo = { areTransformationsConnected: false, destinationId: 'sample-destination-id' };
+
 describe('lemnisk init tests', () => {
     let lemnisk;
 
     test('Testing init call of Lemnisk', () => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" });
+        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" }, destinationInfo);
         lemnisk.init();
         expect(typeof window.lmSMTObj).toBe('object');
     });
@@ -16,7 +18,7 @@ describe('lemnisk init tests', () => {
 describe("lemnisk page", () => {
     let lemnisk;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" });
+        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" }, destinationInfo);
         lemnisk.init();
         window.lmSMTObj.page = jest.fn();
     });
@@ -49,7 +51,7 @@ describe("lemnisk page", () => {
 describe("Lemnisk Track event", () => {
     let lemnisk;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" });
+        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" }, destinationInfo);
         lemnisk.init();
         window.lmSMTObj.track = jest.fn();
     });
@@ -122,7 +124,7 @@ describe("Lemnisk Track event", () => {
 describe("Lemnisk Identify event", () => {
     let lemnisk;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" });
+        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" }, destinationInfo);
         lemnisk.init();
         window.lmSMTObj.identify = jest.fn();
     });

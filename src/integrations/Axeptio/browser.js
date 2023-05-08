@@ -8,7 +8,7 @@ import makeACall from './utils';
 const logger = new Logger(NAME);
 
 class Axeptio {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     this.analytics = analytics;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
@@ -16,6 +16,8 @@ class Axeptio {
     this.name = NAME;
     this.clientId = config.clientId;
     this.toggleToActivateCallback = config.toggleToActivateCallback;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   loadScript() {
