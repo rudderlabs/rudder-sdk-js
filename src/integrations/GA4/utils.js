@@ -201,7 +201,7 @@ function sendUserIdToGA4(integrations) {
   if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
     const { GA4 } = integrations;
     if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
-      return GA4.sendUserId;
+      return !!GA4.sendUserId;
     }
     return true;
   }
