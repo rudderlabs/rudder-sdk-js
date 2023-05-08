@@ -38,6 +38,7 @@ const generateSessionId = (): number => Date.now();
  * @returns
  */
 const isValidManualSessionId = (sessionId?: number, logger?: ILogger): boolean => {
+  if (!sessionId) return false;
   if (typeof sessionId !== 'number' || sessionId % 1 !== 0) {
     logger?.error(`[Session]:: "sessionId" should only be a positive integer`);
     return false;
@@ -61,7 +62,7 @@ const generateAutoTrackingSession = (timestamp: number): SessionInfo => {
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + timeout, // set the expiry time of the session
-    timeout: state.session.sessionInfo.value.timeout,
+    timeout,
     sessionStart: true,
     autoTrack: true,
   };
