@@ -23,6 +23,7 @@ export default class GA4 {
     this.name = NAME;
     this.clientId = '';
     this.sessionId = '';
+    this.sessionNumber = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
@@ -66,7 +67,7 @@ export default class GA4 {
     }
 
     /**
-     * Setting the parameter sessionId and clientId using gtag api
+     * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
@@ -75,6 +76,10 @@ export default class GA4 {
 
     window.gtag('get', this.measurementId, 'client_id', (clientId) => {
       this.clientId = clientId;
+    });
+
+    window.gtag('get', this.measurementId, 'session_number', (sessionNumber) => {
+      this.sessionNumber = sessionNumber;
     });
 
     ScriptLoader(
@@ -289,6 +294,7 @@ export default class GA4 {
       'Google Analytics 4': {
         clientId: this.clientId,
         sessionId: this.sessionId,
+        sessionNumber: this.sessionNumber,
       },
     };
   }
