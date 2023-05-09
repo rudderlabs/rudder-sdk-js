@@ -11,6 +11,7 @@ class Fullstory {
     this.fs_debug_mode = config.fs_debug_mode;
     this.name = NAME;
     this.analytics = analytics;
+    this.fs_host = config.fs_host || "fullstory.com";
   }
 
   static getFSProperties(properties) {
@@ -52,7 +53,7 @@ class Fullstory {
   init() {
     logger.debug("===in init FULLSTORY===");
     window._fs_debug = this.fs_debug_mode;
-    window._fs_host = "fullstory.com";
+    window._fs_host = this.fs_host;
     window._fs_script = "edge.fullstory.com/s/fs.js";
     window._fs_org = this.fs_org;
     window._fs_namespace = "FS";
@@ -130,7 +131,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug("Unable to access locaStorage");
+          logger.debug("Unable to access localStorage");
         }
 
         return null;
