@@ -9,6 +9,8 @@ jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
 }));
 
 describe('User session manager', () => {
+  const dummyAnonymousId = 'dummy-anonymousId-12345678';
+
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
@@ -134,7 +136,7 @@ describe('User session manager', () => {
   });
   it.skip('getAnonymousId', () => {
     const customData = {
-      rl_anonymous_id: 'dummy-anonymousId-12345678',
+      rl_anonymous_id: dummyAnonymousId,
     };
     setCustomValuesInStorage(customData);
     userSessionManager.init(clientDataStore);
@@ -209,5 +211,151 @@ describe('User session manager', () => {
     userSessionManager.init(clientDataStore);
     const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
     expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
+  });
+  it('getSessionInfo: should return empty object if any type of tracking is not enabled', () => {
+    userSessionManager.init(clientDataStore);
+    state.session.sessionInfo.value = {};
+    const actualSessionInfo = userSessionManager.getSessionInfo();
+    expect(actualSessionInfo).toStrictEqual({});
+  });
+  it('getSessionInfo: should return session id and sessionStart when auto tracking is enabled', () => {
+    userSessionManager.init(clientDataStore);
+    const actualSessionInfo = userSessionManager.getSessionInfo();
+    expect(actualSessionInfo).toEqual({
+      id: expect.any(Number),
+      sessionStart: true,
+    });
+  });
+  it('getSessionInfo: should return session id and sessionStart when manual tracking is enabled', () => {
+    const manualTrackingSessionId = 1029384756;
+    userSessionManager.init(clientDataStore);
+    userSessionManager.start(manualTrackingSessionId);
+    const actualSessionInfo = userSessionManager.getSessionInfo();
+    expect(actualSessionInfo).toEqual({
+      id: manualTrackingSessionId,
+      sessionStart: true,
+    });
+  });
+  it('getSessionInfo: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+    userSessionManager.init(clientDataStore);
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now(),
+      id: 1683613729115,
+      sessionStart: false,
+    };
+    const actualSessionInfo = userSessionManager.getSessionInfo();
+    expect(actualSessionInfo).toEqual({
+      id: expect.any(Number),
+      sessionStart: true,
+    });
+  });
+  it('getSessionInfo: should return only session id from the second event of the auto session tracking', () => {
+    userSessionManager.init(clientDataStore);
+    userSessionManager.getSessionInfo(); // sessionInfo For First Event
+    const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
+    expect(sessionInfoForSecondEvent).toEqual({
+      id: expect.any(Number),
+    });
+  });
+  it('getSessionInfo: should return only session id from the second event of the manual session tracking', () => {
+    const manualTrackingSessionId = 1029384756;
+    userSessionManager.init(clientDataStore);
+    userSessionManager.start(manualTrackingSessionId);
+    userSessionManager.getSessionInfo(); // sessionInfo For First Event
+    const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
+    expect(sessionInfoForSecondEvent).toEqual({
+      id: manualTrackingSessionId,
+    });
+  });
+  it('startAutoTracking: should create a new session in case of invalid session', () => {
+    userSessionManager.init(clientDataStore);
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now(),
+      id: 1683613729115,
+      sessionStart: false,
+    };
+    userSessionManager.startAutoTracking();
+    expect(state.session.sessionInfo.value).toEqual({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: expect.any(Number),
+      id: expect.any(Number),
+      sessionStart: true,
+    });
+  });
+  it('startAutoTracking: should not create a new session in case of valid session', () => {
+    userSessionManager.init(clientDataStore);
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now() + 30 * 1000,
+      id: 1683613729115,
+      sessionStart: false,
+    };
+    userSessionManager.startAutoTracking();
+    expect(state.session.sessionInfo.value).toEqual({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: expect.any(Number),
+      id: 1683613729115,
+      sessionStart: false,
+    });
+  });
+  it('startManualTracking: should create a new manual session', () => {
+    const manualTrackingSessionId = 1029384756;
+    userSessionManager.init(clientDataStore);
+    userSessionManager.start(manualTrackingSessionId);
+    expect(state.session.sessionInfo.value).toEqual({
+      manualTrack: true,
+      id: manualTrackingSessionId,
+      sessionStart: true,
+    });
+  });
+  it('startManualTracking: should create a new manual session even id session id is not provided', () => {
+    userSessionManager.init(clientDataStore);
+    userSessionManager.start();
+    expect(state.session.sessionInfo.value).toEqual({
+      manualTrack: true,
+      id: expect.any(Number),
+      sessionStart: true,
+    });
+  });
+  it('endSessionTracking: should clear session info', () => {
+    userSessionManager.init(clientDataStore);
+    userSessionManager.end();
+    expect(state.session.sessionInfo.value).toEqual({});
+  });
+  it('reset: should reset user session to the initial value except anonymousId', () => {
+    userSessionManager.init(clientDataStore);
+    userSessionManager.setAnonymousId(dummyAnonymousId);
+    const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
+    userSessionManager.reset();
+    expect(state.session.userId.value).toEqual('');
+    expect(state.session.userTraits.value).toEqual({});
+    expect(state.session.groupId.value).toEqual('');
+    expect(state.session.groupTraits.value).toEqual({});
+    expect(state.session.anonymousUserId.value).toEqual(dummyAnonymousId);
+    // new session will be generated
+    expect(state.session.sessionInfo.value.autoTrack).toBe(sessionInfoBeforeReset.autoTrack);
+    expect(state.session.sessionInfo.value.timeout).toBe(sessionInfoBeforeReset.timeout);
+    expect(state.session.sessionInfo.value.expiresAt).not.toBe(sessionInfoBeforeReset.expiresAt);
+    expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
+    expect(state.session.sessionInfo.value.sessionStart).toBe(true);
+  });
+  it('reset: should clear anonymousId with first parameter set to true', () => {
+    userSessionManager.init(clientDataStore);
+    userSessionManager.setAnonymousId(dummyAnonymousId);
+    userSessionManager.reset(true);
+    expect(state.session.anonymousUserId.value).toEqual('');
+  });
+  it('reset: should not start a new session with second parameter set to true', () => {
+    userSessionManager.init(clientDataStore);
+    const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
+    userSessionManager.reset(true, true);
+    expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
   });
 });
