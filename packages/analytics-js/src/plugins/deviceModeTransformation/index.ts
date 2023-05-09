@@ -1,1 +1,0 @@
-export { deviceModeTransformation } from './deviceModeTransformation';

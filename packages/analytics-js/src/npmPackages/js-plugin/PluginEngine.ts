@@ -3,11 +3,11 @@ import {
   getValueByPath,
   hasValueByPath,
 } from '@rudderstack/analytics-js/components/utilities/object';
-import { isPluginEngineDebugMode } from './debug';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { ExtensionPlugin, IPluginEngine, PluginEngineConfig } from './types';
+import { isPluginEngineDebugMode } from './debug';
 
-// TODO: remove the global singleton
-// TODO: pass and use here the logger and the error handler
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
 //  plugin that is the normal invoke
@@ -16,23 +16,34 @@ class PluginEngine implements IPluginEngine {
   byName: Record<string, ExtensionPlugin> = {};
   cache: Record<string, ExtensionPlugin[]> = {};
   config: PluginEngineConfig = { throws: true };
+  logger?: ILogger;
 
-  constructor(options: PluginEngineConfig = {}) {
+  constructor(options: PluginEngineConfig = {}, logger?: ILogger) {
     this.config = {
       throws: true,
       ...options,
     };
+
+    this.logger = logger;
   }
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
-      console.log('error: Every plugin should have a name.');
-      console.log(plugin);
-      throw new Error('error: Every plugin should have a name.');
+      const errorMessage = `Every plugin should have a name.`;
+      if (this.config.throws) {
+        throw new Error(errorMessage);
+      } else {
+        this.logger?.error(errorMessage, plugin);
+      }
     }
 
     if (this.byName[plugin.name]) {
-      throw new Error(`error: Plugin "${plugin.name}" already exits.`);
+      const errorMessage = `Plugin "${plugin.name}" already exits.`;
+      if (this.config.throws) {
+        throw new Error(errorMessage);
+      } else {
+        this.logger?.error(errorMessage);
+      }
     }
 
     this.cache = {};
@@ -58,15 +69,23 @@ class PluginEngine implements IPluginEngine {
     const plugin = this.byName[name];
 
     if (!plugin) {
-      throw new Error(`error: Plugin "${name}" does't exist.`);
+      const errorMessage = `Plugin "${name}" doesn't exist.`;
+      if (this.config.throws) {
+        throw new Error(errorMessage);
+      } else {
+        this.logger?.error(errorMessage);
+      }
     }
 
     const index = this.plugins.indexOf(plugin);
 
     if (index === -1) {
-      throw new Error(
-        `error: Plugin "${name}" does't exist in plugins but in byName. This seems to be a bug of PluginEngine.`,
-      );
+      const errorMessage = `Plugin "${name}" doesn't exist in plugins but exists in byName. This seems to be a bug of PluginEngine.`;
+      if (this.config.throws) {
+        throw new Error(errorMessage);
+      } else {
+        this.logger?.error(errorMessage);
+      }
     }
 
     this.cache = {};
@@ -87,9 +106,8 @@ class PluginEngine implements IPluginEngine {
         if (plugin.deps && plugin.deps.some(dependency => !this.byName[dependency])) {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
-          console.log(
-            `waring: Plugin ${plugin.name} is not loaded because its deps do not exist: ${notExistDeps}.`,
-          );
+          const errorMessage = `Plugin ${plugin.name} is not loaded because its dependencies do not exist: ${notExistDeps}.`;
+          this.logger?.error(errorMessage);
           return false;
         }
         return lifeCycleName === '.' ? true : hasValueByPath(plugin, lifeCycleName);
@@ -110,7 +128,7 @@ class PluginEngine implements IPluginEngine {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {
-      throw new Error('error: Invoke on plugin should have a extensionPointName');
+      throw new Error('Invoke on plugin should have a extensionPointName');
     }
 
     const noCall = /^!/.test(extensionPointName);
@@ -119,7 +137,7 @@ class PluginEngine implements IPluginEngine {
     extensionPointName = extensionPointName.replace(/^!|!$/g, '');
 
     if (!extensionPointName) {
-      throw new Error('error: Invoke on plugin should have a valid extensionPointName');
+      throw new Error('Invoke on plugin should have a valid extensionPointName');
     }
 
     const extensionPointNameParts = extensionPointName.split('.');
@@ -136,22 +154,22 @@ class PluginEngine implements IPluginEngine {
 
       try {
         if (isPluginEngineDebugMode) {
-          console.log('Before', plugin.name, extensionPointName, ...args);
+          this.logger?.debug('Before', plugin.name, extensionPointName, ...args);
         }
 
         return method.apply(getValueByPath(plugin, obj), args);
       } catch (err) {
         // When a plugin failed, doesn't break the app
-        console.log(`error: Failed to invoke plugin: ${plugin.name}!${extensionPointName}`);
+        this.logger?.error(`Failed to invoke plugin: ${plugin.name}!${extensionPointName}`);
 
         if (throws) {
           throw err;
         } else {
-          console.log(err);
+          this.logger?.error(err);
         }
       } finally {
         if (isPluginEngineDebugMode) {
-          console.log('After ', plugin.name, extensionPointName, ...args);
+          this.logger?.debug('After ', plugin.name, extensionPointName, ...args);
         }
       }
 
@@ -160,6 +178,6 @@ class PluginEngine implements IPluginEngine {
   }
 }
 
-const defaultPluginEngine = new PluginEngine();
+const defaultPluginEngine = new PluginEngine({ throws: true }, defaultLogger);
 
 export { PluginEngine, defaultPluginEngine };

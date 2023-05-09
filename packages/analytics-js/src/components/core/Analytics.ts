@@ -1,4 +1,4 @@
-import { isEmpty, clone } from 'ramda';
+import { isEmpty } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -10,7 +10,6 @@ import { state } from '@rudderstack/analytics-js/state';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   IEventManager,
@@ -46,6 +45,7 @@ import {
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 import { tryStringify } from '../utilities/string';
+import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -135,7 +135,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, clone(loadOptions));
+      state.loadOptions.value = normaliseLoadOptions(state.loadOptions.value, loadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 
@@ -163,15 +163,14 @@ class Analytics implements IAnalytics {
           this.loadConfig();
           break;
         case LifecycleStatus.Configured:
-          // TODO: call the loadPlugins just after the config manager ends
-          this.init();
-          break;
-        case LifecycleStatus.Initialized:
           this.loadPlugins();
           break;
         case LifecycleStatus.PluginsLoading:
           break;
         case LifecycleStatus.PluginsReady:
+          this.init();
+          break;
+        case LifecycleStatus.Initialized:
           this.onLoaded();
           break;
         case LifecycleStatus.Loaded:
@@ -224,8 +223,6 @@ class Analytics implements IAnalytics {
   /**
    * Load plugins
    */
-  // TODO: dummy implementation for testing until we implement plugin manager
-  //  create proper implementation once relevant task is picked up
   loadPlugins() {
     this.pluginsManager.init();
     // TODO: are we going to enable custom plugins to be passed as load options?

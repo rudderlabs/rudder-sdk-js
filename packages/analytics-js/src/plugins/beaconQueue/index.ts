@@ -1,1 +1,0 @@
-export { beaconQueue } from './beaconQueue';

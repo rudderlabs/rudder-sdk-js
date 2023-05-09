@@ -1,6 +1,11 @@
-declare module 'remotePlugins/RemotePlugin';
-declare module 'remotePlugins/RemotePlugin2';
-declare module 'remotePlugins/LoadIntegrations';
-declare module 'remotePlugins/StorageEncryptionV1';
+declare module 'remotePlugins/BeaconQueue';
+declare module 'remotePlugins/ConsentManager';
+declare module 'remotePlugins/DeviceModeTransformation';
+declare module 'remotePlugins/DeviceModeDestinations';
+declare module 'remotePlugins/ErrorReporting';
+declare module 'remotePlugins/ExternalAnonymousId';
 declare module 'remotePlugins/GoogleLinker';
-declare module 'remotePlugins/externalAnonymousId';
+declare module 'remotePlugins/NativeDestinationQueue';
+declare module 'remotePlugins/StorageEncryption';
+declare module 'remotePlugins/StorageEncryptionLegacy';
+declare module 'remotePlugins/XhrQueue';

@@ -34,6 +34,7 @@ const defaultLoadOptions: LoadOptions = {
   useBeacon: false,
   lockIntegrationsVersion: false,
   uaChTrackLevel: UaChTrackLevel.None,
+  plugins: [],
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

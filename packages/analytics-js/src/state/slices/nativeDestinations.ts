@@ -1,10 +1,10 @@
 import { Signal, signal } from '@preact/signals-core';
 import {
   ClientIntegrations,
-  // ClientSuppliedCallbacks,
   DynamicallyLoadedIntegration,
   IntegrationInstance,
   IntegrationOpts,
+  // ClientSuppliedCallbacks,
   // MethodToCallbackMap,
 } from '@rudderstack/analytics-js/state/types';
 

@@ -66,6 +66,7 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
       state.lifecycle.isStaging.value = isStaging;
+      state.plugins.loadOptionsPlugins.value = state.loadOptions.value.plugins as string[];
     });
     this.getConfig();
   }
@@ -84,7 +85,6 @@ class ConfigManager implements IConfigManager {
   /**
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
-   * @param res source config response
    */
   processConfig(response?: SourceConfigResponse | string) {
     if (!response) {

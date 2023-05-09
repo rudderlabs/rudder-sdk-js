@@ -5,11 +5,25 @@ import {
 
 export interface IPluginsManager {
   engine: IPluginEngine;
-  availablePlugins: string[];
   init(): void;
+  attachEffects(): void;
   setActivePlugins(): void;
   invoke<T = any>(extPoint?: string, ...args: any[]): T[];
   register(plugins: ExtensionPlugin[]): void;
+}
+
+export enum PluginName {
+  BeaconQueue = 'BeaconQueue',
+  ConsentManager = 'ConsentManager',
+  DeviceModeDestinations = 'DeviceModeDestinations',
+  DeviceModeTransformation = 'DeviceModeTransformation',
+  ErrorReporting = 'ErrorReporting',
+  ExternalAnonymousId = 'ExternalAnonymousId',
+  GoogleLinker = 'GoogleLinker',
+  NativeDestinationQueue = 'NativeDestinationQueue',
+  StorageEncryption = 'StorageEncryption',
+  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
+  XhrQueue = 'XhrQueue',
 }
 
 export type PluginMap<T = ExtensionPlugin> = Record<string, () => T>;

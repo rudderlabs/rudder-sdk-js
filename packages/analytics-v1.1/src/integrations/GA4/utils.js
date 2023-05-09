@@ -139,7 +139,7 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * Implement using recursion to handle multi level prop mapping.
  * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
  * @param {*} destParameterConfig
- * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
+ * Defined Parameter present GA4/utils.ts ex: [{ src: "category", dest: "item_list_name", inItems: true }]
  * @param {*} contextOp "properties" or "product"
  */
 function getDestinationEventProperties(props, destParameterConfig, contextOp, hasItem = true) {

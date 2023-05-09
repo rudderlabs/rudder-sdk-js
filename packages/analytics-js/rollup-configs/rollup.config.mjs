@@ -37,7 +37,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
   return {
     //preserveEntrySignatures: false,
     watch: {
-      include: ['src/**'],
+      include: ['src/**', 'public/**'],
     },
     external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {

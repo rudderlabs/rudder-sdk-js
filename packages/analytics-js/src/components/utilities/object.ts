@@ -45,10 +45,13 @@ const mergeDeepRightObjectArrays = (
 
   const mergedArray = clone(leftValue);
   rightValue.forEach((value, index) => {
+    // TODO: fix merge for non objects
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    mergedArray[index] = mergeDeepRight(mergedArray[index], value);
+    mergedArray[index] =
+      Array.isArray(value) || isObjectAndNotNull(value)
+        ? mergeDeepRight(mergedArray[index], value)
+        : value;
   });
-
   return mergedArray;
 };
 

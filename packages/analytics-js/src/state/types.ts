@@ -1,3 +1,5 @@
+import { Nullable } from '@rudderstack/analytics-js/types';
+
 export type CookieConsentOptions = {
   // OneTrust
   oneTrust?: {
@@ -241,6 +243,7 @@ export type LoadOptions = {
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
+  plugins?: Nullable<string[]>;
   // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
 };
 

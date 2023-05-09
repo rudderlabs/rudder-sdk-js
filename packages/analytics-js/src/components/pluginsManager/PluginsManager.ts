@@ -1,3 +1,4 @@
+import { batch, effect } from '@preact/signals-core';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
 import {
   ExtensionPlugin,
@@ -8,39 +9,28 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { batch, effect } from '@preact/signals-core';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { IPluginsManager } from './types';
+import { remotePluginNames } from './pluginNames';
+import { IPluginsManager, PluginName } from './types';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
 
-// TODO: define types for plugins
-// TODO: copy the source of js-plugin so we can extend to to auto pass GlobalState
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
-// TODO: implement the engine, pass state, logger etc
+// TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
-  availablePlugins: string[];
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  hasErrorHandler = false;
-  hasLogger = false;
 
   constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.engine = engine;
-    this.availablePlugins = [
-      ...Object.keys(pluginsInventory),
-      ...Object.keys(remotePluginsInventory),
-    ];
 
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
     this.onError = this.onError.bind(this);
   }
 
@@ -49,13 +39,18 @@ class PluginsManager implements IPluginsManager {
     this.setActivePlugins();
     this.registerLocalPlugins();
     this.registerRemotePlugins();
+    this.attachEffects();
+  }
 
-    // TODO: requested and mandatory should be equal to loaded plus failed
+  // eslint-disable-next-line class-methods-use-this
+  attachEffects() {
     effect(() => {
-      if (
-        state.plugins.activePlugins.value.length > 0 &&
-        state.plugins.activePlugins.value.length === state.plugins.loadedPlugins.value.length
-      ) {
+      const isAllPluginsReady =
+        state.plugins.activePlugins.value.length === 0 ||
+        state.plugins.loadedPlugins.value.length + state.plugins.failedPlugins.value.length ===
+          state.plugins.totalPluginsToLoad.value;
+
+      if (isAllPluginsReady) {
         batch(() => {
           state.plugins.ready.value = true;
           state.lifecycle.status.value = LifecycleStatus.PluginsReady;
@@ -65,30 +60,19 @@ class PluginsManager implements IPluginsManager {
   }
 
   setActivePlugins() {
-    // TODO: take this value from configuration via ConfigService and a new loadOption
-    state.plugins.requestedPlugins.value = [
-      'localTest',
-      'localTest2',
-      'localTest3',
-      'StorageEncryptionV1',
-      'GoogleLinker',
-      'LoadIntegrations',
-      'RemotePlugin',
-      'RemotePlugin2',
-      'invalidPlugin',
-    ];
+    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
 
-    // If no plugins have been passed in loadOptions get all available ones
-    const requiredPlugins = [
+    // Merge mandatory and optional plugin name list
+    const pluginsToLoad = [
       ...Object.keys(getMandatoryPluginsMap()),
-      ...(state.plugins.requestedPlugins.value || Object.keys(pluginsInventory)),
+      ...state.plugins.loadOptionsPlugins.value,
     ];
 
     const activePlugins: string[] = [];
     const failedPlugins: string[] = [];
 
-    requiredPlugins.forEach(pluginName => {
-      if (this.availablePlugins.includes(pluginName)) {
+    pluginsToLoad.forEach(pluginName => {
+      if (availablePlugins.includes(pluginName)) {
         activePlugins.push(pluginName);
       } else {
         failedPlugins.push(pluginName);
@@ -100,8 +84,8 @@ class PluginsManager implements IPluginsManager {
       this.onError(new Error(`Ignoring loading of unknown plugins: ${failedPlugins.join(',')}`));
     }
 
-    // TODO: remove plugins from activePlugins that need to be removed based on loadOptions config values
     batch(() => {
+      state.plugins.totalPluginsToLoad.value = pluginsToLoad.length;
       state.plugins.activePlugins.value = activePlugins;
       state.plugins.failedPlugins.value = failedPlugins;
     });
@@ -114,10 +98,19 @@ class PluginsManager implements IPluginsManager {
   }
 
   registerRemotePlugins() {
-    Object.values(remotePluginsInventory).forEach(async remotePlugin => {
-      await remotePlugin()
+    const remotePluginsList = remotePluginsInventory(
+      state.plugins.activePlugins.value as PluginName[],
+    );
+
+    Object.keys(remotePluginsList).forEach(async remotePluginKey => {
+      await remotePluginsList[remotePluginKey]()
         .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
         .catch(e => {
+          // TODO: add retry here if dynamic import fails
+          state.plugins.failedPlugins.value = [
+            ...state.plugins.failedPlugins.value,
+            remotePluginKey,
+          ];
           this.onError(e);
         });
     });
@@ -138,22 +131,26 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
+  // TODO: Implement reset API instead
+  unregisterLocalPlugins() {
+    Object.values(pluginsInventory).forEach(localPlugin => {
+      try {
+        this.engine.unregister(localPlugin().name);
+      } catch (e) {
+        this.onError(e);
+      }
+    });
+  }
+
   /**
    * Handle errors
    */
   onError(error: Error | unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'PluginsManager');
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, 'PluginsManager');
     } else {
       throw error;
     }
-  }
-
-  // TODO: Implement reset API instead
-  unregisterLocalPlugins() {
-    Object.values(pluginsInventory).forEach(localPlugin => {
-      this.engine.unregister(localPlugin().name);
-    });
   }
 }
 
