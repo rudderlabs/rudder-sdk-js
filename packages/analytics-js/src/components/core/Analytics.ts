@@ -413,12 +413,9 @@ class Analytics implements IAnalytics {
     }
 
     const previousId =
-      tryStringify(payload.from) ||
+      payload.from ||
       this.userSessionManager.getUserId() ||
       this.userSessionManager.getAnonymousId();
-
-    // Set the new user ID only after determining the previous ID
-    this.userSessionManager.setUserId(tryStringify(payload.to));
 
     this.eventManager.addEvent({
       type,

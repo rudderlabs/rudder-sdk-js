@@ -383,6 +383,7 @@ describe('RudderEventFactory', () => {
     const apiEvent = {
       type: RudderEventType.Alias,
       from: 'user_id',
+      to: 'new_user_id',
     } as APIEvent;
 
     const aliasEvent = RudderEventFactory.create(apiEvent);
@@ -441,7 +442,7 @@ describe('RudderEventFactory', () => {
       messageId: 'test_uuid',
       integrations: { All: true },
       previousId: 'user_id',
-      userId: 'user_id',
+      userId: 'new_user_id',
     });
   });
 
