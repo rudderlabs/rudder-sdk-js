@@ -8,7 +8,8 @@
 function b64DecodeUnicode(str: string): string {
   // Going backwards: from bytestream, to percent-encoding, to original string.
   return decodeURIComponent(
-    atob(str)
+    window
+      .atob(str)
       .split('')
       .map(c => {
         const percentEncodingChar = `00${c.charCodeAt(0).toString(16)}`;

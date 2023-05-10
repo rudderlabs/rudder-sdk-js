@@ -43,7 +43,7 @@ class ErrorHandler implements IErrorHandler {
       return;
     }
 
-    errorMessage = removeDoubleSpaces(`[Analytics] ${context}:: ${customMessage} ${errorMessage}`);
+    errorMessage = removeDoubleSpaces(`${context}:: ${customMessage} ${errorMessage}`);
 
     // Enhance error message
     if (isTypeOfError) {

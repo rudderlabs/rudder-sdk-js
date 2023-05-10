@@ -76,7 +76,7 @@ describe('ErrorHandler', () => {
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      '[Analytics] Unit test:: dummy custom message dummy error',
+      'Unit test:: dummy custom message dummy error',
     );
   });
 
@@ -92,7 +92,7 @@ describe('ErrorHandler', () => {
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      '[Analytics] Unit test:: dummy custom message dummy error',
+      'Unit test:: dummy custom message dummy error',
     );
   });
 
@@ -109,9 +109,9 @@ describe('ErrorHandler', () => {
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        '[Analytics] Unit test:: dummy custom message dummy error',
+        'Unit test:: dummy custom message dummy error',
       );
-      expect(err.message).toStrictEqual('[Analytics] Unit test:: dummy custom message dummy error');
+      expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
   });
 
@@ -122,7 +122,7 @@ describe('ErrorHandler', () => {
     } catch (err) {
       expect(defaultPluginEngine.invoke).toHaveBeenCalledTimes(0);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
-      expect(err.message).toStrictEqual('[Analytics] Unit test:: dummy custom message dummy error');
+      expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
   });
 
@@ -133,7 +133,7 @@ describe('ErrorHandler', () => {
     } catch (err) {
       expect(defaultPluginEngine.invoke).toHaveBeenCalledTimes(0);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
-      expect(err.message).toStrictEqual('[Analytics] Unit test:: dummy custom message dummy error');
+      expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
   });
 

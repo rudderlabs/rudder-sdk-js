@@ -35,7 +35,7 @@ const parseLinkerParamValue = (value: string): Nullable<Record<string, string>> 
   const serializedIds = parts.join(DELIMITER);
 
   return {
-    checksum: checksum || '',
+    checksum: checksum ?? '',
     serializedIds,
   };
 };

@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type CookieConsentOptions = {
   // OneTrust
@@ -74,7 +75,7 @@ export type DestinationConfig = {
   measurementId?: string;
   capturePageView?: string;
   useNativeSDKToSend?: boolean;
-  connectionMode?: 'hybrid' | 'cloud' | 'device';
+  connectionMode?: DestinationConnectionMode;
   extendPageViewParams?: boolean;
   eventMappingFromConfig?: EventMapping[];
   appKey?: string;
@@ -243,7 +244,7 @@ export type LoadOptions = {
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
-  plugins?: Nullable<string[]>;
+  plugins?: Nullable<PluginName[]>;
   // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
 };
 
@@ -269,6 +270,12 @@ export enum LifecycleStatus {
   Loaded = 'loaded',
   IntegrationsReady = 'integrationsReady',
   Ready = 'ready',
+}
+
+export enum DestinationConnectionMode {
+  Hybrid = 'hybrid',
+  Cloud = 'cloud',
+  Device = 'device',
 }
 
 export type ReadyCallback = () => void;

@@ -80,7 +80,6 @@ class PluginsManager implements IPluginsManager {
     });
 
     if (failedPlugins.length > 0) {
-      // TODO: should we just log warning instead?
       this.onError(new Error(`Ignoring loading of unknown plugins: ${failedPlugins.join(',')}`));
     }
 

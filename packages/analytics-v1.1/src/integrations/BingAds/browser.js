@@ -15,7 +15,7 @@ class BingAds {
     this.uniqueId = `bing${this.tagID}`;
   }
 
-  // BEGIN-NO-SONAR-SCAN-SCAN
+  // START-NO-SONAR-SCAN
   /* eslint-disable */
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
@@ -44,7 +44,7 @@ class BingAds {
     })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
   };
   /* eslint-enable */
-  // END-NO-SONAR-SCAN-SCAN
+  // END-NO-SONAR-SCAN
 
   init = () => {
     this.loadBingadsScript();

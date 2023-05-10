@@ -30,7 +30,7 @@ describe('Bing Ads page', () => {
   beforeEach(() => {
     bingAds = new BingAds({ tagID: '12567839' }, { loglevel: 'debug' });
     bingAds.init();
-    window.bing12567839.push = jest.fn((x) => output.push(x));
+    window.bing12567839.push = jest.fn(x => output.push(x));
   });
 
   test('send pageview', () => {
@@ -96,7 +96,7 @@ describe('Bingads Track event', () => {
         },
       });
     } catch (e) {
-      expect.toEqual('Event type not present');
+      expect(e.message).toEqual('Event type not present');
     }
   });
 });
