@@ -253,7 +253,7 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (sendUserIdToGA4(rudderElement.message.integrations)) {
+      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.userId) {
         properties.user_id = this.analytics.userId;
       }
       if (this.extendPageViewParams) {
