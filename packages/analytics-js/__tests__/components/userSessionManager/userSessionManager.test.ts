@@ -3,6 +3,8 @@ import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/use
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -10,6 +12,7 @@ jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
 
 describe('User session manager', () => {
   const dummyAnonymousId = 'dummy-anonymousId-12345678';
+  defaultLogger.warn = jest.fn();
 
   let userSessionManager: UserSessionManager;
 
@@ -31,7 +34,7 @@ describe('User session manager', () => {
   beforeEach(() => {
     clearStorage();
     resetState();
-    userSessionManager = new UserSessionManager();
+    userSessionManager = new UserSessionManager(undefined, defaultLogger);
   });
 
   it('should initialize user details from storage to state', () => {
@@ -211,6 +214,36 @@ describe('User session manager', () => {
     userSessionManager.init(clientDataStore);
     const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
     expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
+  });
+  it('initializeSessionTracking: should be called during initialization of user session', () => {
+    userSessionManager.initializeSessionTracking = jest.fn();
+    userSessionManager.init(clientDataStore);
+    expect(userSessionManager.initializeSessionTracking).toHaveBeenCalled();
+  });
+  it('initializeSessionTracking: should create a new session in case no valid session exists', () => {
+    userSessionManager.init(clientDataStore);
+    expect(state.session.sessionInfo.value).toEqual({
+      autoTrack: true,
+      timeout: DEFAULT_SESSION_TIMEOUT,
+      expiresAt: expect.any(Number),
+      id: expect.any(Number),
+      sessionStart: true,
+    });
+  });
+  it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
+    state.loadOptions.value.sessions.timeout = 0;
+    userSessionManager.init(clientDataStore);
+    expect(defaultLogger.warn).toHaveBeenCalledWith(
+      '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
+    );
+    expect(state.session.sessionInfo.value.autoTrack).toBe(false);
+  });
+  it('initializeSessionTracking: should print warning message if provided timeout is less than 10 second', () => {
+    state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
+    userSessionManager.init(clientDataStore);
+    expect(defaultLogger.warn).toHaveBeenCalledWith(
+      '[SessionTracking]:: It is not advised to set "timeout" less than 10 seconds',
+    );
   });
   it('getSessionInfo: should return empty object if any type of tracking is not enabled', () => {
     userSessionManager.init(clientDataStore);

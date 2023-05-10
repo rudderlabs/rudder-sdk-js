@@ -7,6 +7,7 @@ import {
 } from '@rudderstack/analytics-js/components/userSessionManager/utils';
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 describe('Utility: User session manager', () => {
   const validObj = {
@@ -84,5 +85,29 @@ describe('Utility: User session manager', () => {
       id: expect.any(Number),
       sessionStart: true,
     });
+  });
+  it('generateManualTrackingSession: should print a error message if the provided session id is not a number', () => {
+    const sessionId = '1234567890';
+    defaultLogger.error = jest.fn();
+    generateManualTrackingSession(sessionId, defaultLogger);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      '[Session]:: "sessionId" should only be a positive integer',
+    );
+  });
+  it('generateManualTrackingSession: should print a error message if the provided session id a decimal number', () => {
+    const sessionId = 1234.5;
+    defaultLogger.error = jest.fn();
+    generateManualTrackingSession(sessionId, defaultLogger);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      '[Session]:: "sessionId" should only be a positive integer',
+    );
+  });
+  it('generateManualTrackingSession: should print a error message if the provided session id is not 10 digits', () => {
+    const sessionId = 1234;
+    defaultLogger.error = jest.fn();
+    generateManualTrackingSession(sessionId, defaultLogger);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      `[Session]:: "sessionId" should at least be "10" digits long`,
+    );
   });
 });
