@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { AnonymousIdOptions } from '@rudderstack/analytics-js/state/types';
-import { ExtensionPlugin, PluginName, ApplicationState } from '../types/common';
+import { ExtensionPlugin, PluginName, ApplicationState, AnonymousIdOptions } from '../types/common';
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';
 

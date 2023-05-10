@@ -12,7 +12,7 @@ const version = '__PACKAGE_VERSION__';
 const removeTrailingSlashes = inURL =>
   inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 
-const isFunction = (value) =>
+const isFunction = value =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
 const setImmediate = process.nextTick.bind(process);
@@ -53,7 +53,10 @@ class Analytics {
     this.flushInterval = options.flushInterval || 20000;
     this.maxInternalQueueSize = options.maxInternalQueueSize || 20000;
     this.logLevel = options.logLevel || 'info';
-    this.flushOverride = options.flushOverride && isFunction(options.flushOverride) ? options.flushOverride : undefined;
+    this.flushOverride =
+      options.flushOverride && isFunction(options.flushOverride)
+        ? options.flushOverride
+        : undefined;
     this.flushed = false;
     this.axiosInstance = axios.create({
       adapter: fetchAdapter,
@@ -383,7 +386,7 @@ class Analytics {
 
     const reqTimeout = typeof this.timeout === 'string' ? ms(this.timeout) : this.timeout;
 
-    if(this.flushOverride) {
+    if (this.flushOverride) {
       this.flushOverride({
         host: `${this.host}`,
         writeKey: this.writeKey,
@@ -392,7 +395,7 @@ class Analytics {
         reqTimeout,
         flush: this.flush.bind(this),
         done,
-        isErrorRetryable: this._isErrorRetryable.bind(this)
+        isErrorRetryable: this._isErrorRetryable.bind(this),
       });
     } else {
       const req = {
@@ -417,11 +420,11 @@ class Analytics {
           retryDelay: axiosRetry.exponentialDelay,
         },
       })
-        .then((response) => {
+        .then(response => {
           this.timer = setTimeout(this.flush.bind(this), this.flushInterval);
           done();
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
           this.logger.error(
             `got error while attempting send for 3 times, dropping ${items.length} events`,
@@ -429,7 +432,8 @@ class Analytics {
           this.timer = setTimeout(this.flush.bind(this), this.flushInterval);
           if (err.response) {
             const error = new Error(err.response.statusText);
-            return done(error);
+            done(error);
+            return;
           }
           done(err);
         });

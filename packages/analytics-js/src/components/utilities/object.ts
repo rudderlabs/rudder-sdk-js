@@ -35,6 +35,14 @@ const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
 const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
   Boolean(getValueByPath(obj, path));
 
+/**
+ * Checks if the input is an object and not null
+ * @param val Input value
+ * @returns true if the input is an object and not null
+ */
+const isObjectAndNotNull = (val: any): boolean =>
+  typeof val === 'object' && !Array.isArray(val) && val !== null;
+
 const mergeDeepRightObjectArrays = (
   leftValue: any | any[],
   rightValue: any | any[],
@@ -45,11 +53,10 @@ const mergeDeepRightObjectArrays = (
 
   const mergedArray = clone(leftValue);
   rightValue.forEach((value, index) => {
-    // TODO: fix merge for non objects
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     mergedArray[index] =
       Array.isArray(value) || isObjectAndNotNull(value)
-        ? mergeDeepRight(mergedArray[index], value)
+        ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          mergeDeepRight(mergedArray[index], value)
         : value;
   });
   return mergedArray;
@@ -59,14 +66,6 @@ const mergeDeepRight = <T = Record<string, any>>(
   leftObject: Record<string, any>,
   rightObject: Record<string, any>,
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
-
-/**
- * Checks if the input is an object and not null
- * @param val Input value
- * @returns true if the input is an object and not null
- */
-const isObjectAndNotNull = (val: any) =>
-  typeof val === 'object' && !Array.isArray(val) && val !== null;
 
 export {
   getValueByPath,

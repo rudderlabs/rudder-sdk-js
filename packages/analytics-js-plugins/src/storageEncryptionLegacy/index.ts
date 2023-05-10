@@ -17,14 +17,14 @@ const StorageEncryptionLegacy = (): ExtensionPlugin => ({
       return `${ENCRYPTION_PREFIX_V1}${AES.encrypt(value, ENCRYPTION_KEY_V1).toString()}`;
     },
     decrypt(value: string): string {
-      if (value.substring(0, ENCRYPTION_PREFIX_V1.length) === ENCRYPTION_PREFIX_V1) {
+      if (value.startsWith(ENCRYPTION_PREFIX_V1)) {
         return AES.decrypt(
           value.substring(ENCRYPTION_PREFIX_V1.length),
           ENCRYPTION_KEY_V1,
         ).toString(Utf8);
       }
 
-      if (value.substring(0, ENCRYPTION_PREFIX_V1.length) === ENCRYPTION_PREFIX_V1) {
+      if (value.startsWith(ENCRYPTION_PREFIX_V1)) {
         return AES.decrypt(
           value.substring(ENCRYPTION_PREFIX_V1.length),
           ENCRYPTION_KEY_V1,

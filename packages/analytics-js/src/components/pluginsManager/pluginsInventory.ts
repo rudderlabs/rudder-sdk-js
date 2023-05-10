@@ -11,14 +11,13 @@ const getOptionalPluginsMap = (): PluginMap => {
   }
 
   return {
-    ...((legacyBuildPluginImports && legacyBuildPluginImports()) || {}),
+    ...(legacyBuildPluginImports?.() || {}),
   };
 };
 
 const getRemotePluginsMap = (
   activePluginNames: PluginName[],
-): PluginMap<Promise<ExtensionPlugin>> =>
-  (modernBuildPluginImports && modernBuildPluginImports(activePluginNames)) || {};
+): PluginMap<Promise<ExtensionPlugin>> => modernBuildPluginImports?.(activePluginNames) || {};
 
 const pluginsInventory: PluginMap = {
   ...getMandatoryPluginsMap(),

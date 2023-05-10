@@ -9,11 +9,13 @@ class BingAds {
     }
     this.tagID = config.tagID;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
 
+  // BEGIN-NO-SONAR-SCAN-SCAN
   /* eslint-disable */
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
@@ -25,7 +27,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
+          (o.q = w[u]), w.UET && (w[u] = new UET(o));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -35,13 +37,14 @@ class BingAds {
           function () {
             const s = this.readyState;
             (s && s !== 'loaded' && s !== 'complete') ||
-            (f(), (n.onload = n.onreadystatechange = null));
+              (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
         i.parentNode.insertBefore(n, i);
     })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
   };
   /* eslint-enable */
+  // END-NO-SONAR-SCAN-SCAN
 
   init = () => {
     this.loadBingadsScript();
@@ -50,12 +53,14 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    if(typeof window.UET !== 'function') {
+    if (typeof window.UET !== 'function') {
       logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
     } else {
       logger.debug('BingAds: UET class is successfully loaded');
     }
-    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
@@ -69,7 +74,7 @@ class BingAds {
     Updated syntax doc ref - https://help.ads.microsoft.com/#apex/ads/en/56916/2
   */
 
-  track = (rudderElement) => {
+  track = rudderElement => {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const eventToSend = type;

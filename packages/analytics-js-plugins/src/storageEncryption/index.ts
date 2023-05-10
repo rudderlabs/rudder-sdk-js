@@ -17,7 +17,7 @@ const StorageEncryption = (): ExtensionPlugin => ({
       return `${ENCRYPTION_PREFIX_V3}${AES.encrypt(value, ENCRYPTION_KEY_V3).toString()}`;
     },
     decrypt(value: string): string {
-      if (value.substring(0, ENCRYPTION_PREFIX_V3.length) === ENCRYPTION_PREFIX_V3) {
+      if (value.startsWith(ENCRYPTION_PREFIX_V3)) {
         return AES.decrypt(
           value.substring(ENCRYPTION_PREFIX_V3.length),
           ENCRYPTION_KEY_V3,

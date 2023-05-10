@@ -6,7 +6,7 @@ const pluginName = PluginName.DeviceModeDestinations;
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
     return (
-      window.hasOwnProperty(pluginName) &&
+      Boolean((window as any)[pluginName]) &&
       (window as any)[pluginName][modName] &&
       typeof (window as any)[pluginName][modName].prototype.constructor !== 'undefined'
     );
@@ -16,11 +16,10 @@ const integrationSDKLoaded = (pluginName: string, modName: string) => {
   }
 };
 
-const pause = (time: number) => {
-  return new Promise(resolve => {
+const pause = (time: number) =>
+  new Promise(resolve => {
     setTimeout(resolve, time);
   });
-};
 
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,
@@ -45,8 +44,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         externalScriptOnLoad,
       );
 
-      const isInitialized = (instance: any, time = 0) => {
-        return new Promise(resolve => {
+      const isInitialized = (instance: any, time = 0) =>
+        new Promise(resolve => {
           if (instance.isLoaded()) {
             console.log('instance.isLoaded');
             state.nativeDestinations.successfullyLoadedIntegration.value = [
@@ -62,10 +61,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             ];
             resolve(this);
           } else {
-            pause(1000).then(() => isInitialized(instance, time + 1000).then(resolve));
+            pause(1000).then(() =>
+              isInitialized(instance, time + 1000)
+                .then(resolve)
+                .catch(() => {}),
+            );
           }
         });
-      };
 
       clientIntegrations.forEach(intg => {
         console.log(intg);
@@ -73,12 +75,14 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const modName = intg.name;
         const modURL = `https://cdn.rudderlabs.com/v1.1/js-integrations/${modName}.min.js`;
 
-        if (!window.hasOwnProperty(pluginName)) {
-          externalSrcLoader.loadJSFile({
-            url: modURL,
-            id: modName,
-            callback: externalScriptOnLoad,
-          });
+        if (!(window as any)[pluginName]) {
+          externalSrcLoader
+            .loadJSFile({
+              url: modURL,
+              id: modName,
+              callback: externalScriptOnLoad,
+            })
+            .catch(() => {});
         }
 
         const interval = setInterval(() => {
@@ -111,15 +115,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               });
               intgInstance.init();
 
-              isInitialized(intgInstance).then(() => {
-                const initializedDestination = {} as any;
-                initializedDestination[pluginName] = intMod[modName];
+              isInitialized(intgInstance)
+                .then(() => {
+                  const initializedDestination = {} as Record<string, any>;
+                  initializedDestination[pluginName] = intMod[modName];
 
-                state.nativeDestinations.dynamicallyLoadedIntegrations.value = {
-                  ...state.nativeDestinations.dynamicallyLoadedIntegrations.value,
-                  ...initializedDestination,
-                };
-              });
+                  state.nativeDestinations.dynamicallyLoadedIntegrations.value = {
+                    ...state.nativeDestinations.dynamicallyLoadedIntegrations.value,
+                    ...initializedDestination,
+                  };
+                })
+                .catch(e => {
+                  throw e;
+                });
             } catch (e: any) {
               const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
               console.error(e, message, intgInstance);

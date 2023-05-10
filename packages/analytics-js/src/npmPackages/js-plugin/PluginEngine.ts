@@ -11,6 +11,7 @@ import { isPluginEngineDebugMode } from './debug';
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
 //  plugin that is the normal invoke
+// TODO: add invoke method for extension point that we know only one plugin can be used. add invokeMultiple and invokeSingle methods
 class PluginEngine implements IPluginEngine {
   plugins: ExtensionPlugin[] = [];
   byName: Record<string, ExtensionPlugin> = {};

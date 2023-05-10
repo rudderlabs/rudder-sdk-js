@@ -42,3 +42,13 @@ export enum PluginName {
   StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   XhrQueue = 'XhrQueue',
 }
+
+/**
+ * Represents the options parameter for anonymousId
+ */
+export type AnonymousIdOptions = {
+  autoCapture?: {
+    enabled?: boolean;
+    source?: string;
+  };
+};

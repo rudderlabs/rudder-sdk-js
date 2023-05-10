@@ -54,9 +54,7 @@ const deserialize = (serializedIds: string): Record<string, string> => {
     const key = params[i];
     const valid = KEY_VALIDATOR.test(key);
     if (valid) {
-      const value = decode(params[i + 1]);
-      // const value = params[i + 1];
-      keyValuePairs[key] = value;
+      keyValuePairs[key] = decode(params[i + 1]);
     }
   }
   return keyValuePairs;

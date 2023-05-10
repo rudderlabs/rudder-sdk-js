@@ -36,6 +36,7 @@ import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/t
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -45,7 +46,6 @@ import {
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 import { tryStringify } from '../utilities/string';
-import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
