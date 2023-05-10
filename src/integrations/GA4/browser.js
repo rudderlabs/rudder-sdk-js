@@ -253,7 +253,7 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (sendUserIdToGA4(rudderElement.message.integrations)) {
+      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.userId) {
         properties.user_id = this.analytics.userId;
       }
       if (this.extendPageViewParams) {
@@ -276,9 +276,6 @@ export default class GA4 {
     logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits, integrations } = rudderElement.message;
-    if (this.sendUserId && this.analytics.userId) {
-      traits.user_id = this.analytics.userId;
-    }
     traits.send_to = this.measurementId;
 
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
