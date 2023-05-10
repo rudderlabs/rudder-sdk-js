@@ -1,32 +1,29 @@
-import Lemnisk from "../../../src/integrations/Lemnisk/browser";
+import Fullstory from "../../../src/integrations/Fullstory/browser";
 
 afterAll(() => {
     jest.restoreAllMocks();
 });
-const destinationInfo = { areTransformationsConnected: false, destinationId: 'sample-destination-id' };
+describe('FullStory init tests', () => {
+    let fullstory;
 
-describe('lemnisk init tests', () => {
-    let lemnisk;
-
-    test('Testing init call of Lemnisk', () => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" }, destinationInfo);
-        lemnisk.init();
-        expect(typeof window.lmSMTObj).toBe('object');
+    test('Testing init call of FullStory', () => {
+        fullstory = new Fullstory({ fs_org: "12567839", fs_debug_mode: true, fs_host: "localhost" }, { loglevel: "debug", loadOnlyIntegrations: {} });
+        fullstory.init();
+        expect(typeof window.FS).toBe('function');
     });
 });
 
-describe("lemnisk page", () => {
-    let lemnisk;
+describe("Fullstory page", () => {
+    let fullstory;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" }, destinationInfo);
-        lemnisk.init();
-        window.lmSMTObj.page = jest.fn();
+        fullstory = new Fullstory({ fs_org: "12567839", fs_debug_mode: true, fs_host: "localhost" }, { loglevel: "debug", loadOnlyIntegrations: {} });
+        window.FS.event = jest.fn();
     });
-
     test("send pageview", () => {
-        lemnisk.page({
+        fullstory.page({
             message: {
                 context: {},
+                name: "test page",
                 properties: {
                     category: "test cat",
                     path: "/test",
@@ -37,26 +34,26 @@ describe("lemnisk page", () => {
                 },
             },
         });
-        expect(window.lmSMTObj.page.mock.calls[0][0]).toEqual({
+        expect(window.FS.event.mock.calls[0]).toEqual(["Viewed a Page",{
             "category": "test cat",
+            "name": "test page",
             "path": "/test",
             "url": "http://localhost",
             "referrer": "",
             "title": "test page",
             "testDimension": "abc"
-        });
+        }]);
     });
 });
 
-describe("Lemnisk Track event", () => {
-    let lemnisk;
+describe("Fullstory Track event", () => {
+    let fullstory;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" }, destinationInfo);
-        lemnisk.init();
-        window.lmSMTObj.track = jest.fn();
+        fullstory = new Fullstory({ fs_org: "12567839", fs_debug_mode: true, fs_host: "localhost" }, { loglevel: "debug" });
+        window.FS.event = jest.fn();
     });
     test("Testing Track Custom Events", () => {
-        lemnisk.track({
+        fullstory.track({
             message: {
                 context: {},
                 event: "Custom",
@@ -90,12 +87,12 @@ describe("Lemnisk Track event", () => {
                 },
             }
         });
-        expect(window.lmSMTObj.track.mock.calls[0][0]).toEqual("Custom");
-        expect(window.lmSMTObj.track.mock.calls[0][1]).toEqual({
+        expect(window.FS.event.mock.calls[0][0]).toEqual("Custom");
+        expect(window.FS.event.mock.calls[0][1]).toEqual({
             "customProp": "testProp",
-            checkout_id: 'what is checkout id here??',
-            event_id: 'purchaseId',
-            order_id: "transactionId",
+            checkoutId: 'what is checkout id here??',
+            eventId: 'purchaseId',
+            orderId: "transactionId",
             value: 35.00,
             shipping: 4.00,
             coupon: 'APPARELSALE',
@@ -121,16 +118,16 @@ describe("Lemnisk Track event", () => {
         });
     });
 });
-describe("Lemnisk Identify event", () => {
-    let lemnisk;
+describe("Fullstory Identify event", () => {
+    let fullstory;
     beforeEach(() => {
-        lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" }, destinationInfo);
-        lemnisk.init();
-        window.lmSMTObj.identify = jest.fn();
+        fullstory = new Fullstory({ fs_org: "12567839", fs_debug_mode: true, fs_host: "localhost" }, { loglevel: "debug" }); 
+        fullstory.analytics.loadOnlyIntegrations = {};
+        window.FS.identify = jest.fn();
     });
     test("Testing Identify Custom Events", () => {
 
-        lemnisk.identify({
+        fullstory.identify({
             message: {
                 "userId": "rudder01",
                 context: {
@@ -141,8 +138,8 @@ describe("Lemnisk Identify event", () => {
 
             }
         });
-        expect(window.lmSMTObj.identify.mock.calls[0][0]).toEqual("rudder01");
-        expect(window.lmSMTObj.identify.mock.calls[0][1]).toEqual({
+        expect(window.FS.identify.mock.calls[0][0]).toEqual("rudder01");
+        expect(window.FS.identify.mock.calls[0][1]).toEqual({
             email: "abc@ruddertack.com"
         });
 
