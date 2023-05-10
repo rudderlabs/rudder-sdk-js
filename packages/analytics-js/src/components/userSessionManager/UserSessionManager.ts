@@ -8,6 +8,7 @@ import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { IUserSessionManager } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
@@ -17,9 +18,11 @@ import { isValidTraitsValue } from './utils';
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
   storage?: IStore;
+  pluginManager?: IPluginsManager;
 
-  constructor(storage?: IStore) {
+  constructor(pluginManager?: IPluginsManager, storage?: IStore) {
     this.storage = storage;
+    this.pluginManager = pluginManager;
   }
 
   /**
@@ -151,7 +154,7 @@ class UserSessionManager implements IUserSessionManager {
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
     if (!finalAnonymousId && rudderAmpLinkerParam) {
-      const linkerPluginsResult = defaultPluginManager.invoke<Nullable<string>>(
+      const linkerPluginsResult = this.pluginManager?.invoke<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
@@ -179,7 +182,7 @@ class UserSessionManager implements IUserSessionManager {
 
     if (!persistedAnonymousId && options) {
       // fetch anonymousId from external source
-      const autoCapturedAnonymousId = defaultPluginManager.invoke<string | undefined>(
+      const autoCapturedAnonymousId = this.pluginManager?.invoke<string | undefined>(
         'storage.getAnonymousId',
         options,
       );
@@ -377,6 +380,6 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager();
+const defaultUserSessionManager = new UserSessionManager(defaultPluginManager);
 
 export { UserSessionManager, defaultUserSessionManager };

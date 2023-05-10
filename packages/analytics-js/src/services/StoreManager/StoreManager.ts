@@ -4,6 +4,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { state } from '@rudderstack/analytics-js/state';
+import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
@@ -16,14 +17,16 @@ class StoreManager implements IStoreManager {
   isInitialized = false;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
+  pluginManager?: IPluginsManager;
   hasErrorHandler = false;
   hasLogger = false;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(errorHandler?: IErrorHandler, logger?: ILogger, pluginManager?: IPluginsManager) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.hasLogger = Boolean(this.logger);
+    this.pluginManager = pluginManager;
     this.onError = this.onError.bind(this);
   }
 
@@ -95,7 +98,7 @@ class StoreManager implements IStoreManager {
    */
   initQueueStore() {
     // TODO: use this as extension point to create storage for event queues
-    defaultPluginManager.invoke('queuestore.create', this.setStore);
+    this.pluginManager?.invoke('queuestore.create', this.setStore);
   }
   /**
    * Create a new store
@@ -124,6 +127,10 @@ class StoreManager implements IStoreManager {
   }
 }
 
-const defaultStoreManager = new StoreManager(defaultErrorHandler, defaultLogger);
+const defaultStoreManager = new StoreManager(
+  defaultErrorHandler,
+  defaultLogger,
+  defaultPluginManager,
+);
 
 export { StoreManager, defaultStoreManager };

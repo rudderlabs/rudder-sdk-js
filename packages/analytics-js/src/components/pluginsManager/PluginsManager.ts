@@ -117,7 +117,12 @@ class PluginsManager implements IPluginsManager {
   }
 
   invoke<T = any>(extPoint?: string, ...args: any[]): T[] {
-    return this.engine.invoke(extPoint, ...args);
+    try {
+      return this.engine.invoke(extPoint, ...args);
+    } catch (e) {
+      this.onError(e, extPoint);
+      return [];
+    }
   }
 
   register(plugins: ExtensionPlugin[]) {
@@ -145,9 +150,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: Error | unknown, context = 'PluginsManager') {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'PluginsManager');
+      this.errorHandler.onError(error, context);
     } else {
       throw error;
     }
