@@ -67,6 +67,7 @@ class ConfigManager implements IConfigManager {
       }
       state.lifecycle.isStaging.value = isStaging;
     });
+
     this.getConfig();
   }
 
@@ -139,9 +140,9 @@ class ConfigManager implements IConfigManager {
 
       // set the values in state for reporting slice
       state.reporting.isErrorReportingEnabled.value =
-        res.source.config.statsCollection.errors.enabled || false;
+        res.source.config.statsCollection.errors.enabled ?? false;
       state.reporting.isMetricsReportingEnabled.value =
-        res.source.config.statsCollection.metrics.enabled || false;
+        res.source.config.statsCollection.metrics.enabled ?? false;
     });
   }
 

@@ -51,10 +51,10 @@ class UserSessionManager implements IUserSessionManager {
     this.storage = storage;
 
     // get the values from storage and set it again
-    this.setUserId(this.getUserId() || '');
-    this.setUserTraits(this.getUserTraits() || {});
-    this.setGroupId(this.getGroupId() || '');
-    this.setGroupTraits(this.getGroupTraits() || {});
+    this.setUserId(this.getUserId() ?? '');
+    this.setUserTraits(this.getUserTraits() ?? {});
+    this.setGroupId(this.getGroupId() ?? '');
+    this.setGroupTraits(this.getGroupTraits() ?? {});
     this.setAnonymousId(this.getAnonymousId());
 
     const initialReferrer = this.getInitialReferrer();
@@ -230,7 +230,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       finalAnonymousId = linkerPluginsResult?.[0];
     }
-    state.session.anonymousUserId.value = finalAnonymousId || this.generateAnonymousId();
+    state.session.anonymousUserId.value = finalAnonymousId ?? this.generateAnonymousId();
   }
 
   /**
@@ -258,7 +258,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       persistedAnonymousId = autoCapturedAnonymousId?.[0];
     }
-    state.session.anonymousUserId.value = persistedAnonymousId || this.generateAnonymousId();
+    state.session.anonymousUserId.value = persistedAnonymousId ?? this.generateAnonymousId();
     return state.session.anonymousUserId.value as string;
   }
 
@@ -386,7 +386,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
-      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value || {}, traits);
+      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
 
@@ -405,7 +405,7 @@ class UserSessionManager implements IUserSessionManager {
   setGroupTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
       state.session.groupTraits.value = mergeDeepRight(
-        state.session.groupTraits.value || {},
+        state.session.groupTraits.value ?? {},
         traits,
       );
     }

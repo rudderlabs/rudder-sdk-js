@@ -168,9 +168,9 @@ class Queue extends Emitter {
       const deviation = Math.floor(rand * this.backoff.JITTER * ms);
 
       if (Math.floor(rand * 10) < 5) {
-        ms = ms - deviation;
+        ms -= deviation;
       } else {
-        ms = ms + deviation;
+        ms += deviation;
       }
     }
 
@@ -309,17 +309,17 @@ class Queue extends Emitter {
     const other = new Store(
       {
         name: this.name,
-        id: id,
+        id,
         validKeys: QueueStatuses,
       },
       getStorageEngine('localStorage'),
     );
     const our = {
-      queue: (this.store.get(QueueStatuses.QUEUE) || []) as QueueItem[],
+      queue: (this.store.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const their = {
-      inProgress: other.get(QueueStatuses.IN_PROGRESS) || {},
-      queue: (other.get(QueueStatuses.QUEUE) || []) as QueueItem[],
+      inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
+      queue: (other.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const trackMessageIds: string[] = [];
 
@@ -432,7 +432,7 @@ class Queue extends Emitter {
         res.push(
           new Store(
             {
-              name: name,
+              name,
               id: parts[1],
               validKeys: QueueStatuses,
             },

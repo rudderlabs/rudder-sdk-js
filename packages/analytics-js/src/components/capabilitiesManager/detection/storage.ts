@@ -29,11 +29,11 @@ const isStorageAvailable = (type: StorageType = 'localStorage', storageInstance?
         testData = `${STORAGE_TEST_COOKIE}`;
         break;
       case 'localStorage':
-        storage = storageInstance || window.localStorage;
+        storage = storageInstance ?? window.localStorage;
         testData = `${STORAGE_TEST_LOCAL_STORAGE}`; // was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
         break;
       case 'sessionStorage':
-        storage = storageInstance || window.sessionStorage;
+        storage = storageInstance ?? window.sessionStorage;
         testData = `${STORAGE_TEST_SESSION_STORAGE}`;
         break;
       default:

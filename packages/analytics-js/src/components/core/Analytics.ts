@@ -414,8 +414,8 @@ class Analytics implements IAnalytics {
     }
 
     const previousId =
-      payload.from ||
-      this.userSessionManager.getUserId() ||
+      payload.from ??
+      this.userSessionManager.getUserId() ??
       this.userSessionManager.getAnonymousId();
 
     this.eventManager.addEvent({
@@ -500,7 +500,7 @@ class Analytics implements IAnalytics {
 
   getSessionId(): Nullable<number> {
     const sessionInfo = this.getSessionInfo();
-    return sessionInfo?.id || null;
+    return sessionInfo?.id ?? null;
   }
 
   getSessionInfo(): Nullable<SessionInfo> {
