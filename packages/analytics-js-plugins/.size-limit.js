@@ -4,13 +4,13 @@
  */
 module.exports = [
   {
-    name: 'Remote Plugins - CDN',
+    name: 'Remote Module Federation Mapping - CDN',
     path: 'dist/modern/remotePlugins.js',
     gzip: true,
     limit: '0.5 kB',
   },
   {
-    name: 'Remote Plugins - CDN',
+    name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/modern/__federation_expose_*.js',
     gzip: true,
     limit: '11 kB',
