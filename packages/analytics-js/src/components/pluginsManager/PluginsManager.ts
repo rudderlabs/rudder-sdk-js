@@ -11,6 +11,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -60,16 +61,46 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
+  // TODO: add logic for all plugins as we develop them
+  // Determine the list of plugins that should be loaded based on sourceConfig & load options
+  // eslint-disable-next-line class-methods-use-this
+  getPluginsToLoadBasedOnConfig(): PluginName[] {
+    // This contains the default plugins if load option has been omitted by user
+    let pluginsToLoadFromConfig = state.plugins.pluginsToLoadFromConfig.value as PluginName[];
+
+    if (!pluginsToLoadFromConfig) {
+      return [];
+    }
+
+    // Error reporting related plugins
+    if (!state.reporting.isErrorReportingEnabled.value) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.ErrorReporting,
+      );
+    }
+
+    // Device mode destinations related plugins
+    if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          ![
+            PluginName.DeviceModeDestinations,
+            PluginName.DeviceModeTransformation,
+            PluginName.NativeDestinationQueue,
+          ].includes(pluginName),
+      );
+    }
+
+    // Consent Management related plugins
+
+    return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
+  }
+
   setActivePlugins() {
-    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
-
     // Merge mandatory and optional plugin name list
-    const pluginsToLoad = [
-      ...Object.keys(getMandatoryPluginsMap()),
-      ...state.plugins.pluginsToLoadFromConfig.value,
-    ];
-
-    const activePlugins: string[] = [];
+    const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
+    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
+    const activePlugins: PluginName[] = [];
     const failedPlugins: string[] = [];
 
     pluginsToLoad.forEach(pluginName => {

@@ -1,9 +1,9 @@
+import { ConfigResponseDestinationItem } from '@rudderstack/analytics-js/components/configManager/types';
 import {
   filterEnabledDestination,
   getNonCloudDestinations,
-  isEnabledNonCloudDestination,
-} from '@rudderstack/analytics-js/components/configManager/util/filterDestinations';
-import { ConfigResponseDestinationItem } from '@rudderstack/analytics-js/components/configManager/types';
+  isNonCloudDestination,
+} from '@rudderstack/analytics-js/components/utilities/destinations';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
@@ -202,14 +202,10 @@ describe('Config manager util - filterEnabledDestination', () => {
   });
 
   it('should detect if destination is non-cloud', () => {
-    const nativeDest = isEnabledNonCloudDestination(
-      dummySourceConfigResponse.source.destinations[0],
-    );
+    const nativeDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[0]);
     expect(nativeDest).toBeTruthy();
 
-    const cloudDest = isEnabledNonCloudDestination(
-      dummySourceConfigResponse.source.destinations[2],
-    );
+    const cloudDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[2]);
     expect(cloudDest).toBeFalsy();
   });
 });

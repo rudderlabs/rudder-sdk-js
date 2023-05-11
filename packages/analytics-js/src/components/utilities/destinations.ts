@@ -1,5 +1,5 @@
 import { Destination, DestinationConnectionMode } from '@rudderstack/analytics-js/state/types';
-import { ConfigResponseDestinationItem } from '../types';
+import { ConfigResponseDestinationItem } from '../configManager/types';
 
 /**
  * A function to filter enabled destinations and map to required properties only
@@ -30,9 +30,7 @@ const filterEnabledDestination = (
  *
  * @returns boolean
  */
-const isEnabledNonCloudDestination = (destination: ConfigResponseDestinationItem): boolean =>
-  destination.enabled &&
-  !destination.deleted &&
+const isNonCloudDestination = (destination: Destination): boolean =>
   Boolean(
     destination.config.connectionMode !== DestinationConnectionMode.Cloud ||
       destination.config.useNativeSDKToSend,
@@ -44,8 +42,7 @@ const isEnabledNonCloudDestination = (destination: ConfigResponseDestinationItem
  *
  * @returns destinations
  */
-const getNonCloudDestinations = (
-  destinations: ConfigResponseDestinationItem[],
-): ConfigResponseDestinationItem[] | [] => destinations.filter(isEnabledNonCloudDestination);
+const getNonCloudDestinations = (destinations: Destination[]): Destination[] | [] =>
+  destinations.filter(isNonCloudDestination);
 
-export { filterEnabledDestination, isEnabledNonCloudDestination, getNonCloudDestinations };
+export { filterEnabledDestination, isNonCloudDestination, getNonCloudDestinations };

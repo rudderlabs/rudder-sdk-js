@@ -170,7 +170,6 @@ describe('ConfigManager', () => {
       id: dummySourceConfigResponse.source.id,
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.getListOfPluginsToLoad = jest.fn();
 
     configManagerInstance.processConfig(dummySourceConfigResponse);
 
@@ -183,8 +182,6 @@ describe('ConfigManager', () => {
     expect(state.reporting.isMetricsReportingEnabled.value).toBe(
       dummySourceConfigResponse.source.config.statsCollection.metrics.enabled,
     );
-
-    expect(configManagerInstance.getListOfPluginsToLoad).toHaveBeenCalledTimes(1);
   });
 
   it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
@@ -215,31 +212,5 @@ describe('ConfigManager', () => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
       done();
     });
-  });
-
-  it('should define plugins list based on loadOptions', () => {
-    state.loadOptions.value = {
-      ...state.loadOptions.value,
-      plugins: defaultOptionalPluginsList,
-    };
-
-    const plugins = configManagerInstance.getListOfPluginsToLoad(dummySourceConfigResponse);
-
-    expect(plugins.length).toBe(7);
-  });
-
-  it('should define plugins list based on sourceConfig', () => {
-    state.loadOptions.value = {
-      ...state.loadOptions.value,
-      plugins: defaultOptionalPluginsList,
-    };
-    const cloudOnlyDestinationsSourceConfig = clone(dummySourceConfigResponse);
-    cloudOnlyDestinationsSourceConfig.source.destinations = [
-      cloudOnlyDestinationsSourceConfig.source.destinations[2],
-    ];
-
-    const plugins = configManagerInstance.getListOfPluginsToLoad(cloudOnlyDestinationsSourceConfig);
-
-    expect(plugins.length).toBe(5);
   });
 });

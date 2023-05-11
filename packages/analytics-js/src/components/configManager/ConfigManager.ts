@@ -13,12 +13,11 @@ import {
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
 import { IConfigManager, SourceConfigResponse } from './types';
-import { filterEnabledDestination, getNonCloudDestinations } from './util/filterDestinations';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -36,7 +35,6 @@ class ConfigManager implements IConfigManager {
 
     this.onError = this.onError.bind(this);
     this.processConfig = this.processConfig.bind(this);
-    this.getListOfPluginsToLoad = this.getListOfPluginsToLoad.bind(this);
   }
 
   attachEffects() {
@@ -127,7 +125,6 @@ class ConfigManager implements IConfigManager {
     );
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
-    const pluginsToLoad = this.getListOfPluginsToLoad(res);
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
@@ -147,46 +144,12 @@ class ConfigManager implements IConfigManager {
         res.source.config.statsCollection.metrics.enabled || false;
 
       // set the desired optional plugins
-      state.plugins.pluginsToLoadFromConfig.value = pluginsToLoad;
+      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
       // set application lifecycle state
       state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
       state.lifecycle.status.value = LifecycleStatus.Configured;
     });
-  }
-
-  // TODO: add logic for all plugins as we develop them
-  // Determine the list of plugins that should be loaded based on sourceConfig & load options
-  getListOfPluginsToLoad(res: SourceConfigResponse): PluginName[] {
-    // This contains the default plugins if load option has been omitted by user
-    let pluginsToLoadFromConfig = state.loadOptions.value.plugins;
-
-    if (!pluginsToLoadFromConfig) {
-      return [];
-    }
-
-    // Error reporting related plugins
-    if (!res.source.config.statsCollection.errors.enabled) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.ErrorReporting,
-      );
-    }
-
-    // Device mode destinations related plugins
-    if (getNonCloudDestinations(res.source.destinations).length === 0) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          ![
-            PluginName.DeviceModeDestinations,
-            PluginName.DeviceModeTransformation,
-            PluginName.NativeDestinationQueue,
-          ].includes(pluginName),
-      );
-    }
-
-    // Consent Management related plugins
-
-    return pluginsToLoadFromConfig ?? [];
   }
 
   /**
