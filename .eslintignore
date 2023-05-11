@@ -8,4 +8,3 @@ prodsdk.js
 *.json
 *.md
 *.d.ts
-src/integrations/Amplitude/loader.js

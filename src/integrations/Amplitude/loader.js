@@ -1,4 +1,6 @@
 import { LOAD_ORIGIN } from '../ScriptLoader';
+// START-NO-SONAR-SCAN
+/* eslint-disable */
 
 function loader(e, t) {
   var n = e.amplitude || { _q: [], _iq: {} };
@@ -108,5 +110,7 @@ function loader(e, t) {
   e.amplitude = n;
 }
 window, document;
+/* eslint-enable */
+// END-NO-SONAR-SCAN
 
 export { loader };
