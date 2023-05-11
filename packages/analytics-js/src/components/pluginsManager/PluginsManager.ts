@@ -81,7 +81,15 @@ class PluginsManager implements IPluginsManager {
     });
 
     if (failedPlugins.length > 0) {
-      this.onError(new Error(`Ignoring loading of unknown plugins: ${failedPlugins.join(',')}`));
+      this.onError(
+        new Error(
+          `Ignoring loading of unknown plugins: ${failedPlugins.join(
+            ',',
+          )}. Mandatory plugins: ${Object.keys(getMandatoryPluginsMap()).join(
+            ',',
+          )}. Load option plugins: ${state.plugins.loadOptionsPlugins.value.join(',')}`,
+        ),
+      );
     }
 
     batch(() => {

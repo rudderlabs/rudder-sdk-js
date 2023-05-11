@@ -3,6 +3,8 @@ import { ExtensionPlugin, IExternalSrcLoader, PluginName, ApplicationState } fro
 
 const pluginName = PluginName.DeviceModeDestinations;
 
+const LOAD_CHECK_POLL_INTERVAL = 1000;
+
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
     return (
@@ -53,7 +55,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               instance,
             ];
             resolve(this);
-          } else if (time >= 11000) {
+          } else if (time >= 11 * LOAD_CHECK_POLL_INTERVAL) {
             console.log('instance.failed');
             state.nativeDestinations.failedToBeLoadedIntegration.value = [
               ...state.nativeDestinations.failedToBeLoadedIntegration.value,
@@ -61,8 +63,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             ];
             resolve(this);
           } else {
-            pause(1000).then(() =>
-              isInitialized(instance, time + 1000)
+            pause(LOAD_CHECK_POLL_INTERVAL).then(() =>
+              isInitialized(instance, time + LOAD_CHECK_POLL_INTERVAL)
                 .then(resolve)
                 .catch(() => {}),
             );
@@ -137,7 +139,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
         setTimeout(() => {
           clearInterval(interval);
-        }, 10000);
+        }, 10 * LOAD_CHECK_POLL_INTERVAL);
       });
     },
   },
