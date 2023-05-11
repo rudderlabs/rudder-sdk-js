@@ -1,3 +1,6 @@
+import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
+import { DestinationConnectionMode } from '@rudderstack/analytics-js/state/types';
+
 const identifyRequestPayload = {
   userId: '123456',
   traits: {
@@ -66,7 +69,8 @@ const dummyInitOptions = {
   enable: true,
 };
 
-const dummySourceConfigResponse = {
+const dummySourceConfigResponse: SourceConfigResponse = {
+  isHosted: true,
   source: {
     config: {
       statsCollection: {
@@ -84,10 +88,13 @@ const dummySourceConfigResponse = {
     enabled: true,
     workspaceId: 'dummyWorkspaceId',
     updatedAt: '2023-02-03T13:53:35.731Z',
-    dataplanes: {},
+    dataplanes: {
+      US: '',
+    },
     destinations: [
       {
         config: {
+          connectionMode: DestinationConnectionMode.Hybrid,
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
@@ -106,7 +113,71 @@ const dummySourceConfigResponse = {
           oneTrustCookieCategories: [],
         },
         id: 'dummyDestinationId',
-        name: 'GA4 for JS SDK',
+        name: 'GA4 for JS SDK Hybrid',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: true,
+        deleted: false,
+        destinationDefinition: {
+          name: 'GA4',
+          displayName: 'Google Analytics 4 (GA4)',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        areTransformationsConnected: false,
+      },
+      {
+        config: {
+          connectionMode: DestinationConnectionMode.Device,
+          measurementId: 'G-SC6JGS1234',
+          capturePageView: 'rs',
+          whitelistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          blacklistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          useNativeSDKToSend: true,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'dummyDestinationId2',
+        name: 'GA4 for JS SDK Device',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: true,
+        deleted: false,
+        destinationDefinition: {
+          name: 'GA4',
+          displayName: 'Google Analytics 4 (GA4)',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        areTransformationsConnected: false,
+      },
+      {
+        config: {
+          connectionMode: DestinationConnectionMode.Cloud,
+          measurementId: 'G-SC6JGS1234',
+          capturePageView: 'rs',
+          whitelistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          blacklistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          useNativeSDKToSend: false,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'dummyDestinationId3',
+        name: 'GA4 for JS SDK Cloud',
         updatedAt: '2023-03-14T11:34:29.216Z',
         enabled: true,
         deleted: false,

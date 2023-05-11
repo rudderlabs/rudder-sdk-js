@@ -1,5 +1,10 @@
-import { filterEnabledDestination } from '@rudderstack/analytics-js/components/configManager/util/filterDestinations';
+import {
+  filterEnabledDestination,
+  getNonCloudDestinations,
+  isEnabledNonCloudDestination,
+} from '@rudderstack/analytics-js/components/configManager/util/filterDestinations';
 import { ConfigResponseDestinationItem } from '@rudderstack/analytics-js/components/configManager/types';
+import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
   {
@@ -185,8 +190,26 @@ describe('Config manager util - filterEnabledDestination', () => {
     const actualOutcome = filterEnabledDestination(sampleDestinationResponse1);
     expect(actualOutcome).toStrictEqual(expectedFilteredDestinations);
   });
+
   it('should not return deleted destinations', () => {
     const actualOutcome = filterEnabledDestination(sampleDestinationResponse2);
     expect(actualOutcome).toStrictEqual([]);
+  });
+
+  it('should get non-cloud destinations', () => {
+    const actualOutcome = getNonCloudDestinations(dummySourceConfigResponse.source.destinations);
+    expect(actualOutcome.length).toBe(2);
+  });
+
+  it('should detect if destination is non-cloud', () => {
+    const nativeDest = isEnabledNonCloudDestination(
+      dummySourceConfigResponse.source.destinations[0],
+    );
+    expect(nativeDest).toBeTruthy();
+
+    const cloudDest = isEnabledNonCloudDestination(
+      dummySourceConfigResponse.source.destinations[2],
+    );
+    expect(cloudDest).toBeFalsy();
   });
 });

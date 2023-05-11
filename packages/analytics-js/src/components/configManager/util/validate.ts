@@ -17,4 +17,11 @@ const validateLoadArgs = (writeKey?: string, dataPlaneUrl?: string) => {
   validateDataPlaneUrl(dataPlaneUrl);
 };
 
-export { validateLoadArgs };
+const isValidSourceConfig = (res: any): boolean =>
+  typeof res !== 'object' ||
+  !res.source ||
+  !res.source.id ||
+  !res.source.config ||
+  !Array.isArray(res.source.destinations);
+
+export { validateLoadArgs, isValidSourceConfig };

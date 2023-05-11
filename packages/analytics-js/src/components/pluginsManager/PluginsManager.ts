@@ -66,7 +66,7 @@ class PluginsManager implements IPluginsManager {
     // Merge mandatory and optional plugin name list
     const pluginsToLoad = [
       ...Object.keys(getMandatoryPluginsMap()),
-      ...state.plugins.loadOptionsPlugins.value,
+      ...state.plugins.pluginsToLoadFromConfig.value,
     ];
 
     const activePlugins: string[] = [];
@@ -87,7 +87,7 @@ class PluginsManager implements IPluginsManager {
             ',',
           )}. Mandatory plugins: ${Object.keys(getMandatoryPluginsMap()).join(
             ',',
-          )}. Load option plugins: ${state.plugins.loadOptionsPlugins.value.join(',')}`,
+          )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
         ),
       );
     }

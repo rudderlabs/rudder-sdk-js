@@ -1,3 +1,4 @@
+import { clone } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
@@ -7,6 +8,8 @@ import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManage
 import { rest } from 'msw';
 import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
+import { LogLevel } from '@rudderstack/analytics-js/state/types';
+import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
 import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -64,7 +67,7 @@ describe('ConfigManager', () => {
       state.lifecycle.dataPlaneUrl.value = undefined;
       state.loadOptions.value.lockIntegrationsVersion = false;
       state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
-      state.loadOptions.value.logLevel = 'ERROR';
+      state.loadOptions.value.logLevel = LogLevel.Error;
       state.loadOptions.value.configUrl = CONFIG_URL;
     });
   };
@@ -97,6 +100,7 @@ describe('ConfigManager', () => {
       configManagerInstance.init();
     }).toThrow(errorMsg);
   });
+
   it('should throw error for invalid data plane url', () => {
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = ' ';
@@ -104,6 +108,7 @@ describe('ConfigManager', () => {
       configManagerInstance.init();
     }).toThrow('Unable to load the SDK due to invalid data plane URL: " "');
   });
+
   it('should update lifecycle state with proper values', () => {
     getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
 
@@ -111,7 +116,7 @@ describe('ConfigManager', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     state.loadOptions.value.lockIntegrationsVersion = false;
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
-    state.loadOptions.value.logLevel = 'DEBUG';
+    state.loadOptions.value.logLevel = LogLevel.Debug;
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
     const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
@@ -159,11 +164,13 @@ describe('ConfigManager', () => {
 
     expect(configManagerInstance.processConfig).toHaveBeenCalled();
   });
-  it('should update source, destination,lifecycle and reporting state with proper values', () => {
+
+  it('should update source, destination, lifecycle and reporting state with proper values', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    configManagerInstance.getListOfPluginsToLoad = jest.fn();
 
     configManagerInstance.processConfig(dummySourceConfigResponse);
 
@@ -176,24 +183,30 @@ describe('ConfigManager', () => {
     expect(state.reporting.isMetricsReportingEnabled.value).toBe(
       dummySourceConfigResponse.source.config.statsCollection.metrics.enabled,
     );
+
+    expect(configManagerInstance.getListOfPluginsToLoad).toHaveBeenCalledTimes(1);
   });
+
   it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
     configManagerInstance.processConfig(undefined);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
+
   it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
 
     expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
   });
+
   it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     configManagerInstance.processConfig(JSON.stringify({ key: 'value' }));
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
+
   it('should fetch the source config and process the response', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
@@ -202,5 +215,31 @@ describe('ConfigManager', () => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
       done();
     });
+  });
+
+  it('should define plugins list based on loadOptions', () => {
+    state.loadOptions.value = {
+      ...state.loadOptions.value,
+      plugins: defaultOptionalPluginsList,
+    };
+
+    const plugins = configManagerInstance.getListOfPluginsToLoad(dummySourceConfigResponse);
+
+    expect(plugins.length).toBe(7);
+  });
+
+  it('should define plugins list based on sourceConfig', () => {
+    state.loadOptions.value = {
+      ...state.loadOptions.value,
+      plugins: defaultOptionalPluginsList,
+    };
+    const cloudOnlyDestinationsSourceConfig = clone(dummySourceConfigResponse);
+    cloudOnlyDestinationsSourceConfig.source.destinations = [
+      cloudOnlyDestinationsSourceConfig.source.destinations[2],
+    ];
+
+    const plugins = configManagerInstance.getListOfPluginsToLoad(cloudOnlyDestinationsSourceConfig);
+
+    expect(plugins.length).toBe(5);
   });
 });

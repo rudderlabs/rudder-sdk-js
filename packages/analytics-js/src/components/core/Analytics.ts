@@ -45,7 +45,6 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
-import { tryStringify } from '../utilities/string';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events

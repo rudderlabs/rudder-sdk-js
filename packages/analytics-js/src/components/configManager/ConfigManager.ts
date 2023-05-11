@@ -6,15 +6,19 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
+import {
+  isValidSourceConfig,
+  validateLoadArgs,
+} from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
+import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
 import { IConfigManager, SourceConfigResponse } from './types';
-import { filterEnabledDestination } from './util/filterDestinations';
+import { filterEnabledDestination, getNonCloudDestinations } from './util/filterDestinations';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -29,6 +33,10 @@ class ConfigManager implements IConfigManager {
     this.httpClient = httpClient;
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.hasLogger = Boolean(this.logger);
+
+    this.onError = this.onError.bind(this);
+    this.processConfig = this.processConfig.bind(this);
+    this.getListOfPluginsToLoad = this.getListOfPluginsToLoad.bind(this);
   }
 
   attachEffects() {
@@ -66,8 +74,8 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
       state.lifecycle.isStaging.value = isStaging;
-      state.plugins.loadOptionsPlugins.value = state.loadOptions.value.plugins as string[];
     });
+
     this.getConfig();
   }
 
@@ -91,8 +99,10 @@ class ConfigManager implements IConfigManager {
       this.onError('Unable to fetch source config', undefined, true);
       return;
     }
+
     let res: SourceConfigResponse;
     const errMessage = 'Unable to process/parse source config';
+
     try {
       if (typeof response === 'string') {
         res = JSON.parse(response);
@@ -104,13 +114,7 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
-    if (
-      typeof res !== 'object' ||
-      !res.source ||
-      !res.source.id ||
-      !res.source.config ||
-      !Array.isArray(res.source.destinations)
-    ) {
+    if (isValidSourceConfig(res)) {
       this.onError(errMessage, undefined, true);
       return;
     }
@@ -123,6 +127,7 @@ class ConfigManager implements IConfigManager {
     );
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+    const pluginsToLoad = this.getListOfPluginsToLoad(res);
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
@@ -130,19 +135,58 @@ class ConfigManager implements IConfigManager {
       state.source.value = {
         id: res.source.id,
       };
-      // set device mode destination related information in state
-      state.destinations.value = nativeDestinations;
 
-      // set application lifecycle state
-      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
-      state.lifecycle.status.value = LifecycleStatus.Configured;
+      // set device mode destination related information in state
+      // TODO: should this not only contain the non cloud destinations?
+      state.destinations.value = nativeDestinations;
 
       // set the values in state for reporting slice
       state.reporting.isErrorReportingEnabled.value =
         res.source.config.statsCollection.errors.enabled || false;
       state.reporting.isMetricsReportingEnabled.value =
         res.source.config.statsCollection.metrics.enabled || false;
+
+      // set the desired optional plugins
+      state.plugins.pluginsToLoadFromConfig.value = pluginsToLoad;
+
+      // set application lifecycle state
+      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      state.lifecycle.status.value = LifecycleStatus.Configured;
     });
+  }
+
+  // TODO: add logic for all plugins as we develop them
+  // Determine the list of plugins that should be loaded based on sourceConfig & load options
+  getListOfPluginsToLoad(res: SourceConfigResponse): PluginName[] {
+    // This contains the default plugins if load option has been omitted by user
+    let pluginsToLoadFromConfig = state.loadOptions.value.plugins;
+
+    if (!pluginsToLoadFromConfig) {
+      return [];
+    }
+
+    // Error reporting related plugins
+    if (!res.source.config.statsCollection.errors.enabled) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.ErrorReporting,
+      );
+    }
+
+    // Device mode destinations related plugins
+    if (getNonCloudDestinations(res.source.destinations).length === 0) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          ![
+            PluginName.DeviceModeDestinations,
+            PluginName.DeviceModeTransformation,
+            PluginName.NativeDestinationQueue,
+          ].includes(pluginName),
+      );
+    }
+
+    // Consent Management related plugins
+
+    return pluginsToLoadFromConfig ?? [];
   }
 
   /**
@@ -171,6 +215,7 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
+    // TODO: add retry logic with backoff
     // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: state.lifecycle.sourceConfigUrl.value,

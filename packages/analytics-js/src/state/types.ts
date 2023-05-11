@@ -263,10 +263,10 @@ export enum LogLevel {
 export enum LifecycleStatus {
   Mounted = 'mounted',
   PolyfillLoaded = 'polyfillLoaded',
-  Initialized = 'initialized',
   Configured = 'configured',
-  PluginsReady = 'pluginsReady',
   PluginsLoading = 'pluginsLoading',
+  PluginsReady = 'pluginsReady',
+  Initialized = 'initialized',
   Loaded = 'loaded',
   IntegrationsReady = 'integrationsReady',
   Ready = 'ready',
