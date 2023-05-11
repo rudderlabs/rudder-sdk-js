@@ -1,15 +1,16 @@
 import { batch, effect } from '@preact/signals-core';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import {
   ExtensionPlugin,
   IPluginEngine,
-} from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+} from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -115,12 +116,21 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
-  invoke<T = any>(extPoint?: string, ...args: any[]): T[] {
+  invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
     try {
-      return this.engine.invoke(extPoint, ...args);
+      return this.engine.invokeMultiple(extPoint, ...args);
     } catch (e) {
       this.onError(e, extPoint);
       return [];
+    }
+  }
+
+  invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
+    try {
+      return this.engine.invokeSingle(extPoint, ...args);
+    } catch (e) {
+      this.onError(e, extPoint);
+      return null;
     }
   }
 

@@ -5,6 +5,7 @@ import {
 } from '@rudderstack/analytics-js/components/utilities/object';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 import { ExtensionPlugin, IPluginEngine, PluginEngineConfig } from './types';
 import { isPluginEngineDebugMode } from './debug';
 
@@ -125,7 +126,7 @@ class PluginEngine implements IPluginEngine {
     this.cache = {};
   }
 
-  invoke<T = any>(extPoint?: string, ...args: any[]): T[] {
+  invoke<T = any>(extPoint?: string, allowMultiple = true, ...args: any[]): Nullable<T>[] {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {
@@ -144,9 +145,12 @@ class PluginEngine implements IPluginEngine {
     const extensionPointNameParts = extensionPointName.split('.');
     extensionPointNameParts.pop();
 
-    const obj = extensionPointNameParts.join('.');
+    const pluginMethodPath = extensionPointNameParts.join('.');
+    const pluginsToInvoke = allowMultiple
+      ? this.getPlugins(extensionPointName)
+      : [this.getPlugins(extensionPointName)[0]];
 
-    return this.getPlugins(extensionPointName).map(plugin => {
+    return pluginsToInvoke.map(plugin => {
       const method = getValueByPath(plugin, extensionPointName as string);
 
       if (!isFunction(method) || noCall) {
@@ -158,7 +162,7 @@ class PluginEngine implements IPluginEngine {
           this.logger?.debug('Before', plugin.name, extensionPointName, ...args);
         }
 
-        return method.apply(getValueByPath(plugin, obj), args);
+        return method.apply(getValueByPath(plugin, pluginMethodPath), args);
       } catch (err) {
         // When a plugin failed, doesn't break the app
         this.logger?.error(`Failed to invoke plugin: ${plugin.name}!${extensionPointName}`);
@@ -176,6 +180,14 @@ class PluginEngine implements IPluginEngine {
 
       return null;
     });
+  }
+
+  invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
+    return this.invoke(extPoint, false, ...args)[0];
+  }
+
+  invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
+    return this.invoke(extPoint, true, ...args);
   }
 }
 

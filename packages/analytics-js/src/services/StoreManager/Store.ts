@@ -208,9 +208,9 @@ class Store implements IStore {
 
     const extensionPointName = `storage.${mode}`;
 
-    const formattedValue = defaultPluginManager.invoke<string>(extensionPointName, value);
+    const formattedValue = defaultPluginManager.invokeMultiple<string>(extensionPointName, value);
 
-    return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0];
+    return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0] ?? '';
   }
 
   /**

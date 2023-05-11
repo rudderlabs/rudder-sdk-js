@@ -266,7 +266,7 @@ class Analytics implements IAnalytics {
       console.log(`${id} Script loaded`);
     };
 
-    this.pluginsManager.invoke(
+    this.pluginsManager.invokeMultiple(
       'remote.load_integrations',
       state.nativeDestinations.clientIntegrations.value,
       state,
@@ -508,7 +508,7 @@ class Analytics implements IAnalytics {
   // End consumer exposed methods
 
   // TODO: should we still implement methodToCallbackMapping? Seems we will deprecate this
-  //  non used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
+  //  non-used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
   //  if we need to keep we need initializeCallbacks & registerCallbacks methods
 }
 

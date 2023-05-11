@@ -154,7 +154,7 @@ class UserSessionManager implements IUserSessionManager {
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
     if (!finalAnonymousId && rudderAmpLinkerParam) {
-      const linkerPluginsResult = this.pluginManager?.invoke<Nullable<string>>(
+      const linkerPluginsResult = this.pluginManager?.invokeMultiple<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
@@ -182,7 +182,7 @@ class UserSessionManager implements IUserSessionManager {
 
     if (!persistedAnonymousId && options) {
       // fetch anonymousId from external source
-      const autoCapturedAnonymousId = this.pluginManager?.invoke<string | undefined>(
+      const autoCapturedAnonymousId = this.pluginManager?.invokeMultiple<string | undefined>(
         'storage.getAnonymousId',
         options,
       );

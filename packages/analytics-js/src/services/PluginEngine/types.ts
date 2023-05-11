@@ -1,3 +1,5 @@
+import { Nullable } from '@rudderstack/analytics-js/types';
+
 export interface ExtensionPoint {
   [lifeCycleName: string]: (...args: any[]) => unknown;
 }
@@ -15,7 +17,7 @@ export interface ExtensionPlugin {
     | string
     | (() => void)
     | ExtensionPoint
-    | ((...args: any[]) => unknown)
+    | ((...args: any[]) => unknown | void)
     | string[]
     | undefined;
 }
@@ -33,5 +35,7 @@ export interface IPluginEngine {
   unregister: (name: string) => void;
   getPlugin: (name: string) => ExtensionPlugin | undefined;
   getPlugins: (extPoint?: string) => ExtensionPlugin[];
-  invoke: <T = any>(extPoint?: string, ...args: any[]) => T[];
+  invoke: <T = any>(extPoint?: string, allowMultiple?: boolean, ...args: any[]) => Nullable<T>[];
+  invokeSingle: <T = any>(extPoint?: string, ...args: any[]) => Nullable<T>;
+  invokeMultiple: <T = any>(extPoint?: string, ...args: any[]) => Nullable<T>[];
 }

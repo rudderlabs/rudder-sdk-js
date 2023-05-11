@@ -1,4 +1,4 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { PluginMap, PluginName } from './types';
 import { legacyBuildPluginImports } from './legacyBuildPluginImports';
 import { modernBuildPluginImports } from './modernBuildPluginImports';

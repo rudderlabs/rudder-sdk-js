@@ -1,5 +1,5 @@
-import { PluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/services/PluginEngine/types';
 
 const mockPlugin1: ExtensionPlugin = {
   name: 'p1',
@@ -55,18 +55,32 @@ describe('PluginEngine', () => {
     expect(pluginEngineTestInstance.getPlugins().length).toEqual(4);
   });
 
-  it('should invoke on functions', () => {
+  it('should invoke multiple plugins on functions', () => {
     const meta = ['m0'];
-    pluginEngineTestInstance.invoke('ext.form.processMeta', meta);
+    pluginEngineTestInstance.invokeMultiple('ext.form.processMeta', meta);
     expect(meta).toStrictEqual(['m0', 'm1', 'm3']);
   });
 
-  it('should invoke to only collect values', () => {
-    const bars = pluginEngineTestInstance.invoke('foo');
+  it('should invoke single plugin on functions', () => {
+    const meta = ['m0'];
+    pluginEngineTestInstance.invokeSingle('ext.form.processMeta', meta);
+    expect(meta).toStrictEqual(['m0', 'm1']);
+  });
+
+  it('should invoke multiple plugins to only collect values', () => {
+    const bars = pluginEngineTestInstance.invokeMultiple('foo');
     expect(bars).toStrictEqual(['bar1', 'bar2', 'bar3']);
 
-    const bars2 = pluginEngineTestInstance.invoke('!foo');
+    const bars2 = pluginEngineTestInstance.invokeMultiple('!foo');
     expect(bars2).toStrictEqual(['bar1', 'bar2', 'bar3']);
+  });
+
+  it('should invoke single plugin to only collect values', () => {
+    const bars = pluginEngineTestInstance.invokeSingle('foo');
+    expect(bars).toStrictEqual('bar1');
+
+    const bars2 = pluginEngineTestInstance.invokeSingle('!foo');
+    expect(bars2).toStrictEqual('bar1');
   });
 
   it('should unregister plugin', () => {
@@ -109,7 +123,7 @@ describe('PluginEngine', () => {
   it('should not be able to register same name plugin', () => {
     try {
       pluginEngineTestInstance.register({ name: 'p1' });
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toContain('Plugin "p1" already exits.');
     }
   });
@@ -117,7 +131,7 @@ describe('PluginEngine', () => {
   it('should not be able to unregister a plugin that not exist', () => {
     try {
       pluginEngineTestInstance.unregister('p0');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toContain('Plugin "p0" doesn\'t exist.');
     }
   });
@@ -158,26 +172,26 @@ describe('PluginEngine', () => {
     });
 
     // Not failed because method not invoked (when starts with ! is noCall)
-    pluginEngineTestInstance.invoke('!fail!');
+    pluginEngineTestInstance.invokeMultiple('!fail!');
 
     // Failed because method is invoked
     try {
-      pluginEngineTestInstance.invoke('fail!');
-    } catch (e) {
+      pluginEngineTestInstance.invokeMultiple('fail!');
+    } catch (e: any) {
       expect(e.message).toContain('error');
     }
 
     // Failed because throws is true
     try {
       pluginEngineTestInstance.config.throws = true;
-      pluginEngineTestInstance.invoke('fail');
-    } catch (e) {
+      pluginEngineTestInstance.invokeMultiple('fail');
+    } catch (e: any) {
       expect(e.message).toContain('error');
     }
 
     // Not failed because throw is false
     pluginEngineTestInstance.config.throws = false;
-    pluginEngineTestInstance.invoke('fail');
+    pluginEngineTestInstance.invokeMultiple('fail');
   });
 
   it('should register 1000 plugins in less than 100ms', () => {

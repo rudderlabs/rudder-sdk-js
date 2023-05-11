@@ -98,7 +98,7 @@ class StoreManager implements IStoreManager {
    */
   initQueueStore() {
     // TODO: use this as extension point to create storage for event queues
-    this.pluginManager?.invoke('queuestore.create', this.setStore);
+    this.pluginManager?.invokeMultiple('queuestore.create', this.setStore);
   }
   /**
    * Create a new store
