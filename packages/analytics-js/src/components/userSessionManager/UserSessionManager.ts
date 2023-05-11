@@ -321,10 +321,9 @@ class UserSessionManager implements IUserSessionManager {
         }
       }
 
-      if (state.session.sessionInfo.value.sessionStart) {
-        session.sessionStart = true;
-        state.session.sessionInfo.value.sessionStart = false;
-      }
+      session.sessionStart = state.session.sessionInfo.value.sessionStart;
+      //As the session start is already read, mark it as false
+      state.session.sessionInfo.value.sessionStart = false;
       session.id = state.session.sessionInfo.value.id;
     }
     return session;
