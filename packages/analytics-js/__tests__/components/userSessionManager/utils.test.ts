@@ -8,69 +8,79 @@ import {
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 describe('Utility: User session manager', () => {
-  it('hasSessionExpired: should return true for valid session', () => {
-    const outcome = hasSessionExpired(Date.now() + 1000);
-    expect(outcome).toEqual(false);
-  });
-  it('hasSessionExpired: should return false for valid session', () => {
-    const outcome = hasSessionExpired(Date.now() - 1000);
-    expect(outcome).toEqual(true);
-  });
-  it('generateSessionId: should return newly generated session id', () => {
-    const outcome = generateSessionId();
-    expect(typeof outcome).toBe('number');
-    expect(outcome.toString().length).toEqual(13);
-  });
-  it('generateAutoTrackingSession: should return newly generated auto tracking session', () => {
-    const timeout = 10 * 60 * 1000;
-    const outcome = generateAutoTrackingSession(timeout);
-    expect(outcome).toEqual({
-      autoTrack: true,
-      timeout,
-      expiresAt: expect.any(Number),
-      id: expect.any(Number),
-      sessionStart: true,
+  describe('hasSessionExpired:', () => {
+    it('should return true for valid session', () => {
+      const outcome = hasSessionExpired(Date.now() + 1000);
+      expect(outcome).toEqual(false);
+    });
+    it('hasSessionExpired: should return false for valid session', () => {
+      const outcome = hasSessionExpired(Date.now() - 1000);
+      expect(outcome).toEqual(true);
     });
   });
-  it('generateManualTrackingSession: should return newly generated manual session', () => {
-    const sessionId = 1234567890;
-    const outcome = generateManualTrackingSession(sessionId);
-    expect(outcome).toEqual({
-      manualTrack: true,
-      id: sessionId,
-      sessionStart: true,
+
+  describe('generateSessionId:', () => {
+    it('should return newly generated session id', () => {
+      const outcome = generateSessionId();
+      expect(typeof outcome).toBe('number');
+      expect(outcome.toString().length).toEqual(13);
     });
   });
-  it('generateManualTrackingSession: should return newly generated manual session if session id is not provided', () => {
-    const outcome = generateManualTrackingSession();
-    expect(outcome).toEqual({
-      manualTrack: true,
-      id: expect.any(Number),
-      sessionStart: true,
+  describe('generateAutoTrackingSession:', () => {
+    it('should return newly generated auto tracking session', () => {
+      const timeout = 10 * 60 * 1000;
+      const outcome = generateAutoTrackingSession(timeout);
+      expect(outcome).toEqual({
+        autoTrack: true,
+        timeout,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
     });
   });
-  it('generateManualTrackingSession: should print a error message if the provided session id is not a number', () => {
-    const sessionId = '1234567890';
-    defaultLogger.error = jest.fn();
-    generateManualTrackingSession(sessionId, defaultLogger);
-    expect(defaultLogger.error).toHaveBeenCalledWith(
-      '[Session]:: "sessionId" should only be a positive integer',
-    );
-  });
-  it('generateManualTrackingSession: should print a error message if the provided session id a decimal number', () => {
-    const sessionId = 1234.5;
-    defaultLogger.error = jest.fn();
-    generateManualTrackingSession(sessionId, defaultLogger);
-    expect(defaultLogger.error).toHaveBeenCalledWith(
-      '[Session]:: "sessionId" should only be a positive integer',
-    );
-  });
-  it('generateManualTrackingSession: should print a error message if the provided session id is not 10 digits', () => {
-    const sessionId = 1234;
-    defaultLogger.error = jest.fn();
-    generateManualTrackingSession(sessionId, defaultLogger);
-    expect(defaultLogger.error).toHaveBeenCalledWith(
-      `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
-    );
+
+  describe('generateManualTrackingSession:', () => {
+    it('should return newly generated manual session', () => {
+      const sessionId = 1234567890;
+      const outcome = generateManualTrackingSession(sessionId);
+      expect(outcome).toEqual({
+        manualTrack: true,
+        id: sessionId,
+        sessionStart: true,
+      });
+    });
+    it('should return newly generated manual session if session id is not provided', () => {
+      const outcome = generateManualTrackingSession();
+      expect(outcome).toEqual({
+        manualTrack: true,
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+    });
+    it('should print a error message if the provided session id is not a number', () => {
+      const sessionId = '1234567890';
+      defaultLogger.error = jest.fn();
+      generateManualTrackingSession(sessionId, defaultLogger);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        '[Session]:: "sessionId" should only be a positive integer',
+      );
+    });
+    it('should print a error message if the provided session id a decimal number', () => {
+      const sessionId = 1234.5;
+      defaultLogger.error = jest.fn();
+      generateManualTrackingSession(sessionId, defaultLogger);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        '[Session]:: "sessionId" should only be a positive integer',
+      );
+    });
+    it('should print a error message if the provided session id is not 10 digits', () => {
+      const sessionId = 1234;
+      defaultLogger.error = jest.fn();
+      generateManualTrackingSession(sessionId, defaultLogger);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
+      );
+    });
   });
 });

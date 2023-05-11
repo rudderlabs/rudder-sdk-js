@@ -137,6 +137,8 @@ describe('User session manager', () => {
     expect(state.session.initialReferringDomain.value).toBe(newReferrer);
     expect(clientDataStore.set).toHaveBeenCalled();
   });
+  // TODO: debug the below 8 test cases with .skip later
+  // single tests are passing but when running the whole suite tests are failing
   it.skip('getAnonymousId', () => {
     const customData = {
       rl_anonymous_id: dummyAnonymousId,
