@@ -1,57 +1,20 @@
 import {
-  hasValidValue,
-  isValidSession,
+  hasSessionExpired,
   generateSessionId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
+  MIN_SESSION_ID_LENGTH,
 } from '@rudderstack/analytics-js/components/userSessionManager/utils';
-import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-import { state, resetState } from '@rudderstack/analytics-js/state';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 describe('Utility: User session manager', () => {
-  const validObj = {
-    key1: 'value',
-    key2: 1234567,
-  };
-
-  beforeEach(() => {
-    resetState();
-  });
-
-  it('hasValidValue: should return true for valid object with data', () => {
-    const outcome = hasValidValue(validObj);
-    expect(outcome).toEqual(true);
-  });
-  it('hasValidValue: should return false for undefined/null or empty object', () => {
-    const outcome1 = hasValidValue(undefined);
-    const outcome2 = hasValidValue(null);
-    const outcome3 = hasValidValue({});
-    expect(outcome1).toEqual(false);
-    expect(outcome2).toEqual(false);
-    expect(outcome3).toEqual(false);
-  });
-  it('isValidSession: should return true for valid session', () => {
-    state.session.sessionInfo.value = {
-      autoTrack: true,
-      timeout: 10 * 60 * 1000,
-      expiresAt: Date.now() + 30 * 1000,
-      id: 1683613729115,
-      sessionStart: false,
-    };
-    const outcome = isValidSession(Date.now());
-    expect(outcome).toEqual(true);
-  });
-  it('isValidSession: should return false for valid session', () => {
-    state.session.sessionInfo.value = {
-      autoTrack: true,
-      timeout: 10 * 60 * 1000,
-      expiresAt: Date.now() - 1000,
-      id: 1683613729115,
-      sessionStart: false,
-    };
-    const outcome = isValidSession(Date.now());
+  it('hasSessionExpired: should return true for valid session', () => {
+    const outcome = hasSessionExpired(Date.now() + 1000);
     expect(outcome).toEqual(false);
+  });
+  it('hasSessionExpired: should return false for valid session', () => {
+    const outcome = hasSessionExpired(Date.now() - 1000);
+    expect(outcome).toEqual(true);
   });
   it('generateSessionId: should return newly generated session id', () => {
     const outcome = generateSessionId();
@@ -59,12 +22,12 @@ describe('Utility: User session manager', () => {
     expect(outcome.toString().length).toEqual(13);
   });
   it('generateAutoTrackingSession: should return newly generated auto tracking session', () => {
-    const timestamp = Date.now();
-    const outcome = generateAutoTrackingSession(timestamp);
+    const timeout = 10 * 60 * 1000;
+    const outcome = generateAutoTrackingSession(timeout);
     expect(outcome).toEqual({
       autoTrack: true,
-      timeout: DEFAULT_SESSION_TIMEOUT,
-      expiresAt: timestamp + DEFAULT_SESSION_TIMEOUT,
+      timeout,
+      expiresAt: expect.any(Number),
       id: expect.any(Number),
       sessionStart: true,
     });
@@ -107,7 +70,7 @@ describe('Utility: User session manager', () => {
     defaultLogger.error = jest.fn();
     generateManualTrackingSession(sessionId, defaultLogger);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      `[Session]:: "sessionId" should at least be "10" digits long`,
+      `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
     );
   });
 });

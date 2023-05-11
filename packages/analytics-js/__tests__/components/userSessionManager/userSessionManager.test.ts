@@ -3,7 +3,7 @@ import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/use
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { MIN_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
@@ -34,7 +34,7 @@ describe('User session manager', () => {
   beforeEach(() => {
     clearStorage();
     resetState();
-    userSessionManager = new UserSessionManager(undefined, defaultLogger);
+    userSessionManager = new UserSessionManager(defaultLogger);
   });
 
   it('should initialize user details from storage to state', () => {
@@ -220,19 +220,14 @@ describe('User session manager', () => {
     userSessionManager.init(clientDataStore);
     expect(userSessionManager.initializeSessionTracking).toHaveBeenCalled();
   });
-  it('initializeSessionTracking: should create a new session in case no valid session exists', () => {
-    userSessionManager.init(clientDataStore);
-    expect(state.session.sessionInfo.value).toEqual({
-      autoTrack: true,
-      timeout: DEFAULT_SESSION_TIMEOUT,
-      expiresAt: expect.any(Number),
-      id: expect.any(Number),
-      sessionStart: true,
-    });
+  it('initializeSessionTracking: should call startAutoTracking if auto tracking is not disabled', () => {
+    userSessionManager.startAutoTracking = jest.fn();
+    userSessionManager.initializeSessionTracking();
+    expect(userSessionManager.startAutoTracking).toHaveBeenCalled();
   });
   it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
     state.loadOptions.value.sessions.timeout = 0;
-    userSessionManager.init(clientDataStore);
+    userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
       '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
     );
@@ -240,9 +235,9 @@ describe('User session manager', () => {
   });
   it('initializeSessionTracking: should print warning message if provided timeout is less than 10 second', () => {
     state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
-    userSessionManager.init(clientDataStore);
+    userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
-      '[SessionTracking]:: It is not advised to set "timeout" less than 10 seconds',
+      `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
     );
   });
   it('getSessionInfo: should return empty object if any type of tracking is not enabled', () => {
@@ -252,10 +247,16 @@ describe('User session manager', () => {
     expect(actualSessionInfo).toStrictEqual({});
   });
   it('getSessionInfo: should return session id and sessionStart when auto tracking is enabled', () => {
-    userSessionManager.init(clientDataStore);
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now() + 1000,
+      id: 1683613729115,
+      sessionStart: true,
+    };
     const actualSessionInfo = userSessionManager.getSessionInfo();
     expect(actualSessionInfo).toEqual({
-      id: expect.any(Number),
+      id: state.session.sessionInfo.value.id,
       sessionStart: true,
     });
   });
@@ -274,7 +275,7 @@ describe('User session manager', () => {
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
-      expiresAt: Date.now(),
+      expiresAt: Date.now() - 1000,
       id: 1683613729115,
       sessionStart: false,
     };
@@ -285,7 +286,7 @@ describe('User session manager', () => {
     });
   });
   it('getSessionInfo: should return only session id from the second event of the auto session tracking', () => {
-    userSessionManager.init(clientDataStore);
+    userSessionManager.initializeSessionTracking();
     userSessionManager.getSessionInfo(); // sessionInfo For First Event
     const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
     expect(sessionInfoForSecondEvent).toEqual({
@@ -294,7 +295,6 @@ describe('User session manager', () => {
   });
   it('getSessionInfo: should return only session id from the second event of the manual session tracking', () => {
     const manualTrackingSessionId = 1029384756;
-    userSessionManager.init(clientDataStore);
     userSessionManager.start(manualTrackingSessionId);
     userSessionManager.getSessionInfo(); // sessionInfo For First Event
     const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
@@ -307,7 +307,7 @@ describe('User session manager', () => {
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
-      expiresAt: Date.now(),
+      expiresAt: Date.now() - 1000,
       id: 1683613729115,
       sessionStart: false,
     };

@@ -1,30 +1,18 @@
-import { state } from '@rudderstack/analytics-js/state';
-import { ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-import { countDigits } from '../utilities/number';
+import { hasMinLength, isNumber, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
 /**
- * A function to check the input object is not empty, undefined or null
- * @param obj input object
- * @returns boolean
- */
-const hasValidValue = (obj?: Nullable<ApiObject>) =>
-  obj !== undefined && obj !== null && Object.keys(obj).length > 0;
-
-/**
  * A function to validate current session and return true/false depending on that
- * @param {number} timestamp
  * @returns boolean
  */
-const isValidSession = (timestamp: number): boolean =>
-  Boolean(
-    state.session.sessionInfo.value.expiresAt &&
-      timestamp <= state.session.sessionInfo.value.expiresAt,
-  );
+const hasSessionExpired = (expiresAt?: number): boolean => {
+  const timestamp = Date.now();
+  return Boolean(!expiresAt || timestamp > expiresAt);
+};
 
 /**
  * A function to generate session id
@@ -37,13 +25,15 @@ const generateSessionId = (): number => Date.now();
  * @param {number} sessionId
  * @returns
  */
-const isValidManualSessionId = (sessionId?: number, logger?: ILogger): boolean => {
-  if (!sessionId) return false;
-  if (typeof sessionId !== 'number' || sessionId % 1 !== 0) {
+const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
+  if (!sessionId) {
+    return false;
+  }
+  if (!isNumber(sessionId) || !isPositiveInteger(sessionId)) {
     logger?.error(`[Session]:: "sessionId" should only be a positive integer`);
     return false;
   }
-  if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
+  if (!hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)) {
     logger?.error(
       `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
     );
@@ -57,8 +47,9 @@ const isValidManualSessionId = (sessionId?: number, logger?: ILogger): boolean =
  * @param timestamp current timestamp
  * @returns SessionInfo
  */
-const generateAutoTrackingSession = (timestamp: number): SessionInfo => {
-  const timeout: number = state.session.sessionInfo.value.timeout || DEFAULT_SESSION_TIMEOUT;
+const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {
+  const timestamp = Date.now();
+  const timeout: number = sessionTimeout || DEFAULT_SESSION_TIMEOUT;
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + timeout, // set the expiry time of the session
@@ -75,7 +66,7 @@ const generateAutoTrackingSession = (timestamp: number): SessionInfo => {
  * @returns SessionInfo
  */
 const generateManualTrackingSession = (id?: number, logger?: ILogger): SessionInfo => {
-  const sessionId: number = isValidManualSessionId(id, logger)
+  const sessionId: number = isManualSessionIdValid(id, logger)
     ? (id as number)
     : generateSessionId();
   return {
@@ -86,9 +77,9 @@ const generateManualTrackingSession = (id?: number, logger?: ILogger): SessionIn
 };
 
 export {
-  hasValidValue,
-  isValidSession,
+  hasSessionExpired,
   generateSessionId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
+  MIN_SESSION_ID_LENGTH,
 };

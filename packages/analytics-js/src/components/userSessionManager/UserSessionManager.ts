@@ -7,8 +7,14 @@ import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/sessi
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { MIN_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import {
+  isNonEmptyObject,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  DEFAULT_SESSION_TIMEOUT,
+  MIN_SESSION_TIMEOUT,
+} from '@rudderstack/analytics-js/constants/timeouts';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IUserSessionManager, SessionTrackingInfo } from './types';
@@ -18,8 +24,7 @@ import { getReferringDomain } from '../utilities/url';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
-  isValidSession,
-  hasValidValue,
+  hasSessionExpired,
 } from './utils';
 import { isNumber } from '../utilities/number';
 
@@ -28,7 +33,7 @@ class UserSessionManager implements IUserSessionManager {
   storage?: IStore;
   logger?: ILogger;
 
-  constructor(storage?: IStore, logger?: ILogger) {
+  constructor(logger?: ILogger, storage?: IStore) {
     this.storage = storage;
     this.logger = logger;
   }
@@ -72,31 +77,34 @@ class UserSessionManager implements IUserSessionManager {
    * A function to initialize sessionTracking
    */
   initializeSessionTracking() {
-    const sessionInfo: SessionInfo = this.getSession() || defaultSessionInfo;
+    const sessionInfo: SessionInfo = this.getSessionFromStorage() || defaultSessionInfo;
 
     let finalAutoTrackingStatus = !(
       state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
     );
 
-    const sessionTimeout: number = state.loadOptions.value.sessions.timeout as number;
+    const sessionTimeout: number = isNumber(state.loadOptions.value.sessions.timeout)
+      ? (state.loadOptions.value.sessions.timeout as number)
+      : DEFAULT_SESSION_TIMEOUT;
 
-    if (isNumber(sessionTimeout)) {
-      if (sessionTimeout === 0) {
-        this.logger?.warn(
-          '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
-        );
-        finalAutoTrackingStatus = false;
-      }
-      // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
-      // and will proceed with it
-      if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
-        this.logger?.warn(
-          '[SessionTracking]:: It is not advised to set "timeout" less than 10 seconds',
-        );
-      }
-      sessionInfo.timeout = sessionTimeout;
+    if (sessionTimeout === 0) {
+      this.logger?.warn(
+        '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
+      );
+      finalAutoTrackingStatus = false;
     }
-    state.session.sessionInfo.value = { ...sessionInfo, autoTrack: finalAutoTrackingStatus };
+    // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
+    // and will proceed with it
+    if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
+      this.logger?.warn(
+        `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
+      );
+    }
+    state.session.sessionInfo.value = {
+      ...sessionInfo,
+      timeout: sessionTimeout,
+      autoTrack: finalAutoTrackingStatus,
+    };
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
       this.startAutoTracking();
@@ -121,7 +129,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (hasValidValue(state.session.userTraits.value)) {
+      if (isNonEmptyObject(state.session.userTraits.value)) {
         this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
       } else {
         this.storage?.remove(userSessionStorageKeys.userTraits);
@@ -141,7 +149,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (hasValidValue(state.session.groupTraits.value)) {
+      if (isNonEmptyObject(state.session.groupTraits.value)) {
         this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
       } else {
         this.storage?.remove(userSessionStorageKeys.groupTraits);
@@ -190,7 +198,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update session tracking info in storage automatically when it is updated in state
      */
     effect(() => {
-      if (hasValidValue(state.session.sessionInfo.value)) {
+      if (isNonEmptyObject(state.session.sessionInfo.value)) {
         this.storage?.set(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
       } else {
         this.storage?.remove(userSessionStorageKeys.sessionInfo);
@@ -299,7 +307,7 @@ class UserSessionManager implements IUserSessionManager {
    * Fetches session tracking information from storage
    * @returns
    */
-  getSession(): Nullable<SessionInfo> {
+  getSessionFromStorage(): Nullable<SessionInfo> {
     return this.storage?.get(userSessionStorageKeys.sessionInfo) || null;
   }
 
@@ -312,7 +320,7 @@ class UserSessionManager implements IUserSessionManager {
       // renew or create a new auto-tracking session
       if (state.session.sessionInfo.value.autoTrack) {
         const timestamp = Date.now();
-        if (!isValidSession(timestamp)) {
+        if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
           this.startAutoTracking();
         } else {
           const timeout: number =
@@ -321,9 +329,10 @@ class UserSessionManager implements IUserSessionManager {
         }
       }
 
-      session.sessionStart = state.session.sessionInfo.value.sessionStart;
-      //As the session start is already read, mark it as false
-      state.session.sessionInfo.value.sessionStart = false;
+      if (state.session.sessionInfo.value.sessionStart) {
+        session.sessionStart = true;
+        state.session.sessionInfo.value.sessionStart = false;
+      }
       session.id = state.session.sessionInfo.value.id;
     }
     return session;
@@ -420,9 +429,10 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session.
    */
   startAutoTracking() {
-    const timestamp = Date.now();
-    if (!isValidSession(timestamp)) {
-      state.session.sessionInfo.value = generateAutoTrackingSession(timestamp);
+    if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
+      state.session.sessionInfo.value = generateAutoTrackingSession(
+        state.session.sessionInfo.value.timeout,
+      );
     }
   }
 
@@ -458,6 +468,6 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager(undefined, defaultLogger);
+const defaultUserSessionManager = new UserSessionManager(defaultLogger);
 
 export { UserSessionManager, defaultUserSessionManager };
