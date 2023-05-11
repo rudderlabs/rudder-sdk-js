@@ -1,5 +1,6 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { serializeError } from 'serialize-error';
+import { keys } from 'ramda';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated
@@ -9,6 +10,7 @@ import { serializeError } from 'serialize-error';
  * @param {*} async Whether to load the script in async mode. Defaults to `true` [optional]
  * @param {*} onload callback to invoke onload [optional]
  * @param {*} onerror callback to invoke onerror [optional]
+ * @param {*} extraAttributes key/value pair with html attributes to add in html tag [optional]
  *
  * @returns HTMLScriptElement
  */
@@ -18,6 +20,7 @@ const createScriptElement = (
   async = true,
   onload: ((this: GlobalEventHandlers, ev: Event) => any) | null = null,
   onerror: OnErrorEventHandler = null,
+  extraAttributes: Record<string, string> = {},
 ) => {
   const scriptElement = document.createElement('script');
   scriptElement.type = 'text/javascript';
@@ -27,6 +30,10 @@ const createScriptElement = (
   scriptElement.id = id;
   scriptElement.async = async;
   scriptElement.setAttribute('data-append-origin', EXTERNAL_SOURCE_LOAD_ORIGIN);
+
+  Object.keys(extraAttributes).forEach(attributeName => {
+    scriptElement.setAttribute(attributeName, extraAttributes[attributeName]);
+  });
 
   return scriptElement;
 };
@@ -68,6 +75,7 @@ const insertScript = (newScriptElement: HTMLScriptElement) => {
  * @param {*} id ID for the script tag
  * @param {*} timeout loading timeout
  * @param {*} async Whether to load the script in async mode. Defaults to `true` [optional]
+ * @param {*} extraAttributes key/value pair with html attributes to add in html tag [optional]
  *
  * @returns
  */
@@ -76,6 +84,7 @@ const jsFileLoader = (
   id: string,
   timeout: number,
   async = true,
+  extraAttributes?: Record<string, string>,
 ): Promise<string | undefined> =>
   // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
@@ -98,7 +107,7 @@ const jsFileLoader = (
       };
 
       // Create the DOM element to load the script and add it to the DOM
-      insertScript(createScriptElement(url, id, async, onload, onerror));
+      insertScript(createScriptElement(url, id, async, onload, onerror, extraAttributes));
 
       // Reject on timeout
       timeoutID = window.setTimeout(() => {
