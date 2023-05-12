@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.32.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.31.0...v1.32.0) (2023-05-12)
+
+
+### Features
+
+* **bingAds:** add UET ecomm fields ([#1048](https://github.com/rudderlabs/rudder-sdk-js/issues/1048)) ([175b79c](https://github.com/rudderlabs/rudder-sdk-js/commit/175b79c88bb66599715ed90b9e3b37d2abb764f1))
+* conversion label option added for google ads conversion events ([#915](https://github.com/rudderlabs/rudder-sdk-js/issues/915)) ([91ff1ec](https://github.com/rudderlabs/rudder-sdk-js/commit/91ff1ec656e145142534c769c49950c633fb13f2))
+* custom host for fullstory ([#1059](https://github.com/rudderlabs/rudder-sdk-js/issues/1059)) ([b7cdb8c](https://github.com/rudderlabs/rudder-sdk-js/commit/b7cdb8cf9c2d5f45e13e74fdfc0f6006fe80bec9))
+* delaying cloud mode events based on flag provided in options ([#1047](https://github.com/rudderlabs/rudder-sdk-js/issues/1047)) ([ee8ecae](https://github.com/rudderlabs/rudder-sdk-js/commit/ee8ecaedd12f15881c50da208df416cd1e794f2f))
+* **ga4:** override client_id and session_id in GA hybrid mode ([#1056](https://github.com/rudderlabs/rudder-sdk-js/issues/1056)) ([f12aa78](https://github.com/rudderlabs/rudder-sdk-js/commit/f12aa780f48a6cfd554b6426467d7fee17353476))
+* upgrade Amplitude SDK version to 8.21.4 ([#1064](https://github.com/rudderlabs/rudder-sdk-js/issues/1064)) ([a92f40d](https://github.com/rudderlabs/rudder-sdk-js/commit/a92f40d12b9456dc299f2d62d87c7137d30655f6))
+
+
+### Bug Fixes
+
+* **ga4:** updated hybridmode condition check ([#1030](https://github.com/rudderlabs/rudder-sdk-js/issues/1030)) ([1b9fdf6](https://github.com/rudderlabs/rudder-sdk-js/commit/1b9fdf6d09c129b7b80e276b6680115566a49904))
+* **integration:** bing ads load check for uet class ([#1070](https://github.com/rudderlabs/rudder-sdk-js/issues/1070)) ([c8dce0e](https://github.com/rudderlabs/rudder-sdk-js/commit/c8dce0e9202bf27d80c148a80ccc55c03aeea25e))
+* **integration:** bingads uet parameter check introduced ([#1045](https://github.com/rudderlabs/rudder-sdk-js/issues/1045)) ([8ee1838](https://github.com/rudderlabs/rudder-sdk-js/commit/8ee18381bd42da511df0d525f16921a5014c2964))
+
 ## [1.31.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.30.0...v1.31.0) (2023-04-24)
 
 
