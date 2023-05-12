@@ -1,9 +1,12 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+
+import { loader } from './loader';
 
 const logger = new Logger(NAME);
 
@@ -29,7 +32,8 @@ class Amplitude {
     this.traitsToIncrement = [];
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
@@ -50,6 +54,7 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
+<<<<<<< HEAD
       !(function () {
         'use strict';
         !(function (e, t) {
@@ -167,6 +172,9 @@ class Amplitude {
           }
         })(window, document);
       })();
+=======
+      loader(window, document);
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
     }
 
     const initOptions = {
@@ -229,12 +237,16 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
+<<<<<<< HEAD
       if (products && Array.isArray(products)) {
+=======
+      if (products && type(products) === 'array') {
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
         // track all the products in a single event.
         const allProducts = [];
 
         const productKeys = Object.keys(products);
-        for (let index = 0; index < productKeys.length; index++) {
+        for (let index = 0; index < productKeys.length; index += 1) {
           let product = {};
           product = this.getProductAttributes(products[index]);
           allProducts.push(product);
@@ -257,7 +269,7 @@ class Amplitude {
       return;
     }
 
-    if (products && type(products) == 'array') {
+    if (products && type(products) === 'array') {
       // track events iterating over product array individually.
 
       // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
@@ -276,10 +288,10 @@ class Amplitude {
   }
 
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
-    let { revenue, revenueType, revenue_type } = trackEventMessage.properties;
+    let { revenueType } = trackEventMessage.properties;
+    const { revenue, revenue_type } = trackEventMessage.properties;
     revenueType = revenueType || revenue_type;
-    for (let index = 0; index < products.length; index++) {
-      const product = products[index];
+    products.forEach((product) => {
       trackEventMessage.properties = product;
       trackEventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
@@ -294,7 +306,7 @@ class Amplitude {
       if (shouldTrackEventPerProduct) {
         this.logEventAndCorrespondingRevenue(trackEventMessage, true);
       }
-    }
+    });
   }
 
   // Always to be called for general and top level events (and not product level)
@@ -319,13 +331,16 @@ class Amplitude {
     logger.debug('in Amplitude page');
     this.setDeviceId(rudderElement);
 
-    const { properties, name, category } = rudderElement.message;
-    const useNewPageEventNameFormat =
-      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat || false;
+    const { properties, name, category, integrations } = rudderElement.message;
+    const useNewPageEventNameFormat = integrations?.AM?.useNewPageEventNameFormat || false;
     // all pages
     if (this.trackAllPages) {
       const event = 'Loaded a page';
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
+=======
+      window.amplitude.getInstance().logEvent(event, properties);
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
     }
 
     // categorized pages
@@ -333,7 +348,11 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
       else event = `Viewed ${category} Page`;
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
+=======
+      window.amplitude.getInstance().logEvent(event, properties);
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
     }
 
     // named pages
@@ -341,7 +360,11 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
       else event = `Viewed ${name} Page`;
+<<<<<<< HEAD
       amplitude.logEvent(event, properties);
+=======
+      window.amplitude.getInstance().logEvent(event, properties);
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
     }
   }
 
@@ -356,6 +379,10 @@ class Amplitude {
     const { groupValueTrait } = this;
     let groupType;
     let groupValue;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0c313379 (feat: upgrade Amplitude SDK version to 8.21.4 (#1065))
     if (groupTypeTrait && groupValueTrait && traits) {
       groupType = traits[groupTypeTrait];
       groupValue = traits[groupValueTrait];
@@ -396,9 +423,10 @@ class Amplitude {
     };
 
     const { properties, event } = rudderMessage;
-    let { price, productId, quantity, revenue, product_id } = properties;
+    let { price, productId, quantity } = properties;
+    const { revenue, product_id, revenue_type } = properties;
     const revenueType =
-      properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
+      properties.revenueType || revenue_type || mapRevenueType[event.toLowerCase()];
 
     productId = productId || product_id;
 
