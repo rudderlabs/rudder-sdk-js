@@ -5,9 +5,20 @@
   "main": "index.js",
   "module": "index.es.js",
   "exports": {
-    ".": "./index.js",
-    "./service-worker": "./service-worker/index.js",
-    "./service-worker/index.es": "./service-worker/index.es.js"
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.es.js",
+      "require": "./index.js"
+    },
+    "./service-worker": {
+      "types": "./service-worker/index.d.ts",
+      "import": "./service-worker/index.es.js",
+      "require": "./service-worker/index.js"
+    },
+    "./service-worker/index.es": {
+      "types": "./service-worker/index.d.ts",
+      "import": "./service-worker/index.es.js"
+    }
   },
   "typesVersions": {
     "*": {
