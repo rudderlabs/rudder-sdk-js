@@ -21,7 +21,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
+          (o.q = w[u]), (w[u] = new UET(o));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -30,7 +30,7 @@ class BingAds {
         (n.onload = n.onreadystatechange =
           function () {
             let s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete') ||
+            (s && s !== 'loaded' && s !== 'complete' && typeof w['UET'] === 'function') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
@@ -46,12 +46,9 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    if(typeof window.UET !== 'function') {
-      logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
-    } else {
-      logger.debug('BingAds: UET class is successfully loaded');
-    }
-    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
@@ -69,7 +66,7 @@ class BingAds {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const eventToSend = type;
-    if(!eventToSend){
+    if (!eventToSend) {
       logger.error('Event type not present');
       return;
     }
