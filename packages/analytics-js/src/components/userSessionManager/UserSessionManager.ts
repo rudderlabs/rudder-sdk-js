@@ -428,11 +428,17 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to check for existing session details and depending on that create a new session.
    */
-  startAutoTracking() {
+  startOrRenewAutoTracking() {
     if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(
         state.session.sessionInfo.value.timeout,
       );
+    } else {
+        const timestamp = Date.now();
+        const timeout: number =
+            state.session.sessionInfo.value.timeout as number;
+          state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
+      }
     }
   }
 
