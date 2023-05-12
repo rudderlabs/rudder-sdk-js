@@ -315,25 +315,20 @@ class UserSessionManager implements IUserSessionManager {
    * A function to return current session info
    */
   getSessionInfo(): Nullable<SessionInfo> {
-    const session: SessionTrackingInfo = {};
+    let session: SessionTrackingInfo = {};
     if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
-      // renew or create a new auto-tracking session
       if (state.session.sessionInfo.value.autoTrack) {
-        const timestamp = Date.now();
-        if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
-          this.startAutoTracking();
-        } else {
-          const timeout: number =
-            state.session.sessionInfo.value.timeout || defaultSessionInfo.timeout;
-          state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
-        }
+        this.startOrRenewAutoTracking();
       }
-
+    
+      session = {
+        id = state.session.sessionInfo.value.id,
+        sessionStart = state.session.sessionInfo.value.sessionStart
+      };
+    
       if (state.session.sessionInfo.value.sessionStart) {
-        session.sessionStart = true;
         state.session.sessionInfo.value.sessionStart = false;
       }
-      session.id = state.session.sessionInfo.value.id;
     }
     return session;
   }
