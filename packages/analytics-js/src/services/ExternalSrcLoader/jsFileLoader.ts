@@ -1,6 +1,5 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { serializeError } from 'serialize-error';
-import { keys } from 'ramda';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated

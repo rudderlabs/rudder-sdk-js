@@ -53,7 +53,7 @@ class PluginEngine implements IPluginEngine {
     let pos = this.plugins.length;
 
     this.plugins.forEach((pluginItem: ExtensionPlugin, index: number) => {
-      if (pluginItem.deps && pluginItem.deps.includes(plugin.name)) {
+      if (pluginItem.deps?.includes(plugin.name)) {
         pos = Math.min(pos, index);
       }
     });
@@ -101,11 +101,11 @@ class PluginEngine implements IPluginEngine {
   }
 
   getPlugins(extPoint?: string): ExtensionPlugin[] {
-    const lifeCycleName = extPoint || '.';
+    const lifeCycleName = extPoint ?? '.';
 
     if (!this.cache[lifeCycleName]) {
       this.cache[lifeCycleName] = this.plugins.filter(plugin => {
-        if (plugin.deps && plugin.deps.some(dependency => !this.byName[dependency])) {
+        if (plugin.deps?.some(dependency => !this.byName[dependency])) {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
           const errorMessage = `Plugin ${plugin.name} is not loaded because its dependencies do not exist: ${notExistDeps}.`;
@@ -133,10 +133,11 @@ class PluginEngine implements IPluginEngine {
       throw new Error('Invoke on plugin should have a extensionPointName');
     }
 
-    const noCall = /^!/.test(extensionPointName);
-    const throws = this.config.throws || /!$/.test(extensionPointName);
+    const noCall = extensionPointName.startsWith('!');
+    const throws = this.config.throws ?? extensionPointName.endsWith('!');
 
-    extensionPointName = extensionPointName.replace(/^!|!$/g, '');
+    // eslint-disable-next-line unicorn/better-regex
+    extensionPointName = extensionPointName.replace(/(^!|!$)/g, '');
 
     if (!extensionPointName) {
       throw new Error('Invoke on plugin should have a valid extensionPointName');

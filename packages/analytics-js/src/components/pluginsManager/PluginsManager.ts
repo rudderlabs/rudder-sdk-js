@@ -136,23 +136,39 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
-  registerRemotePlugins() {
+  async registerRemotePlugins() {
     const remotePluginsList = remotePluginsInventory(
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    Object.keys(remotePluginsList).forEach(async remotePluginKey => {
-      await remotePluginsList[remotePluginKey]()
-        .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
-        .catch(e => {
-          // TODO: add retry here if dynamic import fails
-          state.plugins.failedPlugins.value = [
-            ...state.plugins.failedPlugins.value,
-            remotePluginKey,
-          ];
-          this.onError(e);
-        });
-    });
+    // eslint-disable-next-line compat/compat
+    await Promise.all(
+      Object.keys(remotePluginsList).map(async remotePluginKey => {
+        await remotePluginsList[remotePluginKey]()
+          .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
+          .catch(e => {
+            // TODO: add retry here if dynamic import fails
+            state.plugins.failedPlugins.value = [
+              ...state.plugins.failedPlugins.value,
+              remotePluginKey,
+            ];
+            this.onError(e);
+          });
+      }),
+    );
+
+    // Object.keys(remotePluginsList).forEach(async remotePluginKey => {
+    //   await remotePluginsList[remotePluginKey]()
+    //     .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
+    //     .catch(e => {
+    //       // TODO: add retry here if dynamic import fails
+    //       state.plugins.failedPlugins.value = [
+    //         ...state.plugins.failedPlugins.value,
+    //         remotePluginKey,
+    //       ];
+    //       this.onError(e);
+    //     });
+    // });
   }
 
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {

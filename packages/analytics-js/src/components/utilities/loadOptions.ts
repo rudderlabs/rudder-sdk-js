@@ -8,7 +8,7 @@ const normaliseLoadOptions = (
   loadOptions: Partial<LoadOptions>,
 ): LoadOptions => {
   const normalisedLoadOptions = clone(loadOptions);
-  normalisedLoadOptions.plugins = normalisedLoadOptions.plugins || defaultOptionalPluginsList;
+  normalisedLoadOptions.plugins = normalisedLoadOptions.plugins ?? defaultOptionalPluginsList;
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(
     loadOptionsFromState,
