@@ -18,6 +18,8 @@ class EventManager implements IEventManager {
   logger?: ILogger;
 
   /**
+   * 
+   * @param eventRepository Event repository instance
    * @param errorHandler Error handler object
    * @param logger Logger object
    */
@@ -28,6 +30,9 @@ class EventManager implements IEventManager {
     this.onError = this.onError.bind(this);
   }
 
+  /**
+   * Initializes the event manager
+   */
   init() {
     this.eventRepository.init();
     state.lifecycle.status.value = LifecycleStatus.Initialized;
