@@ -136,13 +136,13 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
-  async registerRemotePlugins() {
+  registerRemotePlugins() {
     const remotePluginsList = remotePluginsInventory(
       state.plugins.activePlugins.value as PluginName[],
     );
 
     // eslint-disable-next-line compat/compat
-    await Promise.all(
+    Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
@@ -155,20 +155,9 @@ class PluginsManager implements IPluginsManager {
             this.onError(e);
           });
       }),
-    );
-
-    // Object.keys(remotePluginsList).forEach(async remotePluginKey => {
-    //   await remotePluginsList[remotePluginKey]()
-    //     .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
-    //     .catch(e => {
-    //       // TODO: add retry here if dynamic import fails
-    //       state.plugins.failedPlugins.value = [
-    //         ...state.plugins.failedPlugins.value,
-    //         remotePluginKey,
-    //       ];
-    //       this.onError(e);
-    //     });
-    // });
+    ).catch(e => {
+      this.onError(e);
+    });
   }
 
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
