@@ -46,11 +46,17 @@
           }
         ]
       },
-      "library": { "name": "RudderLabs JavaScript SDK", "version": "2.22.2" },
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "2.22.2"
+      },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
       "device": null,
       "network": null,
-      "os": { "name": "", "version": "" },
+      "os": {
+        "name": "",
+        "version": ""
+      },
       "locale": "en-US",
       "screen": {
         "density": 2,
@@ -86,7 +92,9 @@
     "integrations": {
       "All": true,
       "Google Analytics 4": {
-        "sessionId": "1677835184"
+        "clientId": "284269621.1683957866",
+        "sessionId": "1683957866",
+        "sessionNumber": 1
       }
     },
     "user_properties": null,

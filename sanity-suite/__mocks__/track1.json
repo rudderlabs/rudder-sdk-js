@@ -139,7 +139,9 @@
       "Google Analytics": true,
       "Amplitude": true,
       "Google Analytics 4": {
-        "sessionId": "1677835184"
+        "clientId": "284269621.1683957866",
+        "sessionId": "1683957866",
+        "sessionNumber": 1
       }
     },
     "user_properties": null,
