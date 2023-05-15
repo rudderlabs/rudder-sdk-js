@@ -46,7 +46,7 @@ const resolveDataPlaneUrl = (
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
     const region = validateResidencyServerRegionInput(residencyServerRegion) ?? DEFAULT_REGION;
-    const regionUrlArr: RegionDetails[] = dataplanes[region] ?? dataplanes[DEFAULT_REGION];
+    const regionUrlArr: RegionDetails[] = dataplanes[region] || dataplanes[DEFAULT_REGION];
 
     const defaultUrl = getDefaultUrlOfRegion(regionUrlArr);
     if (defaultUrl) {

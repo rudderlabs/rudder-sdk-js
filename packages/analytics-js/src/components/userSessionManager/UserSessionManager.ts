@@ -230,7 +230,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       finalAnonymousId = linkerPluginsResult?.[0];
     }
-    state.session.anonymousUserId.value = finalAnonymousId ?? this.generateAnonymousId();
+    state.session.anonymousUserId.value = finalAnonymousId || this.generateAnonymousId();
   }
 
   /**
@@ -258,7 +258,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       persistedAnonymousId = autoCapturedAnonymousId?.[0];
     }
-    state.session.anonymousUserId.value = persistedAnonymousId ?? this.generateAnonymousId();
+    state.session.anonymousUserId.value = persistedAnonymousId || this.generateAnonymousId();
     return state.session.anonymousUserId.value as string;
   }
 

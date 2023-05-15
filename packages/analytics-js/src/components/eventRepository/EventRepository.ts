@@ -10,7 +10,7 @@ import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
 import { defaultPluginsManager } from '../pluginsManager';
-import { validatePayloadSize } from './utils';
+import { validatePayloadSize } from './utilities';
 
 class EventRepository implements IEventRepository {
   errorHandler?: IErrorHandler;

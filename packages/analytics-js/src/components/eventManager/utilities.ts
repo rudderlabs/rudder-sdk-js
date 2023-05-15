@@ -33,18 +33,18 @@ const getUpdatedPageProperties = (
 
   Object.keys(state.page).forEach((key: string) => {
     if (pageProps[key] === undefined) {
-      pageProps[key] = optionsPageProps[key] ?? state.page[key].value;
+      pageProps[key] = optionsPageProps[key] || state.page[key].value;
     }
   });
 
   if (pageProps.initial_referrer === undefined) {
     pageProps.initial_referrer =
-      optionsPageProps.initial_referrer ?? state.session.initialReferrer.value;
+      optionsPageProps.initial_referrer || state.session.initialReferrer.value;
   }
 
   if (pageProps.initial_referring_domain === undefined) {
     pageProps.initial_referring_domain =
-      optionsPageProps.initial_referring_domain ?? state.session.initialReferringDomain.value;
+      optionsPageProps.initial_referring_domain || state.session.initialReferringDomain.value;
   }
 
   return pageProps;
@@ -100,14 +100,14 @@ const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): v
 const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   const ctxPageProps: ApiObject = {};
   Object.keys(state.page).forEach((key: string) => {
-    ctxPageProps[key] = pageProps?.[key] ?? state.page[key].value;
+    ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
   });
 
   ctxPageProps.initial_referrer =
-    pageProps?.initial_referrer ?? state.session.initialReferrer.value;
+    pageProps?.initial_referrer || state.session.initialReferrer.value;
 
   ctxPageProps.initial_referring_domain =
-    pageProps?.initial_referring_domain ?? state.session.initialReferringDomain.value;
+    pageProps?.initial_referring_domain || state.session.initialReferringDomain.value;
   return ctxPageProps;
 };
 
