@@ -165,10 +165,9 @@ class Amplitude {
     }
 
     const initOptions = {
-      attribution: { disabled: this.attribution },
+      attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
-      trackNewCampaigns: !this.trackNewCampaigns,
       appVersion: this.versionName,
     };
     if (this.preferAnonymousIdForDeviceId && this.analytics)
