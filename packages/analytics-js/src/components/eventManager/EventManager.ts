@@ -18,7 +18,7 @@ class EventManager implements IEventManager {
   logger?: ILogger;
 
   /**
-   * 
+   *
    * @param eventRepository Event repository instance
    * @param errorHandler Error handler object
    * @param logger Logger object
@@ -56,9 +56,9 @@ class EventManager implements IEventManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: Error | unknown): void {
+  onError(error: Error | unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'EventManager');
+      this.errorHandler.onError(error, 'Event Manager', customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }

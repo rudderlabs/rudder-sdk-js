@@ -1,20 +1,15 @@
-import { clone } from 'ramda';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { RudderEvent } from '../eventManager/types';
-import { getCurrentTimeFormatted } from '../utilities/timestamp';
+import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
 import { MAX_EVENT_PAYLOAD_SIZE_BYTES } from './constants';
 
 /**
  * Utility to validate final payload size before sending to server
- * @param payload RudderEvent object
+ * @param event RudderEvent object
  * @param logger Logger instance
  */
-const validatePayloadSize = (payload: RudderEvent, logger?: ILogger) => {
-  // append sentAt for the sake of size calculation
-  const fakeFinalPayload = clone(payload);
-  fakeFinalPayload.sentAt = getCurrentTimeFormatted();
+const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
   try {
-    const payloadSize = JSON.stringify(fakeFinalPayload).length;
+    const payloadSize = JSON.stringify(event).length;
     if (payloadSize > MAX_EVENT_PAYLOAD_SIZE_BYTES) {
       logger?.warn(
         `The event payload size (${payloadSize}) exceeds the maximum limit of ${MAX_EVENT_PAYLOAD_SIZE_BYTES} bytes. The event might get dropped`,

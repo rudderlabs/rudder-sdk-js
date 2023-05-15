@@ -24,7 +24,9 @@ describe('EventManager', () => {
 
     expect(mockErrorHandler.onError).toBeCalledWith(
       'Unable to generate RudderStack event object',
-      'EventManager',
+      'Event Manager',
+      undefined,
+      undefined,
     );
   });
 

@@ -1,67 +1,90 @@
-import { QueueOptions, Queue } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
 import { ApiCallback } from '@rudderstack/analytics-js/state/types';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { state } from '@rudderstack/analytics-js/state';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
-import { DEFAULT_QUEUE_OPTIONS } from './constants';
 import { defaultPluginsManager } from '../pluginsManager';
-import { validatePayloadSize } from './utilities';
+import {
+  DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
+  DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
+} from './constants';
 
+/**
+ * Event repository class responsible for queuing events for further processing and delivery
+ */
 class EventRepository implements IEventRepository {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  dataPlaneEventsQueue: Queue;
-  deviceEventsQueue: Queue;
   pluginsManager: IPluginsManager;
 
-  constructor(
-    pluginsManager: IPluginsManager,
-    dataPlaneQOpts: QueueOptions,
-    destinationsQOpts: QueueOptions,
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
-  ) {
+  /**
+   *
+   * @param pluginsManager Plugins manager instance
+   * @param errorHandler Error handler object
+   * @param logger Logger object
+   */
+  constructor(pluginsManager: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
     this.logger = logger;
+    this.onError = this.onError.bind(this);
 
-    // Override default options with user provided options
-    const dpQueueOptions = mergeDeepRight(DEFAULT_QUEUE_OPTIONS, dataPlaneQOpts);
-
-    this.dataPlaneEventsQueue = new Queue('rudder', dpQueueOptions, (item, done) => {
-      pluginsManager.invoke('dataplaneEvent.process', item, done);
-    });
-
-    // Override default options with user provided options
-    const dmQueueOptions = mergeDeepRight(DEFAULT_QUEUE_OPTIONS, destinationsQOpts);
-
-    this.deviceEventsQueue = new Queue('rs_dest', dmQueueOptions, (item, done) => {
-      pluginsManager.invoke('deviceEvent.process', item, done);
-    });
+    this.pluginsManager.invoke(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
+      state.lifecycle.writeKey,
+      state.lifecycle.activeDataplaneUrl,
+      state.loadOptions.value.queueOptions,
+    );
+    this.pluginsManager.invoke(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
+      state.loadOptions.value.destinationsQueueOptions,
+    );
   }
 
+  /**
+   * Initializes the event repository
+   */
   init(): void {
-    this.dataPlaneEventsQueue.start();
-    this.deviceEventsQueue.start();
+    this.pluginsManager.invoke(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`);
+    this.pluginsManager.invoke(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`);
   }
 
+  /**
+   * Enqueues the event for processing
+   * @param event RudderEvent object
+   * @param callback API callback function
+   */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    validatePayloadSize(event, this.logger);
+    this.pluginsManager.invoke(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`, event, this.logger);
+    this.pluginsManager.invoke(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
 
-    this.dataPlaneEventsQueue.addItem({ event, callback });
-    this.deviceEventsQueue.addItem({ event, callback });
+    // Invoke the callback if it exists
+    try {
+      callback?.(event);
+    } catch (error) {
+      this.onError(error, 'API Callback Invocation Failed');
+    }
+  }
+
+  /**
+   * Handles error
+   * @param error The error object
+   */
+  onError(error: Error | unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, 'Event Repository', customMessage, shouldAlwaysThrow);
+    } else {
+      throw error;
+    }
   }
 }
 
 const defaultEventRepository = new EventRepository(
   defaultPluginsManager,
-  DEFAULT_QUEUE_OPTIONS,
-  DEFAULT_QUEUE_OPTIONS,
   defaultErrorHandler,
   defaultLogger,
 );
