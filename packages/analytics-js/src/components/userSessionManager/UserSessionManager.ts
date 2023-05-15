@@ -88,9 +88,15 @@ class UserSessionManager implements IUserSessionManager {
       state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
     );
 
-    const sessionTimeout: number = isNumber(state.loadOptions.value.sessions.timeout)
-      ? (state.loadOptions.value.sessions.timeout as number)
-      : DEFAULT_SESSION_TIMEOUT;
+    let sessionTimeout: number;
+    if (!isNumber(state.loadOptions.value.sessions.timeout)) {
+      this.logger?.warn(
+        '[SessionTracking]:: Default session timeout will be used, as the provided value is not in number format',
+      );
+      sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+    } else {
+      sessionTimeout = state.loadOptions.value.sessions.timeout as number;
+    }
 
     if (sessionTimeout === 0) {
       this.logger?.warn(
@@ -128,8 +134,26 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
-  syncWithStorage(key: string, value: Nullable<ApiObject>) {
+  /**
+   * A function to sync object type values in storage
+   * @param key
+   * @param value
+   */
+  syncObjectInStorage(key: string, value: Nullable<ApiObject> | undefined) {
     if (isNonEmptyObject(value)) {
+      this.storage?.set(key, value);
+    } else {
+      this.storage?.remove(key);
+    }
+  }
+
+  /**
+   * A function to sync string type values in storage
+   * @param key
+   * @param value
+   */
+  syncIdsInStorage(key: string, value: Nullable<string> | undefined) {
+    if (value) {
       this.storage?.set(key, value);
     } else {
       this.storage?.remove(key);
@@ -144,90 +168,58 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      if (state.session.userId.value) {
-        this.storage?.set(userSessionStorageKeys.userId, state.session.userId.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.userId);
-      }
+      this.syncIdsInStorage(userSessionStorageKeys.userId, state.session.userId.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (isNonEmptyObject(state.session.userTraits.value)) {
-        this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.userTraits);
-      }
+      this.syncObjectInStorage(userSessionStorageKeys.userTraits, state.session.userTraits.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.groupId.value) {
-        this.storage?.set(userSessionStorageKeys.groupId, state.session.groupId.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.groupId);
-      }
+      this.syncIdsInStorage(userSessionStorageKeys.groupId, state.session.groupId.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (isNonEmptyObject(state.session.groupTraits.value)) {
-        this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.groupTraits);
-      }
+      this.syncObjectInStorage(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.anonymousUserId.value) {
-        this.storage?.set(
-          userSessionStorageKeys.anonymousUserId,
-          state.session.anonymousUserId.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.anonymousUserId);
-      }
+      this.syncIdsInStorage(
+        userSessionStorageKeys.anonymousUserId,
+        state.session.anonymousUserId.value,
+      );
     });
     /**
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferrer.value) {
-        this.storage?.set(
-          userSessionStorageKeys.initialReferrer,
-          state.session.initialReferrer.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.initialReferrer);
-      }
+      this.syncIdsInStorage(
+        userSessionStorageKeys.initialReferrer,
+        state.session.initialReferrer.value,
+      );
     });
     /**
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferringDomain.value) {
-        this.storage?.set(
-          userSessionStorageKeys.initialReferringDomain,
-          state.session.initialReferringDomain.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.initialReferringDomain);
-      }
+      this.syncIdsInStorage(
+        userSessionStorageKeys.initialReferringDomain,
+        state.session.initialReferringDomain.value,
+      );
     });
     /**
      * Update session tracking info in storage automatically when it is updated in state
      */
     effect(() => {
-      if (isNonEmptyObject(state.session.sessionInfo.value)) {
-        this.storage?.set(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.sessionInfo);
-      }
+      this.syncObjectInStorage(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
     });
   }
 

@@ -3,7 +3,10 @@ import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/use
 import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { MIN_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import {
+  MIN_SESSION_TIMEOUT,
+  DEFAULT_SESSION_TIMEOUT,
+} from '@rudderstack/analytics-js/constants/timeouts';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 
@@ -227,6 +230,14 @@ describe('User session manager', () => {
     userSessionManager.startOrRenewAutoTracking = jest.fn();
     userSessionManager.initializeSessionTracking();
     expect(userSessionManager.startOrRenewAutoTracking).toHaveBeenCalled();
+  });
+  it('initializeSessionTracking: should print warning message and use default timeout if provided timeout is not in number format', () => {
+    state.loadOptions.value.sessions.timeout = '100000';
+    userSessionManager.initializeSessionTracking();
+    expect(defaultLogger.warn).toHaveBeenCalledWith(
+      '[SessionTracking]:: Default session timeout will be used, as the provided value is not in number format',
+    );
+    expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT);
   });
   it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
     state.loadOptions.value.sessions.timeout = 0;
