@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "1.31.0",
+  "version": "1.32.0",
   "description": "",
   "main": "./dist/rudder-analytics.min.js",
   "scripts": {
@@ -157,7 +157,8 @@
     "shelljs": "0.8.4",
     "trim-newlines": "3.0.1",
     "webpack": "5.76.0",
-    "xml2js": "0.5.0"
+    "xml2js": "0.5.0",
+    "yaml": "2.2.2"
   },
   "browserslist": {
     "production": [
