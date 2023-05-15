@@ -29,13 +29,15 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
   if (!sessionId) {
     return false;
   }
-  if (!isNumber(sessionId) || !isPositiveInteger(sessionId)) {
-    logger?.error(`[Session]:: "sessionId" should only be a positive integer`);
+  if (!isPositiveInteger(sessionId)) {
+    logger?.warn(
+      `[SessionTracking]:: SDK will auto-generate the "sessionId". Provided input is not a positive integer`,
+    );
     return false;
   }
   if (!hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)) {
-    logger?.error(
-      `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
+    logger?.warn(
+      `[SessionTracking]:: SDK will auto-generate the "sessionId". Minimum length should be "${MIN_SESSION_ID_LENGTH}" digits long`,
     );
     return false;
   }

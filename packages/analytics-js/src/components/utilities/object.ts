@@ -72,8 +72,7 @@ const isObjectAndNotNull = (val: any) =>
  * @param obj input object
  * @returns boolean
  */
-const isNonEmptyObject = (obj?: Nullable<ApiObject>) =>
-  obj !== undefined && obj !== null && Object.keys(obj).length > 0;
+const isNonEmptyObject = (val?: any) => isObjectAndNotNull(val) && Object.keys(val).length > 0;
 
 export {
   getValueByPath,

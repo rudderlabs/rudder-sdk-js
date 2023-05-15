@@ -16,7 +16,9 @@ import {
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { IUserSessionManager, SessionTrackingInfo } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
@@ -32,10 +34,13 @@ import { isNumber } from '../utilities/number';
 class UserSessionManager implements IUserSessionManager {
   storage?: IStore;
   logger?: ILogger;
+  errorHandler?: IErrorHandler;
 
-  constructor(logger?: ILogger, storage?: IStore) {
+  constructor(errorHandler?: IErrorHandler, logger?: ILogger, storage?: IStore) {
     this.storage = storage;
     this.logger = logger;
+    this.errorHandler = errorHandler;
+    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -70,7 +75,7 @@ class UserSessionManager implements IUserSessionManager {
     // Initialize session tracking
     this.initializeSessionTracking();
     // Register the effect to sync with storage
-    this.syncSessionWithStorage();
+    this.registerEffects();
   }
 
   /**
@@ -107,14 +112,34 @@ class UserSessionManager implements IUserSessionManager {
     };
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
-      this.startAutoTracking();
+      this.startOrRenewAutoTracking();
+    }
+  }
+
+  /**
+   * Handles error
+   * @param error The error object
+   */
+  onError(error: Error | unknown): void {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, 'UserSessionManager');
+    } else {
+      throw error;
+    }
+  }
+
+  syncWithStorage(key: string, value: Nullable<ApiObject>) {
+    if (isNonEmptyObject(value)) {
+      this.storage?.set(key, value);
+    } else {
+      this.storage?.remove(key);
     }
   }
 
   /**
    * Function to update storage whenever state value changes
    */
-  syncSessionWithStorage() {
+  registerEffects() {
     /**
      * Update userId in storage automatically when userId is updated in state
      */
@@ -320,12 +345,12 @@ class UserSessionManager implements IUserSessionManager {
       if (state.session.sessionInfo.value.autoTrack) {
         this.startOrRenewAutoTracking();
       }
-    
+
       session = {
-        id = state.session.sessionInfo.value.id,
-        sessionStart = state.session.sessionInfo.value.sessionStart
+        id: state.session.sessionInfo.value.id,
+        sessionStart: state.session.sessionInfo.value.sessionStart,
       };
-    
+
       if (state.session.sessionInfo.value.sessionStart) {
         state.session.sessionInfo.value.sessionStart = false;
       }
@@ -358,7 +383,7 @@ class UserSessionManager implements IUserSessionManager {
 
       if (autoTrack) {
         state.session.sessionInfo.value = {};
-        this.startAutoTracking();
+        this.startOrRenewAutoTracking();
       } else if (manualTrack) {
         this.start();
       }
@@ -429,11 +454,9 @@ class UserSessionManager implements IUserSessionManager {
         state.session.sessionInfo.value.timeout,
       );
     } else {
-        const timestamp = Date.now();
-        const timeout: number =
-            state.session.sessionInfo.value.timeout as number;
-          state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
-      }
+      const timestamp = Date.now();
+      const timeout: number = state.session.sessionInfo.value.timeout as number;
+      state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
     }
   }
 
@@ -469,6 +492,6 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager(defaultLogger);
+const defaultUserSessionManager = new UserSessionManager(defaultErrorHandler, defaultLogger);
 
 export { UserSessionManager, defaultUserSessionManager };
