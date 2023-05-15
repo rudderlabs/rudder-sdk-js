@@ -41,10 +41,13 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
+  DEFAULT_INTEGRATIONS_CONFIG,
+  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
 import { EventRepository } from '../utils/EventRepository';
+import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
@@ -81,6 +84,7 @@ class Analytics {
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
     this.eventRepository = EventRepository;
+    this.preProcessQueue = new PreProcessQueue();
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -91,6 +95,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.bufferDataPlaneEventsUntilReady = false;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -285,12 +290,28 @@ class Analytics {
         }
       }
 
+      // filter destination that doesn't have mapping config-->Integration names
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        if (configToIntNames[intg.name]) {
+          return true;
+        }
+        logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+        return false;
+      });
+
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
       const { isStaging } = getSDKUrlInfo();
       if (isStaging) {
         suffix = '-staging'; // stagging suffix
+      }
+
+      if (this.bufferDataPlaneEventsUntilReady) {
+        // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
+        setTimeout(() => {
+          this.processBufferedCloudModeEvents();
+        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
@@ -389,18 +410,36 @@ class Analytics {
           if (transformedPayload) {
             destWithTransformation.forEach((intg) => {
               try {
-                let transformedEvents;
+                let transformedEvents = [];
                 if (transformationServerAccess) {
                   // filter the transformed event for that destination
-                  transformedEvents = transformedPayload.find(
+                  const destTransformedResult = transformedPayload.find(
                     (e) => e.id === intg.destinationId,
-                  ).payload;
+                  );
+                  if (!destTransformedResult) {
+                    logger.error(
+                      `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
+                    );
+                    return;
+                  }
+
+                  destTransformedResult?.payload.forEach((tEvent) => {
+                    if (tEvent.status === '200') {
+                      transformedEvents.push(tEvent);
+                    } else {
+                      logger.error(
+                        `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
+                      );
+                    }
+                  });
                 } else {
                   transformedEvents = transformedPayload;
                 }
                 // send transformed event to destination
-                transformedEvents.forEach((tEvent) => {
-                  this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                transformedEvents?.forEach((tEvent) => {
+                  if (tEvent.event) {
+                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                  }
                 });
               } catch (e) {
                 if (e instanceof Error) {
@@ -455,6 +494,32 @@ class Analytics {
     }
   }
 
+  /**
+   *
+   * @param {*} type
+   * @param {*} rudderElement
+   * Sends cloud mode events to server
+   */
+  queueEventForDataPlane(type, rudderElement) {
+    // if not specified at event level, All: true is default
+    const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+    rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+      this.integrationsData,
+      clientSuppliedIntegrations,
+    );
+    // self analytics process, send to rudder
+    this.eventRepository.enqueue(rudderElement, type);
+  }
+
+  /**
+   * Processes the buffered cloud mode events and sends it to server
+   */
+  processBufferedCloudModeEvents() {
+    if (this.bufferDataPlaneEventsUntilReady) {
+      this.preProcessQueue.activateProcessor();
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -487,6 +552,8 @@ class Analytics {
       // Execute the callbacks if any
       object.executeReadyCallback();
     }
+
+    this.processBufferedCloudModeEvents();
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach((event) => {
@@ -776,6 +843,18 @@ class Analytics {
   }
 
   /**
+   * A function to determine whether SDK should use the integration option provided in load call
+   * @returns boolean
+   */
+  shouldUseGlobalIntegrationsConfigInEvents() {
+    return (
+      this.useGlobalIntegrationsConfigInEvents &&
+      this.loadOnlyIntegrations &&
+      Object.keys(this.loadOnlyIntegrations).length > 0
+    );
+  }
+
+  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -833,11 +912,20 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+      let clientSuppliedIntegrations = rudderElement.message.integrations;
 
-      // structure user supplied integrations object to rudder format
-      transformToRudderNames(clientSuppliedIntegrations);
+      if (clientSuppliedIntegrations) {
+        // structure user supplied integrations object to rudder format
+        transformToRudderNames(clientSuppliedIntegrations);
+      } else if (this.shouldUseGlobalIntegrationsConfigInEvents()) {
+        // when useGlobalIntegrationsConfigInEvents load option is set to true and integration object provided in load
+        // is not empty use it at event level
+        clientSuppliedIntegrations = this.loadOnlyIntegrations;
+      } else {
+        // if not specified at event level, use default integration option
+        clientSuppliedIntegrations = DEFAULT_INTEGRATIONS_CONFIG;
+      }
+
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
       try {
@@ -868,19 +956,22 @@ class Analytics {
         );
       }
 
+      const clonedRudderElement = R.clone(rudderElement);
       // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
+      transformToServerNames(clonedRudderElement.message.integrations);
 
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(rudderElement, type);
+      // Holding the cloud mode events based on flag and integrations load check
+      const shouldNotBufferDataPlaneEvents =
+        !this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects;
+      if (shouldNotBufferDataPlaneEvents) {
+        this.queueEventForDataPlane(type, clonedRudderElement);
+      } else {
+        this.preProcessQueue.enqueue(type, clonedRudderElement);
+      }
 
       // logger.debug(`${type} is called `)
       if (callback) {
-        callback(rudderElement);
+        callback(clonedRudderElement);
       }
     } catch (error) {
       handleError(error);
@@ -1115,6 +1206,9 @@ class Analytics {
       transformToRudderNames(this.loadOnlyIntegrations);
     }
 
+    this.useGlobalIntegrationsConfigInEvents =
+      options && options.useGlobalIntegrationsConfigInEvents === true;
+
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
@@ -1146,6 +1240,13 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && typeof options.bufferDataPlaneEventsUntilReady === 'boolean') {
+      this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
+      if (this.bufferDataPlaneEventsUntilReady) {
+        this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
+      }
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {

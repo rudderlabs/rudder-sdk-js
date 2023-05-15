@@ -10,12 +10,12 @@ function notifyError(error) {
   const errorReportingClient =
     window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
 
-  if (errorReportingClient) {
+  if (errorReportingClient && error instanceof Error) {
     errorReportingClient.notify(error);
   }
 }
 
-function normaliseError(error, customMessage, analyticsInstance) {
+function normalizeError(error, customMessage, analyticsInstance) {
   let errorMessage;
   try {
     if (typeof error === 'string') {
@@ -66,7 +66,7 @@ function handleError(error, customMessage, analyticsInstance) {
   let errorMessage;
 
   try {
-    errorMessage = normaliseError(error, customMessage, analyticsInstance);
+    errorMessage = normalizeError(error, customMessage, analyticsInstance);
   } catch (err) {
     logger.error('[handleError] Exception:: ', err);
     logger.error('[handleError] Original error:: ', JSON.stringify(error));
@@ -78,9 +78,7 @@ function handleError(error, customMessage, analyticsInstance) {
   }
 
   logger.error(errorMessage);
-  let errorObj = error;
-  if (!(error instanceof Error)) errorObj = new Error(errorMessage);
-  notifyError(errorObj);
+  notifyError(error);
 }
 
-export { notifyError, handleError, normaliseError };
+export { notifyError, handleError, normalizeError };
