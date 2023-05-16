@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.32.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.32.0...v1.32.1) (2023-05-16)
+
+
+### Bug Fixes
+
+* add parenthesis ([20f3448](https://github.com/rudderlabs/rudder-sdk-js/commit/20f34489c7e3df347b4283d7a15bba091993e26c))
+* keep fix for UET ([8f7ec96](https://github.com/rudderlabs/rudder-sdk-js/commit/8f7ec969ef85dcc2c5d7e751d51e5d70b200eb22))
+* revert bingAds changes ([53997d0](https://github.com/rudderlabs/rudder-sdk-js/commit/53997d0d8bc0b3dc308fa3448e0249289b794b14))
+
 ## [1.32.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.31.0...v1.32.0) (2023-05-12)
 
 
