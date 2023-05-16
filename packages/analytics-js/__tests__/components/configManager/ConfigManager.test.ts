@@ -1,15 +1,13 @@
-import { clone } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
 import { state } from '@rudderstack/analytics-js/state';
-import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
+import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { rest } from 'msw';
 import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
 import { LogLevel } from '@rudderstack/analytics-js/state/types';
-import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
 import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -46,7 +44,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
   return {
     __esModule: true,
     ...originalModule,
-    getSDKUrlInfo: jest.fn(),
+    getSDKUrl: jest.fn(),
   };
 });
 
@@ -110,7 +108,7 @@ describe('ConfigManager', () => {
   });
 
   it('should update lifecycle state with proper values', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
+    getSDKUrl.mockImplementation(() => sampleScriptURL);
 
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
@@ -127,7 +125,6 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.logLevel.value).toBe('DEBUG');
     expect(state.lifecycle.integrationsCDNPath.value).toBe(sampleDestSDKUrl);
     expect(state.lifecycle.sourceConfigUrl.value).toBe(expectedConfigUrl);
-    expect(state.lifecycle.isStaging.value).toBe(false);
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', done => {

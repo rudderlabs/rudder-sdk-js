@@ -16,7 +16,6 @@ import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/ap
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
-import { getSDKUrlInfo } from './util/commonUtil';
 import { IConfigManager, SourceConfigResponse } from './types';
 
 class ConfigManager implements IConfigManager {
@@ -58,10 +57,6 @@ class ConfigManager implements IConfigManager {
       state.loadOptions.value.destSDKBaseURL,
     );
 
-    // determine if the staging SDK is being used
-    // TODO: deprecate this in new version and stop adding '-staging' in filenames
-    const { isStaging } = getSDKUrlInfo();
-
     // set application lifecycle state in global state
     batch(() => {
       if (state.loadOptions.value.logLevel) {
@@ -71,7 +66,6 @@ class ConfigManager implements IConfigManager {
       if (state.loadOptions.value.configUrl) {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
-      state.lifecycle.isStaging.value = isStaging;
     });
 
     this.getConfig();
