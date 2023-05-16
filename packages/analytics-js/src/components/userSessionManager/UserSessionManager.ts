@@ -91,7 +91,7 @@ class UserSessionManager implements IUserSessionManager {
     let sessionTimeout: number;
     if (!isNumber(state.loadOptions.value.sessions.timeout)) {
       this.logger?.warn(
-        '[SessionTracking]:: Default session timeout will be used, as the provided value is not in number format',
+        '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
       );
       sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     } else {
