@@ -7,19 +7,40 @@ import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/sessi
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { IUserSessionManager } from './types';
+import {
+  isNonEmptyObject,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  DEFAULT_SESSION_TIMEOUT,
+  MIN_SESSION_TIMEOUT,
+} from '@rudderstack/analytics-js/constants/timeouts';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { IUserSessionManager, SessionTrackingInfo } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
 import { getReferringDomain } from '../utilities/url';
-import { isValidTraitsValue } from './utils';
+import {
+  generateAutoTrackingSession,
+  generateManualTrackingSession,
+  hasSessionExpired,
+} from './utils';
+import { isPositiveInteger } from '../utilities/number';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
   storage?: IStore;
+  logger?: ILogger;
+  errorHandler?: IErrorHandler;
 
-  constructor(storage?: IStore) {
+  constructor(errorHandler?: IErrorHandler, logger?: ILogger, storage?: IStore) {
     this.storage = storage;
+    this.logger = logger;
+    this.errorHandler = errorHandler;
+    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -51,92 +72,144 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(referrer);
       this.setInitialReferringDomain(getReferringDomain(referrer));
     }
+    // Initialize session tracking
+    this.initializeSessionTracking();
     // Register the effect to sync with storage
-    this.syncSessionWithStorage();
+    this.registerEffects();
+  }
+
+  /**
+   * A function to initialize sessionTracking
+   */
+  initializeSessionTracking() {
+    const sessionInfo: SessionInfo = this.getSessionFromStorage() || defaultSessionInfo;
+
+    let finalAutoTrackingStatus = !(
+      state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
+    );
+
+    let sessionTimeout: number;
+    if (!isPositiveInteger(state.loadOptions.value.sessions.timeout)) {
+      this.logger?.warn(
+        '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
+      );
+      sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+    } else {
+      sessionTimeout = state.loadOptions.value.sessions.timeout as number;
+    }
+
+    if (sessionTimeout === 0) {
+      this.logger?.warn(
+        '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
+      );
+      finalAutoTrackingStatus = false;
+    }
+    // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
+    // and will proceed with it
+    if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
+      this.logger?.warn(
+        `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
+      );
+    }
+    state.session.sessionInfo.value = {
+      ...sessionInfo,
+      timeout: sessionTimeout,
+      autoTrack: finalAutoTrackingStatus,
+    };
+    // If auto session tracking is enabled start the session tracking
+    if (state.session.sessionInfo.value.autoTrack) {
+      this.startOrRenewAutoTracking();
+    }
+  }
+
+  /**
+   * Handles error
+   * @param error The error object
+   */
+  onError(error: Error | unknown): void {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, 'UserSessionManager');
+    } else {
+      throw error;
+    }
+  }
+
+  /**
+   * A function to sync values in storage
+   * @param key
+   * @param value
+   */
+  syncValueToStorage(key: string, value: Nullable<ApiObject> | Nullable<string> | undefined) {
+    if (
+      (value && typeof value === 'string') ||
+      (typeof value === 'object' && isNonEmptyObject(value))
+    ) {
+      this.storage?.set(key, value);
+    } else {
+      this.storage?.remove(key);
+    }
   }
 
   /**
    * Function to update storage whenever state value changes
    */
-  syncSessionWithStorage() {
+  registerEffects() {
     /**
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      if (state.session.userId.value) {
-        this.storage?.set(userSessionStorageKeys.userId, state.session.userId.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.userId);
-      }
+      this.syncValueToStorage(userSessionStorageKeys.userId, state.session.userId.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (isValidTraitsValue(state.session.userTraits.value)) {
-        this.storage?.set(userSessionStorageKeys.userTraits, state.session.userTraits.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.userTraits);
-      }
+      this.syncValueToStorage(userSessionStorageKeys.userTraits, state.session.userTraits.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.groupId.value) {
-        this.storage?.set(userSessionStorageKeys.groupId, state.session.groupId.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.groupId);
-      }
+      this.syncValueToStorage(userSessionStorageKeys.groupId, state.session.groupId.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      if (isValidTraitsValue(state.session.groupTraits.value)) {
-        this.storage?.set(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
-      } else {
-        this.storage?.remove(userSessionStorageKeys.groupTraits);
-      }
+      this.syncValueToStorage(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.anonymousUserId.value) {
-        this.storage?.set(
-          userSessionStorageKeys.anonymousUserId,
-          state.session.anonymousUserId.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.anonymousUserId);
-      }
+      this.syncValueToStorage(
+        userSessionStorageKeys.anonymousUserId,
+        state.session.anonymousUserId.value,
+      );
     });
     /**
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferrer.value) {
-        this.storage?.set(
-          userSessionStorageKeys.initialReferrer,
-          state.session.initialReferrer.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.initialReferrer);
-      }
+      this.syncValueToStorage(
+        userSessionStorageKeys.initialReferrer,
+        state.session.initialReferrer.value,
+      );
     });
     /**
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      if (state.session.initialReferringDomain.value) {
-        this.storage?.set(
-          userSessionStorageKeys.initialReferringDomain,
-          state.session.initialReferringDomain.value,
-        );
-      } else {
-        this.storage?.remove(userSessionStorageKeys.initialReferringDomain);
-      }
+      this.syncValueToStorage(
+        userSessionStorageKeys.initialReferringDomain,
+        state.session.initialReferringDomain.value,
+      );
+    });
+    /**
+     * Update session tracking info in storage automatically when it is updated in state
+     */
+    effect(() => {
+      this.syncValueToStorage(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
     });
   }
 
@@ -189,31 +262,6 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.anonymousUserId.value as string;
   }
 
-  // TODO: session tracking
-  /**
-   * A function to return current session info
-   */
-  getSessionInfo(): Nullable<SessionInfo> {
-    const shouldReturnInfo = Boolean(
-      state.session.sessionInfo.value.manualTrack ||
-        (state.session.sessionInfo.value.autoTrack &&
-          this.isValidSession(state.session.sessionInfo.value.expiresAt)),
-    );
-
-    if (shouldReturnInfo) {
-      return state.session.sessionInfo.value || null;
-    }
-
-    return null;
-  }
-
-  // TODO: session tracking
-  // TODO: move to utility method
-  // eslint-disable-next-line class-methods-use-this
-  isValidSession(sessionExpirationTimestamp?: number, timestamp = Date.now()): boolean {
-    return Boolean(sessionExpirationTimestamp && timestamp <= sessionExpirationTimestamp);
-  }
-
   /**
    * Fetches User Id
    * @returns
@@ -263,6 +311,36 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * Fetches session tracking information from storage
+   * @returns
+   */
+  getSessionFromStorage(): Nullable<SessionInfo> {
+    return this.storage?.get(userSessionStorageKeys.sessionInfo) || null;
+  }
+
+  /**
+   * A function to return current session info
+   */
+  getSessionInfo(): Nullable<SessionInfo> {
+    let session: SessionTrackingInfo = {};
+    if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
+      if (state.session.sessionInfo.value.autoTrack) {
+        this.startOrRenewAutoTracking();
+      }
+
+      session = {
+        id: state.session.sessionInfo.value.id,
+        sessionStart: state.session.sessionInfo.value.sessionStart,
+      };
+
+      if (state.session.sessionInfo.value.sessionStart) {
+        state.session.sessionInfo.value.sessionStart = false;
+      }
+    }
+    return session;
+  }
+
+  /**
    * Reset state values
    * @param resetAnonymousId
    * @param noNewSessionStart
@@ -286,10 +364,10 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        state.session.sessionInfo.value = { ...defaultSessionInfo };
-        this.startAutoTracking();
+        state.session.sessionInfo.value = {};
+        this.startOrRenewAutoTracking();
       } else if (manualTrack) {
-        this.start();
+        this.startManualTrackingInternal();
       }
     });
   }
@@ -349,16 +427,42 @@ class UserSessionManager implements IUserSessionManager {
     state.session.initialReferringDomain.value = referrer;
   }
 
-  // TODO: session tracking
-  startAutoTracking() {}
+  /**
+   * A function to check for existing session details and depending on that create a new session.
+   */
+  startOrRenewAutoTracking() {
+    if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
+      state.session.sessionInfo.value = generateAutoTrackingSession(
+        state.session.sessionInfo.value.timeout,
+      );
+    } else {
+      const timestamp = Date.now();
+      const timeout = state.session.sessionInfo.value.timeout as number;
+      state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
+    }
+  }
 
-  // TODO: session tracking
-  start(sessionId?: number) {}
+  /**
+   * A function method to start a manual session
+   * @param {number} sessionId     session identifier
+   * @returns
+   */
+  start(id?: number) {
+    state.session.sessionInfo.value = generateManualTrackingSession(id, this.logger);
+  }
 
-  // TODO: session tracking
+  /**
+   * An internal function to start manual session
+   */
+  startManualTrackingInternal() {
+    this.start(Date.now());
+  }
+
+  /**
+   * A public method to end an ongoing session.
+   */
   end() {
-    this.reset(false, true);
-    this.clearUserSessionStorage();
+    state.session.sessionInfo.value = {};
   }
 
   /**
@@ -377,6 +481,6 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager();
+const defaultUserSessionManager = new UserSessionManager(defaultErrorHandler, defaultLogger);
 
 export { UserSessionManager, defaultUserSessionManager };

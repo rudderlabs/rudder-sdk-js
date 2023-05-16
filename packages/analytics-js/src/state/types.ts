@@ -275,7 +275,7 @@ export type ConsentManagement = {
 export type SessionInfo = {
   autoTrack?: boolean;
   manualTrack?: boolean;
-  timeout: number;
+  timeout?: number;
   expiresAt?: number;
   id?: number;
   sessionStart?: boolean;

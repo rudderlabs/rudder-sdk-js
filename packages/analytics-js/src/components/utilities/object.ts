@@ -1,3 +1,5 @@
+import { ApiObject } from '@rudderstack/analytics-js/state/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 import { clone, mergeDeepWith, path } from 'ramda';
 
 // TODO: if all are fine we can remove the original implementation comments
@@ -65,10 +67,18 @@ const mergeDeepRight = <T = Record<string, any>>(
 const isObjectAndNotNull = (val: any) =>
   typeof val === 'object' && !Array.isArray(val) && val !== null;
 
+/**
+ * A function to check the input object is not empty, undefined or null
+ * @param obj input object
+ * @returns boolean
+ */
+const isNonEmptyObject = (val?: any) => isObjectAndNotNull(val) && Object.keys(val).length > 0;
+
 export {
   getValueByPath,
   hasValueByPath,
   mergeDeepRightObjectArrays,
   mergeDeepRight,
   isObjectAndNotNull,
+  isNonEmptyObject,
 };
