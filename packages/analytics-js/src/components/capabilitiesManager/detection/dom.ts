@@ -8,12 +8,16 @@ const isLegacyJSEngine = (): boolean =>
   !String.prototype.endsWith ||
   !String.prototype.startsWith ||
   !String.prototype.includes ||
-  !String.prototype.replaceAll ||
   !Array.prototype.find ||
   !Array.prototype.includes ||
+  !Promise ||
   !Object.entries ||
   !Object.values ||
-  !Promise ||
-  !isDatasetAvailable();
+  !String.prototype.replaceAll ||
+  !isDatasetAvailable() ||
+  !Array.from ||
+  typeof MutationObserver === 'undefined' ||
+  !window.URLSearchParams ||
+  !window.URL;
 
 export { isDatasetAvailable, isLegacyJSEngine };

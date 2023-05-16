@@ -7,7 +7,10 @@ import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/sessi
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
 import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
-import { isNonEmptyObject, mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  isNonEmptyObject,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import {
   DEFAULT_SESSION_TIMEOUT,
@@ -28,14 +31,18 @@ import {
 } from './utils';
 import { isPositiveInteger } from '../utilities/number';
 
-// TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
   storage?: IStore;
   pluginManager?: IPluginsManager;
   logger?: ILogger;
   errorHandler?: IErrorHandler;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger, pluginManager?: IPluginsManager, storage?: IStore) {
+  constructor(
+    errorHandler?: IErrorHandler,
+    logger?: ILogger,
+    pluginManager?: IPluginsManager,
+    storage?: IStore,
+  ) {
     this.storage = storage;
     this.pluginManager = pluginManager;
     this.logger = logger;
@@ -481,6 +488,10 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager(defaultErrorHandler, defaultLogger, defaultPluginManager);
+const defaultUserSessionManager = new UserSessionManager(
+  defaultErrorHandler,
+  defaultLogger,
+  defaultPluginManager,
+);
 
 export { UserSessionManager, defaultUserSessionManager };

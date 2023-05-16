@@ -245,6 +245,7 @@ export type LoadOptions = {
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
+  polyfillURL?: string;
   // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
 };
 
@@ -262,7 +263,7 @@ export enum LogLevel {
 
 export enum LifecycleStatus {
   Mounted = 'mounted',
-  PolyfillLoaded = 'polyfillLoaded',
+  BrowserCapabilitiesReady = 'browserCapabilitiesReady',
   Configured = 'configured',
   PluginsLoading = 'pluginsLoading',
   PluginsReady = 'pluginsReady',

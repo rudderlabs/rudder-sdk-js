@@ -132,7 +132,9 @@ class PluginsManager implements IPluginsManager {
 
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      this.register([localPlugin()]);
+      if (state.plugins.activePlugins.value.includes(localPlugin.name)) {
+        this.register([localPlugin()]);
+      }
     });
   }
 
@@ -141,7 +143,6 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    // eslint-disable-next-line compat/compat
     Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey]()

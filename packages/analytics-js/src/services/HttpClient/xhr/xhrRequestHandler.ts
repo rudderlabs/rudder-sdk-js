@@ -43,9 +43,9 @@ const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
 ): Promise<string | undefined> =>
-  // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const xhrReject = (e?: ProgressEvent) => {
       reject(
         new Error(

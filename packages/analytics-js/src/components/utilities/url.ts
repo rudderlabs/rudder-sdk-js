@@ -16,8 +16,8 @@ const removeTrailingSlashes = (url: string | null): Nullable<string> =>
  */
 const isValidUrl = (url: string): boolean => {
   try {
-    const validUrl = new URL(url); // TODO: add URL in the polyfill list
-    return true;
+    const validUrl = new URL(url);
+    return Boolean(validUrl);
   } catch (err) {
     return false;
   }

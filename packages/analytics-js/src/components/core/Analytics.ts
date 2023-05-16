@@ -83,7 +83,7 @@ class Analytics implements IAnalytics {
     this.attachGlobalErrorHandler = this.attachGlobalErrorHandler.bind(this);
     this.load = this.load.bind(this);
     this.startLifecycle = this.startLifecycle.bind(this);
-    this.loadPolyfill = this.loadPolyfill.bind(this);
+    this.prepareBrowserCapabilities = this.prepareBrowserCapabilities.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
     this.init = this.init.bind(this);
     this.loadPlugins = this.loadPlugins.bind(this);
@@ -156,9 +156,9 @@ class Analytics implements IAnalytics {
     effect(() => {
       switch (state.lifecycle.status.value) {
         case LifecycleStatus.Mounted:
-          this.loadPolyfill();
+          this.prepareBrowserCapabilities();
           break;
-        case LifecycleStatus.PolyfillLoaded:
+        case LifecycleStatus.BrowserCapabilitiesReady:
           this.loadConfig();
           break;
         case LifecycleStatus.Configured:
@@ -189,8 +189,8 @@ class Analytics implements IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  loadPolyfill() {
-    this.capabilitiesManager.loadPolyfill();
+  prepareBrowserCapabilities() {
+    this.capabilitiesManager.init();
   }
 
   /**

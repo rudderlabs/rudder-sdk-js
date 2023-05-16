@@ -85,7 +85,6 @@ const jsFileLoader = (
   async = true,
   extraAttributes?: Record<string, string>,
 ): Promise<string | undefined> =>
-  // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {

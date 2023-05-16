@@ -17,7 +17,13 @@ const getOptionalPluginsMap = (): PluginMap => {
 
 const getRemotePluginsMap = (
   activePluginNames: PluginName[],
-): PluginMap<Promise<ExtensionPlugin>> => modernBuildPluginImports?.(activePluginNames) || {};
+): PluginMap<Promise<ExtensionPlugin>> => {
+  if (__BUNDLE_ALL_PLUGINS__) {
+    return {};
+  }
+
+  return modernBuildPluginImports?.(activePluginNames) || {};
+};
 
 const pluginsInventory: PluginMap = {
   ...getMandatoryPluginsMap(),
