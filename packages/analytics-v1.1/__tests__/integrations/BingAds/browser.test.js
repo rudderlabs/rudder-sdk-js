@@ -1,6 +1,20 @@
 import { BingAds } from '../../../src/integrations/BingAds';
 import { event, query, products } from './__mocks__/data';
 
+beforeEach(() => {
+  // Add a dummy script as it is required by the init script
+  const scriptElement = document.createElement('script');
+  scriptElement.type = 'text/javascript';
+  scriptElement.id = 'dummyScript';
+  const headElements = document.getElementsByTagName('head');
+  headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
+});
+
+afterEach(() => {
+  // Reset DOM to original state
+  document.getElementById('dummyScript')?.remove();
+});
+
 describe('BingAds init tests', () => {
   let Bingads;
   test('Testing init call of Bing ads', () => {
@@ -16,7 +30,7 @@ describe('BingAds page', () => {
   beforeEach(() => {
     bingAds = new BingAds({ tagID: '12567839' }, { loglevel: 'debug' });
     bingAds.init();
-    window.bing12567839.push = jest.fn((x) => output.push(x));
+    window.bing12567839.push = jest.fn(x => output.push(x));
   });
 
   test('send pageview', () => {
