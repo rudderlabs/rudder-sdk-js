@@ -31,7 +31,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
   }
   if (!isPositiveInteger(sessionId)) {
     logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId". Provided input is not a positive integer`,
+      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the provided input is not a positive integer`,
     );
     return false;
   }
