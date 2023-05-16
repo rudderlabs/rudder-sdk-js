@@ -1,32 +1,5 @@
 import { clone, mergeDeepWith, path } from 'ramda';
 
-// TODO: if all are fine we can remove the original implementation comments
-// Original implementations before migrating to ramda
-
-// function _get(obj, prop) {
-//   var arr = prop.split('.');
-//   for (var i = 0; i < arr.length; i++) {
-//     if (!(arr[i] in obj)) return undefined;
-//     obj = obj[arr[i]];
-//   }
-//   return obj;
-// }
-// function _has(obj, prop) {
-//   var arr = prop.split('.');
-//   for (var i = 0; i < arr.length; i++) {
-//     if (!(arr[i] in obj)) return undefined;
-//     obj = obj[arr[i]];
-//   }
-//   return true;
-// }
-// const isEmpty = (value: any): boolean => {
-//   return typeof value === 'undefined'
-//     || value === null
-//     || (Array.isArray(value) && value.length === 0)
-//     || value === ''
-//     || (Object.prototype.toString.call(value) !== '[object Date]' && (typeof value === 'object' && Object.keys(value).length === 0));
-// }
-
 const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   const pathParts = keyPath.split('.');
   return path(pathParts, obj);
@@ -67,10 +40,18 @@ const mergeDeepRight = <T = Record<string, any>>(
   rightObject: Record<string, any>,
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
+/**
+ * A function to check the input object is not empty, undefined or null
+ * @param val input any
+ * @returns boolean
+ */
+const isNonEmptyObject = (val?: any) => isObjectAndNotNull(val) && Object.keys(val).length > 0;
+
 export {
   getValueByPath,
   hasValueByPath,
   mergeDeepRightObjectArrays,
   mergeDeepRight,
   isObjectAndNotNull,
+  isNonEmptyObject,
 };

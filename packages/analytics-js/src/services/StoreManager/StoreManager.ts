@@ -72,6 +72,7 @@ class StoreManager implements IStoreManager {
     } else if (getStorageEngine('localStorage')?.isEnabled) {
       storageType = 'localStorage';
     }
+    // TODO: fallback to in-memory storage if not other storage is available
 
     // TODO: should we fallback to session storage instead so we retain values
     //  on page refresh, navigation etc?

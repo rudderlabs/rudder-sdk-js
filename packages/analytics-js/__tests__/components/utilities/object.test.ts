@@ -1,6 +1,7 @@
 import {
   mergeDeepRight,
   mergeDeepRightObjectArrays,
+  isNonEmptyObject,
 } from '@rudderstack/analytics-js/components/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -121,6 +122,11 @@ const expectedMergedTraitsPayload = {
 };
 
 describe('Common Utils - Object', () => {
+  const validObj = {
+    key1: 'value',
+    key2: 1234567,
+  };
+
   it('should merge right object array items', () => {
     const mergedArray = mergeDeepRightObjectArrays(
       identifyTraitsPayloadMock.address,
@@ -145,6 +151,19 @@ describe('Common Utils - Object', () => {
   it('should merge right nested object properties', () => {
     const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
     expect(mergedArray).toEqual(expectedMergedTraitsPayload);
+  });
+
+  it('isNonEmptyObject: should return true for valid object with data', () => {
+    const outcome = isNonEmptyObject(validObj);
+    expect(outcome).toEqual(true);
+  });
+  it('isNonEmptyObject: should return false for undefined/null or empty object', () => {
+    const outcome1 = isNonEmptyObject(undefined);
+    const outcome2 = isNonEmptyObject(null);
+    const outcome3 = isNonEmptyObject({});
+    expect(outcome1).toEqual(false);
+    expect(outcome2).toEqual(false);
+    expect(outcome3).toEqual(false);
   });
 
   // This has been proved so no need to have lodash dependency and this test case anymore

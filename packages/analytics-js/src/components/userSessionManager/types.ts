@@ -21,3 +21,8 @@ export interface IUserSessionManager {
   end(): void;
   clearUserSessionStorage(resetAnonymousId?: boolean): void;
 }
+
+export type SessionTrackingInfo = {
+  id?: number;
+  sessionStart?: boolean;
+};
