@@ -235,7 +235,7 @@ describe('User session manager', () => {
     state.loadOptions.value.sessions.timeout = '100000';
     userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
-      '[SessionTracking]:: Default session timeout will be used, as the provided value is not in number format',
+      '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
     );
     expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT);
   });

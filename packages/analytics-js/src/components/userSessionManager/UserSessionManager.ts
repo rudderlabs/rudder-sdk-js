@@ -28,7 +28,7 @@ import {
   generateManualTrackingSession,
   hasSessionExpired,
 } from './utils';
-import { isNumber } from '../utilities/number';
+import { isPositiveInteger } from '../utilities/number';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
@@ -89,7 +89,7 @@ class UserSessionManager implements IUserSessionManager {
     );
 
     let sessionTimeout: number;
-    if (!isNumber(state.loadOptions.value.sessions.timeout)) {
+    if (!isPositiveInteger(state.loadOptions.value.sessions.timeout)) {
       this.logger?.warn(
         '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
       );
@@ -135,25 +135,15 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to sync object type values in storage
+   * A function to sync values in storage
    * @param key
    * @param value
    */
-  syncObjectInStorage(key: string, value: Nullable<ApiObject> | undefined) {
-    if (isNonEmptyObject(value)) {
-      this.storage?.set(key, value);
-    } else {
-      this.storage?.remove(key);
-    }
-  }
-
-  /**
-   * A function to sync string type values in storage
-   * @param key
-   * @param value
-   */
-  syncIdsInStorage(key: string, value: Nullable<string> | undefined) {
-    if (value) {
+  syncValueToStorage(key: string, value: Nullable<ApiObject> | Nullable<string> | undefined) {
+    if (
+      (value && typeof value === 'string') ||
+      (typeof value === 'object' && isNonEmptyObject(value))
+    ) {
       this.storage?.set(key, value);
     } else {
       this.storage?.remove(key);
@@ -168,31 +158,31 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      this.syncIdsInStorage(userSessionStorageKeys.userId, state.session.userId.value);
+      this.syncValueToStorage(userSessionStorageKeys.userId, state.session.userId.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncObjectInStorage(userSessionStorageKeys.userTraits, state.session.userTraits.value);
+      this.syncValueToStorage(userSessionStorageKeys.userTraits, state.session.userTraits.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncIdsInStorage(userSessionStorageKeys.groupId, state.session.groupId.value);
+      this.syncValueToStorage(userSessionStorageKeys.groupId, state.session.groupId.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncObjectInStorage(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
+      this.syncValueToStorage(userSessionStorageKeys.groupTraits, state.session.groupTraits.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncIdsInStorage(
+      this.syncValueToStorage(
         userSessionStorageKeys.anonymousUserId,
         state.session.anonymousUserId.value,
       );
@@ -201,7 +191,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncIdsInStorage(
+      this.syncValueToStorage(
         userSessionStorageKeys.initialReferrer,
         state.session.initialReferrer.value,
       );
@@ -210,7 +200,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncIdsInStorage(
+      this.syncValueToStorage(
         userSessionStorageKeys.initialReferringDomain,
         state.session.initialReferringDomain.value,
       );
@@ -219,7 +209,7 @@ class UserSessionManager implements IUserSessionManager {
      * Update session tracking info in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncObjectInStorage(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
+      this.syncValueToStorage(userSessionStorageKeys.sessionInfo, state.session.sessionInfo.value);
     });
   }
 
@@ -377,7 +367,7 @@ class UserSessionManager implements IUserSessionManager {
         state.session.sessionInfo.value = {};
         this.startOrRenewAutoTracking();
       } else if (manualTrack) {
-        this.start();
+        this.startManualTrackingInternal();
       }
     });
   }
@@ -459,6 +449,13 @@ class UserSessionManager implements IUserSessionManager {
    */
   start(id?: number) {
     state.session.sessionInfo.value = generateManualTrackingSession(id, this.logger);
+  }
+
+  /**
+   * An internal function to start manual session
+   */
+  startManualTrackingInternal() {
+    this.start(Date.now());
   }
 
   /**

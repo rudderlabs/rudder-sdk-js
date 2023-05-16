@@ -27,6 +27,9 @@ const generateSessionId = (): number => Date.now();
  */
 const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
   if (!sessionId) {
+    logger?.info(
+      `[SessionTracking]:: SDK will auto-generate the "sessionId" as no input is provided`,
+    );
     return false;
   }
   if (!isPositiveInteger(sessionId)) {

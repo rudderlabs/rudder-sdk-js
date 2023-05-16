@@ -63,7 +63,7 @@ describe('Utility: User session manager', () => {
       defaultLogger.warn = jest.fn();
       generateManualTrackingSession(sessionId, defaultLogger);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
-        `[SessionTracking]:: SDK will auto-generate the "sessionId". Provided input is not a positive integer`,
+        `[SessionTracking]:: SDK will auto-generate the "sessionId" as the provided input is not a positive integer`,
       );
     });
     it('should print a error message if the provided session id a decimal number', () => {
@@ -71,7 +71,7 @@ describe('Utility: User session manager', () => {
       defaultLogger.warn = jest.fn();
       generateManualTrackingSession(sessionId, defaultLogger);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
-        `[SessionTracking]:: SDK will auto-generate the "sessionId". Provided input is not a positive integer`,
+        `[SessionTracking]:: SDK will auto-generate the "sessionId" as the provided input is not a positive integer`,
       );
     });
     it('should print a error message if the provided session id is not 10 digits', () => {
@@ -79,7 +79,7 @@ describe('Utility: User session manager', () => {
       defaultLogger.warn = jest.fn();
       generateManualTrackingSession(sessionId, defaultLogger);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
-        `[SessionTracking]:: SDK will auto-generate the "sessionId". Minimum length should be "${MIN_SESSION_ID_LENGTH}" digits long`,
+        `[SessionTracking]:: SDK will auto-generate the "sessionId" as the input is not at least "${MIN_SESSION_ID_LENGTH}" digits long`,
       );
     });
   });
