@@ -37,7 +37,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
   }
   if (!hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)) {
     logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId". Minimum length should be "${MIN_SESSION_ID_LENGTH}" digits long`,
+      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the input is not at least "${MIN_SESSION_ID_LENGTH}" digits long`,
     );
     return false;
   }
