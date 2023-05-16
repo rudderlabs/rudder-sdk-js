@@ -447,7 +447,7 @@ class UserSessionManager implements IUserSessionManager {
       );
     } else {
       const timestamp = Date.now();
-      const timeout: number = state.session.sessionInfo.value.timeout as number;
+      const timeout = state.session.sessionInfo.value.timeout as number;
       state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
     }
   }
