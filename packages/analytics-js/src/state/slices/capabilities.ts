@@ -11,6 +11,7 @@ export type CapabilitiesState = {
   isLegacyDOM: Signal<boolean>;
   isUaCHAvailable: Signal<boolean>;
   isCryptoAvailable: Signal<boolean>;
+  isIE11: Signal<boolean>;
   isAdBlocked: Signal<boolean>;
 };
 
@@ -25,6 +26,7 @@ const capabilitiesState: CapabilitiesState = {
   isLegacyDOM: signal(false),
   isUaCHAvailable: signal(false),
   isCryptoAvailable: signal(false),
+  isIE11: signal(false),
   isAdBlocked: signal(false),
 };
 

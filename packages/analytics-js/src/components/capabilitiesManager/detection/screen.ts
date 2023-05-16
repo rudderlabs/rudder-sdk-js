@@ -15,17 +15,14 @@ const getScreenDetails = (): ScreenInfo => {
     innerHeight: 0,
   };
 
-  // Depending on environment within which the code is executing, screen
-  // dimensions can be set, when execution is in SSR window will be undefined
-  if (typeof window !== 'undefined') {
-    screenDetails = {
-      width: window.screen.width,
-      height: window.screen.height,
-      density: window.devicePixelRatio,
-      innerWidth: window.innerWidth,
-      innerHeight: window.innerHeight,
-    };
-  }
+  screenDetails = {
+    width: window.screen.width,
+    height: window.screen.height,
+    density: window.devicePixelRatio,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+  };
+
   return screenDetails;
 };
 

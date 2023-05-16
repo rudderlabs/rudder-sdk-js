@@ -36,6 +36,9 @@ class PluginsManager implements IPluginsManager {
     this.onError = this.onError.bind(this);
   }
 
+  /**
+   * Orchestrate the plugin loading and registering
+   */
   init() {
     state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
     this.setActivePlugins();
@@ -44,6 +47,9 @@ class PluginsManager implements IPluginsManager {
     this.attachEffects();
   }
 
+  /**
+   * Update state based on plugin loaded status
+   */
   // eslint-disable-next-line class-methods-use-this
   attachEffects() {
     effect(() => {
@@ -62,7 +68,9 @@ class PluginsManager implements IPluginsManager {
   }
 
   // TODO: add logic for all plugins as we develop them
-  // Determine the list of plugins that should be loaded based on sourceConfig & load options
+  /**
+   * Determine the list of plugins that should be loaded based on sourceConfig & load options
+   */
   // eslint-disable-next-line class-methods-use-this
   getPluginsToLoadBasedOnConfig(): PluginName[] {
     // This contains the default plugins if load option has been omitted by user
@@ -96,9 +104,12 @@ class PluginsManager implements IPluginsManager {
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }
 
+  /**
+   * Determine the list of plugins that should be activated
+   */
   setActivePlugins() {
-    // Merge mandatory and optional plugin name list
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
+    // Merging available mandatory and optional plugin name list
     const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
     const activePlugins: PluginName[] = [];
     const failedPlugins: string[] = [];
@@ -130,6 +141,9 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
+  /**
+   * Register plugins that are direct imports to PluginEngine
+   */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
       if (state.plugins.activePlugins.value.includes(localPlugin.name)) {
@@ -138,6 +152,9 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
+  /**
+   * Register plugins that are dynamic imports to PluginEngine
+   */
   registerRemotePlugins() {
     const remotePluginsList = remotePluginsInventory(
       state.plugins.activePlugins.value as PluginName[],
@@ -161,6 +178,9 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
+  /**
+   * Extension point invoke that allows multiple plugins to be registered to it with error handling
+   */
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
     try {
       return this.engine.invokeMultiple(extPoint, ...args);
@@ -170,6 +190,9 @@ class PluginsManager implements IPluginsManager {
     }
   }
 
+  /**
+   * Extension point invoke that allows a single plugin to be registered to it with error handling
+   */
   invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
     try {
       return this.engine.invokeSingle(extPoint, ...args);
@@ -179,6 +202,9 @@ class PluginsManager implements IPluginsManager {
     }
   }
 
+  /**
+   * Plugin engine register with error handling
+   */
   register(plugins: ExtensionPlugin[]) {
     plugins.forEach(plugin => {
       try {

@@ -14,6 +14,7 @@ import {
   hasBeacon,
   hasCrypto,
   hasUAClientHints,
+  isIE11,
   isLegacyJSEngine,
   isStorageAvailable,
 } from './detection';
@@ -41,6 +42,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
     }
   }
 
+  /**
+   * Detect supported capabilities and set values in state
+   */
   // eslint-disable-next-line class-methods-use-this
   detectBrowserCapabilities() {
     batch(() => {
@@ -55,12 +59,16 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
+      state.capabilities.isIE11.value = isIE11();
       // TODO: implement this detection logic as part of relevant sprint task
       state.capabilities.isAdBlocked.value = false;
     });
     // TODO: add listener for window.onResize event and update state.context.screen.value
   }
 
+  /**
+   * Detect if polyfills are required and then load script from polyfill URL
+   */
   prepareBrowserCapabilities() {
     const polyfillUrl = state.loadOptions.value.polyfillURL ?? POLYFILL_URL;
     const shouldLoadPolyfill =
@@ -86,6 +94,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
     }
   }
 
+  /**
+   * Set the lifecycle status to next phase
+   */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
     state.lifecycle.status.value = LifecycleStatus.BrowserCapabilitiesReady;

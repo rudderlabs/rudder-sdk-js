@@ -9,7 +9,7 @@ import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
+import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   IEventManager,

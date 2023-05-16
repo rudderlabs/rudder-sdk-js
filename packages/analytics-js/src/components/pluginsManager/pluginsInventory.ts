@@ -3,8 +3,14 @@ import { PluginMap, PluginName } from './types';
 import { legacyBuildPluginImports } from './legacyBuildPluginImports';
 import { modernBuildPluginImports } from './modernBuildPluginImports';
 
+/**
+ * Map of mandatory plugin names and direct imports
+ */
 const getMandatoryPluginsMap = (): PluginMap => ({});
 
+/**
+ * Map of optional plugin names and direct imports for legacy builds
+ */
 const getOptionalPluginsMap = (): PluginMap => {
   if (!__BUNDLE_ALL_PLUGINS__) {
     return {};
@@ -15,6 +21,9 @@ const getOptionalPluginsMap = (): PluginMap => {
   };
 };
 
+/**
+ * Map of optional plugin names and dynamic imports for modern builds
+ */
 const getRemotePluginsMap = (
   activePluginNames: PluginName[],
 ): PluginMap<Promise<ExtensionPlugin>> => {

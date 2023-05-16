@@ -4,6 +4,7 @@ const isDatasetAvailable = (): boolean => {
   return testElement.dataset ? testElement.dataset.aB === 'c' : false;
 };
 
+// This checks go hand to hand with the REQUIRED_POLYFILL_LIST
 const isLegacyJSEngine = (): boolean =>
   !String.prototype.endsWith ||
   !String.prototype.startsWith ||
