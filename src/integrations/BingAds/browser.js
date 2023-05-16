@@ -9,7 +9,8 @@ class BingAds {
     }
     this.tagID = config.tagID;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
@@ -25,7 +26,7 @@ class BingAds {
           const o = {
             ti: this.tagID,
           };
-          (o.q = w[u]), (w.UET && (w[u] = new UET(o)));
+          (o.q = w[u]), (w[u] = new UET(o));
         }),
         (n = d.createElement(t)),
         (n.src = r),
@@ -34,7 +35,7 @@ class BingAds {
         (n.onload = n.onreadystatechange =
           function () {
             const s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete') ||
+            (s && s !== 'loaded' && s !== 'complete' && typeof w['UET'] === 'function') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
@@ -44,18 +45,15 @@ class BingAds {
   /* eslint-enable */
 
   init = () => {
-    this.loadBingadsScript();  
+    this.loadBingadsScript();
     logger.debug('===in init BingAds===');
   };
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    if(typeof window.UET !== 'function') {
-      logger.debug('BingAds: UET class is yet to be loaded. Retrying.');
-    } else {
-      logger.debug('BingAds: UET class is successfully loaded');
-    }
-    return (!!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
