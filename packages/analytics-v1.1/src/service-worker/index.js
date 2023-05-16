@@ -32,6 +32,7 @@ class Analytics {
    * @param {Number=20000} options.maxInternalQueueSize (default: 20000)
    * @param {Number} options.timeout (default: false)
    * @param {String=info} options.logLevel (default: info)
+   * @param {Function} options.flushOverride (optional)
    */
 
   constructor(writeKey, dataPlaneURL, options) {
