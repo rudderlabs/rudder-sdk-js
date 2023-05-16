@@ -7,7 +7,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* add parenthesis ([5540e73](https://github.com/rudderlabs/rudder-sdk-js/commit/5540e73a1b89ea8013bf6d30ca2221e5278d61d9))
 * revert bingAds changes ([323e0e0](https://github.com/rudderlabs/rudder-sdk-js/commit/323e0e0f7ddb93928e785b0d5f730d4f6d2ff688))
 
 ## [2.33.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.32.0...v2.33.0) (2023-05-12)
