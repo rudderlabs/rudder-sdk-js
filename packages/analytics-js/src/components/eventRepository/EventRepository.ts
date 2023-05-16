@@ -35,8 +35,8 @@ class EventRepository implements IEventRepository {
 
     this.pluginsManager.invoke(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
-      state.lifecycle.writeKey,
-      state.lifecycle.activeDataplaneUrl,
+      state.lifecycle.writeKey.value,
+      state.lifecycle.activeDataplaneUrl.value,
       state.loadOptions.value.queueOptions,
     );
     this.pluginsManager.invoke(
