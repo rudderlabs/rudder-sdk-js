@@ -2,7 +2,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { state } from '@rudderstack/analytics-js/state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
@@ -96,7 +96,7 @@ class StoreManager implements IStoreManager {
    */
   initQueueStore() {
     // TODO: use this as extension point to create storage for event queues
-    defaultPluginManager.invoke('queuestore.create', this.setStore);
+    defaultPluginsManager.invoke('queuestore.create', this.setStore);
   }
   /**
    * Create a new store

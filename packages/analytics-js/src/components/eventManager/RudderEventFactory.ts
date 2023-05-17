@@ -17,7 +17,7 @@ class RudderEventFactory {
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
-    let props = properties || {};
+    let props = properties ?? {};
 
     props.name = name;
     props.category = category;

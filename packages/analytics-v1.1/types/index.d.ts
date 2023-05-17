@@ -72,7 +72,7 @@ declare module 'rudder-sdk-js' {
    */
   interface loadOptions {
     integrations?: integrationOptions;
-    // defaults to https://api.rudderlabs.com
+    // defaults to https://api.rudderstack.com
     configUrl?: string;
     queueOptions?: queueOptions;
     // Defaults to true

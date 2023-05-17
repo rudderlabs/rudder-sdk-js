@@ -4,7 +4,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { trim } from '@rudderstack/analytics-js/components/utilities/string';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
@@ -208,7 +208,7 @@ class Store implements IStore {
 
     const extensionPointName = `storage.${mode}`;
 
-    const formattedValue = defaultPluginManager.invoke<string>(extensionPointName, value);
+    const formattedValue = defaultPluginsManager.invoke<string>(extensionPointName, value);
 
     return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0];
   }

@@ -15,6 +15,7 @@ import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
 import { IConfigManager, SourceConfigResponse } from './types';
 import { filterEnabledDestination } from './util/filterDestinations';
+import { removeTrailingSlashes } from '../utilities/url';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -67,6 +68,7 @@ class ConfigManager implements IConfigManager {
       }
       state.lifecycle.isStaging.value = isStaging;
     });
+
     this.getConfig();
   }
 
@@ -134,7 +136,8 @@ class ConfigManager implements IConfigManager {
       state.destinations.value = nativeDestinations;
 
       // set application lifecycle state
-      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      // Cast to string as we are sure that the value is not undefined
+      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
       state.lifecycle.status.value = LifecycleStatus.Configured;
 
       // set the values in state for reporting slice

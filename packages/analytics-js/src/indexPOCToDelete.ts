@@ -4,7 +4,7 @@ import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/service
 import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 import {
-  defaultPluginManager,
+  defaultPluginsManager,
   PluginsManager,
 } from '@rudderstack/analytics-js/components/pluginsManager';
 import {
@@ -51,7 +51,7 @@ class AnalyticsV3 implements IV3 {
     this.httpClient = defaultHttpClient;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
-    this.pluginsManager = defaultPluginManager;
+    this.pluginsManager = defaultPluginsManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storageManager = defaultStoreManager;
     // TODO: pass values from sdk init config too
@@ -139,14 +139,14 @@ class AnalyticsV3 implements IV3 {
   async dummyFetch() {
     console.log('start request sequence');
     const response = await this.httpClient.getData({
-      url: 'https://apiiii.rudderlabs.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
+      url: 'https://apiiii.rudderstack.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
       isRawResponse: true,
       timeout: 1000,
     });
     console.log('blocking response', response);
 
     this.httpClient.getAsyncData({
-      url: 'https://api.rudderlabs.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
+      url: 'https://api.rudderstack.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
       callback: data => {
         console.log('async response via callback', data);
         console.log('end sequence');

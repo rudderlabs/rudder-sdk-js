@@ -156,6 +156,13 @@ export type QueueOpts = {
 };
 
 /**
+ * Represents the destinations queue options parameter in loadOptions type
+ */
+export type DestinationsQueueOpts = {
+  maxItems?: number;
+};
+
+/**
  * Represents the beacon queue options parameter in loadOptions type
  */
 export type BeaconQueueOpts = {
@@ -220,7 +227,7 @@ export type SessionOpts = {
 export type LoadOptions = {
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
-  configUrl: string; // defaults to https://api.rudderlabs.com
+  configUrl: string; // defaults to https://api.rudderstack.com
   queueOptions?: QueueOpts;
   loadIntegration?: boolean; // defaults to true.
   sessions: SessionOpts;
@@ -228,6 +235,7 @@ export type LoadOptions = {
   destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
   useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
+  destinationsQueueOptions?: DestinationsQueueOpts;
   cookieConsentManager?: CookieConsentOptions;
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
@@ -243,7 +251,7 @@ export type LoadOptions = {
   // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
 };
 
-export type ApiCallback = () => void;
+export type ApiCallback = (data?: any) => void;
 export type BufferedEvent = any[];
 
 export enum LogLevel {
