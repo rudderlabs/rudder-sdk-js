@@ -70,6 +70,7 @@ import * as Axeptio from "./Axeptio";
 import * as Sendinblue from "./Sendinblue";
 import * as Olark from "./Olark";
 import * as Lemnisk from "./Lemnisk";
+import * as TiktokAds from "./TiktokAds";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -147,6 +148,7 @@ const integrations = {
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
   LEMNISK: Lemnisk.default,
+  TIKTOKADS: TiktokAds.default,
 };
 
 export { integrations };
