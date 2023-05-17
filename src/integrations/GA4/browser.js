@@ -221,12 +221,8 @@ export default class GA4 {
   }
 
   identify(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return;
-    }
-
     logger.debug('In GoogleAnalyticsManager Identify');
+
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     // Setting the userId as a part of configuration
     if (sendUserIdToGA4(rudderElement.message.integrations) && rudderElement.message.userId) {
