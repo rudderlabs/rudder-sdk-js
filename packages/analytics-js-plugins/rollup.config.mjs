@@ -81,6 +81,7 @@ export function getDefaultConfig(distName) {
           exposes: {
             './BeaconQueue': './src/beaconQueue/index.ts',
             './ConsentManager': './src/consentManager/index.ts',
+            './DataplaneEventsQueue': './src/dataplaneEventsQueue/index.ts',
             './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
             './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
             './ErrorReporting': './src/errorReporting/index.ts',

@@ -55,6 +55,7 @@ const getUpdatedPageProperties = (
  * @param obj Generic object
  * @param eventType Rudder event type
  * @param parentKeyPath Object's parent key path
+ * @param logger Logger instance
  */
 const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
@@ -79,6 +80,7 @@ const checkForReservedElementsInObject = (
 /**
  * Checks for reserved keys in traits, properties, and contextual traits
  * @param rudderEvent Generated rudder event
+ * @param logger Logger instance
  */
 const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
   //  properties, traits, contextualTraits are either undefined or object
@@ -135,6 +137,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
  * To merge the contextual information in API options with existing data
  * @param rudderEvent Generated rudder event
  * @param options API options
+ * @param logger Logger instance
  */
 const getMergedContext = (
   rudderContext: RudderContext,
@@ -180,6 +183,13 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
   }
 };
 
+/**
+ * Enrich the base event object with data from state and the API options
+ * @param rudderEvent RudderEvent object
+ * @param options API options
+ * @param pageProps Page properties
+ * @returns Enriched RudderEvent object
+ */
 const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
   options?: Nullable<ApiOptions>,

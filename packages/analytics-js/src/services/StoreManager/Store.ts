@@ -4,8 +4,8 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { trim } from '@rudderstack/analytics-js/components/utilities/string';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
+import { IPluginsManager } from "@rudderstack/analytics-js/components/pluginsManager/types";
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -24,9 +24,10 @@ class Store implements IStore {
   errorHandler?: IErrorHandler;
   hasErrorHandler = false;
   logger?: ILogger;
+  pluginManager?: IPluginsManager;
   hasLogger = false;
 
-  constructor(config: IStoreConfig, engine?: IStorage) {
+  constructor(config: IStoreConfig, engine?: IStorage, pluginManager?: IPluginsManager) {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted || false;
@@ -39,6 +40,7 @@ class Store implements IStore {
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.logger = config.logger || defaultLogger;
     this.hasLogger = Boolean(this.logger);
+    this.pluginManager = pluginManager;
   }
 
   /**
@@ -207,8 +209,8 @@ class Store implements IStore {
     }
 
     const extensionPointName = `storage.${mode}`;
-
-    const formattedValue = defaultPluginManager.invokeMultiple<string>(extensionPointName, value);
+    const formattedValue = this.pluginManager ?
+      this.pluginManager.invokeMultiple<string>(extensionPointName, value) : value;
 
     return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0] ?? '';
   }

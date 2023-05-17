@@ -1,5 +1,6 @@
 export { default as BeaconQueue } from './beaconQueue';
 export { default as ConsentManager } from './consentManager';
+export { default as DataplaneEventsQueue } from './dataplaneEventsQueue';
 export { default as DeviceModeDestinations } from './deviceModeDestinations';
 export { default as DeviceModeTransformation } from './deviceModeTransformation';
 export { default as ErrorReporting } from './errorReporting';

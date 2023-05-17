@@ -9,7 +9,7 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { RudderContext } from '@rudderstack/analytics-js/components/eventManager/types';
@@ -241,7 +241,7 @@ describe('Event Manager - Utilities', () => {
     });
 
     it('should return processed event if the event processor plugin is registered', () => {
-      defaultPluginManager.registerLocalPlugins();
+      defaultPluginsManager.registerLocalPlugins();
       batch(() => {
         state.session.anonymousUserId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
@@ -366,7 +366,7 @@ describe('Event Manager - Utilities', () => {
         userId: 'user_id',
       });
 
-      defaultPluginManager.unregisterLocalPlugins();
+      defaultPluginsManager.unregisterLocalPlugins();
     });
   });
 

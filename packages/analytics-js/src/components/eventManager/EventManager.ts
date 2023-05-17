@@ -6,28 +6,35 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { IEventManager, APIEvent } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
+import { IEventRepository } from '../eventRepository/types';
+import { defaultEventRepository } from '../eventRepository';
 
 /**
  * A service to generate valid event payloads and queue them for processing
  */
 class EventManager implements IEventManager {
+  eventRepository: IEventRepository;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
 
   /**
+   *
+   * @param eventRepository Event repository instance
    * @param errorHandler Error handler object
    * @param logger Logger object
    */
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
-    // TODO: Pass plugin manager instance
+  constructor(eventRepository: IEventRepository, errorHandler?: IErrorHandler, logger?: ILogger) {
+    this.eventRepository = eventRepository;
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.onError = this.onError.bind(this);
   }
 
+  /**
+   * Initializes the event manager
+   */
   init() {
-    // TODO: status.value = 'initialized';
-    //  once eventManager event repository is ready in order to start enqueueing any events
+    this.eventRepository.init();
     state.lifecycle.status.value = LifecycleStatus.Initialized;
     this.logger?.info('Event manager initialized');
   }
@@ -39,7 +46,7 @@ class EventManager implements IEventManager {
   addEvent(event: APIEvent) {
     const rudderEvent = RudderEventFactory.create(event);
     if (rudderEvent) {
-      // TODO: Add the event and callback to the event repository
+      this.eventRepository.enqueue(rudderEvent, event.callback);
     } else {
       this.onError('Unable to generate RudderStack event object');
     }
@@ -49,15 +56,19 @@ class EventManager implements IEventManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: Error | unknown): void {
+  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'EventManager');
+      this.errorHandler.onError(error, 'Event Manager', customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
   }
 }
 
-const defaultEventManager = new EventManager(defaultErrorHandler, defaultLogger);
+const defaultEventManager = new EventManager(
+  defaultEventRepository,
+  defaultErrorHandler,
+  defaultLogger,
+);
 
 export { EventManager, defaultEventManager };

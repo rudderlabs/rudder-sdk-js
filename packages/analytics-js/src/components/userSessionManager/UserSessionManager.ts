@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
@@ -58,10 +58,10 @@ class UserSessionManager implements IUserSessionManager {
     this.storage = storage;
 
     // get the values from storage and set it again
-    this.setUserId(this.getUserId() || '');
-    this.setUserTraits(this.getUserTraits() || {});
-    this.setGroupId(this.getGroupId() || '');
-    this.setGroupTraits(this.getGroupTraits() || {});
+    this.setUserId(this.getUserId() ?? '');
+    this.setUserTraits(this.getUserTraits() ?? {});
+    this.setGroupId(this.getGroupId() ?? '');
+    this.setGroupTraits(this.getGroupTraits() ?? {});
     this.setAnonymousId(this.getAnonymousId());
 
     const initialReferrer = this.getInitialReferrer();
@@ -393,7 +393,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
-      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value || {}, traits);
+      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
 
@@ -412,7 +412,7 @@ class UserSessionManager implements IUserSessionManager {
   setGroupTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
       state.session.groupTraits.value = mergeDeepRight(
-        state.session.groupTraits.value || {},
+        state.session.groupTraits.value ?? {},
         traits,
       );
     }
@@ -491,7 +491,7 @@ class UserSessionManager implements IUserSessionManager {
 const defaultUserSessionManager = new UserSessionManager(
   defaultErrorHandler,
   defaultLogger,
-  defaultPluginManager,
+  defaultPluginsManager,
 );
 
 export { UserSessionManager, defaultUserSessionManager };

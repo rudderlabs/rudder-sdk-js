@@ -9,7 +9,7 @@ const DEFAULT_REGION = 'US';
  * @param {array} urls    An array of objects containing urls
  * @returns
  */
-const getDefaultUrlofRegion = (urls?: RegionDetails[]) => {
+const getDefaultUrlOfRegion = (urls?: RegionDetails[]) => {
   let url;
   if (Array.isArray(urls) && urls.length > 0) {
     const obj = urls.find(elem => elem.default === true);
@@ -45,10 +45,10 @@ const resolveDataPlaneUrl = (
 ) => {
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
-    const region = validateResidencyServerRegionInput(residencyServerRegion) || DEFAULT_REGION;
+    const region = validateResidencyServerRegionInput(residencyServerRegion) ?? DEFAULT_REGION;
     const regionUrlArr: RegionDetails[] = dataplanes[region] || dataplanes[DEFAULT_REGION];
 
-    const defaultUrl = getDefaultUrlofRegion(regionUrlArr);
+    const defaultUrl = getDefaultUrlOfRegion(regionUrlArr);
     if (defaultUrl) {
       return defaultUrl;
     }

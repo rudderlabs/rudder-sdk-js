@@ -2,6 +2,7 @@
 import {
   BeaconQueue,
   ConsentManager,
+  DataplaneEventsQueue,
   DeviceModeTransformation,
   DeviceModeDestinations,
   ErrorReporting,
@@ -20,6 +21,7 @@ import { PluginMap } from './types';
 const legacyBuildPluginImports = (): PluginMap => ({
   BeaconQueue,
   ConsentManager,
+  DataplaneEventsQueue,
   DeviceModeTransformation,
   DeviceModeDestinations,
   ErrorReporting,

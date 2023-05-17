@@ -13,6 +13,8 @@ const getFederatedModuleImport = (
       return () => import('remotePlugins/BeaconQueue');
     case PluginName.ConsentManager:
       return () => import('remotePlugins/ConsentManager');
+    case PluginName.DataplaneEventsQueue:
+      return () => import('remotePlugins/DataplaneEventsQueue');
     case PluginName.DeviceModeTransformation:
       return () => import('remotePlugins/DeviceModeTransformation');
     case PluginName.DeviceModeDestinations:

@@ -315,11 +315,11 @@ class Queue extends Emitter {
       getStorageEngine('localStorage'),
     );
     const our = {
-      queue: (this.store.get(QueueStatuses.QUEUE) || []) as QueueItem[],
+      queue: (this.store.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const their = {
-      inProgress: other.get(QueueStatuses.IN_PROGRESS) || {},
-      queue: (other.get(QueueStatuses.QUEUE) || []) as QueueItem[],
+      inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
+      queue: (other.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const trackMessageIds: string[] = [];
 
