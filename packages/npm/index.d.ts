@@ -47,6 +47,10 @@ declare module 'rudder-sdk-js' {
     oneTrust?: {
       enabled: boolean;
     };
+    // Ketch
+    ketch?: {
+      enabled: boolean;
+    };
   }
 
   /**
