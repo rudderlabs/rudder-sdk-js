@@ -14,7 +14,7 @@ const notifyError = (error) => {
   }
 }
 
-const normalizeError = (error, customMessage, analyticsInstance)=> {
+const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
   try {
     if (typeof error === 'string') {
