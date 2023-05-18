@@ -49,14 +49,14 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject(
         new Error(
-          `Request failed with status: ${xhr.status}, ${xhr.statusText} for url: ${options.url}`,
+          `Request failed with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
         ),
       );
     };
     const xhrError = (e?: ProgressEvent) => {
       reject(
         new Error(
-          `Request failed due to timeout or no connection, ${e ? e.type : ''} for url: ${
+          `Request failed due to timeout or no connection, ${e ? e.type : ''} for URL: ${
             options.url
           }`,
         ),
@@ -90,7 +90,7 @@ const xhrRequest = (
       xhr.send(jsonData);
     } catch (err) {
       reject(
-        new Error(`Request data parsing failed for url: ${options.url}, ${(err as Error).message}`),
+        new Error(`Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`),
       );
     }
   });

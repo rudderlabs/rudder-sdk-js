@@ -127,7 +127,7 @@ describe('HttpClient', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new Error(
-          'Request failed with status: 404, Not Found for url: https://dummy.dataplane.host.com/404ErrorSample',
+          'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
         ),
         'HttpClient',
       );
@@ -147,7 +147,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed with status: 404, Not Found for url: https://dummy.dataplane.host.com/404ErrorSample',
+        'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
       ),
       'HttpClient',
     );
@@ -159,7 +159,7 @@ describe('HttpClient', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new Error(
-          'Request failed with status: 500, Internal Server Error for url: https://dummy.dataplane.host.com/500ErrorSample',
+          'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
         ),
         'HttpClient',
       );
@@ -179,7 +179,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed with status: 500, Internal Server Error for url: https://dummy.dataplane.host.com/500ErrorSample',
+        'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
       ),
       'HttpClient',
     );
@@ -193,7 +193,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed due to timeout or no connection, error for url: https://dummy.dataplane.host.com/noConnectionSample',
+        'Request failed due to timeout or no connection, error for URL: https://dummy.dataplane.host.com/noConnectionSample',
       ),
       'HttpClient',
     );

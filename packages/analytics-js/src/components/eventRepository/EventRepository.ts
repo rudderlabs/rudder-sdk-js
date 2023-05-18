@@ -12,6 +12,7 @@ import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
+import { clone } from 'ramda';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -59,8 +60,14 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`, event, this.logger);
-    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
+    const dpQEvent = clone(event);
+    this.pluginsManager.invokeMultiple(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+      dpQEvent,
+      this.logger,
+    );
+    const dQEvent = clone(event);
+    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, dQEvent);
 
     // Invoke the callback if it exists
     try {

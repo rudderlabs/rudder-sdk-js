@@ -1,14 +1,27 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-param-reassign */
+import { Queue } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
+import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js/components/utilities/timestamp';
+import { toBase64 } from '@rudderstack/analytics-js/components/utilities/string';
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
 import {
   ExtensionPlugin,
   PluginName,
   ApplicationState,
   QueueOpts,
   RudderEvent,
-  ILogger
-} from "../types/common";
-import { validatePayloadSize } from './utilities';
+  ILogger,
+} from '../types/common';
+import { getDeliveryPayload, validatePayloadSize } from './utilities';
+import { DEFAULT_QUEUE_OPTIONS, REQUEST_TIMEOUT_MS } from './constants';
 
 const pluginName = PluginName.DataplaneEventsQueue;
+
+let eventsQueue: Queue;
+let dataplaneUrl: string;
+let httpClient: IHttpClient;
 
 const DataplaneEventsQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -17,18 +30,56 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   dataplaneEventsQueue: {
-    init(writeKey: string, dataplaneUrl: string, queueOpts: QueueOpts): void {
-      console.log(
-        `Dataplane Events Queue: Initialized with writeKey: ${writeKey}, dataplaneUrl: ${dataplaneUrl}, queueOpts: ${queueOpts}`,
-      );
+    init(writeKey: string, inDataplaneUrl: string, queueOpts: QueueOpts): void {
+      httpClient.setAuthHeader(writeKey);
+      dataplaneUrl = inDataplaneUrl;
+
+      const qOpts = mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
+      eventsQueue = new Queue('rudder', qOpts, (item, done) => {
+        const payloadData = getDeliveryPayload(item.event);
+        if (payloadData) {
+          httpClient.getAsyncData({
+            url: item.url,
+            options: {
+              method: 'POST',
+              headers: item.headers,
+              data: JSON.stringify(item.event, replaceNullValues),
+            },
+            timeout: REQUEST_TIMEOUT_MS,
+            callback: result => {
+              if (result !== undefined) {
+                done(result);
+              } else {
+                done(null);
+              }
+            },
+          });
+        } else {
+          done(null);
+        }
+      });
     },
+
     start(): void {
-      console.log('Dataplane Events Queue: Started');
+      eventsQueue?.start();
     },
+
     enqueue(event: RudderEvent, logger?: ILogger): void {
-      // TODO: Append `sentAt` field before computing payload size
+      // sentAt is only added here for the validation step
+      // It'll be updated to the latest timestamp during actual delivery
+      event.sentAt = getCurrentTimeFormatted();
       validatePayloadSize(event, logger);
-      console.log(`Dataplane Events Queue: Enqueued event: ${event}`);
+
+      const url = `${dataplaneUrl}/v1/${event.type}`;
+      const headers = {
+        AnonymousId: toBase64(event.anonymousId),
+      };
+
+      eventsQueue?.addItem({
+        url,
+        headers,
+        event,
+      });
     },
   },
 });
