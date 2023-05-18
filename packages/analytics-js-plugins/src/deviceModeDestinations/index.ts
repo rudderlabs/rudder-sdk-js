@@ -8,7 +8,7 @@ const LOAD_CHECK_POLL_INTERVAL = 1000;
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
     return (
-      Boolean((window as any)[pluginName]) &&
+      (window as any)[pluginName] &&
       (window as any)[pluginName][modName] &&
       typeof (window as any)[pluginName][modName].prototype.constructor !== 'undefined'
     );

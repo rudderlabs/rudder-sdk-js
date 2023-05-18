@@ -360,12 +360,23 @@ class Queue extends Emitter {
 
     this.store.set(QueueStatuses.QUEUE, our.queue);
 
-    // remove all keys
-    other.remove(QueueStatuses.IN_PROGRESS);
-    other.remove(QueueStatuses.QUEUE);
-    other.remove(QueueStatuses.RECLAIM_START);
-    other.remove(QueueStatuses.RECLAIM_END);
-    other.remove(QueueStatuses.ACK);
+    // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
+    const localStorageBackoff = 10;
+    setTimeout(() => {
+      other.remove(QueueStatuses.IN_PROGRESS);
+      setTimeout(() => {
+        other.remove(QueueStatuses.QUEUE);
+        setTimeout(() => {
+          other.remove(QueueStatuses.RECLAIM_START);
+          setTimeout(() => {
+            other.remove(QueueStatuses.RECLAIM_END);
+            setTimeout(() => {
+              other.remove(QueueStatuses.ACK);
+            }, localStorageBackoff);
+          }, localStorageBackoff);
+        }, localStorageBackoff);
+      }, localStorageBackoff);
+    }, localStorageBackoff);
 
     // process the new items we claimed
     this.processHead();
