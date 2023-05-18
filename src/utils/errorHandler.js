@@ -61,7 +61,7 @@ const normalizeError = (error, customMessage, analyticsInstance)=> {
   return `[handleError]::${customErrMessagePrefix} "${errorMessage}"`;
 }
 
-const handleError = (error, customMessage, analyticsInstance)=> {
+const handleError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
 
   try {
