@@ -6,7 +6,7 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      logger.error(
+      logger.warn(
         'OneTrust resources are not accessible. Thus all the destinations will be loaded',
       );
       return;

@@ -49,13 +49,14 @@ describe("Test group for 'normalizeError' method", () => {
 });
 
 describe("Test group for 'handleError' method", () => {
-  it('Should notify errors when the error is not coming from request failed', () => {
+  it('Should notify errors when the error is not coming from request failed', (done) => {
     const errMessage = `sample error message`;
     const err = new Error(errMessage);
     handleError(err);
-    setTimeout(()=>{
+    setTimeout(() => {
       expect(notifyError).toHaveBeenCalled();
-    });
+    }, 1);
+    done();
   });
   it('Should not notify errors for request failed', () => {
     const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;

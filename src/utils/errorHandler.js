@@ -1,5 +1,9 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME, FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
+import {
+  LOAD_ORIGIN,
+  ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
+  ERROR_MESSAGES_TO_BE_FILTERED,
+} from './constants';
 
 /**
  * This function is to send handled errors to available error reporting client
@@ -12,7 +16,7 @@ const notifyError = (error) => {
   if (errorReportingClient && error instanceof Error) {
     errorReportingClient.notify(error);
   }
-}
+};
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
@@ -59,7 +63,19 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
 
   const customErrMessagePrefix = customMessage || '';
   return `[handleError]::${customErrMessagePrefix} "${errorMessage}"`;
-}
+};
+
+/**
+ * A function to determine whether the error should be notified or not
+ * @param {Error} error
+ * @returns
+ */
+const shouldNotNotify = (error) => {
+  if (error.message) {
+    return ERROR_MESSAGES_TO_BE_FILTERED.some((e) => error.message.includes(e));
+  }
+  return false;
+};
 
 const handleError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
@@ -77,10 +93,10 @@ const handleError = (error, customMessage, analyticsInstance) => {
   }
 
   logger.error(errorMessage);
-  if(error.message && error.message.includes(FAILED_REQUEST_ERR_MSG_PREFIX)){
+  if (shouldNotNotify(error)) {
     return; // do not notify errors in case the request has failed
   }
   notifyError(error);
-}
+};
 
 export { notifyError, handleError, normalizeError };
