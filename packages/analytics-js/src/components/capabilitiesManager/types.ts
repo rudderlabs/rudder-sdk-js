@@ -9,5 +9,6 @@ export interface ICapabilitiesManager {
   init(): void;
   detectBrowserCapabilities(): void;
   prepareBrowserCapabilities(): void;
+  attachWindowListeners(): void;
   onReady(): void;
 }

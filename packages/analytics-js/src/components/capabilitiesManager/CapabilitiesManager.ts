@@ -37,6 +37,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
     try {
       this.detectBrowserCapabilities();
       this.prepareBrowserCapabilities();
+      this.attachWindowListeners();
     } catch (e) {
       this.onError(e);
     }
@@ -62,8 +63,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isIE11.value = isIE11();
       // TODO: implement this detection logic as part of relevant sprint task
       state.capabilities.isAdBlocked.value = false;
+      state.capabilities.isOnline.value = window.navigator.onLine;
     });
-    // TODO: add listener for window.onResize event and update state.context.screen.value
   }
 
   /**
@@ -92,6 +93,22 @@ class CapabilitiesManager implements ICapabilitiesManager {
     } else {
       this.onReady();
     }
+  }
+
+  /**
+   * Attach listeners to window to observe event that update capabilities state values
+   */
+  // eslint-disable-next-line class-methods-use-this
+  attachWindowListeners() {
+    window.addEventListener('offline', () => {
+      state.capabilities.isOnline.value = false;
+    });
+
+    window.addEventListener('online', () => {
+      state.capabilities.isOnline.value = true;
+    });
+
+    // TODO: add debounched listener for window.onResize event and update state.context.screen.value
   }
 
   /**
