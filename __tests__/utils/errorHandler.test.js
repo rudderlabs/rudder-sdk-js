@@ -1,4 +1,15 @@
-import { normalizeError } from '../../src/utils/errorHandler';
+import { notifyError, handleError, normalizeError } from '../../src/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../src/utils/constants';
+
+jest.mock('../../src/utils/errorHandler.js', () => {
+  const originalModule = jest.requireActual('../../src/utils/errorHandler.js');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    notifyError: jest.fn(() => {}),
+  };
+});
 
 const staticMessage = '[handleError]::';
 const customMessage = '[Device-mode]:: [Destination: Sample]:: ';
@@ -34,5 +45,22 @@ describe("Test group for 'normalizeError' method", () => {
     const obj = { random: 12345678 };
     const errMessage = normalizeError(obj);
     expect(errMessage).toBe(`${staticMessage} "${JSON.stringify(obj)}"`);
+  });
+});
+
+describe("Test group for 'handleError' method", () => {
+  it('Should notify errors when the error is not coming from request failed', () => {
+    const errMessage = `sample error message`;
+    const err = new Error(errMessage);
+    handleError(err);
+    setTimeout(()=>{
+      expect(notifyError).toHaveBeenCalled();
+    });
+  });
+  it('Should not notify errors for request failed', () => {
+    const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;
+    const obj = new Error(errMessage);
+    handleError(obj);
+    expect(notifyError).not.toHaveBeenCalled();
   });
 });

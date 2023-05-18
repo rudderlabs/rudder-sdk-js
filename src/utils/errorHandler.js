@@ -1,21 +1,21 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
+import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME, FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
 
 /**
  * This function is to send handled errors to available error reporting client
  *
  * @param {Error} error Error instance from handled error
  */
-function notifyError(error) {
+const notifyError = (error)=> {
   const errorReportingClient =
     window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
-
+    
   if (errorReportingClient && error instanceof Error) {
     errorReportingClient.notify(error);
   }
 }
 
-function normalizeError(error, customMessage, analyticsInstance) {
+const normalizeError = (error, customMessage, analyticsInstance)=> {
   let errorMessage;
   try {
     if (typeof error === 'string') {
@@ -62,7 +62,7 @@ function normalizeError(error, customMessage, analyticsInstance) {
   return `[handleError]::${customErrMessagePrefix} "${errorMessage}"`;
 }
 
-function handleError(error, customMessage, analyticsInstance) {
+const handleError = (error, customMessage, analyticsInstance)=> {
   let errorMessage;
 
   try {
@@ -78,6 +78,9 @@ function handleError(error, customMessage, analyticsInstance) {
   }
 
   logger.error(errorMessage);
+  if(error.message && error.message.includes(FAILED_REQUEST_ERR_MSG_PREFIX)){
+    return; // do not notify errors in case the request has failed
+  }
   notifyError(error);
 }
 

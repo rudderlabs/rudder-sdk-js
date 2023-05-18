@@ -6,9 +6,10 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      throw new Error(
+      logger.error(
         'OneTrust resources are not accessible. Thus all the destinations will be loaded',
       );
+      return;
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
     // the cookie categories that the user has consented to.
