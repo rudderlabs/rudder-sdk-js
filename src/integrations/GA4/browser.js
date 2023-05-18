@@ -51,13 +51,12 @@ export default class GA4 {
       gtagParameterObject.user_id = this.analytics.userId;
     }
 
-    gtagParameterObject.cookie_prefix = 'rs';
     if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
+      gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.anonymousId;
-    }
-    if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
       gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     }
+    
     gtagParameterObject.debug_mode = true;
 
     if (Object.keys(gtagParameterObject).length === 0) {
