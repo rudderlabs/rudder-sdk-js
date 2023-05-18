@@ -1,4 +1,4 @@
-import { isEmpty, clone } from 'ramda';
+import { isEmpty } from 'ramda';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -9,8 +9,7 @@ import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   IEventManager,
@@ -37,6 +36,7 @@ import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/t
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -45,7 +45,6 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
-import { tryStringify } from '../utilities/string';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -84,7 +83,7 @@ class Analytics implements IAnalytics {
     this.attachGlobalErrorHandler = this.attachGlobalErrorHandler.bind(this);
     this.load = this.load.bind(this);
     this.startLifecycle = this.startLifecycle.bind(this);
-    this.loadPolyfill = this.loadPolyfill.bind(this);
+    this.prepareBrowserCapabilities = this.prepareBrowserCapabilities.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
     this.init = this.init.bind(this);
     this.loadPlugins = this.loadPlugins.bind(this);
@@ -135,7 +134,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, clone(loadOptions));
+      state.loadOptions.value = normaliseLoadOptions(state.loadOptions.value, loadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 
@@ -157,18 +156,20 @@ class Analytics implements IAnalytics {
     effect(() => {
       switch (state.lifecycle.status.value) {
         case LifecycleStatus.Mounted:
-          this.loadPolyfill();
+          this.prepareBrowserCapabilities();
           break;
-        case LifecycleStatus.PolyfillLoaded:
+        case LifecycleStatus.BrowserCapabilitiesReady:
           this.loadConfig();
           break;
         case LifecycleStatus.Configured:
+          this.loadPlugins();
+          break;
+        case LifecycleStatus.PluginsLoading:
+          break;
+        case LifecycleStatus.PluginsReady:
           this.init();
           break;
         case LifecycleStatus.Initialized:
-          this.loadPlugins();
-          break;
-        case LifecycleStatus.PluginsReady:
           this.onLoaded();
           break;
         case LifecycleStatus.Loaded:
@@ -188,8 +189,8 @@ class Analytics implements IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  loadPolyfill() {
-    this.capabilitiesManager.loadPolyfill();
+  prepareBrowserCapabilities() {
+    this.capabilitiesManager.init();
   }
 
   /**
@@ -221,10 +222,7 @@ class Analytics implements IAnalytics {
   /**
    * Load plugins
    */
-  // TODO: dummy implementation for testing until we implement plugin manager
-  //  create proper implementation once relevant task is picked up
   loadPlugins() {
-    // TODO: maybe we need to separate the plugins that are required before the eventManager init and after
     this.pluginsManager.init();
     // TODO: are we going to enable custom plugins to be passed as load options?
     // registerCustomPlugins(state.loadOptions.value.customPlugins);
@@ -267,7 +265,7 @@ class Analytics implements IAnalytics {
       console.log(`${id} Script loaded`);
     };
 
-    this.pluginsManager.invoke(
+    this.pluginsManager.invokeMultiple(
       'remote.load_integrations',
       state.nativeDestinations.clientIntegrations.value,
       state,
@@ -509,7 +507,7 @@ class Analytics implements IAnalytics {
   // End consumer exposed methods
 
   // TODO: should we still implement methodToCallbackMapping? Seems we will deprecate this
-  //  non used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
+  //  non-used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
   //  if we need to keep we need initializeCallbacks & registerCallbacks methods
 }
 

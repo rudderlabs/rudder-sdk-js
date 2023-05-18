@@ -4,7 +4,7 @@ import {
   DEST_SDK_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
 import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
-import { getSDKUrlInfo } from './commonUtil';
+import { getSDKUrl } from './commonUtil';
 
 /**
  * A function that determines integration SDK loading path
@@ -34,7 +34,7 @@ const getIntegrationsCDNPath = (
   }
 
   // Get the base path from the SDK script tag src attribute or use the default path
-  const { sdkURL } = getSDKUrlInfo();
+  const sdkURL = getSDKUrl();
   integrationsCDNPath =
     typeof sdkURL === 'string'
       ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')

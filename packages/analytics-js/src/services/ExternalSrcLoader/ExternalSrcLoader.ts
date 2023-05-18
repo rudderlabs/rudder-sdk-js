@@ -34,10 +34,10 @@ class ExternalSrcLoader implements IExternalSrcLoader {
    * Load external resource of type javascript
    */
   async loadJSFile(config: IExternalSourceLoadConfig): Promise<void> {
-    const { url, id, timeout, async, callback } = config;
+    const { url, id, timeout, async, callback, extraAttributes } = config;
     const isFireAndForget = !(callback && isFunction(callback));
 
-    await jsFileLoader(url, id, timeout || this.timeout, async)
+    await jsFileLoader(url, id, timeout || this.timeout, async, extraAttributes)
       .then((id?: string) => {
         if (!isFireAndForget) {
           callback(id);

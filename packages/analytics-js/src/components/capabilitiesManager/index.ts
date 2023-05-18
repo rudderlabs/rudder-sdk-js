@@ -1,1 +1,1 @@
-export { CapabilitiesManager } from './CapabilitiesManager';
+export { CapabilitiesManager, defaultCapabilitiesManager } from './CapabilitiesManager';

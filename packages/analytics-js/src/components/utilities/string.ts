@@ -1,6 +1,8 @@
 // TODO: see if bundle size is bumped up if we use ramda trim instead of custom
 const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
 
+const removeDoubleSpaces = (value: string): string => value.replace(/ {2,}/g, ' ');
+
 /**
  * A function to convert values to string
  * @param val input value
@@ -18,4 +20,4 @@ const tryStringify = (val: any) => {
   return retVal;
 };
 
-export { trim, tryStringify };
+export { trim, removeDoubleSpaces, tryStringify };

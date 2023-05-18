@@ -118,14 +118,17 @@ const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
  */
 const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptions): void => {
   if (options.anonymousId && typeof options.anonymousId === 'string') {
+    // eslint-disable-next-line no-param-reassign
     rudderEvent.anonymousId = options.anonymousId;
   }
 
   if (options.integrations && isObjectAndNotNull(options.integrations)) {
+    // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
 
   if (options.originalTimestamp && typeof options.originalTimestamp === 'string') {
+    // eslint-disable-next-line no-param-reassign
     rudderEvent.originalTimestamp = options.originalTimestamp;
   }
 };
@@ -175,6 +178,7 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
   // Only allow object type for options
   if (options && isObjectAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options);
+    // eslint-disable-next-line no-param-reassign
     rudderEvent.context = getMergedContext(rudderEvent.context, options);
   }
 };

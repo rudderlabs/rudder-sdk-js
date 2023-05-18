@@ -37,7 +37,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
   return {
     //preserveEntrySignatures: false,
     watch: {
-      include: ['src/**'],
+      include: ['src/**', 'public/**'],
     },
     external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
@@ -57,6 +57,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         __MODULE_TYPE__: moduleType,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __SDK_BUNDLE_FILENAME__: distName,
       }),
       resolve({
         jsnext: true,
@@ -85,11 +86,11 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       }),
       isLegacyBuild &&
       externalGlobals({
-        './modernBuildPluginImports': 'rudderEmptyPluginImports'
+        './modernBuildPluginImports': 'null'
       }),
       !isLegacyBuild &&
       externalGlobals({
-        './legacyBuildPluginImports': 'rudderEmptyPluginImports'
+        './legacyBuildPluginImports': 'null'
       }),
       !isLegacyBuild &&
       federation({
@@ -139,6 +140,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             __CONFIG_SERVER_HOST__:
               process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+            __SDK_BUNDLE_FILENAME__: distName,
           },
         }),
       isLocalServerEnabled &&

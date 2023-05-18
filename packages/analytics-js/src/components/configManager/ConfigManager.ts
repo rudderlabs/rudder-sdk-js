@@ -6,16 +6,20 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
+import {
+  isValidSourceConfig,
+  validateLoadArgs,
+} from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
+import { removeTrailingSlashes } from "@rudderstack/analytics-js/components/utilities/url";
+import {
+  filterEnabledDestination
+} from "@rudderstack/analytics-js/components/utilities/destinations";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
-import { getSDKUrlInfo } from './util/commonUtil';
 import { IConfigManager, SourceConfigResponse } from './types';
-import { filterEnabledDestination } from './util/filterDestinations';
-import { removeTrailingSlashes } from '../utilities/url';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -30,6 +34,9 @@ class ConfigManager implements IConfigManager {
     this.httpClient = httpClient;
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.hasLogger = Boolean(this.logger);
+
+    this.onError = this.onError.bind(this);
+    this.processConfig = this.processConfig.bind(this);
   }
 
   attachEffects() {
@@ -53,10 +60,6 @@ class ConfigManager implements IConfigManager {
       state.loadOptions.value.destSDKBaseURL,
     );
 
-    // determine if the staging SDK is being used
-    // TODO: deprecate this in new version and stop adding '-staging' in filenames
-    const { isStaging } = getSDKUrlInfo();
-
     // set application lifecycle state in global state
     batch(() => {
       if (state.loadOptions.value.logLevel) {
@@ -66,7 +69,6 @@ class ConfigManager implements IConfigManager {
       if (state.loadOptions.value.configUrl) {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
-      state.lifecycle.isStaging.value = isStaging;
     });
 
     this.getConfig();
@@ -86,15 +88,16 @@ class ConfigManager implements IConfigManager {
   /**
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
-   * @param res source config response
    */
   processConfig(response?: SourceConfigResponse | string) {
     if (!response) {
       this.onError('Unable to fetch source config', undefined, true);
       return;
     }
+
     let res: SourceConfigResponse;
     const errMessage = 'Unable to process/parse source config';
+
     try {
       if (typeof response === 'string') {
         res = JSON.parse(response);
@@ -106,13 +109,7 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
-    if (
-      typeof res !== 'object' ||
-      !res.source ||
-      !res.source.id ||
-      !res.source.config ||
-      !Array.isArray(res.source.destinations)
-    ) {
+    if (isValidSourceConfig(res)) {
       this.onError(errMessage, undefined, true);
       return;
     }
@@ -132,7 +129,9 @@ class ConfigManager implements IConfigManager {
       state.source.value = {
         id: res.source.id,
       };
+
       // set device mode destination related information in state
+      // TODO: should this not only contain the non cloud destinations?
       state.destinations.value = nativeDestinations;
 
       // set application lifecycle state
@@ -145,6 +144,13 @@ class ConfigManager implements IConfigManager {
         res.source.config.statsCollection.errors.enabled || false;
       state.reporting.isMetricsReportingEnabled.value =
         res.source.config.statsCollection.metrics.enabled || false;
+
+      // set the desired optional plugins
+      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
+
+      // set application lifecycle state
+      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      state.lifecycle.status.value = LifecycleStatus.Configured;
     });
   }
 
@@ -174,6 +180,7 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
+    // TODO: add retry logic with backoff
     // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: state.lifecycle.sourceConfigUrl.value,

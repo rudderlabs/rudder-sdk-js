@@ -4,15 +4,21 @@
  */
 module.exports = [
   {
-    name: 'Core - CDN',
+    name: 'Core Legacy - CDN',
     path: 'dist/legacy/iife/index.js',
     gzip: true,
-    limit: '38 kB',
+    limit: '35 kB',
   },
   {
     name: 'Core - NPM',
     path: 'dist/legacy/esm/index.js',
     gzip: true,
-    limit: '37.5 kB',
+    limit: '35 kB',
   },
+  {
+    name: 'Core - CDN',
+    path: 'dist/modern/iife/index.js',
+    gzip: true,
+    limit: '25 kB',
+  }
 ];

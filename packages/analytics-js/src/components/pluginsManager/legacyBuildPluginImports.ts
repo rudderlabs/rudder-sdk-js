@@ -1,21 +1,36 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import {
-  storageEncryptionV1,
-  googleLinker,
-  LoadIntegrations,
-  RemotePlugin,
-  RemotePlugin2,
-  externalAnonymousId,
+  BeaconQueue,
+  ConsentManager,
+  DataplaneEventsQueue,
+  DeviceModeTransformation,
+  DeviceModeDestinations,
+  ErrorReporting,
+  ExternalAnonymousId,
+  GoogleLinker,
+  NativeDestinationQueue,
+  StorageEncryption,
+  StorageEncryptionLegacy,
+  XhrQueue,
 } from '@rudderstack/analytics-js-plugins/index';
-import { PluginMap } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { PluginMap } from './types';
 
+/**
+ * Map plugin names to direct code imports from plugins package
+ */
 const legacyBuildPluginImports = (): PluginMap => ({
-  StorageEncryptionV1: storageEncryptionV1,
-  GoogleLinker: googleLinker,
-  LoadIntegrations,
-  // TODO: delete the dummy plugins
-  RemotePlugin,
-  RemotePlugin2,
-  externalAnonymousId,
+  BeaconQueue,
+  ConsentManager,
+  DataplaneEventsQueue,
+  DeviceModeTransformation,
+  DeviceModeDestinations,
+  ErrorReporting,
+  ExternalAnonymousId,
+  GoogleLinker,
+  NativeDestinationQueue,
+  StorageEncryption,
+  StorageEncryptionLegacy,
+  XhrQueue,
 });
 
-export default legacyBuildPluginImports;
+export { legacyBuildPluginImports };

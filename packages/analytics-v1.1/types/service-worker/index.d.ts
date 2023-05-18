@@ -30,16 +30,35 @@ export interface integrationOptions {
 }
 
 /**
+ * Represents the first argument object for flushOverride method
+ */
+export type FlushOverrideMessage = {
+  host: string;
+  writeKey: string;
+  data: {
+    batch: Object[],
+    sentAt: string;
+  };
+  headers: Record<string, string>;
+  reqTimeout: number;
+  flush: (callback?: apiCallback) => void;
+  done: (error?: Error) => void;
+  isErrorRetryable: (error: Error) => boolean;
+}
+
+/**
  * Represents the constructor options object
  * Example usages:
  * constructorOptions { flushAt: 20, "flushInterval": 20000, "enable": true, "maxInternalQueueSize":20000, "logLevel": "info"/"debug"/"error"/"silly"/"off"}
  */
 export interface constructorOptions {
+  timeout?: number;
   flushAt?: number;
   flushInterval?: number;
   enable?: boolean;
   maxInternalQueueSize?: number;
   logLevel?: 'silly' | 'debug' | 'info' | 'error' | 'off';
+  flushOverride?: (message: FlushOverrideMessage) => void;
 }
 
 /**

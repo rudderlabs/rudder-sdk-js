@@ -1,11 +1,21 @@
-import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
-import { QueueOpts } from '@rudderstack/analytics-js/state/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { ExtensionPlugin } from '../types/common';
+import {
+  ExtensionPlugin,
+  PluginName,
+  ApplicationState,
+  QueueOpts,
+  RudderEvent,
+  ILogger
+} from "../types/common";
 import { validatePayloadSize } from './utilities';
 
-const dataplaneEventsQueue = (): ExtensionPlugin => ({
-  name: 'dataplaneEventsQueue',
+const pluginName = PluginName.DataplaneEventsQueue;
+
+const DataplaneEventsQueue = (): ExtensionPlugin => ({
+  name: pluginName,
+  deps: [],
+  initialize: (state: ApplicationState) => {
+    state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+  },
   dataplaneEventsQueue: {
     init(writeKey: string, dataplaneUrl: string, queueOpts: QueueOpts): void {
       console.log(
@@ -23,6 +33,6 @@ const dataplaneEventsQueue = (): ExtensionPlugin => ({
   },
 });
 
-export { dataplaneEventsQueue };
+export { DataplaneEventsQueue };
 
-export default dataplaneEventsQueue;
+export default DataplaneEventsQueue;

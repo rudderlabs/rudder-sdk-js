@@ -1,10 +1,19 @@
+/* eslint-disable import/no-extraneous-dependencies */
+import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
+
+export type { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
+export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
+export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+
+export type ApplicationState = IApplicationState;
+
 export interface ExtensionPoint {
   [lifeCycleName: string]: (...args: any[]) => unknown;
 }
 
 export interface ExtensionPlugin {
   name: string;
-  initialize?: () => void;
+  initialize: (state: ApplicationState) => void;
   deps?: string[];
   [key: string]:
     | string
@@ -23,3 +32,28 @@ export interface IExternalSrcLoader {
 }
 
 export type Nullable<T> = T | null;
+
+export enum PluginName {
+  BeaconQueue = 'BeaconQueue',
+  ConsentManager = 'ConsentManager',
+  DataplaneEventsQueue = 'DataplaneEventsQueue',
+  DeviceModeDestinations = 'DeviceModeDestinations',
+  DeviceModeTransformation = 'DeviceModeTransformation',
+  ErrorReporting = 'ErrorReporting',
+  ExternalAnonymousId = 'ExternalAnonymousId',
+  GoogleLinker = 'GoogleLinker',
+  NativeDestinationQueue = 'NativeDestinationQueue',
+  StorageEncryption = 'StorageEncryption',
+  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
+  XhrQueue = 'XhrQueue',
+}
+
+/**
+ * Represents the options parameter for anonymousId
+ */
+export type AnonymousIdOptions = {
+  autoCapture?: {
+    enabled?: boolean;
+    source?: string;
+  };
+};

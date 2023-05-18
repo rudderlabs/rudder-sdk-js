@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 import _difference from 'lodash.difference';
 import {
   eventNamesConfigArray,
@@ -81,12 +82,11 @@ function hasRequiredParameters(props, eventMappingObj) {
   const requiredParams = eventMappingObj.requiredParams || false;
   if (!requiredParams) return true;
   if (!Array.isArray(requiredParams)) {
-    if (props[requiredParams]) {
-      return true;
-    }
-    return false;
+    return !!props[requiredParams];
   }
+  // eslint-disable-next-line no-restricted-syntax
   for (const i in props.items) {
+    // eslint-disable-next-line no-restricted-syntax
     for (const p in requiredParams) {
       if (!props.items[i][requiredParams[p]]) {
         return false;
@@ -106,13 +106,14 @@ function hasRequiredParameters(props, eventMappingObj) {
  * @returns
  */
 function extractCustomVariables(rootObj, destination, exclusionFields) {
+  const properties = destination;
   const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
-  mappingKeys.map(mappingKey => {
+  mappingKeys.forEach((mappingKey) => {
     if (typeof rootObj[mappingKey] !== 'undefined') {
-      destination[mappingKey] = rootObj[mappingKey];
+      properties[mappingKey] = rootObj[mappingKey];
     }
   });
-  return destination;
+  return properties;
 }
 
 /**
@@ -127,7 +128,9 @@ function addCustomVariables(destinationProperties, props, contextOp) {
   logger.debug('within addCustomVariables');
   if (contextOp === 'product') {
     return extractCustomVariables(props, destinationProperties, ITEM_PROP_EXCLUSION_LIST);
-  } else if (contextOp === 'properties') {
+  }
+
+  if (contextOp === 'properties') {
     return extractCustomVariables(props, destinationProperties, EVENT_PROP_EXCLUSION_LIST);
   }
   return destinationProperties;
@@ -139,7 +142,7 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * Implement using recursion to handle multi level prop mapping.
  * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
  * @param {*} destParameterConfig
- * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
+ * Defined Parameter present GA4/utils.ts ex: [{ src: "category", dest: "item_list_name", inItems: true }]
  * @param {*} contextOp "properties" or "product"
  */
 function getDestinationEventProperties(props, destParameterConfig, contextOp, hasItem = true) {
@@ -190,11 +193,27 @@ function getPageViewProperty(props) {
   return getDestinationEventProperties(props, pageEventParametersConfigArray, 'properties');
 }
 
+/**
+ * Validates weather to send userId property to GA4 or not
+ * @param {*} integrations
+ */
+function sendUserIdToGA4(integrations) {
+  if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
+    const { GA4 } = integrations;
+    if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
+      return !!GA4.sendUserId;
+    }
+    return true;
+  }
+  return true;
+}
+
 export {
   isReservedName,
+  sendUserIdToGA4,
+  getPageViewProperty,
+  hasRequiredParameters,
   getDestinationEventName,
   getDestinationEventProperties,
   getDestinationItemProperties,
-  getPageViewProperty,
-  hasRequiredParameters,
 };

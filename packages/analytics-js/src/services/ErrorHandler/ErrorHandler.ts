@@ -1,8 +1,9 @@
 import { serializeError } from 'serialize-error';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
-import { IPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
+import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
@@ -42,10 +43,7 @@ class ErrorHandler implements IErrorHandler {
       return;
     }
 
-    errorMessage = `[Analytics] ${context}:: ${customMessage} ${errorMessage}`.replace(
-      / {2,}/g,
-      ' ',
-    ); // remove double spaces
+    errorMessage = removeDoubleSpaces(`${context}:: ${customMessage} ${errorMessage}`);
 
     // Enhance error message
     if (isTypeOfError) {
@@ -53,16 +51,18 @@ class ErrorHandler implements IErrorHandler {
       (error as Error).message = errorMessage;
     }
 
-    this.notifyError(isTypeOfError ? error : new Error(errorMessage));
+    const normalisedError = isTypeOfError ? error : new Error(errorMessage);
+
+    this.notifyError(normalisedError);
 
     if (this.logger) {
       this.logger.error(errorMessage);
 
       if (shouldAlwaysThrow) {
-        throw isTypeOfError ? error : new Error(errorMessage);
+        throw normalisedError;
       }
     } else {
-      throw isTypeOfError ? error : new Error(errorMessage);
+      throw normalisedError;
     }
   }
 
@@ -75,7 +75,7 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb(breadcrumb: string) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invoke('errorMonitoring.breadcrumb', breadcrumb, this.logger);
+        this.pluginEngine.invokeMultiple('errorMonitoring.breadcrumb', breadcrumb, this.logger);
       } catch (err) {
         this.onError(err, 'errorMonitoring.breadcrumb');
       }
@@ -90,7 +90,7 @@ class ErrorHandler implements IErrorHandler {
   notifyError(error: Error) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invoke('errorMonitoring.notify', error, this.logger);
+        this.pluginEngine.invokeMultiple('errorMonitoring.notify', error, this.logger);
       } catch (err) {
         this.onError(err, 'errorMonitoring.notify');
       }

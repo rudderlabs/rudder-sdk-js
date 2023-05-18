@@ -104,6 +104,7 @@ declare module 'rudder-sdk-js' {
     polyfillIfRequired?: boolean;
     uaChTrackLevel?: 'none' | 'default' | 'full';
     onLoaded?: (analytics: any) => void;
+    useGlobalIntegrationsConfigInEvents?: boolean; // Default is false
   }
 
   /**

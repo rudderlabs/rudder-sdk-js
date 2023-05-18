@@ -33,13 +33,13 @@ class EventRepository implements IEventRepository {
     this.logger = logger;
     this.onError = this.onError.bind(this);
 
-    this.pluginsManager.invoke(
+    this.pluginsManager.invokeMultiple(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
       state.lifecycle.writeKey.value,
       state.lifecycle.activeDataplaneUrl.value,
       state.loadOptions.value.queueOptions,
     );
-    this.pluginsManager.invoke(
+    this.pluginsManager.invokeMultiple(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
       state.loadOptions.value.destinationsQueueOptions,
     );
@@ -49,8 +49,8 @@ class EventRepository implements IEventRepository {
    * Initializes the event repository
    */
   init(): void {
-    this.pluginsManager.invoke(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`);
-    this.pluginsManager.invoke(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`);
+    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`);
+    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`);
   }
 
   /**
@@ -59,8 +59,8 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.pluginsManager.invoke(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`, event, this.logger);
-    this.pluginsManager.invoke(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
+    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`, event, this.logger);
+    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
 
     // Invoke the callback if it exists
     try {

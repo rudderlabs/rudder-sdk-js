@@ -1,5 +1,5 @@
 import { getIntegrationsCDNPath } from '@rudderstack/analytics-js/components/configManager/util/cdnPaths';
-import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
+import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import {
   CDN_INT_DIR,
   DEST_SDK_BASE_URL,
@@ -14,7 +14,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
   return {
     __esModule: true,
     ...originalModule,
-    getSDKUrlInfo: jest.fn(),
+    getSDKUrl: jest.fn(),
   };
 });
 
@@ -24,7 +24,7 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
   const dummyVersion = '2.x.x';
 
   beforeEach(() => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: dummyScriptURL, isStaging: false }));
+    getSDKUrl.mockImplementation(() => dummyScriptURL);
   });
 
   afterEach(() => {
@@ -54,14 +54,14 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
   });
 
   it('should return default path if no script src exists and integrations version is not locked', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined, isStaging: false }));
+    getSDKUrl.mockImplementation(() => undefined);
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false, undefined);
     expect(integrationsCDNPath).toBe(DEST_SDK_BASE_URL);
   });
 
   it('should return default path with versioned folder if no script src exists and integrations version is locked', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined, isStaging: false }));
+    getSDKUrl.mockImplementation(() => undefined);
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, undefined);
     expect(integrationsCDNPath).toBe(`${SDK_CDN_BASE_URL}/${dummyVersion}/${CDN_INT_DIR}`);

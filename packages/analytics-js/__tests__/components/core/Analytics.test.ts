@@ -1,6 +1,7 @@
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
 import { resetState, state } from '@rudderstack/analytics-js/state';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { LifecycleStatus, LogLevel } from '@rudderstack/analytics-js/state/types';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -56,7 +57,7 @@ describe('Core - Analytics', () => {
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
       analytics.startLifecycle();
-      const loadPolyfillSpy = jest.spyOn(analytics, 'loadPolyfill');
+      const prepareBrowserCapabilitiesSpy = jest.spyOn(analytics, 'prepareBrowserCapabilities');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
       const initSpy = jest.spyOn(analytics, 'init');
       const loadPluginsSpy = jest.spyOn(analytics, 'loadPlugins');
@@ -64,33 +65,38 @@ describe('Core - Analytics', () => {
       const loadIntegrationsSpy = jest.spyOn(analytics, 'loadIntegrations');
       const onReadySpy = jest.spyOn(analytics, 'onReady');
 
-      state.lifecycle.status.value = 'mounted';
-      expect(loadPolyfillSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('polyfillLoaded');
+      state.lifecycle.status.value = LifecycleStatus.Mounted;
+      expect(prepareBrowserCapabilitiesSpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
 
-      state.lifecycle.status.value = 'polyfillLoaded';
+      state.lifecycle.status.value = LifecycleStatus.BrowserCapabilitiesReady;
       expect(loadConfigSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('polyfillLoaded');
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
 
-      state.lifecycle.status.value = 'configured';
+      state.lifecycle.status.value = LifecycleStatus.Configured;
       expect(initSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('initialized');
-
-      state.lifecycle.status.value = 'initialized';
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('initialized');
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
 
-      state.lifecycle.status.value = 'pluginsReady';
-      expect(onLoadedSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('loaded');
+      state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.PluginsLoading);
 
-      state.lifecycle.status.value = 'loaded';
-      expect(loadIntegrationsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('loaded');
+      state.lifecycle.status.value = LifecycleStatus.PluginsReady;
+      expect(onLoadedSpy).toHaveBeenCalledTimes(2);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
 
-      state.lifecycle.status.value = 'integrationsReady';
+      state.lifecycle.status.value = LifecycleStatus.Initialized;
+      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
+
+      state.lifecycle.status.value = LifecycleStatus.Loaded;
+      expect(loadIntegrationsSpy).toHaveBeenCalledTimes(3);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
+
+      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
       expect(onReadySpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('integrationsReady');
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.IntegrationsReady);
     });
   });
 
@@ -99,9 +105,9 @@ describe('Core - Analytics', () => {
     it('should load the analytics script with the given options', () => {
       const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: LogLevel.Error });
       expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('polyfillLoaded');
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
@@ -130,7 +136,7 @@ describe('Core - Analytics', () => {
       analytics.onLoaded();
       expect(state.loadOptions.value.onLoaded).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.loaded.value).toBeTruthy();
-      expect(state.lifecycle.status.value).toBe('loaded');
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
     });
   });
 
@@ -176,7 +182,7 @@ describe('Core - Analytics', () => {
       const callback = jest.fn();
 
       state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = 'ready';
+      state.lifecycle.status.value = LifecycleStatus.Ready;
       analytics.ready(callback);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(callback).toHaveBeenCalledTimes(1);

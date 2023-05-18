@@ -7,6 +7,7 @@ export interface IExternalSourceLoadConfig {
   callback?(id?: string): unknown;
   async?: boolean;
   timeout?: number;
+  extraAttributes?: Record<string, string>;
 }
 
 export interface IExternalSrcLoader {

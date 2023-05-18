@@ -1,70 +1,248 @@
-import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
+import { batch, effect } from '@preact/signals-core';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import {
   ExtensionPlugin,
   IPluginEngine,
-} from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+} from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { state } from '@rudderstack/analytics-js/state';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { IPluginsManager } from './types';
-import { pluginsInventory, remotePluginsInventory } from './pluginsInventory';
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { remotePluginNames } from './pluginNames';
+import { IPluginsManager, PluginName } from './types';
+import {
+  getMandatoryPluginsMap,
+  pluginsInventory,
+  remotePluginsInventory,
+} from './pluginsInventory';
 
-// TODO: define types for plugins
-// TODO: In register also pass automatically the state to all plugins
-// TODO: copy the source of js-plugin so we can extend to to auto pass GlobalState
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
-// TODO: implement the engine, pass state, logger etc
+// TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
 
-  constructor() {
-    this.engine = defaultPluginEngine;
+  constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
+    this.engine = engine;
+
+    this.errorHandler = errorHandler;
+    this.logger = logger;
+    this.onError = this.onError.bind(this);
   }
 
-  // TODO: this is just to test plugins until the PluginsManager is developed
+  /**
+   * Orchestrate the plugin loading and registering
+   */
   init() {
+    state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+    this.setActivePlugins();
     this.registerLocalPlugins();
     this.registerRemotePlugins();
-
-    // TODO: fix await until all remote plugins have been fetched, this can be
-    //  done using the initialize function of the plugins with a callback to
-    //  notify state that the plugin is loaded and calculate signal when all are
-    //  loaded, once all loaded then set status to pluginsReady
-    window.setTimeout(() => {
-      state.lifecycle.status.value = LifecycleStatus.PluginsReady;
-    }, 3000);
+    this.attachEffects();
   }
 
+  /**
+   * Update state based on plugin loaded status
+   */
+  // eslint-disable-next-line class-methods-use-this
+  attachEffects() {
+    effect(() => {
+      const isAllPluginsReady =
+        state.plugins.activePlugins.value.length === 0 ||
+        state.plugins.loadedPlugins.value.length + state.plugins.failedPlugins.value.length ===
+          state.plugins.totalPluginsToLoad.value;
+
+      if (isAllPluginsReady) {
+        batch(() => {
+          state.plugins.ready.value = true;
+          state.lifecycle.status.value = LifecycleStatus.PluginsReady;
+        });
+      }
+    });
+  }
+
+  // TODO: add logic for all plugins as we develop them
+  /**
+   * Determine the list of plugins that should be loaded based on sourceConfig & load options
+   */
+  // eslint-disable-next-line class-methods-use-this
+  getPluginsToLoadBasedOnConfig(): PluginName[] {
+    // This contains the default plugins if load option has been omitted by user
+    let pluginsToLoadFromConfig = state.plugins.pluginsToLoadFromConfig.value as PluginName[];
+
+    if (!pluginsToLoadFromConfig) {
+      return [];
+    }
+
+    // Error reporting related plugins
+    if (!state.reporting.isErrorReportingEnabled.value) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.ErrorReporting,
+      );
+    }
+
+    // Device mode destinations related plugins
+    if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          ![
+            PluginName.DeviceModeDestinations,
+            PluginName.DeviceModeTransformation,
+            PluginName.NativeDestinationQueue,
+          ].includes(pluginName),
+      );
+    }
+
+    // Consent Management related plugins
+
+    return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
+  }
+
+  /**
+   * Determine the list of plugins that should be activated
+   */
+  setActivePlugins() {
+    const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
+    // Merging available mandatory and optional plugin name list
+    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
+    const activePlugins: PluginName[] = [];
+    const failedPlugins: string[] = [];
+
+    pluginsToLoad.forEach(pluginName => {
+      if (availablePlugins.includes(pluginName)) {
+        activePlugins.push(pluginName);
+      } else {
+        failedPlugins.push(pluginName);
+      }
+    });
+
+    if (failedPlugins.length > 0) {
+      this.onError(
+        new Error(
+          `Ignoring loading of unknown plugins: ${failedPlugins.join(
+            ',',
+          )}. Mandatory plugins: ${Object.keys(getMandatoryPluginsMap()).join(
+            ',',
+          )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
+        ),
+      );
+    }
+
+    batch(() => {
+      state.plugins.totalPluginsToLoad.value = pluginsToLoad.length;
+      state.plugins.activePlugins.value = activePlugins;
+      state.plugins.failedPlugins.value = failedPlugins;
+    });
+  }
+
+  /**
+   * Register plugins that are direct imports to PluginEngine
+   */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      this.engine.register(localPlugin());
+      if (state.plugins.activePlugins.value.includes(localPlugin.name)) {
+        this.register([localPlugin()]);
+      }
     });
   }
 
+  /**
+   * Register plugins that are dynamic imports to PluginEngine
+   */
   registerRemotePlugins() {
-    Object.values(remotePluginsInventory).forEach(async remotePlugin => {
-      await remotePlugin().then((remotePluginModule: any) =>
-        this.engine.register(remotePluginModule.default()),
-      );
+    const remotePluginsList = remotePluginsInventory(
+      state.plugins.activePlugins.value as PluginName[],
+    );
+
+    Promise.all(
+      Object.keys(remotePluginsList).map(async remotePluginKey => {
+        await remotePluginsList[remotePluginKey]()
+          .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
+          .catch(e => {
+            // TODO: add retry here if dynamic import fails
+            state.plugins.failedPlugins.value = [
+              ...state.plugins.failedPlugins.value,
+              remotePluginKey,
+            ];
+            this.onError(e);
+          });
+      }),
+    ).catch(e => {
+      this.onError(e);
     });
   }
 
-  invoke<T = any>(extPoint?: string, ...args: any[]): T[] {
-    return this.engine.invoke(extPoint, ...args);
+  /**
+   * Extension point invoke that allows multiple plugins to be registered to it with error handling
+   */
+  invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
+    try {
+      return this.engine.invokeMultiple(extPoint, ...args);
+    } catch (e) {
+      this.onError(e, extPoint);
+      return [];
+    }
   }
 
+  /**
+   * Extension point invoke that allows a single plugin to be registered to it with error handling
+   */
+  invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
+    try {
+      return this.engine.invokeSingle(extPoint, ...args);
+    } catch (e) {
+      this.onError(e, extPoint);
+      return null;
+    }
+  }
+
+  /**
+   * Plugin engine register with error handling
+   */
   register(plugins: ExtensionPlugin[]) {
-    plugins.forEach(plugin => this.engine.register(plugin));
+    plugins.forEach(plugin => {
+      try {
+        this.engine.register(plugin, state);
+      } catch (e) {
+        state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, plugin.name];
+        this.onError(e);
+      }
+    });
   }
 
   // TODO: Implement reset API instead
   unregisterLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      this.engine.unregister(localPlugin().name);
+      try {
+        this.engine.unregister(localPlugin().name);
+      } catch (e) {
+        this.onError(e);
+      }
     });
+  }
+
+  /**
+   * Handle errors
+   */
+  onError(error: Error | unknown, context = 'PluginsManager') {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, context);
+    } else {
+      throw error;
+    }
   }
 }
 
-const defaultPluginsManager = new PluginsManager();
+const defaultPluginsManager = new PluginsManager(
+  defaultPluginEngine,
+  defaultErrorHandler,
+  defaultLogger,
+);
 
 export { PluginsManager, defaultPluginsManager };

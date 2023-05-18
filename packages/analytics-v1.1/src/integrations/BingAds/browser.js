@@ -1,6 +1,9 @@
 import logger from '../../utils/logUtil';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
+import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import { extractCustomFields } from '../../utils/utils';
 
 class BingAds {
   constructor(config, analytics, destinationInfo) {
@@ -9,11 +12,12 @@ class BingAds {
     }
     this.tagID = config.tagID;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.areTransformationsConnected = destinationInfo?.areTransformationsConnected;
+    this.destinationId = destinationInfo?.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
 
+  // START-NO-SONAR-SCAN
   /* eslint-disable */
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
@@ -34,7 +38,7 @@ class BingAds {
         (n.onload = n.onreadystatechange =
           function () {
             const s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete') ||
+            (s && s !== 'loaded' && s !== 'complete' && typeof w['UET'] === 'function') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
@@ -42,6 +46,7 @@ class BingAds {
     })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
   };
   /* eslint-enable */
+  // END-NO-SONAR-SCAN
 
   init = () => {
     this.loadBingadsScript();
@@ -50,7 +55,9 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
@@ -62,34 +69,33 @@ class BingAds {
     Visit here(for details Parameter details): https://help.ads.microsoft.com/#apex/3/en/53056/2
     Under: What data does UET collect once I install it on my website?
     Updated syntax doc ref - https://help.ads.microsoft.com/#apex/ads/en/56916/2
+    Ecomm parameters ref - https://help.ads.microsoft.com/#apex/ads/en/60118/-1
   */
 
-  track = rudderElement => {
-    const { type, properties, event } = rudderElement.message;
-    const { category, currency, value, revenue, total } = properties;
-    const eventToSend = type;
+  track = (rudderElement) => {
+    const { type, properties } = rudderElement.message;
+    const { eventAction } = properties;
+    const eventToSend = eventAction || type;
     if (!eventToSend) {
       logger.error('Event type not present');
       return;
     }
-    const payload = {
-      event_label: event,
+
+    let payload = {
+      ...buildCommonPayload(rudderElement.message),
+      ...buildEcommPayload(rudderElement.message),
     };
-    if (category) {
-      payload.event_category = category;
-    }
-    if (currency) {
-      payload.currency = currency;
-    }
-    if (value) {
-      payload.revenue_value = value;
-    }
-    if (revenue) {
-      payload.revenue_value = revenue;
-    }
-    if (total) {
-      payload.revenue_value = total;
-    }
+
+    // We can pass unmapped UET parameters through custom properties
+    const customProperties = extractCustomFields(
+      rudderElement.message,
+      {},
+      ['properties'],
+      EXCLUSION_KEYS,
+    );
+
+    payload = { ...payload, ...customProperties };
+    payload = removeUndefinedAndNullValues(payload);
     window[this.uniqueId].push('event', eventToSend, payload);
   };
 

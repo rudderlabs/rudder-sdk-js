@@ -1,37 +1,21 @@
 import { clone } from 'ramda';
-import { LoadOptionsState, loadOptionsState } from './slices/loadOptions';
-import { SessionState, sessionState } from './slices/session';
-import { capabilitiesState, CapabilitiesState } from './slices/capabilities';
-import { ReportingState, reportingState } from './slices/reporting';
-import { SourceConfigState, sourceConfigState } from './slices/source';
-import { lifecycleState, LifecycleState } from './slices/lifecycle';
-import { DestinationConfigState, destinationConfigState } from './slices/destinations';
-import { consentsState, ConsentsState } from './slices/consents';
-import { MetricsState, metricsState } from './slices/metrics';
-import { contextState, ContextState } from './slices/context';
-import { nativeDestinationsState, NativeDestinationsState } from './slices/nativeDestinations';
-import { EventBufferState, eventBufferState } from './slices/eventBuffer';
-import { pluginsState, PluginsState } from './slices/plugins';
-import { PagePropertiesState, pagePropertiesState } from './slices/page';
+import { loadOptionsState } from './slices/loadOptions';
+import { sessionState } from './slices/session';
+import { capabilitiesState } from './slices/capabilities';
+import { reportingState } from './slices/reporting';
+import { sourceConfigState } from './slices/source';
+import { lifecycleState } from './slices/lifecycle';
+import { destinationConfigState } from './slices/destinations';
+import { consentsState } from './slices/consents';
+import { metricsState } from './slices/metrics';
+import { contextState } from './slices/context';
+import { nativeDestinationsState } from './slices/nativeDestinations';
+import { eventBufferState } from './slices/eventBuffer';
+import { pluginsState } from './slices/plugins';
+import { pagePropertiesState } from './slices/page';
+import { IApplicationState } from './IApplicationState';
 
-export type ApplicationState = {
-  capabilities: CapabilitiesState;
-  consents: ConsentsState;
-  loadOptions: LoadOptionsState;
-  session: SessionState;
-  reporting: ReportingState;
-  source: SourceConfigState;
-  lifecycle: LifecycleState;
-  destinations: DestinationConfigState;
-  metrics: MetricsState;
-  context: ContextState;
-  nativeDestinations: NativeDestinationsState;
-  eventBuffer: EventBufferState;
-  plugins: PluginsState;
-  page: PagePropertiesState;
-};
-
-const defaultStateValues: ApplicationState = {
+const defaultStateValues: IApplicationState = {
   capabilities: capabilitiesState,
   consents: consentsState,
   context: contextState,
@@ -48,7 +32,7 @@ const defaultStateValues: ApplicationState = {
   page: pagePropertiesState,
 };
 
-const state: ApplicationState = {
+const state: IApplicationState = {
   ...clone(defaultStateValues),
 };
 

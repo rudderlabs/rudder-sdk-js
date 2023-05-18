@@ -1,1 +1,0 @@
-export { xhrQueue } from './xhrQueue';

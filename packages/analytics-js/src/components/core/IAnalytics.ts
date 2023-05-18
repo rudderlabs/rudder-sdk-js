@@ -59,7 +59,7 @@ export interface IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  loadPolyfill(): void;
+  prepareBrowserCapabilities(): void;
 
   /**
    * Load configuration

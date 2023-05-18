@@ -1,4 +1,4 @@
-import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
+import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');
@@ -13,7 +13,7 @@ const removeScriptElement = () => {
   scriptElem.remove();
 };
 
-describe('Common util: getSDKUrlInfo', () => {
+describe('Common util: getSDKUrl', () => {
   afterEach(() => {
     removeScriptElement();
   });
@@ -22,56 +22,43 @@ describe('Common util: getSDKUrlInfo', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(dummySdkURL);
-    expect(isStaging).toBe(false);
   });
-  it('should return isStaging as true if staging SDK is being used', () => {
-    const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics-staging.min.js';
-    createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
-    expect(sdkURL).toBe(dummySdkURL);
-    expect(isStaging).toBe(true);
-  });
-  it('should return isStaging as false and sdkURL as undefined when rudder SDK is not used', () => {
+  it('should return sdkURL as undefined when rudder SDK is not used', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/other.min.js';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(undefined);
-    expect(isStaging).toBe(false);
   });
-  it('should return isStaging as false and sdkURL when development rudder SDK is used', () => {
+  it('should return sdkURL when development rudder SDK is used', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.js';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(dummySdkURL);
-    expect(isStaging).toBe(false);
   });
-  it('should return isStaging as false and sdkURL as undefined when different SDK is used with similar name', () => {
+  it('should return sdkURL as undefined when different SDK is used with similar name', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder.min.js';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(undefined);
-    expect(isStaging).toBe(false);
   });
-  it('should return isStaging as false and sdkURL as undefined when different SDK is used with the name analytics', () => {
+  it('should return sdkURL as undefined when different SDK is used with the name analytics', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/analytics.min.js';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(undefined);
-    expect(isStaging).toBe(false);
   });
-  it('should return isStaging as false and sdkURL as undefined when rudder SDK is used with incomplete name', () => {
+  it('should return sdkURL as undefined when rudder SDK is used with incomplete name', () => {
     const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min';
     createScriptElement(dummySdkURL);
 
-    const { isStaging, sdkURL } = getSDKUrlInfo();
+    const sdkURL = getSDKUrl();
     expect(sdkURL).toBe(undefined);
-    expect(isStaging).toBe(false);
   });
 });

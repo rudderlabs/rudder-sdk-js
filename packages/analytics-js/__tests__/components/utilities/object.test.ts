@@ -45,6 +45,8 @@ const identifyTraitsPayloadMock = {
       country: 'India',
     },
   ],
+  stringArray: ['string1', 'string2', 'string3'],
+  numberArray: [1, 2, 3],
 };
 
 const trackTraitsOverridePayloadMock = {
@@ -71,6 +73,8 @@ const trackTraitsOverridePayloadMock = {
       },
     },
   ],
+  stringArray: ['newString1', 'newString2'],
+  numberArray: [4, 5],
 };
 
 const expectedMergedTraitsPayload = {
@@ -113,6 +117,8 @@ const expectedMergedTraitsPayload = {
       country: 'India',
     },
   ],
+  stringArray: ['newString1', 'newString2', 'string3'],
+  numberArray: [4, 5, 3],
 };
 
 describe('Common Utils - Object', () => {
@@ -127,6 +133,19 @@ describe('Common Utils - Object', () => {
       trackTraitsOverridePayloadMock.address,
     );
     expect(mergedArray).toEqual(expectedMergedTraitsPayload.address);
+  });
+
+  it('should merge right non object array items', () => {
+    const mergedArray = mergeDeepRightObjectArrays(
+      identifyTraitsPayloadMock.stringArray,
+      trackTraitsOverridePayloadMock.stringArray,
+    );
+    const mergedNumberArray = mergeDeepRightObjectArrays(
+      identifyTraitsPayloadMock.numberArray,
+      trackTraitsOverridePayloadMock.numberArray,
+    );
+    expect(mergedArray).toEqual(expectedMergedTraitsPayload.stringArray);
+    expect(mergedNumberArray).toEqual(expectedMergedTraitsPayload.numberArray);
   });
 
   it('should merge right nested object properties', () => {

@@ -57,7 +57,7 @@ describe('External Source Loader', () => {
   it(`should retrieve remote script & trigger the callback with value`, done => {
     const cb = (loadedScript?: string) => {
       expect(loadedScript).toStrictEqual('dummyScript');
-      const newScriptElement = document.getElementById('dummyScript');
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
       done();
@@ -73,7 +73,7 @@ describe('External Source Loader', () => {
   it(`should handle error in remote script retrieval & trigger the callback with no value`, done => {
     const cb = (loadedScript?: string) => {
       expect(loadedScript).toBeUndefined();
-      const newScriptElement = document.getElementById('dummyScript');
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/noConnectionSample`);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -96,7 +96,7 @@ describe('External Source Loader', () => {
   it(`should handle error if script with same id already exists`, done => {
     const cb = (loadedScript?: string) => {
       expect(loadedScript).toBeUndefined();
-      const newScriptElement = document.getElementById('dummyScript');
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -110,7 +110,7 @@ describe('External Source Loader', () => {
 
     const dummyElement = createScriptElement(`${dummyDataplaneHost}/jsFileSample`, 'dummyScript');
     insertScript(dummyElement);
-    const scriptElement = document.getElementById('dummyScript');
+    const scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
     expect(scriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
 
@@ -127,10 +127,10 @@ describe('External Source Loader', () => {
     // If head exists should be placed as first script
     insertScript(createScriptElement(`${dummyDataplaneHost}/jsFileEmpty`, 'dummyScript1'));
     insertScript(dummyElement);
-    let scriptElement = document.getElementById('dummyScript');
+    let scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
-    expect(scriptElement.parentElement.tagName).toStrictEqual('HEAD');
-    expect(scriptElement.nextElementSibling.id).toStrictEqual('dummyScript1');
+    expect(scriptElement.parentElement?.tagName).toStrictEqual('HEAD');
+    expect(scriptElement.nextElementSibling?.id).toStrictEqual('dummyScript1');
     document.getElementById('dummyScript1')?.remove();
     document.getElementById('dummyScript')?.remove();
 
@@ -142,10 +142,10 @@ describe('External Source Loader', () => {
     scriptElement1.id = 'dummyScript1';
     document.getElementsByTagName('body')[0].append(scriptElement1);
     insertScript(dummyElement);
-    scriptElement = document.getElementById('dummyScript');
+    scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
     expect(scriptElement.nextElementSibling).toBeDefined();
-    expect(scriptElement.nextElementSibling.id).toStrictEqual('dummyScript1');
+    expect(scriptElement.nextElementSibling?.id).toStrictEqual('dummyScript1');
     document.getElementById('dummyScript1')?.remove();
     document.getElementById('dummyScript')?.remove();
     document.getElementsByTagName('html')[0].append(document.createElement('head'));
@@ -153,9 +153,30 @@ describe('External Source Loader', () => {
     // If no head and no other script create head and add there
     document.getElementsByTagName('head')[0].remove();
     insertScript(dummyElement);
-    scriptElement = document.getElementById('dummyScript');
+    scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
-    expect(scriptElement.parentElement.tagName).toStrictEqual('HEAD');
+    expect(scriptElement.parentElement?.tagName).toStrictEqual('HEAD');
     document.getElementById('dummyScript')?.remove();
+  });
+
+  it(`should append the script in DOM with extra attributes in the tag`, done => {
+    const cb = () => {
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
+      expect(newScriptElement).toBeDefined();
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
+      expect(newScriptElement.crossOrigin).toStrictEqual('anonymous');
+      expect(newScriptElement.getAttribute('integrity')).toStrictEqual('filehash');
+      done();
+    };
+
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/jsFileSample`,
+      id: 'dummyScript',
+      callback: cb,
+      extraAttributes: {
+        crossOrigin: 'anonymous',
+        integrity: 'filehash',
+      },
+    });
   });
 });

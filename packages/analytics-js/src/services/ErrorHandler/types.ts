@@ -1,5 +1,5 @@
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 
 export type SDKError = Error | Event | string | unknown;
 
