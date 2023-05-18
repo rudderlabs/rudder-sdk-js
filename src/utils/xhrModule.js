@@ -81,8 +81,9 @@ class XHRQueue {
         if (xhr.readyState === 4) {
           if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
             const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} "${xhr.status}" status text: "${xhr.statusText}" for URL: "${url}"`;
-            handleError(new Error(errMessage));
-            queueFn(new Error(errMessage));
+            const err = new Error(errMessage);
+            handleError(err);
+            queueFn(err);
           } else {
             queueFn(null, xhr.status);
           }
