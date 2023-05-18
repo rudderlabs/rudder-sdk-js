@@ -6,7 +6,7 @@ import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME, FAILED_REQUEST_ER
  *
  * @param {Error} error Error instance from handled error
  */
-const notifyError = (error)=> {
+const notifyError = (error) => {
   const errorReportingClient =
     window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
   if (errorReportingClient && error instanceof Error) {
