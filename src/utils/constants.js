@@ -47,7 +47,7 @@ const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
 const UA_CH_LEVELS = ['none', 'default', 'full'];
 
 const DEFAULT_INTEGRATIONS_CONFIG = { All: true };
-const FAILED_REQUEST_ERR_MSG_PREFIX = 'request failed with status:';
+const FAILED_REQUEST_ERR_MSG_PREFIX = 'Request failed with status:';
 
 export {
   RESERVED_KEYS,
