@@ -17,8 +17,8 @@ class CookieConsentFactory {
       //     sourceConfig.cookieConsentManager &&
       // sourceConfig.cookieConsentManager.oneTrust &&
       // sourceConfig.cookieConsentManager.oneTrustenabled) {
-
-      return new OneTrust();
+      const oneTrust = new OneTrust();
+      return typeof oneTrust === 'object' && Object.keys(oneTrust).length > 0 ? oneTrust : null;
 
       // }
     }
