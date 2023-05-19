@@ -77,7 +77,7 @@ const handleError = (error, customMessage, analyticsInstance) => {
   }
 
   logger.error(errorMessage);
-  // do not notify errors in case the request has failed
+  // Check if the error is allowed to be notified
   if (isAllowedToBeNotified(error)) {
     notifyError(error);
   }
