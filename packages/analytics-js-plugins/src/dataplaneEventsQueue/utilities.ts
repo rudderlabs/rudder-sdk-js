@@ -1,21 +1,23 @@
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
+import { RudderEvent, RudderEventType } from '@rudderstack/analytics-js/components/eventManager/types';
 import { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
-import { MAX_EVENT_PAYLOAD_SIZE_BYTES } from './constants';
+import path from 'path';
+import { MAX_EVENT_PAYLOAD_SIZE_BYTES, DATA_PLANE_API_VERSION } from './constants';
 
 /**
  * Utility to get the stringified event payload
  * @param event RudderEvent object
  * @param logger Logger instance
- * @returns stringified event payload
+ * @returns stringified event payload. Empty string if error occurs.
  */
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): string => {
+  let deliveryPayloadStr = '';
   try {
-    return JSON.stringify(event, replaceNullValues);
+    deliveryPayloadStr = JSON.stringify(event, replaceNullValues);
   } catch (err) {
-    logger?.error(`Error while converting event object to string. Error: ${err}`);
-    return '';
+    logger?.error(`Error while converting event object to string. Error: ${err}.`);
   }
+  return deliveryPayloadStr;
 };
 
 /**
@@ -29,7 +31,7 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
     const payloadSize = payloadStr.length;
     if (payloadSize > MAX_EVENT_PAYLOAD_SIZE_BYTES) {
       logger?.warn(
-        `The event payload size (${payloadSize}) exceeds the maximum limit of ${MAX_EVENT_PAYLOAD_SIZE_BYTES} bytes. The event might get dropped`,
+        `The event payload size (${payloadSize}) exceeds the maximum limit of ${MAX_EVENT_PAYLOAD_SIZE_BYTES} bytes. The event might get dropped.`,
       );
     }
   } else {
@@ -37,4 +39,7 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
   }
 };
 
-export { validatePayloadSize, getDeliveryPayload };
+// eslint-disable-next-line compat/compat
+const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
+
+export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl };

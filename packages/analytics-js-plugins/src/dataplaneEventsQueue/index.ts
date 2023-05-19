@@ -14,14 +14,15 @@ import {
   RudderEvent,
   ILogger,
 } from '../types/common';
-import { getDeliveryPayload, validatePayloadSize } from './utilities';
-import { DEFAULT_QUEUE_OPTIONS, REQUEST_TIMEOUT_MS } from './constants';
+import { getDeliveryPayload, validatePayloadSize, getDeliveryUrl } from './utilities';
+import { DEFAULT_RETRY_QUEUE_OPTIONS, REQUEST_TIMEOUT_MS } from './constants';
 
 const pluginName = PluginName.DataplaneEventsQueue;
 
 let eventsQueue: Queue;
 let dataplaneUrl: string;
 let httpClient: IHttpClient;
+let initialized = false;
 
 const DataplaneEventsQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -31,10 +32,14 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
   },
   dataplaneEventsQueue: {
     init(writeKey: string, inDataplaneUrl: string, queueOpts: QueueOpts): void {
+      if (initialized) {
+        return;
+      }
+
       httpClient.setAuthHeader(writeKey);
       dataplaneUrl = inDataplaneUrl;
 
-      const qOpts = mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
+      const qOpts = mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
       eventsQueue = new Queue('rudder', qOpts, (item, done) => {
         const payloadData = getDeliveryPayload(item.event);
         if (payloadData) {
@@ -58,24 +63,44 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
           done(null);
         }
       });
+      initialized = true;
     },
 
+    /**
+     * Start the queue for delivery
+     * @returns none
+     */
     start(): void {
-      eventsQueue?.start();
+      if (!initialized) {
+        return;
+      }
+      eventsQueue.start();
     },
 
+    /**
+     * Add event to the queue for delivery
+     * @param event RudderEvent object
+     * @param logger Logger instance
+     * @returns none
+     */
     enqueue(event: RudderEvent, logger?: ILogger): void {
+      if (!initialized) {
+        return;
+      }
+
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
       validatePayloadSize(event, logger);
 
-      const url = `${dataplaneUrl}/v1/${event.type}`;
+      const url = getDeliveryUrl(dataplaneUrl, event.type);
+      // Other default headers are added by the HttpClient
+      // Auth header is added during initialization
       const headers = {
         AnonymousId: toBase64(event.anonymousId),
       };
 
-      eventsQueue?.addItem({
+      eventsQueue.addItem({
         url,
         headers,
         event,
