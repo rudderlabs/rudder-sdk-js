@@ -70,11 +70,11 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
  * @param {Error} error
  * @returns
  */
-const shouldNotNotify = (error) => {
+const isAllowedToBeNotified = (error) => {
   if (error.message) {
-    return ERROR_MESSAGES_TO_BE_FILTERED.some((e) => error.message.includes(e));
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some((e) => error.message.includes(e));
   }
-  return false;
+  return true;
 };
 
 const handleError = (error, customMessage, analyticsInstance) => {
@@ -93,10 +93,10 @@ const handleError = (error, customMessage, analyticsInstance) => {
   }
 
   logger.error(errorMessage);
-  if (shouldNotNotify(error)) {
-    return; // do not notify errors in case the request has failed
+  // do not notify errors in case the request has failed
+  if (isAllowedToBeNotified(error)) {
+    notifyError(error);
   }
-  notifyError(error);
 };
 
 export { notifyError, handleError, normalizeError };
