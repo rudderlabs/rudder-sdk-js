@@ -37,7 +37,8 @@ export type QueueItem = {
 
 export type InProgressQueueItem = {
   item: Record<string, any> | string | number;
-  done: QueueProcessCallback;
+  done: DoneCallback;
+  attemptNumber: number;
 };
 
 export type QueueItemData = Record<string, any> | string | number;
@@ -46,10 +47,16 @@ export type QueueItemData = Record<string, any> | string | number;
  * @callback processFunc
  * @param {any} item The item added to the queue to process
  * @param {Function} done A function to call when processing is completed.
- *   @param {Error} Optional error parameter if the processing failed
- *   @param {Response} Optional response parameter to emit for async handling
+ * @param {Number} willBeRetried A boolean indicating if the item will be retried later
  */
-export type QueueProcessCallback = (item: any, done: (error?: any, response?: any) => void) => void;
+export type QueueProcessCallback = (item: any, done: DoneCallback, willBeRetried: boolean) => void;
+
+/**
+ * @callback doneCallback
+ * @param {Error} Optional error parameter if the processing failed
+ * @param {Response} Optional response parameter to emit for async handling
+ */
+export type DoneCallback = (error?: any, response?: any) => void;
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -251,6 +258,7 @@ class Queue extends Emitter {
       toRun.push({
         item: el.item,
         done: processItemCallback(el, id),
+        attemptNumber: el.attemptNumber,
       });
     };
 
@@ -277,7 +285,8 @@ class Queue extends Emitter {
     toRun.forEach(el => {
       // TODO: handle fn timeout
       try {
-        this.fn(el.item, el.done);
+        const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
+        this.fn(el.item, el.done, willBeRetried);
       } catch (err) {
         console.error(`error: Process function threw error: ${err}`);
       }
