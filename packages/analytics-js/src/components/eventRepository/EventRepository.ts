@@ -4,6 +4,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { state } from '@rudderstack/analytics-js/state';
+import { clone } from 'ramda';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
@@ -12,7 +13,6 @@ import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
-import { clone } from 'ramda';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
