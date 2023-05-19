@@ -2,7 +2,9 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { RudderEvent, RudderEventType } from '@rudderstack/analytics-js/components/eventManager/types';
 import { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
 import path from 'path';
-import { MAX_EVENT_PAYLOAD_SIZE_BYTES, DATA_PLANE_API_VERSION } from './constants';
+import { MAX_EVENT_PAYLOAD_SIZE_BYTES, DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';
+import { mergeDeepRight } from '../utilities/common';
+import { QueueOpts } from '../types/common';
 
 /**
  * Utility to get the stringified event payload
@@ -39,7 +41,9 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
   }
 };
 
+const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts => mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts)
+
 // eslint-disable-next-line compat/compat
 const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
 
-export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl };
+export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl, getNormalizedQueueOptions };

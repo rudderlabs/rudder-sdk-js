@@ -1,11 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-param-reassign */
-import { Queue } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js/components/utilities/timestamp';
-import { toBase64 } from '@rudderstack/analytics-js/components/utilities/string';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
 import {
   ExtensionPlugin,
   PluginName,
@@ -13,9 +6,13 @@ import {
   QueueOpts,
   RudderEvent,
   ILogger,
+  IErrorHandler,
+  IHttpClient,
+  HttpClient,
 } from '../types/common';
-import { getDeliveryPayload, validatePayloadSize, getDeliveryUrl } from './utilities';
-import { DEFAULT_RETRY_QUEUE_OPTIONS, REQUEST_TIMEOUT_MS } from './constants';
+import { getDeliveryPayload, validatePayloadSize, getDeliveryUrl, getNormalizedQueueOptions } from './utilities';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { Queue, getCurrentTimeFormatted, replaceNullValues, toBase64 } from '../utilities/common';
 
 const pluginName = PluginName.DataplaneEventsQueue;
 
@@ -31,38 +28,59 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   dataplaneEventsQueue: {
-    init(writeKey: string, inDataplaneUrl: string, queueOpts: QueueOpts): void {
+    init(writeKey: string, inDataplaneUrl: string, queueOpts: QueueOpts, errorHandler?: IErrorHandler, logger?: ILogger): void {
       if (initialized) {
         return;
       }
-
-      httpClient.setAuthHeader(writeKey);
       dataplaneUrl = inDataplaneUrl;
 
-      const qOpts = mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
-      eventsQueue = new Queue('rudder', qOpts, (item, done) => {
-        const payloadData = getDeliveryPayload(item.event);
-        if (payloadData) {
+      httpClient = new HttpClient(errorHandler, logger);
+      httpClient.setAuthHeader(writeKey);
+
+      const finalQOpts = getNormalizedQueueOptions(queueOpts);
+
+      eventsQueue = new Queue(QUEUE_NAME, finalQOpts, (item, done, willBeRetried) => {
+        const { url, event, headers } = item;
+        // Update sentAt timestamp to the latest timestamp
+        event.sentAt = getCurrentTimeFormatted();
+        const data = getDeliveryPayload(event);
+
+        if (data) {
           httpClient.getAsyncData({
-            url: item.url,
+            url,
             options: {
               method: 'POST',
-              headers: item.headers,
-              data: JSON.stringify(item.event, replaceNullValues),
+              headers,
+              data,
             },
             timeout: REQUEST_TIMEOUT_MS,
             callback: result => {
               if (result !== undefined) {
+                let errMsg = `Unable to deliver event to ${url}.`;
+                
+                if (willBeRetried) {
+                  errMsg = `${errMsg} It'll be retried.`;
+                }
+                else {
+                  errMsg = `${errMsg} It'll be dropped.`;
+                }
+                logger?.error(errMsg);
+
+                // failed
                 done(result);
               } else {
+                // success
                 done(null);
               }
             },
           });
         } else {
+          logger?.error(`Unable to prepare event payload for delivery. It'll be dropped.`);
+          // Mark the item as done so that it can be removed from the queue
           done(null);
         }
       });
+
       initialized = true;
     },
 
