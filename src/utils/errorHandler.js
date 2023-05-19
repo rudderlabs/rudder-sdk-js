@@ -1,22 +1,6 @@
 import logger from './logUtil';
-import {
-  LOAD_ORIGIN,
-  ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
-  ERROR_MESSAGES_TO_BE_FILTERED,
-} from './constants';
-
-/**
- * This function is to send handled errors to available error reporting client
- *
- * @param {Error} error Error instance from handled error
- */
-const notifyError = (error) => {
-  const errorReportingClient =
-    window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
-  if (errorReportingClient && error instanceof Error) {
-    errorReportingClient.notify(error);
-  }
-};
+import { LOAD_ORIGIN, ERROR_MESSAGES_TO_BE_FILTERED } from './constants';
+import { notifyError } from './notifyError';
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
@@ -99,4 +83,4 @@ const handleError = (error, customMessage, analyticsInstance) => {
   }
 };
 
-export { notifyError, handleError, normalizeError };
+export { handleError, normalizeError };

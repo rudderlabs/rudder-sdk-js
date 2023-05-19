@@ -1,8 +1,9 @@
-import { notifyError, handleError, normalizeError } from '../../src/utils/errorHandler';
+import { handleError, normalizeError } from '../../src/utils/errorHandler';
+import { notifyError } from '../../src/utils/notifyError';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../src/utils/constants';
 
-jest.mock('../../src/utils/errorHandler.js', () => {
-  const originalModule = jest.requireActual('../../src/utils/errorHandler.js');
+jest.mock('../../src/utils/notifyError', () => {
+  const originalModule = jest.requireActual('../../src/utils/notifyError');
 
   return {
     __esModule: true,
@@ -49,14 +50,11 @@ describe("Test group for 'normalizeError' method", () => {
 });
 
 describe("Test group for 'handleError' method", () => {
-  it('Should notify errors when the error is not coming from request failed', (done) => {
+  it('Should notify errors when the error is not coming from request failed', () => {
     const errMessage = `sample error message`;
     const err = new Error(errMessage);
     handleError(err);
-    setTimeout(() => {
-      expect(notifyError).toHaveBeenCalled();
-    }, 1);
-    done();
+    expect(notifyError).toHaveBeenCalled();
   });
   it('Should not notify for request failed errors', () => {
     const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;

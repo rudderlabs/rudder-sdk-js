@@ -17,8 +17,7 @@ const CookieConsentFactory = {
       //     sourceConfig.cookieConsentManager &&
       // sourceConfig.cookieConsentManager.oneTrust &&
       // sourceConfig.cookieConsentManager.oneTrustenabled) {
-      const oneTrust = new OneTrust();
-      return oneTrust.isInitialized ? oneTrust : null;
+      return new OneTrust();
 
       // }
     }

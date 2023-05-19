@@ -8,9 +8,7 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      logger.error(
-        'OneTrust resources are not accessible. Thus all the destinations will be loaded',
-      );
+      logger.error('OneTrust resources are not accessible.');
       return;
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
@@ -44,6 +42,9 @@ class OneTrust {
 
   isEnabled(destConfig) {
     try {
+      if (!this.isInitialized) {
+        return true;
+      }
       /**
      * Structure of onetrust consent group destination config.
      * 
@@ -91,6 +92,9 @@ class OneTrust {
   }
 
   getDeniedList() {
+    if (!this.isInitialized) {
+      return [];
+    }
     return this.userDeniedConsentGroupIds;
   }
 }
