@@ -58,7 +58,7 @@ describe("Test group for 'handleError' method", () => {
     }, 1);
     done();
   });
-  it('Should not notify errors for request failed', () => {
+  it('Should not notify for request failed errors', () => {
     const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;
     const obj = new Error(errMessage);
     handleError(obj);

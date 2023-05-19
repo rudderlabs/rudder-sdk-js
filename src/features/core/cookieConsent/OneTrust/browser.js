@@ -2,11 +2,13 @@ import logger from '../../../../utils/logUtil';
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {
+  isInitialized = false;
+
   constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      logger.warn(
+      logger.error(
         'OneTrust resources are not accessible. Thus all the destinations will be loaded',
       );
       return;
@@ -37,6 +39,7 @@ class OneTrust {
     });
 
     this.userSetConsentGroupIds = this.userSetConsentGroupIds.map((e) => e.toUpperCase());
+    this.isInitialized = true;
   }
 
   isEnabled(destConfig) {
