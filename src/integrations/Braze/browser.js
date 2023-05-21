@@ -5,7 +5,7 @@ import * as R from 'ramda';
 import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
-import Storage from '../../utils/storage/storage';
+import { Storage } from '../../utils/storage/storage';
 import { isObject } from '../../utils/utils';
 
 const logger = new Logger(NAME);
