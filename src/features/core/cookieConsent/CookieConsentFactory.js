@@ -1,7 +1,7 @@
 import { OneTrust } from './OneTrust';
 
-const CookieConsentFactory = {
-  initialize(cookieConsentOptions) {
+class CookieConsentFactory {
+  static initialize(cookieConsentOptions) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
@@ -22,7 +22,7 @@ const CookieConsentFactory = {
       // }
     }
     return null;
-  },
-};
+  }
+}
 
 export default CookieConsentFactory;
