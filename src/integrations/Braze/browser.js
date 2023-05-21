@@ -1,10 +1,12 @@
-/* eslint-disable class-methods-use-this */
 import { del } from 'obj-case';
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import Logger from "../../utils/logger";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import * as R from 'ramda';
+import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
+import Storage from '../../utils/storage/storage';
+import { isObject } from '../../utils/utils';
 
 const logger = new Logger(NAME);
 
@@ -35,34 +37,33 @@ class Braze {
     }
 
     this.name = NAME;
-    this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 
   /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
    */
-
   formatGender(gender) {
-    if (!gender) return;
-    if (typeof gender !== 'string') return;
+    if (!gender) return undefined;
+    if (typeof gender !== 'string') return undefined;
 
     const femaleGenders = ['woman', 'female', 'w', 'f'];
     const maleGenders = ['man', 'male', 'm'];
     const otherGenders = ['other', 'o'];
 
-    if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.FEMALE;
-    if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.MALE;
-    if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.OTHER;
+    if (femaleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.FEMALE;
+    if (maleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.MALE;
+    if (otherGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.OTHER;
   }
 
   init() {
     logger.debug('===in init Braze===');
 
     // load braze
-    // eslint-disable-next-line func-names
+    /* eslint-disable */
     +(function (a, p, P, b, y) {
       a.braze = {};
       a.brazeQueue = [];
@@ -90,6 +91,7 @@ class Braze {
       y.setAttribute('data-loader', LOAD_ORIGIN);
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
     })(window, document, 'script');
+    /* eslint-enable */
 
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
@@ -151,53 +153,61 @@ class Braze {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug("in Braze identify");
-    const { userId } = rudderElement.message;
-    const { address } = rudderElement.message.context.traits;
-    const birthday =
-      rudderElement.message.context.traits?.birthday ||
-      rudderElement.message.context.traits?.dob;
-    const { email } = rudderElement.message.context.traits;
-    const firstname =
-      rudderElement.message.context.traits?.firstname ||
-      rudderElement.message.context.traits?.firstName;
-    const { gender } = rudderElement.message.context.traits;
-    const lastname =
-      rudderElement.message.context.traits?.lastname ||
-      rudderElement.message.context.traits?.lastName;
-    const { phone } = rudderElement.message.context.traits;
+    logger.debug('in Braze identify');
+    const { message } = rudderElement;
+    const { userId } = message;
+    const {
+      context: {
+        traits: {
+          email,
+          firstName,
+          firstname,
+          lastname,
+          lastName,
+          gender,
+          phone,
+          address,
+          birthday,
+          dob,
+        },
+      },
+    } = message;
+
+    const calculatedBirthday = birthday || dob;
+    const calculatedFirstName = firstName || firstname;
+    const calculatedLastName = lastName || lastname;
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
-      "address",
-      "birthday",
-      "email",
-      "id",
-      "firstname",
-      "gender",
-      "lastname",
-      "phone",
-      "dob",
-      "external_id",
-      "country",
-      "home_city",
-      "bio",
-      "email_subscribe",
-      "push_subscribe",
+      'address',
+      'birthday',
+      'email',
+      'id',
+      'firstname',
+      'gender',
+      'lastname',
+      'phone',
+      'dob',
+      'external_id',
+      'country',
+      'home_city',
+      'bio',
+      'email_subscribe',
+      'push_subscribe',
     ];
     // function set Address
     function setAddress() {
-      window.braze.getUser().setCountry(address.country);
-      window.braze.getUser().setHomeCity(address.city);
+      window.braze.getUser().setCountry(address?.country);
+      window.braze.getUser().setHomeCity(address?.city);
     }
     // function set Birthday
     function setBirthday() {
       window.braze
         .getUser()
         .setDateOfBirth(
-          birthday.getUTCFullYear(),
-          birthday.getUTCMonth() + 1,
-          birthday.getUTCDate()
+          calculatedBirthday.getUTCFullYear(),
+          calculatedBirthday.getUTCMonth() + 1,
+          calculatedBirthday.getUTCDate(),
         );
     }
     // function set Email
@@ -206,7 +216,7 @@ class Braze {
     }
     // function set firstName
     function setFirstName() {
-      window.braze.getUser().setFirstName(firstname);
+      window.braze.getUser().setFirstName(calculatedFirstName);
     }
     // function set gender
     function setGender(genderName) {
@@ -214,29 +224,34 @@ class Braze {
     }
     // function set lastName
     function setLastName() {
-      window.braze.getUser().setLastName(lastname);
+      window.braze.getUser().setLastName(calculatedLastName);
     }
     function setPhone() {
       window.braze.getUser().setPhoneNumber(phone);
     }
 
     // deep clone the traits object
-    let traits = {};
-    if (rudderElement.message?.context?.traits) {
-      traits = cloneDeep(rudderElement.message.context.traits);
+    const {
+      message: {
+        context: { traits },
+      },
+    } = rudderElement;
+    let clonedTraits = {};
+    if (traits) {
+      clonedTraits = cloneDeep(rudderElement.message.context.traits);
     }
 
     reserved.forEach((element) => {
-      delete traits[element];
+      delete clonedTraits[element];
     });
 
+    const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || null;
     if (
       this.supportDedup &&
-      this.previousPayload !== null &&
-      userId &&
-      userId === this.previousPayload.rudderElement?.message?.userId
+      !R.isEmpty(previousPayload) &&
+      userId === previousPayload?.message?.userId
     ) {
-      const prevMessage = this.previousPayload.rudderElement?.message;
+      const prevMessage = previousPayload?.message;
       const prevTraits = prevMessage?.context?.traits;
       const prevAddress = prevTraits?.address;
       const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
@@ -276,7 +291,9 @@ class Braze {
         window.braze.getUser().setCustomUserAttribute(key, traits[key]);
       });
     }
-    this.previousPayload = { ...this.previousPayload, rudderElement };
+    if (this.supportDedup && isObject(previousPayload) && !R.isEmpty(previousPayload)) {
+      Storage.setItem('rs_braze_dedup_attributes', { ...previousPayload, ...rudderElement });
+    }
   }
 
   handlePurchase(properties, userId) {
@@ -290,14 +307,14 @@ class Braze {
     del(properties, 'currency');
 
     // we have to make a separate call to appboy for each product
-    if(products && Array.isArray(products) && products.length > 0) {
-        products.forEach((product) => {
-          const productId = product.product_id;
-          const { price } = product;
-          const { quantity } = product;
-          if (quantity && price && productId)
-            window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
-        });
+    if (products && Array.isArray(products) && products.length > 0) {
+      products.forEach((product) => {
+        const productId = product.product_id;
+        const { price } = product;
+        const { quantity } = product;
+        if (quantity && price && productId)
+          window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
+      });
     }
   }
 
