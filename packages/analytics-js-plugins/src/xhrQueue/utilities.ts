@@ -1,10 +1,7 @@
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { RudderEvent, RudderEventType } from '@rudderstack/analytics-js/components/eventManager/types';
-import { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
 import path from 'path';
 import { MAX_EVENT_PAYLOAD_SIZE_BYTES, DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';
-import { mergeDeepRight } from '../utilities/common';
-import { QueueOpts } from '../types/common';
+import { mergeDeepRight, replaceNullValues } from '../utilities/common';
+import { QueueOpts, RudderEvent, RudderEventType, ILogger } from '../types/common';
 
 /**
  * Utility to get the stringified event payload

@@ -7,6 +7,7 @@ export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { DoneCallback } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
+export type { IPluginsManager} from '@rudderstack/analytics-js/components/pluginsManager/types';
 export { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 
 export type ApplicationState = IApplicationState;
