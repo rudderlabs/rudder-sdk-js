@@ -8,8 +8,11 @@ import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 const pluginName = PluginName.XhrQueue;
 
 let eventsQueue: Queue;
+let writeKey: string;
 let dataplaneUrl: string;
 let httpClient: IHttpClient;
+let logger: ILogger | undefined;
+let errorHandler: IErrorHandler | undefined;
 let initialized = false;
 
 const XhrQueue = (): ExtensionPlugin => ({
@@ -19,16 +22,20 @@ const XhrQueue = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   xhrDeliveryQueue: {
-    init(writeKey: string, inDataplaneUrl: string, queueOpts: QueueOpts, errorHandler?: IErrorHandler, logger?: ILogger): void {
+    init(state: ApplicationState, inErrorHandler?: IErrorHandler, inLogger?: ILogger): void {
       if (initialized) {
         return;
       }
-      dataplaneUrl = inDataplaneUrl;
+
+      errorHandler = inErrorHandler;
+      logger = inLogger;
+      dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
+      writeKey = state.lifecycle.writeKey.value as string;
 
       httpClient = new HttpClient(errorHandler, logger);
       httpClient.setAuthHeader(writeKey);
 
-      const finalQOpts = getNormalizedQueueOptions(queueOpts);
+      const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value.queueOptions as QueueOpts);
 
       eventsQueue = new Queue(QUEUE_NAME, finalQOpts, (item: XHRQueueItem, done: DoneCallback, willBeRetried: boolean) => {
         const { url, event, headers } = item;
@@ -92,7 +99,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * @param logger Logger instance
      * @returns none
      */
-    enqueue(event: RudderEvent, logger?: ILogger): void {
+    enqueue(event: RudderEvent): void {
       if (!initialized) {
         return;
       }

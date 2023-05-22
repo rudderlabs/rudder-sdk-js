@@ -5,13 +5,17 @@ import {
   ApplicationState,
   RudderEvent,
   ILogger,
-  IPluginsManager
+  IPluginsManager,
+  IErrorHandler
 } from '../types/common';
 
 const pluginName = PluginName.DataplaneEventsQueue;
 
 let pluginsManager: IPluginsManager;
+let logger: ILogger | undefined;
+let errorHandler: IErrorHandler | undefined;
 let initialized = false;
+let extPrefix: string;
 
 const DataplaneEventsQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -20,15 +24,24 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   dataplaneEventsQueue: {
-    init(inPluginsManager: IPluginsManager, state: ApplicationState): void {
+    init(state: ApplicationState, inPluginsManager: IPluginsManager, inErrorHandler?: IErrorHandler, inLogger?: ILogger): void {
       if (initialized) {
         return;
       }
 
       pluginsManager = inPluginsManager;
+      logger = inLogger;
+      errorHandler = inErrorHandler;
 
-      // TODO: Based on state initialize only the required plugin
-      pluginsManager.invokeSingle('xhrDeliveryQueue', 'init', state);
+      if (state.loadOptions.value.queueOptions) {
+        extPrefix = 'xhrDeliveryQueue';
+      } else if (state.loadOptions.value.beaconQueueOptions) {
+        extPrefix = 'beaconDeliveryQueue';
+      }
+
+      if (extPrefix) {
+        pluginsManager.invokeSingle(`${extPrefix}.init`, state, errorHandler, logger);
+      }
 
       initialized = true;
     },
@@ -42,7 +55,7 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
         return;
       }
 
-      pluginsManager.invokeSingle('xhrDeliveryQueue', 'start');
+      pluginsManager.invokeSingle(`${extPrefix}.start`);
     },
 
     /**
@@ -51,12 +64,12 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
      * @param logger Logger instance
      * @returns none
      */
-    enqueue(event: RudderEvent, logger?: ILogger): void {
+    enqueue(event: RudderEvent): void {
       if (!initialized) {
         return;
       }
 
-      pluginsManager.invokeSingle('xhrDeliveryQueue', 'enqueue', event, logger);
+      pluginsManager.invokeSingle(`${extPrefix}.enqueue`, event);
     },
   },
 });
