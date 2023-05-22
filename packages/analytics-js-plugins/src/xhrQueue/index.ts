@@ -1,8 +1,24 @@
 /* eslint-disable no-param-reassign */
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';
-import { getNormalizedQueueOptions, getDeliveryPayload, validatePayloadSize, getDeliveryUrl } from './utilities';
-import { ExtensionPlugin, PluginName, ApplicationState, DoneCallback, HttpClient, IErrorHandler, ILogger, QueueOpts, RudderEvent, IHttpClient } from '../types/common';
+import {
+  getNormalizedQueueOptions,
+  getDeliveryPayload,
+  validatePayloadSize,
+  getDeliveryUrl,
+} from './utilities';
+import {
+  ExtensionPlugin,
+  PluginName,
+  ApplicationState,
+  DoneCallback,
+  HttpClient,
+  IErrorHandler,
+  ILogger,
+  QueueOpts,
+  RudderEvent,
+  IHttpClient,
+} from '../types/common';
 import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 
 const pluginName = PluginName.XhrQueue;
@@ -35,49 +51,61 @@ const XhrQueue = (): ExtensionPlugin => ({
       httpClient = new HttpClient(errorHandler, logger);
       httpClient.setAuthHeader(writeKey);
 
-      const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value.queueOptions as QueueOpts);
+      const finalQOpts = getNormalizedQueueOptions(
+        state.loadOptions.value.queueOptions as QueueOpts,
+      );
 
-      eventsQueue = new Queue(QUEUE_NAME, finalQOpts, (item: XHRQueueItem, done: DoneCallback, willBeRetried: boolean) => {
-        const { url, event, headers } = item;
-        // Update sentAt timestamp to the latest timestamp
-        event.sentAt = getCurrentTimeFormatted();
-        const data = getDeliveryPayload(event);
+      eventsQueue = new Queue(
+        QUEUE_NAME,
+        finalQOpts,
+        (
+          item: XHRQueueItem,
+          done: DoneCallback,
+          attemptNumber: number,
+          maxRetryAttempts: number,
+          willBeRetried: boolean,
+        ) => {
+          const { url, event, headers } = item;
+          // Update sentAt timestamp to the latest timestamp
+          event.sentAt = getCurrentTimeFormatted();
+          const data = getDeliveryPayload(event);
 
-        if (data) {
-          httpClient.getAsyncData({
-            url,
-            options: {
-              method: 'POST',
-              headers,
-              data,
-            },
-            timeout: REQUEST_TIMEOUT_MS,
-            callback: result => {
-              if (result !== undefined) {
-                let errMsg = `Unable to deliver event to ${url}.`;
-                
-                if (willBeRetried) {
-                  errMsg = `${errMsg} It'll be retried.`;
+          if (data) {
+            httpClient.getAsyncData({
+              url,
+              options: {
+                method: 'POST',
+                headers,
+                data,
+              },
+              timeout: REQUEST_TIMEOUT_MS,
+              callback: result => {
+                if (result !== undefined) {
+                  let errMsg = `Unable to deliver event to ${url}.`;
+
+                  if (willBeRetried) {
+                    errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+                  } else {
+                    errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
+                  }
+
+                  logger?.error(errMsg);
+
+                  // failed
+                  done(result);
+                } else {
+                  // success
+                  done(null);
                 }
-                else {
-                  errMsg = `${errMsg} It'll be dropped.`;
-                }
-                logger?.error(errMsg);
-
-                // failed
-                done(result);
-              } else {
-                // success
-                done(null);
-              }
-            },
-          });
-        } else {
-          logger?.error(`Unable to prepare event payload for delivery. It'll be dropped.`);
-          // Mark the item as done so that it can be removed from the queue
-          done(null);
-        }
-      });
+              },
+            });
+          } else {
+            logger?.error(`Unable to prepare event payload for delivery. It'll be dropped.`);
+            // Mark the item as done so that it can be removed from the queue
+            done(null);
+          }
+        },
+      );
 
       initialized = true;
     },

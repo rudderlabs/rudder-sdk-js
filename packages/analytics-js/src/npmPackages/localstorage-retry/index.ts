@@ -47,9 +47,17 @@ export type QueueItemData = Record<string, any> | string | number;
  * @callback processFunc
  * @param {any} item The item added to the queue to process
  * @param {Function} done A function to call when processing is completed.
+ * @param {Number} retryAttemptNumber The number of times this item has been attempted to retry
+ * @param {Number} maxRetryAttempts The maximum number of times this item should be attempted to retry
  * @param {Number} willBeRetried A boolean indicating if the item will be retried later
  */
-export type QueueProcessCallback = (item: any, done: DoneCallback, willBeRetried: boolean) => void;
+export type QueueProcessCallback = (
+  item: any,
+  done: DoneCallback,
+  retryAttemptNumber: number,
+  maxRetryAttempts: number,
+  willBeRetried: boolean,
+) => void;
 
 /**
  * @callback doneCallback
@@ -286,7 +294,7 @@ class Queue extends Emitter {
       // TODO: handle fn timeout
       try {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
-        this.fn(el.item, el.done, willBeRetried);
+        this.fn(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         console.error(`error: Process function threw error: ${err}`);
       }

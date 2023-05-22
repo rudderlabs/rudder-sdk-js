@@ -25,15 +25,15 @@ describe('EventRepository', () => {
   it('should invoke appropriate plugins start on object creation', () => {
     const spy = jest.spyOn(defaultPluginsManager, 'invokeMultiple');
     const eventRepository = new EventRepository(defaultPluginsManager);
-    expect(spy).nthCalledWith(1, 'dataplaneEventsQueue.init', 'testWriteKey', 'testDataPlaneUrl', {
-      flushAt: 1,
-      flushInterval: 1,
-      maxRetry: 1,
-      backoffFactor: 1,
-    });
-    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', {
-      flushAt: 1,
-    });
+    expect(spy).nthCalledWith(
+      1,
+      'dataplaneEventsQueue.init',
+      state,
+      defaultPluginsManager,
+      undefined,
+      undefined,
+    );
+    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', state, undefined, undefined);
     spy.mockRestore();
   });
 

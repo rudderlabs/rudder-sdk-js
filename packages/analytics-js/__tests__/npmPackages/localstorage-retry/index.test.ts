@@ -46,7 +46,7 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.fn).toHaveBeenCalled();
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should retry a task if it fails', () => {
@@ -62,7 +62,7 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
 
     // Delay for the first retry
     mockProcessItemCb.mockReset();
@@ -70,7 +70,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should delay retries', () => {
@@ -82,7 +82,7 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
 
     // Delay for the retry
     mockProcessItemCb.mockReset();
@@ -90,7 +90,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
   });
 
   it('should respect shouldRetry', () => {
@@ -176,7 +176,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should take over an in-progress task if a queue is abandoned', () => {
@@ -207,7 +207,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
@@ -245,7 +245,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
@@ -283,7 +283,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress and queue tasks', () => {
@@ -336,8 +336,8 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(2);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
   });
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
@@ -386,7 +386,7 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(4);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should take over multiple tasks if a queue is abandoned', () => {
@@ -424,8 +424,8 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(2);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), true);
+    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
   });
 
   describe('while using in memory engine', () => {
@@ -461,7 +461,7 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(1);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
     });
 
     it('should take over an in-progress task if a queue is abandoned', () => {
@@ -492,7 +492,7 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(1);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
+      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
     });
 
     it('should take over multiple tasks if a queue is abandoned', () => {
@@ -530,8 +530,8 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(2);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), true);
-      expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), true);
+      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+      expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
     });
   });
 

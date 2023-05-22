@@ -37,6 +37,7 @@ class EventRepository implements IEventRepository {
     this.pluginsManager.invokeMultiple(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
+      pluginsManager,
       errorHandler,
       logger,
     );
@@ -68,7 +69,7 @@ class EventRepository implements IEventRepository {
       dpQEvent,
       this.logger,
     );
-    
+
     const dQEvent = clone(event);
     this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, dQEvent);
 
