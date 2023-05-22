@@ -1,7 +1,8 @@
-const NAME = 'TIKTOKADS';
+const NAME = 'TIKTOK_ADS';
 const CNameMapping = {
   [NAME]: NAME,
   TiktokAds: NAME,
+  TIKTOK_ADS: NAME,
   "Tiktok ads": NAME,
   "Tiktok Ads": NAME,
   "Tik Tok Ads": NAME,
@@ -57,11 +58,11 @@ const trackMapping = [
   },
   {
     "destKey": "email",
-    "sourceKeys": ["context.traits.email","traits.email","properties.email"]
+    "sourceKeys": ["context.traits.email", "traits.email", "properties.email"]
   },
   {
     "destKey": "phone",
-    "sourceKeys": ["context.traits.phone","traits.phone","properties.phone"]
+    "sourceKeys": ["context.traits.phone", "traits.phone", "properties.phone"]
   }
 ];
 const eventNameMapping = {

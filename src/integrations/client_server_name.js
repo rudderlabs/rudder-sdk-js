@@ -71,7 +71,7 @@ const clientToServerNames = {
   SENDINBLUE: "Sendinblue",
   OLARK: "Olark",
   LEMNISK: "Lemnisk",
-  TIKTOKADS: "TikTok Ads",
+  TIKTOK_ADS: "TiktokAds",
 };
 
 export { clientToServerNames };

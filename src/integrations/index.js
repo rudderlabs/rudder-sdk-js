@@ -148,7 +148,7 @@ const integrations = {
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
   LEMNISK: Lemnisk.default,
-  TIKTOKADS: TiktokAds.default,
+  TIKTOK_ADS: TiktokAds.default,
 };
 
 export { integrations };
