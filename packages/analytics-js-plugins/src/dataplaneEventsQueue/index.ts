@@ -9,10 +9,12 @@ import {
   IErrorHandler,
   IHttpClient,
   HttpClient,
+  DoneCallback
 } from '../types/common';
 import { getDeliveryPayload, validatePayloadSize, getDeliveryUrl, getNormalizedQueueOptions } from './utilities';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { Queue, getCurrentTimeFormatted, replaceNullValues, toBase64 } from '../utilities/common';
+import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { XHRQueueItem } from './types';
 
 const pluginName = PluginName.DataplaneEventsQueue;
 
@@ -39,7 +41,7 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
 
       const finalQOpts = getNormalizedQueueOptions(queueOpts);
 
-      eventsQueue = new Queue(QUEUE_NAME, finalQOpts, (item, done, willBeRetried) => {
+      eventsQueue = new Queue(QUEUE_NAME, finalQOpts, (item: XHRQueueItem, done: DoneCallback, willBeRetried: boolean) => {
         const { url, event, headers } = item;
         // Update sentAt timestamp to the latest timestamp
         event.sentAt = getCurrentTimeFormatted();
@@ -122,7 +124,7 @@ const DataplaneEventsQueue = (): ExtensionPlugin => ({
         url,
         headers,
         event,
-      });
+      } as XHRQueueItem);
     },
   },
 });
