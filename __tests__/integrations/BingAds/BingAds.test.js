@@ -87,5 +87,4 @@ describe('Bingads Track event', () => {
       expect.toEqual('Event type not present');
     }
   });
-
 });
