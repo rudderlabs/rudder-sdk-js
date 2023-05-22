@@ -12,7 +12,7 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 
 class AdobeAnalytics {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -30,6 +30,8 @@ class AdobeAnalytics {
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = '';
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     utils.setConfig(config);
   }
 

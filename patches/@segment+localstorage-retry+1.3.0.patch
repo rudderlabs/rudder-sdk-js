@@ -1,0 +1,48 @@
+diff --git a/node_modules/@segment/localstorage-retry/lib/engine.js b/node_modules/@segment/localstorage-retry/lib/engine.js
+index 5e3fffe..656a774 100644
+--- a/node_modules/@segment/localstorage-retry/lib/engine.js
++++ b/node_modules/@segment/localstorage-retry/lib/engine.js
+@@ -1,7 +1,7 @@
+ 'use strict';
+ 
+ var keys = require('@ndhoule/keys');
+-var uuid = require('uuid').v4;
++var uuid = require('@lukeed/uuid').v4;
+ 
+ var inMemoryStore = {
+   _data: {},
+diff --git a/node_modules/@segment/localstorage-retry/lib/index.js b/node_modules/@segment/localstorage-retry/lib/index.js
+index 34220e8..31476a2 100644
+--- a/node_modules/@segment/localstorage-retry/lib/index.js
++++ b/node_modules/@segment/localstorage-retry/lib/index.js
+@@ -344,13 +344,23 @@ Queue.prototype._reclaim = function(id) {
+   });
+ 
+   this._store.set(this.keys.QUEUE, our.queue);
+-
+-  // remove all keys
+-  other.remove(this.keys.IN_PROGRESS);
+-  other.remove(this.keys.QUEUE);
+-  other.remove(this.keys.RECLAIM_START);
+-  other.remove(this.keys.RECLAIM_END);
+-  other.remove(this.keys.ACK);
++  // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
++  const localStorageBackoff = 10;
++  setTimeout(() => {
++    other.remove(this.keys.IN_PROGRESS);
++    setTimeout(() => {
++      other.remove(this.keys.QUEUE);
++      setTimeout(() => {
++        other.remove(this.keys.RECLAIM_START);
++        setTimeout(() => {
++          other.remove(this.keys.RECLAIM_END);
++          setTimeout(() => {
++            other.remove(this.keys.ACK);
++          }, localStorageBackoff);
++        }, localStorageBackoff);
++      }, localStorageBackoff);
++    }, localStorageBackoff);
++  }, localStorageBackoff);
+ 
+   // process the new items we claimed
+   this._processHead();

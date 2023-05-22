@@ -3,12 +3,15 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class BingAds {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.tagID = config.tagID;
     this.name = NAME;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.uniqueId = `bing${this.tagID}`;
   }
 
@@ -32,7 +35,7 @@ class BingAds {
         (n.onload = n.onreadystatechange =
           function () {
             const s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete') ||
+            (s && s !== 'loaded' && s !== 'complete' && typeof w['UET'] === 'function') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),
@@ -48,7 +51,9 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   };
 
   isReady = () => {
@@ -66,7 +71,7 @@ class BingAds {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const eventToSend = type;
-    if(!eventToSend){
+    if (!eventToSend) {
       logger.error('Event type not present');
       return;
     }
