@@ -10,90 +10,75 @@ const eventFilteringSuite = {
       id: 'eventFiltering',
       description: 'Call with all arguments and all primitives in properties and apiOptions',
       inputData: [
+        'OrderCompleted_AutomationQA_1',
         {
-          "message": {
-            "channel": "web",
-            "context": {
-              "externalId": [
-                {
-                  "id": "lynnanderson@smith.net",
-                  "identifierType": "device_id",
-                  "type": "AM-users"
-                }
-              ],
-              "mappedToDestination": "true",
-              "app": {
-                "build": "1.0.0",
-                "name": "RudderLabs JavaScript SDK",
-                "namespace": "com.rudderlabs.javascript",
-                "version": "1.0.0"
-              },
-              "traits": {
-                "anonymousId": "123456",
-                "email": "sayan@gmail.com",
-                "address": {
-                  "country": "India",
-                  "postalCode": 712136,
-                  "state": "WB",
-                  "street": "",
-                  "os_version": "test os"
-                },
-                "ip": "0.0.0.0",
-                "age": 26
-              },
-              "library": {
-                "name": "RudderLabs JavaScript SDK",
-                "version": "1.0.0"
-              },
-              "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",
-              "locale": "en-US",
-              "ip": "0.0.0.0",
-              "os": {
-                "name": "",
-                "version": ""
-              },
-              "screen": {
-                "density": 2
-              },
-              "page": {
-                "path": "/destinations/amplitude",
-                "referrer": "",
-                "search": "",
-                "title": "",
-                "url": "https://docs.rudderstack.com/destinations/amplitude",
-                "category": "destination",
-                "initial_referrer": "https://docs.rudderstack.com",
-                "initial_referring_domain": "docs.rudderstack.com"
-              }
+          order_id: "Test123",
+          products:[],
+          revenue: 30,
+          currency: 'USD',
+          user_actual_id: 12345,
+          productId: '234567-sdfghj-345tygh-567890dfghj',
+          productCategory: 'clothing',
+          paid: true,
+          paymentMode: 4,
+          paymentModeName: 'online',
+          productSizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+          sampleObj: {
+            sampleObj1: {
+              newKey: 'sample text',
             },
-            "traits": {
-              "anonymousId": "123456",
-              "email": "sayan@gmail.com",
-              "city": "kolkata",
-              "address": {
-                "country": "India",
-                "postalCode": 712136,
-                "state": "WB",
-                "street": ""
+            newKey1: 3456789009876543,
+          },
+        },
+        {
+          key1: [1, 2, 3, 4],
+          key2: 'sample text',
+          key3: false,
+          key4: 9087654,
+          key5: {
+            key6: 'sample text 2',
+            key7: [
+              {
+                color: '#3456789',
+                name: null,
               },
-              "os_version": "test os",
-              "ip": "0.0.0.0",
-              "age": 26,
-              "an": "Test App name",
-              "ul": "Test ul"
+              {
+                color: '#3456767',
+                name: 'Red',
+              },
+            ],
+          },
+          key8: null,
+          key9: undefined,
+          device: {
+            id: 'sdfghj567-cghj5678-fghjvbn888',
+          },
+          library: {
+            name: 'Random JavaScript SDK',
+            version: '2.22.0',
+          },
+          context: {
+            metaData: {
+              appVersion: '2.8.0',
+              appId: '1hKOmRA4GRlm',
+              release_stage: 'Production',
             },
-            "type": "identify",
-            "messageId": "84e26acc-56a5-4835-8233-591137fca468",
-            "session_id": "3049dc4c-5a95-4ccd-a3e7-d74a7e411f22",
-            "originalTimestamp": "2019-10-14T09:03:17.562Z",
-            "anonymousId": "123456",
-            "userId": "123456",
-            "integrations": {
-              "All": true
-            },
-            "sentAt": "2019-10-14T09:03:22.563Z"
-          }
-        }
+          },
+          integrations: {
+            All: false,
+            'Google Analytics': true,
+            Amplitude: true,
+          },
+          anonymousId: 'sample anonymousId',
+          originalTimestamp: '2023-01-13T08:13:58.548Z',
+          channel: 'random',
+          traits: {
+            subscribed: true,
+            plan: 'Gold',
+            endDate: '2023-04-13T08:13:58.548Z',
+            startDate: '2023-01-13T08:13:58.548Z',
+          },
+        },
       ],
       expectedResult: eventFiltering1ExpectedData,
       triggerHandler: 'track',
