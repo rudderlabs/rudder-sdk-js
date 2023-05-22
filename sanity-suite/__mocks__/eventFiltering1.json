@@ -1,0 +1,148 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.33.1"
+      },
+      "traits": {},
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "2.33.1"
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      "device": null,
+      "network": null,
+      "os": {
+        "name": "",
+        "version": ""
+      },
+      "locale": "en-GB",
+      "screen": {
+        "density": 2,
+        "width": 1792,
+        "height": 1120,
+        "innerWidth": 1123,
+        "innerHeight": 1009
+      },
+      "sessionId": 1684715007473,
+      "consentManagement": {
+        "deniedConsentIds": [
+          "C0002",
+          "C0004",
+          "C0005",
+          "C0006"
+        ]
+      },
+      "campaign": {},
+      "page": {
+        "path": "/index.html",
+        "referrer": "http://localhost:3001/index.html",
+        "referring_domain": "localhost:3001",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:3001/index.html",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      }
+    },
+    "type": "track",
+    "messageId": "a0aea35c-c796-4da8-b8d9-4d98adfeb4cc",
+    "originalTimestamp": "2023-05-22T00:33:17.605Z",
+    "anonymousId": "c2e43798-5769-4799-bebe-f144b9b95df0",
+    "userId": "customUserID",
+    "event": {
+      "message": {
+        "channel": "web",
+        "context": {
+          "externalId": [
+            {
+              "id": "lynnanderson@smith.net",
+              "identifierType": "device_id",
+              "type": "AM-users"
+            }
+          ],
+          "mappedToDestination": "true",
+          "app": {
+            "build": "1.0.0",
+            "name": "RudderLabs JavaScript SDK",
+            "namespace": "com.rudderlabs.javascript",
+            "version": "1.0.0"
+          },
+          "traits": {
+            "anonymousId": "123456",
+            "email": "sayan@gmail.com",
+            "address": {
+              "country": "India",
+              "postalCode": 712136,
+              "state": "WB",
+              "street": "",
+              "os_version": "test os"
+            },
+            "ip": "0.0.0.0",
+            "age": 26
+          },
+          "library": {
+            "name": "RudderLabs JavaScript SDK",
+            "version": "1.0.0"
+          },
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",
+          "locale": "en-US",
+          "ip": "0.0.0.0",
+          "os": {
+            "name": "",
+            "version": ""
+          },
+          "screen": {
+            "density": 2
+          },
+          "page": {
+            "path": "/destinations/amplitude",
+            "referrer": "",
+            "search": "",
+            "title": "",
+            "url": "https://docs.rudderstack.com/destinations/amplitude",
+            "category": "destination",
+            "initial_referrer": "https://docs.rudderstack.com",
+            "initial_referring_domain": "docs.rudderstack.com"
+          }
+        },
+        "traits": {
+          "anonymousId": "123456",
+          "email": "sayan@gmail.com",
+          "city": "kolkata",
+          "address": {
+            "country": "India",
+            "postalCode": 712136,
+            "state": "WB",
+            "street": ""
+          },
+          "os_version": "test os",
+          "ip": "0.0.0.0",
+          "age": 26,
+          "an": "Test App name",
+          "ul": "Test ul"
+        },
+        "type": "identify",
+        "messageId": "84e26acc-56a5-4835-8233-591137fca468",
+        "session_id": "3049dc4c-5a95-4ccd-a3e7-d74a7e411f22",
+        "originalTimestamp": "2019-10-14T09:03:17.562Z",
+        "anonymousId": "123456",
+        "userId": "123456",
+        "integrations": {
+          "All": true
+        },
+        "sentAt": "2019-10-14T09:03:22.563Z"
+      }
+    },
+    "properties": {},
+    "user_properties": null,
+    "integrations": {
+      "All": true
+    },
+    "sentAt": "2023-05-22T00:33:17.616Z"
+  }
+}
