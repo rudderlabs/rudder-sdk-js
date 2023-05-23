@@ -16,7 +16,7 @@ describe('Test suit for Ketch consent manager', () => {
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should allow events when oneTrustCookieCategory in destination config is present in consented categories', () => {
+  it('Should allow events when purpose in destination config is present in consented categories', () => {
     const destConfig = {
       ketchConsentPurposes: [{ purpose: 'analytics' }],
     };
