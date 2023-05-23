@@ -11,12 +11,11 @@ jobs:
   deploy-tag:
     name: Deploy BETA Feature v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/') # TODO: change value to refs/heads/beta/ before merging
+    if: startsWith(github.ref, 'refs/heads/beta')
     steps:
       - name: Extract feature name from branch
         shell: bash
-        # run: echo "branch=$(echo ${GITHUB_REF#refs/heads/beta})" >>$GITHUB_OUTPUT  # TODO: change value to this one
-        run: echo "branch=v3" >>$GITHUB_OUTPUT
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/beta})" >>$GITHUB_OUTPUT
         id: extract_branch
 
       - name: Configure AWS Credentials
