@@ -33,6 +33,8 @@ const getFederatedModuleImport = (
       return () => import('remotePlugins/StorageEncryptionLegacy');
     case PluginName.XhrQueue:
       return () => import('remotePlugins/XhrQueue');
+    case PluginName.OneTrust:
+      return () => import('remotePlugins/OneTrust');
     default:
       return undefined;
   }

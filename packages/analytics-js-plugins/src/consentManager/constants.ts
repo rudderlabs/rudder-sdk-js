@@ -1,0 +1,3 @@
+const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
+
+export { SUPPORTED_CONSENT_MANAGERS };

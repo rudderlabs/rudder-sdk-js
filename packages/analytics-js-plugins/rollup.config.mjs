@@ -91,6 +91,7 @@ export function getDefaultConfig(distName) {
             './StorageEncryption': './src/storageEncryption/index.ts',
             './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
             './XhrQueue': './src/xhrQueue/index.ts',
+            './OneTrust': './src/oneTrust/index.ts',
           },
         }),
       process.env.UGLIFY === 'true' &&

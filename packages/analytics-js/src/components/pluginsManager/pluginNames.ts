@@ -1,4 +1,4 @@
-import { PluginName } from "./types";
+import { PluginName } from './types';
 
 /**
  * List of plugin names that are loaded as direct imports in all builds
@@ -21,6 +21,7 @@ const remotePluginNames: PluginName[] = [
   PluginName.StorageEncryption,
   PluginName.StorageEncryptionLegacy,
   PluginName.XhrQueue,
+  PluginName.OneTrust,
 ];
 
 export { localPluginNames, remotePluginNames };

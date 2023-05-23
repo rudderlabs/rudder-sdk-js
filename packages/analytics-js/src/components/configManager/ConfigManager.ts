@@ -13,10 +13,8 @@ import {
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { removeTrailingSlashes } from "@rudderstack/analytics-js/components/utilities/url";
-import {
-  filterEnabledDestination
-} from "@rudderstack/analytics-js/components/utilities/destinations";
+import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
+import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -69,6 +67,9 @@ class ConfigManager implements IConfigManager {
       if (state.loadOptions.value.configUrl) {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
+      // set cookie consent option provided as load option in consent state
+      state.consents.cookieConsentOptions.value =
+        state.loadOptions.value.cookieConsentManager ?? {};
     });
 
     this.getConfig();

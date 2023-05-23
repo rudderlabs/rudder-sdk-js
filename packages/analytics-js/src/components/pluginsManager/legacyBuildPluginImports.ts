@@ -12,6 +12,7 @@ import {
   StorageEncryption,
   StorageEncryptionLegacy,
   XhrQueue,
+  OneTrust,
 } from '@rudderstack/analytics-js-plugins/index';
 import { PluginMap } from './types';
 
@@ -31,6 +32,7 @@ const legacyBuildPluginImports = (): PluginMap => ({
   StorageEncryption,
   StorageEncryptionLegacy,
   XhrQueue,
+  OneTrust,
 });
 
 export { legacyBuildPluginImports };

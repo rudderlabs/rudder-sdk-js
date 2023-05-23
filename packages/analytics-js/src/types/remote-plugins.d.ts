@@ -11,3 +11,4 @@ declare module 'remotePlugins/NativeDestinationQueue';
 declare module 'remotePlugins/StorageEncryption';
 declare module 'remotePlugins/StorageEncryptionLegacy';
 declare module 'remotePlugins/XhrQueue';
+declare module 'remotePlugins/OneTrust';

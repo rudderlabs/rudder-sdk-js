@@ -4,6 +4,8 @@ import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationS
 export type { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
 export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type ApplicationState = IApplicationState;
 
@@ -46,6 +48,7 @@ export enum PluginName {
   StorageEncryption = 'StorageEncryption',
   StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   XhrQueue = 'XhrQueue',
+  OneTrust = 'OneTrust',
 }
 
 /**
