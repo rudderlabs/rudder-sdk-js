@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';
@@ -23,39 +24,31 @@ import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 
 const pluginName = PluginName.XhrQueue;
 
-let eventsQueue: Queue;
-let writeKey: string;
-let dataplaneUrl: string;
-let httpClient: IHttpClient;
-let logger: ILogger | undefined;
-let errorHandler: IErrorHandler | undefined;
-let initialized = false;
-
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,
   deps: [],
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  xhrDeliveryQueue: {
-    init(state: ApplicationState, inErrorHandler?: IErrorHandler, inLogger?: ILogger): void {
-      if (initialized) {
-        return;
-      }
+  dataplaneEventsQueue: {
+    /**
+     * Initialize the queue for delivery
+     * @param state Application state
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns Queue instance
+     */
+    init(state: ApplicationState, errorHandler?: IErrorHandler, logger?: ILogger): Queue {
+      const writeKey = state.lifecycle.writeKey.value as string;
 
-      errorHandler = inErrorHandler;
-      logger = inLogger;
-      dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
-      writeKey = state.lifecycle.writeKey.value as string;
-
-      httpClient = new HttpClient(errorHandler, logger);
+      const httpClient = new HttpClient(errorHandler, logger);
       httpClient.setAuthHeader(writeKey);
 
       const finalQOpts = getNormalizedQueueOptions(
         state.loadOptions.value.queueOptions as QueueOpts,
       );
 
-      eventsQueue = new Queue(
+      const eventsQueue = new Queue(
         QUEUE_NAME,
         finalQOpts,
         (
@@ -107,36 +100,42 @@ const XhrQueue = (): ExtensionPlugin => ({
         },
       );
 
-      initialized = true;
+      return eventsQueue;
     },
 
     /**
      * Start the queue for delivery
+     * @param eventsQueue Queue instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
      * @returns none
      */
-    start(): void {
-      if (!initialized) {
-        return;
-      }
+    start(eventsQueue: Queue, errorHandler?: IErrorHandler, logger?: ILogger): void {
       eventsQueue.start();
     },
 
     /**
      * Add event to the queue for delivery
+     * @param state Application state
+     * @param eventsQueue Queue instance
      * @param event RudderEvent object
+     * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns none
      */
-    enqueue(event: RudderEvent): void {
-      if (!initialized) {
-        return;
-      }
-
+    enqueue(
+      state: ApplicationState,
+      eventsQueue: Queue,
+      event: RudderEvent,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
       validatePayloadSize(event, logger);
 
+      const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization

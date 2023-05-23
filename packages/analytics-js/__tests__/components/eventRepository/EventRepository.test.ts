@@ -23,26 +23,19 @@ describe('EventRepository', () => {
   });
 
   it('should invoke appropriate plugins start on object creation', () => {
-    const spy = jest.spyOn(defaultPluginsManager, 'invokeMultiple');
+    const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     const eventRepository = new EventRepository(defaultPluginsManager);
-    expect(spy).nthCalledWith(
-      1,
-      'dataplaneEventsQueue.init',
-      state,
-      defaultPluginsManager,
-      undefined,
-      undefined,
-    );
+    expect(spy).nthCalledWith(1, 'dataplaneEventsQueue.init', state, undefined, undefined);
     expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', state, undefined, undefined);
     spy.mockRestore();
   });
 
   it('should invoke appropriate plugins start on init', () => {
     const eventRepository = new EventRepository(defaultPluginsManager);
-    const spy = jest.spyOn(defaultPluginsManager, 'invokeMultiple');
+    const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
-    expect(spy).nthCalledWith(1, 'dataplaneEventsQueue.start');
-    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.start');
+    expect(spy).nthCalledWith(1, 'dataplaneEventsQueue.start', undefined, undefined, undefined);
+    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.start', undefined, undefined, undefined);
     spy.mockRestore();
   });
 });

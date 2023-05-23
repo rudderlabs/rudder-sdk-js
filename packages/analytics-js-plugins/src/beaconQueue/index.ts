@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, PluginName, ApplicationState, ILogger, IErrorHandler, RudderEvent } from '../types/common';
+import {
+  ExtensionPlugin,
+  PluginName,
+  ApplicationState,
+  ILogger,
+  IErrorHandler,
+  RudderEvent,
+} from '../types/common';
 
 const pluginName = PluginName.BeaconQueue;
-
-let writeKey: string;
-let dataplaneUrl: string;
-let logger: ILogger | undefined;
-let errorHandler: IErrorHandler | undefined;
-let initialized = false;
 
 const BeaconQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -15,50 +17,51 @@ const BeaconQueue = (): ExtensionPlugin => ({
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  beaconDeliveryQueue: {
-    init(state: ApplicationState, inErrorHandler?: IErrorHandler, inLogger?: ILogger): void {
-      if (initialized) {
-        return;
-      }
-
-      errorHandler = inErrorHandler;
-      logger = inLogger;
-      dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
-      writeKey = state.lifecycle.writeKey.value as string;
-
+  dataplaneEventsQueue: {
+    /**
+     * Initialize the queue for delivery
+     * @param state Application state
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     */
+    init(state: ApplicationState, errorHandler?: IErrorHandler, logger?: ILogger): void {
       // TODO: Implement this
-
-      initialized = true;
+      // TODO: Remove this console log
+      logger?.log('Queue initialized');
     },
 
     /**
      * Start the queue for delivery
+     * @param eventsQueue Queue instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
      * @returns none
      */
-    start(): void {
-      if (!initialized) {
-        return;
-      }
-      
+    start(eventsQueue: any, errorHandler?: IErrorHandler, logger?: ILogger): void {
       // TODO: Implement this
       // TODO: Remove this console log
-      console.log('Queue started');
+      logger?.log('Queue started');
     },
 
     /**
      * Add event to the queue for delivery
+     * @param state Application state
+     * @param eventsQueue Queue instance
      * @param event RudderEvent object
+     * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns none
      */
-    enqueue(event: RudderEvent): void {
-      if (!initialized) {
-        return;
-      }
-
+    enqueue(
+      state: ApplicationState,
+      eventsQueue: any,
+      event: RudderEvent,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): void {
       // TODO: Implement this
       // TODO: Remove this console log
-      console.log('Item enqueued', event);
+      logger?.log('Item enqueued', event);
     },
   },
 });

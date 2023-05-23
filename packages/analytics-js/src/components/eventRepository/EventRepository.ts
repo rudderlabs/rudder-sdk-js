@@ -21,6 +21,8 @@ class EventRepository implements IEventRepository {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   pluginsManager: IPluginsManager;
+  dataplaneEventsQueue: any;
+  destinationsEventsQueue: any;
 
   /**
    *
@@ -34,14 +36,14 @@ class EventRepository implements IEventRepository {
     this.logger = logger;
     this.onError = this.onError.bind(this);
 
-    this.pluginsManager.invokeMultiple(
+    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
-      pluginsManager,
       errorHandler,
       logger,
     );
-    this.pluginsManager.invokeMultiple(
+
+    this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
       errorHandler,
@@ -53,8 +55,18 @@ class EventRepository implements IEventRepository {
    * Initializes the event repository
    */
   init(): void {
-    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`);
-    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`);
+    this.pluginsManager.invokeSingle(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`,
+      this.dataplaneEventsQueue,
+      this.errorHandler,
+      this.logger,
+    );
+    this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`,
+      this.destinationsEventsQueue,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -64,14 +76,24 @@ class EventRepository implements IEventRepository {
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const dpQEvent = clone(event);
-    this.pluginsManager.invokeMultiple(
+    this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+      state,
+      this.dataplaneEventsQueue,
       dpQEvent,
+      this.errorHandler,
       this.logger,
     );
 
     const dQEvent = clone(event);
-    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, dQEvent);
+    this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+      state,
+      this.destinationsEventsQueue,
+      dQEvent,
+      this.errorHandler,
+      this.logger,
+    );
 
     // Invoke the callback if it exists
     try {

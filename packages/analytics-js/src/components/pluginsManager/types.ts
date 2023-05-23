@@ -14,19 +14,5 @@ export interface IPluginsManager {
   register(plugins: ExtensionPlugin[]): void;
 }
 
-export enum PluginName {
-  BeaconQueue = 'BeaconQueue',
-  ConsentManager = 'ConsentManager',
-  DataplaneEventsQueue = 'DataplaneEventsQueue',
-  DeviceModeDestinations = 'DeviceModeDestinations',
-  DeviceModeTransformation = 'DeviceModeTransformation',
-  ErrorReporting = 'ErrorReporting',
-  ExternalAnonymousId = 'ExternalAnonymousId',
-  GoogleLinker = 'GoogleLinker',
-  NativeDestinationQueue = 'NativeDestinationQueue',
-  StorageEncryption = 'StorageEncryption',
-  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
-  XhrQueue = 'XhrQueue',
-}
-
+export { PluginName } from '@rudderstack/analytics-js-plugins/types/common';
 export type PluginMap<T = ExtensionPlugin> = Record<string, () => T>;
