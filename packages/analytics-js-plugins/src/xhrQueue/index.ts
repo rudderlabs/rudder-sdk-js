@@ -18,7 +18,6 @@ import {
   ILogger,
   QueueOpts,
   RudderEvent,
-  IHttpClient,
 } from '../types/common';
 import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 
