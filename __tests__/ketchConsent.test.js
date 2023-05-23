@@ -6,39 +6,43 @@ window.ketchConsent = {
   behavioral_advertising: false,
 };
 
-const expectedDeniedPurposes = ['EMAIL_MKTG', 'BEHAVIORAL_ADVERTISING'];
+const expectedDeniedPurposes = ['email_mktg', 'behavioral_advertising'];
 
 const ketch = new Ketch();
 
 describe('Test suit for Ketch consent manager', () => {
-  it('Should allow events when no purpose is set in destination config', () => {
+  it('Should allow events when no category is set in destination config', () => {
     const destConfig = {};
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should allow events when ketch purpose in destination config is opted-in', () => {
+  it('Should allow events when oneTrustCookieCategory in destination config is present in consented categories', () => {
     const destConfig = {
-      ketchPurposeGroup: ['analytics'],
+      ketchConsentPurposes: [{ purpose: 'analytics' }],
     };
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should not allow events when no purpose present in destination config', () => {
+  it('Should not allow events when consented category name is not present in destination config', () => {
     const destConfig = {
-      ketchPurposeGroup: ['performance'],
+      ketchConsentPurposes: [{ purpose: 'performance' }],
     };
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
 
-  it('Should allow events when any of the ketch purpose in destination config is opted-in', () => {
+  it('Should not allow events when all the category IDs in destination config present in consented category IDs', () => {
     const destConfig = {
-      ketchPurposeGroup: ['analytics', 'email_mktg'],
+      ketchConsentPurposes: [{ purpose: 'analytics' }, { purpose: 'email_mktg' }],
     };
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should return the purposes that the user has not consented for', () => {
+  it('Should return the category IDs that the user has not consented for', () => {
+    const actualDeniedPurposes = ketch.getDeniedList();
+    expect(actualDeniedPurposes).toEqual(expectedDeniedPurposes);
+  });
+  it('Should return the category IDs that the user has not consented for', () => {
     const actualDeniedPurposes = ketch.getDeniedList();
     expect(actualDeniedPurposes).toEqual(expectedDeniedPurposes);
   });
