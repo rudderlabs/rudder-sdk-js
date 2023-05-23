@@ -3,3 +3,9 @@ export type OneTrustGroup = {
   GroupName: string;
   [key: string]: any;
 };
+
+export type ConsentInfo = {
+  consentManagerInitialized: boolean;
+  allowedConsentIds?: string[];
+  deniedConsentIds?: string[];
+};

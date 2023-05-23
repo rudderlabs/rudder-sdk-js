@@ -12,6 +12,7 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { SUPPORTED_CONSENT_MANAGERS } from '@rudderstack/analytics-js/constants/consent';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -19,6 +20,7 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
+import { getUserSelectedConsentManager } from '../utilities/consent';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -84,6 +86,16 @@ class PluginsManager implements IPluginsManager {
     if (!state.reporting.isErrorReportingEnabled.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== PluginName.ErrorReporting,
+      );
+    }
+
+    // Consent manager related plugins
+    const selectedConsentManager: string | undefined = getUserSelectedConsentManager(
+      state.consents.cookieConsentOptions.value,
+    );
+    if (!selectedConsentManager || !SUPPORTED_CONSENT_MANAGERS.includes(selectedConsentManager)) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== (PluginName.ConsentManager || PluginName.OneTrust),
       );
     }
 

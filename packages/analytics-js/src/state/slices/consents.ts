@@ -5,12 +5,14 @@ export type ConsentsState = {
   deniedConsentIds: Signal<string[]>;
   allowedConsentIds: Signal<string[]>;
   cookieConsentOptions: Signal<CookieConsentOptions>;
+  consentManagerInitialized: Signal<boolean>;
 };
 
 const consentsState: ConsentsState = {
   deniedConsentIds: signal([]),
   allowedConsentIds: signal([]),
   cookieConsentOptions: signal({}),
+  consentManagerInitialized: signal(false),
 };
 
 export { consentsState };
