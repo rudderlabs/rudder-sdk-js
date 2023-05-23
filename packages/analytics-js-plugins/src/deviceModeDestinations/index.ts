@@ -33,6 +33,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       console.log('loadIntegrationsTest');
     },
     load_integrations(
+      destSDKBaseURL: string,
       clientIntegrations: any[],
       state: any,
       externalSrcLoader: IExternalSrcLoader,
@@ -75,7 +76,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         console.log(intg);
         const pluginName = `${intg.name}_RS`; // this is the name of the object loaded on the window
         const modName = intg.name;
-        const modURL = `https://cdn.rudderlabs.com/v1.1/js-integrations/${modName}.min.js`;
+        const modURL = `${destSDKBaseURL}/${modName}.min.js`;
 
         if (!(window as any)[pluginName]) {
           externalSrcLoader

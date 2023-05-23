@@ -17,6 +17,7 @@
     "build:npm:modern": "lerna run build:npm:modern",
     "build:worker": "lerna run build:worker",
     "build:package": "lerna run build:package",
+    "build:integrations": "cd packages/analytics-v1.1 && npm run build:integration:all:modern && npm run build:integration:all",
     "test": "lerna run --concurrency 1 test",
     "test:ci": "lerna run --concurrency 1 test:ci",
     "check:lint": "lerna run check:lint",

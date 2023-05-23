@@ -24,7 +24,7 @@ const lifecycleState: LifecycleState = {
   activeDataplaneUrl: signal(undefined),
   integrationsCDNPath: signal(DEST_SDK_BASE_URL),
   pluginsCDNPath: signal(PLUGINS_BASE_URL),
-  sourceConfigUrl: signal(CONFIG_URL),
+  sourceConfigUrl: signal(CONFIG_URL()),
   status: signal(undefined),
   initialized: signal(false),
   logLevel: signal(LogLevel.Error),

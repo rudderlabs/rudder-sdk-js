@@ -236,7 +236,8 @@ export type LoadOptions = {
   loadIntegration?: boolean; // defaults to true.
   sessions: SessionOpts;
   secureCookie?: boolean; // defaults to false.
-  destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
+  destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v3/latest/modern/js-integrations
+  pluginsSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v3/latest/modern/plugins
   useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;

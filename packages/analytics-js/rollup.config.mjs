@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -15,31 +16,41 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
+import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
 import externalGlobals from "rollup-plugin-external-globals";
 import * as dotenv from 'dotenv';
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from './package.json' assert { type: 'json' };
 
-const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
+dotenv.config();
+const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/modern/plugins';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist${variantSubfolder}`;
+const outDirNpmRoot = `dist/npm`;
+const outDirCDNRoot = `dist/cdn`;
+const outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
+const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
+const remotePluginsExportsFilename = `rudder-analytics-plugins`;
+const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? "" + window.RudderStackGlobals.app.pluginsCDNPath + "/' + `${remotePluginsExportsFilename}.js` + '" : ' + `"${remotePluginsBasePath}/${remotePluginsExportsFilename}.js` + '")';
 
-export function getDefaultConfig(distName, moduleType = 'npm') {
+  export function getDefaultConfig(distName, moduleType = 'npm') {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isLocalServerEnabled = moduleType === 'cdn' && process.env.DEV_SERVER;
-  dotenv.config();
+  const isNpmPackageBuild = moduleType === 'npm';
+  const isCDNPackageBuild = moduleType === 'cdn';
+  const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
 
   return {
-    //preserveEntrySignatures: false,
     watch: {
       include: ['src/**', 'public/**'],
     },
-    external: [...Object.keys(pkg.peerDependencies || {})],
+    external: [
+      /rudderAnalyticsRemotePlugins\/.*/,
+      ...Object.keys(pkg.peerDependencies || {})
+    ],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -95,7 +106,11 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       !isLegacyBuild &&
       federation({
         remotes: {
-          remotePlugins: `${remotePluginsBasePath}/modern/remotePlugins.js`,
+          rudderAnalyticsRemotePlugins: {
+            // use promise to set the path to allow override via loadOption value in case of proxy
+            external: remotePluginsHostPromise,
+            externalType: 'promise'
+          },
         }
       }),
       process.env.UGLIFY === 'true' &&
@@ -106,14 +121,13 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             comments: false,
           },
         }),
-      moduleType === 'npm' &&
+      isNpmPackageBuild && !isLegacyBuild &&
         copy({
           targets: [
-            { src: 'types/index.d.ts', dest: outDir },
-            { src: 'package.json', dest: outDir },
-            { src: 'README.md', dest: outDir },
-            { src: 'CHANGELOG.md', dest: outDir },
-            { src: 'LICENSE', dest: outDir },
+            { src: 'package.json', dest: outDirNpmRoot },
+            { src: 'README.md', dest: outDirNpmRoot },
+            { src: 'CHANGELOG.md', dest: outDirNpmRoot },
+            { src: 'LICENSE', dest: outDirNpmRoot },
           ],
         }),
       filesize({
@@ -140,13 +154,14 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             __CONFIG_SERVER_HOST__:
               process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+            __PLUGINS_BASE_URL__: remotePluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,
           },
         }),
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
+          openPage: `/cdn/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,
@@ -161,7 +176,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
 
 const outputFilesNpm = [
   {
-    dir: outDir + '/esm/',
+    dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
     sourcemap: sourceMapType,
@@ -170,7 +185,7 @@ const outputFilesNpm = [
     },
   },
   {
-    dir: outDir + '/cjs',
+    dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
     sourcemap: sourceMapType,
@@ -179,7 +194,7 @@ const outputFilesNpm = [
     },
   },
   {
-    dir: outDir + '/umd',
+    dir: outDirNpm + '/umd',
     format: 'umd',
     name: modName,
     sourcemap: sourceMapType,
@@ -190,7 +205,8 @@ const outputFilesNpm = [
 ];
 const outputFilesCdn = [
   {
-    dir: outDir + '/iife',
+    entryFileNames: `${distName}${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
+    dir: outDirCDN + '/iife',
     format: 'iife',
     name: modName,
     sourcemap: sourceMapType,
@@ -225,9 +241,23 @@ const buildEntries = process.env.ONLY_IIFE === 'true' ? [
   },
   {
     input: `dist/dts/packages/analytics-js/src/index.d.ts`,
-    plugins: [dts()],
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js',
+            replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+          }
+        ]
+      }),
+      dts()
+    ],
     output: {
-      file: `${outDir}/index.d.ts`,
+      file: `${outDirNpmRoot}/index.d.ts`,
       format: 'es',
     },
   },

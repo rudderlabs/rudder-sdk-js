@@ -21,7 +21,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 describe('CDN Paths: getIntegrationsCDNPath', () => {
   const dummyCustomURL = 'https://www.dummy.url/integrations';
   const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
-  const dummyVersion = '2.x.x';
+  const dummyVersion = '3.x.x';
 
   beforeEach(() => {
     getSDKUrl.mockImplementation(() => dummyScriptURL);
@@ -50,7 +50,7 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
 
   it('should return script src path with versioned folder if script src exists and integrations version is locked', () => {
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, undefined);
-    expect(integrationsCDNPath).toBe('https://www.dummy.url/fromScript/2.x.x/js-integrations');
+    expect(integrationsCDNPath).toBe('https://www.dummy.url/fromScript/3.x.x/js-integrations');
   });
 
   it('should return default path if no script src exists and integrations version is not locked', () => {
@@ -64,6 +64,8 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
     getSDKUrl.mockImplementation(() => undefined);
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, undefined);
-    expect(integrationsCDNPath).toBe(`${SDK_CDN_BASE_URL}/${dummyVersion}/${CDN_INT_DIR}`);
+    expect(integrationsCDNPath).toBe(
+      `${SDK_CDN_BASE_URL}/${dummyVersion}/latest/modern/${CDN_INT_DIR}`,
+    );
   });
 });

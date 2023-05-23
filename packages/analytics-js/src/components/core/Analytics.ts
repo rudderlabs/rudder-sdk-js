@@ -250,7 +250,7 @@ class Analytics implements IAnalytics {
   // TODO: dummy implementation for testing until we implement device mode
   //  create proper implementation once relevant task is picked up
   loadIntegrations() {
-    if (isEmpty(state.nativeDestinations.clientIntegrations)) {
+    if (isEmpty(state.nativeDestinations.clientIntegrations.value)) {
       state.lifecycle.status.value = LifecycleStatus.Ready;
       return;
     }
@@ -267,6 +267,7 @@ class Analytics implements IAnalytics {
 
     this.pluginsManager.invokeMultiple(
       'remote.load_integrations',
+      state.loadOptions.value.destSDKBaseURL,
       state.nativeDestinations.clientIntegrations.value,
       state,
       this.externalSrcLoader,

@@ -12,13 +12,12 @@ import {
 } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { removeTrailingSlashes } from "@rudderstack/analytics-js/components/utilities/url";
-import {
-  filterEnabledDestination
-} from "@rudderstack/analytics-js/components/utilities/destinations";
+import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
+import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { CONFIG_URL } from '@rudderstack/analytics-js/constants/urls';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
-import { getIntegrationsCDNPath } from './util/cdnPaths';
+import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
 
 class ConfigManager implements IConfigManager {
@@ -53,23 +52,38 @@ class ConfigManager implements IConfigManager {
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
-    // determine the path to fetch integration SDK url from
-    const intgCdnUrl = getIntegrationsCDNPath(
-      APP_VERSION,
-      lockIntegrationsVersion,
-      state.loadOptions.value.destSDKBaseURL,
-    );
 
-    // set application lifecycle state in global state
-    batch(() => {
-      if (state.loadOptions.value.logLevel) {
-        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
-      }
-      state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
-      if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
-      }
-    });
+    try {
+      // determine the path to fetch integration SDK from
+      const intgCdnUrl = getIntegrationsCDNPath(
+        APP_VERSION,
+        lockIntegrationsVersion,
+        state.loadOptions.value.destSDKBaseURL,
+      );
+      // determine the path to fetch remote plugins from
+      const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+
+      // set application lifecycle state in global state
+      batch(() => {
+        state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
+        state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
+
+        if (state.loadOptions.value.logLevel) {
+          state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
+        }
+
+        if (state.loadOptions.value.configUrl) {
+          state.lifecycle.sourceConfigUrl.value = `${CONFIG_URL(
+            state.loadOptions.value.configUrl,
+          )}&writeKey=${
+            state.lifecycle.writeKey.value
+          }&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+        }
+      });
+    } catch (e) {
+      this.onError(e);
+      return;
+    }
 
     this.getConfig();
   }

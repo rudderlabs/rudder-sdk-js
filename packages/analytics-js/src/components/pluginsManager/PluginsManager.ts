@@ -12,6 +12,7 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -41,6 +42,11 @@ class PluginsManager implements IPluginsManager {
    */
   init() {
     state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+    // Expose pluginsCDNPath to global object, so it can be used in the promise that determines
+    // remote plugin cdn path to support proxied plugin remotes
+    if (!__BUNDLE_ALL_PLUGINS__) {
+      setExposedGlobal('pluginsCDNPath', state.lifecycle.pluginsCDNPath.value);
+    }
     this.setActivePlugins();
     this.registerLocalPlugins();
     this.registerRemotePlugins();
