@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Extract feature name from branch
         shell: bash
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/beta})" >>$GITHUB_OUTPUT
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/beta/})" >>$GITHUB_OUTPUT
         id: extract_branch
 
       - name: Configure AWS Credentials
