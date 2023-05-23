@@ -1,16 +1,11 @@
 import { handleError, normalizeError } from '../../src/utils/errorHandler';
-import { notifyError } from '../../src/utils/notifyError';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../src/utils/constants';
 
-jest.mock('../../src/utils/notifyError', () => {
-  const originalModule = jest.requireActual('../../src/utils/notifyError');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    notifyError: jest.fn(() => {}),
-  };
-});
+window.rudderanalytics = {
+  errorReporting: {
+    notify: jest.fn(),
+  },
+};
 
 const staticMessage = '[handleError]::';
 const customMessage = '[Device-mode]:: [Destination: Sample]:: ';
@@ -54,12 +49,12 @@ describe("Test group for 'handleError' method", () => {
     const errMessage = `sample error message`;
     const err = new Error(errMessage);
     handleError(err);
-    expect(notifyError).toHaveBeenCalled();
+    expect(window.rudderanalytics.errorReporting.notify).toHaveBeenCalledWith(err);
   });
   it('Should not notify for request failed errors', () => {
     const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;
     const obj = new Error(errMessage);
     handleError(obj);
-    expect(notifyError).not.toHaveBeenCalled();
+    expect(window.rudderanalytics.errorReporting.notify).not.toHaveBeenCalled();
   });
 });
