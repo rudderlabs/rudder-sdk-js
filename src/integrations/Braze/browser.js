@@ -5,7 +5,7 @@ import * as R from 'ramda';
 import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
-import { Storage } from '../../utils/storage/storage';
+import Storage from '../../utils/storage/index';
 import { isObject } from '../../utils/utils';
 
 const logger = new Logger(NAME);
@@ -202,13 +202,18 @@ class Braze {
     }
     // function set Birthday
     function setBirthday() {
-      window.braze
-        .getUser()
-        .setDateOfBirth(
-          calculatedBirthday.getUTCFullYear(),
-          calculatedBirthday.getUTCMonth() + 1,
-          calculatedBirthday.getUTCDate(),
-        );
+      try {
+        const date = new Date(calculatedBirthday);
+        if (date.toString() === 'Invalid Date') {
+          logger.error('Invalid Date for birthday');
+          return;
+        }
+        window.braze
+          .getUser()
+          .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+      } catch (error) {
+        logger.error('Error in setting birthday', error);
+      }
     }
     // function set Email
     function setEmail() {
@@ -238,7 +243,7 @@ class Braze {
     } = rudderElement;
     let clonedTraits = {};
     if (traits) {
-      clonedTraits = cloneDeep(rudderElement.message.context.traits);
+      clonedTraits = cloneDeep(traits);
     }
 
     reserved.forEach((element) => {
@@ -246,13 +251,8 @@ class Braze {
     });
 
     const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || null;
-    if (
-      this.supportDedup &&
-      !R.isEmpty(previousPayload) &&
-      userId === previousPayload?.message?.userId
-    ) {
-      const prevMessage = previousPayload?.message;
-      const prevTraits = prevMessage?.context?.traits;
+    if (this.supportDedup && !R.isEmpty(previousPayload) && userId === previousPayload?.userId) {
+      const prevTraits = previousPayload?.context?.traits;
       const prevAddress = prevTraits?.address;
       const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
       const prevEmail = prevTraits?.email;
@@ -261,15 +261,13 @@ class Braze {
       const prevLastname = prevTraits?.lastname || prevTraits?.lastName;
       const prevPhone = prevTraits?.phone;
 
-      if (address && !isEqual(address, prevAddress)) setAddress();
-      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
       if (email && email !== prevEmail) setEmail();
-      if (firstname && firstname !== prevFirstname) setFirstName();
-      if (gender && this.formatGender(gender) !== this.formatGender(prevGender))
-        setGender(this.formatGender(gender));
-      if (lastname && lastname !== prevLastname) setLastName();
       if (phone && phone !== prevPhone) setPhone();
-
+      if (calculatedBirthday && !isEqual(calculatedBirthday, prevBirthday)) setBirthday();
+      if (calculatedFirstName && calculatedFirstName !== prevFirstname) setFirstName();
+      if (calculatedLastName && calculatedLastName !== prevLastname) setLastName();
+      if (gender && this.formatGender(gender) !== this.formatGender(prevGender)) setGender(this.formatGender(gender));
+      if (address && !isEqual(address, prevAddress)) setAddress();
       Object.keys(traits).forEach((key) => {
         if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
           window.braze.getUser().setCustomUserAttribute(key, traits[key]);
@@ -280,19 +278,20 @@ class Braze {
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
       // window.braze.getUser().setAvatarImageUrl(avatar);
       if (email) setEmail();
-      if (firstname) setFirstName();
+      if (calculatedFirstName) setFirstName();
+      if (calculatedLastName) setLastName();
       if (gender) setGender(this.formatGender(gender));
-      if (lastname) setLastName();
       if (phone) setPhone();
       if (address) setAddress();
-      if (birthday) setBirthday();
-
+      if (calculatedBirthday) setBirthday();
       Object.keys(traits).forEach((key) => {
         window.braze.getUser().setCustomUserAttribute(key, traits[key]);
       });
     }
     if (this.supportDedup && isObject(previousPayload) && !R.isEmpty(previousPayload)) {
-      Storage.setItem('rs_braze_dedup_attributes', { ...previousPayload, ...rudderElement });
+      Storage.setItem('rs_braze_dedup_attributes', { ...previousPayload, ...message });
+    } else if (this.supportDedup) {
+      Storage.setItem('rs_braze_dedup_attributes', message);
     }
   }
 
