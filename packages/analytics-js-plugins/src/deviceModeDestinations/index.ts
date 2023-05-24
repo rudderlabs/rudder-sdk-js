@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ExtensionPlugin, IExternalSrcLoader, PluginName, ApplicationState } from '../types/common';
 
+// TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
 const pluginName = PluginName.DeviceModeDestinations;
 
 const LOAD_CHECK_POLL_INTERVAL = 1000;

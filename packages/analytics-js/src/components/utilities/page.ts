@@ -59,7 +59,7 @@ const getLanguage = (): Nullable<string> => {
  * Default page properties
  * @returns Default page properties
  */
-const getDefaultPageProperties = () => {
+const getDefaultPageProperties = (): Record<string, any> => {
   const canonicalUrl = getCanonicalUrl();
   let path = window.location.pathname;
   const { href: tabUrl } = window.location;
@@ -67,9 +67,10 @@ const getDefaultPageProperties = () => {
   const { search } = window.location;
   if (canonicalUrl) {
     try {
-      // The logic in v1.1 was to use parse from component-url
       const urlObj = new URL(canonicalUrl);
-      if (urlObj.search === '') pageUrl = canonicalUrl + search;
+      if (urlObj.search === '') {
+        pageUrl = canonicalUrl + search;
+      }
 
       path = urlObj.pathname;
     } catch (err) {

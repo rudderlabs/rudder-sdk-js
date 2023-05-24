@@ -152,7 +152,7 @@ class PluginsManager implements IPluginsManager {
    */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      if (state.plugins.activePlugins.value.includes(localPlugin.name)) {
+      if (state.plugins.activePlugins.value.includes(localPlugin().name)) {
         this.register([localPlugin()]);
       }
     });

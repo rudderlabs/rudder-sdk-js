@@ -7,7 +7,6 @@ import { cookie } from '../component-cookie';
  * The method returns an empty array when the hostname is an ip.
  */
 const levelsFunc = (url: string): string[] => {
-  // TODO: add the polyfill for IE11
   const host = new URL(url).hostname;
   const parts = host.split('.');
   const last = parts[parts.length - 1];
