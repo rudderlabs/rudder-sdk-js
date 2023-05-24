@@ -16,26 +16,19 @@ const ConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(
-      state: ApplicationState,
-      pluginsManager: IPluginsManager,
-      selectedConsentManager: string,
-      logger?: ILogger,
-    ): void {
+    init(state: ApplicationState, pluginsManager: IPluginsManager, logger?: ILogger): void {
       logger?.debug('ConsentManager initialization');
 
-      if (selectedConsentManager) {
-        // Initialize selected consent manager and get the consent info
-        const { consentManagerInitialized, allowedConsentIds, deniedConsentIds } =
-          pluginsManager.invokeSingle(`${selectedConsentManager}.init`, logger);
+      // Initialize selected consent manager and get the consent info
+      const { consentManagerInitialized, allowedConsentIds, deniedConsentIds } =
+        pluginsManager.invokeSingle(`coreConsentManager.getConsentInfo`, logger);
 
-        // Only if the selected consent manager initialization is successful
-        // set consent info in state
-        if (consentManagerInitialized) {
-          state.consents.consentManagerInitialized.value = true;
-          state.consents.allowedConsentIds.value = allowedConsentIds ?? [];
-          state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
-        }
+      // Only if the selected consent manager initialization is successful
+      // set consent info in state
+      if (consentManagerInitialized) {
+        state.consents.consentManagerInitialized.value = true;
+        state.consents.allowedConsentIds.value = allowedConsentIds ?? [];
+        state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
       }
     },
   },

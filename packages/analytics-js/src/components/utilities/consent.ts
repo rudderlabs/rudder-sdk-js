@@ -1,4 +1,5 @@
 import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
+import { isNonEmptyObject } from './object';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
@@ -14,15 +15,12 @@ import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
  * Output: 'oneTrust'
  */
 const getUserSelectedConsentManager = (
-  cookieConsentOptions: CookieConsentOptions,
+  cookieConsentOptions?: CookieConsentOptions,
 ): string | undefined => {
-  if (
-    !cookieConsentOptions ||
-    typeof cookieConsentOptions !== 'object' ||
-    Object.keys(cookieConsentOptions).length <= 0
-  ) {
+  if (!cookieConsentOptions || !isNonEmptyObject(cookieConsentOptions)) {
     return undefined;
   }
+
   return Object.keys(cookieConsentOptions).find(e => e && cookieConsentOptions[e].enabled === true);
 };
 

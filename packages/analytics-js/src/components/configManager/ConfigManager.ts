@@ -17,7 +17,8 @@ import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/util
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse } from './types';
+import { IConfigManager, SourceConfigResponse, SupportedConsentManagers } from './types';
+import { getUserSelectedConsentManager } from '../utilities/consent';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -48,6 +49,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
+    let consentManagerPluginName: string | undefined;
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
@@ -58,6 +60,22 @@ class ConfigManager implements IConfigManager {
       state.loadOptions.value.destSDKBaseURL,
     );
 
+    // Get the consent manager if provided as load option
+    const selectedConsentManager = getUserSelectedConsentManager(
+      state.loadOptions.value.cookieConsentManager,
+    );
+
+    if (selectedConsentManager) {
+      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+      consentManagerPluginName =
+        SupportedConsentManagers[selectedConsentManager as keyof typeof SupportedConsentManagers];
+      if (!consentManagerPluginName) {
+        this.logger?.error(
+          `[ConsentManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
+        );
+      }
+    }
+
     // set application lifecycle state in global state
     batch(() => {
       if (state.loadOptions.value.logLevel) {
@@ -67,9 +85,8 @@ class ConfigManager implements IConfigManager {
       if (state.loadOptions.value.configUrl) {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
-      // set cookie consent option provided as load option in consent state
-      state.consents.cookieConsentOptions.value =
-        state.loadOptions.value.cookieConsentManager ?? {};
+      // Set consent manager plugin name in state
+      state.consents.consentManager.value = consentManagerPluginName;
     });
 
     this.getConfig();

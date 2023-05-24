@@ -28,7 +28,7 @@ describe('Plugin - OneTrust', () => {
       allowedConsentIds: ['C0001', 'C0003'],
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     };
-    const consentInfo = OneTrust().oneTrust.init(defaultLogger);
+    const consentInfo = OneTrust().coreConsentManager.getConsentInfo(defaultLogger);
     expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
   });
   it('should not initialize the OneTrust plugin and return consentManagerInitialized as false if OneTrust native SDK is not loaded', () => {
@@ -38,7 +38,7 @@ describe('Plugin - OneTrust', () => {
     const mockResponseFromOneTrust = {
       consentManagerInitialized: false,
     };
-    const consentInfo = OneTrust().oneTrust.init(defaultLogger);
+    const consentInfo = OneTrust().coreConsentManager.getConsentInfo(defaultLogger);
     expect(defaultLogger.error).toHaveBeenCalledWith('OneTrust resources are not accessible.');
     expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
   });

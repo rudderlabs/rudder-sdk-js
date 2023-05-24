@@ -12,7 +12,6 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { SUPPORTED_CONSENT_MANAGERS } from '@rudderstack/analytics-js/constants/consent';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -20,7 +19,7 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
-import { getUserSelectedConsentManager } from '../utilities/consent';
+import { SupportedConsentManagers } from '../configManager/types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -89,16 +88,6 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    // Consent manager related plugins
-    const selectedConsentManager: string | undefined = getUserSelectedConsentManager(
-      state.consents.cookieConsentOptions.value,
-    );
-    if (!selectedConsentManager || !SUPPORTED_CONSENT_MANAGERS.includes(selectedConsentManager)) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== (PluginName.ConsentManager || PluginName.OneTrust),
-      );
-    }
-
     // Device mode destinations related plugins
     if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
@@ -112,6 +101,25 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Consent Management related plugins
+    if (state.consents.consentManager.value) {
+      const supportedConsentManagerPlugins: string[] = Object.values(SupportedConsentManagers);
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName !== state.consents.consentManager.value &&
+            supportedConsentManagerPlugins.includes(pluginName)
+          ),
+      );
+    } else {
+      const supportedConsentManagerPlugins: string[] = Object.values(SupportedConsentManagers);
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName === PluginName.ConsentManager ||
+            supportedConsentManagerPlugins.includes(pluginName)
+          ),
+      );
+    }
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }

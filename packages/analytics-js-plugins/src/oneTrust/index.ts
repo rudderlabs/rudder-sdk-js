@@ -10,8 +10,8 @@ const OneTrust = (): ExtensionPlugin => ({
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  oneTrust: {
-    init(logger?: ILogger): ConsentInfo {
+  coreConsentManager: {
+    getConsentInfo(logger?: ILogger): ConsentInfo {
       logger?.debug('OneTrust initialization');
 
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK

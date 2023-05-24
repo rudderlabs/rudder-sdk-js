@@ -37,7 +37,6 @@ import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSe
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { SUPPORTED_CONSENT_MANAGERS } from '@rudderstack/analytics-js/constants/consent';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -46,7 +45,6 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
-import { getUserSelectedConsentManager } from '../utilities/consent';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -212,31 +210,22 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   init() {
-    // Initialise storage
+    // Initialize storage
     this.storeManager.init();
     this.clientDataStore = this.storeManager.getStore('clientData') as Store;
     this.userSessionManager.init(this.clientDataStore);
 
-    // Get user selected consent manager
-    const selectedConsentManager: string | undefined = getUserSelectedConsentManager(
-      state.consents.cookieConsentOptions.value,
-    );
-
-    if (selectedConsentManager) {
-      if (!SUPPORTED_CONSENT_MANAGERS.includes(selectedConsentManager)) {
-        this.logger?.error(`[ConsentManager]:: Provided consent manager is not supported.`);
-      } else {
-        this.pluginsManager.invokeSingle(
-          `consentManager.init`,
-          state,
-          this.pluginsManager,
-          selectedConsentManager,
-          this.logger,
-        );
-      }
+    // Initialize consent manager
+    if (state.consents.consentManager.value) {
+      this.pluginsManager.invokeSingle(
+        `consentManager.init`,
+        state,
+        this.pluginsManager,
+        this.logger,
+      );
     }
 
-    // Initialise event manager
+    // Initialize event manager
     this.eventManager.init();
   }
 

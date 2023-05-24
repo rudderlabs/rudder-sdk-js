@@ -20,7 +20,7 @@ describe('Plugin - ConsentManager', () => {
       deniedConsentIds: ['C0002', 'C0004', 'C0005'],
     };
     defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, defaultPluginsManager, 'oneTrust', defaultLogger);
+    ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
     expect(state.consents.consentManagerInitialized.value).toBeTruthy();
     expect(state.consents.allowedConsentIds.value).toStrictEqual(
       mockResponseFromSelectedConsentManager.allowedConsentIds,
@@ -34,7 +34,7 @@ describe('Plugin - ConsentManager', () => {
       consentManagerInitialized: false,
     };
     defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, defaultPluginsManager, 'oneTrust', defaultLogger);
+    ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
     expect(state.consents.consentManagerInitialized.value).toBe(false);
     expect(state.consents.allowedConsentIds.value).toStrictEqual([]);
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);
