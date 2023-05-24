@@ -56,8 +56,8 @@ function getDefaultPageProperties() {
 
   const referrer = getReferrer();
   const referring_domain = getReferringDomain(referrer);
-  const initial_referrer = Storage.getInitialReferrer();
-  const initial_referring_domain = Storage.getInitialReferringDomain();
+  const initial_referrer = Storage.getInitialReferrer() || '';
+  const initial_referring_domain = Storage.getInitialReferringDomain() || '';
   return {
     path,
     referrer,
