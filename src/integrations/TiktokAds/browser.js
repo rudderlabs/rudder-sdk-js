@@ -9,10 +9,15 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getTrackResponse } from './util';
 
 class TiktokAds {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.eventsToStandard = config.eventsToStandard;
     this.pixelCode = config.pixelCode;
+    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
