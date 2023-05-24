@@ -31,8 +31,8 @@ jobs:
         run: |
           npm ci
           npm run setup
-          npm run test:ci
-          npm run check:lint
+          npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
 
       - name: Fix filesystem paths in generated reports
         run: |
