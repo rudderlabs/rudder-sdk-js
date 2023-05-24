@@ -1,4 +1,9 @@
-import { getDeliveryPayload, getNormalizedQueueOptions, getDeliveryUrl, validatePayloadSize } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+import {
+  getDeliveryPayload,
+  getNormalizedQueueOptions,
+  getDeliveryUrl,
+  validatePayloadSize,
+} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
 import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
 import * as xhrConstants from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
 
@@ -257,7 +262,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
     it('should return default queue options if input queue options is null', () => {
       const queueOptions = getNormalizedQueueOptions(null);
-    
+
       expect(queueOptions).toEqual({
         maxRetryDelay: 360000,
         minRetryDelay: 1000,
@@ -269,7 +274,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
     it('should return default queue options if input queue options is undefined', () => {
       const queueOptions = getNormalizedQueueOptions(undefined);
-    
+
       expect(queueOptions).toEqual({
         maxRetryDelay: 360000,
         minRetryDelay: 1000,
@@ -331,32 +336,35 @@ describe('xhrQueue Plugin Utilities', () => {
         userId: 'test',
         properties: {
           test: 'test',
-        }
+        },
       };
       validatePayloadSize(event, mockLogger);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('The event payload size (129) exceeds the maximum limit of 50 bytes. The event might get dropped.');
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'The event payload size (129) exceeds the maximum limit of 50 bytes. The event might get dropped.',
+      );
     });
 
     it('should not log a warning if the payload size is less than the max limit', () => {
       const event = {
         channel: 'test',
-        type: 'track'
+        type: 'track',
       };
-      
+
       validatePayloadSize(event, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warning if the payload size is equal to the max limit', () => {
+      // This event payload size is 50 bytes
       const event = {
         channel: 'test',
         type: 'track',
         ab: 'd',
-        g: 'j'
+        g: 'j',
       };
-      
+
       validatePayloadSize(event, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
@@ -373,7 +381,7 @@ describe('xhrQueue Plugin Utilities', () => {
         userId: 'test',
         properties: {
           test: 'test',
-        }
+        },
       } as RudderEvent;
 
       event.properties.traits = event.traits;
