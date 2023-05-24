@@ -501,7 +501,7 @@ class FacebookPixel {
       }, legacyTo);
     } else {
       logger.debug('inside custom');
-      if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
+      if (!standardTo[event?.toLowerCase()] && !legacyTo[event?.toLowerCase()]) {
         logger.debug('inside custom not mapped');
         const payloadVal = this.buildPayLoad(rudderElement);
         payloadVal.value = revValue;
