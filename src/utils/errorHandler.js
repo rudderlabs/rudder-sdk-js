@@ -1,6 +1,7 @@
 import logger from './logUtil';
 import { LOAD_ORIGIN, ERROR_MESSAGES_TO_BE_FILTERED } from './constants';
 import { notifyError } from './notifyError';
+import { isInstanceOfEvent, stringifyWithoutCircular } from './ObjectUtils';
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
@@ -10,13 +11,13 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
     } else if (error instanceof Error) {
       errorMessage = error.message;
     } else {
-      errorMessage = error.message ? error.message : JSON.stringify(error);
+      errorMessage = error.message ? error.message : stringifyWithoutCircular(error);
     }
   } catch (e) {
     errorMessage = '';
   }
 
-  if (error instanceof Event) {
+  if (isInstanceOfEvent(error)) {
     // Discard all the non-script loading errors
     if (error.target && error.target.localName !== 'script') {
       return '';
@@ -27,8 +28,9 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
       error.target.dataset &&
       (error.target.dataset.loader !== LOAD_ORIGIN ||
         error.target.dataset.isNonNativeSDK !== 'true')
-    )
+    ) {
       return '';
+    }
 
     errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
 
@@ -68,7 +70,7 @@ const handleError = (error, customMessage, analyticsInstance) => {
     errorMessage = normalizeError(error, customMessage, analyticsInstance);
   } catch (err) {
     logger.error('[handleError] Exception:: ', err);
-    logger.error('[handleError] Original error:: ', JSON.stringify(error));
+    logger.error('[handleError] Original error:: ', stringifyWithoutCircular(error));
     notifyError(err);
   }
 

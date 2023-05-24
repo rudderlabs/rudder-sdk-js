@@ -17,4 +17,27 @@ const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
 const mergeDeepRight = (leftObject, rightObject) =>
   R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-export { mergeDeepRightObjectArrays, mergeDeepRight };
+const stringifyWithoutCircular = (obj, excludeNull) => {
+  const cache = new Set();
+
+  return JSON.stringify(obj, (key, value) => {
+    if (excludeNull && (value === null || value === undefined)) {
+      return undefined;
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        return '[Circular Reference]';
+      }
+
+      // Add the object to the cache to detect circular references
+      cache.add(value);
+    }
+
+    return value;
+  });
+};
+
+const isInstanceOfEvent = (value) => typeof value === 'object' && value !== null && 'target' in value;
+
+export { mergeDeepRightObjectArrays, mergeDeepRight, stringifyWithoutCircular, isInstanceOfEvent };

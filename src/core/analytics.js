@@ -187,12 +187,14 @@ class Analytics {
   integrationSDKLoaded(pluginName, modName) {
     try {
       return (
+        pluginName &&
+        modName &&
         window.hasOwnProperty(pluginName) &&
         window[pluginName][modName] &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
-      handleError(e);
+      handleError(e, `While attempting to load ${pluginName} ${modName}`);
       return false;
     }
   }
@@ -217,7 +219,8 @@ class Analytics {
 
         // Do not proceed if the ultimate response value is not an object
         if (!response || typeof response !== 'object' || Array.isArray(response)) {
-          throw new Error('Invalid source configuration');
+          logger.error('Invalid source configuration');
+          return;
         }
       } catch (err) {
         handleError(err);
@@ -970,7 +973,7 @@ class Analytics {
       }
 
       // logger.debug(`${type} is called `)
-      if (callback) {
+      if (callback && typeof callback === 'function') {
         callback(clonedRudderElement);
       }
     } catch (error) {

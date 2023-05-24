@@ -1,6 +1,5 @@
 /* eslint-disable consistent-return */
 /* eslint-disable camelcase */
-import { parse } from 'component-url';
 import Storage from './storage';
 
 function getReferrer() {
@@ -39,8 +38,17 @@ function getUrl(search) {
 
 function getDefaultPageProperties() {
   const canonicalUrl = getCanonicalUrl();
-  const path = canonicalUrl ? parse(canonicalUrl).pathname : window.location.pathname;
-  // const { referrer } = document;
+  let path = window.location.pathname;
+
+  if (canonicalUrl) {
+    try {
+      const urlObj = new URL(canonicalUrl);
+      path = urlObj.pathname;
+    } catch (err) {
+      // Do nothing
+    }
+  }
+
   const { search, href } = window.location;
   const { title } = document;
   const url = getUrl(search);
