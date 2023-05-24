@@ -270,6 +270,4 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 }
 
-// TODO: ensure the user, group and anonymous id is always converted to string if its number
-
 export { RudderAnalytics };

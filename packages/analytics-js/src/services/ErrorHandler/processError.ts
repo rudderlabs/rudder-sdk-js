@@ -1,7 +1,7 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
-import { serializeError } from 'serialize-error';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { SDKError } from './types';
 
 /**
@@ -48,10 +48,9 @@ const processError = (error: SDKError): string => {
     } else if (isEvent(error)) {
       errorMessage = processScriptLoadError(error as Event);
     } else {
-      // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError but takes up bundle size
       errorMessage = (error as any).message
         ? (error as any).message
-        : JSON.stringify(serializeError(error));
+        : stringifyWithoutCircular(error as Record<string, any>);
     }
   } catch (e) {
     errorMessage = `Unknown error: ${(e as Error).message}`;

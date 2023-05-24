@@ -1,0 +1,79 @@
+import { clone } from 'ramda';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+
+const identifyTraitsPayloadMock: Record<string, any> = {
+  firstName: 'Dummy Name',
+  phone: '1234567890',
+  email: 'dummy@email.com',
+  custom_flavor: 'chocolate',
+  custom_date: new Date(2022, 1, 21, 0, 0, 0),
+  address: [
+    {
+      label: 'office',
+      city: 'Brussels',
+      country: 'Belgium',
+    },
+    {
+      label: 'home',
+      city: 'Kolkata',
+      country: 'India',
+      nested: {
+        type: 'flat',
+        rooms: [
+          {
+            name: 'kitchen',
+            size: 'small',
+          },
+          {
+            // eslint-disable-next-line sonarjs/no-duplicate-string
+            name: 'living room',
+            size: 'large',
+          },
+          {
+            name: 'bedroom',
+            size: 'large',
+          },
+        ],
+      },
+    },
+    {
+      label: 'work',
+      city: 'Kolkata',
+      country: 'India',
+    },
+  ],
+  stringArray: ['string1', 'string2', 'string3'],
+  numberArray: [1, 2, 3],
+};
+
+const circularReferenceNotice = '[Circular Reference]';
+
+describe('Common Utils - JSON', () => {
+  it('should stringify json with circular references', () => {
+    const objWithCircular = clone(identifyTraitsPayloadMock);
+    objWithCircular.myself = objWithCircular;
+
+    const json = stringifyWithoutCircular(objWithCircular);
+    expect(json).toContain(circularReferenceNotice);
+  });
+
+  it('should stringify json with circular references and exclude null values', () => {
+    const objWithCircular = clone(identifyTraitsPayloadMock);
+    objWithCircular.myself = objWithCircular;
+    objWithCircular.keyToExclude = null;
+    objWithCircular.keyToNotExclude = '';
+
+    const json = stringifyWithoutCircular(objWithCircular, true);
+    expect(json).toContain(circularReferenceNotice);
+    expect(json).not.toContain('keyToExclude');
+    expect(json).toContain('keyToNotExclude');
+  });
+
+  it('should stringify json with out circular references', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    objWithoutCircular.myself = {};
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).not.toContain(circularReferenceNotice);
+  });
+});
