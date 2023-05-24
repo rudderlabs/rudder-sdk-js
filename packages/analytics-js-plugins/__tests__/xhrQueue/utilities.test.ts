@@ -1,4 +1,4 @@
-import { getDeliveryPayload, getNormalizedQueueOptions } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+import { getDeliveryPayload, getNormalizedQueueOptions, getDeliveryUrl } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
 import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
 
 describe('xhrQueue Plugin Utilities', () => {
@@ -292,6 +292,20 @@ describe('xhrQueue Plugin Utilities', () => {
         maxAttempts: 100,
         maxItems: 100,
       });
+    });
+  });
+
+  describe('getDeliveryUrl', () => {
+    it('should return delivery url if valid dataplane url and event type are provided', () => {
+      const deliveryUrl = getDeliveryUrl('https://test.com', 'track');
+
+      expect(deliveryUrl).toEqual('https://test.com/v1/track');
+    });
+
+    it('should return delivery url if even if dataplane url contains extra slashes', () => {
+      const deliveryUrl = getDeliveryUrl('https://test.com/', 'track');
+
+      expect(deliveryUrl).toEqual('https://test.com/v1/track');
     });
   });
 });
