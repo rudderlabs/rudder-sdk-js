@@ -52,13 +52,13 @@ export default class GA4 {
     if (sendUserIdToGA4(this.analytics.loadOnlyIntegrations) && this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
-    gtagParameterObject.cookie_prefix = 'rs';
+
     if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
+      gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.anonymousId;
-    }
-    if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
       gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     }
+
     gtagParameterObject.debug_mode = true;
 
     if (Object.keys(gtagParameterObject).length === 0) {
@@ -221,12 +221,8 @@ export default class GA4 {
   }
 
   identify(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return;
-    }
-
     logger.debug('In GoogleAnalyticsManager Identify');
+
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     // Setting the userId as a part of configuration
     if (sendUserIdToGA4(rudderElement.message.integrations) && rudderElement.message.userId) {
