@@ -1,4 +1,11 @@
-import { normalizeError } from '../../src/utils/errorHandler';
+import { handleError, normalizeError } from '../../src/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../src/utils/constants';
+
+window.rudderanalytics = {
+  errorReporting: {
+    notify: jest.fn(),
+  },
+};
 
 const staticMessage = '[handleError]::';
 const customMessage = '[Device-mode]:: [Destination: Sample]:: ';
@@ -34,5 +41,20 @@ describe("Test group for 'normalizeError' method", () => {
     const obj = { random: 12345678 };
     const errMessage = normalizeError(obj);
     expect(errMessage).toBe(`${staticMessage} "${JSON.stringify(obj)}"`);
+  });
+});
+
+describe("Test group for 'handleError' method", () => {
+  it('Should notify errors when the error is not coming from request failed', () => {
+    const errMessage = `sample error message`;
+    const err = new Error(errMessage);
+    handleError(err);
+    expect(window.rudderanalytics.errorReporting.notify).toHaveBeenCalledWith(err);
+  });
+  it('Should not notify for request failed errors', () => {
+    const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;
+    const obj = new Error(errMessage);
+    handleError(obj);
+    expect(window.rudderanalytics.errorReporting.notify).not.toHaveBeenCalled();
   });
 });

@@ -1,21 +1,8 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
+import { LOAD_ORIGIN, ERROR_MESSAGES_TO_BE_FILTERED } from './constants';
+import { notifyError } from './notifyError';
 
-/**
- * This function is to send handled errors to available error reporting client
- *
- * @param {Error} error Error instance from handled error
- */
-function notifyError(error) {
-  const errorReportingClient =
-    window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
-
-  if (errorReportingClient && error instanceof Error) {
-    errorReportingClient.notify(error);
-  }
-}
-
-function normalizeError(error, customMessage, analyticsInstance) {
+const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
   try {
     if (typeof error === 'string') {
@@ -60,9 +47,21 @@ function normalizeError(error, customMessage, analyticsInstance) {
 
   const customErrMessagePrefix = customMessage || '';
   return `[handleError]::${customErrMessagePrefix} "${errorMessage}"`;
-}
+};
 
-function handleError(error, customMessage, analyticsInstance) {
+/**
+ * A function to determine whether the error should be notified or not
+ * @param {Error} error
+ * @returns
+ */
+const isAllowedToBeNotified = (error) => {
+  if (error.message) {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some((e) => error.message.includes(e));
+  }
+  return true;
+};
+
+const handleError = (error, customMessage, analyticsInstance) => {
   let errorMessage;
 
   try {
@@ -78,7 +77,10 @@ function handleError(error, customMessage, analyticsInstance) {
   }
 
   logger.error(errorMessage);
-  notifyError(error);
-}
+  // Check if the error is allowed to be notified
+  if (isAllowedToBeNotified(error)) {
+    notifyError(error);
+  }
+};
 
-export { notifyError, handleError, normalizeError };
+export { handleError, normalizeError };
