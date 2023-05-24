@@ -1,23 +1,24 @@
-import { getDeliveryPayload, getNormalizedQueueOptions, getDeliveryUrl } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+import { getDeliveryPayload, getNormalizedQueueOptions, getDeliveryUrl, validatePayloadSize } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
 import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import * as xhrConstants from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
+
+class MockLogger implements ILogger {
+  warn = jest.fn();
+  log = jest.fn();
+  error = jest.fn();
+  info = jest.fn();
+  debug = jest.fn();
+  minLogLevel = 0;
+  scope = 'test scope';
+  setMinLogLevel = jest.fn();
+  setScope = jest.fn();
+  logProvider = console;
+}
+
+const mockLogger = new MockLogger();
 
 describe('xhrQueue Plugin Utilities', () => {
   describe('getDeliveryPayload', () => {
-    class MockLogger implements ILogger {
-      warn = jest.fn();
-      log = jest.fn();
-      error = jest.fn();
-      info = jest.fn();
-      debug = jest.fn();
-      minLogLevel = 0;
-      scope = 'test scope';
-      setMinLogLevel = jest.fn();
-      setScope = jest.fn();
-      logProvider = console;
-    }
-
-    const mockLogger = new MockLogger();
-
     it('should return undefined if event is undefined', () => {
       expect(getDeliveryPayload(undefined)).not.toBeDefined();
     });
@@ -306,6 +307,81 @@ describe('xhrQueue Plugin Utilities', () => {
       const deliveryUrl = getDeliveryUrl('https://test.com/', 'track');
 
       expect(deliveryUrl).toEqual('https://test.com/v1/track');
+    });
+  });
+
+  describe('validatePayloadSize', () => {
+    const originalMaxEventPayloadSize = xhrConstants.MAX_EVENT_PAYLOAD_SIZE_BYTES;
+    beforeEach(() => {
+      xhrConstants.MAX_EVENT_PAYLOAD_SIZE_BYTES = 50;
+    });
+
+    afterEach(() => {
+      xhrConstants.MAX_EVENT_PAYLOAD_SIZE_BYTES = originalMaxEventPayloadSize;
+    });
+
+    it('should log a warning if the payload size is greater than the max limit', () => {
+      const event = {
+        channel: 'test',
+        type: 'track',
+        traits: {
+          trait_1: 'trait_1',
+          trait_2: 'trait_2',
+        },
+        userId: 'test',
+        properties: {
+          test: 'test',
+        }
+      };
+      validatePayloadSize(event, mockLogger);
+
+      expect(mockLogger.warn).toHaveBeenCalledWith('The event payload size (129) exceeds the maximum limit of 50 bytes. The event might get dropped.');
+    });
+
+    it('should not log a warning if the payload size is less than the max limit', () => {
+      const event = {
+        channel: 'test',
+        type: 'track'
+      };
+      
+      validatePayloadSize(event, mockLogger);
+
+      expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
+    it('should not log a warning if the payload size is equal to the max limit', () => {
+      const event = {
+        channel: 'test',
+        type: 'track',
+        ab: 'd',
+        g: 'j'
+      };
+      
+      validatePayloadSize(event, mockLogger);
+
+      expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
+    it('should log an error if the payload size could not be calculated', () => {
+      const event = {
+        channel: 'test',
+        type: 'track',
+        traits: {
+          trait_1: 'trait_1',
+          trait_2: 'trait_2',
+        },
+        userId: 'test',
+        properties: {
+          test: 'test',
+        }
+      } as RudderEvent;
+
+      event.properties.traits = event.traits;
+      event.traits.newTraits = event.properties;
+
+      validatePayloadSize(event, mockLogger);
+
+      expect(mockLogger.error).toHaveBeenCalledWith('Error while calculating event payload size.');
     });
   });
 });
