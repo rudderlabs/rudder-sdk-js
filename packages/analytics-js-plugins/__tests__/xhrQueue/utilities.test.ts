@@ -1,4 +1,4 @@
-import { getDeliveryPayload } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+import { getDeliveryPayload, getNormalizedQueueOptions } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
 import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
 
 describe('xhrQueue Plugin Utilities', () => {
@@ -238,6 +238,60 @@ describe('xhrQueue Plugin Utilities', () => {
         .toHaveBeenCalledWith(`Error while converting event object to string. Error: TypeError: Converting circular structure to JSON
     --> starting at object with constructor 'Object'
     --- property 'newTraits' closes the circle.`);
+    });
+  });
+
+  describe('getNormalizedQueueOptions', () => {
+    it('should return default queue options if input queue options is empty object', () => {
+      const queueOptions = getNormalizedQueueOptions({});
+
+      expect(queueOptions).toEqual({
+        maxRetryDelay: 360000,
+        minRetryDelay: 1000,
+        backoffFactor: 2,
+        maxAttempts: 10,
+        maxItems: 100,
+      });
+    });
+
+    it('should return default queue options if input queue options is null', () => {
+      const queueOptions = getNormalizedQueueOptions(null);
+    
+      expect(queueOptions).toEqual({
+        maxRetryDelay: 360000,
+        minRetryDelay: 1000,
+        backoffFactor: 2,
+        maxAttempts: 10,
+        maxItems: 100,
+      });
+    });
+
+    it('should return default queue options if input queue options is undefined', () => {
+      const queueOptions = getNormalizedQueueOptions(undefined);
+    
+      expect(queueOptions).toEqual({
+        maxRetryDelay: 360000,
+        minRetryDelay: 1000,
+        backoffFactor: 2,
+        maxAttempts: 10,
+        maxItems: 100,
+      });
+    });
+
+    it('should return queue options with default values for missing fields', () => {
+      const queueOptions = getNormalizedQueueOptions({
+        maxRetryDelay: 720000,
+        minRetryDelay: 3000,
+        maxAttempts: 100,
+      });
+
+      expect(queueOptions).toEqual({
+        maxRetryDelay: 720000,
+        minRetryDelay: 3000,
+        backoffFactor: 2,
+        maxAttempts: 100,
+        maxItems: 100,
+      });
     });
   });
 });
