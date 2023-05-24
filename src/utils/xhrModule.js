@@ -8,6 +8,7 @@
 import Queue from '@segment/localstorage-retry';
 import { getCurrentTimeFormatted, replacer } from './utils';
 import { handleError } from './errorHandler';
+import {FAILED_REQUEST_ERR_MSG_PREFIX} from './constants';
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -79,16 +80,10 @@ class XHRQueue {
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
-            handleError(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
-              ),
-            );
-            queueFn(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
-              ),
-            );
+            const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} "${xhr.status}" status text: "${xhr.statusText}" for URL: "${url}"`;
+            const err = new Error(errMessage);
+            handleError(err);
+            queueFn(err);
           } else {
             queueFn(null, xhr.status);
           }
