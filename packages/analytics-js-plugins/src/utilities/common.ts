@@ -3,3 +3,4 @@ export { getCurrentTimeFormatted } from "@rudderstack/analytics-js/components/ut
 export { toBase64 } from "@rudderstack/analytics-js/components/utilities/string";
 export { mergeDeepRight } from "@rudderstack/analytics-js/components/utilities/object";
 export { replaceNullValues } from '@rudderstack/analytics-js/components/utilities/json';
+export { state } from "@rudderstack/analytics-js/state";
