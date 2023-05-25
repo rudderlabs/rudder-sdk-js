@@ -2,10 +2,12 @@ import merge from 'lodash.merge';
 import { clone } from 'ramda';
 import {
   isInstanceOfEvent,
+  isObjectAndNotNull,
   mergeDeepRight,
   mergeDeepRightObjectArrays,
   stringifyWithoutCircular,
 } from '../../src/utils/ObjectUtils';
+import RudderElement from '../../src/utils/RudderElement';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',
@@ -162,6 +164,31 @@ describe('Object utilities', () => {
   it('should stringify json with out circular references', () => {
     const objWithoutCircular = clone(identifyTraitsPayloadMock);
     objWithoutCircular.myself = {};
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).not.toContain(circularReferenceNotice);
+  });
+
+  it('should detect if value is an Object and not null', () => {
+    const nullCheck = isObjectAndNotNull(null);
+    const objCheck = isObjectAndNotNull({});
+    const classInstanceCheck = isObjectAndNotNull(new RudderElement());
+    const arrayCheck = isObjectAndNotNull([]);
+    const functionCheck = isObjectAndNotNull(() => {});
+    const dateCheck = isObjectAndNotNull(new Date());
+    expect(nullCheck).toBeFalsy();
+    expect(objCheck).toBeTruthy();
+    expect(classInstanceCheck).toBeTruthy();
+    expect(arrayCheck).toBeFalsy();
+    expect(functionCheck).toBeFalsy();
+    expect(dateCheck).toBeFalsy();
+  });
+
+  it('should stringify json with out circular references and reused objects', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    const reusableValue = [1, 2, 3];
+    objWithoutCircular.reused = reusableValue;
+    objWithoutCircular.reusedAgain = [1, 2, reusableValue];
 
     const json = stringifyWithoutCircular(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);

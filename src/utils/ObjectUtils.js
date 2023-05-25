@@ -17,6 +17,9 @@ const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
 const mergeDeepRight = (leftObject, rightObject) =>
   R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
+const isObjectAndNotNull = (val) =>
+  val !== null && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date);
+
 const stringifyWithoutCircular = (obj, excludeNull) => {
   const cache = new Set();
 
@@ -25,7 +28,7 @@ const stringifyWithoutCircular = (obj, excludeNull) => {
       return undefined;
     }
 
-    if (typeof value === 'object' && value !== null) {
+    if (isObjectAndNotNull(value)) {
       if (cache.has(value)) {
         return '[Circular Reference]';
       }
@@ -38,6 +41,13 @@ const stringifyWithoutCircular = (obj, excludeNull) => {
   });
 };
 
-const isInstanceOfEvent = (value) => typeof value === 'object' && value !== null && 'target' in value;
+const isInstanceOfEvent = (value) =>
+  typeof value === 'object' && value !== null && 'target' in value;
 
-export { mergeDeepRightObjectArrays, mergeDeepRight, stringifyWithoutCircular, isInstanceOfEvent };
+export {
+  mergeDeepRightObjectArrays,
+  mergeDeepRight,
+  stringifyWithoutCircular,
+  isInstanceOfEvent,
+  isObjectAndNotNull,
+};

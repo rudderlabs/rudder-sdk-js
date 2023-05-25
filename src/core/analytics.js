@@ -189,6 +189,7 @@ class Analytics {
       return (
         pluginName &&
         modName &&
+        window[pluginName] &&
         window.hasOwnProperty(pluginName) &&
         window[pluginName][modName] &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
