@@ -1,6 +1,6 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { isObjectLiteralAndNotNull } from './object';
 import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isObjectLiteralAndNotNull } from './object';
 
 /**
  * Utility method for JSON stringify object excluding null values & circular references

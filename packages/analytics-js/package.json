@@ -55,7 +55,7 @@
     "test:ci": "npm run build:browser:test && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build:browser && npm run build:package && npm run build:browser:modern",
+    "check:size:build": "npm run clean && npm run build:browser && npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
@@ -64,7 +64,7 @@
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
-    "package": "cd dist/legacy && npm pack --pack-destination ../../",
+    "package": "cd dist/npm && rimraf -rf ./dts && npm pack --pack-destination ../../",
     "release": "npm publish"
   },
   "engines": {

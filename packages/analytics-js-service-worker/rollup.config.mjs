@@ -3,6 +3,7 @@ import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import filesize from 'rollup-plugin-filesize';
@@ -13,21 +14,21 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
 import * as dotenv from 'dotenv';
 
+dotenv.config();
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist`;
-const distName = 'rudder-analytics';
-const modName = 'rudderanalytics';
+const distName = 'index';
+const modName = 'rudderServiceWorker';
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
-  dotenv.config();
 
   return {
-    //preserveEntrySignatures: false,
     watch: {
       include: ['src/**'],
     },
+    external: [],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -48,9 +49,6 @@ export function getDefaultConfig(distName) {
         preferBuiltins: false,
         extensions: ['.js', '.ts', '.mjs'],
       }),
-      nodePolyfills({
-        include: ['crypto'],
-      }),
       commonjs({
         include: /node_modules/,
         requireReturnsDefault: 'auto',
@@ -61,11 +59,23 @@ export function getDefaultConfig(distName) {
         useTsconfigDeclarationDir: true,
       }),
       babel({
+        inputSourceMap: true,
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
+      }),
+      nodePolyfills({
+        include: null
+      }),
+      process.env.UGLIFY === 'true' &&
+      terser({
+        safari10: false,
+        ecma: 2017,
+        format: {
+          comments: false,
+        },
       }),
       copy({
         targets: [
@@ -100,16 +110,16 @@ const outputFilesNpm = [
     sourcemap: sourceMapType,
     generatedCode: {
       preset: 'es5',
-    },
+    }
   },
   {
-    dir: outDir + '/cjs',
-    format: 'cjs',
+    dir: outDir + '/umd',
+    format: 'umd',
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
       preset: 'es5',
-    },
+    }
   },
 ];
 

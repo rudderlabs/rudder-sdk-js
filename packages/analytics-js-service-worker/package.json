@@ -2,10 +2,10 @@
   "name": "@rudderstack/analytics-js-service-worker",
   "version": "3.0.0",
   "description": "RudderStack Javascript Service Worker SDK",
-  "main": "cjs/index.js",
+  "main": "umd/index.js",
   "module": "esm/index.js",
   "exports": {
-    "require": "./cjs/index.js",
+    "require": "./umd/index.js",
     "import": "./esm/index.js"
   },
   "typesVersions": {
@@ -36,15 +36,21 @@
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
     "start": "rollup --config --watch --environment PROD_DEBUG",
-    "build": "rollup --config --environment VERSION:$npm_package_version,ENV:prod",
+    "build": "npm run build:package",
+    "build:browser:modern": "exit 0",
+    "build:browser": "exit 0",
+    "build:npm": "rollup --config --environment VERSION:$npm_package_version,ENV:prod",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run build:npm:modern",
     "test": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage --passWithNoTests",
     "test:ci": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage --passWithNoTests",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build",
+    "check:size:build": "npm run clean && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
+    "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "package": "cd dist && rimraf -rf ./dts && npm pack --pack-destination ../",
@@ -153,6 +159,9 @@
       "Chrome >= 37",
       "Safari >= 7",
       "Opera >= 23"
+    ],
+    "modern": [
+      "defaults and supports es6-module-dynamic-import"
     ],
     "development": [
       "last 1 chrome version",

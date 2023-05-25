@@ -205,7 +205,7 @@ const aliasArgumentsToCallOptions = (
   callback?: ApiCallback,
 ): AliasCallOptions => {
   const payload: AliasCallOptions = {
-    to: tryStringify(to) || null,
+    to: tryStringify(to) ?? null,
   };
 
   if (isFunction(callback)) {
