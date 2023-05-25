@@ -2,7 +2,7 @@ import merge from 'lodash.merge';
 import { clone } from 'ramda';
 import {
   isInstanceOfEvent,
-  isObjectAndNotNull,
+  isObjectLiteralAndNotNull,
   mergeDeepRight,
   mergeDeepRightObjectArrays,
   stringifyWithoutCircular,
@@ -169,16 +169,16 @@ describe('Object utilities', () => {
     expect(json).not.toContain(circularReferenceNotice);
   });
 
-  it('should detect if value is an Object and not null', () => {
-    const nullCheck = isObjectAndNotNull(null);
-    const objCheck = isObjectAndNotNull({});
-    const classInstanceCheck = isObjectAndNotNull(new RudderElement());
-    const arrayCheck = isObjectAndNotNull([]);
-    const functionCheck = isObjectAndNotNull(() => {});
-    const dateCheck = isObjectAndNotNull(new Date());
-    const errorCheck = isObjectAndNotNull(new Error('error'));
+  it('should detect if value is an Object literal and not null', () => {
+    const nullCheck = isObjectLiteralAndNotNull(null);
+    const objCheck = isObjectLiteralAndNotNull({});
+    const classInstanceCheck = isObjectLiteralAndNotNull(new RudderElement());
+    const arrayCheck = isObjectLiteralAndNotNull([]);
+    const functionCheck = isObjectLiteralAndNotNull(() => {});
+    const dateCheck = isObjectLiteralAndNotNull(new Date());
+    const errorCheck = isObjectLiteralAndNotNull(new Error('error'));
     // eslint-disable-next-line prefer-regex-literals
-    const regExpCheck = isObjectAndNotNull(new RegExp(/^a/));
+    const regExpCheck = isObjectLiteralAndNotNull(new RegExp(/^a/));
     expect(nullCheck).toBeFalsy();
     expect(objCheck).toBeTruthy();
     expect(classInstanceCheck).toBeTruthy();

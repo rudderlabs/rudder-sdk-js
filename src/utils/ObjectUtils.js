@@ -17,7 +17,7 @@ const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
 const mergeDeepRight = (leftObject, rightObject) =>
   R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-const isObjectAndNotNull = (value) =>
+const isObjectLiteralAndNotNull = (value) =>
   value !== null && Object.prototype.toString.call(value) === '[object Object]';
 
 const stringifyWithoutCircular = (obj, excludeNull) => {
@@ -28,7 +28,7 @@ const stringifyWithoutCircular = (obj, excludeNull) => {
       return undefined;
     }
 
-    if (isObjectAndNotNull(value)) {
+    if (isObjectLiteralAndNotNull(value)) {
       if (cache.has(value)) {
         return '[Circular Reference]';
       }
@@ -49,5 +49,5 @@ export {
   mergeDeepRight,
   stringifyWithoutCircular,
   isInstanceOfEvent,
-  isObjectAndNotNull,
+  isObjectLiteralAndNotNull,
 };
