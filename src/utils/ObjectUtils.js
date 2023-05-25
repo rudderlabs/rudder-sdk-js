@@ -17,8 +17,8 @@ const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
 const mergeDeepRight = (leftObject, rightObject) =>
   R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
-const isObjectAndNotNull = (val) =>
-  val !== null && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date);
+const isObjectAndNotNull = (value) =>
+  value !== null && Object.prototype.toString.call(value) === '[object Object]';
 
 const stringifyWithoutCircular = (obj, excludeNull) => {
   const cache = new Set();

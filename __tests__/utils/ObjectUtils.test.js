@@ -176,12 +176,17 @@ describe('Object utilities', () => {
     const arrayCheck = isObjectAndNotNull([]);
     const functionCheck = isObjectAndNotNull(() => {});
     const dateCheck = isObjectAndNotNull(new Date());
+    const errorCheck = isObjectAndNotNull(new Error('error'));
+    // eslint-disable-next-line prefer-regex-literals
+    const regExpCheck = isObjectAndNotNull(new RegExp(/^a/));
     expect(nullCheck).toBeFalsy();
     expect(objCheck).toBeTruthy();
     expect(classInstanceCheck).toBeTruthy();
     expect(arrayCheck).toBeFalsy();
     expect(functionCheck).toBeFalsy();
     expect(dateCheck).toBeFalsy();
+    expect(errorCheck).toBeFalsy();
+    expect(regExpCheck).toBeFalsy();
   });
 
   it('should stringify json with out circular references and reused objects', () => {
