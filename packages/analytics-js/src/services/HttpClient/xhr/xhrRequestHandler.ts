@@ -67,8 +67,6 @@ const xhrRequest = (
     xhr.ontimeout = xhrError;
     xhr.onerror = xhrError;
 
-    // TODO: why we used in v1.1 xhrModule 429 is for the rate limit
-    //  xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600) instead for < 400????
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 400) {
         resolve(xhr.responseText);

@@ -2,6 +2,7 @@ import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { SDKError } from './types';
 
 /**
@@ -41,7 +42,7 @@ const processError = (error: SDKError): string => {
   let errorMessage;
 
   try {
-    if (typeof error === 'string') {
+    if (isString(error)) {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;

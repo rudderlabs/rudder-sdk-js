@@ -5,6 +5,7 @@ import {
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
+import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 
@@ -38,7 +39,7 @@ const getIntegrationsCDNPath = (
   // Get the base path from the SDK script tag src attribute or use the default path
   const sdkURL = getSDKUrl();
   integrationsCDNPath =
-    typeof sdkURL === 'string'
+    sdkURL && isString(sdkURL)
       ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
       : DEST_SDK_BASE_URL;
 
@@ -74,7 +75,7 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
   // Get the base path from the SDK script tag src attribute or use the default path
   const sdkURL = getSDKUrl();
   pluginsCDNPath =
-    typeof sdkURL === 'string'
+    sdkURL && isString(sdkURL)
       ? sdkURL.split('/').slice(0, -1).concat(CDN_PLUGINS_DIR).join('/')
       : PLUGINS_BASE_URL;
 

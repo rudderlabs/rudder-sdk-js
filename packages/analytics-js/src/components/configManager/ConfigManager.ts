@@ -16,6 +16,7 @@ import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { CONFIG_URL } from '@rudderstack/analytics-js/constants/urls';
+import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -113,17 +114,17 @@ class ConfigManager implements IConfigManager {
     const errMessage = 'Unable to process/parse source config';
 
     try {
-      if (typeof response === 'string') {
-        res = JSON.parse(response);
+      if (isString(response)) {
+        res = JSON.parse(response as string);
       } else {
-        res = response;
+        res = response as SourceConfigResponse;
       }
     } catch (e) {
       this.onError(e, errMessage, true);
       return;
     }
 
-    if (isValidSourceConfig(res)) {
+    if (!isValidSourceConfig(res)) {
       this.onError(errMessage, undefined, true);
       return;
     }
@@ -176,7 +177,7 @@ class ConfigManager implements IConfigManager {
   getConfig() {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
-      if (typeof sourceConfigFunc !== 'function') {
+      if (!isFunction(sourceConfigFunc)) {
         throw Error(`"getSourceConfig" must be a function`);
       }
       // fetch source config from the function

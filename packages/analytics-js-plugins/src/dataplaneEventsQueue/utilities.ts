@@ -10,7 +10,8 @@ import { MAX_EVENT_PAYLOAD_SIZE_BYTES } from './constants';
  */
 const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
   try {
-    const payloadSize = stringifyWithoutCircular(event, true).length;
+    const payload = stringifyWithoutCircular(event, true) ?? '';
+    const payloadSize = payload.length;
     if (payloadSize > MAX_EVENT_PAYLOAD_SIZE_BYTES) {
       logger?.warn(
         `The event payload size (${payloadSize}) exceeds the maximum limit of ${MAX_EVENT_PAYLOAD_SIZE_BYTES} bytes. The event might get dropped`,

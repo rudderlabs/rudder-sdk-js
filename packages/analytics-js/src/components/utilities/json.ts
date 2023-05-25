@@ -1,20 +1,25 @@
-import { isObjectAndNotNull } from './object';
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { isObjectLiteralAndNotNull } from './object';
+import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 
 /**
  * Utility method for JSON stringify object excluding null values & circular references
  *
- * @param {*} obj input object
+ * @param {*} value input
  * @param {boolean} excludeNull if it should exclude nul or not
  * @returns string
  */
-const stringifyWithoutCircular = (obj: Record<string, any>, excludeNull?: boolean): string => {
+const stringifyWithoutCircular = (
+  value?: Nullable<Record<string, any> | any[] | number | string>,
+  excludeNull?: boolean,
+): string | undefined => {
   const cache: Set<object> = new Set();
-  const replacer = (key: string, value: any) => {
-    if (excludeNull && (value === null || value === undefined)) {
+  const circularReferenceReplacer = (key: string, value: any) => {
+    if (excludeNull && isNullOrUndefined(value)) {
       return undefined;
     }
 
-    if (isObjectAndNotNull(value)) {
+    if (isObjectLiteralAndNotNull(value)) {
       if (cache.has(value)) {
         return '[Circular Reference]';
       }
@@ -26,7 +31,7 @@ const stringifyWithoutCircular = (obj: Record<string, any>, excludeNull?: boolea
     return value;
   };
 
-  return JSON.stringify(obj, replacer);
+  return JSON.stringify(value, circularReferenceReplacer);
 };
 
 export { stringifyWithoutCircular };

@@ -1,4 +1,5 @@
 import { clone, mergeDeepWith, path } from 'ramda';
+import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
 
 const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   const pathParts = keyPath.split('.');
@@ -9,12 +10,20 @@ const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
   Boolean(getValueByPath(obj, path));
 
 /**
- * Checks if the input is an object and not null
- * @param val Input value
+ * Checks if the input is an object literal or build-in object type and not null
+ * @param value Input value
  * @returns true if the input is an object and not null
  */
-const isObjectAndNotNull = (val: any): boolean =>
-  typeof val === 'object' && !Array.isArray(val) && val !== null;
+const isObjectAndNotNull = (value: any): boolean =>
+  !isNull(value) && typeof value === 'object' && !Array.isArray(value);
+
+/**
+ * Checks if the input is an object literal and not null
+ * @param value Input value
+ * @returns true if the input is an object and not null
+ */
+const isObjectLiteralAndNotNull = (value: any): boolean =>
+  !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
 const mergeDeepRightObjectArrays = (
   leftValue: any | any[],
@@ -41,11 +50,12 @@ const mergeDeepRight = <T = Record<string, any>>(
 ): T => mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
 /**
- * A function to check the input object is not empty, undefined or null
- * @param val input any
+ Checks if the input is a non-empty object literal type and not undefined or null
+ * @param value input any
  * @returns boolean
  */
-const isNonEmptyObject = (val?: any) => isObjectAndNotNull(val) && Object.keys(val).length > 0;
+const isNonEmptyObject = (value?: any) =>
+  isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
 
 export {
   getValueByPath,
@@ -54,4 +64,5 @@ export {
   mergeDeepRight,
   isObjectAndNotNull,
   isNonEmptyObject,
+  isObjectLiteralAndNotNull,
 };

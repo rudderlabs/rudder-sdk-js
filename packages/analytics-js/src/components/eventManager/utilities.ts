@@ -4,8 +4,13 @@ import { state } from '@rudderstack/analytics-js/state';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { clone } from 'ramda';
+import {
+  isString,
+  isUndefined,
+  isNullOrUndefined,
+} from '@rudderstack/analytics-js/components/utilities/checks';
 import { RudderContext, RudderEvent, RudderEventType } from './types';
-import { isObjectAndNotNull, mergeDeepRight } from '../utilities/object';
+import { isObjectLiteralAndNotNull, mergeDeepRight } from '../utilities/object';
 import { getCurrentTimeFormatted } from '../utilities/timestamp';
 import { generateUUID } from '../utilities/uuId';
 import {
@@ -24,25 +29,25 @@ const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
-  if (!options?.page || !isObjectAndNotNull(options.page)) {
+  if (isUndefined(options?.page) || !isObjectLiteralAndNotNull((options as ApiOptions).page)) {
     return properties;
   }
 
-  const optionsPageProps = options.page as ApiObject;
+  const optionsPageProps = (options as ApiOptions).page as ApiObject;
   const pageProps = properties;
 
   Object.keys(state.page).forEach((key: string) => {
-    if (pageProps[key] === undefined) {
+    if (isUndefined(pageProps[key])) {
       pageProps[key] = optionsPageProps[key] || state.page[key].value;
     }
   });
 
-  if (pageProps.initial_referrer === undefined) {
+  if (isUndefined(pageProps.initial_referrer)) {
     pageProps.initial_referrer =
       optionsPageProps.initial_referrer || state.session.initialReferrer.value;
   }
 
-  if (pageProps.initial_referring_domain === undefined) {
+  if (isUndefined(pageProps.initial_referring_domain)) {
     pageProps.initial_referring_domain =
       optionsPageProps.initial_referring_domain || state.session.initialReferringDomain.value;
   }
@@ -63,7 +68,7 @@ const checkForReservedElementsInObject = (
   parentKeyPath: string,
   logger?: ILogger,
 ): void => {
-  if (isObjectAndNotNull(obj)) {
+  if (isObjectLiteralAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
       if (
         RESERVED_ELEMENTS.includes(property) ||
@@ -117,17 +122,17 @@ const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
  * @param options API options
  */
 const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptions): void => {
-  if (options.anonymousId && typeof options.anonymousId === 'string') {
+  if (options.anonymousId && isString(options.anonymousId)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (options.integrations && isObjectAndNotNull(options.integrations)) {
+  if (options.integrations && isObjectLiteralAndNotNull(options.integrations)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
 
-  if (options.originalTimestamp && typeof options.originalTimestamp === 'string') {
+  if (options.originalTimestamp && isString(options.originalTimestamp)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.originalTimestamp = options.originalTimestamp;
   }
@@ -135,7 +140,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
 
 /**
  * To merge the contextual information in API options with existing data
- * @param rudderEvent Generated rudder event
+ * @param rudderContext Generated rudder event
  * @param options API options
  * @param logger Logger instance
  */
@@ -151,7 +156,7 @@ const getMergedContext = (
         context = mergeDeepRight(context, {
           [key]: options[key],
         });
-      } else if (options[key] && typeof options[key] === 'object' && options[key] !== null) {
+      } else if (!isUndefined(options[key]) && isObjectLiteralAndNotNull(options[key])) {
         const tempContext: Record<string, any> = {};
         Object.keys(options[key] as Record<string, any>).forEach(e => {
           if (!CONTEXT_RESERVED_ELEMENTS.includes(e)) {
@@ -176,10 +181,10 @@ const getMergedContext = (
  */
 const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
   // Only allow object type for options
-  if (options && isObjectAndNotNull(options)) {
-    updateTopLevelEventElements(rudderEvent, options);
+  if (!isNullOrUndefined(options) && isObjectLiteralAndNotNull(options)) {
+    updateTopLevelEventElements(rudderEvent, options as ApiOptions);
     // eslint-disable-next-line no-param-reassign
-    rudderEvent.context = getMergedContext(rudderEvent.context, options);
+    rudderEvent.context = getMergedContext(rudderEvent.context, options as ApiOptions);
   }
 };
 

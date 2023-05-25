@@ -15,7 +15,7 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { retrievePreloadBufferEvents } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { Analytics } from './Analytics';
@@ -110,8 +110,7 @@ class RudderAnalytics implements IRudderAnalytics {
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
-    const shouldSkipLoad =
-      typeof writeKey !== 'string' || Boolean(this.analyticsInstances[writeKey]);
+    const shouldSkipLoad = !isString(writeKey) || Boolean(this.analyticsInstances[writeKey]);
     if (shouldSkipLoad) {
       return;
     }

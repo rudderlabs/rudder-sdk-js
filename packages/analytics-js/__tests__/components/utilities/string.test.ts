@@ -1,4 +1,8 @@
-import { removeDoubleSpaces,  trim, tryStringify } from '@rudderstack/analytics-js/components/utilities/string';
+import {
+  removeDoubleSpaces,
+  trim,
+  tryStringify,
+} from '@rudderstack/analytics-js/components/utilities/string';
 
 describe('Common Utils - String', () => {
   it('should trim string', () => {
@@ -37,7 +41,7 @@ describe('Common Utils - String', () => {
     expect(tryStringify([1, 2, 3])).toBe('[1,2,3]');
   });
 
-  it('should return null if value contains circular dependency in the object', () => {
+  it('should return null if value contains circular dependency in the object or errors', () => {
     function Foo() {
       this.abc = 'Hello';
       this.circular = this;

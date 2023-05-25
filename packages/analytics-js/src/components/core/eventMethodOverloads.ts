@@ -1,7 +1,15 @@
 import { clone } from 'ramda';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
 import { ApiCallback, ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import {
+  isFunction,
+  isNull,
+  isString,
+} from '@rudderstack/analytics-js/components/utilities/checks';
 import { tryStringify } from '../utilities/string';
 
 export type PageCallOptions = {
@@ -55,7 +63,7 @@ const pageArgumentsToCallOptions = (
 ): PageCallOptions => {
   const payload: PageCallOptions = {};
 
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     payload.category = category as string;
     payload.name = name as string;
     payload.properties = clone(properties as Nullable<ApiObject>);
@@ -63,48 +71,48 @@ const pageArgumentsToCallOptions = (
     payload.callback = callback;
   }
 
-  if (typeof options === 'function') {
+  if (isFunction(options)) {
     payload.category = category as string;
     payload.name = name as string;
     payload.properties = clone(properties as Nullable<ApiObject>);
-    payload.callback = options;
+    payload.callback = options as ApiCallback;
   }
 
-  if (typeof properties === 'function') {
+  if (isFunction(properties)) {
     payload.category = category as string;
     payload.name = name as string;
-    payload.callback = properties;
+    payload.callback = properties as ApiCallback;
   }
 
-  if (typeof name === 'function') {
+  if (isFunction(name)) {
     payload.category = category as string;
-    payload.callback = name;
+    payload.callback = name as ApiCallback;
   }
 
-  if (typeof category === 'function') {
-    payload.callback = category;
+  if (isFunction(category)) {
+    payload.callback = category as ApiCallback;
   }
 
-  if (typeof category === 'object' && category !== null) {
+  if (isObjectLiteralAndNotNull(category)) {
     payload.options = clone(name as Nullable<ApiOptions>);
     payload.properties = clone(category as Nullable<ApiObject>);
     delete payload.name;
     delete payload.category;
-  } else if (typeof name === 'object' && name !== null) {
+  } else if (isObjectLiteralAndNotNull(name)) {
     payload.options = clone(properties as Nullable<ApiOptions>);
     payload.properties = clone(name as Nullable<ApiObject>);
     delete payload.name;
   }
 
-  if (typeof payload.category === 'string' && typeof payload.name !== 'string') {
+  if (isString(payload.category) && !isString(payload.name)) {
     payload.name = payload.category;
   }
 
   payload.properties = mergeDeepRight(
-    typeof payload.properties === 'object' && payload.properties !== null ? payload.properties : {},
+    payload.properties && isObjectLiteralAndNotNull(payload.properties) ? payload.properties : {},
     {
-      name: typeof payload.name === 'string' ? payload.name : null,
-      category: typeof payload.category === 'string' ? payload.category : null,
+      name: isString(payload.name) ? payload.name : null,
+      category: isString(payload.category) ? payload.category : null,
     },
   );
 
@@ -124,27 +132,27 @@ const trackArgumentsToCallOptions = (
     name: event,
   };
 
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     payload.properties = clone(properties as Nullable<ApiObject>);
     payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
-  if (typeof options === 'function') {
+  if (isFunction(options)) {
     payload.properties = clone(properties as Nullable<ApiObject>);
-    payload.callback = options;
+    payload.callback = options as ApiCallback;
   }
 
-  if (typeof properties === 'function') {
-    payload.callback = properties;
+  if (isFunction(properties)) {
+    payload.callback = properties as ApiCallback;
   }
 
-  if (typeof options === 'object') {
-    payload.options = options;
+  if (isObjectLiteralAndNotNull(options) || isNull(options)) {
+    payload.options = options as Nullable<ApiOptions>;
   }
 
-  if (typeof properties === 'object') {
-    payload.properties = properties;
+  if (isObjectLiteralAndNotNull(properties) || isNull(properties)) {
+    payload.properties = properties as Nullable<ApiObject>;
   }
 
   return payload;
@@ -161,22 +169,22 @@ const identifyArgumentsToCallOptions = (
 ): IdentifyCallOptions => {
   const payload: IdentifyCallOptions = {};
 
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     payload.traits = clone(traits as Nullable<ApiObject>);
     payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
-  if (typeof options === 'function') {
+  if (isFunction(options)) {
     payload.traits = clone(traits as Nullable<ApiObject>);
-    payload.callback = options;
+    payload.callback = options as ApiCallback;
   }
 
-  if (typeof traits === 'function') {
-    payload.callback = traits;
+  if (isFunction(traits)) {
+    payload.callback = traits as ApiCallback;
   }
 
-  if (typeof userId === 'object') {
+  if (isObjectLiteralAndNotNull(userId) || isNull(userId)) {
     delete payload.userId;
     payload.traits = clone(userId as Nullable<ApiObject>);
     payload.options = clone(traits as Nullable<ApiOptions>);
@@ -197,24 +205,24 @@ const aliasArgumentsToCallOptions = (
   callback?: ApiCallback,
 ): AliasCallOptions => {
   const payload: AliasCallOptions = {
-    to: tryStringify(to),
+    to: tryStringify(to) || null,
   };
 
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     payload.from = from as string;
     payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
-  if (typeof options === 'function') {
+  if (isFunction(options)) {
     payload.from = from as string;
-    payload.callback = options;
+    payload.callback = options as ApiCallback;
   }
 
-  if (typeof from === 'function') {
-    payload.callback = from;
-  } else if (typeof from === 'object') {
-    payload.options = clone(from as Nullable<ApiOptions>);
+  if (isFunction(from)) {
+    payload.callback = from as ApiCallback;
+  } else if (isObjectLiteralAndNotNull(from) || isNull(from)) {
+    payload.options = isNull(from) ? null : clone(from as Nullable<ApiOptions>);
     delete payload.from;
   } else {
     payload.from = tryStringify(from);
@@ -234,29 +242,29 @@ const groupArgumentsToCallOptions = (
 ): GroupCallOptions => {
   const payload: GroupCallOptions = {};
 
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     payload.traits = clone(traits as Nullable<ApiObject>);
     payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
-  if (typeof options === 'function') {
+  if (isFunction(options)) {
     payload.traits = clone(traits as Nullable<ApiObject>);
-    payload.callback = options;
+    payload.callback = options as ApiCallback;
   }
 
-  if (typeof traits === 'function') {
-    payload.callback = traits;
+  if (isFunction(traits)) {
+    payload.callback = traits as ApiCallback;
   }
 
   // TODO: why do we enable overload for group that only passes callback? is there any use case?
-  if (typeof groupId === 'function') {
-    payload.callback = groupId;
-  } else if (typeof groupId === 'object') {
-    payload.traits = clone(groupId as Nullable<ApiObject>);
+  if (isFunction(groupId)) {
+    payload.callback = groupId as ApiCallback;
+  } else if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
+    payload.traits = isNull(groupId) ? null : clone(groupId as Nullable<ApiObject>);
 
-    if (typeof traits === 'function') {
-      payload.callback = traits;
+    if (isFunction(traits)) {
+      payload.callback = traits as ApiCallback;
     } else {
       payload.options = clone(traits as Nullable<ApiOptions>);
     }

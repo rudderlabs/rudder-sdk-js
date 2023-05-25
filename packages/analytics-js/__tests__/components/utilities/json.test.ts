@@ -76,4 +76,28 @@ describe('Common Utils - JSON', () => {
     const json = stringifyWithoutCircular(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);
   });
+
+  it('should stringify json for all input types', () => {
+    const array = [1, 2, 3];
+    const number = 1;
+    const string = '';
+    const object = {};
+    const date = new Date(2023, 1, 20, 0, 0, 0);
+
+    const arrayJson = stringifyWithoutCircular(array);
+    const numberJson = stringifyWithoutCircular(number);
+    const stringJson = stringifyWithoutCircular(string);
+    const objectJson = stringifyWithoutCircular(object);
+    const dateJson = stringifyWithoutCircular(date);
+    const nullJson = stringifyWithoutCircular(null);
+    const undefinedJson = stringifyWithoutCircular(undefined);
+
+    expect(arrayJson).toBe('[1,2,3]');
+    expect(numberJson).toBe('1');
+    expect(stringJson).toBe('""');
+    expect(objectJson).toBe('{}');
+    expect(dateJson).toBe('"2023-02-19T18:30:00.000Z"');
+    expect(nullJson).toBe('null');
+    expect(undefinedJson).toBe(undefined);
+  });
 });

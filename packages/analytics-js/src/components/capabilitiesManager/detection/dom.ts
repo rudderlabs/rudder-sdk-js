@@ -1,3 +1,5 @@
+import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+
 const isDatasetAvailable = (): boolean => {
   const testElement = document.createElement('div');
   testElement.setAttribute('data-a-b', 'c');
@@ -7,8 +9,9 @@ const isDatasetAvailable = (): boolean => {
 const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   URLSearchParams: () => !window.URLSearchParams,
   URL: () => !window.URL,
-  MutationObserver: () => typeof MutationObserver === 'undefined',
+  MutationObserver: () => isUndefined(MutationObserver),
   Promise: () => !Promise,
+  'Number.isNaN': () => !Number.isNaN,
   'Array.from': () => !Array.from,
   'Array.prototype.find': () => !Array.prototype.find,
   'Array.prototype.includes': () => !Array.prototype.includes,

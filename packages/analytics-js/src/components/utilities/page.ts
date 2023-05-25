@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getReferringDomain, getUrlWithoutHash } from './url';
 
 /**
@@ -25,7 +26,7 @@ const getCanonicalUrl = (): string => {
 };
 
 const getUserAgent = (): Nullable<string> => {
-  if (typeof window.navigator === 'undefined') {
+  if (isUndefined(window.navigator)) {
     return null;
   }
 
@@ -48,11 +49,11 @@ const getUserAgent = (): Nullable<string> => {
 };
 
 const getLanguage = (): Nullable<string> => {
-  if (typeof window.navigator === 'undefined') {
+  if (isUndefined(window.navigator)) {
     return null;
   }
 
-  return window.navigator.language || (window.navigator as any).browserLanguage;
+  return window.navigator.language ?? (window.navigator as any).browserLanguage;
 };
 
 /**
