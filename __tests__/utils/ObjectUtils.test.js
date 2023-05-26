@@ -197,9 +197,22 @@ describe('Object utilities', () => {
     objWithoutCircular.reusedAgain = [1, 2, reusableArray];
     objWithoutCircular.reusedObj = reusableObject;
     objWithoutCircular.reusedObjAgain = { reused: reusableObject };
+    objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
 
     const json = stringifyWithoutCircular(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);
+  });
+
+  it('should stringify json with circular references for nested circular objects', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    const reusableObject = { dummy: 'val' };
+    const objWithCircular = clone(reusableObject);
+    objWithCircular.myself = objWithCircular;
+    objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
+    objWithoutCircular.objWithCircular = objWithCircular;
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).toContain(circularReferenceNotice);
   });
 
   it('should detect if value is an Event', () => {

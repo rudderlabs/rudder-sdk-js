@@ -20,28 +20,34 @@ const mergeDeepRight = (leftObject, rightObject) =>
 const isObjectLiteralAndNotNull = (value) =>
   value !== null && Object.prototype.toString.call(value) === '[object Object]';
 
-const stringifyWithoutCircular = (obj, excludeNull) => {
-  const cache = new Set();
+const getCircularReplacer = (excludeNull) => {
+  const ancestors = [];
 
-  return JSON.stringify(obj, (key, value) => {
+  return function (key, value) {
     if (excludeNull && (value === null || value === undefined)) {
       return undefined;
     }
 
-    if (isObjectLiteralAndNotNull(value)) {
-      if (cache.has(value)) {
-        return '[Circular Reference]';
-      }
-
-      // Add root level object only to the cache to detect circular references
-      if (cache.size === 0) {
-        cache.add(value);
-      }
+    if (typeof value !== 'object' || value === null) {
+      return value;
     }
 
+    // `this` is the object that value is contained in, i.e., its direct parent.
+    while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+      ancestors.pop();
+    }
+
+    if (ancestors.includes(value)) {
+      return '[Circular Reference]';
+    }
+
+    ancestors.push(value);
     return value;
-  });
+  };
 };
+
+const stringifyWithoutCircular = (obj, excludeNull) =>
+  JSON.stringify(obj, getCircularReplacer(excludeNull));
 
 const isInstanceOfEvent = (value) =>
   typeof value === 'object' && value !== null && 'target' in value;
@@ -49,6 +55,7 @@ const isInstanceOfEvent = (value) =>
 export {
   mergeDeepRightObjectArrays,
   mergeDeepRight,
+  getCircularReplacer,
   stringifyWithoutCircular,
   isInstanceOfEvent,
   isObjectLiteralAndNotNull,
