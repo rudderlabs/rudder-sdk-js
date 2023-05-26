@@ -7,17 +7,19 @@ class Ketch {
     this.userDeniedPurposes = [];
 
     // updateKetchConsent callback function to update current consent purpose state
-    // this will be called from ketch ruddersatck plugin
+    // this will be called from ketch rudderstack plugin
     window.updateKetchConsent = (consent) => {
       if (consent.purposes) {
-        const p = consent.purposes;
+        const consentState = consent.purposes;
         this.userConsentedPurposes = [];
         this.userDeniedPurposes = [];
-        Object.entries(p).forEach((e) => {
-          if (e[1]) {
-            this.userConsentedPurposes.push(e[0]);
+        Object.entries(consentState).forEach((e) => {
+          const purposeCode = e[0];
+          const isConsented = e[1];
+          if (isConsented) {
+            this.userConsentedPurposes.push(purposeCode);
           } else {
-            this.userDeniedPurposes.push(e[0]);
+            this.userDeniedPurposes.push(purposeCode);
           }
         });
       }
@@ -32,10 +34,12 @@ class Ketch {
     // If ketch tag is loaded before rudderstack and has existing consent then update the consent state
     if (window.ketchConsent) {
       Object.entries(window.ketchConsent).forEach((e) => {
-        if (e[1]) {
-          this.userConsentedPurposes.push(e[0]);
+        const purposeCode = e[0];
+        const isConsented = e[1];
+        if (isConsented) {
+          this.userConsentedPurposes.push(purposeCode);
         } else {
-          this.userDeniedPurposes.push(e[0]);
+          this.userDeniedPurposes.push(purposeCode);
         }
       });
     }
