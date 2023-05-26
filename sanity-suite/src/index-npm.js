@@ -57,10 +57,9 @@ rudderanalytics.load(getWriteKey(), 'DATA_PLANE_URL', getLoadOptions());
 
 rudderanalytics.ready(() => {
   console.log('We are all set!!!');
+  initSanitySuite();
 });
 
 window.rudderanalytics = rudderanalytics;
-
-initSanitySuite();
 
 export { rudderanalytics };

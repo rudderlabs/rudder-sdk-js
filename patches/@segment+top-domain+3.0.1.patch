@@ -1,0 +1,21 @@
+diff --git a/node_modules/@segment/top-domain/lib/index.js b/node_modules/@segment/top-domain/lib/index.js
+index ae67f2e..c99d2ee 100644
+--- a/node_modules/@segment/top-domain/lib/index.js
++++ b/node_modules/@segment/top-domain/lib/index.js
+@@ -4,7 +4,6 @@
+  * Module dependencies.
+  */
+ 
+-var parse = require('component-url').parse;
+ var cookie = require('component-cookie');
+ 
+ /**
+@@ -63,7 +62,7 @@ function domain(url) {
+  * @api public
+  */
+ domain.levels = function(url) {
+-  var host = parse(url).hostname;
++  var host = new URL(url).hostname;
+   var parts = host.split('.');
+   var last = parts[parts.length - 1];
+   var levels = [];
