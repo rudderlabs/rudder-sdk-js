@@ -1185,7 +1185,7 @@ class Analytics {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
-    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+    if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
@@ -1308,7 +1308,9 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Promise ||
+        !Array.prototype.at ||
+        typeof window.URL !== 'function' ||
+        typeof Promise === 'undefined' ||
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
@@ -1337,7 +1339,10 @@ class Analytics {
         // In chrome 83 and below versions ID of a script is not part of window's scope
         // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
         // So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
+        if (
+          (window.hasOwnProperty(id) || document.getElementById(id) !== null) &&
+          typeof Promise !== 'undefined'
+        ) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
