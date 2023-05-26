@@ -67,7 +67,7 @@ describe('utilities - page', () => {
       navigator: {
         language: undefined,
         browserLanguage: 'en-US',
-      }
+      },
     }));
 
     expect(getLanguage()).toBe('en-US');

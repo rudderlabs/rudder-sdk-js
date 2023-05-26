@@ -3,8 +3,8 @@ import {
   DestinationConfig,
   RegionDetails,
   ResidencyServerRegion,
-  StatsCollection
-} from "@rudderstack/analytics-js/state/types";
+  StatsCollection,
+} from '@rudderstack/analytics-js/state/types';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';

@@ -1,9 +1,18 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
 
-export type { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
+export type {
+  RudderEvent,
+  RudderEventType,
+} from '@rudderstack/analytics-js/components/eventManager/types';
 export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+export type { DoneCallback } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
+export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+export { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type ApplicationState = IApplicationState;
 
@@ -32,21 +41,6 @@ export interface IExternalSrcLoader {
 }
 
 export type Nullable<T> = T | null;
-
-export enum PluginName {
-  BeaconQueue = 'BeaconQueue',
-  ConsentManager = 'ConsentManager',
-  DataplaneEventsQueue = 'DataplaneEventsQueue',
-  DeviceModeDestinations = 'DeviceModeDestinations',
-  DeviceModeTransformation = 'DeviceModeTransformation',
-  ErrorReporting = 'ErrorReporting',
-  ExternalAnonymousId = 'ExternalAnonymousId',
-  GoogleLinker = 'GoogleLinker',
-  NativeDestinationQueue = 'NativeDestinationQueue',
-  StorageEncryption = 'StorageEncryption',
-  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
-  XhrQueue = 'XhrQueue',
-}
 
 /**
  * Represents the options parameter for anonymousId

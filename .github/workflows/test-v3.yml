@@ -31,8 +31,8 @@ jobs:
         run: |
           npm ci
           npm run setup
-          npm run test:ci
-          npm run check:lint
+          npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
 
       - name: Fix filesystem paths in generated reports
         run: |
@@ -40,8 +40,8 @@ jobs:
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js/reports/eslint.json
           sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-plugins/reports/coverage/lcov.info
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-plugins/reports/eslint.json
-          sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
-          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
+          # sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
+          # sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

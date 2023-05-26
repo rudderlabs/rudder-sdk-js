@@ -20,4 +20,6 @@ const tryStringify = (val: any) => {
   return retVal;
 };
 
-export { trim, removeDoubleSpaces, tryStringify };
+const toBase64 = (value: string): string => btoa(`${value}`);
+
+export { trim, removeDoubleSpaces, tryStringify, toBase64 };

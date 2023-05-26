@@ -1,6 +1,5 @@
 declare module 'remotePlugins/BeaconQueue';
 declare module 'remotePlugins/ConsentManager';
-declare module 'remotePlugins/DataplaneEventsQueue';
 declare module 'remotePlugins/DestinationsEventsQueue';
 declare module 'remotePlugins/DeviceModeTransformation';
 declare module 'remotePlugins/DeviceModeDestinations';
