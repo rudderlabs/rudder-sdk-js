@@ -53,8 +53,8 @@ export default class GA4 {
       gtagParameterObject.user_id = this.analytics.userId;
     }
 
+    gtagParameterObject.cookie_prefix = 'rs';
     if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
-      gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.anonymousId;
       gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
     }
