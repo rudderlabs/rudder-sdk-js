@@ -67,7 +67,7 @@
   function page() {
     rudderanalytics.page(
       'Cart viewed', 
-      (rudderElement) => {
+      function (rudderElement) {
         console.log('in page call');
         document.getElementById('action').innerHTML = 'Page called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
@@ -87,12 +87,11 @@
         custom_date: Date.now(),
       },
       {},
-      (rudderElement) => {
+      function (rudderElement) {
         console.log('in identify call');
         document.getElementById('action').innerHTML = 'Identify called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      },
-    );
+      });
   }
 
   function track() {
@@ -103,18 +102,17 @@
         currency: 'USD',
         user_actual_id: 12345,
       },
-      (rudderElement) => {
+      function (rudderElement) {
         console.log('in track call');
         document.getElementById('action').innerHTML = 'Track called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      },
-    );
+      });
   }
 
   function alias() {
     rudderanalytics.alias(
       'alias-user-id',
-      (rudderElement) => {
+      function (rudderElement) {
         console.log('alias call');
         document.getElementById('action').innerHTML = 'Alias called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
@@ -128,7 +126,7 @@
         name: 'Apple Inc.',
         location: 'USA',
       },
-      (rudderElement) => {
+      function (rudderElement) {
         console.log('group call');
         document.getElementById('action').innerHTML = 'Group called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
