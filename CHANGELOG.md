@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.34.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.1...v2.34.0) (2023-05-26)
+
+
+### Features
+
+* **ga4:** added identify call support for hybrid mode connection ([#1082](https://github.com/rudderlabs/rudder-sdk-js/issues/1082)) ([98d6674](https://github.com/rudderlabs/rudder-sdk-js/commit/98d6674eb2e3d4aae1b46d8101e14871de3e0205))
+* remove custom property dependency for fb pixel ([#1097](https://github.com/rudderlabs/rudder-sdk-js/issues/1097)) ([5e0ba98](https://github.com/rudderlabs/rudder-sdk-js/commit/5e0ba9875658a760322c6b723b4a44a11a3fa086))
+
+
+### Bug Fixes
+
+* **ga4:** reverted cookie prefix change ([#1100](https://github.com/rudderlabs/rudder-sdk-js/issues/1100)) ([54b7930](https://github.com/rudderlabs/rudder-sdk-js/commit/54b7930b7145ec708ec91dc9935d40bd1b188f2b))
+* localstorage db connections buzy issue in outdated browsers ([#1086](https://github.com/rudderlabs/rudder-sdk-js/issues/1086)) ([b5855ea](https://github.com/rudderlabs/rudder-sdk-js/commit/b5855eac4c5aea75587119c73aaac99bc4f8f926))
+* security, circular reference issues, type checking & errors to logger fixes ([#1099](https://github.com/rudderlabs/rudder-sdk-js/issues/1099)) ([670bab2](https://github.com/rudderlabs/rudder-sdk-js/commit/670bab20f6d2fda64b69585d3600a6ff4e6f5609))
+* snap pixel price mapping ([#1094](https://github.com/rudderlabs/rudder-sdk-js/issues/1094)) ([cf9d71f](https://github.com/rudderlabs/rudder-sdk-js/commit/cf9d71f9a9113f20b99638d92c72e115a305a559))
+* suppress error notification for bugsnag ([#1087](https://github.com/rudderlabs/rudder-sdk-js/issues/1087)) ([252d4e5](https://github.com/rudderlabs/rudder-sdk-js/commit/252d4e5a64b49cdf19d1ee71eb87d2431b1808fa))
+
 ### [2.33.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.0...v2.33.1) (2023-05-16)
 
 
