@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.33.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.32.1...v1.33.0) (2023-05-26)
+
+
+### Features
+
+* **ga4:** added identify call support for hybrid mode connection ([#1083](https://github.com/rudderlabs/rudder-sdk-js/issues/1083)) ([298b938](https://github.com/rudderlabs/rudder-sdk-js/commit/298b93829ac26de1ec21dc5df034bc54962dc485))
+* remove custom property dependency for fb pixel ([#1069](https://github.com/rudderlabs/rudder-sdk-js/issues/1069)) ([c69c6d4](https://github.com/rudderlabs/rudder-sdk-js/commit/c69c6d4a93f022be20854b776280a3c330b4e401))
+
+
+### Bug Fixes
+
+* **ga4:** reverted cookie prefix change ([#1101](https://github.com/rudderlabs/rudder-sdk-js/issues/1101)) ([5f1a91f](https://github.com/rudderlabs/rudder-sdk-js/commit/5f1a91f811fde7f683bc81b4916ef0c8a2974199))
+* snap pixel mapping ([#1093](https://github.com/rudderlabs/rudder-sdk-js/issues/1093)) ([4551191](https://github.com/rudderlabs/rudder-sdk-js/commit/45511918ac52ac167cf19c862467e3d6095c9409))
+
 ### [1.32.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.32.0...v1.32.1) (2023-05-16)
 
 
