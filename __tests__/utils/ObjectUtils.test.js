@@ -191,9 +191,12 @@ describe('Object utilities', () => {
 
   it('should stringify json with out circular references and reused objects', () => {
     const objWithoutCircular = clone(identifyTraitsPayloadMock);
-    const reusableValue = [1, 2, 3];
-    objWithoutCircular.reused = reusableValue;
-    objWithoutCircular.reusedAgain = [1, 2, reusableValue];
+    const reusableArray = [1, 2, 3];
+    const reusableObject = { dummy: 'val' };
+    objWithoutCircular.reused = reusableArray;
+    objWithoutCircular.reusedAgain = [1, 2, reusableArray];
+    objWithoutCircular.reusedObj = reusableObject;
+    objWithoutCircular.reusedObjAgain = { reused: reusableObject };
 
     const json = stringifyWithoutCircular(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);

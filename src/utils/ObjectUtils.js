@@ -33,8 +33,10 @@ const stringifyWithoutCircular = (obj, excludeNull) => {
         return '[Circular Reference]';
       }
 
-      // Add the object to the cache to detect circular references
-      cache.add(value);
+      // Add root level object only to the cache to detect circular references
+      if (cache.size === 0) {
+        cache.add(value);
+      }
     }
 
     return value;
