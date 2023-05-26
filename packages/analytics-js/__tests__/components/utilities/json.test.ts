@@ -49,55 +49,83 @@ const identifyTraitsPayloadMock: Record<string, any> = {
 const circularReferenceNotice = '[Circular Reference]';
 
 describe('Common Utils - JSON', () => {
-  it('should stringify json with circular references', () => {
-    const objWithCircular = clone(identifyTraitsPayloadMock);
-    objWithCircular.myself = objWithCircular;
+  describe('stringifyWithoutCircular', () => {
+    it('should stringify json with circular references', () => {
+      const objWithCircular = clone(identifyTraitsPayloadMock);
+      objWithCircular.myself = objWithCircular;
 
-    const json = stringifyWithoutCircular(objWithCircular);
-    expect(json).toContain(circularReferenceNotice);
-  });
+      const json = stringifyWithoutCircular(objWithCircular);
+      expect(json).toContain(circularReferenceNotice);
+    });
 
-  it('should stringify json with circular references and exclude null values', () => {
-    const objWithCircular = clone(identifyTraitsPayloadMock);
-    objWithCircular.myself = objWithCircular;
-    objWithCircular.keyToExclude = null;
-    objWithCircular.keyToNotExclude = '';
+    it('should stringify json with circular references and exclude null values', () => {
+      const objWithCircular = clone(identifyTraitsPayloadMock);
+      objWithCircular.myself = objWithCircular;
+      objWithCircular.keyToExclude = null;
+      objWithCircular.keyToNotExclude = '';
 
-    const json = stringifyWithoutCircular(objWithCircular, true);
-    expect(json).toContain(circularReferenceNotice);
-    expect(json).not.toContain('keyToExclude');
-    expect(json).toContain('keyToNotExclude');
-  });
+      const json = stringifyWithoutCircular(objWithCircular, true);
+      expect(json).toContain(circularReferenceNotice);
+      expect(json).not.toContain('keyToExclude');
+      expect(json).toContain('keyToNotExclude');
+    });
 
-  it('should stringify json with out circular references', () => {
-    const objWithoutCircular = clone(identifyTraitsPayloadMock);
-    objWithoutCircular.myself = {};
+    it('should stringify json with out circular references', () => {
+      const objWithoutCircular = clone(identifyTraitsPayloadMock);
+      objWithoutCircular.myself = {};
 
-    const json = stringifyWithoutCircular(objWithoutCircular);
-    expect(json).not.toContain(circularReferenceNotice);
-  });
+      const json = stringifyWithoutCircular(objWithoutCircular);
+      expect(json).not.toContain(circularReferenceNotice);
+    });
 
-  it('should stringify json for all input types', () => {
-    const array = [1, 2, 3];
-    const number = 1;
-    const string = '';
-    const object = {};
-    const date = new Date(2023, 1, 20, 0, 0, 0);
+    it('should stringify json with out circular references and reused objects', () => {
+      const objWithoutCircular = clone(identifyTraitsPayloadMock);
+      const reusableArray = [1, 2, 3];
+      const reusableObject = { dummy: 'val' };
+      objWithoutCircular.reused = reusableArray;
+      objWithoutCircular.reusedAgain = [1, 2, reusableArray];
+      objWithoutCircular.reusedObj = reusableObject;
+      objWithoutCircular.reusedObjAgain = { reused: reusableObject };
+      objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
 
-    const arrayJson = stringifyWithoutCircular(array);
-    const numberJson = stringifyWithoutCircular(number);
-    const stringJson = stringifyWithoutCircular(string);
-    const objectJson = stringifyWithoutCircular(object);
-    const dateJson = stringifyWithoutCircular(date);
-    const nullJson = stringifyWithoutCircular(null);
-    const undefinedJson = stringifyWithoutCircular(undefined);
+      const json = stringifyWithoutCircular(objWithoutCircular);
+      expect(json).not.toContain(circularReferenceNotice);
+    });
 
-    expect(arrayJson).toBe('[1,2,3]');
-    expect(numberJson).toBe('1');
-    expect(stringJson).toBe('""');
-    expect(objectJson).toBe('{}');
-    expect(dateJson).toBe('"2023-02-19T18:30:00.000Z"');
-    expect(nullJson).toBe('null');
-    expect(undefinedJson).toBe(undefined);
+    it('should stringify json with circular references for nested circular objects', () => {
+      const objWithoutCircular = clone(identifyTraitsPayloadMock);
+      const reusableObject = { dummy: 'val' };
+      const objWithCircular = clone(reusableObject);
+      objWithCircular.myself = objWithCircular;
+      objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
+      objWithoutCircular.objWithCircular = objWithCircular;
+
+      const json = stringifyWithoutCircular(objWithoutCircular);
+      expect(json).toContain(circularReferenceNotice);
+    });
+
+    it('should stringify json for all input types', () => {
+      const array = [1, 2, 3];
+      const number = 1;
+      const string = '';
+      const object = {};
+      const date = new Date(2023, 1, 20, 0, 0, 0);
+
+      const arrayJson = stringifyWithoutCircular(array);
+      const numberJson = stringifyWithoutCircular(number);
+      const stringJson = stringifyWithoutCircular(string);
+      const objectJson = stringifyWithoutCircular(object);
+      const dateJson = stringifyWithoutCircular(date);
+      const nullJson = stringifyWithoutCircular(null);
+      const undefinedJson = stringifyWithoutCircular(undefined);
+
+      expect(arrayJson).toBe('[1,2,3]');
+      expect(numberJson).toBe('1');
+      expect(stringJson).toBe('""');
+      expect(objectJson).toBe('{}');
+      expect(dateJson).toBe('"2023-02-19T18:30:00.000Z"');
+      expect(nullJson).toBe('null');
+      expect(undefinedJson).toBe(undefined);
+    });
   });
 });

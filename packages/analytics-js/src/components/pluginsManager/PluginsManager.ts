@@ -67,6 +67,8 @@ class PluginsManager implements IPluginsManager {
       if (isAllPluginsReady) {
         batch(() => {
           state.plugins.ready.value = true;
+          // TODO: decide what to do if a plugin fails to load for any reason.
+          //  Should we stop here or should we progress?
           state.lifecycle.status.value = LifecycleStatus.PluginsReady;
         });
       }
