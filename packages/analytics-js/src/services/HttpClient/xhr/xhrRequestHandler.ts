@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { IXHRRequestOptions } from '../types';
@@ -85,13 +86,25 @@ const xhrRequest = (
       }
     });
 
+    let payload;
+    if (options.sendRawData === true) {
+      payload = options.data;
+    } else {
+      try {
+        payload = JSON.stringify(options.data);
+      } catch (err) {
+        reject(
+          new Error(
+            `Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`,
+          ),
+        );
+      }
+    }
+
     try {
-      const jsonData = JSON.stringify(options.data);
-      xhr.send(jsonData);
+      xhr.send(payload);
     } catch (err) {
-      reject(
-        new Error(`Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`),
-      );
+      reject(new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`));
     }
   });
 

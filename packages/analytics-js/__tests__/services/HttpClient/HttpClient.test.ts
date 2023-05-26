@@ -123,14 +123,12 @@ describe('HttpClient', () => {
 
   it('should handle 400 range errors in getAsyncData requests', done => {
     const callback = (response: any) => {
-      expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error(
-          'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
-        ),
-        'HttpClient',
+      const errResult = new Error(
+        'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
       );
+      expect(response).toEqual(errResult);
+      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
     clientInstance.getAsyncData({
@@ -155,14 +153,12 @@ describe('HttpClient', () => {
 
   it('should handle 500 range errors in getAsyncData requests', done => {
     const callback = (response: any) => {
-      expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error(
-          'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
-        ),
-        'HttpClient',
+      const errResult = new Error(
+        'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
       );
+      expect(response).toEqual(errResult);
+      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
     clientInstance.getAsyncData({
