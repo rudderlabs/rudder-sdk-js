@@ -88,6 +88,7 @@ class Analytics implements IAnalytics {
     this.init = this.init.bind(this);
     this.loadPlugins = this.loadPlugins.bind(this);
     this.onLoaded = this.onLoaded.bind(this);
+    this.processBufferedEvents = this.processBufferedEvents.bind(this);
     this.loadIntegrations = this.loadIntegrations.bind(this);
     this.onReady = this.onReady.bind(this);
     this.ready = this.ready.bind(this);
@@ -173,7 +174,10 @@ class Analytics implements IAnalytics {
           this.onLoaded();
           break;
         case LifecycleStatus.Loaded:
+          this.processBufferedEvents();
           this.loadIntegrations();
+          break;
+        case LifecycleStatus.IntegrationsLoading:
           break;
         case LifecycleStatus.IntegrationsReady:
           this.onReady();
@@ -245,17 +249,33 @@ class Analytics implements IAnalytics {
   }
 
   /**
+   * Consume preloaded events buffer
+   */
+  processBufferedEvents() {
+    state.eventBuffer.toBeProcessedArray.value.forEach(bufferedEvent => {
+      const event = [...bufferedEvent];
+      const methodName = event.shift();
+      if (isFunction((this as any)[methodName])) {
+        (this as any)[methodName](...event);
+      }
+    });
+    state.eventBuffer.toBeProcessedArray.value = [];
+  }
+
+  /**
    * Load device mode integrations
    */
   // TODO: dummy implementation for testing until we implement device mode
   //  create proper implementation once relevant task is picked up
   loadIntegrations() {
     if (isEmpty(state.nativeDestinations.clientIntegrations.value)) {
-      state.lifecycle.status.value = LifecycleStatus.Ready;
+      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
       return;
     }
 
-    // TODO: store in state and calculate if all integrations are loaded, then set status to onReady
+    state.lifecycle.status.value = LifecycleStatus.IntegrationsLoading;
+
+    // TODO: store in state and calculate if all integrations are loaded, then set status to IntegrationsReady
     // TODO: decouple in separate file
     const integrationOnLoadCallback = (id?: string) => {
       if (!id) {
@@ -265,7 +285,7 @@ class Analytics implements IAnalytics {
       console.log(`${id} Script loaded`);
     };
 
-    this.pluginsManager.invokeMultiple(
+    this.pluginsManager.invokeSingle(
       'remote.load_integrations',
       state.loadOptions.value.destSDKBaseURL,
       state.nativeDestinations.clientIntegrations.value,
@@ -290,9 +310,9 @@ class Analytics implements IAnalytics {
 
     // TODO: fix await until all remote integrations have been fetched, this can be
     //  done using a callback to notify state that the integration is loaded and
-    //  calculate signal when all are loaded, once all loaded then set status to ready
+    //  calculate signal when all are loaded, once all loaded and/or failed then set status to IntegrationsReady
     window.setTimeout(() => {
-      state.lifecycle.status.value = LifecycleStatus.Ready;
+      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
     }, 3000);
   }
 
@@ -302,6 +322,7 @@ class Analytics implements IAnalytics {
   // eslint-disable-next-line class-methods-use-this
   onReady() {
     state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
+    state.lifecycle.status.value = LifecycleStatus.Ready;
   }
   // End lifecycle methods
 
@@ -437,8 +458,7 @@ class Analytics implements IAnalytics {
     }
 
     this.userSessionManager.setGroupId(payload.groupId);
-    // TODO: Need to remove the type conversion here
-    this.userSessionManager.setGroupTraits(payload.traits as ApiOptions);
+    this.userSessionManager.setGroupTraits(payload.traits);
 
     this.eventManager.addEvent({
       type,
@@ -506,10 +526,6 @@ class Analytics implements IAnalytics {
     return this.userSessionManager.getSessionInfo();
   }
   // End consumer exposed methods
-
-  // TODO: should we still implement methodToCallbackMapping? Seems we will deprecate this
-  //  non-used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
-  //  if we need to keep we need initializeCallbacks & registerCallbacks methods
 }
 
 export { Analytics };

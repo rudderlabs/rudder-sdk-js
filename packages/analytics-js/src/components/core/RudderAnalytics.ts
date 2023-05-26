@@ -141,7 +141,7 @@ class RudderAnalytics implements IRudderAnalytics {
    * Process the buffer preloaded events by passing their arguments to the respective facade methods
    */
   processDataInPreloadBuffer() {
-    for (let i = 0; i < this.preloadBuffer.size(); i++) {
+    while (this.preloadBuffer.size() > 0) {
       const eventToProcess = this.preloadBuffer.dequeue();
 
       if (eventToProcess) {

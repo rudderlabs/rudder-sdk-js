@@ -101,7 +101,11 @@ describe('Core - Rudder Analytics Facade', () => {
       .spyOn(rudderAnalytics.preloadBuffer, 'dequeue')
       .mockImplementationOnce(() => ['page', { path: '/home' }])
       .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }]);
-    const sizeSpy = jest.spyOn(rudderAnalytics.preloadBuffer, 'size').mockImplementation(() => 2);
+    const sizeSpy = jest
+      .spyOn(rudderAnalytics.preloadBuffer, 'size')
+      .mockImplementationOnce(() => 2)
+      .mockImplementationOnce(() => 1)
+      .mockImplementationOnce(() => 0);
     const pageSpy = jest.spyOn(analyticsInstance, 'page');
     const trackSpy = jest.spyOn(analyticsInstance, 'track');
 

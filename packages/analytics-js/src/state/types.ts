@@ -278,6 +278,7 @@ export enum LifecycleStatus {
   PluginsReady = 'pluginsReady',
   Initialized = 'initialized',
   Loaded = 'loaded',
+  IntegrationsLoading = 'integrationsLoading',
   IntegrationsReady = 'integrationsReady',
   Ready = 'ready',
 }

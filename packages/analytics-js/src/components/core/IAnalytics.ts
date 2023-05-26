@@ -82,6 +82,11 @@ export interface IAnalytics {
   onLoaded(): void;
 
   /**
+   * Consume preloaded events buffer
+   */
+  processBufferedEvents(): void;
+
+  /**
    * Load device mode integrations
    */
   loadIntegrations(): void;
