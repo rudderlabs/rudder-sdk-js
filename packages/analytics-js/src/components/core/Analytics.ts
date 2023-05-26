@@ -23,6 +23,7 @@ import {
   ApiCallback,
   ApiObject,
   ApiOptions,
+  BufferedEvent,
   LifecycleStatus,
   LoadOptions,
   SessionInfo,
@@ -238,6 +239,12 @@ class Analytics implements IAnalytics {
       state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
 
+    // Process buffered events
+    state.eventBuffer.toBeProcessedArray.value.forEach((bufferedItem: BufferedEvent) => {
+      const type = bufferedItem[0];
+      (this as any)[type](...bufferedItem.slice(1));
+    });
+
     // Execute onLoaded callback if provided in load options
     if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
       state.loadOptions.value.onLoaded(this);
@@ -333,7 +340,7 @@ class Analytics implements IAnalytics {
   }
 
   page(payload: PageCallOptions) {
-    const type = RudderEventType.Page;
+    const type = 'page';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -343,7 +350,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager.addEvent({
-      type,
+      type: RudderEventType.Page,
       category: payload.category,
       name: payload.name,
       properties: payload.properties,
@@ -353,7 +360,7 @@ class Analytics implements IAnalytics {
   }
 
   track(payload: TrackCallOptions) {
-    const type = RudderEventType.Track;
+    const type = 'track';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -363,7 +370,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager.addEvent({
-      type,
+      type: RudderEventType.Track,
       name: payload.name,
       properties: payload.properties,
       options: payload.options,
@@ -372,7 +379,7 @@ class Analytics implements IAnalytics {
   }
 
   identify(payload: IdentifyCallOptions) {
-    const type = RudderEventType.Identify;
+    const type = 'identify';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -393,7 +400,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager.setUserTraits(payload.traits);
 
     this.eventManager.addEvent({
-      type,
+      type: RudderEventType.Identify,
       userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
@@ -402,7 +409,7 @@ class Analytics implements IAnalytics {
   }
 
   alias(payload: AliasCallOptions) {
-    const type = RudderEventType.Alias;
+    const type = 'alias';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -417,7 +424,7 @@ class Analytics implements IAnalytics {
       this.userSessionManager.getAnonymousId();
 
     this.eventManager.addEvent({
-      type,
+      type: RudderEventType.Alias,
       to: payload.to,
       from: previousId,
       options: payload.options,
@@ -426,7 +433,7 @@ class Analytics implements IAnalytics {
   }
 
   group(payload: GroupCallOptions) {
-    const type = RudderEventType.Group;
+    const type = 'group';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -440,7 +447,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager.setGroupTraits(payload.traits as ApiOptions);
 
     this.eventManager.addEvent({
-      type,
+      type: RudderEventType.Group,
       groupId: payload.groupId,
       traits: payload.traits,
       options: payload.options,
