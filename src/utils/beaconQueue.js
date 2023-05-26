@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { Store } from './storage/store';
-import { replacer } from './utils';
 import { handleError } from './errorHandler';
+import { stringifyWithoutCircular } from './ObjectUtils';
 
 const defaults = {
   queue: 'queue',
@@ -48,7 +48,7 @@ class BeaconQueue {
     queue.push(message);
     let batch = queue.slice(0);
     const data = { batch };
-    const dataToSend = JSON.stringify(data, replacer);
+    const dataToSend = stringifyWithoutCircular(data, true);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
       this.flushQueue(batch);
@@ -81,7 +81,7 @@ class BeaconQueue {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
-    const payload = JSON.stringify(data, replacer);
+    const payload = stringifyWithoutCircular(data, true);
     const blob = new Blob([payload], { type: 'text/plain' });
     const targetUrl = `${this.url}?writeKey=${this.writekey}`;
     try {
@@ -93,7 +93,7 @@ class BeaconQueue {
         handleError(new Error("Unable to queue data to browser's beacon queue"));
       }
     } catch (e) {
-      e.message = `${e.message} - While sending to: ${targetUrl}`;
+      e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
       handleError(e);
     }
     this.setQueue([]);
