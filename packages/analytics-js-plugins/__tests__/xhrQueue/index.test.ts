@@ -49,7 +49,7 @@ describe('XhrQueue', () => {
       },
       anonymousId: 'sampleAnonId',
       messageId: 'test',
-      originalTimestamp: 'test'
+      originalTimestamp: 'test',
     };
 
     XhrQueue().dataplaneEventsQueue.enqueue(state, queue, event);
@@ -57,9 +57,9 @@ describe('XhrQueue', () => {
     expect(addItemSpy).toBeCalledWith({
       url: 'https://sampleurl.com/v1/track',
       headers: {
-        AnonymousId: 'c2FtcGxlQW5vbklk' // Base64 encoded anonymousId
+        AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
       },
-      event: mergeDeepRight(event, { sentAt: 'sample_timestamp' })
+      event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
     });
 
     addItemSpy.mockRestore();
@@ -77,7 +77,7 @@ describe('XhrQueue', () => {
       },
       anonymousId: 'sampleAnonId',
       messageId: 'test',
-      originalTimestamp: 'test'
+      originalTimestamp: 'test',
     };
 
     const queueProcessCbSpy = jest.spyOn(queue, 'fn');
@@ -88,14 +88,14 @@ describe('XhrQueue', () => {
       {
         url: 'https://sampleurl.com/v1/track',
         headers: {
-          AnonymousId: 'c2FtcGxlQW5vbklk' // Base64 encoded anonymousId
+          AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
         },
-        event: mergeDeepRight(event, { sentAt: 'sample_timestamp' })
+        event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
       },
       expect.any(Function),
       0,
       10,
-      true
+      true,
     );
 
     queueProcessCbSpy.mockRestore();

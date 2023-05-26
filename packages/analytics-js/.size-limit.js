@@ -20,5 +20,5 @@ module.exports = [
     path: 'dist/modern/iife/index.js',
     gzip: true,
     limit: '25 kB',
-  }
+  },
 ];

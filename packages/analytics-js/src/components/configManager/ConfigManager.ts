@@ -13,10 +13,8 @@ import {
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { removeTrailingSlashes } from "@rudderstack/analytics-js/components/utilities/url";
-import {
-  filterEnabledDestination
-} from "@rudderstack/analytics-js/components/utilities/destinations";
+import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
+import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';

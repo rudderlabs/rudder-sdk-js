@@ -1,5 +1,9 @@
 import path from 'path';
-import { MAX_EVENT_PAYLOAD_SIZE_BYTES, DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';
+import {
+  MAX_EVENT_PAYLOAD_SIZE_BYTES,
+  DATA_PLANE_API_VERSION,
+  DEFAULT_RETRY_QUEUE_OPTIONS,
+} from './constants';
 import { mergeDeepRight, replaceNullValues } from '../utilities/common';
 import { QueueOpts, RudderEvent, RudderEventType, ILogger } from '../types/common';
 
@@ -38,9 +42,11 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
   }
 };
 
-const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts => mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts)
+const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
+  mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
 
-// eslint-disable-next-line compat/compat
-const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
+// TODO: Add polyfill for URL and URL.toString()
+const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string =>
+  new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
 
 export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl, getNormalizedQueueOptions };

@@ -67,7 +67,7 @@ class Logger implements ILogger {
     this.minLogLevel = LOG_LEVEL_MAP[logLevel];
     if (this.minLogLevel === undefined) {
       this.minLogLevel = LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
-    };
+    }
   }
 
   /**

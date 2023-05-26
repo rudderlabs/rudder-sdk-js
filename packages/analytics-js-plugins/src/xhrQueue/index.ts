@@ -69,7 +69,7 @@ const XhrQueue = (): ExtensionPlugin => ({
                 method: 'POST',
                 headers,
                 data,
-                sendRawData: true
+                sendRawData: true,
               },
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
