@@ -20,6 +20,6 @@ const tryStringify = (val: any) => {
   return retVal;
 };
 
-const toBase64 = (value: string): string => Buffer.from(value).toString('base64');
+const toBase64 = (value: string): string => btoa(`${value}`);
 
 export { trim, removeDoubleSpaces, tryStringify, toBase64 };
