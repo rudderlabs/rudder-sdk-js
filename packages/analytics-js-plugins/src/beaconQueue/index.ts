@@ -27,20 +27,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
     init(state: ApplicationState, errorHandler?: IErrorHandler, logger?: ILogger): void {
       // TODO: Implement this
       // TODO: Remove this console log
-      logger?.log('Queue initialized');
-    },
-
-    /**
-     * Start the queue for delivery
-     * @param eventsQueue Queue instance
-     * @param errorHandler Error handler instance
-     * @param logger Logger instance
-     * @returns none
-     */
-    start(eventsQueue: any, errorHandler?: IErrorHandler, logger?: ILogger): void {
-      // TODO: Implement this
-      // TODO: Remove this console log
-      logger?.log('Queue started');
+      logger?.log('Queue initialized and started');
     },
 
     /**

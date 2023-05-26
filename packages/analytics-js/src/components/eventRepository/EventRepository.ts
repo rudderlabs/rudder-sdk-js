@@ -35,35 +35,22 @@ class EventRepository implements IEventRepository {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.onError = this.onError.bind(this);
-
-    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
-      state,
-      errorHandler,
-      logger,
-    );
-
-    this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
-      state,
-      errorHandler,
-      logger,
-    );
   }
 
   /**
    * Initializes the event repository
    */
   init(): void {
-    this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`,
-      this.dataplaneEventsQueue,
+    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
+      state,
       this.errorHandler,
       this.logger,
     );
-    this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`,
-      this.destinationsEventsQueue,
+
+    this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
+      state,
       this.errorHandler,
       this.logger,
     );

@@ -31,14 +31,8 @@ describe('XhrQueue', () => {
     const queue = XhrQueue().dataplaneEventsQueue.init(state);
 
     expect(queue).toBeDefined();
-    expect(queue.running).toBeFalsy();
-    expect(queue.name).toBe('rudder');
-  });
-
-  it('should start the queue on start', () => {
-    const queue = XhrQueue().dataplaneEventsQueue.init(state);
-    XhrQueue().dataplaneEventsQueue.start(queue);
     expect(queue.running).toBeTruthy();
+    expect(queue.name).toBe('rudder');
   });
 
   it('should add item in queue on enqueue', () => {
@@ -86,11 +80,9 @@ describe('XhrQueue', () => {
       originalTimestamp: 'test'
     };
 
-    XhrQueue().dataplaneEventsQueue.enqueue(state, queue, event);
-
     const queueProcessCbSpy = jest.spyOn(queue, 'fn');
 
-    XhrQueue().dataplaneEventsQueue.start(queue);
+    XhrQueue().dataplaneEventsQueue.enqueue(state, queue, event);
 
     expect(queueProcessCbSpy).toBeCalledWith(
       {

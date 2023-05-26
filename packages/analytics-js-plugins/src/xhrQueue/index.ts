@@ -69,10 +69,12 @@ const XhrQueue = (): ExtensionPlugin => ({
                 method: 'POST',
                 headers,
                 data,
+                sendRawData: true
               },
+              isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
               callback: result => {
-                if (result !== undefined) {
+                if (result === undefined) {
                   let errMsg = `Unable to deliver event to ${url}.`;
 
                   if (willBeRetried) {
@@ -99,18 +101,9 @@ const XhrQueue = (): ExtensionPlugin => ({
         },
       );
 
-      return eventsQueue;
-    },
-
-    /**
-     * Start the queue for delivery
-     * @param eventsQueue Queue instance
-     * @param errorHandler Error handler instance
-     * @param logger Logger instance
-     * @returns none
-     */
-    start(eventsQueue: Queue, errorHandler?: IErrorHandler, logger?: ILogger): void {
       eventsQueue.start();
+
+      return eventsQueue;
     },
 
     /**
