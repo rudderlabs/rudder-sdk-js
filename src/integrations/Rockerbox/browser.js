@@ -1,5 +1,4 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable class-methods-use-this */
+/* eslint-disable no-param-reassign,prefer-rest-params,class-methods-use-this,unicorn/consistent-destructuring */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
@@ -14,7 +13,9 @@ class Rockerbox {
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
     this.useNativeSDKToSend = config.useNativeSDKToSend;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.connectionMode = config.connectionMode;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -75,7 +76,13 @@ class Rockerbox {
   }
 
   track(rudderElement) {
-    if (!this.useNativeSDKToSend) {
+    if (this.connectionMode !== 'device') {
+      logger.info(
+        'The connectionMode is not set to device. Track call will not be sent via device mode.',
+      );
+      return;
+    }
+    if (!this.connectionMode && !this.useNativeSDKToSend) {
       logger.info(
         'The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode.',
       );
