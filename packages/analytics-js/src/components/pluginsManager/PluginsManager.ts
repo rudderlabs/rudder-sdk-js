@@ -88,7 +88,7 @@ class PluginsManager implements IPluginsManager {
     }
 
     // dataplane events delivery plugins
-    if (state.loadOptions.value.beaconQueueOptions) {
+    if (state.loadOptions.value.useBeacon === true) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== PluginName.XhrQueue,
       );
