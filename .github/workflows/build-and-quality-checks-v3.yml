@@ -42,5 +42,5 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: check:size
+          build_script: check:size:build
           script: npm run check:size:json -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
