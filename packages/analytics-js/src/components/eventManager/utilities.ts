@@ -1,7 +1,6 @@
 import { ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { state } from '@rudderstack/analytics-js/state';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { clone } from 'ramda';
 import {
@@ -193,12 +192,14 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  * @param rudderEvent RudderEvent object
  * @param options API options
  * @param pageProps Page properties
+ * @param logger logger
  * @returns Enriched RudderEvent object
  */
 const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
   options?: Nullable<ApiOptions>,
   pageProps?: ApiObject,
+  logger?: ILogger,
 ): RudderEvent => {
   const commonEventData = {
     // Type casting to string as the user session manager will take care of initializing the value
@@ -236,7 +237,7 @@ const getEnrichedEvent = (
 
   processOptions(processedEvent, options);
   // TODO: We might not need this check altogether
-  checkForReservedElements(processedEvent, defaultLogger);
+  checkForReservedElements(processedEvent, logger);
 
   return processedEvent;
 };

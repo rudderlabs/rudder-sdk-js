@@ -13,15 +13,16 @@ const getReferrer = (): string => document.referrer || '$direct';
  * @returns canonical URL
  */
 const getCanonicalUrl = (): string => {
-  const tags = [...document.getElementsByTagName('link')];
-  let canonicalUrl: Nullable<string> = '';
-  tags.some(tag => {
-    if (tag.getAttribute('rel') === 'canonical') {
-      canonicalUrl = tag.getAttribute('href');
-      return true;
+  const tags = document.getElementsByTagName('link');
+  let canonicalUrl = '';
+
+  for (let i = 0; tags[i]; i += 1) {
+    const tag = tags[i];
+    if (tag.getAttribute('rel') === 'canonical' && !canonicalUrl) {
+      canonicalUrl = tag.getAttribute('href') ?? '';
     }
-    return false;
-  });
+  }
+
   return canonicalUrl;
 };
 

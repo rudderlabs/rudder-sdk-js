@@ -18,6 +18,8 @@ import { Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
+import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -27,18 +29,19 @@ import {
 } from './eventMethodOverloads';
 
 export interface IAnalytics {
+  preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
   status?: LifecycleStatus;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;
-  pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
-  storeManager: IStoreManager;
-  configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
-  eventManager: IEventManager;
-  userSessionManager: IUserSessionManager;
+  storeManager?: IStoreManager;
+  configManager?: IConfigManager;
+  eventManager?: IEventManager;
+  userSessionManager?: IUserSessionManager;
+  pluginsManager?: IPluginsManager;
   clientDataStore?: Store;
 
   /**
@@ -60,6 +63,21 @@ export interface IAnalytics {
    * Load browser polyfill if required
    */
   prepareBrowserCapabilities(): void;
+
+  /**
+   * Enqueue in buffer the events that were triggered pre SDK initialization
+   */
+  enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]): void;
+
+  /**
+   * Start the process of consuming the buffered events that were triggered pre SDK initialization
+   */
+  processDataInPreloadBuffer(): void;
+
+  /**
+   * Assign instances for the internal services
+   */
+  prepareInternalServices(): void;
 
   /**
    * Load configuration
@@ -129,7 +147,7 @@ export interface IAnalytics {
   /**
    * To get anonymousId set in the SDK
    */
-  getAnonymousId(options?: AnonymousIdOptions): string;
+  getAnonymousId(options?: AnonymousIdOptions): string | undefined;
 
   /**
    * To set anonymousId
@@ -179,5 +197,5 @@ export interface IAnalytics {
   /**
    * To fetch the current sessionInfo
    */
-  getSessionInfo(): Nullable<SessionInfo>;
+  getSessionInfo(): Nullable<SessionInfo> | undefined;
 }

@@ -1,14 +1,21 @@
 import { STORAGE_TEST_TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storageKeyNames';
 import { cookie } from '../component-cookie';
 
+const legacyGetHostname = (href: string): string => {
+  const l = document.createElement('a');
+  l.href = href;
+  return l.hostname;
+};
+
 /**
  * Levels returns all levels of the given url
  *
  * The method returns an empty array when the hostname is an ip.
  */
 const levelsFunc = (url: string): string[] => {
-  const host = new URL(url).hostname;
-  const parts = host.split('.');
+  // This is called before the polyfills load thus new URL cannot be used
+  const host = typeof window.URL !== 'function' ? legacyGetHostname(url) : new URL(url).hostname;
+  const parts = host?.split('.') ?? [];
   const last = parts[parts.length - 1];
   const levels: string[] = [];
 
@@ -20,7 +27,7 @@ const levelsFunc = (url: string): string[] => {
   // Localhost.
   if (parts.length <= 1) {
     // Fix to support localhost
-    if (parts[0].includes('localhost')) {
+    if (parts[0].indexOf('localhost') !== -1) {
       return ['localhost'];
     }
     return levels;
@@ -51,7 +58,7 @@ const domain = (url: string): string => {
     const domain = levels[i];
     const cname = STORAGE_TEST_TOP_LEVEL_DOMAIN;
     const opts = {
-      domain: `${domain.includes('localhost') ? '' : '.'}${domain}`,
+      domain: `${domain.indexOf('localhost') !== -1 ? '' : '.'}${domain}`,
     };
 
     // Set cookie on domain

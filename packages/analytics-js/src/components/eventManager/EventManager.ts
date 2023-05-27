@@ -1,13 +1,10 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { IEventManager, APIEvent } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';
-import { defaultEventRepository } from '../eventRepository';
 
 /**
  * A service to generate valid event payloads and queue them for processing
@@ -16,6 +13,7 @@ class EventManager implements IEventManager {
   eventRepository: IEventRepository;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
+  eventFactory: RudderEventFactory;
 
   /**
    *
@@ -27,6 +25,7 @@ class EventManager implements IEventManager {
     this.eventRepository = eventRepository;
     this.errorHandler = errorHandler;
     this.logger = logger;
+    this.eventFactory = new RudderEventFactory(this.logger);
     this.onError = this.onError.bind(this);
   }
 
@@ -44,7 +43,7 @@ class EventManager implements IEventManager {
    * @param event Incoming event data
    */
   addEvent(event: APIEvent) {
-    const rudderEvent = RudderEventFactory.create(event);
+    const rudderEvent = this.eventFactory.create(event);
     if (rudderEvent) {
       this.eventRepository.enqueue(rudderEvent, event.callback);
     } else {
@@ -65,10 +64,4 @@ class EventManager implements IEventManager {
   }
 }
 
-const defaultEventManager = new EventManager(
-  defaultEventRepository,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { EventManager, defaultEventManager };
+export { EventManager };

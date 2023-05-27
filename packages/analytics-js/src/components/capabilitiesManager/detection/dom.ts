@@ -8,10 +8,12 @@ const isDatasetAvailable = (): boolean => {
 
 const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   URLSearchParams: () => !window.URLSearchParams,
-  URL: () => !window.URL,
+  URL: () => typeof window.URL !== 'function',
   MutationObserver: () => isUndefined(MutationObserver),
-  Promise: () => !Promise,
+  Promise: () => typeof Promise === 'undefined',
   'Number.isNaN': () => !Number.isNaN,
+  'Number.isInteger': () => !Number.isInteger,
+  'Array.prototype.at': () => !Array.prototype.at,
   'Array.from': () => !Array.from,
   'Array.prototype.find': () => !Array.prototype.find,
   'Array.prototype.includes': () => !Array.prototype.includes,
@@ -26,17 +28,18 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
 
 const isLegacyJSEngine = (): boolean => {
   const requiredCapabilitiesList = Object.keys(legacyJSEngineRequiredPolyfills);
+  let needsPolyfill = false;
 
   /* eslint-disable-next-line unicorn/no-for-loop */
   for (let i = 0; i < requiredCapabilitiesList.length; i++) {
     const isCapabilityMissing = legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i]];
 
     if (isCapabilityMissing()) {
-      return true;
+      needsPolyfill = true;
     }
   }
 
-  return false;
+  return needsPolyfill;
 };
 
 export { isDatasetAvailable, legacyJSEngineRequiredPolyfills, isLegacyJSEngine };

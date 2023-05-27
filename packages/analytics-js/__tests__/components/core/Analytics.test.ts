@@ -32,16 +32,11 @@ describe('Core - Analytics', () => {
   describe('constructor', () => {
     it('should initialize with default services and components', () => {
       expect(analytics.initialized).toBe(false);
-      expect(analytics.httpClient).toBeDefined();
       expect(analytics.errorHandler).toBeDefined();
       expect(analytics.logger).toBeDefined();
-      expect(analytics.pluginsManager).toBeDefined();
       expect(analytics.externalSrcLoader).toBeDefined();
-      expect(analytics.storeManager).toBeDefined();
-      expect(analytics.configManager).toBeDefined();
       expect(analytics.capabilitiesManager).toBeDefined();
-      expect(analytics.eventManager).toBeDefined();
-      expect(analytics.userSessionManager).toBeDefined();
+      expect(analytics.httpClient).toBeDefined();
     });
   });
 
@@ -120,6 +115,7 @@ describe('Core - Analytics', () => {
       expect(onErrorSpy).toHaveBeenCalledTimes(1);
     });
     it('should set authentication request header', () => {
+      analytics.prepareInternalServices();
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
@@ -202,6 +198,7 @@ describe('Core - Analytics', () => {
       ]);
     });
     it('should sent events if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
 
@@ -227,6 +224,7 @@ describe('Core - Analytics', () => {
       ]);
     });
     it('should sent events if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
 
@@ -252,6 +250,7 @@ describe('Core - Analytics', () => {
       ]);
     });
     it('should sent events if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
       const setUserIdSpy = jest.spyOn(analytics.userSessionManager, 'setUserId');
@@ -272,6 +271,7 @@ describe('Core - Analytics', () => {
       });
     });
     it('should sent events if loaded and reset session if userID changed', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
       const setUserIdSpy = jest.spyOn(analytics.userSessionManager, 'setUserId');
@@ -302,6 +302,7 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
     });
     it('should sent events if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
 
@@ -319,6 +320,7 @@ describe('Core - Analytics', () => {
 
   describe('group', () => {
     it('should buffer events until loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
       const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
@@ -332,6 +334,7 @@ describe('Core - Analytics', () => {
       ]);
     });
     it('should sent events if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
       const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
@@ -352,6 +355,7 @@ describe('Core - Analytics', () => {
 
   describe('reset', () => {
     it('should buffer events until loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
       const clearUserSessionStorageSpy = jest.spyOn(
@@ -366,6 +370,7 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['reset', true]]);
     });
     it('should reset session if loaded', () => {
+      analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
 
@@ -374,6 +379,40 @@ describe('Core - Analytics', () => {
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+    });
+
+    it('should process the preload buffer', () => {
+      analytics.prepareInternalServices();
+      const enqueueSpy = jest.spyOn(analytics.preloadBuffer, 'enqueue');
+      const dequeueSpy = jest
+        .spyOn(analytics.preloadBuffer, 'dequeue')
+        .mockImplementationOnce(() => ['page', { path: '/home' }])
+        .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }]);
+      const sizeSpy = jest
+        .spyOn(analytics.preloadBuffer, 'size')
+        .mockImplementationOnce(() => 2)
+        .mockImplementationOnce(() => 1)
+        .mockImplementationOnce(() => 0);
+      const pageSpy = jest.spyOn(analytics, 'page');
+      const trackSpy = jest.spyOn(analytics, 'track');
+
+      const events = [
+        ['page', { path: '/home' }],
+        ['track', 'buttonClicked', { color: 'blue' }],
+      ];
+
+      analytics.enqueuePreloadBufferEvents(events as any);
+      expect(enqueueSpy).toHaveBeenCalledTimes(2);
+      analytics.processDataInPreloadBuffer();
+
+      expect(dequeueSpy).toHaveBeenCalledTimes(2);
+      expect(pageSpy).toHaveBeenCalledWith({
+        properties: { path: '/home', category: null, name: null },
+      });
+      expect(trackSpy).toHaveBeenCalledWith({
+        name: 'buttonClicked',
+        properties: { color: 'blue' },
+      });
     });
   });
 });

@@ -2,9 +2,6 @@
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
@@ -134,6 +131,7 @@ class ConfigManager implements IConfigManager {
       res.source.dataplanes,
       state.lifecycle.dataPlaneUrl.value,
       state.loadOptions.value.residencyServer,
+      this.logger,
     );
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
@@ -209,10 +207,4 @@ class ConfigManager implements IConfigManager {
   }
 }
 
-const defaultConfigManager = new ConfigManager(
-  defaultHttpClient,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { ConfigManager, defaultConfigManager };
+export { ConfigManager };

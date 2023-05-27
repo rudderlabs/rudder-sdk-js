@@ -1,7 +1,5 @@
-import { IRudderAnalytics } from '@rudderstack/analytics-js/components/core/IRudderAnalytics';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   QUERY_PARAM_ANONYMOUS_ID_KEY,
   QUERY_PARAM_PROPERTY_PREFIX,
@@ -9,6 +7,15 @@ import {
   QUERY_PARAM_TRAIT_PREFIX,
   QUERY_PARAM_USER_ID_KEY,
 } from '@rudderstack/analytics-js/constants/queryParams';
+import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
+import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import {
+  aliasArgumentsToCallOptions,
+  groupArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
+} from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
 
 /**
  * Parse query string params into object values for keys that start with a defined prefix
@@ -93,27 +100,51 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
 /**
  * Retrieve any existing events that were triggered before SDK load and enqueue in buffer
  */
-const retrievePreloadBufferEvents = (instance: IRudderAnalytics) => {
+const retrievePreloadBufferEvents = (instance: IAnalytics) => {
   const preloadedEventsArray: PreloadedEventCall[] = Array.isArray((window as any).rudderanalytics)
     ? (window as any).rudderanalytics
     : [];
 
-  // Get any load method call that is buffered if any
-  const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);
-
   // Get events that are prepopulated via query string params
   retrieveEventsFromQueryString(preloadedEventsArray);
+  const sanitizedPreloadedEventsArray = preloadedEventsArray.filter(
+    bufferedEvent => bufferedEvent[0] !== 'load',
+  );
 
-  // Enqueue the events in the buffer of the global rudder analytics singleton
-  if (preloadedEventsArray.length > 0) {
-    instance.enqueuePreloadBufferEvents(preloadedEventsArray);
+  // Enqueue the non load events in the buffer of the global rudder analytics singleton
+  if (sanitizedPreloadedEventsArray.length > 0) {
+    instance.enqueuePreloadBufferEvents(sanitizedPreloadedEventsArray);
   }
+};
 
-  // Process load method if present in the buffered requests
-  if (loadEvent.length > 0) {
-    const loadMethodName = loadEvent.shift();
-    if (isFunction((instance as any)[loadMethodName])) {
-      (instance as any)[loadMethodName](...loadEvent);
+const consumePreloadBufferedEvent = (event: any, analyticsInstance: IAnalytics) => {
+  const methodName = event.shift();
+  let callOptions;
+
+  if (isFunction((analyticsInstance as any)[methodName])) {
+    switch (methodName) {
+      case 'page':
+        callOptions = pageArgumentsToCallOptions(...(event as [any]));
+        break;
+      case 'track':
+        callOptions = trackArgumentsToCallOptions(...(event as [any]));
+        break;
+      case 'identify':
+        callOptions = identifyArgumentsToCallOptions(...(event as [any]));
+        break;
+      case 'alias':
+        callOptions = aliasArgumentsToCallOptions(...(event as [any]));
+        break;
+      case 'group':
+        callOptions = groupArgumentsToCallOptions(...(event as [any]));
+        break;
+      default:
+        (analyticsInstance as any)[methodName](...event);
+        break;
+    }
+
+    if (callOptions) {
+      (analyticsInstance as any)[methodName](callOptions);
     }
   }
 };
@@ -123,4 +154,5 @@ export {
   retrieveEventsFromQueryString,
   getPreloadedLoadEvent,
   retrievePreloadBufferEvents,
+  consumePreloadBufferedEvent,
 };

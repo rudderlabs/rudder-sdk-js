@@ -14,8 +14,6 @@ export type NativeDestinationsState = {
   clientIntegrationObjects: Signal<IntegrationInstance[] | undefined>;
   successfullyLoadedIntegration: Signal<IntegrationInstance[]>;
   failedToBeLoadedIntegration: Signal<IntegrationInstance[]>;
-  // clientSuppliedCallbacks: Signal<ClientSuppliedCallbacks | undefined>;
-  // methodToCallbackMapping: Signal<MethodToCallbackMap | undefined>;
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
   dynamicallyLoadedIntegrations: Signal<Record<string, DynamicallyLoadedIntegration>>;
@@ -76,10 +74,6 @@ const nativeDestinationsState: NativeDestinationsState = {
   clientIntegrationObjects: signal(undefined),
   successfullyLoadedIntegration: signal([]),
   failedToBeLoadedIntegration: signal([]),
-  // clientSuppliedCallbacks: signal(undefined),
-  // methodToCallbackMapping: signal({
-  //   syncPixel: 'syncPixelCallback',
-  // }),
   loadIntegration: signal(true),
   integrationsData: signal({}),
   dynamicallyLoadedIntegrations: signal({}),

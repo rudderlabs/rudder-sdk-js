@@ -1,13 +1,10 @@
 import { ApiCallback } from '@rudderstack/analytics-js/state/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { state } from '@rudderstack/analytics-js/state';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
-import { defaultPluginsManager } from '../pluginsManager';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
@@ -59,7 +56,11 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`, event, this.logger);
+    this.pluginsManager.invokeMultiple(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+      event,
+      this.logger,
+    );
     this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
 
     // Invoke the callback if it exists
@@ -83,10 +84,4 @@ class EventRepository implements IEventRepository {
   }
 }
 
-const defaultEventRepository = new EventRepository(
-  defaultPluginsManager,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { defaultEventRepository, EventRepository };
+export { EventRepository };

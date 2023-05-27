@@ -255,7 +255,6 @@ export type LoadOptions = {
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
   polyfillURL?: string;
-  // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
 };
 
 export type ApiCallback = (data?: any) => void;

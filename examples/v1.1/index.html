@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <script>
@@ -34,115 +35,98 @@
 
       setTimeout(function() {
         rudderanalytics.identify(
-          "customUserID",
+          'customUserID',
           {
-            name: "John Doe",
-            title: "CEO",
-            email: "name.surname@domain.com",
-            company: "Company123",
-            phone: "123-456-7890",
-            rating: "Hot",
-            city: "Austin",
-            postalCode: "12345",
-            country: "US",
-            street: "Sample Address",
-            state: "TX",
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            city: 'Austin',
+            postalCode: '12345',
+            country: 'US',
+            street: 'Sample Address',
+            state: 'TX',
           },
-          () => {
-            console.log("in identify call");
+          function(message) {
+            console.log('in identify call', message);
           }
         );
+
         rudderanalytics.page(
-          "Home",
-          "Cart Viewed",
+          'Home',
+          'Cart Viewed',
           {
-            path: "",
-            referrer: "",
-            search: "",
-            title: "",
-            url: "",
+            path: '',
+            referrer: '',
+            search: '',
+            title: '',
+            url: '',
           },
-          () => {
-            console.log("in page call");
+          function(message) {
+            console.log('in page call', message);
           }
         );
 
         rudderanalytics.track(
-          "test track event 1",
+          'test track event 1',
           {
             revenue: 30,
-            currency: "USD",
+            currency: 'USD',
             user_actual_id: 12345,
           },
-          () => {
-            console.log("in track call 1");
+          function(message) {
+            console.log('in track call 1', message);
           }
         );
 
         rudderanalytics.track(
-          "test track event 2",
+          'test track event 2',
           {
             revenue: 45,
-            currency: "INR",
+            currency: 'INR',
             user_actual_id: 333,
           },
-          () => {
-            console.log("in track call 2");
+          function(message) {
+            console.log('in track call 2', message);
           }
         );
 
         rudderanalytics.track(
-          "test track event 3",
+          'test track event 3',
           {
             revenue: 10003,
-            currency: "EUR",
+            currency: 'EUR',
             user_actual_id: 5678,
           },
-          () => {
-            console.log("in track call 3");
+          function(message) {
+            console.log('in track call 3', message);
           }
         );
+
+        rudderanalytics.ready(function() {
+          console.log('All ready!!!');
+        });
 
         // TODO: Call other APIs here
       }, 5000)
     </script>
 
     <!-- ============ V1 ============ -->
-    <!-- <script src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script> -->
     <!-- <script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script> -->
+    <!-- <script src="https://cdn.rudderlabs.com/v1/staging/rudder-analytics-staging.min.js"></script> -->
     <!-- ============ V1 ============ -->
 
-    <!-- ============ V3 ============ -->
-    <!-- ============ CDN ============ -->
-    <!-- Prod -->
-    <!-- MINIFIED -->
-    <!-- <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.min.js"></script> -->
+    <!-- ============ V1.1 ============ -->
+    <script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
+    <!-- <script src="https://cdn.rudderlabs.com/v1.1/staging/rudder-analytics-staging.min.js"></script> -->
+    <!-- ============ V1.1 ============ -->
 
-    <!-- UNMINIFIED -->
-    <!-- <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.js"></script> -->
-
-    <!-- Dev -->
-    <!-- MINIFIED -->
-    <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script> -->
-
-    <!-- UNMINIFIED -->
-    <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.js"></script> -->
-
-    <!-- ============ S3 ============ -->
-    <!-- MINIFIED -->
-    <!-- <script src="https://js-sdk-staging-test.s3.amazonaws.com/v2/rudder-analytics.min.js"></script> -->
-
-    <!-- UNMINIFIED -->
-    <!-- <script src="https://js-sdk-staging-test.s3.amazonaws.com/v2/rudder-analytics.js"></script> -->
-    <!-- ============ V3 ============ -->
-
-    <!-- ============ LOCAl ================= -->
-    <!-- Local MINIFIED -->
-    <!-- <script src="../dist/rudder-analytics.min.js"></script> -->
-
-    <!-- Local UNMINIFIED -->
-    <!-- <script src="./rudder-analytics.js"></script> -->
-    <!-- ============ LOCAl ================= -->
+    <!-- ============ V2 ============ -->
+    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js?transport=beacon"></script> -->
+    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js?transport=beacon&autotrack=true"></script> -->
+    <!-- ============ V2 ============ -->
   </head>
   <body>
     <h1>Page Loaded</h1>

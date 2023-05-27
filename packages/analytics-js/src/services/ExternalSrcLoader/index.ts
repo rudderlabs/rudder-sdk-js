@@ -1,1 +1,1 @@
-export { ExternalSrcLoader, defaultExternalSrcLoader } from './ExternalSrcLoader';
+export { ExternalSrcLoader } from './ExternalSrcLoader';

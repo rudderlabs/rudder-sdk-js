@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
@@ -17,8 +16,6 @@ import {
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { IUserSessionManager, SessionTrackingInfo } from './types';
@@ -486,10 +483,4 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager(
-  defaultErrorHandler,
-  defaultLogger,
-  defaultPluginsManager,
-);
-
-export { UserSessionManager, defaultUserSessionManager };
+export { UserSessionManager };

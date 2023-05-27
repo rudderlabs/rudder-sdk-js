@@ -63,7 +63,6 @@ const xhrRequest = (
       );
     };
 
-    xhr.timeout = timeout;
     xhr.ontimeout = xhrError;
     xhr.onerror = xhrError;
 
@@ -76,6 +75,9 @@ const xhrRequest = (
     };
 
     xhr.open(options.method, options.url);
+    // The timeout property may be set only in the time interval between a call to the open method
+    // and the first call to the send method in legacy browsers
+    xhr.timeout = timeout;
 
     Object.keys(options.headers).forEach(headerName => {
       if (options.headers[headerName]) {

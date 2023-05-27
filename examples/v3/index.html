@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>RudderStack JS SDK v3 Example</title>
@@ -35,23 +36,43 @@
         })(method);
       }
 
+      // New addition to load script starts
       var sdkBuildType = 'legacy';
+
       try {
+        // Feature detection of dynamic imports
         new Function('return import("")');
         sdkBuildType = 'modern';
-      } catch (e) {}
+      } catch (e) {
+      }
 
       var rudderCdnBaseUrlHost = 'https://cdn.rudderlabs.com/beta/v3/'
       var rudderAnalyticsBaseUrl = rudderCdnBaseUrlHost + sdkBuildType;
-      window.rudderAnalyticsScript = document.createElement('script');
-      rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
-      rudderAnalyticsScript.async = true;
+      var rudderAnalyticsMount = function() {
+        var rudderAnalyticsScript = document.createElement('script');
+        rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
+        rudderAnalyticsScript.async = true;
+        rudderAnalyticsScript.defer = true;
+        document.head.appendChild(rudderAnalyticsScript);
+      };
 
-      rudderanalytics.load('2L8Fl7ryPss3Zku133Pj5ox7NeP', 'https://rudderstacpn.dataplane.rudderstack.com', {
+      // Feature detection of Promise
+      if(typeof Promise === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement('script');
+        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+        rudderAnalyticsPromisesScript.async = true;
+        rudderAnalyticsPromisesScript.defer = true;
+        document.head.appendChild(rudderAnalyticsPromisesScript);
+      } else {
+        rudderAnalyticsMount();
+      }
+      // New addition to load script ends
+
+      rudderanalytics.load('<writeKey>', '<dataplaneUrl>', {
         logLevel: 'DEBUG',
         configUrl: 'https://api.rudderlabs.com',
-        destSDKBaseURL: rudderAnalyticsBaseUrl + '/js-integrations',
-        pluginsSDKBaseURL: rudderAnalyticsBaseUrl + '/plugins'
+        destSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/js-integrations',
+        pluginsSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/plugins'
       });
 
       rudderanalytics.identify(
@@ -71,7 +92,7 @@
         },
         function(message) {
           console.log('in identify call', message);
-        },
+        }
       );
 
       rudderanalytics.page(
@@ -86,7 +107,7 @@
         },
         function(message) {
           console.log('in page call', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -98,7 +119,7 @@
         },
         function(message) {
           console.log('in track call 1', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -110,7 +131,7 @@
         },
         function(message) {
           console.log('in track call 2', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -122,7 +143,7 @@
         },
         function(message) {
           console.log('in track call 3', message);
-        },
+        }
       );
 
       rudderanalytics.ready(function() {
@@ -132,26 +153,9 @@
       // TODO: Call other APIs here
     </script>
 
-    <!-- ============ V1 ============ -->
-    <!-- <script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script> -->
-    <!-- <script src="https://cdn.rudderlabs.com/v1/staging/rudder-analytics-staging.min.js"></script> -->
-    <!-- ============ V1 ============ -->
-
-    <!-- ============ V1.1 ============ -->
-    <!-- <script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script> -->
-    <!-- <script src="https://cdn.rudderlabs.com/v1.1/staging/rudder-analytics-staging.min.js"></script> -->
-    <!-- ============ V1.1 ============ -->
-
-    <!-- ============ V2 ============ -->
-    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js?transport=beacon"></script> -->
-    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js?transport=beacon&autotrack=true"></script> -->
-    <!-- ============ V2 ============ -->
-
     <!-- ============ V3 ============ -->
-    <script>
-      document.head.appendChild(rudderAnalyticsScript);
-    </script>
     <!--    <script src="https://cdn.rudderlabs.com/beta/v3/modern/rudder-analytics.min.js"></script>-->
+    <!--    <script src="https://cdn.rudderlabs.com/beta/v3/legacy/rudder-analytics.min.js"></script>-->
     <!-- ============ V3 ============ -->
 
   </head>
