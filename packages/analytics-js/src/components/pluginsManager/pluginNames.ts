@@ -1,4 +1,4 @@
-import { PluginName } from "./types";
+import { PluginName } from './types';
 
 /**
  * List of plugin names that are loaded as direct imports in all builds
@@ -11,7 +11,6 @@ const localPluginNames: PluginName[] = [];
 const remotePluginNames: PluginName[] = [
   PluginName.BeaconQueue,
   PluginName.ConsentManager,
-  PluginName.DataplaneEventsQueue,
   PluginName.DeviceModeTransformation,
   PluginName.DeviceModeDestinations,
   PluginName.ErrorReporting,

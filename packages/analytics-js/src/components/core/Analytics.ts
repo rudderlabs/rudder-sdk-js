@@ -6,7 +6,7 @@ import {
   defaultPluginsManager,
   PluginsManager,
 } from '@rudderstack/analytics-js/components/pluginsManager';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
@@ -26,6 +26,7 @@ import {
   AnonymousIdOptions,
   ApiCallback,
   ApiObject,
+  BufferedEvent,
   LifecycleStatus,
   LoadOptions,
   SessionInfo,
@@ -86,7 +87,7 @@ class Analytics implements IAnalytics {
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
-    this.httpClient = new HttpClient(this.errorHandler, this.logger);
+    this.httpClient = defaultHttpClient;
 
     this.attachGlobalErrorHandler = this.attachGlobalErrorHandler.bind(this);
     this.load = this.load.bind(this);
@@ -308,11 +309,11 @@ class Analytics implements IAnalytics {
    * Consume preloaded events buffer
    */
   processBufferedEvents() {
-    state.eventBuffer.toBeProcessedArray.value.forEach(bufferedEvent => {
-      const event = [...bufferedEvent];
-      const methodName = event.shift();
+    // Process buffered events
+    state.eventBuffer.toBeProcessedArray.value.forEach((bufferedItem: BufferedEvent) => {
+      const methodName = bufferedItem[0];
       if (isFunction((this as any)[methodName])) {
-        (this as any)[methodName](...event);
+        (this as any)[methodName](...bufferedItem.slice(1));
       }
     });
     state.eventBuffer.toBeProcessedArray.value = [];
@@ -411,7 +412,7 @@ class Analytics implements IAnalytics {
   }
 
   page(payload: PageCallOptions) {
-    const type = RudderEventType.Page;
+    const type = 'page';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -421,7 +422,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager?.addEvent({
-      type,
+      type: RudderEventType.Page,
       category: payload.category,
       name: payload.name,
       properties: payload.properties,
@@ -431,7 +432,7 @@ class Analytics implements IAnalytics {
   }
 
   track(payload: TrackCallOptions) {
-    const type = RudderEventType.Track;
+    const type = 'track';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -441,7 +442,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager?.addEvent({
-      type,
+      type: RudderEventType.Track,
       name: payload.name,
       properties: payload.properties,
       options: payload.options,
@@ -450,7 +451,7 @@ class Analytics implements IAnalytics {
   }
 
   identify(payload: IdentifyCallOptions) {
-    const type = RudderEventType.Identify;
+    const type = 'identify';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -471,7 +472,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.setUserTraits(payload.traits);
 
     this.eventManager?.addEvent({
-      type,
+      type: RudderEventType.Identify,
       userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
@@ -480,7 +481,7 @@ class Analytics implements IAnalytics {
   }
 
   alias(payload: AliasCallOptions) {
-    const type = RudderEventType.Alias;
+    const type = 'alias';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -495,7 +496,7 @@ class Analytics implements IAnalytics {
       this.userSessionManager?.getAnonymousId();
 
     this.eventManager?.addEvent({
-      type,
+      type: RudderEventType.Alias,
       to: payload.to,
       from: previousId,
       options: payload.options,
@@ -504,7 +505,7 @@ class Analytics implements IAnalytics {
   }
 
   group(payload: GroupCallOptions) {
-    const type = RudderEventType.Group;
+    const type = 'group';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
@@ -517,7 +518,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.setGroupTraits(payload.traits);
 
     this.eventManager?.addEvent({
-      type,
+      type: RudderEventType.Group,
       groupId: payload.groupId,
       traits: payload.traits,
       options: payload.options,

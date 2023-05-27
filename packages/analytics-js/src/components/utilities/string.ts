@@ -23,4 +23,6 @@ const tryStringify = (val?: any): Nullable<string> | undefined => {
   return retVal;
 };
 
-export { trim, removeDoubleSpaces, tryStringify };
+const toBase64 = (value: string): string => btoa(`${value}`);
+
+export { trim, removeDoubleSpaces, tryStringify, toBase64 };

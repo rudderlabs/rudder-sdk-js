@@ -29,8 +29,8 @@ jobs:
 
       - name: Execute quality checks
         run: |
-          npm run check:circular
-          npm run check:duplicates
+          npm run check:circular -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run check:duplicates -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
 
       - name: Execute security checks
         run: |
@@ -42,4 +42,5 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: check:size
+          build_script: check:size:build
+          script: npm run check:size:json -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'

@@ -18,12 +18,12 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
-import externalGlobals from "rollup-plugin-external-globals";
+import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
 dotenv.config();
-const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/modern/plugins';
+const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
@@ -96,13 +96,13 @@ const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && w
         sourcemap: sourceMapType,
       }),
       isLegacyBuild &&
-      externalGlobals({
-        './modernBuildPluginImports': 'null'
-      }),
+        externalGlobals({
+          './modernBuildPluginImports': 'null',
+        }),
       !isLegacyBuild &&
-      externalGlobals({
-        './legacyBuildPluginImports': 'null'
-      }),
+        externalGlobals({
+          './legacyBuildPluginImports': 'null',
+        }),
       !isLegacyBuild &&
       federation({
         remotes: {

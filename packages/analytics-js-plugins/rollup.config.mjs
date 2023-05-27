@@ -34,7 +34,6 @@ const remotePluginsExportsFilename = `${distName}.js`;
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
   './ConsentManager': './src/consentManager/index.ts',
-  './DataplaneEventsQueue': './src/dataplaneEventsQueue/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
   './ErrorReporting': './src/errorReporting/index.ts',
@@ -71,6 +70,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         preventAssignment: true,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
+        __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
       }),
       resolve({
         jsnext: true,

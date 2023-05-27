@@ -2,6 +2,7 @@ import { ApiCallback } from '@rudderstack/analytics-js/state/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
+import { clone } from 'ramda';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
@@ -17,6 +18,8 @@ class EventRepository implements IEventRepository {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   pluginsManager: IPluginsManager;
+  dataplaneEventsQueue: any;
+  destinationsEventsQueue: any;
 
   /**
    *
@@ -29,25 +32,25 @@ class EventRepository implements IEventRepository {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.onError = this.onError.bind(this);
-
-    this.pluginsManager.invokeMultiple(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
-      state.lifecycle.writeKey.value,
-      state.lifecycle.activeDataplaneUrl.value,
-      state.loadOptions.value.queueOptions,
-    );
-    this.pluginsManager.invokeMultiple(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
-      state.loadOptions.value.destinationsQueueOptions,
-    );
   }
 
   /**
    * Initializes the event repository
    */
   init(): void {
-    this.pluginsManager.invokeMultiple(`${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.start`);
-    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`);
+    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
+      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
+      state,
+      this.errorHandler,
+      this.logger,
+    );
+
+    this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
+      state,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -56,12 +59,25 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.pluginsManager.invokeMultiple(
+    const dpQEvent = clone(event);
+    this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      event,
+      state,
+      this.dataplaneEventsQueue,
+      dpQEvent,
+      this.errorHandler,
       this.logger,
     );
-    this.pluginsManager.invokeMultiple(`${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`, event);
+
+    const dQEvent = clone(event);
+    this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+      state,
+      this.destinationsEventsQueue,
+      dQEvent,
+      this.errorHandler,
+      this.logger,
+    );
 
     // Invoke the callback if it exists
     try {
@@ -74,6 +90,8 @@ class EventRepository implements IEventRepository {
   /**
    * Handles error
    * @param error The error object
+   * @param customMessage a message
+   * @param shouldAlwaysThrow if it should throw or use logger
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {

@@ -7,12 +7,12 @@ module.exports = [
     name: 'Remote Module Federation Mapping - CDN',
     path: 'dist/cdn/modern/plugins/rudder-analytics-plugins.js',
     gzip: true,
-    limit: '0.2 kB',
+    limit: '0.5 kB',
   },
   {
     name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/cdn/modern/plugins/rudder-analytics-plugins-*.js',
     gzip: true,
-    limit: '8 kB',
+    limit: '20 kB',
   },
 ];

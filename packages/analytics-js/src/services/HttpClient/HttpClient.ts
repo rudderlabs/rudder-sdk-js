@@ -61,7 +61,7 @@ class HttpClient implements IHttpClient {
       .catch(err => {
         this.onError(err);
         if (!isFireAndForget) {
-          callback();
+          callback(err);
         }
       });
   }

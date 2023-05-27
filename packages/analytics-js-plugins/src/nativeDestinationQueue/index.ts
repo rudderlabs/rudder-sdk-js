@@ -4,8 +4,8 @@ import {
   PluginName,
   ApplicationState,
   QueueOpts,
-  RudderEvent
-} from "../types/common";
+  RudderEvent,
+} from '../types/common';
 
 const pluginName = PluginName.NativeDestinationQueue;
 
@@ -31,4 +31,3 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
 export { NativeDestinationQueue };
 
 export default NativeDestinationQueue;
-

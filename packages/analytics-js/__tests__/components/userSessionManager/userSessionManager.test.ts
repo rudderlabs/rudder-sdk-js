@@ -1,6 +1,6 @@
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
 import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
-import { defaultStoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { defaultStoreManager, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -17,6 +18,11 @@ jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
 describe('User session manager', () => {
   const dummyAnonymousId = 'dummy-anonymousId-12345678';
   defaultLogger.warn = jest.fn();
+  const defaultStoreManager = new StoreManager(
+    defaultErrorHandler,
+    defaultLogger,
+    defaultPluginsManager,
+  );
 
   let userSessionManager: UserSessionManager;
 

@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { IXHRRequestOptions } from '../types';
@@ -49,14 +50,14 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject(
         new Error(
-          `Request failed with status: ${xhr.status}, ${xhr.statusText} for url: ${options.url}`,
+          `Request failed with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
         ),
       );
     };
     const xhrError = (e?: ProgressEvent) => {
       reject(
         new Error(
-          `Request failed due to timeout or no connection, ${e ? e.type : ''} for url: ${
+          `Request failed due to timeout or no connection, ${e ? e.type : ''} for URL: ${
             options.url
           }`,
         ),
@@ -85,13 +86,25 @@ const xhrRequest = (
       }
     });
 
+    let payload;
+    if (options.sendRawData === true) {
+      payload = options.data;
+    } else {
+      try {
+        payload = JSON.stringify(options.data);
+      } catch (err) {
+        reject(
+          new Error(
+            `Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`,
+          ),
+        );
+      }
+    }
+
     try {
-      const jsonData = JSON.stringify(options.data);
-      xhr.send(jsonData);
+      xhr.send(payload);
     } catch (err) {
-      reject(
-        new Error(`Request data parsing failed for url: ${options.url}, ${(err as Error).message}`),
-      );
+      reject(new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`));
     }
   });
 

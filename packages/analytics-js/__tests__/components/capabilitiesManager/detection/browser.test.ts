@@ -2,7 +2,7 @@ import {
   hasCrypto,
   isBrowser,
   isNode,
-  hasUAClientHints
+  hasUAClientHints,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
 
 describe('Capabilities Detection - Browser', () => {
