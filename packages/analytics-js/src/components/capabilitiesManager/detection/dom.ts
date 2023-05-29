@@ -13,7 +13,6 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   Promise: () => typeof Promise === 'undefined',
   'Number.isNaN': () => !Number.isNaN,
   'Number.isInteger': () => !Number.isInteger,
-  'Array.prototype.at': () => !Array.prototype.at,
   'Array.from': () => !Array.from,
   'Array.prototype.find': () => !Array.prototype.find,
   'Array.prototype.includes': () => !Array.prototype.includes,

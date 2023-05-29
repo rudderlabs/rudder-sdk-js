@@ -3,6 +3,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { server } from '../../../__mocks__/msw.server';
 import { dummyDataplaneHost } from '../../../__mocks__/fixtures';
+import { RejectionDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -53,14 +54,14 @@ describe('HttpClient', () => {
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
     });
-    expect(data).toStrictEqual('{"raw": "sample"}');
+    expect(data.data).toStrictEqual('{"raw": "sample"}');
   });
 
   it('should getData expecting json response', async () => {
     const data = await clientInstance.getData({
       url: `${dummyDataplaneHost}/jsonSample`,
     });
-    expect(data).toStrictEqual({ json: 'sample' });
+    expect(data.data).toStrictEqual({ json: 'sample' });
   });
 
   it('should getAsyncData expecting raw response', done => {
@@ -122,11 +123,11 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, reject: RejectionDetails) => {
       const errResult = new Error(
         'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
       );
-      expect(response).toEqual(errResult);
+      expect(reject.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
@@ -141,7 +142,7 @@ describe('HttpClient', () => {
     const response = await clientInstance.getData({
       url: `${dummyDataplaneHost}/404ErrorSample`,
     });
-    expect(response).toBeUndefined();
+    expect(response.data).toBeUndefined();
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
@@ -152,11 +153,11 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, reject: RejectionDetails) => {
       const errResult = new Error(
         'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
       );
-      expect(response).toEqual(errResult);
+      expect(reject.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
@@ -171,7 +172,7 @@ describe('HttpClient', () => {
     const response = await clientInstance.getData({
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
-    expect(response).toBeUndefined();
+    expect(response.data).toBeUndefined();
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
@@ -185,7 +186,7 @@ describe('HttpClient', () => {
     const response = await clientInstance.getData({
       url: `${dummyDataplaneHost}/noConnectionSample`,
     });
-    expect(response).toBeUndefined();
+    expect(response.data).toBeUndefined();
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(

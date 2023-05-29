@@ -7,6 +7,7 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -100,7 +101,10 @@ class Store implements IStore {
 
     try {
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(validKey, this.encrypt(JSON.stringify(value)));
+      this.engine.setItem(
+        validKey,
+        this.encrypt(stringifyWithoutCircular(value, false, this.logger)),
+      );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(

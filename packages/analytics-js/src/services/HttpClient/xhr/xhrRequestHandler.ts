@@ -1,6 +1,9 @@
 /* eslint-disable compat/compat */
+/* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IXHRRequestOptions } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
@@ -43,25 +46,30 @@ const createXhrRequestOptions = (
 const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
+  logger?: ILogger,
 ): Promise<string | undefined> =>
   new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const xhrReject = (e?: ProgressEvent) => {
-      reject(
-        new Error(
+      reject({
+        error: new Error(
           `Request failed with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
         ),
-      );
+        xhr,
+        options,
+      });
     };
     const xhrError = (e?: ProgressEvent) => {
-      reject(
-        new Error(
+      reject({
+        error: new Error(
           `Request failed due to timeout or no connection, ${e ? e.type : ''} for URL: ${
             options.url
           }`,
         ),
-      );
+        xhr,
+        options,
+      });
     };
 
     xhr.ontimeout = xhrError;
@@ -91,20 +99,26 @@ const xhrRequest = (
       payload = options.data;
     } else {
       try {
-        payload = JSON.stringify(options.data);
+        payload = stringifyWithoutCircular(options.data, false, logger);
       } catch (err) {
-        reject(
-          new Error(
+        reject({
+          error: new Error(
             `Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`,
           ),
-        );
+          xhr,
+          options,
+        });
       }
     }
 
     try {
       xhr.send(payload);
     } catch (err) {
-      reject(new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`));
+      reject({
+        error: new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`),
+        xhr,
+        options,
+      });
     }
   });
 

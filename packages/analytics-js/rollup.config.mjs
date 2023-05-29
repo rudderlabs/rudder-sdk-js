@@ -36,11 +36,12 @@ const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rudder-analytics-plugins`;
 const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? "" + window.RudderStackGlobals.app.pluginsCDNPath + "/' + `${remotePluginsExportsFilename}.js` + '" : ' + `"${remotePluginsBasePath}/${remotePluginsExportsFilename}.js` + '")';
+const moduleType = process.env.MODULE_TYPE || 'cdn';
+const isNpmPackageBuild = moduleType === 'npm';
+const isCDNPackageBuild = moduleType === 'cdn';
 
-  export function getDefaultConfig(distName, moduleType = 'npm') {
+export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isNpmPackageBuild = moduleType === 'npm';
-  const isCDNPackageBuild = moduleType === 'cdn';
   const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
 
   return {
@@ -203,6 +204,7 @@ const outputFilesNpm = [
     },
   },
 ];
+
 const outputFilesCdn = [
   {
     entryFileNames: `${distName}${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
@@ -216,51 +218,52 @@ const outputFilesCdn = [
   },
 ];
 
-const buildConfig = moduleType => {
+const buildConfig = () => {
   return {
-    ...getDefaultConfig(distName, moduleType),
+    ...getDefaultConfig(distName),
   };
 };
 
-const buildEntries = process.env.ONLY_IIFE === 'true' ? [
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  }
-] : [
-  {
-    ...buildConfig(),
-    input: 'src/index.ts',
-    output: outputFilesNpm,
-  },
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  },
-  {
-    input: `dist/dts/packages/analytics-js/src/index.d.ts`,
-    plugins: [
-      alias({
-        entries: [
-          {
-            find: '@rudderstack/analytics-js',
-            replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-plugins',
-            replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
-          }
-        ]
-      }),
-      dts()
-    ],
-    output: {
-      file: `${outDirNpmRoot}/index.d.ts`,
-      format: 'es',
-    },
-  },
-];
+const buildEntries = () => {
+  const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
 
-export default buildEntries;
+  if(isCDNPackageBuild) {
+    return[{
+      ...buildConfig(),
+      input: 'src/index.ts',
+      output: outputFiles,
+    }];
+  }
+
+  return [
+    {
+      ...buildConfig(),
+      input: 'src/index.ts',
+      output: outputFiles,
+    },
+    {
+      input: `dist/dts/packages/analytics-js/src/index.d.ts`,
+      plugins: [
+        alias({
+          entries: [
+            {
+              find: '@rudderstack/analytics-js',
+              replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-plugins',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+            }
+          ]
+        }),
+        dts()
+      ],
+      output: {
+        file: `${outDirNpmRoot}/index.d.ts`,
+        format: 'es',
+      },
+    }
+  ];
+}
+
+export default buildEntries();

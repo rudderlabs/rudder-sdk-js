@@ -73,7 +73,9 @@ const XhrQueue = (): ExtensionPlugin => ({
               },
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
-              callback: result => {
+              callback: (result, rejectionReason) => {
+                // TODO: use rejectionReason.hxr.status to determine retry logic
+                //   v1.1 was 429 and 500 <= 600
                 if (result === undefined) {
                   let errMsg = `Unable to deliver event to ${url}.`;
 
