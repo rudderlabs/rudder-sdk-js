@@ -35,11 +35,11 @@
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
-    "start": "rollup --config --watch --environment PROD_DEBUG",
+    "start": "rollup -c --watch --environment PROD_DEBUG",
     "build": "npm run build:package",
     "build:browser:modern": "exit 0",
     "build:browser": "exit 0",
-    "build:npm": "rollup --config --environment VERSION:$npm_package_version,ENV:prod",
+    "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:package": "npm run build:npm:modern",
     "test": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage --passWithNoTests",

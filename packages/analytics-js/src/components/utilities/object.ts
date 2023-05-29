@@ -10,7 +10,7 @@ const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
   Boolean(getValueByPath(obj, path));
 
 /**
- * Checks if the input is an object literal or build-in object type and not null
+ * Checks if the input is an object literal or built-in object type and not null
  * @param value Input value
  * @returns true if the input is an object and not null
  */

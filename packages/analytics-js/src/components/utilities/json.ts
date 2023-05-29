@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 
 const getCircularReplacer = (excludeNull?: boolean): ((key: string, value: any) => any) => {
   const ancestors: any[] = [];
@@ -6,11 +7,11 @@ const getCircularReplacer = (excludeNull?: boolean): ((key: string, value: any) 
   // Here we do not want to use arrow function to use "this" in function context
   // eslint-disable-next-line func-names
   return function (key, value): any {
-    if (excludeNull && (value === null || value === undefined)) {
+    if (excludeNull && isNullOrUndefined(value)) {
       return undefined;
     }
 
-    if (typeof value !== 'object' || value === null) {
+    if (typeof value !== 'object' || isNull(value)) {
       return value;
     }
 
@@ -37,8 +38,8 @@ const getCircularReplacer = (excludeNull?: boolean): ((key: string, value: any) 
  * @param {boolean} excludeNull if it should exclude nul or not
  * @returns string
  */
-const stringifyWithoutCircular = (
-  value?: Nullable<Record<string, any> | any[] | number | string>,
+const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | string>(
+  value?: Nullable<T>,
   excludeNull?: boolean,
 ): string | undefined => JSON.stringify(value, getCircularReplacer(excludeNull));
 

@@ -1,10 +1,7 @@
 import { signal, Signal } from '@preact/signals-core';
-import {
-  CONFIG_URL,
-  DEST_SDK_BASE_URL,
-  PLUGINS_BASE_URL,
-} from '@rudderstack/analytics-js/constants/urls';
+import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { LifecycleStatus, LogLevel, ReadyCallback } from '@rudderstack/analytics-js/state/types';
+import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 
 export type LifecycleState = {
   activeDataplaneUrl: Signal<string | undefined>;
@@ -24,7 +21,7 @@ const lifecycleState: LifecycleState = {
   activeDataplaneUrl: signal(undefined),
   integrationsCDNPath: signal(DEST_SDK_BASE_URL),
   pluginsCDNPath: signal(PLUGINS_BASE_URL),
-  sourceConfigUrl: signal(CONFIG_URL()),
+  sourceConfigUrl: signal(getSourceConfigURL()),
   status: signal(undefined),
   initialized: signal(false),
   logLevel: signal(LogLevel.Error),

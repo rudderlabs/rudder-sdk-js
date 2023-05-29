@@ -183,7 +183,14 @@ class TestBook {
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
       const resultCallback = function (generatedPayload) {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
-        resultContainer.innerHTML = JSON.stringify(generatedPayload, undefined, 2);
+        // To cater for both v1.1 and v3 internal data structure
+        let normalisedResultData = generatedPayload;
+        if (!normalisedResultData.message) {
+          normalisedResultData = {
+            message: normalisedResultData,
+          };
+        }
+        resultContainer.innerHTML = JSON.stringify(normalisedResultData, undefined, 2);
       };
 
       triggerElement.addEventListener('click', () => {

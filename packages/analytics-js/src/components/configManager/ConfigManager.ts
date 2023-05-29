@@ -12,8 +12,8 @@ import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/ty
 import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { CONFIG_URL } from '@rudderstack/analytics-js/constants/urls';
 import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -71,11 +71,11 @@ class ConfigManager implements IConfigManager {
         }
 
         if (state.loadOptions.value.configUrl) {
-          state.lifecycle.sourceConfigUrl.value = `${CONFIG_URL(
-            state.loadOptions.value.configUrl,
-          )}&writeKey=${
-            state.lifecycle.writeKey.value
-          }&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+          state.lifecycle.sourceConfigUrl.value = new URL(
+            `${getSourceConfigURL(state.loadOptions.value.configUrl)}&writeKey=${
+              state.lifecycle.writeKey.value
+            }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
+          ).toString();
         }
       });
     } catch (e) {

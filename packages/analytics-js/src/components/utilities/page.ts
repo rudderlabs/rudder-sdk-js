@@ -20,6 +20,7 @@ const getCanonicalUrl = (): string => {
     const tag = tags[i];
     if (tag.getAttribute('rel') === 'canonical' && !canonicalUrl) {
       canonicalUrl = tag.getAttribute('href') ?? '';
+      break;
     }
   }
 

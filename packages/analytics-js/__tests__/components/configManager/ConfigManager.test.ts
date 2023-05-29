@@ -5,9 +5,10 @@ import { ConfigManager } from '@rudderstack/analytics-js/components/configManage
 import { state } from '@rudderstack/analytics-js/state';
 import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { rest } from 'msw';
-import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
 import { LogLevel } from '@rudderstack/analytics-js/state/types';
+import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -66,7 +67,7 @@ describe('ConfigManager', () => {
       state.loadOptions.value.lockIntegrationsVersion = false;
       state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
       state.loadOptions.value.logLevel = LogLevel.Error;
-      state.loadOptions.value.configUrl = CONFIG_URL;
+      state.loadOptions.value.configUrl = getSourceConfigURL();
     });
   };
 
@@ -117,7 +118,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.logLevel = LogLevel.Debug;
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=__BUILD_TYPE__&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
@@ -128,7 +129,7 @@ describe('ConfigManager', () => {
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=__BUILD_TYPE__&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);

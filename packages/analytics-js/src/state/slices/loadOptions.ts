@@ -11,17 +11,14 @@ import {
   LogLevel,
   UaChTrackLevel,
 } from '@rudderstack/analytics-js/state/types';
-import {
-  CONFIG_URL,
-  DEST_SDK_BASE_URL,
-  PLUGINS_BASE_URL,
-} from '@rudderstack/analytics-js/constants/urls';
+import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 
 export type LoadOptionsState = Signal<LoadOptions>;
 
 const defaultLoadOptions: LoadOptions = {
   logLevel: LogLevel.Error,
-  configUrl: CONFIG_URL(),
+  configUrl: getSourceConfigURL(),
   loadIntegration: true,
   sessions: {
     autoTrack: true,

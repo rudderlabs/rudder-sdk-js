@@ -9,10 +9,11 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
+import {
+  RudderEvent,
+  RudderContext,
+} from '@rudderstack/analytics-js/components/eventManager/types';
 import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
-import { RudderContext } from '@rudderstack/analytics-js/components/eventManager/types';
 import {
   checkForReservedElements,
   checkForReservedElementsInObject,
@@ -25,6 +26,10 @@ import {
 } from '@rudderstack/analytics-js/components/eventManager/utilities';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import * as R from 'ramda';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -105,6 +110,11 @@ describe('Event Manager - Utilities', () => {
   const mockLogger = new MockLogger();
 
   const defaultEventType = 'test';
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
 
   describe('getUpdatedPageProperties', () => {
     let pageProperties: ApiObject;

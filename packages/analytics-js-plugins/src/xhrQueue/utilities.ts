@@ -13,10 +13,10 @@ import { QueueOpts, RudderEvent, RudderEventType, ILogger, Nullable } from '../t
  * @param logger Logger instance
  * @returns stringified event payload. Empty string if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> | undefined => {
-  let deliveryPayloadStr: Nullable<string> | undefined = '';
+const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> => {
+  let deliveryPayloadStr: Nullable<string> = '';
   try {
-    deliveryPayloadStr = stringifyWithoutCircular(event, true);
+    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
     logger?.error(`Error while converting event object to string. Error: ${err}.`);
   }

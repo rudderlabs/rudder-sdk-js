@@ -141,7 +141,7 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 
   /**
-   * Process ready arguments and forward to page call
+   * Get ready callback arguments and forward to ready call
    */
   ready(callback: ApiCallback) {
     this.getAnalyticsInstance().ready(callback);

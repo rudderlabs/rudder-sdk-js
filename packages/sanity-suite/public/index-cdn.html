@@ -21,15 +21,18 @@
         }
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
+
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
+        'setDefaultInstanceKey',
+        'getAnalyticsInstance',
         'load',
+        'ready',
         'page',
         'track',
         'identify',
         'alias',
         'group',
-        'ready',
         'reset',
         'getAnonymousId',
         'setAnonymousId',
@@ -37,8 +40,10 @@
         'getUserTraits',
         'getGroupId',
         'getGroupTraits',
-        'endSession',
         'startSession',
+        'endSession',
+        'getSessionId',
+        'getSessionInfo'
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -50,10 +55,43 @@
         })(method);
       }
 
+      // New addition to load script starts
+      var sdkBuildType = 'legacy';
+
+      try {
+        // Feature detection of dynamic imports
+        new Function('return import("")');
+        sdkBuildType = 'modern';
+      } catch (e) {
+      }
+
+      var rudderCdnBaseUrlHost = 'https://cdn.rudderlabs.com/beta/v3/'
+      var rudderAnalyticsBaseUrl = rudderCdnBaseUrlHost + sdkBuildType;
+      var rudderAnalyticsMount = function() {
+        var rudderAnalyticsScript = document.createElement('script');
+        rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
+        rudderAnalyticsScript.async = true;
+        rudderAnalyticsScript.defer = true;
+        document.head.appendChild(rudderAnalyticsScript);
+      };
+
+      // Feature detection of Promise
+      if(typeof Promise === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement('script');
+        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+        rudderAnalyticsPromisesScript.async = true;
+        rudderAnalyticsPromisesScript.defer = true;
+        document.head.appendChild(rudderAnalyticsPromisesScript);
+      } else {
+        rudderAnalyticsMount();
+      }
+      // New addition to load script ends
+
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+        destSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/js-integrations',
+        pluginsSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/plugins',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -90,9 +128,9 @@
       }
     </style>
 
-    <script
-      async
-      src="https://cdn.rudderlabs.com/__CDN_VERSION_PATH__rudder-analytics__STAGING_FILE_PATH__.min.js"></script>
+<!--    <script-->
+<!--      async-->
+<!--      src="https://cdn.rudderlabs.com/__CDN_VERSION_PATH__rudder-analytics__STAGING_FILE_PATH__.min.js"></script>-->
   </head>
   <body>
     <div class="container-xl">

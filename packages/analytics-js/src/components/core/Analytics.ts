@@ -2,11 +2,8 @@ import { isEmpty } from 'ramda';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import {
-  defaultPluginsManager,
-  PluginsManager,
-} from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
@@ -238,11 +235,7 @@ class Analytics implements IAnalytics {
     this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
     this.storeManager = new StoreManager(this.errorHandler, this.logger, this.pluginsManager);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
-    this.eventRepository = new EventRepository(
-      defaultPluginsManager,
-      this.errorHandler,
-      this.logger,
-    );
+    this.eventRepository = new EventRepository(this.pluginsManager, this.errorHandler, this.logger);
     this.eventManager = new EventManager(this.eventRepository, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
       this.errorHandler,
