@@ -15,15 +15,15 @@ describe('Plugin - ConsentManager', () => {
 
   it('should initialize the ConsentManager and add values in state when selected consent manager is initialized', () => {
     const mockResponseFromSelectedConsentManager = {
-      consentManagerInitialized: true,
-      allowedConsentIds: ['C0001', 'C0003'],
+      consentProviderInitialized: true,
+      allowedConsents: { C0001: 'Performance Cookies', C0003: 'Functional Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005'],
     };
     defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
     ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
-    expect(state.consents.consentManagerInitialized.value).toBeTruthy();
-    expect(state.consents.allowedConsentIds.value).toStrictEqual(
-      mockResponseFromSelectedConsentManager.allowedConsentIds,
+    expect(state.consents.consentProviderInitialized.value).toBeTruthy();
+    expect(state.consents.allowedConsents.value).toStrictEqual(
+      mockResponseFromSelectedConsentManager.allowedConsents,
     );
     expect(state.consents.deniedConsentIds.value).toStrictEqual(
       mockResponseFromSelectedConsentManager.deniedConsentIds,
@@ -31,12 +31,12 @@ describe('Plugin - ConsentManager', () => {
   });
   it('should initialize the ConsentManager and state values will not set when selected consent manager is not initialized', () => {
     const mockResponseFromSelectedConsentManager = {
-      consentManagerInitialized: false,
+      consentProviderInitialized: false,
     };
     defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
     ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
-    expect(state.consents.consentManagerInitialized.value).toBe(false);
-    expect(state.consents.allowedConsentIds.value).toStrictEqual([]);
+    expect(state.consents.consentProviderInitialized.value).toBe(false);
+    expect(state.consents.allowedConsents.value).toStrictEqual({});
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);
   });
 });

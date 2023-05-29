@@ -17,11 +17,14 @@ import { isNonEmptyObject } from './object';
 const getUserSelectedConsentManager = (
   cookieConsentOptions?: CookieConsentOptions,
 ): string | undefined => {
-  if (!cookieConsentOptions || !isNonEmptyObject(cookieConsentOptions)) {
+  if (!isNonEmptyObject(cookieConsentOptions)) {
     return undefined;
   }
 
-  return Object.keys(cookieConsentOptions).find(e => e && cookieConsentOptions[e].enabled === true);
+  const validCookieConsentOptions = cookieConsentOptions as CookieConsentOptions;
+  return Object.keys(validCookieConsentOptions).find(
+    e => e && validCookieConsentOptions[e].enabled === true,
+  );
 };
 
 export { getUserSelectedConsentManager };

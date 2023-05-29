@@ -87,6 +87,6 @@ export interface IConfigManager {
   processConfig: () => void;
 }
 
-export enum SupportedConsentManagers {
-  oneTrust = 'OneTrust',
-}
+export const ConsentManagersToPluginNameMap = {
+  oneTrust: 'OneTrust',
+};

@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
+import { type } from 'ramda';
 
 export type {
   RudderEvent,
@@ -41,22 +42,6 @@ export interface IExternalSrcLoader {
 }
 
 export type Nullable<T> = T | null;
-
-export enum PluginName {
-  BeaconQueue = 'BeaconQueue',
-  ConsentManager = 'ConsentManager',
-  DataplaneEventsQueue = 'DataplaneEventsQueue',
-  DeviceModeDestinations = 'DeviceModeDestinations',
-  DeviceModeTransformation = 'DeviceModeTransformation',
-  ErrorReporting = 'ErrorReporting',
-  ExternalAnonymousId = 'ExternalAnonymousId',
-  GoogleLinker = 'GoogleLinker',
-  NativeDestinationQueue = 'NativeDestinationQueue',
-  StorageEncryption = 'StorageEncryption',
-  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
-  XhrQueue = 'XhrQueue',
-  OneTrust = 'OneTrust',
-}
 
 /**
  * Represents the options parameter for anonymousId

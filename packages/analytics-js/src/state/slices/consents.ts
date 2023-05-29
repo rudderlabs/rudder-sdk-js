@@ -2,16 +2,16 @@ import { Signal, signal } from '@preact/signals-core';
 
 export type ConsentsState = {
   deniedConsentIds: Signal<string[]>;
-  allowedConsentIds: Signal<string[]>;
-  consentManager: Signal<string | undefined>;
-  consentManagerInitialized: Signal<boolean>;
+  allowedConsents: Signal<Record<string, string>>;
+  activeConsentProvider: Signal<string | undefined>;
+  consentProviderInitialized: Signal<boolean>;
 };
 
 const consentsState: ConsentsState = {
   deniedConsentIds: signal([]),
-  allowedConsentIds: signal([]),
-  consentManager: signal(undefined),
-  consentManagerInitialized: signal(false),
+  allowedConsents: signal({}),
+  activeConsentProvider: signal(undefined),
+  consentProviderInitialized: signal(false),
 };
 
 export { consentsState };

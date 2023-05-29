@@ -1,6 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { ExtensionPlugin, PluginName, ApplicationState, ILogger } from '../types/common';
-import { ConsentInfo, OneTrustGroup } from './types';
+import {
+  ConsentInfo,
+  OneTrustCookieCategory,
+  OneTrustGroup,
+  DestinationConsentConfig,
+} from './types';
 
 const pluginName = PluginName.OneTrust;
 
@@ -10,7 +15,7 @@ const OneTrust = (): ExtensionPlugin => ({
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  coreConsentManager: {
+  consentProvider: {
     getConsentInfo(logger?: ILogger): ConsentInfo {
       logger?.debug('OneTrust initialization');
 
@@ -18,7 +23,7 @@ const OneTrust = (): ExtensionPlugin => ({
       // it will be treated as Consent manager is not initialized
       if (!(window as any).OneTrust || !(window as any).OnetrustActiveGroups) {
         logger?.error('OneTrust resources are not accessible.');
-        return { consentManagerInitialized: false };
+        return { consentProviderInitialized: false };
       }
 
       // OneTrust SDK populates a data layer object OnetrustActiveGroups with
@@ -28,6 +33,7 @@ const OneTrust = (): ExtensionPlugin => ({
       const allowedConsentIds = (window as any).OnetrustActiveGroups.split(',').filter(
         (n: string) => n,
       );
+      const allowedConsents: Record<string, string> = {};
       const deniedConsentIds: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
@@ -35,13 +41,74 @@ const OneTrust = (): ExtensionPlugin => ({
         .Groups;
 
       oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
-        const { CustomGroupId } = group;
-        if (!allowedConsentIds.includes(CustomGroupId)) {
+        const { CustomGroupId, GroupName } = group;
+        if (allowedConsentIds.includes(CustomGroupId)) {
+          allowedConsents[CustomGroupId.toUpperCase()] = GroupName.toUpperCase();
+        } else {
           deniedConsentIds.push(CustomGroupId); // Populate denied consent Ids
         }
       });
 
-      return { consentManagerInitialized: true, allowedConsentIds, deniedConsentIds };
+      return { consentProviderInitialized: true, allowedConsents, deniedConsentIds };
+    },
+
+    isDestinationConsented(
+      state: ApplicationState,
+      destConfig: DestinationConsentConfig,
+      logger: ILogger,
+    ): boolean {
+      const { consentProviderInitialized, allowedConsents } = state.consents;
+      if (!consentProviderInitialized.value) {
+        return true;
+      }
+      try {
+        /**
+     * Structure of OneTrust consent group destination config.
+     * 
+     * "oneTrustCookieCategories": 
+     * [
+        {
+            "oneTrustCookieCategory": "Performance Cookies"
+        },
+        {
+            "oneTrustCookieCategory": "Functional Cookies"
+        },
+        {
+            "oneTrustCookieCategory": ""
+        }
+    ]
+     *
+     */
+
+        const { oneTrustCookieCategories } = destConfig; // mapping of the destination with the consent group name
+
+        // If the destination do not have this mapping events will be sent.
+
+        if (!oneTrustCookieCategories) {
+          return true;
+        }
+
+        // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
+        // Eg:
+        // ["Performance Cookies", "Functional Cookies"]
+
+        const validOneTrustCookieCategories = oneTrustCookieCategories
+          .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory)
+          .filter((n: string | undefined) => n);
+
+        let containsAllConsent = true;
+        // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+        containsAllConsent = validOneTrustCookieCategories.every(
+          (element: string) =>
+            Object.keys(allowedConsents.value).includes(element.toUpperCase().trim()) ||
+            Object.values(allowedConsents.value).includes(element.toUpperCase().trim()),
+        );
+
+        return containsAllConsent;
+      } catch (e) {
+        logger?.error(`[OneTrust] :: ${e}`);
+        return true;
+      }
     },
   },
 });

@@ -5,7 +5,16 @@ export type OneTrustGroup = {
 };
 
 export type ConsentInfo = {
-  consentManagerInitialized: boolean;
-  allowedConsentIds?: string[];
+  consentProviderInitialized: boolean;
+  allowedConsents?: Record<string, string>;
   deniedConsentIds?: string[];
+};
+
+export type OneTrustCookieCategory = {
+  oneTrustCookieCategory: string;
+};
+
+export type DestinationConsentConfig = {
+  oneTrustCookieCategories: OneTrustCookieCategory[];
+  [key: string]: any;
 };

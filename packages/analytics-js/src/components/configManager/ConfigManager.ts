@@ -17,7 +17,7 @@ import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/util
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse, SupportedConsentManagers } from './types';
+import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 
 class ConfigManager implements IConfigManager {
@@ -68,7 +68,9 @@ class ConfigManager implements IConfigManager {
     if (selectedConsentManager) {
       // Get the corresponding plugin name of the selected consent manager from the supported consent managers
       consentManagerPluginName =
-        SupportedConsentManagers[selectedConsentManager as keyof typeof SupportedConsentManagers];
+        ConsentManagersToPluginNameMap[
+          selectedConsentManager as keyof typeof ConsentManagersToPluginNameMap
+        ];
       if (!consentManagerPluginName) {
         this.logger?.error(
           `[ConsentManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
@@ -86,7 +88,7 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
       // Set consent manager plugin name in state
-      state.consents.consentManager.value = consentManagerPluginName;
+      state.consents.activeConsentProvider.value = consentManagerPluginName;
     });
 
     this.getConfig();
