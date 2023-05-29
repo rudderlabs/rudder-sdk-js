@@ -16,7 +16,7 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
 import federation from '@originjs/vite-plugin-federation';
-import externalGlobals from "rollup-plugin-external-globals";
+import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from '../package.json' assert { type: 'json' };
 
@@ -85,19 +85,19 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         sourcemap: sourceMapType,
       }),
       isLegacyBuild &&
-      externalGlobals({
-        './modernBuildPluginImports': 'null'
-      }),
+        externalGlobals({
+          './modernBuildPluginImports': 'null',
+        }),
       !isLegacyBuild &&
-      externalGlobals({
-        './legacyBuildPluginImports': 'null'
-      }),
+        externalGlobals({
+          './legacyBuildPluginImports': 'null',
+        }),
       !isLegacyBuild &&
-      federation({
-        remotes: {
-          remotePlugins: `${remotePluginsBasePath}/modern/remotePlugins.js`,
-        }
-      }),
+        federation({
+          remotes: {
+            remotePlugins: `${remotePluginsBasePath}/modern/remotePlugins.js`,
+          },
+        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -206,31 +206,34 @@ const buildConfig = moduleType => {
   };
 };
 
-const buildEntries = process.env.ONLY_IIFE === 'true' ? [
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  }
-] : [
-  {
-    ...buildConfig(),
-    input: 'src/index.ts',
-    output: outputFilesNpm,
-  },
-  {
-    ...buildConfig('cdn'),
-    input: 'src/index.ts',
-    output: outputFilesCdn,
-  },
-  {
-    input: `dist/dts/packages/analytics-js/src/index.d.ts`,
-    plugins: [dts()],
-    output: {
-      file: `${outDir}/index.d.ts`,
-      format: 'es',
-    },
-  },
-];
+const buildEntries =
+  process.env.ONLY_IIFE === 'true'
+    ? [
+        {
+          ...buildConfig('cdn'),
+          input: 'src/index.ts',
+          output: outputFilesCdn,
+        },
+      ]
+    : [
+        {
+          ...buildConfig(),
+          input: 'src/index.ts',
+          output: outputFilesNpm,
+        },
+        {
+          ...buildConfig('cdn'),
+          input: 'src/index.ts',
+          output: outputFilesCdn,
+        },
+        {
+          input: `dist/dts/packages/analytics-js/src/index.d.ts`,
+          plugins: [dts()],
+          output: {
+            file: `${outDir}/index.d.ts`,
+            format: 'es',
+          },
+        },
+      ];
 
 export default buildEntries;

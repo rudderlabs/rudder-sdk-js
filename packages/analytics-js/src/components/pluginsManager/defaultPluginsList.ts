@@ -5,7 +5,6 @@ import { PluginName } from './types';
  */
 const defaultOptionalPluginsList: PluginName[] = [
   PluginName.ConsentManager,
-  PluginName.DataplaneEventsQueue,
   PluginName.DeviceModeDestinations,
   PluginName.ErrorReporting,
   PluginName.ExternalAnonymousId,
@@ -14,6 +13,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.StorageEncryptionLegacy,
   PluginName.XhrQueue,
   PluginName.OneTrust,
+  PluginName.BeaconQueue,
 ];
 
 export { defaultOptionalPluginsList };

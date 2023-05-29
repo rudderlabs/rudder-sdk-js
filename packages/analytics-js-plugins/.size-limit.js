@@ -13,6 +13,6 @@ module.exports = [
     name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/modern/__federation_expose_*.js',
     gzip: true,
-    limit: '11 kB',
+    limit: '20 kB',
   },
 ];

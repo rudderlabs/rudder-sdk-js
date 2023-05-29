@@ -88,6 +88,17 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
+    // dataplane events delivery plugins
+    if (state.loadOptions.value.useBeacon === true) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.XhrQueue,
+      );
+    } else {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.BeaconQueue,
+      );
+    }
+
     // Device mode destinations related plugins
     if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(

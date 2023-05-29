@@ -11,7 +11,6 @@ const localPluginNames: PluginName[] = [];
 const remotePluginNames: PluginName[] = [
   PluginName.BeaconQueue,
   PluginName.ConsentManager,
-  PluginName.DataplaneEventsQueue,
   PluginName.DeviceModeTransformation,
   PluginName.DeviceModeDestinations,
   PluginName.ErrorReporting,
