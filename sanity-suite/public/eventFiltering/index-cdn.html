@@ -49,6 +49,21 @@
           };
         })(method);
       }
+
+      rudderanalytics.load('__FEATURE_EVENT_FILTERING_WRITE_KEY__', '__DATAPLANE_URL__', {
+        logLevel: 'DEBUG',
+        configUrl: '__CONFIG_SERVER_HOST__',
+        destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+        cookieConsentManager: {
+            oneTrust: {
+                enabled: true,
+            }
+        }
+      });
+
+      rudderanalytics.ready(function() {
+        console.log('We are all set!!!');
+      });
     </script>
     <link
       rel="stylesheet"
@@ -80,6 +95,11 @@
         overflow: hidden;
       }
     </style>
+
+    <script
+      async
+      src="https://cdn.rudderlabs.com/__CDN_VERSION_PATH__rudder-analytics__STAGING_FILE_PATH__.min.js"
+    ></script>
   </head>
   <body>
     <div class="container-xxl">

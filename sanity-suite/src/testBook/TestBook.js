@@ -142,7 +142,7 @@ class TestBook {
                                 Reset/Reload
                             </button>
                             <button type="button" class="btn btn-outline-dark">
-                              Tests Case pass/total: <span class="badge bg-secondary" id="resultSummary">-</span>
+                              Tests Case pass/total: <span class="badge" id="resultSummary">-</span>
                             </button>
                         </p>
                     </div>
@@ -281,6 +281,7 @@ class TestBook {
     const totalPassedTestCases = document.getElementsByClassName('badge-success').length;
 
     resultSummaryElement.innerHTML = `${totalTestCases}/${totalPassedTestCases}`;
+    resultSummaryElement.classList.add('bg-warning', 'summary-complete');
   }
 
   executeSuites() {
