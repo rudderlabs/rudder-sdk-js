@@ -364,6 +364,7 @@ describe('Event Manager - Utilities', () => {
         messageId: 'test_uuid',
         integrations: { All: true },
         userId: 'user_id',
+        event: null,
       });
 
       defaultPluginsManager.unregisterLocalPlugins();
@@ -1071,6 +1072,7 @@ describe('Event Manager - Utilities', () => {
             mobile: true,
           },
         },
+        properties: null,
         originalTimestamp: '2020-01-01T00:00:00.000Z',
         integrations: { All: true },
         messageId: 'test_uuid',
