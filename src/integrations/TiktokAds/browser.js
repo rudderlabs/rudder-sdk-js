@@ -108,11 +108,13 @@ class TiktokAds {
     let event = message?.event;
     if (!event) {
       logger.error('Event name is required');
+      return;
     }
     event = event.toLowerCase().trim();
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
     if (eventNameMapping[event] === undefined && !standardEventsMap[event]) {
       logger.error(`Event name (${event}) is not valid, must be mapped to one of standard events`);
+      return;
     }
     if (standardEventsMap[event]) {
       Object.keys(standardEventsMap).forEach((key) => {
@@ -127,7 +129,6 @@ class TiktokAds {
       event = eventNameMapping[event];
       const updatedProperties = getTrackResponse(message, Config, event);
       window.ttq.track(event, updatedProperties);
-      // responseList.push();
     }
   }
 
