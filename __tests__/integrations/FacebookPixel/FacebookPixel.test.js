@@ -12,7 +12,7 @@ describe('FacebookPixel init tests', () => {
       getUserTraits: jest.fn(() => ({
         firstName: 'rudder',
         lastName: 'stack',
-        email: 'abc@rudderstack.com',
+        email: 'abce@rudderstack.com',
       })),
       getAnonymousId: jest.fn(() => 'testAnonymousID'),
       getUserId: jest.fn(() => 'testUserID'),
@@ -25,7 +25,7 @@ describe('FacebookPixel init tests', () => {
     expect(typeof window.fbq).toBe('function');
     expect(facebookPixel.userPayload).toStrictEqual({
       external_id: 'd06773e1bf4b8a96a4786fbb8e3444092438ad29401769613ae9e0e3e1e08a84',
-      em: 'abc@rudderstack.com',
+      em: 'abce@rudderstack.com',
       ph: undefined,
       ge: undefined,
       db: undefined,
@@ -60,7 +60,7 @@ describe('FacebookPixel init tests', () => {
       getUserTraits: jest.fn(() => ({
         firstName: 'rudder',
         lastName: 'stack',
-        email: 'abc@rudderstack.com',
+        email: 'abcd@rudderstack.com',
       })),
       getAnonymousId: jest.fn(() => 'testAnonymousID'),
       getUserId: jest.fn(() => 'testUserID'),
@@ -72,7 +72,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
     expect(facebookPixel.userPayload).toStrictEqual({
-      email: 'abc@rudderstack.com',
+      email: 'abcd@rudderstack.com',
       lastName: 'stack',
       firstName: 'rudder',
     });
@@ -163,7 +163,7 @@ describe('Facebook Pixel Track event', () => {
         event: 'Order Completed',
         properties: {
           customProp: 'testProp',
-          checkout_id: 'what is checkout id here??',
+          checkout_id: 'what is my checkout id here??',
           event_id: 'purchaseId',
           order_id: 'transactionId',
           value: 35.0,
@@ -175,17 +175,17 @@ describe('Facebook Pixel Track event', () => {
               customPropProd: 'testPropProd',
               product_id: 'abc',
               category: 'Merch',
-              name: 'Food/Drink',
+              name: 'Foods/Drinks',
               brand: '',
-              variant: 'Extra topped',
+              variant: 'Extras topped',
               price: 3.0,
               quantity: 2,
               currency: 'GBP',
               position: 1,
               value: 6.0,
               typeOfProduct: 'Food',
-              url: 'https://www.example.com/product/bacon-jam',
-              image_url: 'https://www.example.com/product/bacon-jam.jpg',
+              url: 'https://www.example.com/product/bacon-new-jam',
+              image_url: 'https://www.example.com/product/bacon-proper-jam.jpg',
             },
           ],
         },
@@ -195,6 +195,7 @@ describe('Facebook Pixel Track event', () => {
     expect(window.fbq.mock.calls[0][1]).toEqual('12567839');
     expect(window.fbq.mock.calls[0][2]).toEqual('Purchase');
     expect(window.fbq.mock.calls[0][3]).toEqual({
+      checkout_id: 'what is my checkout id here??',
       content_ids: ['abc'],
       content_type: 'product',
       currency: 'GBP',
@@ -208,6 +209,29 @@ describe('Facebook Pixel Track event', () => {
         },
       ],
       num_items: 1,
+      coupon: 'APPARELSALE',
+      customProp: 'testProp',
+      event_id: 'purchaseId',
+      order_id: 'transactionId',
+      products: [
+        {
+          customPropProd: 'testPropProd',
+          product_id: 'abc',
+          category: 'Merch',
+          name: 'Foods/Drinks',
+          brand: '',
+          variant: 'Extras topped',
+          price: 3.0,
+          quantity: 2,
+          currency: 'GBP',
+          position: 1,
+          value: 6.0,
+          typeOfProduct: 'Food',
+          url: 'https://www.example.com/product/bacon-new-jam',
+          image_url: 'https://www.example.com/product/bacon-proper-jam.jpg',
+        },
+      ],
+      shipping: 4,
     });
     expect(window.fbq.mock.calls[0][4]).toEqual({
       eventID: 'purchaseId',
@@ -305,6 +329,11 @@ describe('Facebook Pixel Track event', () => {
     expect(window.fbq.mock.calls[0][2]).toEqual('Purchase');
     expect(window.fbq.mock.calls[0][3]).toEqual({
       value: 37,
+      coupon: 'APPARELSALE',
+      customProp: 'testProp',
+      event_id: 'purchaseId',
+      revenue: 37,
+      shipping: 4,
       currency: 'GBP',
     });
     expect(window.fbq.mock.calls[0][4]).toEqual({
