@@ -4,6 +4,7 @@ import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
+import { StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 export interface QueueOptions {
   maxItems?: number;
@@ -89,7 +90,12 @@ class Queue extends Emitter {
   store: Store;
   running: boolean;
 
-  constructor(name: string, options: QueueOptions, queueProcessCb: QueueProcessCallback) {
+  constructor(
+    name: string,
+    options: QueueOptions,
+    queueProcessCb: QueueProcessCallback,
+    storageType: StorageType = 'localStorage',
+  ) {
     super();
 
     this.name = name;
@@ -123,7 +129,7 @@ class Queue extends Emitter {
         id: this.id,
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      getStorageEngine(storageType),
     );
     this.store.set(QueueStatuses.IN_PROGRESS, {});
     this.store.set(QueueStatuses.QUEUE, []);

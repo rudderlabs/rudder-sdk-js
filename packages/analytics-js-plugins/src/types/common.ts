@@ -5,7 +5,7 @@ export type {
   RudderEvent,
   RudderEventType,
 } from '@rudderstack/analytics-js/components/eventManager/types';
-export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
+export type { QueueOpts, DestinationsQueueOpts } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
@@ -19,6 +19,7 @@ export type {
 } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig } from '@rudderstack/analytics-js/state/types';
+export { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
 
 export type ApplicationState = IApplicationState;
 
