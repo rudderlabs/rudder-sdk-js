@@ -7,7 +7,7 @@ const getContents = (message) => {
     const { properties } = message;
     // eslint-disable-next-line camelcase
     const { products, content_type, contentType } = properties;
-    if (products && Array.isArray(products) && products.length > 0) {
+    if (Array.isArray(products)) {
         products.forEach((product) => {
             const singleProduct = {
                 content_type:
@@ -27,15 +27,17 @@ const getContents = (message) => {
 };
 
 const checkContentType = (contents, contentType) => {
+    let transformedContents = contents;
     if (Array.isArray(contents)) {
-        contents.forEach((content) => {
+        transformedContents = contents.map((content) => {
+            const transformedContent = { ...content }
             if (!content.content_type) {
-                // eslint-disable-next-line no-param-reassign
-                content.content_type = contentType || 'product_group';
+                transformedContent.content_type = contentType || 'product_group';
             }
+            return transformedContent;
         });
     }
-    return contents;
+    return transformedContents;
 };
 const getTrackResponse = (message) => {
     let properties = constructPayload(message, trackMapping); // constructing properties
