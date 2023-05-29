@@ -8,6 +8,7 @@ import {
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { PluginName } from '../pluginsManager/types';
 
 export type DestinationDefinition = {
   name: string;
@@ -88,5 +89,5 @@ export interface IConfigManager {
 }
 
 export const ConsentManagersToPluginNameMap = {
-  oneTrust: 'OneTrust',
+  oneTrust: PluginName.OneTrust,
 };
