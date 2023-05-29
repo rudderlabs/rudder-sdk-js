@@ -36,12 +36,23 @@ jobs:
         run: |
           npm run check:security
 
-      - name: Execute bundle size checks
+      - name: Build artifacts
+        run: npm run check:size:build
+
+      - name: Execute bundle size checks - analytics-js
         uses: rudderlabs/github-action-check-size-limit@v2.0.0
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
-          build_script: check:size:build
-          script: npm run check:size:json -- --stream --no-prefix
+          skip_step: build
+          script: npm run check:size:json --workspace=@rudderstack/analytics-js
+
+      - name: Execute bundle size checks - analytics-js-plugins
+        uses: rudderlabs/github-action-check-size-limit@v2.0.0
+        env:
+          HUSKY: 0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_step: build
+          script: npm run check:size:json --workspace=@rudderstack/analytics-js-plugins
