@@ -88,8 +88,7 @@ describe('Preload Buffer', () => {
       ['track'],
     ]);
 
-    expect(analytics.load).toHaveBeenCalledTimes(1);
-    expect(analytics.load).toHaveBeenCalledWith({ option1: true });
+    expect(analytics.load).toHaveBeenCalledTimes(0);
   });
 
   it('should not buffer any events if no preload array or query params exist', () => {

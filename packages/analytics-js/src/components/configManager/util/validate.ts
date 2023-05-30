@@ -1,3 +1,5 @@
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js/components/utilities/object';
+import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
@@ -18,10 +20,10 @@ const validateLoadArgs = (writeKey?: string, dataPlaneUrl?: string) => {
 };
 
 const isValidSourceConfig = (res: any): boolean =>
-  typeof res !== 'object' ||
-  !res.source ||
-  !res.source.id ||
-  !res.source.config ||
-  !Array.isArray(res.source.destinations);
+  isObjectLiteralAndNotNull(res) &&
+  isObjectLiteralAndNotNull(res.source) &&
+  !isNullOrUndefined(res.source.id) &&
+  isObjectLiteralAndNotNull(res.source.config) &&
+  Array.isArray(res.source.destinations);
 
 export { validateLoadArgs, isValidSourceConfig };

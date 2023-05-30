@@ -10,27 +10,27 @@ const getFederatedModuleImport = (
 ): (() => Promise<ExtensionPlugin>) | undefined => {
   switch (pluginName) {
     case PluginName.BeaconQueue:
-      return () => import('remotePlugins/BeaconQueue');
+      return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
     case PluginName.ConsentManager:
-      return () => import('remotePlugins/ConsentManager');
+      return () => import('rudderAnalyticsRemotePlugins/ConsentManager');
     case PluginName.DeviceModeTransformation:
-      return () => import('remotePlugins/DeviceModeTransformation');
+      return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
     case PluginName.DeviceModeDestinations:
-      return () => import('remotePlugins/DeviceModeDestinations');
+      return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
     case PluginName.ErrorReporting:
-      return () => import('remotePlugins/ErrorReporting');
+      return () => import('rudderAnalyticsRemotePlugins/ErrorReporting');
     case PluginName.ExternalAnonymousId:
-      return () => import('remotePlugins/ExternalAnonymousId');
+      return () => import('rudderAnalyticsRemotePlugins/ExternalAnonymousId');
     case PluginName.GoogleLinker:
-      return () => import('remotePlugins/GoogleLinker');
+      return () => import('rudderAnalyticsRemotePlugins/GoogleLinker');
     case PluginName.NativeDestinationQueue:
-      return () => import('remotePlugins/NativeDestinationQueue');
+      return () => import('rudderAnalyticsRemotePlugins/NativeDestinationQueue');
     case PluginName.StorageEncryption:
-      return () => import('remotePlugins/StorageEncryption');
+      return () => import('rudderAnalyticsRemotePlugins/StorageEncryption');
     case PluginName.StorageEncryptionLegacy:
-      return () => import('remotePlugins/StorageEncryptionLegacy');
+      return () => import('rudderAnalyticsRemotePlugins/StorageEncryptionLegacy');
     case PluginName.XhrQueue:
-      return () => import('remotePlugins/XhrQueue');
+      return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
     default:
       return undefined;
   }

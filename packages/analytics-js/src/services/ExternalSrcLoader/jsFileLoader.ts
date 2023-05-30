@@ -1,5 +1,5 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
-import { serializeError } from 'serialize-error';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated
@@ -118,8 +118,8 @@ const jsFileLoader = (
     } catch (err) {
       reject(
         new Error(
-          `Exception occurred while loading the script "${url}" with id ${id}: "${serializeError(
-            err,
+          `Exception occurred while loading the script "${url}" with id ${id}: "${stringifyWithoutCircular(
+            err as Record<string, any>,
           )}"`,
         ),
       );

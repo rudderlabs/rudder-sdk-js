@@ -1,129 +1,130 @@
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, IExternalSrcLoader, PluginName, ApplicationState } from '../types/common';
+import {
+  createIntegrationInstance,
+  isIntegrationSDKEvaluated,
+  isInitialized,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
+import {
+  INITIALIZED_CHECK_POLL_INTERVAL,
+  LOAD_CHECK_TIMEOUT,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
+import { configToIntNames } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/configToIntegrationsNames';
+import {
+  ExtensionPlugin,
+  IExternalSrcLoader,
+  PluginName,
+  ApplicationState,
+  ILogger,
+  ClientIntegration,
+  InitialisedIntegration,
+} from '../types/common';
 
+// TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
 const pluginName = PluginName.DeviceModeDestinations;
 
-const LOAD_CHECK_POLL_INTERVAL = 1000;
-
-const integrationSDKLoaded = (pluginName: string, modName: string) => {
-  try {
-    return (
-      (window as any)[pluginName] &&
-      (window as any)[pluginName][modName] &&
-      typeof (window as any)[pluginName][modName].prototype.constructor !== 'undefined'
-    );
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
-};
-
-const pause = (time: number) =>
-  new Promise(resolve => {
-    setTimeout(resolve, time);
-  });
-
+// TODO: dummy implementation for testing until we implement device mode
+//  create proper implementation once relevant task is picked up
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  remote: {
-    test() {
-      console.log('loadIntegrationsTest');
-    },
-    load_integrations(
-      clientIntegrations: any[],
-      state: any,
-      externalSrcLoader: IExternalSrcLoader,
-      externalScriptOnLoad: (id?: string) => unknown,
-    ) {
-      console.log(
-        'loadIntegrations start',
-        clientIntegrations,
-        state,
-        externalSrcLoader,
-        externalScriptOnLoad,
+  nativeDestinations: {
+    setActiveIntegrations(state: ApplicationState, logger?: ILogger): number {
+      let clientIntegrations = state.nativeDestinations.destinations.value.map(
+        (destination): ClientIntegration => ({
+          name: destination.definitionName,
+          config: destination.config,
+          destinationInfo: {
+            areTransformationsConnected: destination.areTransformationsConnected || false,
+            destinationId: destination.id,
+          },
+        }),
       );
 
-      const isInitialized = (instance: any, time = 0) =>
-        new Promise(resolve => {
-          if (instance.isLoaded()) {
-            console.log('instance.isLoaded');
-            state.nativeDestinations.successfullyLoadedIntegration.value = [
-              ...state.nativeDestinations.successfullyLoadedIntegration.value,
-              instance,
-            ];
-            resolve(this);
-          } else if (time >= 11 * LOAD_CHECK_POLL_INTERVAL) {
-            console.log('instance.failed');
-            state.nativeDestinations.failedToBeLoadedIntegration.value = [
-              ...state.nativeDestinations.failedToBeLoadedIntegration.value,
-              instance,
-            ];
-            resolve(this);
-          } else {
-            pause(LOAD_CHECK_POLL_INTERVAL).then(() =>
-              isInitialized(instance, time + LOAD_CHECK_POLL_INTERVAL)
-                .then(resolve)
-                .catch(() => {}),
-            );
+      // Filter destination that doesn't have mapping config-->Integration names
+      clientIntegrations = clientIntegrations.filter(clientIntegration => {
+        if (configToIntNames[clientIntegration.name]) {
+          return true;
+        }
+
+        logger?.error(`${clientIntegration.name} not available for initialization`);
+        return false;
+      });
+
+      state.nativeDestinations.activeIntegrations.value = clientIntegrations;
+      return clientIntegrations.length;
+    },
+    loadIntegrations(
+      state: ApplicationState,
+      externalSrcLoader: IExternalSrcLoader,
+      logger?: ILogger,
+      externalScriptOnLoad?: (id?: string) => unknown,
+    ) {
+      const { destSDKBaseURL } = state.loadOptions.value;
+      const activeIntegrations = state.nativeDestinations.activeIntegrations.value;
+      const onLoadCallback =
+        externalScriptOnLoad ??
+        ((id?: string) => {
+          if (!id) {
+            return;
           }
+
+          state.nativeDestinations.loadedIntegrationScripts.value = [
+            ...state.nativeDestinations.loadedIntegrationScripts.value,
+            id,
+          ];
+
+          logger?.debug(`Integration script loaded for id: ${id}`);
         });
 
-      clientIntegrations.forEach(intg => {
+      activeIntegrations.forEach(intg => {
         console.log(intg);
-        const pluginName = `${intg.name}_RS`; // this is the name of the object loaded on the window
-        const modName = intg.name;
-        const modURL = `https://cdn.rudderlabs.com/v1.1/js-integrations/${modName}.min.js`;
+        const pluginName = `${configToIntNames[intg.name]}_RS`; // this is the name of the object loaded on the window
+        const modName = configToIntNames[intg.name];
+        const modURL = `${destSDKBaseURL}/${modName}.min.js`;
 
         if (!(window as any)[pluginName]) {
           externalSrcLoader
             .loadJSFile({
               url: modURL,
               id: modName,
-              callback: externalScriptOnLoad,
+              callback: onLoadCallback,
             })
-            .catch(() => {});
+            .catch(e => {
+              logger?.error(
+                `Integration script load failed for ${intg.name} ${intg.destinationInfo.destinationId} ${e.message}`,
+              );
+              state.nativeDestinations.failedIntegrationScripts.value = [
+                ...state.nativeDestinations.failedIntegrationScripts.value,
+                intg.destinationInfo.destinationId,
+              ];
+            });
         }
 
         const interval = setInterval(() => {
-          if (integrationSDKLoaded(pluginName, modName)) {
+          if (isIntegrationSDKEvaluated(pluginName, modName, logger)) {
             const intMod = (window as any)[pluginName];
             clearInterval(interval);
 
-            let intgInstance;
             try {
-              const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
-              console.log(msg);
-              // TODO: why we pass all analytics instance here? used in browser.constructor of each integration ????
-              intgInstance = new intMod[modName](intg.config, {
-                loadIntegration: true,
-                userId: undefined,
-                anonymousId: '123456',
-                logLevel: 'error',
-                userTraits: undefined,
-                loadOnlyIntegrations: {
-                  VWO: {
-                    loadIntegration: true,
-                  },
-                },
-                groupId: undefined,
-                groupTraits: undefined,
-                methodToCallbackMapping: {
-                  syncPixel: false,
-                },
-                emit: () => {},
-              });
-              intgInstance.init();
+              const integrationInstance = createIntegrationInstance(
+                modName,
+                pluginName,
+                intg,
+                intMod,
+              );
+              logger?.debug(`Attempting to initialize integration name:: ${pluginName}`);
+              integrationInstance.init();
 
-              isInitialized(intgInstance)
+              isInitialized(integrationInstance)
                 .then(() => {
-                  const initializedDestination = {} as Record<string, any>;
+                  const initializedDestination: Record<string, InitialisedIntegration> = {};
                   initializedDestination[pluginName] = intMod[modName];
 
-                  state.nativeDestinations.dynamicallyLoadedIntegrations.value = {
-                    ...state.nativeDestinations.dynamicallyLoadedIntegrations.value,
+                  logger?.debug(`Initialized integration name:: ${pluginName}`);
+                  state.nativeDestinations.initialisedIntegrations.value = {
+                    ...state.nativeDestinations.initialisedIntegrations.value,
                     ...initializedDestination,
                   };
                 })
@@ -131,15 +132,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   throw e;
                 });
             } catch (e: any) {
-              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
-              console.error(e, message, intgInstance);
+              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} ${intg.destinationInfo.destinationId} :: ${e.message}`;
+              logger?.error(e, message);
+              state.nativeDestinations.failedIntegrationScripts.value = [
+                ...state.nativeDestinations.failedIntegrationScripts.value,
+                intg.destinationInfo.destinationId,
+              ];
             }
           }
-        }, 100);
+        }, INITIALIZED_CHECK_POLL_INTERVAL);
 
-        setTimeout(() => {
+        window.setTimeout(() => {
           clearInterval(interval);
-        }, 10 * LOAD_CHECK_POLL_INTERVAL);
+        }, LOAD_CHECK_TIMEOUT);
       });
     },
   },

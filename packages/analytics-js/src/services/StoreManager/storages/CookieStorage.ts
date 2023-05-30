@@ -4,6 +4,7 @@ import { cookie } from '@rudderstack/analytics-js/npmPackages/component-cookie';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { ICookieStorageOptions, IStorage } from '../types';
 import { getDefaultCookieOptions } from './defaultOptions';
 
@@ -44,7 +45,7 @@ class CookieStorage implements IStorage {
   // eslint-disable-next-line class-methods-use-this
   getItem(key: string): Nullable<string> {
     const value = cookie(key);
-    return typeof value === 'undefined' ? null : value;
+    return isUndefined(value) ? null : value;
   }
 
   removeItem(key: string): boolean {
@@ -66,7 +67,7 @@ class CookieStorage implements IStorage {
   key(index: number): Nullable<string> {
     const cookies = cookie();
     const cookieNames = Object.keys(cookies);
-    return typeof cookieNames[index] === 'undefined' ? null : cookieNames[index];
+    return isUndefined(cookieNames[index]) ? null : cookieNames[index];
   }
 }
 

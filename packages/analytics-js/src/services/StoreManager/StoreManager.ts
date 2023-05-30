@@ -1,8 +1,5 @@
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { state } from '@rudderstack/analytics-js/state';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
@@ -128,10 +125,4 @@ class StoreManager implements IStoreManager {
   }
 }
 
-const defaultStoreManager = new StoreManager(
-  defaultErrorHandler,
-  defaultLogger,
-  defaultPluginsManager,
-);
-
-export { StoreManager, defaultStoreManager };
+export { StoreManager };

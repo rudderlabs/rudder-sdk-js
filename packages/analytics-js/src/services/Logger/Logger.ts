@@ -1,4 +1,5 @@
 import { LogLevel } from '@rudderstack/analytics-js/state/types';
+import { isString, isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { ILogger, LoggerProvider } from './types';
 
 const LOG_LEVEL_MAP: Record<LogLevel, number> = {
@@ -65,7 +66,7 @@ class Logger implements ILogger {
   //  to assist on the fly debugging?
   setMinLogLevel(logLevel: LogLevel) {
     this.minLogLevel = LOG_LEVEL_MAP[logLevel];
-    if (this.minLogLevel === undefined) {
+    if (isUndefined(this.minLogLevel)) {
       this.minLogLevel = LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
     }
   }
@@ -84,7 +85,7 @@ class Logger implements ILogger {
       }
 
       // trim whitespaces for original message
-      const originalMsg = typeof data[0] === 'string' ? data[0].trim() : '';
+      const originalMsg = isString(data[0]) ? data[0].trim() : '';
 
       // prepare the final message
       msg = `${msg} %c ${originalMsg}`;
@@ -96,7 +97,7 @@ class Logger implements ILogger {
       ];
 
       // add first it if it was not a string msg
-      if (typeof data[0] !== 'string') {
+      if (!isString(data[0])) {
         styledLogArgs.push(data[0]);
       }
 

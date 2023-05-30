@@ -2,6 +2,7 @@ import store from 'storejs';
 import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { ILocalStorageOptions, IStorage } from '../types';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
@@ -41,7 +42,7 @@ class LocalStorage implements IStorage {
   // eslint-disable-next-line class-methods-use-this
   getItem(key: string): any {
     const value = store.get(key);
-    return typeof value === 'undefined' ? null : value;
+    return isUndefined(value) ? null : value;
   }
 
   // eslint-disable-next-line class-methods-use-this

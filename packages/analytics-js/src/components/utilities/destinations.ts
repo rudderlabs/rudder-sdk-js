@@ -7,9 +7,7 @@ import { ConfigResponseDestinationItem } from '../configManager/types';
  *
  * @returns Destination[]
  */
-const filterEnabledDestination = (
-  destinations: ConfigResponseDestinationItem[],
-): Destination[] | [] => {
+const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[]): Destination[] => {
   const nativeDestinations: Destination[] = [];
   destinations.forEach((destination: ConfigResponseDestinationItem) => {
     if (destination.enabled && !destination.deleted) {

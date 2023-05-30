@@ -17,7 +17,6 @@ afterEach(() => {
 afterAll(() => {
   jest.restoreAllMocks();
 });
-
 describe('FullStory init tests', () => {
   let fullstory;
 

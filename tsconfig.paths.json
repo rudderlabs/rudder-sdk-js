@@ -2,6 +2,7 @@
   "references": [
     { "path": "./packages/analytics-v1.1/tsconfig.build.json" },
     { "path": "./packages/analytics-js/tsconfig.build.json" },
+    { "path": "./packages/analytics-js-service-worker/tsconfig.build.json" },
     { "path": "./packages/analytics-js-plugins/tsconfig.build.json" }
   ],
   "compilerOptions": {
@@ -9,6 +10,9 @@
     "paths": {
       "rudder-sdk-js/*": ["./packages/analytics-v1.1/src/*"],
       "@rudderstack/analytics-js/*": ["./packages/analytics-js/src/*"],
+      "@rudderstack/analytics-js-service-worker/*": [
+        "./packages/analytics-js-service-worker/src/*"
+      ],
       "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"]
     }
   }

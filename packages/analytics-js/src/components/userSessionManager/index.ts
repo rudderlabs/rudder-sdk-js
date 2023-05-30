@@ -1,1 +1,1 @@
-export { UserSessionManager, defaultUserSessionManager } from './UserSessionManager';
+export { UserSessionManager } from './UserSessionManager';

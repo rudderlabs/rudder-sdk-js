@@ -13,7 +13,7 @@ describe('Common Utils - Globals', () => {
     createExposedGlobals();
     createExposedGlobals('dummyName');
     expect((window as any).RudderStackGlobals).toStrictEqual({
-      analytics: {},
+      app: {},
       dummyName: {},
     });
   });
@@ -23,7 +23,7 @@ describe('Common Utils - Globals', () => {
 
     setExposedGlobal('dummyName', true);
     expect((window as any).RudderStackGlobals).toStrictEqual({
-      analytics: {
+      app: {
         dummyName: true,
       },
     });

@@ -6,6 +6,8 @@ import { trim } from '@rudderstack/analytics-js/components/utilities/string';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -99,8 +101,10 @@ class Store implements IStore {
 
     try {
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(validKey, this.encrypt(JSON.stringify(value))); // was original value for localstorage retry store
-      // this.engine.setItem(validKey, this.encrypt(value));
+      this.engine.setItem(
+        validKey,
+        this.encrypt(stringifyWithoutCircular(value, false, this.logger)),
+      );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(
@@ -143,13 +147,12 @@ class Store implements IStore {
 
       const str = this.decrypt(this.engine.getItem(validKey));
 
-      // TODO: make isNull, isUndefined, isObject & isEmpty helpers
-      if (str === null || str === undefined) {
+      if (isNullOrUndefined(str)) {
         return null;
       }
 
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-      return JSON.parse(str); // was original value for localstorage retry store
+      return JSON.parse(str as string);
     } catch (err) {
       this.onError(
         new Error(
@@ -184,11 +187,11 @@ class Store implements IStore {
    * Decrypt values
    */
   decrypt(value?: Nullable<string>): Nullable<string> {
-    if (value === null || typeof value === 'undefined') {
+    if (isNullOrUndefined(value)) {
       return null;
     }
 
-    return this.crypto(value, 'decrypt');
+    return this.crypto(value as string, 'decrypt');
   }
 
   /**
