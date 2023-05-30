@@ -1,0 +1,26 @@
+diff --git a/node_modules/@segment/loosely-validate-event/index.js b/node_modules/@segment/loosely-validate-event/index.js
+index 805d80a..4bde45a 100644
+--- a/node_modules/@segment/loosely-validate-event/index.js
++++ b/node_modules/@segment/loosely-validate-event/index.js
+@@ -1,12 +1,10 @@
+-var type = require('component-type')
+-var join = require('join-component')
+-var assert = require('assert')
++import type from 'component-type';
++import join from 'join-component';
++import assert from 'assert';
+ 
+ // Segment messages can be a maximum of 32kb.
+ var MAX_SIZE = 32 << 10
+ 
+-module.exports = looselyValidateEvent
+-
+ /**
+  * Validate an event.
+  */
+@@ -126,3 +124,5 @@ function validateGenericEvent (event) {
+     )
+   }
+ }
++
++export default looselyValidateEvent;

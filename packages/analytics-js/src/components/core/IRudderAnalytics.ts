@@ -7,24 +7,11 @@ import {
   SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { IAnalytics } from './IAnalytics';
-import { BufferQueue } from './BufferQueue';
 
 export interface IRudderAnalytics {
   analyticsInstances: Record<string, IAnalytics>;
   defaultAnalyticsKey: string;
-  preloadBuffer: BufferQueue<PreloadedEventCall>;
-
-  /**
-   * Enqueue in buffer the events that were triggered pre SDK initialization
-   */
-  enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]): void;
-
-  /**
-   * Start the process of consuming the buffered events that were triggered pre SDK initialization
-   */
-  processDataInPreloadBuffer(): void;
 
   /**
    * Set the writeKey of the analytics instance that should be default
@@ -35,6 +22,11 @@ export interface IRudderAnalytics {
    * Get the instance of Analytics that is set as default
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics;
+
+  /**
+   * Trigger load event in buffer queue if exists
+   */
+  triggerBufferedLoadEvent(): void;
 
   /**
    * Call control pane to get client configs
@@ -142,7 +134,7 @@ export interface IRudderAnalytics {
    *
    * @param options options for anonymousId
    */
-  getAnonymousId(options?: AnonymousIdOptions): string;
+  getAnonymousId(options?: AnonymousIdOptions): string | undefined;
 
   /**
    * To set anonymousId
@@ -190,5 +182,5 @@ export interface IRudderAnalytics {
   /**
    * To fetch the current sessionInfo
    */
-  getSessionInfo(): Nullable<SessionInfo>;
+  getSessionInfo(): Nullable<SessionInfo> | undefined;
 }

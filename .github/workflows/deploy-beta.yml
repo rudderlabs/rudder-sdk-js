@@ -36,15 +36,13 @@ jobs:
       - name: Build and sync files to S3
         env:
           HUSKY: 0
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'beta'
         run: |
           npm ci
           npm run build:browser
           npm run build:integration:all
-      - name: Fix Bugsnag API key
-        env:
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-        run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics.min.js
+
       - name: Sync files to S3 beta folder
         run: |
           aws s3 cp dist/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/beta/${{ steps.extract_branch.outputs.branch }}/rudder-analytics.min.js --cache-control max-age=3600

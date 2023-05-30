@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getReferringDomain, getUrlWithoutHash } from './url';
 
 /**
@@ -12,20 +13,22 @@ const getReferrer = (): string => document.referrer || '$direct';
  * @returns canonical URL
  */
 const getCanonicalUrl = (): string => {
-  const tags = [...document.getElementsByTagName('link')];
-  let canonicalUrl: Nullable<string> = '';
-  tags.some(tag => {
-    if (tag.getAttribute('rel') === 'canonical') {
-      canonicalUrl = tag.getAttribute('href');
-      return true;
+  const tags = document.getElementsByTagName('link');
+  let canonicalUrl = '';
+
+  for (let i = 0; tags[i]; i += 1) {
+    const tag = tags[i];
+    if (tag.getAttribute('rel') === 'canonical' && !canonicalUrl) {
+      canonicalUrl = tag.getAttribute('href') ?? '';
+      break;
     }
-    return false;
-  });
+  }
+
   return canonicalUrl;
 };
 
 const getUserAgent = (): Nullable<string> => {
-  if (typeof window.navigator === 'undefined') {
+  if (isUndefined(window.navigator)) {
     return null;
   }
 
@@ -48,18 +51,18 @@ const getUserAgent = (): Nullable<string> => {
 };
 
 const getLanguage = (): Nullable<string> => {
-  if (typeof window.navigator === 'undefined') {
+  if (isUndefined(window.navigator)) {
     return null;
   }
 
-  return window.navigator.language || (window.navigator as any).browserLanguage;
+  return window.navigator.language ?? (window.navigator as any).browserLanguage;
 };
 
 /**
  * Default page properties
  * @returns Default page properties
  */
-const getDefaultPageProperties = () => {
+const getDefaultPageProperties = (): Record<string, any> => {
   const canonicalUrl = getCanonicalUrl();
   let path = window.location.pathname;
   const { href: tabUrl } = window.location;
@@ -67,9 +70,10 @@ const getDefaultPageProperties = () => {
   const { search } = window.location;
   if (canonicalUrl) {
     try {
-      // The logic in v1.1 was to use parse from component-url
       const urlObj = new URL(canonicalUrl);
-      if (urlObj.search === '') pageUrl = canonicalUrl + search;
+      if (urlObj.search === '') {
+        pageUrl = canonicalUrl + search;
+      }
 
       path = urlObj.pathname;
     } catch (err) {

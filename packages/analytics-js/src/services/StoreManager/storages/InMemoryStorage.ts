@@ -13,10 +13,10 @@ class InMemoryStorage implements IStorage {
   length = 0;
   data: Record<string, any> = {};
 
-  constructor(options: IInMemoryStorageOptions = {}, logger?: ILogger) {
+  constructor(options?: IInMemoryStorageOptions, logger?: ILogger) {
     this.options = getDefaultInMemoryStorageOptions();
     this.logger = logger;
-    this.configure(options);
+    this.configure(options ?? {});
   }
 
   configure(options: Partial<IInMemoryStorageOptions>): IInMemoryStorageOptions {

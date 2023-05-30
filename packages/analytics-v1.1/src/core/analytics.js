@@ -154,7 +154,7 @@ class Analytics {
       ) {
         // logger.debug(
         //   "All integrations loaded dynamically",
-        //   this.dynamicallyLoadedIntegrations
+        //   this.initialisedIntegrations
         // );
         resolve(this);
       } else if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
@@ -187,12 +187,15 @@ class Analytics {
   integrationSDKLoaded(pluginName, modName) {
     try {
       return (
+        pluginName &&
+        modName &&
+        window[pluginName] &&
         window.hasOwnProperty(pluginName) &&
         window[pluginName][modName] &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
-      handleError(e);
+      handleError(e, `While attempting to load ${pluginName} ${modName}`);
       return false;
     }
   }
@@ -217,7 +220,8 @@ class Analytics {
 
         // Do not proceed if the ultimate response value is not an object
         if (!response || typeof response !== 'object' || Array.isArray(response)) {
-          throw new Error('Invalid source configuration');
+          logger.error('Invalid source configuration');
+          return;
         }
       } catch (err) {
         handleError(err);
@@ -291,7 +295,7 @@ class Analytics {
       }
 
       // filter destination that doesn't have mapping config-->Integration names
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+      this.clientIntegrations = this.clientIntegrations.filter(intg => {
         if (configToIntNames[intg.name]) {
           return true;
         }
@@ -315,7 +319,7 @@ class Analytics {
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
-      // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
+      // logger.debug("this.activeIntegrations: ", this.activeIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach(intg => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
@@ -408,13 +412,13 @@ class Analytics {
         rudderElement,
         ({ transformedPayload, transformationServerAccess }) => {
           if (transformedPayload) {
-            destWithTransformation.forEach((intg) => {
+            destWithTransformation.forEach(intg => {
               try {
                 let transformedEvents = [];
                 if (transformationServerAccess) {
                   // filter the transformed event for that destination
                   const destTransformedResult = transformedPayload.find(
-                    (e) => e.id === intg.destinationId,
+                    e => e.id === intg.destinationId,
                   );
                   if (!destTransformedResult) {
                     logger.error(
@@ -423,7 +427,7 @@ class Analytics {
                     return;
                   }
 
-                  destTransformedResult?.payload.forEach((tEvent) => {
+                  destTransformedResult?.payload.forEach(tEvent => {
                     if (tEvent.status === '200') {
                       transformedEvents.push(tEvent);
                     } else {
@@ -436,7 +440,7 @@ class Analytics {
                   transformedEvents = transformedPayload;
                 }
                 // send transformed event to destination
-                transformedEvents?.forEach((tEvent) => {
+                transformedEvents?.forEach(tEvent => {
                   if (tEvent.event) {
                     this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
                   }
@@ -471,7 +475,7 @@ class Analytics {
 
     // Depending on transformation is connected or not
     // create two sets of destinations
-    destinations.forEach((intg) => {
+    destinations.forEach(intg => {
       const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
 
       // Block the event if it is blacklisted for the device-mode destination
@@ -485,7 +489,7 @@ class Analytics {
     });
     // loop through destinations that doesn't have
     // transformation connected with it and send events
-    destWithoutTransformation.forEach((intg) => {
+    destWithoutTransformation.forEach(intg => {
       this.sendDataToDestination(intg, rudderElement, methodName);
     });
 
@@ -525,9 +529,9 @@ class Analytics {
     // logger.debug(
     //   "===replay events called====",
     //   " successfully loaded count: ",
-    //   object.successfullyLoadedIntegration.length,
+    //   object.loadedIntegrationScripts.length,
     //   " failed loaded count: ",
-    //   object.failedToBeLoadedIntegration.length
+    //   object.failedIntegrationScripts.length
     // );
     this.errorReporting.leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
@@ -902,7 +906,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds,
+          deniedConsentIds: this.deniedConsentIds || [],
         };
       }
 
@@ -970,7 +974,7 @@ class Analytics {
       }
 
       // logger.debug(`${type} is called `)
-      if (callback) {
+      if (callback && typeof callback === 'function') {
         callback(clonedRudderElement);
       }
     } catch (error) {
@@ -1181,7 +1185,7 @@ class Analytics {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
-    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+    if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
@@ -1304,7 +1308,9 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Promise ||
+        !Array.prototype.at ||
+        typeof window.URL !== 'function' ||
+        typeof Promise === 'undefined' ||
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
@@ -1333,7 +1339,10 @@ class Analytics {
         // In chrome 83 and below versions ID of a script is not part of window's scope
         // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
         // So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
+        if (
+          (window.hasOwnProperty(id) || document.getElementById(id) !== null) &&
+          typeof Promise !== 'undefined'
+        ) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }

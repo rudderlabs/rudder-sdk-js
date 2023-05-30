@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
@@ -17,9 +16,8 @@ import {
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { IUserSessionManager, SessionTrackingInfo } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
@@ -147,10 +145,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param value
    */
   syncValueToStorage(key: string, value: Nullable<ApiObject> | Nullable<string> | undefined) {
-    if (
-      (value && typeof value === 'string') ||
-      (typeof value === 'object' && isNonEmptyObject(value))
-    ) {
+    if ((value && isString(value)) || isNonEmptyObject(value)) {
       this.storage?.set(key, value);
     } else {
       this.storage?.remove(key);
@@ -389,7 +384,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Set user traits
-   * @param userId
+   * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
@@ -399,7 +394,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Set group Id
-   * @param userId
+   * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
     state.session.groupId.value = groupId;
@@ -407,7 +402,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Set group traits
-   * @param userId
+   * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
     if (traits) {
@@ -420,7 +415,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Set initial referrer
-   * @param userId
+   * @param referrer
    */
   setInitialReferrer(referrer?: string) {
     state.session.initialReferrer.value = referrer;
@@ -428,7 +423,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Set initial referring domain
-   * @param userId
+   * @param referrer
    */
   setInitialReferringDomain(referrer?: string) {
     state.session.initialReferringDomain.value = referrer;
@@ -451,7 +446,7 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * A function method to start a manual session
-   * @param {number} sessionId     session identifier
+   * @param {number} id     session identifier
    * @returns
    */
   start(id?: number) {
@@ -488,10 +483,4 @@ class UserSessionManager implements IUserSessionManager {
   }
 }
 
-const defaultUserSessionManager = new UserSessionManager(
-  defaultErrorHandler,
-  defaultLogger,
-  defaultPluginsManager,
-);
-
-export { UserSessionManager, defaultUserSessionManager };
+export { UserSessionManager };

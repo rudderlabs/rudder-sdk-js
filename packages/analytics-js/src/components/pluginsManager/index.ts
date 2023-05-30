@@ -1,1 +1,1 @@
-export { PluginsManager, defaultPluginsManager } from './PluginsManager';
+export { PluginsManager } from './PluginsManager';

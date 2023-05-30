@@ -1,13 +1,11 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { batch } from '@preact/signals-core';
-import { defaultCookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_URL } from './polyfill';
 import {
@@ -35,7 +33,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
 
   init() {
     try {
-      this.detectBrowserCapabilities();
       this.prepareBrowserCapabilities();
       this.attachWindowListeners();
     } catch (e) {
@@ -51,13 +48,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
     batch(() => {
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
         'cookieStorage',
-        defaultCookieStorage,
+        getStorageEngine('cookieStorage'),
       );
       state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable('localStorage');
       state.capabilities.storage.isSessionStorageAvailable.value =
         isStorageAvailable('sessionStorage');
       state.capabilities.isBeaconAvailable.value = hasBeacon();
-      state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
       state.capabilities.isIE11.value = isIE11();
@@ -71,6 +67,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Detect if polyfills are required and then load script from polyfill URL
    */
   prepareBrowserCapabilities() {
+    state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
     const polyfillUrl = state.loadOptions.value.polyfillURL ?? POLYFILL_URL;
     const shouldLoadPolyfill =
       state.loadOptions.value.polyfillIfRequired &&
@@ -78,6 +75,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
       Boolean(polyfillUrl);
 
     if (shouldLoadPolyfill) {
+      // TODO: check if polyfill has been evaluated via polling or
+      //  with the callback param in its url and an exposed function
       const onPolyfillLoad = (scriptId?: string) => Boolean(scriptId) && this.onReady();
       this.externalSrcLoader
         ?.loadJSFile({
@@ -116,6 +115,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
+    this.detectBrowserCapabilities();
     state.lifecycle.status.value = LifecycleStatus.BrowserCapabilitiesReady;
   }
 
@@ -132,6 +132,4 @@ class CapabilitiesManager implements ICapabilitiesManager {
   }
 }
 
-const defaultCapabilitiesManager = new CapabilitiesManager(defaultErrorHandler, defaultLogger);
-
-export { CapabilitiesManager, defaultCapabilitiesManager };
+export { CapabilitiesManager };

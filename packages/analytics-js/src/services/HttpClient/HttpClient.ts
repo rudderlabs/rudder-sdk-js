@@ -5,7 +5,7 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
-import { IAsyncRequestConfig, IHttpClient, IRequestConfig } from './types';
+import { IAsyncRequestConfig, IHttpClient, IRequestConfig, RejectionDetails } from './types';
 
 // TODO: should we add any debug level loggers?
 
@@ -30,18 +30,21 @@ class HttpClient implements IHttpClient {
   /**
    * Implement requests in a blocking way
    */
-  async getData<T = any>(config: IRequestConfig): Promise<T | string | undefined> {
+  async getData<T = any>(
+    config: IRequestConfig,
+  ): Promise<{ data: T | string | undefined; rejectionDetails?: RejectionDetails }> {
     const { url, options, timeout, isRawResponse } = config;
 
     try {
       const data = await xhrRequest(
         createXhrRequestOptions(url, options, this.basicAuthHeader),
         timeout,
+        this.logger,
       );
-      return isRawResponse ? data : responseTextToJson<T>(data, this.onError);
-    } catch (err) {
-      this.onError(err);
-      return undefined;
+      return { data: isRawResponse ? data : responseTextToJson<T>(data, this.onError) };
+    } catch (reason) {
+      this.onError((reason as RejectionDetails).error ?? reason);
+      return { data: undefined, rejectionDetails: reason as RejectionDetails };
     }
   }
 
@@ -52,16 +55,16 @@ class HttpClient implements IHttpClient {
     const { callback, url, options, timeout, isRawResponse } = config;
     const isFireAndForget = !(callback && isFunction(callback));
 
-    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout)
+    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
       .then((data?: string) => {
         if (!isFireAndForget) {
           callback(isRawResponse ? data : responseTextToJson<T>(data, this.onError));
         }
       })
-      .catch(err => {
-        this.onError(err);
+      .catch((reason: RejectionDetails) => {
+        this.onError(reason.error ?? reason);
         if (!isFireAndForget) {
-          callback(err);
+          callback(undefined, reason);
         }
       });
   }
