@@ -234,6 +234,15 @@ const getEnrichedEvent = (
   }
 
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
+  // Set the default values for the event properties
+  // matching with v1.1 payload
+  if (processedEvent.event === undefined) {
+    processedEvent.event = null;
+  }
+
+  if (processedEvent.properties === undefined) {
+    processedEvent.properties = null;
+  }
 
   processOptions(processedEvent, options);
   // TODO: We might not need this check altogether

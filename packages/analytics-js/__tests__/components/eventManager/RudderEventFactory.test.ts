@@ -144,6 +144,7 @@ describe('RudderEventFactory', () => {
       messageId: 'test_uuid',
       integrations: { All: true },
       userId: 'user_id',
+      event: null,
     });
   });
 
@@ -240,6 +241,7 @@ describe('RudderEventFactory', () => {
       type: 'track',
       anonymousId: 'anon_id',
       channel: 'web',
+      event: null,
       context: {
         sessionStart: true,
         sessionId: 1234,
@@ -378,6 +380,8 @@ describe('RudderEventFactory', () => {
       messageId: 'test_uuid',
       integrations: { All: true },
       userId: 'new_user_id',
+      event: null,
+      properties: null,
     });
   });
 
@@ -445,6 +449,8 @@ describe('RudderEventFactory', () => {
       integrations: { All: true },
       previousId: 'user_id',
       userId: 'new_user_id',
+      properties: null,
+      event: null,
     });
   });
 
@@ -529,6 +535,8 @@ describe('RudderEventFactory', () => {
       groupId: 'overridden_group_id',
       integrations: { All: true },
       userId: 'user_id',
+      properties: null,
+      event: null,
     });
   });
 
