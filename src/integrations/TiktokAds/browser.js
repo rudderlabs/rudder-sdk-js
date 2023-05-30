@@ -8,6 +8,7 @@ import { getHashFromArrayWithDuplicate, getDestinationExternalID, isDefinedAndNo
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getTrackResponse } from './util';
 
+// Docs : https://ads.tiktok.com/gateway/docs/index
 class TiktokAds {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -72,12 +73,12 @@ class TiktokAds {
 
   isLoaded() {
     logger.debug('===In isLoaded Tiktok Ads===');
-    return !!window.ttq;
+    return !!(window.ttq);
   }
 
   isReady() {
     logger.debug('===In isReady Tiktok Ads===');
-    return !!window.ttq;
+    return !!(window.ttq);
   }
 
   identify(rudderElement) {
