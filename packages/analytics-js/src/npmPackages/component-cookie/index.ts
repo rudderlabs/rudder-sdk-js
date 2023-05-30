@@ -1,4 +1,5 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
 
 export type CookieOptions = {
   maxage?: number;
@@ -61,7 +62,7 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
   const options: CookieOptions = { ...optionsConfig } || {};
   let cookieString = `${encode(name)}=${encode(value)}`;
 
-  if (value === null) {
+  if (isNull(value)) {
     options.maxage = -1;
   }
 

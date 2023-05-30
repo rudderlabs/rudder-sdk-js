@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -12,23 +13,43 @@ import serve from 'rollup-plugin-serve';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
-import federation from '@originjs/vite-plugin-federation';
 import dts from 'rollup-plugin-dts';
+import alias from '@rollup/plugin-alias';
+import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
+dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist${variantSubfolder}`;
+const outDirNpmRoot = `dist/npm`;
+const outDirCDNRoot = `dist/cdn`;
+const outDirNpm = `${outDirNpmRoot}${variantSubfolder}/plugins`;
+const outDirCDN = `${outDirCDNRoot}${variantSubfolder}/plugins`;
 const distName = 'rudder-analytics-plugins';
-const modName = 'rudderanalyticsplugins';
+const modName = 'rudderAnalyticsRemotePlugins';
+const remotePluginsExportsFilename = `${distName}.js`;
+const pluginsMap = {
+  './BeaconQueue': './src/beaconQueue/index.ts',
+  './ConsentManager': './src/consentManager/index.ts',
+  './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
+  './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
+  './ErrorReporting': './src/errorReporting/index.ts',
+  './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
+  './GoogleLinker': './src/googleLinker/index.ts',
+  './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
+  './StorageEncryption': './src/storageEncryption/index.ts',
+  './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
+  './XhrQueue': './src/xhrQueue/index.ts',
+};
 
-export function getDefaultConfig(distName) {
+export function getDefaultConfig(distName, moduleType = 'cdn') {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isLocalServerEnabled = process.env.DEV_SERVER;
-  dotenv.config();
+  const isNpmPackageBuild = moduleType === 'npm';
+  const isCDNPackageBuild = moduleType === 'cdn';
+  const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
 
   return {
     watch: {
@@ -47,14 +68,15 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        'process.package_version': version,
         __PACKAGE_VERSION__: version,
+        __MODULE_TYPE__: moduleType,
+        __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
       }),
       resolve({
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: ['.js', '.ts'],
+        extensions: ['.js', '.ts', '.mjs'],
       }),
       nodePolyfills({
         include: ['crypto'],
@@ -73,25 +95,13 @@ export function getDefaultConfig(distName) {
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
+        sourcemap: sourceMapType,
       }),
       !isLegacyBuild &&
         federation({
-          name: 'remotePlugins',
-          filename: 'remotePlugins.js',
-          exposes: {
-            './BeaconQueue': './src/beaconQueue/index.ts',
-            './ConsentManager': './src/consentManager/index.ts',
-            './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
-            './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
-            './ErrorReporting': './src/errorReporting/index.ts',
-            './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
-            './GoogleLinker': './src/googleLinker/index.ts',
-            './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
-            './StorageEncryption': './src/storageEncryption/index.ts',
-            './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
-            './XhrQueue': './src/xhrQueue/index.ts',
-            './OneTrust': './src/oneTrust/index.ts',
-          },
+          name: modName,
+          filename: remotePluginsExportsFilename,
+          exposes: pluginsMap,
         }),
       process.env.UGLIFY === 'true' &&
         terser({
@@ -130,7 +140,8 @@ export function getDefaultConfig(distName) {
 
 const outputFiles = [
   {
-    dir: outDir,
+    chunkFileNames: `${distName}-[name]${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
+    dir: outDirCDN,
     format: 'esm',
     name: modName,
     sourcemap: sourceMapType,
@@ -152,9 +163,23 @@ export default [
   },
   {
     input: `dist/dts/packages/analytics-js-plugins/src/index.d.ts`,
-    plugins: [dts()],
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js',
+            replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+          }
+        ]
+      }),
+      dts()
+    ],
     output: {
-      file: `${outDir}/index.d.ts`,
+      file: `${outDirNpmRoot}/index.d.ts`,
       format: 'es',
     },
   },

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <script>
@@ -35,15 +36,117 @@
         })(method);
       }
 
+      // New addition to load script starts
+      var sdkBuildType = 'legacy';
+
+      try {
+        // Feature detection of dynamic imports
+        new Function('return import("")');
+        sdkBuildType = 'modern';
+      } catch (e) {
+      }
+
+      var rudderCdnBaseUrlHost = 'https://cdn.rudderlabs.com/beta/v3/'
+      var rudderAnalyticsBaseUrl = rudderCdnBaseUrlHost + sdkBuildType;
+      var rudderAnalyticsMount = function() {
+        var rudderAnalyticsScript = document.createElement('script');
+        rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
+        rudderAnalyticsScript.async = true;
+        rudderAnalyticsScript.defer = true;
+        // document.head.appendChild(rudderAnalyticsScript);
+      };
+
+      // Feature detection of promise
+      if(typeof Promise === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement('script');
+        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+        rudderAnalyticsPromisesScript.async = true;
+        rudderAnalyticsPromisesScript.defer = true;
+        document.head.appendChild(rudderAnalyticsPromisesScript);
+      } else {
+        rudderAnalyticsMount();
+      }
+      // New addition to load script ends
+
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + sdkBuildType + '/js-integrations',
+        pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + sdkBuildType + '/plugins'
       });
 
-      rudderanalytics.page();
+      rudderanalytics.identify(
+        'customUserID',
+        {
+          name: 'John Doe',
+          title: 'CEO',
+          email: 'name.surname@domain.com',
+          company: 'Company123',
+          phone: '123-456-7890',
+          rating: 'Hot',
+          city: 'Austin',
+          postalCode: '12345',
+          country: 'US',
+          street: 'Sample Address',
+          state: 'TX',
+        },
+        function(message) {
+          console.log('in identify call', message);
+        }
+      );
 
-      rudderanalytics.ready(function () {
+      rudderanalytics.page(
+        'Home',
+        'Cart Viewed',
+        {
+          path: '',
+          referrer: '',
+          search: '',
+          title: '',
+          url: '',
+        },
+        function(message) {
+          console.log('in page call', message);
+        }
+      );
+
+      rudderanalytics.track(
+        'test track event 1',
+        {
+          revenue: 30,
+          currency: 'USD',
+          user_actual_id: 12345,
+        },
+        function(message) {
+          console.log('in track call 1', message);
+        }
+      );
+
+      rudderanalytics.track(
+        'test track event 2',
+        {
+          revenue: 45,
+          currency: 'INR',
+          user_actual_id: 333,
+        },
+        function(message) {
+          console.log('in track call 2', message);
+        }
+      );
+
+      rudderanalytics.track(
+        'test track event 3',
+        {
+          revenue: 10003,
+          currency: 'EUR',
+          user_actual_id: 5678,
+        },
+        function(message) {
+          console.log('in track call 3', message);
+        }
+      );
+
+      rudderanalytics.ready(function() {
         console.log('All ready!!!');
       });
     </script>
@@ -73,11 +176,11 @@
             title: '',
             url: '',
           },
-          rudderElement => {
+          function(rudderElement) {
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -98,11 +201,11 @@
             state: 'TX',
           },
           {},
-          rudderElement => {
+          function(rudderElement) {
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -114,20 +217,23 @@
             currency: 'USD',
             user_actual_id: 12345,
           },
-          rudderElement => {
+          function(rudderElement) {
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
       function alias() {
-        rudderanalytics.alias('alias-user-id', rudderElement => {
-          console.log('alias call');
-          document.getElementById('action').innerHTML = 'Alias called';
-          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-        });
+        rudderanalytics.alias(
+          'alias-user-id',
+          function(rudderElement) {
+            console.log('alias call');
+            document.getElementById('action').innerHTML = 'Alias called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          }
+        );
       }
 
       function group() {
@@ -137,11 +243,11 @@
             name: 'Apple Inc.',
             location: 'USA',
           },
-          rudderElement => {
+          function(rudderElement) {
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
     </script>

@@ -1,6 +1,10 @@
 /* eslint-disable compat/compat */
+/* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { IXHRRequestOptions } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
@@ -43,33 +47,35 @@ const createXhrRequestOptions = (
 const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
+  logger?: ILogger,
 ): Promise<string | undefined> =>
   new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const xhrReject = (e?: ProgressEvent) => {
-      reject(
-        new Error(
-          `Request failed with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
+      reject({
+        error: new Error(
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
         ),
-      );
+        xhr,
+        options,
+      });
     };
     const xhrError = (e?: ProgressEvent) => {
-      reject(
-        new Error(
-          `Request failed due to timeout or no connection, ${e ? e.type : ''} for URL: ${
-            options.url
-          }`,
+      reject({
+        error: new Error(
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout or no connection, ${
+            e ? e.type : ''
+          } for URL: ${options.url}`,
         ),
-      );
+        xhr,
+        options,
+      });
     };
 
-    xhr.timeout = timeout;
     xhr.ontimeout = xhrError;
     xhr.onerror = xhrError;
 
-    // TODO: why we used in v1.1 xhrModule 429 is for the rate limit
-    //  xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600) instead for < 400????
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 400) {
         resolve(xhr.responseText);
@@ -79,6 +85,9 @@ const xhrRequest = (
     };
 
     xhr.open(options.method, options.url);
+    // The timeout property may be set only in the time interval between a call to the open method
+    // and the first call to the send method in legacy browsers
+    xhr.timeout = timeout;
 
     Object.keys(options.headers).forEach(headerName => {
       if (options.headers[headerName]) {
@@ -91,20 +100,28 @@ const xhrRequest = (
       payload = options.data;
     } else {
       try {
-        payload = JSON.stringify(options.data);
+        payload = stringifyWithoutCircular(options.data, false, logger);
       } catch (err) {
-        reject(
-          new Error(
+        reject({
+          error: new Error(
             `Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`,
           ),
-        );
+          xhr,
+          options,
+        });
       }
     }
 
     try {
       xhr.send(payload);
     } catch (err) {
-      reject(new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`));
+      reject({
+        error: new Error(
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} for URL: ${options.url}, ${(err as Error).message}`,
+        ),
+        xhr,
+        options,
+      });
     }
   });
 

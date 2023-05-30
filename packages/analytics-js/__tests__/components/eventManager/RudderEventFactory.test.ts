@@ -20,6 +20,8 @@ jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
 }));
 
 describe('RudderEventFactory', () => {
+  const rudderEventFactory = new RudderEventFactory();
+
   beforeEach(() => {
     batch(() => {
       state.session.anonymousUserId.value = 'anon_id';
@@ -70,7 +72,7 @@ describe('RudderEventFactory', () => {
         },
       },
     } as APIEvent;
-    const pageEvent = RudderEventFactory.create(apiEvent);
+    const pageEvent = rudderEventFactory.create(apiEvent);
 
     expect(pageEvent).toEqual({
       type: 'page',
@@ -159,7 +161,7 @@ describe('RudderEventFactory', () => {
         anonymousId: 'modified_anon_id',
       },
     } as APIEvent;
-    const trackEvent = RudderEventFactory.create(apiEvent);
+    const trackEvent = rudderEventFactory.create(apiEvent);
 
     expect(trackEvent).toEqual({
       type: 'track',
@@ -233,7 +235,7 @@ describe('RudderEventFactory', () => {
         key3: 'value3',
       },
     } as APIEvent;
-    const trackEvent = RudderEventFactory.create(apiEvent);
+    const trackEvent = rudderEventFactory.create(apiEvent);
 
     expect(trackEvent).toEqual({
       type: 'track',
@@ -319,7 +321,7 @@ describe('RudderEventFactory', () => {
       };
     });
 
-    const identifyEvent = RudderEventFactory.create(apiEvent);
+    const identifyEvent = rudderEventFactory.create(apiEvent);
 
     expect(identifyEvent).toEqual({
       type: 'identify',
@@ -390,7 +392,7 @@ describe('RudderEventFactory', () => {
       to: 'new_user_id',
     } as APIEvent;
 
-    const aliasEvent = RudderEventFactory.create(apiEvent);
+    const aliasEvent = rudderEventFactory.create(apiEvent);
 
     expect(aliasEvent).toEqual({
       type: 'alias',
@@ -471,7 +473,7 @@ describe('RudderEventFactory', () => {
       };
     });
 
-    const groupEvent = RudderEventFactory.create(apiEvent);
+    const groupEvent = rudderEventFactory.create(apiEvent);
 
     expect(groupEvent).toEqual({
       type: 'group',
@@ -544,7 +546,7 @@ describe('RudderEventFactory', () => {
       type: 'test',
     } as APIEvent;
 
-    const testEvent = RudderEventFactory.create(apiEvent);
+    const testEvent = rudderEventFactory.create(apiEvent);
 
     expect(testEvent).toBeUndefined();
   });

@@ -3,9 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { replacer, removeTrailingSlashes } from '../../../utils/utils';
+import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
 import { handleError } from '../../../utils/errorHandler';
+import { stringifyWithoutCircular } from '../../../utils/ObjectUtils';
 
 const timeout = 10 * 1000;
 const EVENT_CHECK_INTERVAL = 100;
@@ -51,7 +52,7 @@ class TransformationsHandler {
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
-        Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
+        Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
         xhr.timeout = timeout;
 
         xhr.onreadystatechange = () => {
@@ -127,7 +128,7 @@ class TransformationsHandler {
             }
           }
         };
-        xhr.send(JSON.stringify(payload, replacer));
+        xhr.send(stringifyWithoutCircular(payload, true));
       } catch (error) {
         reject(error);
       }
@@ -152,12 +153,12 @@ class TransformationsHandler {
 
     // Send event for transformation with payload, writekey and retryAttempt
     this.sendEventForTransformation(payload, this.retryAttempt)
-      .then((outcome) => {
+      .then(outcome => {
         this.isTransformationProcessing = false;
         firstElement.cb(outcome);
         this.checkQueueLengthAndProcess();
       })
-      .catch((err) => {
+      .catch(err => {
         if (typeof err === 'string') {
           handleError(err);
         } else {

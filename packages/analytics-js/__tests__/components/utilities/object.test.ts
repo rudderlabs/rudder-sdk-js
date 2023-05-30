@@ -1,7 +1,10 @@
+// eslint-disable-next-line max-classes-per-file
 import {
   mergeDeepRight,
   mergeDeepRightObjectArrays,
   isNonEmptyObject,
+  isObjectAndNotNull,
+  isObjectLiteralAndNotNull,
 } from '@rudderstack/analytics-js/components/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -122,53 +125,97 @@ const expectedMergedTraitsPayload = {
 };
 
 describe('Common Utils - Object', () => {
-  const validObj = {
-    key1: 'value',
-    key2: 1234567,
-  };
+  describe('mergeDeepRight', () => {
+    it('should merge right object array items', () => {
+      const mergedArray = mergeDeepRightObjectArrays(
+        identifyTraitsPayloadMock.address,
+        trackTraitsOverridePayloadMock.address,
+      );
+      expect(mergedArray).toEqual(expectedMergedTraitsPayload.address);
+    });
 
-  it('should merge right object array items', () => {
-    const mergedArray = mergeDeepRightObjectArrays(
-      identifyTraitsPayloadMock.address,
-      trackTraitsOverridePayloadMock.address,
-    );
-    expect(mergedArray).toEqual(expectedMergedTraitsPayload.address);
+    it('should merge right non object array items', () => {
+      const mergedArray = mergeDeepRightObjectArrays(
+        identifyTraitsPayloadMock.stringArray,
+        trackTraitsOverridePayloadMock.stringArray,
+      );
+      const mergedNumberArray = mergeDeepRightObjectArrays(
+        identifyTraitsPayloadMock.numberArray,
+        trackTraitsOverridePayloadMock.numberArray,
+      );
+      expect(mergedArray).toEqual(expectedMergedTraitsPayload.stringArray);
+      expect(mergedNumberArray).toEqual(expectedMergedTraitsPayload.numberArray);
+    });
+
+    it('should merge right nested object properties', () => {
+      const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
+      expect(mergedArray).toEqual(expectedMergedTraitsPayload);
+    });
   });
 
-  it('should merge right non object array items', () => {
-    const mergedArray = mergeDeepRightObjectArrays(
-      identifyTraitsPayloadMock.stringArray,
-      trackTraitsOverridePayloadMock.stringArray,
-    );
-    const mergedNumberArray = mergeDeepRightObjectArrays(
-      identifyTraitsPayloadMock.numberArray,
-      trackTraitsOverridePayloadMock.numberArray,
-    );
-    expect(mergedArray).toEqual(expectedMergedTraitsPayload.stringArray);
-    expect(mergedNumberArray).toEqual(expectedMergedTraitsPayload.numberArray);
+  describe('isObjectAndNotNull', () => {
+    it('should detect if value is an Object and not null', () => {
+      class DummyClass {}
+      const nullCheck = isObjectAndNotNull(null);
+      const objCheck = isObjectAndNotNull({});
+      const classInstanceCheck = isObjectAndNotNull(new DummyClass());
+      const arrayCheck = isObjectAndNotNull([]);
+      const functionCheck = isObjectAndNotNull(() => {});
+      const dateCheck = isObjectAndNotNull(new Date());
+      const errorCheck = isObjectAndNotNull(new Error('error'));
+      // eslint-disable-next-line prefer-regex-literals
+      const regExpCheck = isObjectAndNotNull(new RegExp(/^a/));
+      expect(nullCheck).toBeFalsy();
+      expect(objCheck).toBeTruthy();
+      expect(classInstanceCheck).toBeTruthy();
+      expect(arrayCheck).toBeFalsy();
+      expect(functionCheck).toBeFalsy();
+      expect(dateCheck).toBeTruthy();
+      expect(errorCheck).toBeTruthy();
+      expect(regExpCheck).toBeTruthy();
+    });
   });
 
-  it('should merge right nested object properties', () => {
-    const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
-    expect(mergedArray).toEqual(expectedMergedTraitsPayload);
+  describe('isObjectLiteralAndNotNull', () => {
+    it('should detect if value is an Object and not null', () => {
+      class DummyClass {}
+      const nullCheck = isObjectLiteralAndNotNull(null);
+      const objCheck = isObjectLiteralAndNotNull({});
+      const classInstanceCheck = isObjectLiteralAndNotNull(new DummyClass());
+      const arrayCheck = isObjectLiteralAndNotNull([]);
+      const functionCheck = isObjectLiteralAndNotNull(() => {});
+      const dateCheck = isObjectLiteralAndNotNull(new Date());
+      const errorCheck = isObjectLiteralAndNotNull(new Error('error'));
+      // eslint-disable-next-line prefer-regex-literals
+      const regExpCheck = isObjectLiteralAndNotNull(new RegExp(/^a/));
+      expect(nullCheck).toBeFalsy();
+      expect(objCheck).toBeTruthy();
+      expect(classInstanceCheck).toBeTruthy();
+      expect(arrayCheck).toBeFalsy();
+      expect(functionCheck).toBeFalsy();
+      expect(dateCheck).toBeFalsy();
+      expect(errorCheck).toBeFalsy();
+      expect(regExpCheck).toBeFalsy();
+    });
   });
 
-  it('isNonEmptyObject: should return true for valid object with data', () => {
-    const outcome = isNonEmptyObject(validObj);
-    expect(outcome).toEqual(true);
-  });
-  it('isNonEmptyObject: should return false for undefined/null or empty object', () => {
-    const outcome1 = isNonEmptyObject(undefined);
-    const outcome2 = isNonEmptyObject(null);
-    const outcome3 = isNonEmptyObject({});
-    expect(outcome1).toEqual(false);
-    expect(outcome2).toEqual(false);
-    expect(outcome3).toEqual(false);
-  });
+  describe('isNonEmptyObject', () => {
+    it('should return true for valid object with data', () => {
+      const validObj = {
+        key1: 'value',
+        key2: 1234567,
+      };
+      const outcome = isNonEmptyObject(validObj);
+      expect(outcome).toEqual(true);
+    });
 
-  // This has been proved so no need to have lodash dependency and this test case anymore
-  // it('should merge right nested object properties like lodash merge', () => {
-  //   const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
-  //   expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
-  // });
+    it('should return false for undefined/null or empty object', () => {
+      const outcome1 = isNonEmptyObject(undefined);
+      const outcome2 = isNonEmptyObject(null);
+      const outcome3 = isNonEmptyObject({});
+      expect(outcome1).toEqual(false);
+      expect(outcome2).toEqual(false);
+      expect(outcome3).toEqual(false);
+    });
+  });
 });

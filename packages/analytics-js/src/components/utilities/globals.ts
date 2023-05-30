@@ -3,7 +3,7 @@ import { ExposedGlobals, IRudderStackGlobals } from '../core/IRudderStackGlobals
 /**
  * Create globally accessible RudderStackGlobals object
  */
-const createExposedGlobals = (analyticsInstanceId = 'analytics') => {
+const createExposedGlobals = (analyticsInstanceId = 'app') => {
   if (!(window as any).RudderStackGlobals) {
     (window as any).RudderStackGlobals = {} as IRudderStackGlobals;
   }
@@ -16,7 +16,7 @@ const createExposedGlobals = (analyticsInstanceId = 'analytics') => {
 /**
  * Add move values to globally accessible RudderStackGlobals object per analytics instance
  */
-const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'analytics') => {
+const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'app') => {
   createExposedGlobals(analyticsInstanceId);
   (window as any).RudderStackGlobals[analyticsInstanceId][keyName] = value;
 };
@@ -26,7 +26,7 @@ const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'a
  */
 const getExposedGlobal = (
   keyName: string,
-  analyticsInstanceId = 'analytics',
+  analyticsInstanceId = 'app',
 ): Partial<ExposedGlobals> => {
   createExposedGlobals(analyticsInstanceId);
   return (window as any).RudderStackGlobals[analyticsInstanceId][keyName];

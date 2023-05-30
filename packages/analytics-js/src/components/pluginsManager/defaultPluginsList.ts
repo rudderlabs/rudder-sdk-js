@@ -3,6 +3,7 @@ import { PluginName } from './types';
 /**
  * Plugins to be loaded in the plugins loadOption is not defined
  */
+// TODO: remove from this list the ones that should be loaded only if specific load options exist
 const defaultOptionalPluginsList: PluginName[] = [
   PluginName.ConsentManager,
   PluginName.DeviceModeDestinations,

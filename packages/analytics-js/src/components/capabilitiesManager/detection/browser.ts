@@ -1,15 +1,22 @@
-const isBrowser = (): boolean =>
-  typeof window !== 'undefined' && typeof window.document !== 'undefined';
+import {
+  isUndefined,
+  isNull,
+  isNullOrUndefined,
+  isFunction,
+} from '@rudderstack/analytics-js/components/utilities/checks';
+
+const isBrowser = (): boolean => !isUndefined(window) && !isUndefined(window.document);
 
 const isNode = (): boolean =>
-  typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+  !isUndefined(process) && !isNull(process.versions) && !isNull(process.versions.node);
 
 const hasCrypto = (): boolean =>
-  Boolean(window.crypto && typeof window.crypto.getRandomValues === 'function');
+  !isNullOrUndefined(window.crypto) && isFunction(window.crypto.getRandomValues);
 
-const hasUAClientHints = (): boolean => Boolean(window.navigator.userAgentData);
+const hasUAClientHints = (): boolean => !isNullOrUndefined(window.navigator.userAgentData);
 
-const hasBeacon = (): boolean => Boolean(window.navigator.sendBeacon);
+const hasBeacon = (): boolean =>
+  !isNullOrUndefined(window.navigator.sendBeacon) && isFunction(window.navigator.sendBeacon);
 
 const isIE11 = (): boolean => Boolean(window.navigator.userAgent.match(/Trident.*rv:11\./));
 

@@ -15,12 +15,11 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { retrievePreloadBufferEvents } from '@rudderstack/analytics-js/components/preloadBuffer';
+import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { Analytics } from './Analytics';
 import { IAnalytics } from './IAnalytics';
-import { BufferQueue } from './BufferQueue';
 import { IRudderAnalytics } from './IRudderAnalytics';
 
 // TODO: add analytics restart/reset mechanism
@@ -36,7 +35,6 @@ class RudderAnalytics implements IRudderAnalytics {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
-  preloadBuffer: BufferQueue<PreloadedEventCall> = new BufferQueue();
 
   // Singleton with constructor bind methods
   constructor() {
@@ -49,8 +47,7 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
     this.load = this.load.bind(this);
     this.ready = this.ready.bind(this);
-    this.enqueuePreloadBufferEvents = this.enqueuePreloadBufferEvents.bind(this);
-    this.processDataInPreloadBuffer = this.processDataInPreloadBuffer.bind(this);
+    this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
     this.identify = this.identify.bind(this);
@@ -70,8 +67,8 @@ class RudderAnalytics implements IRudderAnalytics {
 
     RudderAnalytics.globalSingleton = this;
 
-    // initialize the preloaded events enqueuing
-    retrievePreloadBufferEvents(this);
+    // start loading if a load event was buffered or wait for explicit load call
+    this.triggerBufferedLoadEvent();
 
     // TODO: remove the need for Emitter and deprecate it
     Emitter(this);
@@ -110,8 +107,7 @@ class RudderAnalytics implements IRudderAnalytics {
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
-    const shouldSkipLoad =
-      typeof writeKey !== 'string' || Boolean(this.analyticsInstances[writeKey]);
+    const shouldSkipLoad = !isString(writeKey) || Boolean(this.analyticsInstances[writeKey]);
     if (shouldSkipLoad) {
       return;
     }
@@ -119,41 +115,36 @@ class RudderAnalytics implements IRudderAnalytics {
     this.setDefaultInstanceKey(writeKey);
     this.analyticsInstances[writeKey] = new Analytics();
     this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
-    this.processDataInPreloadBuffer();
   }
 
   /**
-   * Process ready arguments and forward to page call
+   * Trigger load event in buffer queue if exists
+   */
+  triggerBufferedLoadEvent() {
+    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
+      (window as any).rudderanalytics,
+    )
+      ? (window as any).rudderanalytics
+      : [];
+
+    // Get any load method call that is buffered if any
+    const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);
+
+    // Process load method if present in the buffered requests
+    if (loadEvent.length > 0) {
+      // Remove the event name from the Buffered Event array and keep only arguments
+      loadEvent.shift();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.load.apply(null, loadEvent);
+    }
+  }
+
+  /**
+   * Get ready callback arguments and forward to ready call
    */
   ready(callback: ApiCallback) {
     this.getAnalyticsInstance().ready(callback);
-  }
-
-  /**
-   * Enqueue in SDK preload buffer events, used from preloadBuffer component
-   */
-  enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]) {
-    if (Array.isArray(bufferedEvents)) {
-      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(bufferedEvent));
-    }
-  }
-
-  /**
-   * Process the buffer preloaded events by passing their arguments to the respective facade methods
-   */
-  processDataInPreloadBuffer() {
-    for (let i = 0; i < this.preloadBuffer.size(); i++) {
-      const eventToProcess = this.preloadBuffer.dequeue();
-
-      if (eventToProcess) {
-        const event = [...eventToProcess];
-        const methodName = event.shift();
-
-        if (isFunction((this as any)[methodName])) {
-          (this as any)[methodName](...event);
-        }
-      }
-    }
   }
 
   /**
@@ -229,7 +220,7 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getAnalyticsInstance().reset(resetAnonymousId);
   }
 
-  getAnonymousId(options?: AnonymousIdOptions): string {
+  getAnonymousId(options?: AnonymousIdOptions) {
     return this.getAnalyticsInstance().getAnonymousId(options);
   }
 
@@ -269,7 +260,5 @@ class RudderAnalytics implements IRudderAnalytics {
     return this.getAnalyticsInstance().getSessionInfo();
   }
 }
-
-// TODO: ensure the user, group and anonymous id is always converted to string if its number
 
 export { RudderAnalytics };

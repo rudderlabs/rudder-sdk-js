@@ -29,7 +29,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci
+          npm ci --no-audit
           npm run setup
           npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
           npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
@@ -42,6 +42,8 @@ jobs:
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-plugins/reports/eslint.json
           # sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
           # sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
+          # sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/coverage/lcov.info
+          # sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/eslint.json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

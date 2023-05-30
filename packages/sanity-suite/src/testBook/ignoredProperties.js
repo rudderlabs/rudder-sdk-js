@@ -20,6 +20,11 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.network',
+    type: 'string',
+    optional: true,
+  },
+  {
     key: 'message.context.userAgent',
     type: 'string',
   },
@@ -126,7 +131,7 @@ const ignoredProperties = [
   },
   {
     key: `message.integrations.Google Analytics 4.sessionId`,
-    type: 'string',
+    type: 'number',
   },
   {
     key: `message.integrations.Google Analytics 4.clientId`,

@@ -93,9 +93,13 @@ export type DestinationConfig = {
   [key: string]: any;
 };
 
-export type ClientIntegrations = {
+export type ClientIntegration = {
   name: string;
   config: DestinationConfig;
+  destinationInfo: {
+    areTransformationsConnected: boolean;
+    destinationId: string;
+  };
 };
 
 export type IntegrationInstance = {
@@ -103,18 +107,8 @@ export type IntegrationInstance = {
   isReady?: () => boolean;
 };
 
-// TODO: is this still used? only lotame used it for 1mg
-// export type ClientSuppliedCallbacks = {
-//   syncPixel?: () => void;
-// };
-//
-// // TODO: is this still used? only lotame used it for 1mg
-// export type MethodToCallbackMap = {
-//   syncPixel: string;
-// };
-
 // TODO: is this still used? const intMod = window[pluginName];
-export type DynamicallyLoadedIntegration = Record<string, any>;
+export type InitialisedIntegration = Record<string, any>;
 
 export enum CookieSameSite {
   Strict = 'Strict',
@@ -236,7 +230,8 @@ export type LoadOptions = {
   loadIntegration?: boolean; // defaults to true.
   sessions: SessionOpts;
   secureCookie?: boolean; // defaults to false.
-  destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
+  destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v3/latest/modern/js-integrations
+  pluginsSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v3/latest/modern/plugins
   useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
@@ -254,7 +249,7 @@ export type LoadOptions = {
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
   polyfillURL?: string;
-  // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
+  useGlobalIntegrationsConfigInEvents?: boolean;
 };
 
 export type ApiCallback = (data?: any) => void;
@@ -277,6 +272,7 @@ export enum LifecycleStatus {
   PluginsReady = 'pluginsReady',
   Initialized = 'initialized',
   Loaded = 'loaded',
+  IntegrationsLoading = 'integrationsLoading',
   IntegrationsReady = 'integrationsReady',
   Ready = 'ready',
 }
