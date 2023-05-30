@@ -1,4 +1,4 @@
-import * as RudderAnalytics from '@rudderstack/analytics-js';
+import * as RudderAnalytics from 'rudder-sdk-js';
 import { initSanitySuite } from './testBook';
 
 const getWriteKey = () => {

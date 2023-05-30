@@ -6,14 +6,16 @@ import { ClientIntegration, ILogger, NativeDestinationsState } from '../types/co
 
 const isIntegrationSDKEvaluated = (pluginName: string, modName: string, logger?: ILogger) => {
   try {
-    return (
+    const scriptIsEvaluated = Boolean(
       pluginName &&
-      modName &&
-      (window as any)[pluginName] &&
-      (window as any)[pluginName][modName] &&
-      (window as any)[pluginName][modName].prototype &&
-      typeof (window as any)[pluginName][modName].prototype.constructor !== 'undefined'
+        modName &&
+        (window as any)[pluginName] &&
+        (window as any)[pluginName][modName] &&
+        (window as any)[pluginName][modName].prototype &&
+        typeof (window as any)[pluginName][modName].prototype.constructor !== 'undefined',
     );
+
+    return scriptIsEvaluated;
   } catch (e) {
     logger?.error(e);
     return false;
@@ -63,7 +65,7 @@ const createIntegrationInstance = (
   );
 };
 
-const isInitialized = (state: NativeDestinationsState, instance: any, time = 0) =>
+const isInitialized = (instance: any, time = 0) =>
   new Promise(resolve => {
     if (instance.isLoaded()) {
       console.log('instance.isLoaded', instance);

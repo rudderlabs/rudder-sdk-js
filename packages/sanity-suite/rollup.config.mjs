@@ -19,6 +19,7 @@ dotenv.config();
 const serverPort = 3003;
 const prodCDNURL = 'https://cdn.rudderlabs.com';
 const defaultVersion = 'v1.1';
+const isV3 = process.env.CDN_VERSION_PATH === 'v3';
 // TODO: get this list from public folder subfolders
 const featuresList = ['eventFiltering', 'preloadBuffer'];
 
@@ -37,15 +38,16 @@ const getDistPath = () => {
 };
 
 const getHTMLSource = (featureName) => {
-  const folderPath = featureName ? `public/${featureName}` : `public`;
+  const versionPath = isV3 ? '/v3/' : '/v1.1/';
+  const folderPath = featureName ? `public${versionPath}${featureName}/` : `public${versionPath}`;
 
   switch (process.env.TEST_PACKAGE) {
     case 'cdn':
-      return `${folderPath}/index-cdn.html`;
+      return `${folderPath}index-cdn.html`;
     case 'npm':
-      return `${folderPath}/index-npm.html`;
+      return `${folderPath}index-npm.html`;
     default:
-      return `${folderPath}/index-local.html`;
+      return `${folderPath}index-local.html`;
   }
 };
 
@@ -54,7 +56,7 @@ const getJSSource = () => {
     case 'cdn':
       return 'src/index.ts';
     case 'npm':
-      return 'src/index-npm.ts';
+      return isV3 ? 'src/index-npm.ts' : 'src/index-npm-v1.1.ts';
     default:
       return 'src/index.ts';
   }
@@ -89,16 +91,15 @@ const getCopyTargets = () => {
     case 'npm':
       return [];
     default:
-      const isV3 = process.env.CDN_VERSION_PATH === 'v3';
       return isV3
         ? [
             {
-              src: '../analytics-js/dist/legacy/iife/index.js',
+              src: '../analytics-js/dist/cdn/legacy/iife/rudder-analytics.min.js',
               dest: getDistPath(),
               rename: 'rudder-analytics.min.js',
             },
             {
-              src: '../analytics-js/dist/legacy/iife/index.js.map',
+              src: '../analytics-js/dist/cdn/legacy/iife/rudder-analytics.min.js.map',
               dest: getDistPath(),
               rename: 'rudder-analytics.min.js.map',
             },
@@ -160,7 +161,6 @@ const getBuildConfig = (featureName) => ({
       preferBuiltins: false,
       extensions: [...DEFAULT_EXTENSIONS, '.ts'],
     }),
-    json(),
     nodePolyfills({
       include: ['crypto'],
     }),
@@ -168,6 +168,7 @@ const getBuildConfig = (featureName) => ({
       include: [/analytics-v1.1/, /node_modules/],
       requireReturnsDefault: 'auto',
     }),
+    json(),
     typescript({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
@@ -183,7 +184,6 @@ const getBuildConfig = (featureName) => ({
       copy({
         targets: getCopyTargets(),
       }),
-    json(),
     htmlTemplate({
       template: getHTMLSource(featureName),
       target: 'index.html',

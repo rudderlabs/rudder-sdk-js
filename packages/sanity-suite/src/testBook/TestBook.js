@@ -187,7 +187,7 @@ class TestBook {
         let normalisedResultData = generatedPayload;
         if (!normalisedResultData.message) {
           normalisedResultData = {
-            message: normalisedResultData,
+            message: generatedPayload,
           };
         }
         resultContainer.innerHTML = JSON.stringify(normalisedResultData, undefined, 2);

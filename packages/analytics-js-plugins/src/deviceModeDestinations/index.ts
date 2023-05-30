@@ -80,7 +80,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
       activeIntegrations.forEach(intg => {
         console.log(intg);
-        const pluginName = `${intg.name}_RS`; // this is the name of the object loaded on the window
+        const pluginName = `${configToIntNames[intg.name]}_RS`; // this is the name of the object loaded on the window
         const modName = configToIntNames[intg.name];
         const modURL = `${destSDKBaseURL}/${modName}.min.js`;
 
@@ -117,7 +117,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               logger?.debug(`Attempting to initialize integration name:: ${pluginName}`);
               integrationInstance.init();
 
-              isInitialized(state.nativeDestinations, integrationInstance)
+              isInitialized(integrationInstance)
                 .then(() => {
                   const initializedDestination: Record<string, InitialisedIntegration> = {};
                   initializedDestination[pluginName] = intMod[modName];
