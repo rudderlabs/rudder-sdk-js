@@ -18,6 +18,7 @@ import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
+import { PluginName } from '../pluginsManager/types';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -48,7 +49,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    let consentProviderPluginName: string | undefined;
+    let consentProviderPluginName: PluginName | undefined;
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
@@ -73,7 +74,7 @@ class ConfigManager implements IConfigManager {
         consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
         if (!consentProviderPluginName) {
           this.logger?.error(
-            `[ConsentManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
+            `[ConfigManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
           );
         }
       }
