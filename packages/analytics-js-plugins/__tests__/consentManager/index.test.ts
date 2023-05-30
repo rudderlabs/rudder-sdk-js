@@ -43,4 +43,27 @@ describe('Plugin - ConsentManager', () => {
     expect(state.consents.allowedConsents.value).toStrictEqual({});
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);
   });
+
+  it('should return true if destination category is consented', () => {
+    const mockResponseFromSelectedConsentManager = true;
+    pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
+    const output = ConsentManager().consentManager.isDestinationConsented(
+      state,
+      pluginManager,
+      {},
+      defaultLogger,
+    );
+    expect(output).toBeTruthy();
+  });
+  it('should return false if destination category is not consented', () => {
+    const mockResponseFromSelectedConsentManager = false;
+    pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
+    const output = ConsentManager().consentManager.isDestinationConsented(
+      state,
+      pluginManager,
+      {},
+      defaultLogger,
+    );
+    expect(output).toBeFalsy();
+  });
 });
