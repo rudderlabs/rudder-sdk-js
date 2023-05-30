@@ -16,7 +16,9 @@ import { isFunction, isString } from '@rudderstack/analytics-js/components/utili
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse } from './types';
+import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
+import { getUserSelectedConsentManager } from '../utilities/consent';
+import { PluginName } from '../pluginsManager/types';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -47,6 +49,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
+    let consentProviderPluginName: PluginName | undefined;
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
@@ -60,6 +63,21 @@ class ConfigManager implements IConfigManager {
       );
       // determine the path to fetch remote plugins from
       const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+
+      // Get the consent manager if provided as load option
+      const selectedConsentManager = getUserSelectedConsentManager(
+        state.loadOptions.value.cookieConsentManager,
+      );
+
+      if (selectedConsentManager) {
+        // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+        consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
+        if (!consentProviderPluginName) {
+          this.logger?.error(
+            `[ConfigManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
+          );
+        }
+      }
 
       // set application lifecycle state in global state
       batch(() => {
@@ -77,6 +95,9 @@ class ConfigManager implements IConfigManager {
             }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
           ).toString();
         }
+
+        // Set consent manager plugin name in state
+        state.consents.activeConsentProviderPluginName.value = consentProviderPluginName;
       });
     } catch (e) {
       this.onError(e);
