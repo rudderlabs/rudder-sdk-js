@@ -42,7 +42,7 @@ import {
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
   DEFAULT_INTEGRATIONS_CONFIG,
-  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
+  DATA_PLANE_EVENTS_BUFFER_TIME_OUT,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -96,6 +96,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.bufferDataPlaneEventsUntilReady = false;
+    this.dataPlaneEventsBufferTimeout = DATA_PLANE_EVENTS_BUFFER_TIME_OUT;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -315,7 +316,7 @@ class Analytics {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
           this.processBufferedCloudModeEvents();
-        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
+        }, this.dataPlaneEventsBufferTimeout);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
@@ -1251,6 +1252,10 @@ class Analytics {
       if (this.bufferDataPlaneEventsUntilReady) {
         this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
       }
+    }
+
+    if (options && typeof options.dataPlaneEventsBufferTimeout === 'number') {
+      this.dataPlaneEventsBufferTimeout = options.dataPlaneEventsBufferTimeout;
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
