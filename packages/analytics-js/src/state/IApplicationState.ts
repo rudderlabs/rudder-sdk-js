@@ -5,7 +5,6 @@ import { SessionState } from './slices/session';
 import { ReportingState } from './slices/reporting';
 import { SourceConfigState } from './slices/source';
 import { LifecycleState } from './slices/lifecycle';
-import { DestinationConfigState } from './slices/destinations';
 import { MetricsState } from './slices/metrics';
 import { ContextState } from './slices/context';
 import { NativeDestinationsState } from './slices/nativeDestinations';
@@ -21,7 +20,6 @@ export interface IApplicationState {
   reporting: ReportingState;
   source: SourceConfigState;
   lifecycle: LifecycleState;
-  destinations: DestinationConfigState;
   metrics: MetricsState;
   context: ContextState;
   nativeDestinations: NativeDestinationsState;

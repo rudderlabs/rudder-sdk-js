@@ -71,7 +71,7 @@ describe('Core - Analytics', () => {
       state.lifecycle.status.value = LifecycleStatus.Configured;
       expect(initSpy).toHaveBeenCalledTimes(1);
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.IntegrationsLoading);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
@@ -79,18 +79,18 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = LifecycleStatus.PluginsReady;
       expect(onLoadedSpy).toHaveBeenCalledTimes(2);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.IntegrationsLoading);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.Initialized;
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.IntegrationsLoading);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.Loaded;
       expect(loadIntegrationsSpy).toHaveBeenCalledTimes(4);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.IntegrationsLoading);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
-      expect(onReadySpy).toHaveBeenCalledTimes(1);
+      expect(onReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
     });
   });

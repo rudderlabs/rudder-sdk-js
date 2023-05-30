@@ -145,8 +145,7 @@ class ConfigManager implements IConfigManager {
       };
 
       // set device mode destination related information in state
-      // TODO: should this not only contain the non cloud destinations?
-      state.destinations.value = nativeDestinations;
+      state.nativeDestinations.destinations.value = nativeDestinations;
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined

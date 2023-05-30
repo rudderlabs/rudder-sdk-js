@@ -433,8 +433,7 @@ class Analytics {
           this.timer = setTimeout(this.flush.bind(this), this.flushInterval);
           if (err.response) {
             const error = new Error(err.response.statusText);
-            done(error);
-            return;
+            return done(error);
           }
           done(err);
         });

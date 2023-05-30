@@ -4,7 +4,7 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
-import { processError } from './processError';
+import { isAllowedToBeNotified, processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
 /**
@@ -89,7 +89,7 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: Error) {
-    if (this.pluginEngine) {
+    if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
         this.pluginEngine.invokeMultiple('errorMonitoring.notify', error, this.logger);
       } catch (err) {

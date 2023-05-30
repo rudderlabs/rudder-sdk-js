@@ -1,4 +1,3 @@
-import { isEmpty } from 'ramda';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
@@ -315,55 +314,42 @@ class Analytics implements IAnalytics {
   /**
    * Load device mode integrations
    */
-  // TODO: dummy implementation for testing until we implement device mode
-  //  create proper implementation once relevant task is picked up
   loadIntegrations() {
-    if (isEmpty(state.nativeDestinations.clientIntegrations.value)) {
+    // Set in state the desired activeIntegrations to inject in DOM
+    const totalClientIntegrationsToLoad = this.pluginsManager?.invokeSingle(
+      'nativeDestinations.setActiveIntegrations',
+      state,
+    );
+
+    if (totalClientIntegrationsToLoad === 0) {
       state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
       return;
     }
 
+    // Start loading native integration scripts and create instances
     state.lifecycle.status.value = LifecycleStatus.IntegrationsLoading;
-
-    // TODO: store in state and calculate if all integrations are loaded, then set status to IntegrationsReady
-    // TODO: decouple in separate file
-    const integrationOnLoadCallback = (id?: string) => {
-      if (!id) {
-        return;
-      }
-
-      console.log(`${id} Script loaded`);
-    };
-
     this.pluginsManager?.invokeSingle(
-      'remote.load_integrations',
-      state.loadOptions.value.destSDKBaseURL,
-      state.nativeDestinations.clientIntegrations.value,
+      'nativeDestinations.loadIntegrations',
       state,
       this.externalSrcLoader,
-      integrationOnLoadCallback,
+      this.logger,
     );
 
+    // Progress to next lifecycle phase if all native integrations are initialised or failed
     effect(() => {
-      console.log(
-        'successfullyLoadedIntegration',
-        state.nativeDestinations.successfullyLoadedIntegration.value,
-      );
-    });
+      const isAllIntegrationsReady =
+        state.nativeDestinations.activeIntegrations.value.length === 0 ||
+        Object.keys(state.nativeDestinations.initialisedIntegrations.value ?? {}).length +
+          state.nativeDestinations.failedIntegrationScripts.value.length ===
+          state.nativeDestinations.activeIntegrations.value.length;
 
-    effect(() => {
-      console.log(
-        'dynamicallyLoadedIntegrations',
-        state.nativeDestinations.dynamicallyLoadedIntegrations.value,
-      );
+      if (isAllIntegrationsReady) {
+        batch(() => {
+          state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
+          state.nativeDestinations.clientIntegrationsReady.value = true;
+        });
+      }
     });
-
-    // TODO: fix await until all remote integrations have been fetched, this can be
-    //  done using a callback to notify state that the integration is loaded and
-    //  calculate signal when all are loaded, once all loaded and/or failed then set status to IntegrationsReady
-    window.setTimeout(() => {
-      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
-    }, 3000);
   }
 
   /**

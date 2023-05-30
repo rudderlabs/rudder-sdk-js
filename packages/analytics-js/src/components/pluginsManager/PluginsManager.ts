@@ -1,5 +1,4 @@
 import { batch, effect } from '@preact/signals-core';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import {
   ExtensionPlugin,
   IPluginEngine,
@@ -7,8 +6,6 @@ import {
 import { state } from '@rudderstack/analytics-js/state';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
@@ -107,7 +104,7 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Device mode destinations related plugins
-    if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
+    if (getNonCloudDestinations(state.nativeDestinations.destinations.value ?? []).length === 0) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           ![

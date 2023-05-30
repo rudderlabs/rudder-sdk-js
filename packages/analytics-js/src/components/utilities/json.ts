@@ -27,7 +27,7 @@ const getCircularReplacer = (
     }
 
     if (ancestors.includes(value)) {
-      logger?.warn(`Circular Reference detected and dropped fro property: ${key}`);
+      logger?.warn(`Circular Reference detected and dropped from property: ${key}`);
       return '[Circular Reference]';
     }
 

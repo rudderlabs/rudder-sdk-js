@@ -4,6 +4,7 @@ import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/o
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { IXHRRequestOptions } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
@@ -54,7 +55,7 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          `Request failed with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
         ),
         xhr,
         options,
@@ -63,9 +64,9 @@ const xhrRequest = (
     const xhrError = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          `Request failed due to timeout or no connection, ${e ? e.type : ''} for URL: ${
-            options.url
-          }`,
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout or no connection, ${
+            e ? e.type : ''
+          } for URL: ${options.url}`,
         ),
         xhr,
         options,
@@ -115,7 +116,9 @@ const xhrRequest = (
       xhr.send(payload);
     } catch (err) {
       reject({
-        error: new Error(`Request failed for URL: ${options.url}, ${(err as Error).message}`),
+        error: new Error(
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} for URL: ${options.url}, ${(err as Error).message}`,
+        ),
         xhr,
         options,
       });

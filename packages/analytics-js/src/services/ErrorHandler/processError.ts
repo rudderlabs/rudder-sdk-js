@@ -4,6 +4,7 @@ import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { SDKError } from './types';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js/constants/errors';
 
 /**
  * Utility method to process errors that originate from script load
@@ -60,4 +61,16 @@ const processError = (error: SDKError): string => {
   return errorMessage;
 };
 
-export { processScriptLoadError, processError };
+/**
+ * A function to determine whether the error should be promoted to notify or not
+ * @param {Error} error
+ * @returns
+ */
+const isAllowedToBeNotified = (error: Error) => {
+  if (error.message) {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
+  }
+  return true;
+};
+
+export { processScriptLoadError, processError, isAllowedToBeNotified };
