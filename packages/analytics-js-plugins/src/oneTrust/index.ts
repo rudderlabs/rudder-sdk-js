@@ -1,11 +1,13 @@
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, PluginName, ApplicationState, ILogger } from '../types/common';
 import {
+  ExtensionPlugin,
+  PluginName,
+  ApplicationState,
+  ILogger,
   ConsentInfo,
-  OneTrustCookieCategory,
-  OneTrustGroup,
-  DestinationConsentConfig,
-} from './types';
+  DestinationConfig,
+} from '../types/common';
+import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
 const pluginName = PluginName.OneTrust;
 
@@ -54,7 +56,7 @@ const OneTrust = (): ExtensionPlugin => ({
 
     isDestinationConsented(
       state: ApplicationState,
-      destConfig: DestinationConsentConfig,
+      destConfig: DestinationConfig,
       logger: ILogger,
     ): boolean {
       const { consentProviderInitialized, allowedConsents } = state.consents;

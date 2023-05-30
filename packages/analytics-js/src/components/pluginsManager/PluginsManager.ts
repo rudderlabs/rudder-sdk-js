@@ -117,14 +117,14 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Consent Management related plugins
-    if (state.consents.activeConsentProvider.value) {
+    if (state.consents.activeConsentProviderPluginName.value) {
       const supportedConsentManagerPlugins: string[] = Object.values(
         ConsentManagersToPluginNameMap,
       );
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName !== state.consents.activeConsentProvider.value &&
+            pluginName !== state.consents.activeConsentProviderPluginName.value &&
             supportedConsentManagerPlugins.includes(pluginName)
           ),
       );

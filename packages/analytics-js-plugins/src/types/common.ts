@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
-import { type } from 'ramda';
 
 export type {
   RudderEvent,
@@ -57,4 +56,10 @@ export type AnonymousIdOptions = {
     enabled?: boolean;
     source?: string;
   };
+};
+
+export type ConsentInfo = {
+  consentProviderInitialized: boolean;
+  allowedConsents?: Record<string, string>;
+  deniedConsentIds?: string[];
 };

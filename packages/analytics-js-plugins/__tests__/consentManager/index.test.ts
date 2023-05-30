@@ -1,10 +1,13 @@
 import { ConsentManager } from '@rudderstack/analytics-js-plugins/consentManager';
 import { PluginName } from '@rudderstack/analytics-js-plugins/types/common';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { defaultPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 
 describe('Plugin - ConsentManager', () => {
+  const pluginManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
   beforeEach(() => {
     resetState();
   });
@@ -19,8 +22,9 @@ describe('Plugin - ConsentManager', () => {
       allowedConsents: { C0001: 'Performance Cookies', C0003: 'Functional Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005'],
     };
-    defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
+
+    pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
+    ConsentManager().consentManager.init(state, pluginManager, defaultLogger);
     expect(state.consents.consentProviderInitialized.value).toBeTruthy();
     expect(state.consents.allowedConsents.value).toStrictEqual(
       mockResponseFromSelectedConsentManager.allowedConsents,
@@ -33,8 +37,8 @@ describe('Plugin - ConsentManager', () => {
     const mockResponseFromSelectedConsentManager = {
       consentProviderInitialized: false,
     };
-    defaultPluginsManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, defaultPluginsManager, defaultLogger);
+    pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
+    ConsentManager().consentManager.init(state, pluginManager, defaultLogger);
     expect(state.consents.consentProviderInitialized.value).toBe(false);
     expect(state.consents.allowedConsents.value).toStrictEqual({});
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);

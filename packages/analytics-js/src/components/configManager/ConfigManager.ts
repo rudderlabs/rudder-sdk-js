@@ -19,7 +19,6 @@ import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 
-
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
   errorHandler?: IErrorHandler;
@@ -49,7 +48,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    let consentManagerPluginName: string | undefined;
+    let consentProviderPluginName: string | undefined;
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
@@ -63,24 +62,21 @@ class ConfigManager implements IConfigManager {
       );
       // determine the path to fetch remote plugins from
       const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
-      
-      // Get the consent manager if provided as load option
-    const selectedConsentManager = getUserSelectedConsentManager(
-      state.loadOptions.value.cookieConsentManager,
-    );
 
-    if (selectedConsentManager) {
-      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-      consentManagerPluginName =
-        ConsentManagersToPluginNameMap[
-          selectedConsentManager as keyof typeof ConsentManagersToPluginNameMap
-        ];
-      if (!consentManagerPluginName) {
-        this.logger?.error(
-          `[ConsentManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
-        );
+      // Get the consent manager if provided as load option
+      const selectedConsentManager = getUserSelectedConsentManager(
+        state.loadOptions.value.cookieConsentManager,
+      );
+
+      if (selectedConsentManager) {
+        // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+        consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
+        if (!consentProviderPluginName) {
+          this.logger?.error(
+            `[ConsentManager]:: Provided consent manager ${selectedConsentManager} is not supported.`,
+          );
+        }
       }
-    }
 
       // set application lifecycle state in global state
       batch(() => {
@@ -98,9 +94,9 @@ class ConfigManager implements IConfigManager {
             }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
           ).toString();
         }
-        
+
         // Set consent manager plugin name in state
-        state.consents.activeConsentProvider.value = consentManagerPluginName;
+        state.consents.activeConsentProviderPluginName.value = consentProviderPluginName;
       });
     } catch (e) {
       this.onError(e);

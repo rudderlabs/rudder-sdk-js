@@ -52,6 +52,9 @@ describe('Plugin - OneTrust', () => {
       C0003: 'Analytical Cookies',
     };
     const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
           oneTrustCookieCategory: 'Functional Cookies',
@@ -77,6 +80,9 @@ describe('Plugin - OneTrust', () => {
     state.consents.consentProviderInitialized.value = false;
 
     const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
           oneTrustCookieCategory: 'Functional Cookies',
@@ -102,6 +108,9 @@ describe('Plugin - OneTrust', () => {
       C0003: 'Analytical Cookies',
     };
     const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
       key: 'value',
     };
 
@@ -119,6 +128,9 @@ describe('Plugin - OneTrust', () => {
       C0003: 'Analytical Cookies',
     };
     const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
           oneTrustCookieCategory: 'Functional Cookies',

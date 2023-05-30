@@ -88,6 +88,6 @@ export interface IConfigManager {
   processConfig: () => void;
 }
 
-export const ConsentManagersToPluginNameMap = {
+export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: PluginName.OneTrust,
 };

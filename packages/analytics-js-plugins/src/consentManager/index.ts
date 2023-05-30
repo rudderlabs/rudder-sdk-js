@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
+import { batch } from '@preact/signals-core';
 import {
   ExtensionPlugin,
   PluginName,
   ApplicationState,
   ILogger,
   IPluginsManager,
+  DestinationConfig,
 } from '../types/common';
 
 const pluginName = PluginName.ConsentManager;
@@ -26,10 +28,26 @@ const ConsentManager = (): ExtensionPlugin => ({
       // Only if the selected consent manager initialization is successful
       // set consent info in state
       if (consentProviderInitialized) {
-        state.consents.consentProviderInitialized.value = true;
-        state.consents.allowedConsents.value = allowedConsents ?? {};
-        state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
+        batch(() => {
+          state.consents.consentProviderInitialized.value = true;
+          state.consents.allowedConsents.value = allowedConsents ?? {};
+          state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
+        });
       }
+    },
+
+    isDestinationConsented(
+      state: ApplicationState,
+      pluginsManager: IPluginsManager,
+      destConfig: DestinationConfig,
+      logger: ILogger,
+    ): boolean {
+      return pluginsManager.invokeSingle(
+        `consentProvider.isDestinationConsented`,
+        state,
+        destConfig,
+        logger,
+      ) as boolean;
     },
   },
 });

@@ -4,12 +4,6 @@ export type OneTrustGroup = {
   [key: string]: any;
 };
 
-export type ConsentInfo = {
-  consentProviderInitialized: boolean;
-  allowedConsents?: Record<string, string>;
-  deniedConsentIds?: string[];
-};
-
 export type OneTrustCookieCategory = {
   oneTrustCookieCategory: string;
 };
