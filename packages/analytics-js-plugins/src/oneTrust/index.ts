@@ -43,7 +43,7 @@ const OneTrust = (): ExtensionPlugin => ({
       oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
         const { CustomGroupId, GroupName } = group;
         if (allowedConsentIds.includes(CustomGroupId)) {
-          allowedConsents[CustomGroupId.toUpperCase()] = GroupName.toUpperCase();
+          allowedConsents[CustomGroupId] = GroupName;
         } else {
           deniedConsentIds.push(CustomGroupId); // Populate denied consent Ids
         }
@@ -100,8 +100,8 @@ const OneTrust = (): ExtensionPlugin => ({
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = validOneTrustCookieCategories.every(
           (element: string) =>
-            Object.keys(allowedConsents.value).includes(element.toUpperCase().trim()) ||
-            Object.values(allowedConsents.value).includes(element.toUpperCase().trim()),
+            Object.keys(allowedConsents.value).includes(element.trim()) ||
+            Object.values(allowedConsents.value).includes(element.trim()),
         );
 
         return containsAllConsent;

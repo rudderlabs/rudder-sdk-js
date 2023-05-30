@@ -28,7 +28,7 @@ describe('Plugin - OneTrust', () => {
     (window as any).OnetrustActiveGroups = ',C0001,C0003,';
     const mockResponseFromOneTrust = {
       consentProviderInitialized: true,
-      allowedConsents: { C0001: 'FUNCTIONAL COOKIES', C0003: 'ANALYTICAL COOKIES' },
+      allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     };
     const consentInfo = OneTrust().consentProvider.getConsentInfo(defaultLogger);
@@ -48,8 +48,8 @@ describe('Plugin - OneTrust', () => {
   it('should return true if destination specific category is consented', () => {
     state.consents.consentProviderInitialized.value = true;
     state.consents.allowedConsents.value = {
-      C0001: 'FUNCTIONAL COOKIES',
-      C0003: 'ANALYTICAL COOKIES',
+      C0001: 'Functional Cookies',
+      C0003: 'Analytical Cookies',
     };
     const destConfig = {
       oneTrustCookieCategories: [
@@ -98,8 +98,8 @@ describe('Plugin - OneTrust', () => {
   it('should return true if destination config does not have any mapping', () => {
     state.consents.consentProviderInitialized.value = true;
     state.consents.allowedConsents.value = {
-      C0001: 'FUNCTIONAL COOKIES',
-      C0003: 'ANALYTICAL COOKIES',
+      C0001: 'Functional Cookies',
+      C0003: 'Analytical Cookies',
     };
     const destConfig = {
       key: 'value',
@@ -115,8 +115,8 @@ describe('Plugin - OneTrust', () => {
   it('should return false if destination categories are not consented', () => {
     state.consents.consentProviderInitialized.value = true;
     state.consents.allowedConsents.value = {
-      C0001: 'FUNCTIONAL COOKIES',
-      C0003: 'ANALYTICAL COOKIES',
+      C0001: 'Functional Cookies',
+      C0003: 'Analytical Cookies',
     };
     const destConfig = {
       oneTrustCookieCategories: [
