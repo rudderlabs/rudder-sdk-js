@@ -16,7 +16,7 @@ import {
   ApplicationState,
   ILogger,
   ClientIntegration,
-  InitialisedIntegration,
+  InitializedIntegration,
 } from '../types/common';
 
 // TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
@@ -119,12 +119,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
               isInitialized(integrationInstance)
                 .then(() => {
-                  const initializedDestination: Record<string, InitialisedIntegration> = {};
+                  const initializedDestination: Record<string, InitializedIntegration> = {};
                   initializedDestination[pluginName] = intMod[modName];
 
                   logger?.debug(`Initialized integration name:: ${pluginName}`);
-                  state.nativeDestinations.initialisedIntegrations.value = {
-                    ...state.nativeDestinations.initialisedIntegrations.value,
+                  state.nativeDestinations.initializedIntegrations.value = {
+                    ...state.nativeDestinations.initializedIntegrations.value,
                     ...initializedDestination,
                   };
                 })

@@ -15,11 +15,10 @@ export { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type {
   ClientIntegration,
-  InitialisedIntegration,
+  InitializedIntegration,
 } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig } from '@rudderstack/analytics-js/state/types';
-export { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
 
 export type ApplicationState = IApplicationState;
 

@@ -6,7 +6,6 @@ import {
   ApplicationState,
   QueueOpts,
   RudderEvent,
-  BufferQueue,
   IErrorHandler,
   DoneCallback,
   ILogger,

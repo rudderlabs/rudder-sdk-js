@@ -2,7 +2,7 @@ import { Signal, signal } from '@preact/signals-core';
 import {
   ClientIntegration,
   Destination,
-  InitialisedIntegration,
+  InitializedIntegration,
   IntegrationInstance,
   IntegrationOpts,
 } from '@rudderstack/analytics-js/state/types';
@@ -16,7 +16,7 @@ export type NativeDestinationsState = {
   failedIntegrationScripts: Signal<string[]>;
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
-  initialisedIntegrations: Signal<Record<string, InitialisedIntegration>>;
+  initializedIntegrations: Signal<Record<string, InitializedIntegration>>;
   clientIntegrationsReady: Signal<boolean>;
 };
 
@@ -29,7 +29,7 @@ const nativeDestinationsState: NativeDestinationsState = {
   failedIntegrationScripts: signal([]),
   loadIntegration: signal(true),
   integrationsData: signal({}),
-  initialisedIntegrations: signal({}),
+  initializedIntegrations: signal({}),
   clientIntegrationsReady: signal(false),
 };
 

@@ -108,7 +108,7 @@ export type IntegrationInstance = {
 };
 
 // TODO: is this still used? const intMod = window[pluginName];
-export type InitialisedIntegration = Record<string, any>;
+export type InitializedIntegration = Record<string, any>;
 
 export enum CookieSameSite {
   Strict = 'Strict',

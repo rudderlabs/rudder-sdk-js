@@ -335,11 +335,11 @@ class Analytics implements IAnalytics {
       this.logger,
     );
 
-    // Progress to next lifecycle phase if all native integrations are initialised or failed
+    // Progress to next lifecycle phase if all native integrations are initialized or failed
     effect(() => {
       const isAllIntegrationsReady =
         state.nativeDestinations.activeIntegrations.value.length === 0 ||
-        Object.keys(state.nativeDestinations.initialisedIntegrations.value ?? {}).length +
+        Object.keys(state.nativeDestinations.initializedIntegrations.value ?? {}).length +
           state.nativeDestinations.failedIntegrationScripts.value.length ===
           state.nativeDestinations.activeIntegrations.value.length;
 
