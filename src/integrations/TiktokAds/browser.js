@@ -72,7 +72,7 @@ class TiktokAds {
 
   isLoaded() {
     logger.debug('===In isLoaded Tiktok Ads===');
-    return !!(window.ttq);
+    return !!window.ttq;
   }
 
   isReady() {
