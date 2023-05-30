@@ -1309,7 +1309,6 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Array.prototype.at ||
         typeof window.URL !== 'function' ||
         typeof Promise === 'undefined' ||
         !Object.entries ||
