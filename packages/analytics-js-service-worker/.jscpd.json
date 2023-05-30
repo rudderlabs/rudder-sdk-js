@@ -1,0 +1,11 @@
+{
+  "threshold": 20,
+  "reporters": ["html", "console"],
+  "pattern": "**/*",
+  "ignore": ["**/__tests__/**", "**/__mocks__/**", "**/node_modules/**", "*.test.*"],
+  "absolute": true,
+  "gitignore": true,
+  "output": "./reports/",
+  "mode": "strict",
+  "format": ["typescript", "tsx"]
+}

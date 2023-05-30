@@ -1,1 +1,1 @@
-export { EventRepository, defaultEventRepository } from './EventRepository';
+export { EventRepository } from './EventRepository';

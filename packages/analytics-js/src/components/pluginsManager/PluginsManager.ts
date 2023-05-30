@@ -1,5 +1,4 @@
 import { batch, effect } from '@preact/signals-core';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import {
   ExtensionPlugin,
   IPluginEngine,
@@ -7,11 +6,10 @@ import {
 import { state } from '@rudderstack/analytics-js/state';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -42,6 +40,11 @@ class PluginsManager implements IPluginsManager {
    */
   init() {
     state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+    // Expose pluginsCDNPath to global object, so it can be used in the promise that determines
+    // remote plugin cdn path to support proxied plugin remotes
+    if (!__BUNDLE_ALL_PLUGINS__) {
+      setExposedGlobal('pluginsCDNPath', state.lifecycle.pluginsCDNPath.value);
+    }
     this.setActivePlugins();
     this.registerLocalPlugins();
     this.registerRemotePlugins();
@@ -62,6 +65,8 @@ class PluginsManager implements IPluginsManager {
       if (isAllPluginsReady) {
         batch(() => {
           state.plugins.ready.value = true;
+          // TODO: decide what to do if a plugin fails to load for any reason.
+          //  Should we stop here or should we progress?
           state.lifecycle.status.value = LifecycleStatus.PluginsReady;
         });
       }
@@ -100,7 +105,7 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Device mode destinations related plugins
-    if (getNonCloudDestinations(state.destinations.value ?? []).length === 0) {
+    if (getNonCloudDestinations(state.nativeDestinations.destinations.value ?? []).length === 0) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           ![
@@ -181,7 +186,7 @@ class PluginsManager implements IPluginsManager {
    */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      if (state.plugins.activePlugins.value.includes(localPlugin.name)) {
+      if (state.plugins.activePlugins.value.includes(localPlugin().name)) {
         this.register([localPlugin()]);
       }
     });
@@ -205,7 +210,7 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(e);
+            this.onError(e, remotePluginKey);
           });
       }),
     ).catch(e => {
@@ -274,10 +279,4 @@ class PluginsManager implements IPluginsManager {
   }
 }
 
-const defaultPluginsManager = new PluginsManager(
-  defaultPluginEngine,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { PluginsManager, defaultPluginsManager };
+export { PluginsManager };

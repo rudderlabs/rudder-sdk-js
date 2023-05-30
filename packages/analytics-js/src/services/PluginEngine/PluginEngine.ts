@@ -7,7 +7,6 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { ExtensionPlugin, IPluginEngine, PluginEngineConfig } from './types';
-import { isPluginEngineDebugMode } from './debug';
 
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
@@ -159,10 +158,6 @@ class PluginEngine implements IPluginEngine {
       }
 
       try {
-        if (isPluginEngineDebugMode) {
-          this.logger?.debug('Before', plugin.name, extensionPointName, ...args);
-        }
-
         return method.apply(getValueByPath(plugin, pluginMethodPath), args);
       } catch (err) {
         // When a plugin failed, doesn't break the app
@@ -172,10 +167,6 @@ class PluginEngine implements IPluginEngine {
           throw err;
         } else {
           this.logger?.error(err);
-        }
-      } finally {
-        if (isPluginEngineDebugMode) {
-          this.logger?.debug('After ', plugin.name, extensionPointName, ...args);
         }
       }
 

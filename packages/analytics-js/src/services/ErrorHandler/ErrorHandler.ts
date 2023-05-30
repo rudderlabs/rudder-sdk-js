@@ -1,10 +1,10 @@
-import { serializeError } from 'serialize-error';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
-import { processError } from './processError';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { isAllowedToBeNotified, processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
 /**
@@ -31,8 +31,9 @@ class ErrorHandler implements IErrorHandler {
 
       if (this.logger) {
         this.logger.error(`Exception:: ${(err as Error).message}`);
-        // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError
-        this.logger.error(`Original error:: ${JSON.stringify(serializeError(error))}`);
+        this.logger.error(
+          `Original error:: ${stringifyWithoutCircular(error as Record<string, any>)}`,
+        );
       } else {
         throw err;
       }
@@ -88,7 +89,7 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: Error) {
-    if (this.pluginEngine) {
+    if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
         this.pluginEngine.invokeMultiple('errorMonitoring.notify', error, this.logger);
       } catch (err) {

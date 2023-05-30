@@ -1,5 +1,13 @@
 import merge from 'lodash.merge';
-import { mergeDeepRight, mergeDeepRightObjectArrays } from '../../src/utils/ObjectUtils';
+import { clone } from 'ramda';
+import {
+  isInstanceOfEvent,
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+  mergeDeepRightObjectArrays,
+  stringifyWithoutCircular,
+} from '../../src/utils/ObjectUtils';
+import RudderElement from '../../src/utils/RudderElement';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',
@@ -112,6 +120,8 @@ const expectedMergedTraitsPayload = {
   ],
 };
 
+const circularReferenceNotice = '[Circular Reference]';
+
 describe('Object utilities', () => {
   it('should merge right object array items', () => {
     const mergedArray = mergeDeepRightObjectArrays(
@@ -129,5 +139,89 @@ describe('Object utilities', () => {
   it('should merge right nested object properties like lodash merge', () => {
     const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
     expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
+  });
+
+  it('should stringify json with circular references', () => {
+    const objWithCircular = clone(identifyTraitsPayloadMock);
+    objWithCircular.myself = objWithCircular;
+
+    const json = stringifyWithoutCircular(objWithCircular);
+    expect(json).toContain(circularReferenceNotice);
+  });
+
+  it('should stringify json with circular references and exclude null values', () => {
+    const objWithCircular = clone(identifyTraitsPayloadMock);
+    objWithCircular.myself = objWithCircular;
+    objWithCircular.keyToExclude = null;
+    objWithCircular.keyToNotExclude = '';
+
+    const json = stringifyWithoutCircular(objWithCircular, true);
+    expect(json).toContain(circularReferenceNotice);
+    expect(json).not.toContain('keyToExclude');
+    expect(json).toContain('keyToNotExclude');
+  });
+
+  it('should stringify json with out circular references', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    objWithoutCircular.myself = {};
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).not.toContain(circularReferenceNotice);
+  });
+
+  it('should detect if value is an Object literal and not null', () => {
+    const nullCheck = isObjectLiteralAndNotNull(null);
+    const objCheck = isObjectLiteralAndNotNull({});
+    const classInstanceCheck = isObjectLiteralAndNotNull(new RudderElement());
+    const arrayCheck = isObjectLiteralAndNotNull([]);
+    const functionCheck = isObjectLiteralAndNotNull(() => {});
+    const dateCheck = isObjectLiteralAndNotNull(new Date());
+    const errorCheck = isObjectLiteralAndNotNull(new Error('error'));
+    // eslint-disable-next-line prefer-regex-literals
+    const regExpCheck = isObjectLiteralAndNotNull(new RegExp(/^a/));
+    expect(nullCheck).toBeFalsy();
+    expect(objCheck).toBeTruthy();
+    expect(classInstanceCheck).toBeTruthy();
+    expect(arrayCheck).toBeFalsy();
+    expect(functionCheck).toBeFalsy();
+    expect(dateCheck).toBeFalsy();
+    expect(errorCheck).toBeFalsy();
+    expect(regExpCheck).toBeFalsy();
+  });
+
+  it('should stringify json with out circular references and reused objects', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    const reusableArray = [1, 2, 3];
+    const reusableObject = { dummy: 'val' };
+    objWithoutCircular.reused = reusableArray;
+    objWithoutCircular.reusedAgain = [1, 2, reusableArray];
+    objWithoutCircular.reusedObj = reusableObject;
+    objWithoutCircular.reusedObjAgain = { reused: reusableObject };
+    objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).not.toContain(circularReferenceNotice);
+  });
+
+  it('should stringify json with circular references for nested circular objects', () => {
+    const objWithoutCircular = clone(identifyTraitsPayloadMock);
+    const reusableObject = { dummy: 'val' };
+    const objWithCircular = clone(reusableObject);
+    objWithCircular.myself = objWithCircular;
+    objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
+    objWithoutCircular.objWithCircular = objWithCircular;
+
+    const json = stringifyWithoutCircular(objWithoutCircular);
+    expect(json).toContain(circularReferenceNotice);
+  });
+
+  it('should detect if value is an Event', () => {
+    const check = isInstanceOfEvent(new Event('Error'));
+    expect(check).toBeTruthy();
+  });
+
+  it('should detect if value is not an Event', () => {
+    const check = isInstanceOfEvent(new Error('Error'));
+    expect(check).not.toBeTruthy();
   });
 });

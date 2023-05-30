@@ -4,8 +4,8 @@ import {
   DATA_PLANE_API_VERSION,
   DEFAULT_RETRY_QUEUE_OPTIONS,
 } from './constants';
-import { mergeDeepRight, replaceNullValues } from '../utilities/common';
-import { QueueOpts, RudderEvent, RudderEventType, ILogger } from '../types/common';
+import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
+import { QueueOpts, RudderEvent, RudderEventType, ILogger, Nullable } from '../types/common';
 
 /**
  * Utility to get the stringified event payload
@@ -13,10 +13,10 @@ import { QueueOpts, RudderEvent, RudderEventType, ILogger } from '../types/commo
  * @param logger Logger instance
  * @returns stringified event payload. Empty string if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): string => {
-  let deliveryPayloadStr = '';
+const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> => {
+  let deliveryPayloadStr: Nullable<string> = '';
   try {
-    deliveryPayloadStr = JSON.stringify(event, replaceNullValues);
+    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
     logger?.error(`Error while converting event object to string. Error: ${err}.`);
   }

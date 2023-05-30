@@ -2,11 +2,19 @@
   "name": "@rudderstack/analytics-js",
   "version": "3.0.0",
   "description": "RudderStack Javascript SDK",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
+  "main": "modern/cjs/index.js",
+  "module": "modern/esm/index.js",
   "exports": {
-    "require": "./cjs/index.js",
-    "import": "./esm/index.js"
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./modern/cjs/index.js",
+      "import": "./modern/esm/index.js"
+    },
+    "./legacy": {
+      "types": "./index.d.ts",
+      "require": "./legacy/cjs/index.js",
+      "import": "./legacy/esm/index.js"
+    }
   },
   "typesVersions": {
     "*": {
@@ -16,7 +24,7 @@
     }
   },
   "publishConfig": {
-    "directory": "dist/legacy"
+    "directory": "dist/npm"
   },
   "keywords": [
     "analytics",
@@ -35,18 +43,19 @@
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
-    "start": "ONLY_IIFE=true rollup --config rollup-configs/rollup.config.mjs --watch --environment DEV_SERVER,PROD_DEBUG",
+    "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "build": "npm run build:browser && npm run build:package",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
-    "build:browser": "rollup --config rollup-configs/rollup.config.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
-    "build:npm": "rollup --config rollup-configs/rollup.config.mjs --environment VERSION:$npm_package_version,ENV:prod",
-    "build:npm:modern": "BROWSERSLIST_ENV=modern rollup --config rollup-configs/rollup.config.mjs --environment VERSION:$npm_package_version,ENV:prod",
-    "build:worker": "exit 0",
-    "build:package": "npm run build:npm && npm run build:worker",
-    "test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/iife/index.js > __mocks__/cdnSDKv3.js && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
-    "test:ci": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/iife/index.js > __mocks__/cdnSDKv3.js && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
+    "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
+    "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run build:npm:modern && npm run build:npm",
+    "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rudder-analytics.min.js > __mocks__/cdnSDKv3.js",
+    "test": "npm run build:browser:test && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
+    "test:ci": "npm run build:browser:test && jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
+    "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build:browser && npm run build:package && npm run build:browser:modern",
+    "check:size:build": "npm run clean && npm run build:browser && npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -55,8 +64,8 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
-    "build:modern": "npm run build:browser:modern && npm run build:npm:modern && npm run build:worker",
-    "package": "cd dist/legacy && npm pack --pack-destination ../../",
+    "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
+    "package": "cd dist/npm && rimraf -rf ./dts && npm pack --pack-destination ../../",
     "release": "npm publish"
   },
   "engines": {
@@ -67,7 +76,6 @@
     "@preact/signals-core": "1.3.0",
     "@types/component-emitter": "1.2.11",
     "ramda": "0.29.0",
-    "serialize-error": "11.0.0",
     "storejs": "2.0.5"
   },
   "devDependencies": {
@@ -83,6 +91,7 @@
     "@commitlint/config-lerna-scopes": "17.6.3",
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@originjs/vite-plugin-federation": "1.2.2",
+    "@rollup/plugin-alias": "5.0.0",
     "@rollup/plugin-babel": "6.0.3",
     "@rollup/plugin-commonjs": "25.0.0",
     "@rollup/plugin-json": "6.0.0",

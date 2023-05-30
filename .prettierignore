@@ -8,4 +8,5 @@ CHANGELOG.md
 CONTRIBUTING.md
 
 examples/chrome-extension/background-script/rudderAnalytics.js
+examples/chrome-extension/background-script-websockets/rudderAnalytics.js
 examples/chrome-extension/content-script/foreground.js

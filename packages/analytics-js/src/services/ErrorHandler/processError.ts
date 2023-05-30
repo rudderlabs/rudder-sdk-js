@@ -1,8 +1,10 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
-import { serializeError } from 'serialize-error';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { SDKError } from './types';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js/constants/errors';
 
 /**
  * Utility method to process errors that originate from script load
@@ -41,17 +43,16 @@ const processError = (error: SDKError): string => {
   let errorMessage;
 
   try {
-    if (typeof error === 'string') {
+    if (isString(error)) {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
     } else if (isEvent(error)) {
       errorMessage = processScriptLoadError(error as Event);
     } else {
-      // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError but takes up bundle size
       errorMessage = (error as any).message
         ? (error as any).message
-        : JSON.stringify(serializeError(error));
+        : stringifyWithoutCircular(error as Record<string, any>);
     }
   } catch (e) {
     errorMessage = `Unknown error: ${(e as Error).message}`;
@@ -60,4 +61,16 @@ const processError = (error: SDKError): string => {
   return errorMessage;
 };
 
-export { processScriptLoadError, processError };
+/**
+ * A function to determine whether the error should be promoted to notify or not
+ * @param {Error} error
+ * @returns
+ */
+const isAllowedToBeNotified = (error: Error) => {
+  if (error.message) {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
+  }
+  return true;
+};
+
+export { processScriptLoadError, processError, isAllowedToBeNotified };

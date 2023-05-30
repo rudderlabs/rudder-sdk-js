@@ -5,13 +5,13 @@
 module.exports = [
   {
     name: 'Remote Module Federation Mapping - CDN',
-    path: 'dist/modern/remotePlugins.js',
+    path: 'dist/cdn/modern/plugins/rudder-analytics-plugins.js',
     gzip: true,
     limit: '0.5 kB',
   },
   {
     name: 'Remote Module Federated Plugins - CDN',
-    path: 'dist/modern/__federation_expose_*.js',
+    path: 'dist/cdn/modern/plugins/rudder-analytics-plugins-*.js',
     gzip: true,
     limit: '20 kB',
   },

@@ -1,10 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { IHttpClient, RejectionDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
@@ -12,13 +9,16 @@ import {
 } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
 import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
+import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
-import { getIntegrationsCDNPath } from './util/cdnPaths';
+import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
+
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -53,14 +53,18 @@ class ConfigManager implements IConfigManager {
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
-    // determine the path to fetch integration SDK url from
-    const intgCdnUrl = getIntegrationsCDNPath(
-      APP_VERSION,
-      lockIntegrationsVersion,
-      state.loadOptions.value.destSDKBaseURL,
-    );
 
-    // Get the consent manager if provided as load option
+    try {
+      // determine the path to fetch integration SDK from
+      const intgCdnUrl = getIntegrationsCDNPath(
+        APP_VERSION,
+        lockIntegrationsVersion,
+        state.loadOptions.value.destSDKBaseURL,
+      );
+      // determine the path to fetch remote plugins from
+      const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+      
+      // Get the consent manager if provided as load option
     const selectedConsentManager = getUserSelectedConsentManager(
       state.loadOptions.value.cookieConsentManager,
     );
@@ -78,18 +82,30 @@ class ConfigManager implements IConfigManager {
       }
     }
 
-    // set application lifecycle state in global state
-    batch(() => {
-      if (state.loadOptions.value.logLevel) {
-        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
-      }
-      state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
-      if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
-      }
-      // Set consent manager plugin name in state
-      state.consents.activeConsentProvider.value = consentManagerPluginName;
-    });
+      // set application lifecycle state in global state
+      batch(() => {
+        state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
+        state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
+
+        if (state.loadOptions.value.logLevel) {
+          state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
+        }
+
+        if (state.loadOptions.value.configUrl) {
+          state.lifecycle.sourceConfigUrl.value = new URL(
+            `${getSourceConfigURL(state.loadOptions.value.configUrl)}&writeKey=${
+              state.lifecycle.writeKey.value
+            }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
+          ).toString();
+        }
+        
+        // Set consent manager plugin name in state
+        state.consents.activeConsentProvider.value = consentManagerPluginName;
+      });
+    } catch (e) {
+      this.onError(e);
+      return;
+    }
 
     this.getConfig();
   }
@@ -109,9 +125,10 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string) {
+  processConfig(response?: SourceConfigResponse | string, rejectionDetails?: RejectionDetails) {
+    // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError('Unable to fetch source config', undefined, true);
+      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`, undefined, true);
       return;
     }
 
@@ -119,17 +136,17 @@ class ConfigManager implements IConfigManager {
     const errMessage = 'Unable to process/parse source config';
 
     try {
-      if (typeof response === 'string') {
-        res = JSON.parse(response);
+      if (isString(response)) {
+        res = JSON.parse(response as string);
       } else {
-        res = response;
+        res = response as SourceConfigResponse;
       }
     } catch (e) {
       this.onError(e, errMessage, true);
       return;
     }
 
-    if (isValidSourceConfig(res)) {
+    if (!isValidSourceConfig(res)) {
       this.onError(errMessage, undefined, true);
       return;
     }
@@ -139,6 +156,7 @@ class ConfigManager implements IConfigManager {
       res.source.dataplanes,
       state.lifecycle.dataPlaneUrl.value,
       state.loadOptions.value.residencyServer,
+      this.logger,
     );
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
@@ -151,8 +169,7 @@ class ConfigManager implements IConfigManager {
       };
 
       // set device mode destination related information in state
-      // TODO: should this not only contain the non cloud destinations?
-      state.destinations.value = nativeDestinations;
+      state.nativeDestinations.destinations.value = nativeDestinations;
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined
@@ -182,7 +199,7 @@ class ConfigManager implements IConfigManager {
   getConfig() {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
-      if (typeof sourceConfigFunc !== 'function') {
+      if (!isFunction(sourceConfigFunc)) {
         throw Error(`"getSourceConfig" must be a function`);
       }
       // fetch source config from the function
@@ -200,7 +217,6 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
-    // TODO: add retry logic with backoff
     // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: state.lifecycle.sourceConfigUrl.value,
@@ -214,10 +230,4 @@ class ConfigManager implements IConfigManager {
   }
 }
 
-const defaultConfigManager = new ConfigManager(
-  defaultHttpClient,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { ConfigManager, defaultConfigManager };
+export { ConfigManager };

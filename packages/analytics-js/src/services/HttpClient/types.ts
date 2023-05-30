@@ -8,8 +8,14 @@ export interface IRequestConfig {
   timeout?: number;
 }
 
+export type RejectionDetails = {
+  error: Error;
+  xhr?: XMLHttpRequest;
+  options: IXHRRequestOptions;
+};
+
 export interface IAsyncRequestConfig<T> extends IRequestConfig {
-  callback?(data?: T | string | undefined): void;
+  callback?(data?: T | string | undefined, rejectionDetails?: RejectionDetails): void;
 }
 
 export interface IXHRRequestOptions {
@@ -48,7 +54,9 @@ export interface IHttpClient {
   basicAuthHeader?: string;
   hasErrorHandler: boolean;
   hasLogger: boolean;
-  getData<T = any>(config: IRequestConfig): Promise<T | string | undefined>;
+  getData<T = any>(
+    config: IRequestConfig,
+  ): Promise<{ data: T | string | undefined; rejectionDetails?: RejectionDetails }>;
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;

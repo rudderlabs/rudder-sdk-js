@@ -1,88 +1,35 @@
 import { Signal, signal } from '@preact/signals-core';
 import {
-  ClientIntegrations,
-  DynamicallyLoadedIntegration,
+  ClientIntegration,
+  Destination,
+  InitialisedIntegration,
   IntegrationInstance,
   IntegrationOpts,
-  // ClientSuppliedCallbacks,
-  // MethodToCallbackMap,
 } from '@rudderstack/analytics-js/state/types';
 
 export type NativeDestinationsState = {
-  clientIntegrations: Signal<ClientIntegrations[]>;
+  destinations: Signal<Destination[]>;
+  activeIntegrations: Signal<ClientIntegration[]>;
   loadOnlyIntegrations: Signal<IntegrationOpts>;
   clientIntegrationObjects: Signal<IntegrationInstance[] | undefined>;
-  successfullyLoadedIntegration: Signal<IntegrationInstance[]>;
-  failedToBeLoadedIntegration: Signal<IntegrationInstance[]>;
-  // clientSuppliedCallbacks: Signal<ClientSuppliedCallbacks | undefined>;
-  // methodToCallbackMapping: Signal<MethodToCallbackMap | undefined>;
+  loadedIntegrationScripts: Signal<string[]>;
+  failedIntegrationScripts: Signal<string[]>;
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
-  dynamicallyLoadedIntegrations: Signal<Record<string, DynamicallyLoadedIntegration>>;
+  initialisedIntegrations: Signal<Record<string, InitialisedIntegration>>;
   clientIntegrationsReady: Signal<boolean>;
 };
 
-// TODO: when we have the config manager ready
-const dummyIntegrationConfigToDelete: ClientIntegrations[] = [
-  {
-    name: 'GA',
-    config: {
-      trackingID: 'UA-179234741-1',
-      doubleClick: false,
-      enhancedLinkAttribution: false,
-      includeSearch: false,
-      trackCategorizedPages: true,
-      trackNamedPages: true,
-      useRichEventNames: false,
-      sampleRate: '100',
-      siteSpeedSampleRate: '1',
-      resetCustomDimensionsOnPage: [
-        {
-          resetCustomDimensionsOnPage: '',
-        },
-      ],
-      setAllMappedProps: true,
-      anonymizeIp: false,
-      domain: 'auto',
-      enhancedEcommerce: false,
-      nonInteraction: false,
-      optimize: '',
-      sendUserId: false,
-      useGoogleAmpClientId: false,
-      namedTracker: false,
-      blacklistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      whitelistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      oneTrustCookieCategories: [
-        {
-          oneTrustCookieCategory: '',
-        },
-      ],
-      eventFilteringOption: 'disable',
-    },
-  },
-];
-
 const nativeDestinationsState: NativeDestinationsState = {
-  clientIntegrations: signal(dummyIntegrationConfigToDelete), // TODO: make default as [] once dummy is removed
+  destinations: signal([]),
+  activeIntegrations: signal([]),
   loadOnlyIntegrations: signal({}),
   clientIntegrationObjects: signal(undefined),
-  successfullyLoadedIntegration: signal([]),
-  failedToBeLoadedIntegration: signal([]),
-  // clientSuppliedCallbacks: signal(undefined),
-  // methodToCallbackMapping: signal({
-  //   syncPixel: 'syncPixelCallback',
-  // }),
+  loadedIntegrationScripts: signal([]),
+  failedIntegrationScripts: signal([]),
   loadIntegration: signal(true),
   integrationsData: signal({}),
-  dynamicallyLoadedIntegrations: signal({}),
+  initialisedIntegrations: signal({}),
   clientIntegrationsReady: signal(false),
 };
 

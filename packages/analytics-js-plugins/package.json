@@ -1,14 +1,31 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
   "version": "3.0.0",
-  "description": "RudderStack Javascript SDK",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
+  "description": "RudderStack Javascript SDK plugins",
+  "main": "modern/cjs/index.js",
+  "module": "modern/esm/index.js",
   "exports": {
-    "require": "./cjs/index.js",
-    "import": "./esm/index.js"
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./modern/cjs/index.js",
+      "import": "./modern/esm/index.js"
+    },
+    "./legacy": {
+      "types": "./index.d.ts",
+      "require": "./legacy/cjs/index.js",
+      "import": "./legacy/esm/index.js"
+    }
   },
-  "types": "./index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "index.d.ts"
+      ]
+    }
+  },
+  "publishConfig": {
+    "directory": "dist/npm"
+  },
   "keywords": [
     "analytics",
     "rudder"
@@ -29,10 +46,13 @@
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "build": "npm run build:browser",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
-    "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
-    "build:package": "exit 0",
+    "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
+    "build:npm": "exit 0",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run build:npm:modern && npm run build:npm",
     "test": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
     "test:ci": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
+    "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:size:build": "npm run clean && npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",

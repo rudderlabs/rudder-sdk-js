@@ -1,14 +1,11 @@
 import { ApiCallback } from '@rudderstack/analytics-js/state/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
-import { defaultPluginsManager } from '../pluginsManager';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
@@ -95,6 +92,8 @@ class EventRepository implements IEventRepository {
   /**
    * Handles error
    * @param error The error object
+   * @param customMessage a message
+   * @param shouldAlwaysThrow if it should throw or use logger
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
@@ -105,10 +104,4 @@ class EventRepository implements IEventRepository {
   }
 }
 
-const defaultEventRepository = new EventRepository(
-  defaultPluginsManager,
-  defaultErrorHandler,
-  defaultLogger,
-);
-
-export { defaultEventRepository, EventRepository };
+export { EventRepository };

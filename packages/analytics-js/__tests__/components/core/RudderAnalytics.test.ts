@@ -1,9 +1,8 @@
 import { RudderAnalytics } from '@rudderstack/analytics-js/components/core/RudderAnalytics';
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
-import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
+import { LoadOptions } from '@rudderstack/analytics-js/state/types';
 
 jest.mock('../../../src/components/core/Analytics');
-jest.mock('../../../src/components/core/BufferQueue');
 
 describe('Core - Rudder Analytics Facade', () => {
   let analyticsInstanceMock: Analytics;
@@ -12,12 +11,10 @@ describe('Core - Rudder Analytics Facade', () => {
     integrations: {
       All: false,
     },
-  };
-  const mockCallback = jest.fn();
+  } as LoadOptions;
 
   beforeEach(() => {
     Analytics.mockClear();
-    BufferQueue.mockClear();
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
     rudderAnalytics = new RudderAnalytics();
     (rudderAnalytics as any).analyticsInstances = { writeKey: analyticsInstanceMock };
@@ -92,33 +89,6 @@ describe('Core - Rudder Analytics Facade', () => {
 
     expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
-  });
-
-  it('should process the preload buffer', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
-    const enqueueSpy = jest.spyOn(rudderAnalytics.preloadBuffer, 'enqueue');
-    const dequeueSpy = jest
-      .spyOn(rudderAnalytics.preloadBuffer, 'dequeue')
-      .mockImplementationOnce(() => ['page', { path: '/home' }])
-      .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }]);
-    const sizeSpy = jest.spyOn(rudderAnalytics.preloadBuffer, 'size').mockImplementation(() => 2);
-    const pageSpy = jest.spyOn(analyticsInstance, 'page');
-    const trackSpy = jest.spyOn(analyticsInstance, 'track');
-
-    const events = [
-      ['page', { path: '/home' }],
-      ['track', 'buttonClicked', { color: 'blue' }],
-    ];
-
-    rudderAnalytics.enqueuePreloadBufferEvents(events as any);
-    expect(enqueueSpy).toHaveBeenCalledTimes(2);
-    rudderAnalytics.processDataInPreloadBuffer();
-
-    expect(dequeueSpy).toHaveBeenCalledTimes(2);
-    expect(pageSpy).toHaveBeenCalledWith({
-      properties: { path: '/home', category: null, name: null },
-    });
-    expect(trackSpy).toHaveBeenCalledWith({ name: 'buttonClicked', properties: { color: 'blue' } });
   });
 
   it('should process ready arguments and forwards to ready call', () => {
@@ -235,8 +205,8 @@ describe('Core - Rudder Analytics Facade', () => {
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
     const startSessionSpy = jest.spyOn(analyticsInstance, 'startSession');
 
-    rudderAnalytics.startSession('1234');
-    expect(startSessionSpy).toHaveBeenCalledWith('1234');
+    rudderAnalytics.startSession(1234);
+    expect(startSessionSpy).toHaveBeenCalledWith(1234);
   });
 
   it('should process endSession arguments and forwards to endSession call', () => {
