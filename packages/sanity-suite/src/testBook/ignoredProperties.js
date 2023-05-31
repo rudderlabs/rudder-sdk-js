@@ -12,10 +12,6 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: 'message.context.library.name', // TODO: remove this entry once we solve the bug of overriding the library name
-    type: 'string',
-  },
-  {
     key: 'message.context.locale',
     type: 'string',
   },
@@ -98,8 +94,14 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.user_properties',
+    type: 'object',
+    optional: true,
+  },
+  {
     key: 'message.sentAt',
     type: 'string',
+    optional: true,
   },
   {
     key: 'message.properties.referrer',
@@ -130,16 +132,24 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: `message.integrations.Google Analytics 4.sessionId`,
-    type: 'number',
+    key: `message.integrations.Google Analytics 4`, // TODO: remove optional after we implement device mode destinations
+    type: 'object',
+    optional: true
   },
   {
-    key: `message.integrations.Google Analytics 4.clientId`,
+    key: `message.integrations.Google Analytics 4.sessionId`, // TODO: remove optional after we implement device mode destinations
+    type: 'number',
+    optional: true
+  },
+  {
+    key: `message.integrations.Google Analytics 4.clientId`, // TODO: remove optional after we implement device mode destinations
     type: 'string',
+    optional: true
   },
   {
-    key: `message.integrations.Google Analytics 4.sessionNumber`,
+    key: `message.integrations.Google Analytics 4.sessionNumber`, // TODO: remove optional after we implement device mode destinations
     type: 'number',
+    optional: true
   },
 ];
 

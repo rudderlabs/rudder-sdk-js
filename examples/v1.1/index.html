@@ -4,16 +4,24 @@
     <script>
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
-        "load",
-        "page",
-        "track",
-        "identify",
-        "alias",
-        "group",
-        "ready",
-        "reset",
-        "getAnonymousId",
-        "setAnonymousId",
+        'load',
+        'ready',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'reset',
+        'getAnonymousId',
+        'setAnonymousId',
+        'getUserId',
+        'getUserTraits',
+        'getGroupId',
+        'getGroupTraits',
+        'startSession',
+        'endSession',
+        'getSessionId',
+        'getSessionInfo'
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -33,84 +41,82 @@
         { logLevel: "DEBUG" }
       );
 
-      setTimeout(function() {
-        rudderanalytics.identify(
-          'customUserID',
-          {
-            name: 'John Doe',
-            title: 'CEO',
-            email: 'name.surname@domain.com',
-            company: 'Company123',
-            phone: '123-456-7890',
-            rating: 'Hot',
-            city: 'Austin',
-            postalCode: '12345',
-            country: 'US',
-            street: 'Sample Address',
-            state: 'TX',
-          },
-          function(message) {
-            console.log('in identify call', message);
-          }
-        );
+      rudderanalytics.identify(
+        'customUserID',
+        {
+          name: 'John Doe',
+          title: 'CEO',
+          email: 'name.surname@domain.com',
+          company: 'Company123',
+          phone: '123-456-7890',
+          rating: 'Hot',
+          city: 'Austin',
+          postalCode: '12345',
+          country: 'US',
+          street: 'Sample Address',
+          state: 'TX',
+        },
+        function(message) {
+          console.log('in identify call', message);
+        }
+      );
 
-        rudderanalytics.page(
-          'Home',
-          'Cart Viewed',
-          {
-            path: '',
-            referrer: '',
-            search: '',
-            title: '',
-            url: '',
-          },
-          function(message) {
-            console.log('in page call', message);
-          }
-        );
+      rudderanalytics.page(
+        'Home',
+        'Cart Viewed',
+        {
+          path: '',
+          referrer: '',
+          search: '',
+          title: '',
+          url: '',
+        },
+        function(message) {
+          console.log('in page call', message);
+        }
+      );
 
-        rudderanalytics.track(
-          'test track event 1',
-          {
-            revenue: 30,
-            currency: 'USD',
-            user_actual_id: 12345,
-          },
-          function(message) {
-            console.log('in track call 1', message);
-          }
-        );
+      rudderanalytics.track(
+        'test track event 1',
+        {
+          revenue: 30,
+          currency: 'USD',
+          user_actual_id: 12345,
+        },
+        function(message) {
+          console.log('in track call 1', message);
+        }
+      );
 
-        rudderanalytics.track(
-          'test track event 2',
-          {
-            revenue: 45,
-            currency: 'INR',
-            user_actual_id: 333,
-          },
-          function(message) {
-            console.log('in track call 2', message);
-          }
-        );
+      rudderanalytics.track(
+        'test track event 2',
+        {
+          revenue: 45,
+          currency: 'INR',
+          user_actual_id: 333,
+        },
+        function(message) {
+          console.log('in track call 2', message);
+        }
+      );
 
-        rudderanalytics.track(
-          'test track event 3',
-          {
-            revenue: 10003,
-            currency: 'EUR',
-            user_actual_id: 5678,
-          },
-          function(message) {
-            console.log('in track call 3', message);
-          }
-        );
+      rudderanalytics.track(
+        'test track event 3',
+        {
+          revenue: 10003,
+          currency: 'EUR',
+          user_actual_id: 5678,
+        },
+        function(message) {
+          console.log('in track call 3', message);
+        }
+      );
 
-        rudderanalytics.ready(function() {
-          console.log('All ready!!!');
-        });
+      rudderanalytics.ready(function() {
+        console.log('All ready!!!');
+      });
 
-        // TODO: Call other APIs here
-      }, 5000)
+      // TODO: Call other APIs here
     </script>
 
     <!-- ============ V1 ============ -->
@@ -129,6 +135,104 @@
     <!-- ============ V2 ============ -->
   </head>
   <body>
-    <h1>Page Loaded</h1>
+  <h1>Page Loaded</h1>
+  <br />
+
+  <button data-testid="page-btn" onclick="page()">Page</button>
+  <button data-testid="identify-btn" onclick="identify()">identify</button>
+  <button data-testid="track-btn" onclick="track()">Track</button>
+  <button data-testid="alias-btn" onclick="alias()">Alias</button>
+  <button data-testid="group-btn" onclick="group()">Group</button>
+
+  <p data-testid="action" id="action"></p>
+  <p data-testid="payload" id="rudderElement"></p>
+
+  <script>
+    function page() {
+      rudderanalytics.page(
+        'Home',
+        'Cart Viewed',
+        {
+          path: '',
+          referrer: '',
+          search: '',
+          title: '',
+          url: '',
+        },
+        function(rudderElement) {
+          console.log('in page call');
+          document.getElementById('action').innerHTML = 'Page called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        }
+      );
+    }
+
+    function identify() {
+      rudderanalytics.identify(
+        'customUserID',
+        {
+          name: 'John Doe',
+          title: 'CEO',
+          email: 'name.surname@domain.com',
+          company: 'Company123',
+          phone: '123-456-7890',
+          rating: 'Hot',
+          city: 'Austin',
+          postalCode: '12345',
+          country: 'US',
+          street: 'Sample Address',
+          state: 'TX',
+        },
+        {},
+        function(rudderElement) {
+          console.log('in identify call');
+          document.getElementById('action').innerHTML = 'Identify called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        }
+      );
+    }
+
+    function track() {
+      rudderanalytics.track(
+        'test track event 1',
+        {
+          revenue: 30,
+          currency: 'USD',
+          user_actual_id: 12345,
+        },
+        function(rudderElement) {
+          console.log('in track call');
+          document.getElementById('action').innerHTML = 'Track called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        }
+      );
+    }
+
+    function alias() {
+      rudderanalytics.alias(
+        'alias-user-id',
+        function(rudderElement) {
+          console.log('alias call');
+          document.getElementById('action').innerHTML = 'Alias called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        }
+      );
+    }
+
+    function group() {
+      rudderanalytics.group(
+        'sample_group_id',
+        {
+          name: 'Apple Inc.',
+          location: 'USA',
+        },
+        function(rudderElement) {
+          console.log('group call');
+          document.getElementById('action').innerHTML = 'Group called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        }
+      );
+    }
+  </script>
   </body>
 </html>
