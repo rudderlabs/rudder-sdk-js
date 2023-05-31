@@ -92,7 +92,6 @@ class BingAds {
 
     payload = { ...payload, ...customProperties };
     payload = removeUndefinedAndNullValues(payload);
-    console.log('payload', payload);
 
     window[this.uniqueId].push('event', eventToSend, payload);
   };
