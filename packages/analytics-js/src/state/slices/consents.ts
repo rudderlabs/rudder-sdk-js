@@ -1,16 +1,18 @@
 import { Signal, signal } from '@preact/signals-core';
-import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
+import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type ConsentsState = {
   deniedConsentIds: Signal<string[]>;
-  allowedConsentIds: Signal<string[]>;
-  cookieConsentOptions: Signal<CookieConsentOptions>;
+  allowedConsents: Signal<Record<string, string>>;
+  activeConsentProviderPluginName: Signal<PluginName | undefined>;
+  consentProviderInitialized: Signal<boolean>;
 };
 
 const consentsState: ConsentsState = {
   deniedConsentIds: signal([]),
-  allowedConsentIds: signal([]),
-  cookieConsentOptions: signal({}),
+  allowedConsents: signal({}),
+  activeConsentProviderPluginName: signal(undefined),
+  consentProviderInitialized: signal(false),
 };
 
 export { consentsState };
