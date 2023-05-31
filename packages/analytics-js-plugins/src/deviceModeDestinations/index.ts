@@ -1,22 +1,23 @@
 /* eslint-disable no-param-reassign */
 import {
-  createIntegrationInstance,
-  isIntegrationSDKEvaluated,
-  isInitialized,
-} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
-import {
   INITIALIZED_CHECK_POLL_INTERVAL,
   LOAD_CHECK_TIMEOUT,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
-import { configToIntNames } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/configToIntegrationsNames';
+import { destDispNamesToFileNamesMap } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/destDispNamesToFileNames';
+import {
+  createDestinationInstance,
+  isDestinationSDKEvaluated,
+  isDestinationReady,
+  normalizeIntegrationOptions,
+  filterDestinationsToLoad,
+} from './utils';
 import {
   ExtensionPlugin,
   IExternalSrcLoader,
   PluginName,
   ApplicationState,
   ILogger,
-  ClientIntegration,
-  InitializedIntegration,
+  DeviceModeDestination,
 } from '../types/common';
 
 // TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
@@ -31,30 +32,35 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
   },
   nativeDestinations: {
     setActiveIntegrations(state: ApplicationState, logger?: ILogger): number {
-      let clientIntegrations = state.nativeDestinations.destinations.value.map(
-        (destination): ClientIntegration => ({
-          name: destination.definitionName,
-          config: destination.config,
-          destinationInfo: {
-            areTransformationsConnected: destination.areTransformationsConnected || false,
-            destinationId: destination.id,
-          },
-        }),
+      // Normalize the integration options from the load API call
+      state.nativeDestinations.loadOnlyIntegrations.value = normalizeIntegrationOptions(
+        state.loadOptions.value.integrations,
       );
 
       // Filter destination that doesn't have mapping config-->Integration names
-      clientIntegrations = clientIntegrations.filter(clientIntegration => {
-        if (configToIntNames[clientIntegration.name]) {
-          return true;
-        }
+      const configSupportedDestinations =
+        state.nativeDestinations.configuredDestinations.value.filter(configDest => {
+          if (destDispNamesToFileNamesMap[configDest.displayName]) {
+            return true;
+          }
 
-        logger?.error(`${clientIntegration.name} not available for initialization`);
-        return false;
-      });
+          logger?.error(`"${configDest.displayName}" destination is not supported`);
+          return false;
+        });
 
-      state.nativeDestinations.activeIntegrations.value = clientIntegrations;
-      return clientIntegrations.length;
+      // Filter destinations that are disabled through load options
+      const destinationsToLoad = filterDestinationsToLoad(
+        state.nativeDestinations.loadOnlyIntegrations.value,
+        configSupportedDestinations,
+      );
+
+      // TODO: check consent for each destination and filter out the ones that are not allowed
+
+      state.nativeDestinations.activeDestinations.value = destinationsToLoad;
+
+      return state.nativeDestinations.activeDestinations.value.length;
     },
+
     loadIntegrations(
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
@@ -62,7 +68,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       externalScriptOnLoad?: (id?: string) => unknown,
     ) {
       const { destSDKBaseURL } = state.loadOptions.value;
-      const activeIntegrations = state.nativeDestinations.activeIntegrations.value;
+      const activeDestinations = state.nativeDestinations.activeDestinations.value;
       const onLoadCallback =
         externalScriptOnLoad ??
         ((id?: string) => {
@@ -70,61 +76,66 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             return;
           }
 
-          state.nativeDestinations.loadedIntegrationScripts.value = [
-            ...state.nativeDestinations.loadedIntegrationScripts.value,
-            id,
+          // Format of id: <sdkName>___<destId>
+          const splitParts = id.split('___');
+          const destId = splitParts[1];
+
+          state.nativeDestinations.loadedDestinationScripts.value = [
+            ...state.nativeDestinations.loadedDestinationScripts.value,
+            destId,
           ];
 
-          logger?.debug(`Integration script loaded for id: ${id}`);
+          logger?.debug(`Destination script loaded for id: ${id}`);
         });
 
-      activeIntegrations.forEach(intg => {
-        console.log(intg);
-        const pluginName = `${configToIntNames[intg.name]}_RS`; // this is the name of the object loaded on the window
-        const modName = configToIntNames[intg.name];
-        const modURL = `${destSDKBaseURL}/${modName}.min.js`;
+      activeDestinations.forEach(dest => {
+        logger?.debug(dest);
+        const sdkName = destDispNamesToFileNamesMap[dest.displayName];
+        const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
-        if (!(window as any)[pluginName]) {
+        if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
+          const destSdkURL = `${destSDKBaseURL}/${sdkName}.min.js`;
           externalSrcLoader
             .loadJSFile({
-              url: modURL,
-              id: modName,
+              url: destSdkURL,
+              id: `${sdkName}___${dest.id}`,
               callback: onLoadCallback,
             })
             .catch(e => {
               logger?.error(
-                `Integration script load failed for ${intg.name} ${intg.destinationInfo.destinationId} ${e.message}`,
+                `Destination script load failed for "${dest.displayName}". ID (${dest.id}). Error message: ${e.message}`,
               );
-              state.nativeDestinations.failedIntegrationScripts.value = [
-                ...state.nativeDestinations.failedIntegrationScripts.value,
-                intg.destinationInfo.destinationId,
+              state.nativeDestinations.failedDestinationScripts.value = [
+                ...state.nativeDestinations.failedDestinationScripts.value,
+                dest.id,
               ];
             });
         }
 
         const interval = setInterval(() => {
-          if (isIntegrationSDKEvaluated(pluginName, modName, logger)) {
-            const intMod = (window as any)[pluginName];
+          const sdkTypeName = sdkName;
+          if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
             clearInterval(interval);
 
             try {
-              const integrationInstance = createIntegrationInstance(
-                modName,
-                pluginName,
-                intg,
-                intMod,
+              const destInstance = createDestinationInstance(
+                destSDKIdentifier,
+                sdkTypeName,
+                dest,
+                state,
+                logger,
               );
-              logger?.debug(`Attempting to initialize integration name:: ${pluginName}`);
-              integrationInstance.init();
+              logger?.debug(`Attempting to initialize destination: ${destSDKIdentifier}`);
+              destInstance.init();
 
-              isInitialized(integrationInstance)
+              isDestinationReady(destInstance)
                 .then(() => {
-                  const initializedDestination: Record<string, InitializedIntegration> = {};
-                  initializedDestination[pluginName] = intMod[modName];
+                  const initializedDestination: Record<string, DeviceModeDestination> = {};
+                  initializedDestination[dest.id] = destInstance;
 
-                  logger?.debug(`Initialized integration name:: ${pluginName}`);
-                  state.nativeDestinations.initializedIntegrations.value = {
-                    ...state.nativeDestinations.initializedIntegrations.value,
+                  logger?.debug(`Initialized destination: ${destSDKIdentifier}`);
+                  state.nativeDestinations.initializedDestinations.value = {
+                    ...state.nativeDestinations.initializedDestinations.value,
                     ...initializedDestination,
                   };
                 })
@@ -132,11 +143,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   throw e;
                 });
             } catch (e: any) {
-              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} ${intg.destinationInfo.destinationId} :: ${e.message}`;
+              const message = `Unable to initialize destination "${dest.displayName}". ID (${dest.id}). Error message: ${e.message}`;
               logger?.error(e, message);
-              state.nativeDestinations.failedIntegrationScripts.value = [
-                ...state.nativeDestinations.failedIntegrationScripts.value,
-                intg.destinationInfo.destinationId,
+
+              state.nativeDestinations.failedDestinationScripts.value = [
+                ...state.nativeDestinations.failedDestinationScripts.value,
+                dest.id,
               ];
             }
           }
@@ -144,6 +156,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
         window.setTimeout(() => {
           clearInterval(interval);
+
+          state.nativeDestinations.failedDestinationScripts.value = [
+            ...state.nativeDestinations.failedDestinationScripts.value,
+            dest.id,
+          ];
         }, LOAD_CHECK_TIMEOUT);
       });
     },

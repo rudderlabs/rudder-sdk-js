@@ -104,7 +104,10 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Device mode destinations related plugins
-    if (getNonCloudDestinations(state.nativeDestinations.destinations.value ?? []).length === 0) {
+    if (
+      getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? [])
+        .length === 0
+    ) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           ![

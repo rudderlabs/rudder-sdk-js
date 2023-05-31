@@ -1,35 +1,31 @@
 import { Signal, signal } from '@preact/signals-core';
 import {
-  ClientIntegration,
   Destination,
-  InitializedIntegration,
-  IntegrationInstance,
+  DeviceModeDestination,
   IntegrationOpts,
 } from '@rudderstack/analytics-js/state/types';
 
 export type NativeDestinationsState = {
-  destinations: Signal<Destination[]>;
-  activeIntegrations: Signal<ClientIntegration[]>;
+  configuredDestinations: Signal<Destination[]>;
+  activeDestinations: Signal<Destination[]>;
   loadOnlyIntegrations: Signal<IntegrationOpts>;
-  clientIntegrationObjects: Signal<IntegrationInstance[] | undefined>;
-  loadedIntegrationScripts: Signal<string[]>;
-  failedIntegrationScripts: Signal<string[]>;
+  loadedDestinationScripts: Signal<string[]>;
+  failedDestinationScripts: Signal<string[]>;
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
-  initializedIntegrations: Signal<Record<string, InitializedIntegration>>;
+  initializedDestinations: Signal<Record<string, DeviceModeDestination>>;
   clientIntegrationsReady: Signal<boolean>;
 };
 
 const nativeDestinationsState: NativeDestinationsState = {
-  destinations: signal([]),
-  activeIntegrations: signal([]),
+  configuredDestinations: signal([]),
+  activeDestinations: signal([]),
   loadOnlyIntegrations: signal({}),
-  clientIntegrationObjects: signal(undefined),
-  loadedIntegrationScripts: signal([]),
-  failedIntegrationScripts: signal([]),
+  loadedDestinationScripts: signal([]),
+  failedDestinationScripts: signal([]),
   loadIntegration: signal(true),
   integrationsData: signal({}),
-  initializedIntegrations: signal({}),
+  initializedDestinations: signal({}),
   clientIntegrationsReady: signal(false),
 };
 

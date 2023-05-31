@@ -188,9 +188,9 @@ class Analytics implements IAnalytics {
           this.processBufferedEvents();
           this.loadIntegrations();
           break;
-        case LifecycleStatus.IntegrationsLoading:
+        case LifecycleStatus.DestinationsLoading:
           break;
-        case LifecycleStatus.IntegrationsReady:
+        case LifecycleStatus.DestinationsReady:
           this.onReady();
           break;
         case LifecycleStatus.Ready:
@@ -322,12 +322,12 @@ class Analytics implements IAnalytics {
     );
 
     if (totalClientIntegrationsToLoad === 0) {
-      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
+      state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
       return;
     }
 
     // Start loading native integration scripts and create instances
-    state.lifecycle.status.value = LifecycleStatus.IntegrationsLoading;
+    state.lifecycle.status.value = LifecycleStatus.DestinationsLoading;
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.loadIntegrations',
       state,
@@ -337,15 +337,15 @@ class Analytics implements IAnalytics {
 
     // Progress to next lifecycle phase if all native integrations are initialized or failed
     effect(() => {
-      const isAllIntegrationsReady =
-        state.nativeDestinations.activeIntegrations.value.length === 0 ||
-        Object.keys(state.nativeDestinations.initializedIntegrations.value ?? {}).length +
-          state.nativeDestinations.failedIntegrationScripts.value.length ===
-          state.nativeDestinations.activeIntegrations.value.length;
+      const areAllDestinationsReady =
+        state.nativeDestinations.activeDestinations.value.length === 0 ||
+        Object.keys(state.nativeDestinations.initializedDestinations.value ?? {}).length +
+          state.nativeDestinations.failedDestinationScripts.value.length ===
+          state.nativeDestinations.activeDestinations.value.length;
 
-      if (isAllIntegrationsReady) {
+      if (areAllDestinationsReady) {
         batch(() => {
-          state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
+          state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
           state.nativeDestinations.clientIntegrationsReady.value = true;
         });
       }

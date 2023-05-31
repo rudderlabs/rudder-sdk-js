@@ -9,6 +9,7 @@ import {
   IErrorHandler,
   DoneCallback,
   ILogger,
+  DeviceModeDestination,
 } from '../types/common';
 import { Queue, getCurrentTimeFormatted } from '../utilities/common';
 import { QUEUE_NAME } from './constants';
@@ -41,12 +42,28 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
           // TODO: Forward the call to individual destinations
+          Object.keys(state.nativeDestinations.initializedDestinations.value).forEach(
+            (destId: string) => {
+              const destInstance = state.nativeDestinations.initializedDestinations.value[destId];
+              const methodName = item.type.toString();
+              try {
+                destInstance[methodName]?.(item);
+              } catch (err) {
+                errorHandler?.onError(
+                  err,
+                  'NativeDestinationQueue',
+                  `Error in forwarding event to destination: ${destInstance.name}`,
+                );
+              }
+            },
+          );
 
           // Mark success always
           done(null);
         },
       );
 
+      // TODO: Start queue only when all the integrations are loaded
       eventsQueue.start();
       return eventsQueue;
     },

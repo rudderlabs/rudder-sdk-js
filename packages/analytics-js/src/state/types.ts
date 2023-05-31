@@ -30,7 +30,7 @@ export type Traits = Record<string, any>;
 
 export type Destination = {
   id: string;
-  definitionName: string;
+  displayName: string;
   areTransformationsConnected: boolean;
   config: DestinationConfig;
 };
@@ -93,22 +93,12 @@ export type DestinationConfig = {
   [key: string]: any;
 };
 
-export type ClientIntegration = {
-  name: string;
-  config: DestinationConfig;
-  destinationInfo: {
-    areTransformationsConnected: boolean;
-    destinationId: string;
-  };
-};
-
-export type IntegrationInstance = {
+export type DeviceModeDestination = {
+  name: string; // this is same as the definition name
+  [index: string]: any;
   isLoaded: () => boolean;
   isReady?: () => boolean;
 };
-
-// TODO: is this still used? const intMod = window[pluginName];
-export type InitializedIntegration = Record<string, any>;
 
 export enum CookieSameSite {
   Strict = 'Strict',
@@ -272,8 +262,8 @@ export enum LifecycleStatus {
   PluginsReady = 'pluginsReady',
   Initialized = 'initialized',
   Loaded = 'loaded',
-  IntegrationsLoading = 'integrationsLoading',
-  IntegrationsReady = 'integrationsReady',
+  DestinationsLoading = 'destinationsLoading',
+  DestinationsReady = 'destinationsReady',
   Ready = 'ready',
 }
 
