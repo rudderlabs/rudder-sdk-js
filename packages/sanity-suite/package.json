@@ -7,11 +7,11 @@
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
     "start": "npm run build:v1.1 && npm run build:v3 && npm run start:local",
-    "build": "npm run build:browser",
+    "build": "rollup -c --environment TEST_PACKAGE:local",
     "build:v1.1": "cd ../analytics-v1.1 && npm run build:browser",
     "build:v3": "cd ../analytics-js && npm run build:browser",
     "build:browser:modern": "exit 0",
-    "build:browser": "rollup -c --environment TEST_PACKAGE:local",
+    "build:browser": "exit 0",
     "build:npm": "rollup -c --environment TEST_PACKAGE:npm",
     "build:npm:modern": "exit 0",
     "build:worker": "exit 0",

@@ -49,7 +49,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
 
 /**
  * A function to generate new auto tracking session
- * @param timestamp current timestamp
+ * @param sessionTimeout current timestamp
  * @returns SessionInfo
  */
 const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {

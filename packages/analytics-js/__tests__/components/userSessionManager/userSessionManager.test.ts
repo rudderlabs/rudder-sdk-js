@@ -283,7 +283,7 @@ describe('User session manager', () => {
     const actualSessionInfo = userSessionManager.getSessionInfo();
     expect(actualSessionInfo).toEqual({
       id: state.session.sessionInfo.value.id,
-      sessionStart: true,
+      sessionStart: false,
     });
   });
   it('getSessionInfo: should return session id and sessionStart when manual tracking is enabled', () => {

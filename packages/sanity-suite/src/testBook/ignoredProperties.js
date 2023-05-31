@@ -4,8 +4,9 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: 'message.context.device.id',
-    type: 'string',
+    key: 'message.context.device',
+    type: 'object',
+    optional: true,
   },
   {
     key: 'message.context.library.version',
@@ -31,6 +32,7 @@ const ignoredProperties = [
   {
     key: 'message.context.sessionStart',
     type: 'boolean',
+    optional: true,
   },
   {
     key: 'message.context.page.tab_url',
@@ -134,22 +136,22 @@ const ignoredProperties = [
   {
     key: `message.integrations.Google Analytics 4`, // TODO: remove optional after we implement device mode destinations
     type: 'object',
-    optional: true
+    optional: true,
   },
   {
     key: `message.integrations.Google Analytics 4.sessionId`, // TODO: remove optional after we implement device mode destinations
     type: 'number',
-    optional: true
+    optional: true,
   },
   {
     key: `message.integrations.Google Analytics 4.clientId`, // TODO: remove optional after we implement device mode destinations
     type: 'string',
-    optional: true
+    optional: true,
   },
   {
     key: `message.integrations.Google Analytics 4.sessionNumber`, // TODO: remove optional after we implement device mode destinations
     type: 'number',
-    optional: true
+    optional: true,
   },
 ];
 

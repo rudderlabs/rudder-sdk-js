@@ -203,11 +203,13 @@ class TestBook {
           clickHandlerData.forEach((clickHandler, index) => {
             if (index === totalClickHandlers - 1) {
               // Only pass callback on last item of the sequence
-              this.invokeTriggerHandlers(
-                clickHandler,
-                testCaseData.inputData[index],
-                resultCallback,
-              );
+              setTimeout(() => {
+                this.invokeTriggerHandlers(
+                  clickHandler,
+                  testCaseData.inputData[index],
+                  resultCallback,
+                );
+              }, 100);
             } else {
               this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index]);
             }

@@ -9,6 +9,7 @@ import {
   isFunction,
   isNull,
   isString,
+  isUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 import { tryStringify } from '../utilities/string';
 
@@ -106,6 +107,11 @@ const pageArgumentsToCallOptions = (
 
   if (isString(payload.category) && !isString(payload.name)) {
     payload.name = payload.category;
+    delete payload.category;
+  }
+
+  if (isUndefined(payload.category)) {
+    delete payload.category;
   }
 
   payload.properties = mergeDeepRight(

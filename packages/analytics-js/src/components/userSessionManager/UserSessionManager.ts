@@ -336,7 +336,9 @@ class UserSessionManager implements IUserSessionManager {
       };
 
       if (state.session.sessionInfo.value.sessionStart) {
-        state.session.sessionInfo.value.sessionStart = false;
+        state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
+          sessionStart: false,
+        });
       }
     }
     return session;
@@ -440,7 +442,10 @@ class UserSessionManager implements IUserSessionManager {
     } else {
       const timestamp = Date.now();
       const timeout = state.session.sessionInfo.value.timeout as number;
-      state.session.sessionInfo.value.expiresAt = timestamp + timeout; // set the expiry time of the session
+      state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
+        expiresAt: timestamp + timeout, // set the expiry time of the session
+        sessionStart: false,
+      });
     }
   }
 

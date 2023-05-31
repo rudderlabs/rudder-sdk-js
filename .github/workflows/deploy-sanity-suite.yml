@@ -37,7 +37,8 @@ jobs:
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
           HUSKY: 0
         run: |
-          npm run setup
+          npm ci --no-audit
+          npm run setup:ci
           npm run build:sanity
 
       - name: Sync files to S3
