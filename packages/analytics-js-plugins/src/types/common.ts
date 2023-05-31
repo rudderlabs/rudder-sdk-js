@@ -57,3 +57,9 @@ export type AnonymousIdOptions = {
     source?: string;
   };
 };
+
+export type ConsentInfo = {
+  consentProviderInitialized: boolean;
+  allowedConsents?: Record<string, string>;
+  deniedConsentIds?: string[];
+};
