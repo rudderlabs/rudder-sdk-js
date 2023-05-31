@@ -10,3 +10,4 @@ declare module 'rudderAnalyticsRemotePlugins/NativeDestinationQueue';
 declare module 'rudderAnalyticsRemotePlugins/StorageEncryption';
 declare module 'rudderAnalyticsRemotePlugins/StorageEncryptionLegacy';
 declare module 'rudderAnalyticsRemotePlugins/XhrQueue';
+declare module 'rudderAnalyticsRemotePlugins/OneTrust';

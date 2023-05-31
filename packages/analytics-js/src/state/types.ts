@@ -3,7 +3,7 @@ import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/
 
 export type CookieConsentOptions = {
   // OneTrust
-  oneTrust?: {
+  [key: string]: {
     enabled: boolean;
   };
 };

@@ -13,6 +13,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.NativeDestinationQueue,
   PluginName.StorageEncryptionLegacy,
   PluginName.XhrQueue,
+  PluginName.OneTrust,
   PluginName.BeaconQueue,
 ];
 

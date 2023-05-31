@@ -17,6 +17,7 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
+import { ConsentManagersToPluginNameMap } from '../configManager/types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -119,6 +120,29 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Consent Management related plugins
+    if (state.consents.activeConsentProviderPluginName.value) {
+      const supportedConsentManagerPlugins: string[] = Object.values(
+        ConsentManagersToPluginNameMap,
+      );
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName !== state.consents.activeConsentProviderPluginName.value &&
+            supportedConsentManagerPlugins.includes(pluginName)
+          ),
+      );
+    } else {
+      const supportedConsentManagerPlugins: string[] = Object.values(
+        ConsentManagersToPluginNameMap,
+      );
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName === PluginName.ConsentManager ||
+            supportedConsentManagerPlugins.includes(pluginName)
+          ),
+      );
+    }
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }

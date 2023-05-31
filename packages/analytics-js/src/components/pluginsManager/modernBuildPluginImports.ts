@@ -31,6 +31,8 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/StorageEncryptionLegacy');
     case PluginName.XhrQueue:
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
+    case PluginName.OneTrust:
+      return () => import('rudderAnalyticsRemotePlugins/OneTrust');
     default:
       return undefined;
   }

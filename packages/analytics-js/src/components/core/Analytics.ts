@@ -265,6 +265,16 @@ class Analytics implements IAnalytics {
     this.clientDataStore = this.storeManager?.getStore('clientData') as Store;
     this.userSessionManager?.init(this.clientDataStore);
 
+    // Initialize consent manager
+    if (state.consents.activeConsentProviderPluginName.value) {
+      this.pluginsManager?.invokeSingle(
+        `consentManager.init`,
+        state,
+        this.pluginsManager,
+        this.logger,
+      );
+    }
+
     // Initialise event manager
     this.eventManager?.init();
   }
