@@ -18,6 +18,7 @@ import {
   ApplicationState,
   ILogger,
   DeviceModeDestination,
+  IPluginsManager,
 } from '../types/common';
 
 // TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
@@ -31,7 +32,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   nativeDestinations: {
-    setActiveIntegrations(state: ApplicationState, logger?: ILogger): number {
+    setActiveDestinations(
+      state: ApplicationState,
+      pluginsManager: IPluginsManager,
+      logger?: ILogger,
+    ): void {
       // Normalize the integration options from the load API call
       state.nativeDestinations.loadOnlyIntegrations.value = normalizeIntegrationOptions(
         state.loadOptions.value.integrations,
@@ -54,14 +59,21 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         configSupportedDestinations,
       );
 
-      // TODO: check consent for each destination and filter out the ones that are not allowed
+      const consentedDestinations = destinationsToLoad.filter(
+        dest =>
+          pluginsManager.invokeSingle(
+            `consentManager.isDestinationConsented`,
+            state,
+            pluginsManager,
+            dest.config,
+            logger,
+          ) as boolean,
+      );
 
-      state.nativeDestinations.activeDestinations.value = destinationsToLoad;
-
-      return state.nativeDestinations.activeDestinations.value.length;
+      state.nativeDestinations.activeDestinations.value = consentedDestinations;
     },
 
-    loadIntegrations(
+    load(
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,

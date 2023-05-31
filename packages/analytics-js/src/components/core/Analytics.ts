@@ -326,12 +326,15 @@ class Analytics implements IAnalytics {
    */
   loadIntegrations() {
     // Set in state the desired activeIntegrations to inject in DOM
-    const totalClientIntegrationsToLoad = this.pluginsManager?.invokeSingle(
-      'nativeDestinations.setActiveIntegrations',
+    this.pluginsManager?.invokeSingle(
+      'nativeDestinations.setActiveDestinations',
       state,
+      this.pluginsManager,
+      this.logger,
     );
 
-    if (totalClientIntegrationsToLoad === 0) {
+    const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
+    if (totalDestinationsToLoad === 0) {
       state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
       return;
     }
@@ -339,7 +342,7 @@ class Analytics implements IAnalytics {
     // Start loading native integration scripts and create instances
     state.lifecycle.status.value = LifecycleStatus.DestinationsLoading;
     this.pluginsManager?.invokeSingle(
-      'nativeDestinations.loadIntegrations',
+      'nativeDestinations.load',
       state,
       this.externalSrcLoader,
       this.logger,
@@ -348,10 +351,10 @@ class Analytics implements IAnalytics {
     // Progress to next lifecycle phase if all native integrations are initialized or failed
     effect(() => {
       const areAllDestinationsReady =
-        state.nativeDestinations.activeDestinations.value.length === 0 ||
+        totalDestinationsToLoad === 0 ||
         Object.keys(state.nativeDestinations.initializedDestinations.value ?? {}).length +
           state.nativeDestinations.failedDestinationScripts.value.length ===
-          state.nativeDestinations.activeDestinations.value.length;
+          totalDestinationsToLoad;
 
       if (areAllDestinationsReady) {
         batch(() => {
