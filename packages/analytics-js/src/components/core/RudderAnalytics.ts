@@ -194,7 +194,7 @@ class RudderAnalytics implements IRudderAnalytics {
    * Process alias arguments and forward to page call
    */
   alias(
-    to: string,
+    to?: Nullable<string> | ApiCallback,
     from?: string | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,

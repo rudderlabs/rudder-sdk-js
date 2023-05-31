@@ -36,7 +36,7 @@ export type IdentifyCallOptions = {
 };
 
 export type AliasCallOptions = {
-  to: Nullable<string>;
+  to?: Nullable<string>;
   from?: Nullable<string>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
@@ -205,7 +205,7 @@ const identifyArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the alias call facade
  */
 const aliasArgumentsToCallOptions = (
-  to: Nullable<string>,
+  to?: Nullable<string> | ApiCallback,
   from?: string | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -232,6 +232,11 @@ const aliasArgumentsToCallOptions = (
     delete payload.from;
   } else {
     payload.from = tryStringify(from);
+  }
+
+  if (isFunction(to)) {
+    payload.to = null;
+    payload.callback = to as ApiCallback;
   }
 
   return payload;

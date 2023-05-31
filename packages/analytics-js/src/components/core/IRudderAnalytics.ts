@@ -103,10 +103,17 @@ export interface IRudderAnalytics {
   /**
    * To record a user alias event
    */
-  alias(to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: string, from: string, callback: ApiCallback): void;
-  alias(to: string, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: string, callback: ApiCallback): void;
+  alias(
+    to: Nullable<string>,
+    from?: string,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  alias(to: Nullable<string>, from: string, callback: ApiCallback): void;
+  alias(to: Nullable<string>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: Nullable<string>, callback: ApiCallback): void;
+  alias(to: ApiCallback): void;
+  alias(): void;
 
   /**
    * To record a user group event
