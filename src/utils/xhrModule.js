@@ -6,8 +6,10 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
-import { getCurrentTimeFormatted, replacer } from './utils';
+import { getCurrentTimeFormatted } from './utils';
 import { handleError } from './errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
+import { stringifyWithoutCircular } from './ObjectUtils';
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -33,7 +35,7 @@ class XHRQueue {
     this.payloadQueue = new Queue(
       'rudder',
       queueOptions,
-      function (item, done) {
+      ((item, done) => {
         // apply sentAt at flush time and reset on each retry
         item.message.sentAt = getCurrentTimeFormatted();
         // send this item for processing, with a callback to enable queue to get the done status
@@ -44,14 +46,14 @@ class XHRQueue {
           item.message,
           10 * 1000,
           // eslint-disable-next-line consistent-return
-          function (err, res) {
+          (err, res) => {
             if (err) {
               return done(err);
             }
             done(null, res);
           },
         );
-      }.bind(this),
+      }),
     );
 
     // start queue
@@ -79,23 +81,17 @@ class XHRQueue {
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
-            handleError(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
-              ),
-            );
-            queueFn(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
-              ),
-            );
+            const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} "${xhr.status}" status text: "${xhr.statusText}" for URL: "${url}"`;
+            const err = new Error(errMessage);
+            handleError(err);
+            queueFn(err);
           } else {
             queueFn(null, xhr.status);
           }
         }
       };
 
-      xhr.send(JSON.stringify(message, replacer));
+      xhr.send(stringifyWithoutCircular(message, true));
     } catch (error) {
       queueFn(error);
     }

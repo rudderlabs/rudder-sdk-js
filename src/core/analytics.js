@@ -187,12 +187,16 @@ class Analytics {
   integrationSDKLoaded(pluginName, modName) {
     try {
       return (
+        pluginName &&
+        modName &&
+        window[pluginName] &&
         window.hasOwnProperty(pluginName) &&
         window[pluginName][modName] &&
+        typeof window[pluginName][modName].prototype &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
-      handleError(e);
+      handleError(e, `While attempting to load ${pluginName} ${modName}`);
       return false;
     }
   }
@@ -217,7 +221,8 @@ class Analytics {
 
         // Do not proceed if the ultimate response value is not an object
         if (!response || typeof response !== 'object' || Array.isArray(response)) {
-          throw new Error('Invalid source configuration');
+          logger.error('Invalid source configuration');
+          return;
         }
       } catch (err) {
         handleError(err);
@@ -902,7 +907,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds,
+          deniedConsentIds: this.deniedConsentIds || [],
         };
       }
 
@@ -970,7 +975,7 @@ class Analytics {
       }
 
       // logger.debug(`${type} is called `)
-      if (callback) {
+      if (callback && typeof callback === 'function') {
         callback(clonedRudderElement);
       }
     } catch (error) {
@@ -1181,7 +1186,7 @@ class Analytics {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
-    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+    if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
@@ -1304,7 +1309,8 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Promise ||
+        typeof window.URL !== 'function' ||
+        typeof Promise === 'undefined' ||
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
@@ -1333,7 +1339,10 @@ class Analytics {
         // In chrome 83 and below versions ID of a script is not part of window's scope
         // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
         // So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
+        if (
+          (window.hasOwnProperty(id) || document.getElementById(id) !== null) &&
+          typeof Promise !== 'undefined'
+        ) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
