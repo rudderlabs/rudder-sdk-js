@@ -11,7 +11,7 @@ jobs:
   deploy-tag:
     name: Deploy Sanity Suite
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/') || startsWith(github.ref, 'refs/heads/beta/')
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
