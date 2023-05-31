@@ -11,7 +11,9 @@ import { getDefinedTraits } from '../../utils/utils';
 
 class YandexMetrica {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.tagId = config.tagId;
     this.clickMap = config.clickMap;
     this.trackLinks = config.trackLinks;
@@ -21,7 +23,8 @@ class YandexMetrica {
     this.goalId = config.goalId;
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

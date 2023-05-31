@@ -54,7 +54,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
                 errorHandler?.onError(
                   err,
                   'NativeDestinationQueue',
-                  `Error in forwarding event to destination: ${destInstance.name}`,
+                  `Error in forwarding event to destination: ${destInstance.name}, ID: ${destId}`,
                 );
               }
             },

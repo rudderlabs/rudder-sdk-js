@@ -12,6 +12,7 @@ import {
   IntegrationOpts,
 } from '../types/common';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+import { DeviceModeDestinationsAnalyticsInstance } from './types';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -55,55 +56,35 @@ const createDestinationInstance = (
   dest: Destination,
   state: ApplicationState,
   logger?: ILogger,
-) =>
-  // TODO: why we pass all analytics instance here? used in browser.constructor of each integration ????
-  // TODO: create the correct values from te state instead of dummy hardcoded ones
-  // TODO: should we just pass the write key and then get the instance from global object?
+) => {
+  const analytics = (window as any).rudderanalytics;
 
-  new (window as any)[destSDKIdentifier][sdkTypeName](
+  // TODO: avoid this object wrapping of the RudderAnalytics API methods
+  return new (window as any)[destSDKIdentifier][sdkTypeName](
     dest.config,
     {
       loadIntegration: state.nativeDestinations.loadIntegration.value,
-      userId: state.session.userId.value,
-      anonymousId: state.session.anonymousUserId.value,
-      userTraits: state.session.userTraits.value,
+      logLevel: state.lifecycle.logLevel.value,
       loadOnlyIntegrations: state.nativeDestinations.loadOnlyIntegrations.value,
-      groupId: state.session.groupId.value,
-      groupTraits: state.session.groupTraits.value,
-    },
+      track: (...args: any) => analytics.track(...args),
+      page: (...args: any) => analytics.page(...args),
+      identify: (...args: any) => analytics.identify(...args),
+      group: (...args: any) => analytics.group(...args),
+      alias: (...args: any) => analytics.alias(...args),
+      getAnonymousId: () => analytics.getAnonymousId(),
+      getUserId: () => analytics.getUserId(),
+      getUserTraits: () => analytics.getUserTraits(),
+      getGroupId: () => analytics.getGroupId(),
+      getGroupTraits: () => analytics.getGroupTraits(),
+      getSessionId: () => analytics.getSessionId(),
+    } as DeviceModeDestinationsAnalyticsInstance,
     {
       areTransformationsConnected: dest.areTransformationsConnected,
       destinationId: dest.id,
     },
   );
+};
 
-//  new integrationInstance[modName](
-//   dest.config,
-//   {
-//     loadIntegration: true,
-//     userId: undefined,
-//     anonymousId: '123456',
-//     logLevel: 'error',
-//     userTraits: undefined,
-//     loadOnlyIntegrations: {
-//       VWO: {
-//         loadIntegration: true,
-//       },
-//     },
-//     groupId: undefined,
-//     groupTraits: undefined,
-//     methodToCallbackMapping: {
-//       syncPixel: false,
-//     },
-//     uSession: {
-//       sessionInfo: {
-//         id: 123456,
-//       },
-//     },
-//     emit: () => {},
-//   },
-//   dest.destinationInfo,
-// )
 const isDestinationReady = (instance: DeviceModeDestination, time = 0, logger?: ILogger) =>
   // eslint-disable-next-line compat/compat
   new Promise(resolve => {

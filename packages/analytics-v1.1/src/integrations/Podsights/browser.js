@@ -22,12 +22,15 @@ import { payloadBuilder, payloadBuilderInList } from './utils';
 
 class Podsights {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
