@@ -47,7 +47,9 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               const destInstance = state.nativeDestinations.initializedDestinations.value[destId];
               const methodName = item.type.toString();
               try {
-                destInstance[methodName]?.(item);
+                // Destinations expect the event to be wrapped under the `message` key
+                // This will remain until we update the destinations to accept the event directly
+                destInstance[methodName]?.({ message: item });
               } catch (err) {
                 errorHandler?.onError(
                   err,
