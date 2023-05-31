@@ -42,7 +42,7 @@ import {
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
   DEFAULT_INTEGRATIONS_CONFIG,
-  DATA_PLANE_EVENTS_BUFFER_TIME_OUT,
+  DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -96,7 +96,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.bufferDataPlaneEventsUntilReady = false;
-    this.dataPlaneEventsBufferTimeout = DATA_PLANE_EVENTS_BUFFER_TIME_OUT;
+    this.dataPlaneEventsBufferTimeout = DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
