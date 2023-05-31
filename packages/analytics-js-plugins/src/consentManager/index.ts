@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { batch } from '@preact/signals-core';
 import {
   ExtensionPlugin,
   PluginName,
@@ -8,6 +7,7 @@ import {
   IPluginsManager,
   DestinationConfig,
 } from '../types/common';
+import { Batch } from './type';
 
 const pluginName = PluginName.ConsentManager;
 
@@ -18,7 +18,12 @@ const ConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, pluginsManager: IPluginsManager, logger?: ILogger): void {
+    init(
+      state: ApplicationState,
+      pluginsManager: IPluginsManager,
+      batch: Batch,
+      logger?: ILogger,
+    ): void {
       logger?.debug('ConsentManager initialization');
 
       // Initialize selected consent manager and get the consent info

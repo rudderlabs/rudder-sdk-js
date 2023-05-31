@@ -271,6 +271,7 @@ class Analytics implements IAnalytics {
         `consentManager.init`,
         state,
         this.pluginsManager,
+        batch,
         this.logger,
       );
     }
