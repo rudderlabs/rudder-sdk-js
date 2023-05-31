@@ -42,7 +42,8 @@
     "release:github": "DEBUG=conventional-github-releaser npx conventional-github-releaser -p angular --config github-release.config.js",
     "postinstall": "patch-package",
     "build:v3": "lerna run --concurrency 1 --scope @rudderstack/* build",
-    "build:v1.1": "lerna run --concurrency 1 --scope rudder-sdk-js build"
+    "build:v1.1": "lerna run --concurrency 1 --scope rudder-sdk-js build",
+    "build:sanity": "rm -rf packages/sanity-suite/dist && cd packages/sanity-suite && npm run build:all && npm run build:all:staging"
   },
   "author": "RudderStack",
   "license": "MIT",

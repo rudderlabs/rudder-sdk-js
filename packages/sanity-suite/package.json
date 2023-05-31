@@ -42,11 +42,13 @@
     "build:cdn:v1.1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1",
     "build:cdn:v1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1",
     "build:cdn:v3": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v3",
+    "build:npm:v1.1": "CDN_VERSION_PATH=v1.1 npm run build:npm",
+    "build:npm:v3": "CDN_VERSION_PATH=v3 npm run build:npm",
     "build:cdn:v1.1:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1,STAGING:true",
     "build:cdn:v1:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1,STAGING:true",
     "build:cdn:v3:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v3,STAGING:true",
-    "build:all": "npm run build:cdn:v1.1 && npm run build:cdn:v1 && npm run build:cdn:v3 && npm run build:npm",
-    "build:all:staging": "npm run build:cdn:v1.1:staging && npm run build:cdn:v1:staging && npm run build:cdn:v3:staging"
+    "build:all": "npm run build:cdn:v1.1 && npm run build:cdn:v1 && npm run build:cdn:v3 && npm run build:npm:v1.1 && rimraf -rf ./dist/dts",
+    "build:all:staging": "npm run build:cdn:v1.1:staging && npm run build:cdn:v1:staging && npm run build:cdn:v3:staging && rimraf -rf ./dist/dts"
   },
   "author": "RudderStack",
   "license": "MIT",
