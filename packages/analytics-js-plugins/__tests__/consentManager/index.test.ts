@@ -5,6 +5,7 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { batch } from '@preact/signals-core';
 
 describe('Plugin - ConsentManager', () => {
   const pluginManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
@@ -24,7 +25,7 @@ describe('Plugin - ConsentManager', () => {
     };
 
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, pluginManager, defaultLogger);
+    ConsentManager().consentManager.init(state, pluginManager, batch, defaultLogger);
     expect(state.consents.consentProviderInitialized.value).toBeTruthy();
     expect(state.consents.allowedConsents.value).toStrictEqual(
       mockResponseFromSelectedConsentManager.allowedConsents,
@@ -38,7 +39,7 @@ describe('Plugin - ConsentManager', () => {
       consentProviderInitialized: false,
     };
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, pluginManager, defaultLogger);
+    ConsentManager().consentManager.init(state, pluginManager, batch, defaultLogger);
     expect(state.consents.consentProviderInitialized.value).toBe(false);
     expect(state.consents.allowedConsents.value).toStrictEqual({});
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);
