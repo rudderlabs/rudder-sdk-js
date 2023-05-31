@@ -71,12 +71,16 @@
       }
       // New addition to load script ends
 
-      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
-        logLevel: 'DEBUG',
-        configUrl: 'https://api.rudderlabs.com',
-        destSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/js-integrations',
-        pluginsSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/plugins'
-      });
+      rudderanalytics.load(
+        '__WRITE_KEY__',
+        '__DATAPLANE_URL__',
+        {
+          logLevel: 'DEBUG',
+          configUrl: 'https://api.rudderlabs.com',
+          destSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/js-integrations',
+          pluginsSDKBaseURL: rudderCdnBaseUrlHost + sdkBuildType + '/plugins'
+        }
+      );
 
       rudderanalytics.identify(
         'customUserID',
