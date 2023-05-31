@@ -42,5 +42,5 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 cp sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/sanity-suite*"
