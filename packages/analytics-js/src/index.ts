@@ -23,7 +23,6 @@ const {
   startSession,
   endSession,
   getSessionId,
-  getSessionInfo,
 } = new RudderAnalytics();
 
 /*
@@ -49,5 +48,4 @@ export {
   startSession,
   endSession,
   getSessionId,
-  getSessionInfo,
 };

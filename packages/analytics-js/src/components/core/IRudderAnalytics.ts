@@ -185,9 +185,4 @@ export interface IRudderAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
-
-  /**
-   * To fetch the current sessionInfo
-   */
-  getSessionInfo(): Nullable<SessionInfo> | undefined;
 }
