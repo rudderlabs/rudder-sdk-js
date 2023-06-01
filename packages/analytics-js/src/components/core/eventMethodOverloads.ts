@@ -161,6 +161,11 @@ const trackArgumentsToCallOptions = (
     payload.properties = properties as Nullable<ApiObject>;
   }
 
+  // To match v1.1 generated payload
+  if (isUndefined(payload.properties) || isNull(payload.properties)) {
+    payload.properties = {};
+  }
+
   return payload;
 };
 

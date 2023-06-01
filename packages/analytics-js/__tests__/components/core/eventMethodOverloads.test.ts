@@ -79,6 +79,7 @@ describe('Core - Event Method Overloads', () => {
     expect(trackArgumentsToCallOptions('event', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
+      properties: {},
     });
     expect(trackArgumentsToCallOptions('event', { properties: {} }, { options: {} })).toStrictEqual(
       {

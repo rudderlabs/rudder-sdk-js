@@ -114,7 +114,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const trackSpy = jest.spyOn(analyticsInstance, 'track');
 
     rudderAnalytics.track('event');
-    expect(trackSpy).toHaveBeenCalledWith({ name: 'event' });
+    expect(trackSpy).toHaveBeenCalledWith({ name: 'event', properties: {} });
   });
 
   it('should process identify arguments and forwards to identify call', () => {
