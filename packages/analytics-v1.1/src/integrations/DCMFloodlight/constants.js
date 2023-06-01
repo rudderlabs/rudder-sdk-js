@@ -1,4 +1,10 @@
+import path from 'path';
+
+const DIR_NAME = path.basename(__dirname);
 const NAME = 'DCM_FLOODLIGHT';
+const DISPLAY_NAME = 'DCM Floodlight';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   'DCM Floodlight': NAME,
@@ -12,4 +18,4 @@ const CNameMapping = {
 };
 const GTAG = 'globalSiteTag';
 
-export { NAME, CNameMapping, GTAG };
+export { NAME, CNameMapping, GTAG, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

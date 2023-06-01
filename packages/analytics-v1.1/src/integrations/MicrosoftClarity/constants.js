@@ -1,4 +1,10 @@
+import path from 'path';
+
+const DIR_NAME = path.basename(__dirname);
 const NAME = 'MICROSOFT_CLARITY';
+const DISPLAY_NAME = 'Microsoft Clarity';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   'Microsoft Clarity': NAME,
@@ -11,4 +17,4 @@ const CNameMapping = {
   microsoftClarity: NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

@@ -1,4 +1,10 @@
+import path from 'path';
+
+const DIR_NAME = path.basename(__dirname);
 const NAME = 'GA4';
+const DISPLAY_NAME = 'Google Analytics 4 (GA4)';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   'Google Analytics 4': NAME,
@@ -10,4 +16,4 @@ const CNameMapping = {
   GoogleAnalytics4: NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };
