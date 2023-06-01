@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'VWO';
 const NAME = 'VWO';
 const DISPLAY_NAME = 'VWO';
 

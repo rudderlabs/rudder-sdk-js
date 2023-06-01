@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'HubSpot';
 const NAME = 'HS';
 const DISPLAY_NAME = 'HubSpot';
 

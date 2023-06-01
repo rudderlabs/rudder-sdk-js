@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'LinkedInInsightTag';
 const NAME = 'LINKEDIN_INSIGHT_TAG';
 const DISPLAY_NAME = 'Linkedin Insight Tag';
 

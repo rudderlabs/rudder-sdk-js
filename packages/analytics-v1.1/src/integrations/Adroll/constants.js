@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'Adroll';
 const NAME = 'ADROLL';
 const DISPLAY_NAME = 'Adroll';
 

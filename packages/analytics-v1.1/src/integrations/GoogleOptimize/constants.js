@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'GoogleOptimize';
 const NAME = 'GOOGLE_OPTIMIZE';
 const DISPLAY_NAME = 'Google Optimize';
 

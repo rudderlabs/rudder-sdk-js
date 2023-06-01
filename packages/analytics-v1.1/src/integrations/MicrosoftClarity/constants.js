@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'MicrosoftClarity';
 const NAME = 'MICROSOFT_CLARITY';
 const DISPLAY_NAME = 'Microsoft Clarity';
 

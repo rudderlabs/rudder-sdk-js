@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'PostAffiliatePro';
 const NAME = 'POST_AFFILIATE_PRO';
 const DISPLAY_NAME = 'Post Affiliate Pro';
 

@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'YandexMetrica';
 const NAME = 'YANDEX_METRICA';
 const DISPLAY_NAME = 'Yandex.Metrica';
 

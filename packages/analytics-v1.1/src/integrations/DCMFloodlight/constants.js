@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'DCMFloodlight';
 const NAME = 'DCM_FLOODLIGHT';
 const DISPLAY_NAME = 'DCM Floodlight';
 

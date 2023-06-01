@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'AdobeAnalytics';
 const NAME = 'ADOBE_ANALYTICS';
 const DISPLAY_NAME = 'Adobe Analytics';
 

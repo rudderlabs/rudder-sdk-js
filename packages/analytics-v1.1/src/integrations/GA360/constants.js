@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'GA360';
 const NAME = 'GA360';
 const DISPLAY_NAME = 'Google Analytics 360';
 

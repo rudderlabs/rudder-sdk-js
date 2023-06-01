@@ -1,6 +1,4 @@
-import path from 'path';
-
-const DIR_NAME = path.basename(__dirname);
+const DIR_NAME = 'FacebookPixel';
 const NAME = 'FACEBOOK_PIXEL';
 const DISPLAY_NAME = 'Facebook Pixel';
 
