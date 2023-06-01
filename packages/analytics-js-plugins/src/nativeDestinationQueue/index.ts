@@ -62,6 +62,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           // Mark success always
           done(null);
         },
+        'memoryStorage'
       );
 
       // TODO: This seems to not work as expected. Need to investigate
