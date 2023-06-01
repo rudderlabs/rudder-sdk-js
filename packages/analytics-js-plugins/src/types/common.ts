@@ -21,6 +21,7 @@ export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/
 export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
+export type { StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 export type ApplicationState = IApplicationState;
 

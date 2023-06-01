@@ -58,6 +58,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           willBeRetried: boolean,
         ) => {
           const { url, event, headers } = item;
+          logger?.debug(`Sending ${event.type} event to data plane`);
           // Update sentAt timestamp to the latest timestamp
           event.sentAt = getCurrentTimeFormatted();
           const data = getDeliveryPayload(event);

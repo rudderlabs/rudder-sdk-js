@@ -85,17 +85,16 @@ const createDestinationInstance = (
   );
 };
 
-const isDestinationReady = (instance: DeviceModeDestination, time = 0, logger?: ILogger) =>
+const isDestinationReady = (instance: DeviceModeDestination, logger?: ILogger, time = 0) =>
   // eslint-disable-next-line compat/compat
   new Promise(resolve => {
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
-      logger?.debug('instance is loaded and ready', instance);
       resolve(this);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
-      throw Error('instance.init timeout expired');
+      throw Error(`Destination ${instance.name} ready check timed out`);
     } else {
       pause(LOAD_CHECK_POLL_INTERVAL).then(() =>
-        isDestinationReady(instance, time + LOAD_CHECK_POLL_INTERVAL, logger)
+        isDestinationReady(instance, logger, time + LOAD_CHECK_POLL_INTERVAL)
           .then(resolve)
           .catch(e => {
             throw e;

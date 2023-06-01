@@ -40,7 +40,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         QUEUE_NAME,
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
-          // TODO: Forward the call to individual destinations
+          logger?.debug(`Forwarding ${item.type} event to destinations`);
           Object.keys(state.nativeDestinations.initializedDestinations.value).forEach(
             (destId: string) => {
               const destInstance = state.nativeDestinations.initializedDestinations.value[destId];
@@ -62,7 +62,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           // Mark success always
           done(null);
         },
-        'memoryStorage'
+        'memoryStorage',
       );
 
       // TODO: This seems to not work as expected. Need to investigate

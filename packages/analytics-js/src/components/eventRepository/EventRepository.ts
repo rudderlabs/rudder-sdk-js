@@ -67,6 +67,7 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
+    this.logger?.debug('Enqueuing event: ', event);
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
@@ -93,7 +94,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(dpQEvent);
     } catch (error) {
-      this.onError(error, 'API Callback Invocation Failed');
+      this.onError(error, 'API callback invocation failed');
     }
   }
 

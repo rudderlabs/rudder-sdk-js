@@ -98,25 +98,26 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             destId,
           ];
 
-          logger?.debug(`Destination script loaded for id: ${id}`);
+          logger?.debug(`Destination script with id: ${id} loaded successfully`);
         });
 
       activeDestinations.forEach(dest => {
-        logger?.debug(dest);
         const sdkName = destDispNamesToFileNamesMap[dest.displayName];
+        const userFriendlyDestId = `${sdkName}___${dest.id}`;
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
+        logger?.debug(`Loading destination: ${userFriendlyDestId}`);
 
         if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
           const destSdkURL = `${destSDKBaseURL}/${sdkName}.min.js`;
           externalSrcLoader
             .loadJSFile({
               url: destSdkURL,
-              id: `${sdkName}___${dest.id}`,
+              id: userFriendlyDestId,
               callback: onLoadCallback,
             })
             .catch(e => {
               logger?.error(
-                `Destination script load failed for "${dest.displayName}". ID (${dest.id}). Error message: ${e.message}`,
+                `Script load failed for destination: ${userFriendlyDestId}. Error message: ${e.message}`,
               );
               state.nativeDestinations.failedDestinationScripts.value = [
                 ...state.nativeDestinations.failedDestinationScripts.value,
@@ -125,10 +126,16 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             });
         }
 
-        const interval = setInterval(() => {
+        let timeoutId: number;
+        const intervalId = window.setInterval(() => {
           const sdkTypeName = sdkName;
           if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
-            clearInterval(interval);
+            clearInterval(intervalId);
+            clearTimeout(timeoutId);
+
+            logger?.debug(
+              `SDK script evaluation successful for destination: ${userFriendlyDestId}`,
+            );
 
             try {
               const destInstance = createDestinationInstance(
@@ -138,15 +145,16 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 state,
                 logger,
               );
-              logger?.debug(`Attempting to initialize destination: ${destSDKIdentifier}`);
+              logger?.debug(`Initializing destination: ${userFriendlyDestId}`);
               destInstance.init();
 
-              isDestinationReady(destInstance)
+              isDestinationReady(destInstance, logger)
                 .then(() => {
+                  logger?.debug(`Destination ${userFriendlyDestId} is loaded and ready`);
                   const initializedDestination: Record<string, DeviceModeDestination> = {};
                   initializedDestination[dest.id] = destInstance;
 
-                  logger?.debug(`Initialized destination: ${destSDKIdentifier}`);
+                  logger?.debug(`Initialized destination: ${userFriendlyDestId}`);
                   state.nativeDestinations.initializedDestinations.value = {
                     ...state.nativeDestinations.initializedDestinations.value,
                     ...initializedDestination,
@@ -156,7 +164,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   throw e;
                 });
             } catch (e: any) {
-              const message = `Unable to initialize destination "${dest.displayName}". ID (${dest.id}). Error message: ${e.message}`;
+              const message = `Unable to initialize destination: ${userFriendlyDestId}. Error message: ${e.message}`;
               logger?.error(e, message);
 
               state.nativeDestinations.failedDestinationScripts.value = [
@@ -167,9 +175,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
         }, INITIALIZED_CHECK_POLL_INTERVAL);
 
-        window.setTimeout(() => {
-          clearInterval(interval);
+        timeoutId = window.setTimeout(() => {
+          clearInterval(intervalId);
 
+          logger?.debug(`SDK script evaluation timed out for destination: ${userFriendlyDestId}`);
           state.nativeDestinations.failedDestinationScripts.value = [
             ...state.nativeDestinations.failedDestinationScripts.value,
             dest.id,
