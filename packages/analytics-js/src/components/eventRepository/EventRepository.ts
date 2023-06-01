@@ -3,6 +3,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
+import { effect } from '@preact/signals-core';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
@@ -51,19 +52,13 @@ class EventRepository implements IEventRepository {
       this.errorHandler,
       this.logger,
     );
-  }
 
-  /**
-   * Starts the destinations events queue for processing
-   */
-  start(): void {
-    this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`,
-      state,
-      this.destinationsEventsQueue,
-      this.errorHandler,
-      this.logger,
-    );
+    // Start the queue once the client destinations are ready
+    effect(() => {
+      if (state.nativeDestinations.clientDestinationsReady.value === true) {
+        this.destinationsEventsQueue.start();
+      }
+    });
   }
 
   /**

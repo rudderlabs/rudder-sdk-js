@@ -191,7 +191,6 @@ class Analytics implements IAnalytics {
         case LifecycleStatus.DestinationsLoading:
           break;
         case LifecycleStatus.DestinationsReady:
-          this.eventRepository?.start();
           this.onReady();
           break;
         case LifecycleStatus.Ready:

@@ -74,22 +74,6 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     },
 
     /**
-     * Starts the queue for delivery to destinations
-     * @param state Application state
-     * @param eventsQueue Queue instance
-     * @param errorHandler Error handler instance
-     * @param logger Logger instance
-     */
-    start(
-      state: ApplicationState,
-      eventsQueue: Queue,
-      errorHandler?: IErrorHandler,
-      logger?: ILogger,
-    ): void {
-      eventsQueue.start();
-    },
-
-    /**
      * Add event to the queue for delivery to destinations
      * @param state Application state
      * @param eventsQueue Queue instance
