@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
+import { effect } from '@preact/signals-core';
 import {
   ExtensionPlugin,
   PluginName,
@@ -9,11 +10,9 @@ import {
   IErrorHandler,
   DoneCallback,
   ILogger,
-  DeviceModeDestination,
 } from '../types/common';
-import { Queue, getCurrentTimeFormatted } from '../utilities/common';
+import { LifecycleStatus, Queue } from '../utilities/common';
 import { QUEUE_NAME } from './constants';
-import { XHRQueueItem } from '../xhrQueue/types';
 import { getNormalizedQueueOptions } from './utilities';
 
 const pluginName = PluginName.NativeDestinationQueue;
@@ -65,9 +64,29 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         },
       );
 
-      // TODO: Start queue only when all the integrations are loaded
-      eventsQueue.start();
+      // TODO: This seems to not work as expected. Need to investigate
+      // effect(() => {
+      //   if (state.nativeDestinations.clientDestinationsReady.value === true) {
+      //     eventsQueue.start();
+      //   }
+      // });
       return eventsQueue;
+    },
+
+    /**
+     * Starts the queue for delivery to destinations
+     * @param state Application state
+     * @param eventsQueue Queue instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     */
+    start(
+      state: ApplicationState,
+      eventsQueue: Queue,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): void {
+      eventsQueue.start();
     },
 
     /**

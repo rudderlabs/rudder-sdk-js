@@ -54,6 +54,19 @@ class EventRepository implements IEventRepository {
   }
 
   /**
+   * Starts the destinations events queue for processing
+   */
+  start(): void {
+    this.pluginsManager.invokeSingle(
+      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.start`,
+      state,
+      this.destinationsEventsQueue,
+      this.errorHandler,
+      this.logger,
+    );
+  }
+
+  /**
    * Enqueues the event for processing
    * @param event RudderEvent object
    * @param callback API callback function

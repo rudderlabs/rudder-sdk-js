@@ -14,7 +14,7 @@ export type NativeDestinationsState = {
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
   initializedDestinations: Signal<Record<string, DeviceModeDestination>>;
-  clientIntegrationsReady: Signal<boolean>;
+  clientDestinationsReady: Signal<boolean>;
 };
 
 const nativeDestinationsState: NativeDestinationsState = {
@@ -26,7 +26,7 @@ const nativeDestinationsState: NativeDestinationsState = {
   loadIntegration: signal(true),
   integrationsData: signal({}),
   initializedDestinations: signal({}),
-  clientIntegrationsReady: signal(false),
+  clientDestinationsReady: signal(false),
 };
 
 export { nativeDestinationsState };

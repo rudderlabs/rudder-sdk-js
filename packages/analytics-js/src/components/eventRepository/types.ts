@@ -3,6 +3,7 @@ import { RudderEvent } from '../eventManager/types';
 
 interface IEventRepository {
   init(): void;
+  start(): void;
   enqueue(event: RudderEvent, callback?: ApiCallback): void;
 }
 

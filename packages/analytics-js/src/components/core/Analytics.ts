@@ -191,6 +191,7 @@ class Analytics implements IAnalytics {
         case LifecycleStatus.DestinationsLoading:
           break;
         case LifecycleStatus.DestinationsReady:
+          this.eventRepository?.start();
           this.onReady();
           break;
         case LifecycleStatus.Ready:
@@ -352,14 +353,14 @@ class Analytics implements IAnalytics {
     effect(() => {
       const areAllDestinationsReady =
         totalDestinationsToLoad === 0 ||
-        Object.keys(state.nativeDestinations.initializedDestinations.value ?? {}).length +
+        Object.keys(state.nativeDestinations.initializedDestinations.value).length +
           state.nativeDestinations.failedDestinationScripts.value.length ===
           totalDestinationsToLoad;
 
       if (areAllDestinationsReady) {
         batch(() => {
           state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
-          state.nativeDestinations.clientIntegrationsReady.value = true;
+          state.nativeDestinations.clientDestinationsReady.value = true;
         });
       }
     });
