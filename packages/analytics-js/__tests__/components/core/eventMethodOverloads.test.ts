@@ -142,6 +142,16 @@ describe('Core - Event Method Overloads', () => {
       to: 'to',
       options: { options: {} },
     });
+    expect(aliasArgumentsToCallOptions(callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      to: null,
+      from: undefined,
+    });
+    expect(aliasArgumentsToCallOptions({ options: {} })).toStrictEqual({
+      options: { options: {} },
+      to: null,
+      from: undefined,
+    });
   });
 
   it('should convert facade group method arguments to analytics group call options', () => {
