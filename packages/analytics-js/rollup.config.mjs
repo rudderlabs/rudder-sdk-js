@@ -15,6 +15,7 @@ import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
@@ -177,6 +178,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
+    entryFileNames: `index.js`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -186,6 +188,7 @@ const outputFilesNpm = [
     },
   },
   {
+    entryFileNames: `index.js`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
@@ -195,6 +198,7 @@ const outputFilesNpm = [
     },
   },
   {
+    entryFileNames: `index.js`,
     dir: outDirNpm + '/umd',
     format: 'umd',
     name: modName,
@@ -230,7 +234,7 @@ const buildEntries = () => {
   if(isCDNPackageBuild) {
     return[{
       ...buildConfig(),
-      input: 'src/index.ts',
+      input: 'src/browser.ts',
       output: outputFiles,
     }];
   }
@@ -256,7 +260,8 @@ const buildEntries = () => {
             }
           ]
         }),
-        dts()
+        dts(),
+        del({ hook: "buildEnd", targets: "./dist/dts" }),
       ],
       output: {
         file: `${outDirNpmRoot}/index.d.ts`,

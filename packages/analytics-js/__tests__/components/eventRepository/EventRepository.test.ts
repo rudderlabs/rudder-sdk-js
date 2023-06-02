@@ -35,7 +35,15 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(defaultPluginsManager);
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
-    expect(spy).nthCalledWith(1, 'dataplaneEventsQueue.init', state, undefined, undefined);
+
+    expect(spy).nthCalledWith(
+      1,
+      'dataplaneEventsQueue.init',
+      state,
+      expect.objectContaining({}),
+      undefined,
+      undefined,
+    );
     expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', state, undefined, undefined);
     spy.mockRestore();
   });

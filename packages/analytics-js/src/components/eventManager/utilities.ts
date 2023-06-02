@@ -20,6 +20,25 @@ import {
 } from './constants';
 
 /**
+ * To get the page properties for context object
+ * @param pageProps Page properties
+ * @returns page properties object for context
+ */
+const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
+  const ctxPageProps: ApiObject = {};
+  Object.keys(state.page).forEach((key: string) => {
+    ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
+  });
+
+  ctxPageProps.initial_referrer =
+    pageProps?.initial_referrer || state.session.initialReferrer.value;
+
+  ctxPageProps.initial_referring_domain =
+    pageProps?.initial_referring_domain || state.session.initialReferringDomain.value;
+  return ctxPageProps;
+};
+
+/**
  * Add any missing default page properties using values from options and defaults
  * @param properties Input page properties
  * @param options API options
@@ -29,7 +48,7 @@ const getUpdatedPageProperties = (
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
   if (isUndefined(options?.page) || !isObjectLiteralAndNotNull((options as ApiOptions).page)) {
-    return properties;
+    return mergeDeepRight(getContextPageProperties(), properties);
   }
 
   const optionsPageProps = (options as ApiOptions).page as ApiObject;
@@ -94,25 +113,6 @@ const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): v
   checkForReservedElementsInObject(properties, rudderEvent.type, 'properties', logger);
   checkForReservedElementsInObject(traits, rudderEvent.type, 'traits', logger);
   checkForReservedElementsInObject(contextualTraits, rudderEvent.type, 'context.traits', logger);
-};
-
-/**
- * To get the page properties for context object
- * @param pageProps Page properties
- * @returns page properties object for context
- */
-const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
-  const ctxPageProps: ApiObject = {};
-  Object.keys(state.page).forEach((key: string) => {
-    ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
-  });
-
-  ctxPageProps.initial_referrer =
-    pageProps?.initial_referrer || state.session.initialReferrer.value;
-
-  ctxPageProps.initial_referring_domain =
-    pageProps?.initial_referring_domain || state.session.initialReferringDomain.value;
-  return ctxPageProps;
 };
 
 /**
@@ -208,7 +208,7 @@ const getEnrichedEvent = (
     context: {
       traits: clone(state.session.userTraits.value),
       sessionId: state.session.sessionInfo.value.id,
-      sessionStart: state.session.sessionInfo.value.sessionStart,
+      sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.deniedConsentIds.value),
       },

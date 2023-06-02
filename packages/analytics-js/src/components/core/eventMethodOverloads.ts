@@ -9,6 +9,7 @@ import {
   isFunction,
   isNull,
   isString,
+  isUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 import { tryStringify } from '../utilities/string';
 
@@ -35,7 +36,7 @@ export type IdentifyCallOptions = {
 };
 
 export type AliasCallOptions = {
-  to: Nullable<string>;
+  to?: Nullable<string>;
   from?: Nullable<string>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
@@ -106,6 +107,11 @@ const pageArgumentsToCallOptions = (
 
   if (isString(payload.category) && !isString(payload.name)) {
     payload.name = payload.category;
+    delete payload.category;
+  }
+
+  if (isUndefined(payload.category)) {
+    delete payload.category;
   }
 
   payload.properties = mergeDeepRight(
@@ -155,6 +161,11 @@ const trackArgumentsToCallOptions = (
     payload.properties = properties as Nullable<ApiObject>;
   }
 
+  // To match v1.1 generated payload
+  if (isUndefined(payload.properties) || isNull(payload.properties)) {
+    payload.properties = {};
+  }
+
   return payload;
 };
 
@@ -190,6 +201,14 @@ const identifyArgumentsToCallOptions = (
     payload.options = clone(traits as Nullable<ApiOptions>);
   } else {
     payload.userId = tryStringify(userId);
+
+    if (!isUndefined(traits) && !isFunction(traits)) {
+      payload.traits = clone(traits as Nullable<ApiObject>);
+    }
+
+    if (!isUndefined(options) && !isFunction(options)) {
+      payload.options = clone(options as Nullable<ApiOptions>);
+    }
   }
 
   return payload;
@@ -199,33 +218,46 @@ const identifyArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the alias call facade
  */
 const aliasArgumentsToCallOptions = (
-  to: Nullable<string>,
+  to?: Nullable<string> | ApiCallback,
   from?: string | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): AliasCallOptions => {
-  const payload: AliasCallOptions = {
-    to: tryStringify(to) ?? null,
-  };
+  const payload: AliasCallOptions = {};
 
   if (isFunction(callback)) {
+    payload.to = tryStringify(to) ?? null;
     payload.from = from as string;
     payload.options = clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (isFunction(options)) {
+    payload.to = tryStringify(to) ?? null;
     payload.from = from as string;
     payload.callback = options as ApiCallback;
   }
 
   if (isFunction(from)) {
+    payload.to = tryStringify(to) ?? null;
     payload.callback = from as ApiCallback;
   } else if (isObjectLiteralAndNotNull(from) || isNull(from)) {
+    payload.to = tryStringify(to) ?? null;
     payload.options = isNull(from) ? null : clone(from as Nullable<ApiOptions>);
     delete payload.from;
   } else {
+    payload.to = tryStringify(to) ?? null;
     payload.from = tryStringify(from);
+  }
+
+  if (isFunction(to)) {
+    payload.to = null;
+    payload.callback = to as ApiCallback;
+  }
+
+  if (isObjectLiteralAndNotNull(to)) {
+    payload.to = null;
+    payload.options = clone(to as Nullable<ApiOptions>);
   }
 
   return payload;

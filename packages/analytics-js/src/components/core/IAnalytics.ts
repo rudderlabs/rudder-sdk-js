@@ -4,7 +4,6 @@ import {
   ApiObject,
   LifecycleStatus,
   LoadOptions,
-  SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
@@ -193,9 +192,4 @@ export interface IAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
-
-  /**
-   * To fetch the current sessionInfo
-   */
-  getSessionInfo(): Nullable<SessionInfo> | undefined;
 }

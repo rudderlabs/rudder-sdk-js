@@ -1,8 +1,8 @@
-import { CookieOptions } from '@rudderstack/analytics-js/npmPackages/component-cookie';
 import { CookieSameSite } from '@rudderstack/analytics-js/state/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { CookieOptions } from './component-cookie';
 
 export type StoreId = 'clientData' | 'eventQueue' | string;
 

@@ -1,7 +1,9 @@
 import Emitter from 'component-emitter';
-import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
+import {
+  generateUUID,
+  getStorageEngine,
+  Store,
+} from '@rudderstack/analytics-js-plugins/utilities/common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 

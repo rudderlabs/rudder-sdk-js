@@ -13,7 +13,6 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import * as dotenv from 'dotenv';
 
-// TODO: Make this work for both v1.1 and v3 (different npm index file)
 dotenv.config();
 
 const serverPort = 3003;
@@ -149,7 +148,7 @@ const getBuildConfig = (featureName) => ({
       FEATURE_EVENT_FILTERING_WRITE_KEY: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
-      DEST_SDK_BASE_URL: getDestinationsURL(),
+      APP_DEST_SDK_BASE_URL: getDestinationsURL(),
       CDN_VERSION_PATH:
         `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
       STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
