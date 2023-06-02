@@ -224,12 +224,4 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics.getSessionId();
     expect(getSessionIdSpy).toHaveBeenCalledTimes(1);
   });
-
-  it('should process getSessionInfo arguments and forwards to getSessionInfo call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getSessionInfoSpy = jest.spyOn(analyticsInstance, 'getSessionInfo');
-
-    rudderAnalytics.getSessionInfo();
-    expect(getSessionInfoSpy).toHaveBeenCalledTimes(1);
-  });
 });
