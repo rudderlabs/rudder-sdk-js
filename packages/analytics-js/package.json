@@ -65,7 +65,7 @@
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
-    "package": "cd dist/npm && rimraf -rf ./dts && npm pack --pack-destination ../../",
+    "package": "cd dist/npm && npm pack --pack-destination ../../",
     "release": "npm publish"
   },
   "engines": {
@@ -140,6 +140,7 @@
     "prettier": "2.8.8",
     "rollup": "3.20.2",
     "rollup-plugin-copy": "3.4.0",
+    "rollup-plugin-delete": "2.0.0",
     "rollup-plugin-dts": "5.3.0",
     "rollup-plugin-exclude-dependencies-from-bundle": "1.1.23",
     "rollup-plugin-external-globals": "0.8.0",

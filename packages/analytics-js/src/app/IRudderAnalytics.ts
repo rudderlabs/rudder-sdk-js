@@ -4,10 +4,9 @@ import {
   ApiObject,
   ApiOptions,
   LoadOptions,
-  SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { IAnalytics } from './IAnalytics';
+import { IAnalytics } from '../components/core/IAnalytics';
 
 export interface IRudderAnalytics {
   analyticsInstances: Record<string, IAnalytics>;
@@ -31,7 +30,7 @@ export interface IRudderAnalytics {
   /**
    * Call control pane to get client configs
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions): void;
+  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void;
 
   /**
    * To register a callback for SDK ready state

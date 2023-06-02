@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-export-from */
 import { isEmpty } from 'ramda';
 import Emitter from 'component-emitter';
 import { Nullable } from '@rudderstack/analytics-js/types';
@@ -18,8 +19,8 @@ import {
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
-import { Analytics } from './Analytics';
-import { IAnalytics } from './IAnalytics';
+import { Analytics } from '../components/core/Analytics';
+import { IAnalytics } from '../components/core/IAnalytics';
 import { IRudderAnalytics } from './IRudderAnalytics';
 
 // TODO: add analytics restart/reset mechanism
@@ -105,7 +106,7 @@ class RudderAnalytics implements IRudderAnalytics {
   /**
    * Create new analytics instance and trigger application lifecycle start
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
+  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
     const shouldSkipLoad = !isString(writeKey) || Boolean(this.analyticsInstances[writeKey]);
     if (shouldSkipLoad) {
       return;
