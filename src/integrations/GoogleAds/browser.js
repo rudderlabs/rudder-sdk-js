@@ -177,7 +177,7 @@ class GoogleAds {
 
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
-      this.clickEventConversions,
+      this.pageLoadConversions,
       name,
       this.defaultPageConversion,
     );
