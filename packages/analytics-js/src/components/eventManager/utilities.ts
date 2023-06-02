@@ -208,7 +208,7 @@ const getEnrichedEvent = (
     context: {
       traits: clone(state.session.userTraits.value),
       sessionId: state.session.sessionInfo.value.id,
-      sessionStart: state.session.sessionInfo.value.sessionStart,
+      sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.deniedConsentIds.value),
       },
