@@ -51,6 +51,19 @@
                 };
             })(method);
         }
+        // Sets the user ID/anonymous ID
+        // Sending these Identify and Track event to test the preload buffer
+        rudderanalytics.setAnonymousId("automationqa_123");
+
+        // Identify call
+        rudderanalytics.identify("12345", {
+            name: "Automation QA"
+        });
+
+        // Track call
+        rudderanalytics.track("test event", {
+          testProp: "automationQA_prop1" 
+        });
 
         rudderanalytics.load(
             '__WRITE_KEY__',
