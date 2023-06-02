@@ -241,7 +241,7 @@ const pageMethodSuite = {
     {
       id: 'page7',
       description: 'Call with name as argument',
-      inputData: [[true], ['Cart Item']],
+      inputData: [[true], [undefined, 'Cart Item']],
       expectedResult: page7ExpectedData,
       triggerHandler: ['reset', 'page'],
     },
