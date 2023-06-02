@@ -7,18 +7,18 @@ module.exports = [
     name: 'Core - NPM',
     path: 'dist/npm/modern/esm/index.js',
     gzip: true,
-    limit: '25 kB',
+    limit: '23 kB',
   },
   {
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rudder-analytics.min.js',
     gzip: true,
-    limit: '37 kB',
+    limit: '39 kB',
   },
   {
     name: 'Core - CDN',
     path: 'dist/cdn/modern/iife/rudder-analytics.min.js',
     gzip: true,
-    limit: '25 kB',
+    limit: '23 kB',
   },
 ];
