@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import logger from './logUtil';
 
 const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
@@ -33,11 +34,12 @@ const getCircularReplacer = (excludeNull) => {
     }
 
     // `this` is the object that value is contained in, i.e., its direct parent.
-    while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
       ancestors.pop();
     }
 
     if (ancestors.includes(value)) {
+      logger.debug(`Circular Reference detected for key: ${key}`);
       return '[Circular Reference]';
     }
 
