@@ -569,8 +569,8 @@ class Analytics implements IAnalytics {
 
   // eslint-disable-next-line class-methods-use-this
   getSessionId(): Nullable<number> {
-    const sessionInfo = state.session.sessionInfo.value;
-    return sessionInfo?.id ?? null;
+    this.userSessionManager?.refreshSession();
+    return state.session.sessionInfo.value?.id ?? null;
   }
   // End consumer exposed methods
 }
