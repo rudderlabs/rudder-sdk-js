@@ -4,8 +4,14 @@
  */
 module.exports = [
   {
-    name: 'Core - NPM',
+    name: 'Core ESM - NPM',
     path: 'dist/npm/modern/esm/index.js',
+    gzip: true,
+    limit: '11 kB',
+  },
+  {
+    name: 'Core CJS - NPM',
+    path: 'dist/npm/modern/cjs/index.js',
     gzip: true,
     limit: '23 kB',
   },
