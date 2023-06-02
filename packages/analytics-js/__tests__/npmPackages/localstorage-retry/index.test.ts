@@ -559,7 +559,7 @@ describe('Queue', () => {
 
     jest.advanceTimersByTime(queue.getDelay(1) + queue.getDelay(2));
     calls.forEach(call => {
-      expect(call === queue.maxAttempts + 1);
+      expect(call === queue.maxAttempts + 1).toBeTruthy();
     });
   });
 

@@ -40,7 +40,7 @@ const decode = (value: string): Nullable<string> => {
  */
 const parse = (str: string): Record<string, Nullable<string>> => {
   const obj: Record<string, any> = {};
-  const pairs = str.split(/ *; */);
+  const pairs = str.split(/\s*;\s*/);
   let pair;
 
   if (!pairs[0]) {

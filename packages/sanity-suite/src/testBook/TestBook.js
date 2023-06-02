@@ -242,7 +242,8 @@ class TestBook {
         }
       });
 
-      new ClipboardJS('.bi-clipboard');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const clip = new window.ClipboardJS('.bi-clipboard');
     }
 
     const executeAllElement = document.getElementById('execute-all-trigger');
