@@ -21,6 +21,9 @@ const getUserAgentClientHint = (callback: (uaCH?: UADataValues) => void, level =
       ])
       .then(ua => {
         callback(ua);
+      })
+      .catch(() => {
+        callback();
       });
   }
 };
