@@ -1,8 +1,8 @@
-import { RudderAnalytics } from '@rudderstack/analytics-js/components/core/RudderAnalytics';
+import { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
 import { LoadOptions } from '@rudderstack/analytics-js/state/types';
 
-jest.mock('../../../src/components/core/Analytics');
+jest.mock('../../src/components/core/Analytics');
 
 describe('Core - Rudder Analytics Facade', () => {
   let analyticsInstanceMock: Analytics;
@@ -114,7 +114,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const trackSpy = jest.spyOn(analyticsInstance, 'track');
 
     rudderAnalytics.track('event');
-    expect(trackSpy).toHaveBeenCalledWith({ name: 'event' });
+    expect(trackSpy).toHaveBeenCalledWith({ name: 'event', properties: {} });
   });
 
   it('should process identify arguments and forwards to identify call', () => {
@@ -223,13 +223,5 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.getSessionId();
     expect(getSessionIdSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should process getSessionInfo arguments and forwards to getSessionInfo call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getSessionInfoSpy = jest.spyOn(analyticsInstance, 'getSessionInfo');
-
-    rudderAnalytics.getSessionInfo();
-    expect(getSessionInfoSpy).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,9 +6,17 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { batch } from '@preact/signals-core';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
+import {
+  getDefaultPageProperties,
+  getLanguage,
+  getUserAgent,
+} from '@rudderstack/analytics-js/components/utilities/page';
+import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
+import { getUserAgentClientHint } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/clientHint';
 import { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_URL } from './polyfill';
 import {
+  getScreenDetails,
   hasBeacon,
   hasCrypto,
   hasUAClientHints,
@@ -46,6 +54,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   // eslint-disable-next-line class-methods-use-this
   detectBrowserCapabilities() {
     batch(() => {
+      // Storage related details
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
         'cookieStorage',
         getStorageEngine('cookieStorage'),
@@ -53,13 +62,39 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable('localStorage');
       state.capabilities.storage.isSessionStorageAvailable.value =
         isStorageAvailable('sessionStorage');
+
+      // Browser feature detection details
       state.capabilities.isBeaconAvailable.value = hasBeacon();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
       state.capabilities.isIE11.value = isIE11();
+      state.capabilities.isOnline.value = window.navigator.onLine;
+
+      // Get page context details
+      state.context.userAgent.value = getUserAgent();
+      state.context.locale.value = getLanguage();
+      state.context.screen.value = getScreenDetails();
+      state.context.campaign.value = extractUTMParameters(state.page.url.value);
+
+      if (hasUAClientHints()) {
+        getUserAgentClientHint((uach?: UADataValues) => {
+          state.context['ua-ch'].value = uach;
+        }, state.loadOptions.value.uaChTrackLevel);
+      }
+
+      // Get page properties details
+      const pageProperties = getDefaultPageProperties();
+      state.page.path.value = pageProperties.path;
+      state.page.referrer.value = pageProperties.referrer;
+      state.page.referring_domain.value = pageProperties.referring_domain;
+      state.page.search.value = pageProperties.search;
+      state.page.title.value = pageProperties.title;
+      state.page.url.value = pageProperties.url;
+      state.page.tab_url.value = pageProperties.tab_url;
+
+      // Get ad-blocking related details
       // TODO: implement this detection logic as part of relevant sprint task
       state.capabilities.isAdBlocked.value = false;
-      state.capabilities.isOnline.value = window.navigator.onLine;
     });
   }
 

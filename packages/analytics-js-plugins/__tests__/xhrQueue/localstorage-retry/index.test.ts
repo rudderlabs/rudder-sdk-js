@@ -1,8 +1,7 @@
-import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
-import { Schedule } from '../../../src/npmPackages/localstorage-retry/Schedule';
-import { Queue } from '../../../src/npmPackages/localstorage-retry';
-import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
+import { Schedule } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/Schedule';
+import { Queue } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry';
+import { QueueStatuses } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/QueueStatuses';
+import { getStorageEngine, Store } from '@rudderstack/analytics-js-plugins/utilities/common';
 
 const size = (queue: Queue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,
@@ -559,7 +558,7 @@ describe('Queue', () => {
 
     jest.advanceTimersByTime(queue.getDelay(1) + queue.getDelay(2));
     calls.forEach(call => {
-      expect(call === queue.maxAttempts + 1);
+      expect(call === queue.maxAttempts + 1).toBeTruthy();
     });
   });
 

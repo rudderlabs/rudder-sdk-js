@@ -1,4 +1,4 @@
-import * as RudderAnalytics from '@rudderstack/analytics-js';
+import { RudderAnalytics, LoadOptions, LogLevel } from '@rudderstack/analytics-js';
 import { initSanitySuite } from './testBook';
 
 const getWriteKey = () => {
@@ -12,15 +12,15 @@ const getWriteKey = () => {
   }
 };
 
-const getLoadOptions = () => {
+const getLoadOptions = (): Partial<LoadOptions> => {
   // eslint-disable-next-line sonarjs/no-all-duplicated-branches
   switch ('FEATURE' as string) {
     case 'preloadBuffer':
       return {
-        logLevel: 'DEBUG',
+        logLevel: LogLevel.Debug,
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DEST_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -30,10 +30,10 @@ const getLoadOptions = () => {
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     case 'eventFiltering':
       return {
-        logLevel: 'DEBUG',
+        logLevel: LogLevel.Debug,
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DEST_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -43,10 +43,10 @@ const getLoadOptions = () => {
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     default:
       return {
-        logLevel: 'DEBUG',
+        logLevel: LogLevel.Debug,
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DEST_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -57,14 +57,15 @@ const getLoadOptions = () => {
 };
 
 const sanitySuiteApp = () => {
-  (RudderAnalytics as any).load(getWriteKey(), 'DATA_PLANE_URL', getLoadOptions());
+  const rudderAnalytics = new RudderAnalytics();
+  rudderAnalytics.load(getWriteKey(), 'DATA_PLANE_URL', getLoadOptions());
 
-  (RudderAnalytics as any).ready(() => {
+  rudderAnalytics.ready(() => {
     console.log('We are all set!!!');
     initSanitySuite();
   });
 
-  (window as any).rudderanalytics = RudderAnalytics;
+  window.rudderanalytics = rudderAnalytics;
 };
 
 sanitySuiteApp();

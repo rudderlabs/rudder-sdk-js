@@ -266,69 +266,72 @@ describe('User session manager', () => {
       `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
     );
   });
-  it('getSessionInfo: should return empty object if any type of tracking is not enabled', () => {
+  it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
     userSessionManager.init(clientDataStore);
     state.session.sessionInfo.value = {};
-    const actualSessionInfo = userSessionManager.getSessionInfo();
-    expect(actualSessionInfo).toStrictEqual({});
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value).toStrictEqual({});
   });
-  it('getSessionInfo: should return session id and sessionStart when auto tracking is enabled', () => {
+  it('refreshSession: should return session id and sessionStart when auto tracking is enabled', () => {
+    const futureTimestamp = Date.now() + 5000;
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
-      expiresAt: Date.now() + 1000,
+      expiresAt: futureTimestamp,
       id: 1683613729115,
       sessionStart: true,
     };
-    const actualSessionInfo = userSessionManager.getSessionInfo();
-    expect(actualSessionInfo).toEqual({
-      id: state.session.sessionInfo.value.id,
-      sessionStart: true,
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value).toEqual({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: expect.any(Number),
+      id: 1683613729115,
+      sessionStart: false,
     });
   });
-  it('getSessionInfo: should return session id and sessionStart when manual tracking is enabled', () => {
+  it('refreshSession: should return session id and sessionStart when manual tracking is enabled', () => {
     const manualTrackingSessionId = 1029384756;
     userSessionManager.init(clientDataStore);
     userSessionManager.start(manualTrackingSessionId);
-    const actualSessionInfo = userSessionManager.getSessionInfo();
-    expect(actualSessionInfo).toEqual({
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value).toEqual({
       id: manualTrackingSessionId,
       sessionStart: true,
+      manualTrack: true,
     });
   });
-  it('getSessionInfo: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+  it('refreshSession: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
     userSessionManager.init(clientDataStore);
+    const pastTimestamp = Date.now() - 5000;
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
-      expiresAt: Date.now() - 1000,
+      expiresAt: pastTimestamp,
       id: 1683613729115,
       sessionStart: false,
     };
-    const actualSessionInfo = userSessionManager.getSessionInfo();
-    expect(actualSessionInfo).toEqual({
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value).toEqual({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
       id: expect.any(Number),
+      expiresAt: expect.any(Number),
       sessionStart: true,
     });
   });
-  it('getSessionInfo: should return only session id from the second event of the auto session tracking', () => {
+  it('refreshSession: should return only session id from the second event of the auto session tracking', () => {
     userSessionManager.initializeSessionTracking();
-    userSessionManager.getSessionInfo(); // sessionInfo For First Event
-    const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
-    expect(sessionInfoForSecondEvent).toEqual({
-      id: expect.any(Number),
-      sessionStart: false,
-    });
+    userSessionManager.refreshSession(); // sessionInfo For First Event
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value.sessionStart).toBe(false);
   });
-  it('getSessionInfo: should return only session id from the second event of the manual session tracking', () => {
+  it('refreshSession: should return only session id from the second event of the manual session tracking', () => {
     const manualTrackingSessionId = 1029384756;
     userSessionManager.start(manualTrackingSessionId);
-    userSessionManager.getSessionInfo(); // sessionInfo For First Event
-    const sessionInfoForSecondEvent = userSessionManager.getSessionInfo();
-    expect(sessionInfoForSecondEvent).toEqual({
-      id: manualTrackingSessionId,
-      sessionStart: false,
-    });
+    userSessionManager.refreshSession(); // sessionInfo For First Event
+    userSessionManager.refreshSession();
+    expect(state.session.sessionInfo.value.sessionStart).toBe(false);
   });
   it('startAutoTracking: should create a new session in case of invalid session', () => {
     userSessionManager.init(clientDataStore);
@@ -345,7 +348,7 @@ describe('User session manager', () => {
       timeout: 10 * 60 * 1000,
       expiresAt: expect.any(Number),
       id: expect.any(Number),
-      sessionStart: true,
+      sessionStart: undefined,
     });
   });
   it('startAutoTracking: should not create a new session in case of valid session', () => {
@@ -373,7 +376,7 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value).toEqual({
       manualTrack: true,
       id: manualTrackingSessionId,
-      sessionStart: true,
+      sessionStart: undefined,
     });
   });
   it('startManualTracking: should create a new manual session even id session id is not provided', () => {
@@ -382,7 +385,7 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value).toEqual({
       manualTrack: true,
       id: expect.any(Number),
-      sessionStart: true,
+      sessionStart: undefined,
     });
   });
   it('endSessionTracking: should clear session info', () => {
@@ -405,7 +408,7 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.timeout).toBe(sessionInfoBeforeReset.timeout);
     expect(state.session.sessionInfo.value.expiresAt).not.toBe(sessionInfoBeforeReset.expiresAt);
     expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
-    expect(state.session.sessionInfo.value.sessionStart).toBe(true);
+    expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
   it('reset: should clear anonymousId with first parameter set to true', () => {
     userSessionManager.init(clientDataStore);

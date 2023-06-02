@@ -4,10 +4,9 @@ import {
   ApiObject,
   ApiOptions,
   LoadOptions,
-  SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { IAnalytics } from './IAnalytics';
+import { IAnalytics } from '../components/core/IAnalytics';
 
 export interface IRudderAnalytics {
   analyticsInstances: Record<string, IAnalytics>;
@@ -31,7 +30,7 @@ export interface IRudderAnalytics {
   /**
    * Call control pane to get client configs
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions): void;
+  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void;
 
   /**
    * To register a callback for SDK ready state
@@ -103,10 +102,17 @@ export interface IRudderAnalytics {
   /**
    * To record a user alias event
    */
-  alias(to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: string, from: string, callback: ApiCallback): void;
-  alias(to: string, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: string, callback: ApiCallback): void;
+  alias(
+    to: Nullable<string>,
+    from?: string,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  alias(to: Nullable<string>, from: string, callback: ApiCallback): void;
+  alias(to: Nullable<string>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: Nullable<string>, callback: ApiCallback): void;
+  alias(to: ApiCallback): void;
+  alias(): void;
 
   /**
    * To record a user group event
@@ -178,9 +184,4 @@ export interface IRudderAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
-
-  /**
-   * To fetch the current sessionInfo
-   */
-  getSessionInfo(): Nullable<SessionInfo> | undefined;
 }

@@ -11,7 +11,7 @@ jobs:
   deploy-tag:
     name: Deploy Sanity Suite
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/') || startsWith(github.ref, 'refs/heads/beta/')
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -37,10 +37,11 @@ jobs:
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
           HUSKY: 0
         run: |
-          npm run setup
+          npm ci --no-audit
+          npm run setup:ci
           npm run build:sanity
 
       - name: Sync files to S3
         run: |
-          aws s3 cp sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/sanity-suite*"

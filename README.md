@@ -1,11 +1,12 @@
+## [![Releases](https://img.shields.io/github/release/rudderlabs/rudder-sdk-js.svg)](https://github.com/rudderlabs/rudder-sdk-js/releases) [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](https://www.typescriptlang.org/) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=coverage)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js)
+
 <p align="center">
   <a href="https://rudderstack.com/">
     <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
   </a>
+  <br />
+  <caption>The Customer Data Platform for Developers</caption>
 </p>
-
-<p align="center"><b>The Customer Data Platform for Developers</b></p>
-
 <p align="center">
   <b>
     <a href="https://rudderstack.com">Website</a>
@@ -15,8 +16,6 @@
     <a href="https://rudderstack.com/join-rudderstack-slack-community">Community Slack</a>
   </b>
 </p>
-
-## [![Releases](https://img.shields.io/github/release/rudderlabs/rudder-sdk-js.svg)](https://github.com/rudderlabs/rudder-sdk-js/releases) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=coverage)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js)
 
 ---
 

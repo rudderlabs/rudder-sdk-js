@@ -1,6 +1,9 @@
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
-import { defaultEventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
+import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
+import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
+import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/PluginsManager';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
@@ -10,7 +13,11 @@ describe('EventManager', () => {
   }
 
   const mockErrorHandler = new MockErrorHandler();
-  const eventManager = new EventManager(defaultEventRepository, mockErrorHandler);
+  const pluginEngine = new PluginEngine();
+  const pluginsManager = new PluginsManager(pluginEngine, mockErrorHandler);
+  const eventRepository = new EventRepository(pluginsManager, mockErrorHandler);
+  const userSessionManager = new UserSessionManager();
+  const eventManager = new EventManager(eventRepository, userSessionManager, mockErrorHandler);
 
   it('should raise error if the event data is invalid', () => {
     eventManager.addEvent({
@@ -31,7 +38,7 @@ describe('EventManager', () => {
   });
 
   it('should throw an exception if the event data is invalid and error handler is not defined', () => {
-    const eventManager = new EventManager();
+    const eventManager = new EventManager(eventRepository, userSessionManager);
     expect(() => {
       eventManager.addEvent({
         // @ts-ignore
