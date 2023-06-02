@@ -18,6 +18,7 @@ import {
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { IUserSessionManager } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
@@ -256,6 +257,7 @@ class UserSessionManager implements IUserSessionManager {
       // fetch anonymousId from external source
       const autoCapturedAnonymousId = this.pluginManager?.invokeMultiple<string | undefined>(
         'storage.getAnonymousId',
+        getStorageEngine,
         options,
       );
       persistedAnonymousId = autoCapturedAnonymousId?.[0];

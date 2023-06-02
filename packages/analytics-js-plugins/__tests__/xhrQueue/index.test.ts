@@ -1,7 +1,9 @@
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
-import { state, mergeDeepRight } from '@rudderstack/analytics-js-plugins/utilities/common';
 import { batch } from '@preact/signals-core';
 import { RudderEvent } from '@rudderstack/analytics-js-plugins/types/common';
+import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { state } from '@rudderstack/analytics-js/state';
+import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 
 jest.mock('@rudderstack/analytics-js-plugins/utilities/common', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-plugins/utilities/common'),
@@ -9,6 +11,8 @@ jest.mock('@rudderstack/analytics-js-plugins/utilities/common', () => ({
 }));
 
 describe('XhrQueue', () => {
+  const httpClient = new HttpClient();
+
   it('should add itself to the loaded plugins list on initialized', () => {
     XhrQueue().initialize(state);
 
@@ -28,7 +32,7 @@ describe('XhrQueue', () => {
       };
     });
 
-    const queue = XhrQueue().dataplaneEventsQueue.init(state);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
 
     expect(queue).toBeDefined();
     expect(queue.running).toBeTruthy();
@@ -36,7 +40,7 @@ describe('XhrQueue', () => {
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = XhrQueue().dataplaneEventsQueue.init(state);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
@@ -52,7 +56,7 @@ describe('XhrQueue', () => {
       originalTimestamp: 'test',
     };
 
-    XhrQueue().dataplaneEventsQueue.enqueue(state, queue, event);
+    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
 
     expect(addItemSpy).toBeCalledWith({
       url: 'https://sampleurl.com/v1/track',
@@ -66,7 +70,7 @@ describe('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    const queue = XhrQueue().dataplaneEventsQueue.init(state);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
 
     const event: RudderEvent = {
       type: 'track',
@@ -82,7 +86,7 @@ describe('XhrQueue', () => {
 
     const queueProcessCbSpy = jest.spyOn(queue, 'fn');
 
-    XhrQueue().dataplaneEventsQueue.enqueue(state, queue, event);
+    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
 
     expect(queueProcessCbSpy).toBeCalledWith(
       {
