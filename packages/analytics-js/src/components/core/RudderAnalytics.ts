@@ -63,7 +63,6 @@ class RudderAnalytics implements IRudderAnalytics {
     this.startSession = this.startSession.bind(this);
     this.endSession = this.endSession.bind(this);
     this.getSessionId = this.getSessionId.bind(this);
-    this.getSessionInfo = this.getSessionInfo.bind(this);
 
     RudderAnalytics.globalSingleton = this;
 
@@ -254,10 +253,6 @@ class RudderAnalytics implements IRudderAnalytics {
 
   getSessionId() {
     return this.getAnalyticsInstance().getSessionId();
-  }
-
-  getSessionInfo() {
-    return this.getAnalyticsInstance().getSessionInfo();
   }
 }
 

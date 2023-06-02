@@ -18,7 +18,7 @@ import {
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
-import { IUserSessionManager, SessionTrackingInfo } from './types';
+import { IUserSessionManager } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
 import { getReferringDomain } from '../utilities/url';
@@ -321,27 +321,25 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to return current session info
+   * A function to update current session info after each event call
    */
-  getSessionInfo(): Nullable<SessionInfo> {
-    let session: SessionTrackingInfo = {};
+  refreshSession(): void {
     if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
       if (state.session.sessionInfo.value.autoTrack) {
         this.startOrRenewAutoTracking();
       }
-
-      session = {
-        id: state.session.sessionInfo.value.id,
-        sessionStart: state.session.sessionInfo.value.sessionStart,
-      };
-
-      if (state.session.sessionInfo.value.sessionStart) {
-        state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
+      if (state.session.sessionInfo.value.sessionStart === undefined) {
+        state.session.sessionInfo.value = {
+          ...state.session.sessionInfo.value,
+          sessionStart: true,
+        };
+      } else if (state.session.sessionInfo.value.sessionStart) {
+        state.session.sessionInfo.value = {
+          ...state.session.sessionInfo.value,
           sessionStart: false,
-        });
+        };
       }
     }
-    return session;
   }
 
   /**
@@ -444,7 +442,6 @@ class UserSessionManager implements IUserSessionManager {
       const timeout = state.session.sessionInfo.value.timeout as number;
       state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
         expiresAt: timestamp + timeout, // set the expiry time of the session
-        sessionStart: false,
       });
     }
   }
