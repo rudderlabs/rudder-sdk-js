@@ -42,9 +42,10 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
           directory: packages/analytics-js/
-          script: npm run check:size
+          skip_step: install
+          build_script: check:size:build
+          script: npm run check:size:json
 
       - name: Execute bundle size checks - analytics-js-plugins
         uses: rudderlabs/github-action-check-size-limit@v2.0.0
@@ -52,6 +53,7 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
           directory: packages/analytics-js-plugins/
-          script: npm run check:size
+          skip_step: install
+          build_script: check:size:build
+          script: npm run check:size:json
