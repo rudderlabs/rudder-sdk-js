@@ -36,16 +36,13 @@ jobs:
         run: |
           npm run check:security
 
-      - name: Build artifacts
-        run: npm run check:size:build
-
       - name: Execute bundle size checks - analytics-js
         uses: rudderlabs/github-action-check-size-limit@v2.0.0
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: build
+          skip_step: install
           directory: packages/analytics-js/
           script: npm run check:size
 
@@ -55,6 +52,6 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: build
+          skip_step: install
           directory: packages/analytics-js-plugins/
           script: npm run check:size
