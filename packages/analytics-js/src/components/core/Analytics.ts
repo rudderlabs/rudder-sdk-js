@@ -117,7 +117,7 @@ class Analytics implements IAnalytics {
   }
 
   attachGlobalErrorHandler() {
-    window.addEventListener(
+    globalThis.addEventListener(
       'error',
       e => {
         this.errorHandler.onError(e, 'Global Boundary', state.lifecycle.writeKey.value);

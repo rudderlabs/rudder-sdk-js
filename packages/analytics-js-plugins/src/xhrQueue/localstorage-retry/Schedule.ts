@@ -27,7 +27,7 @@ const DEFAULT_CLOCK: ScheduleClock = {
   clearTimeout(id: number) {
     return window.clearTimeout(id);
   },
-  Date: window.Date,
+  Date: globalThis.Date,
   clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR,
 };
 
