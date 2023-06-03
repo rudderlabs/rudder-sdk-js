@@ -4,6 +4,8 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
+import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
@@ -19,6 +21,7 @@ class EventRepository implements IEventRepository {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   pluginsManager: IPluginsManager;
+  httpClient: IHttpClient;
   dataplaneEventsQueue: any;
   destinationsEventsQueue: any;
 
@@ -32,6 +35,7 @@ class EventRepository implements IEventRepository {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
     this.logger = logger;
+    this.httpClient = new HttpClient(errorHandler, logger);
     this.onError = this.onError.bind(this);
   }
 
@@ -42,6 +46,7 @@ class EventRepository implements IEventRepository {
     this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
+      this.httpClient,
       this.errorHandler,
       this.logger,
     );

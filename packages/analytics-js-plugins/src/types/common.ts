@@ -14,14 +14,13 @@ export type {
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-export type { DoneCallback } from '@rudderstack/analytics-js/npmPackages/localstorage-retry';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-export { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
-export type { StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
+export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
+export { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 
 export type ApplicationState = IApplicationState;
 

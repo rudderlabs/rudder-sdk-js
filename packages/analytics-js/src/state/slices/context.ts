@@ -1,9 +1,6 @@
 import { signal, Signal } from '@preact/signals-core';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import {
-  getScreenDetails,
-  ScreenInfo,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
+import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import {
   AppInfo,
@@ -12,9 +9,6 @@ import {
   Traits,
   UTMParameters,
 } from '@rudderstack/analytics-js/state/types';
-import { getLanguage, getUserAgent } from '@rudderstack/analytics-js/components/utilities/page';
-import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
-import { pagePropertiesState } from './page';
 
 export type ContextState = {
   app: Signal<AppInfo>;
@@ -41,17 +35,23 @@ const contextState: ContextState = {
     name: APP_NAME,
     version: APP_VERSION,
   }),
-  userAgent: signal(getUserAgent()),
+  userAgent: signal(''),
   device: signal(null),
   network: signal(null),
   os: signal({
     name: '',
     version: '',
   }),
-  locale: signal(getLanguage()),
-  screen: signal(getScreenDetails()),
+  locale: signal(null),
+  screen: signal({
+    density: 0,
+    width: 0,
+    height: 0,
+    innerWidth: 0,
+    innerHeight: 0,
+  }),
   'ua-ch': signal(undefined),
-  campaign: signal(extractUTMParameters(pagePropertiesState.url.value)),
+  campaign: signal({}),
 };
 
 export { contextState };

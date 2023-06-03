@@ -16,7 +16,7 @@ export type CapabilitiesState = {
 };
 
 const capabilitiesState: CapabilitiesState = {
-  isOnline: signal(window.navigator.onLine),
+  isOnline: signal(true),
   storage: {
     isLocalStorageAvailable: signal(false),
     isCookieStorageAvailable: signal(false),

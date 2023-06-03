@@ -33,13 +33,20 @@ class TestBook {
 
                         <div class="row">
                             <div class="col">
-                                <table class="table table-striped table-hover table-bordered">
+                                <table class="table table-striped table-hover table-bordered" style="table-layout: fixed; width: 100%">
                                     <caption>${suite.description}</caption>
+                                    <colgroup>
+                                      <col style="width: 5%;" />
+                                      <col style="width: 25%;" />
+                                      <col style="width: 10%;" />
+                                      <col style="width: 30%;" />
+                                      <col style="width: 30%;" />
+                                    </colgroup>
                                     <thead class="table-dark">
                                     <tr>
+                                        <th scope="col">Id</th>
                                         <th scope="col">Test Case</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Arguments Array</th>
                                         <th scope="col">Generated Payload</th>
                                         <th scope="col">Expected Payload</th>
                                     </tr>
@@ -55,27 +62,35 @@ class TestBook {
 
         markupString += `
                     <tr class="collapsed-row" data-testid="test-case-${testCase.id}">
-                        <th scope="row" style="word-wrap: break-word; max-width: 280px;">
-                            <button type="button" class="btn btn-dark btn-sm testCaseTrigger" id="test-case-trigger-${
-                              testCase.id
-                            }" data-suite-group-index="${groupIndex}" data-suite-index="${i}" data-test-case-index="${j}" style="text-align: left;">
+                        <td style="word-wrap: break-word; position: relative;">${j + 1}</td>
+                        <th scope="row" class="table-heading" style="word-wrap: break-word; font-weight: normal">
+                            <button
+                              type="button"
+                              class="btn btn-dark btn-sm testCaseTrigger"
+                              id="test-case-trigger-${testCase.id}"
+                               data-suite-group-index="${groupIndex}"
+                               data-suite-index="${i}"
+                               data-test-case-index="${j}"
+                               style="text-align: left;">
                                 <span class="text-start">
                                     ${testCase.description}
                                 </span>
                             </button>
-                            <br>
-                            <br>
+                            <hr>
                             <button type="button" class="btn btn-secondary btn-sm testCaseToggle">
                                 <i class="bi bi-arrows-expand"></i> Expand/Collapse
                             </button>
+                            <hr>
+                            <p><strong>Arguments Array</strong></p>
+                            <p>${testCase.triggerHandler}</p>
+                            <div style="word-wrap: break-word; position: relative;">
+                              <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
+                            </div>
                         </th>
                         <td style="word-wrap: break-word;"><span class="badge badge-warning" id="test-case-status-${
                           testCase.id
                         }">pending</span></td>
-                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
-                          <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
-                        </td>
-                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                        <td style="word-wrap: break-word; position: relative;">
                           <pre class="testCaseResult" id="test-case-result-${
                             testCase.id
                           }" data-test-case-id="${testCase.id}"></pre>
@@ -85,14 +100,14 @@ class TestBook {
                             }"></i>
                           </button>
                         </td>
-                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
-                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data${
+                        <td style="word-wrap: break-word; position: relative;">
+                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
           testCase.id
         }">
                             ${JSON.stringify(testCase.expectedResult, undefined, 2)}
                           </pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data${
+                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data-${
                               testCase.id
                             }"></i>
                           </button>
@@ -162,12 +177,13 @@ class TestBook {
   // Invoke the trigger handlers passing as arguments the input data array items
   invokeTriggerHandlers(clickHandler, inputData, resultCallback) {
     // Always add callback methods in order to retrieve the generated message object
-    inputData.push(resultCallback);
+    const inputs = [...inputData];
+    inputs.push(resultCallback);
 
     if (typeof clickHandler === 'function') {
-      clickHandler.apply(null, inputData);
+      clickHandler.apply(null, inputs);
     } else if (typeof clickHandler === 'string') {
-      window.rudderanalytics[clickHandler].apply(null, inputData);
+      window.rudderanalytics[clickHandler].apply(null, inputs);
     }
   }
 
@@ -226,7 +242,8 @@ class TestBook {
         }
       });
 
-      new ClipboardJS('.bi-clipboard');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const clip = new window.ClipboardJS('.bi-clipboard');
     }
 
     const executeAllElement = document.getElementById('execute-all-trigger');

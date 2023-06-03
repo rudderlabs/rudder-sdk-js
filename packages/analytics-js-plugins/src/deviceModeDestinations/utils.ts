@@ -10,7 +10,7 @@ import {
   DeviceModeDestination,
   ILogger,
   IntegrationOpts,
-} from '../types/common';
+} from '@rudderstack/analytics-js-plugins/types/common';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 
