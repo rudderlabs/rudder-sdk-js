@@ -356,8 +356,8 @@ class Analytics implements IAnalytics {
     effect(() => {
       const areAllDestinationsReady =
         totalDestinationsToLoad === 0 ||
-        Object.keys(state.nativeDestinations.initializedDestinations.value).length +
-          state.nativeDestinations.failedDestinationScripts.value.length ===
+        state.nativeDestinations.initializedDestinations.value.length +
+          state.nativeDestinations.failedDestinations.value.length ===
           totalDestinationsToLoad;
 
       if (areAllDestinationsReady) {

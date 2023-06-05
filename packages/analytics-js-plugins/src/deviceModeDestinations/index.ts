@@ -4,6 +4,7 @@ import {
   LOAD_CHECK_TIMEOUT,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { destDispNamesToFileNamesMap } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/destDispNamesToFileNames';
+import { clone } from 'ramda';
 import {
   createDestinationInstance,
   isDestinationSDKEvaluated,
@@ -17,7 +18,6 @@ import {
   PluginName,
   ApplicationState,
   ILogger,
-  DeviceModeDestination,
   IPluginsManager,
 } from '../types/common';
 
@@ -89,15 +89,6 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             return;
           }
 
-          // Format of id: <sdkName>___<destId>
-          const splitParts = id.split('___');
-          const destId = splitParts[1];
-
-          state.nativeDestinations.loadedDestinationScripts.value = [
-            ...state.nativeDestinations.loadedDestinationScripts.value,
-            destId,
-          ];
-
           logger?.debug(`Destination script with id: ${id} loaded successfully`);
         });
 
@@ -119,9 +110,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               logger?.error(
                 `Script load failed for destination: ${userFriendlyDestId}. Error message: ${e.message}`,
               );
-              state.nativeDestinations.failedDestinationScripts.value = [
-                ...state.nativeDestinations.failedDestinationScripts.value,
-                dest.id,
+              state.nativeDestinations.failedDestinations.value = [
+                ...state.nativeDestinations.failedDestinations.value,
+                dest,
               ];
             });
         }
@@ -151,14 +142,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               isDestinationReady(destInstance, logger)
                 .then(() => {
                   logger?.debug(`Destination ${userFriendlyDestId} is loaded and ready`);
-                  const initializedDestination: Record<string, DeviceModeDestination> = {};
-                  initializedDestination[dest.id] = destInstance;
 
-                  logger?.debug(`Initialized destination: ${userFriendlyDestId}`);
-                  state.nativeDestinations.initializedDestinations.value = {
+                  const initializedDestination = clone(dest);
+                  initializedDestination.instance = destInstance;
+                  state.nativeDestinations.initializedDestinations.value = [
                     ...state.nativeDestinations.initializedDestinations.value,
-                    ...initializedDestination,
-                  };
+                    initializedDestination,
+                  ];
                 })
                 .catch(e => {
                   throw e;
@@ -167,9 +157,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               const message = `Unable to initialize destination: ${userFriendlyDestId}. Error message: ${e.message}`;
               logger?.error(e, message);
 
-              state.nativeDestinations.failedDestinationScripts.value = [
-                ...state.nativeDestinations.failedDestinationScripts.value,
-                dest.id,
+              state.nativeDestinations.failedDestinations.value = [
+                ...state.nativeDestinations.failedDestinations.value,
+                dest,
               ];
             }
           }
@@ -179,9 +169,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           clearInterval(intervalId);
 
           logger?.debug(`SDK script evaluation timed out for destination: ${userFriendlyDestId}`);
-          state.nativeDestinations.failedDestinationScripts.value = [
-            ...state.nativeDestinations.failedDestinationScripts.value,
-            dest.id,
+          state.nativeDestinations.failedDestinations.value = [
+            ...state.nativeDestinations.failedDestinations.value,
+            dest,
           ];
         }, LOAD_CHECK_TIMEOUT);
       });

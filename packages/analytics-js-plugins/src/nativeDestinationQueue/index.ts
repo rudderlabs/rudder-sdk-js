@@ -10,6 +10,7 @@ import {
   RudderEvent,
   IErrorHandler,
   ILogger,
+  Destination,
 } from '../types/common';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions } from './utilities';
@@ -42,23 +43,20 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
           logger?.debug(`Forwarding ${item.type} event to destinations`);
-          Object.keys(state.nativeDestinations.initializedDestinations.value).forEach(
-            (destId: string) => {
-              const destInstance = state.nativeDestinations.initializedDestinations.value[destId];
-              const methodName = item.type.toString();
-              try {
-                // Destinations expect the event to be wrapped under the `message` key
-                // This will remain until we update the destinations to accept the event directly
-                destInstance[methodName]?.({ message: item });
-              } catch (err) {
-                errorHandler?.onError(
-                  err,
-                  'NativeDestinationQueue',
-                  `Error in forwarding event to destination: ${destInstance.name}, ID: ${destId}`,
-                );
-              }
-            },
-          );
+          state.nativeDestinations.initializedDestinations.value.forEach((dest: Destination) => {
+            const methodName = item.type.toString();
+            try {
+              // Destinations expect the event to be wrapped under the `message` key
+              // This will remain until we update the destinations to accept the event directly
+              dest.instance?.[methodName]?.({ message: item });
+            } catch (err) {
+              errorHandler?.onError(
+                err,
+                'NativeDestinationQueue',
+                `Error in forwarding event to destination: ${dest.displayName}, ID: ${dest.id}`,
+              );
+            }
+          });
 
           // Mark success always
           done(null);

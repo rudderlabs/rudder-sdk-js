@@ -33,6 +33,7 @@ export type Destination = {
   displayName: string;
   areTransformationsConnected: boolean;
   config: DestinationConfig;
+  instance?: DeviceModeDestination;
 };
 
 export type OneTrustCookieCategory = {
@@ -95,6 +96,9 @@ export type DestinationConfig = {
 
 export type DeviceModeDestination = {
   name: string; // this is same as the definition name
+  destinationId: string;
+  areTransformationsConnected: boolean;
+  analytics: any;
   [index: string]: any;
   isLoaded: () => boolean;
   isReady?: () => boolean;
