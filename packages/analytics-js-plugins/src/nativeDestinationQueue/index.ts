@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { effect } from '@preact/signals-core';
-import { Queue, DoneCallback } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry';
+import { Queue, DoneCallback } from '@rudderstack/analytics-js-plugins/utilities/localstorage-retry';
 import {
   ExtensionPlugin,
   PluginName,
