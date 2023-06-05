@@ -19,7 +19,7 @@ import {
   IHttpClient,
 } from '../types/common';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
-import { DoneCallback, Queue } from '../utilities/localstorage-retry';
+import { DoneCallback, Queue } from '../utilities/retryQueue';
 
 const pluginName = PluginName.XhrQueue;
 

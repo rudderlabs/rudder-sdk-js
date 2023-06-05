@@ -1,5 +1,5 @@
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/localstorage-retry/QueueStatuses';
+import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 
 describe('Store', () => {

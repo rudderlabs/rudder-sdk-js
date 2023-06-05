@@ -1,6 +1,6 @@
-import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/localstorage-retry/Schedule';
-import { Queue } from '@rudderstack/analytics-js-plugins/utilities/localstorage-retry';
-import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/localstorage-retry/QueueStatuses';
+import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
+import { Queue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
 import { getStorageEngine } from '@rudderstack/analytics-js-plugins/utilities/common';
 import { Store } from '@rudderstack/analytics-js-plugins/types/common';
 
