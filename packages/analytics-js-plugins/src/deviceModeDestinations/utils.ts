@@ -61,7 +61,7 @@ const createDestinationInstance = (
 
   // TODO: avoid this object wrapping of the RudderAnalytics API methods
   return new (window as any)[destSDKIdentifier][sdkTypeName](
-    dest.config,
+    clone(dest.config),
     {
       loadIntegration: state.nativeDestinations.loadIntegration.value,
       logLevel: state.lifecycle.logLevel.value,
