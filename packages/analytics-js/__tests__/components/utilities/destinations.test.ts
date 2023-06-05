@@ -159,6 +159,7 @@ const expectedFilteredDestinations = [
       extendPageViewParams: false,
       oneTrustCookieCategories: [],
     },
+    userFriendlyId: 'Google Analytics 4 (GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
   },
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
@@ -182,6 +183,7 @@ const expectedFilteredDestinations = [
       extendPageViewParams: false,
       oneTrustCookieCategories: [],
     },
+    userFriendlyId: 'Braze___2LoR1TbVG2bcISXvy7Damldfkg1',
   },
 ];
 

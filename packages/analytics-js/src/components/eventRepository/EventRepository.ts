@@ -54,6 +54,7 @@ class EventRepository implements IEventRepository {
     this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
+      this.pluginsManager,
       this.errorHandler,
       this.logger,
     );

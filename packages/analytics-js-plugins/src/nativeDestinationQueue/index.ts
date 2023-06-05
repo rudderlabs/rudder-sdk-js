@@ -11,9 +11,10 @@ import {
   IErrorHandler,
   ILogger,
   Destination,
+  IPluginsManager,
 } from '../types/common';
 import { QUEUE_NAME } from './constants';
-import { getNormalizedQueueOptions } from './utilities';
+import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 
 const pluginName = PluginName.NativeDestinationQueue;
 
@@ -31,7 +32,12 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
      * @param logger Logger instance
      * @returns Queue instance
      */
-    init(state: ApplicationState, errorHandler?: IErrorHandler, logger?: ILogger): Queue {
+    init(
+      state: ApplicationState,
+      pluginsManager: IPluginsManager,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): Queue {
       const finalQOpts = getNormalizedQueueOptions(
         state.loadOptions.value.queueOptions as QueueOpts,
       );
@@ -44,17 +50,18 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         (item: RudderEvent, done: DoneCallback) => {
           logger?.debug(`Forwarding ${item.type} event to destinations`);
           state.nativeDestinations.initializedDestinations.value.forEach((dest: Destination) => {
-            const methodName = item.type.toString();
-            try {
-              // Destinations expect the event to be wrapped under the `message` key
-              // This will remain until we update the destinations to accept the event directly
-              dest.instance?.[methodName]?.({ message: item });
-            } catch (err) {
-              errorHandler?.onError(
-                err,
-                'NativeDestinationQueue',
-                `Error in forwarding event to destination: ${dest.displayName}, ID: ${dest.id}`,
+            const sendEvent = !isEventDenyListed(item.event, dest);
+            if (!sendEvent) {
+              logger?.debug(
+                `"${item.event}" event is denylisted for destination: ${dest.userFriendlyId}`,
               );
+              return;
+            }
+
+            if (dest.areTransformationsConnected) {
+              pluginsManager.invokeSingle('transformEvent.enqueue', state, item, dest, logger);
+            } else {
+              sendEventToDestination(item, dest, errorHandler, logger);
             }
           });
 
@@ -89,10 +96,19 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): void {
-      // TODO: Process the event via DMT
-
-      // TODO: Filter events based on destination settings
       eventsQueue.addItem(event);
+    },
+
+    /**
+     * This extension point is used to directly send the transformed event to the destination
+     * @param state Application state
+     * @param event RudderEvent Object
+     * @param destination Destination Object
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     */
+    enqueueEventToDestination(state, event, destination, errorHandler, logger) {
+      sendEventToDestination(event, destination, errorHandler, logger);
     },
   },
 });
