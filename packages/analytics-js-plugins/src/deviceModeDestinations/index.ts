@@ -94,21 +94,20 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
       activeDestinations.forEach(dest => {
         const sdkName = destDispNamesToFileNamesMap[dest.displayName];
-        const userFriendlyDestId = `${sdkName}___${dest.id}`;
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
-        logger?.debug(`Loading destination: ${userFriendlyDestId}`);
+        logger?.debug(`Loading destination: ${dest.userFriendlyId}`);
 
         if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
           const destSdkURL = `${destSDKBaseURL}/${sdkName}.min.js`;
           externalSrcLoader
             .loadJSFile({
               url: destSdkURL,
-              id: userFriendlyDestId,
+              id: dest.userFriendlyId,
               callback: onLoadCallback,
             })
             .catch(e => {
               logger?.error(
-                `Script load failed for destination: ${userFriendlyDestId}. Error message: ${e.message}`,
+                `Script load failed for destination: ${dest.userFriendlyId}. Error message: ${e.message}`,
               );
               state.nativeDestinations.failedDestinations.value = [
                 ...state.nativeDestinations.failedDestinations.value,
@@ -125,7 +124,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             clearTimeout(timeoutId);
 
             logger?.debug(
-              `SDK script evaluation successful for destination: ${userFriendlyDestId}`,
+              `SDK script evaluation successful for destination: ${dest.userFriendlyId}`,
             );
 
             try {
@@ -136,12 +135,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 state,
                 logger,
               );
-              logger?.debug(`Initializing destination: ${userFriendlyDestId}`);
+              logger?.debug(`Initializing destination: ${dest.userFriendlyId}`);
               destInstance.init();
 
               isDestinationReady(destInstance, logger)
                 .then(() => {
-                  logger?.debug(`Destination ${userFriendlyDestId} is loaded and ready`);
+                  logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
 
                   const initializedDestination = clone(dest);
                   initializedDestination.instance = destInstance;
@@ -154,7 +153,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   throw e;
                 });
             } catch (e: any) {
-              const message = `Unable to initialize destination: ${userFriendlyDestId}. Error message: ${e.message}`;
+              const message = `Unable to initialize destination: ${dest.userFriendlyId}. Error message: ${e.message}`;
               logger?.error(e, message);
 
               state.nativeDestinations.failedDestinations.value = [
@@ -168,7 +167,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         timeoutId = window.setTimeout(() => {
           clearInterval(intervalId);
 
-          logger?.debug(`SDK script evaluation timed out for destination: ${userFriendlyDestId}`);
+          logger?.debug(`SDK script evaluation timed out for destination: ${dest.userFriendlyId}`);
           state.nativeDestinations.failedDestinations.value = [
             ...state.nativeDestinations.failedDestinations.value,
             dest,

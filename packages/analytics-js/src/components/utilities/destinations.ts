@@ -16,6 +16,7 @@ const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[])
         displayName: destination.destinationDefinition.displayName,
         config: destination.config,
         areTransformationsConnected: destination.areTransformationsConnected || false,
+        userFriendlyId: `${destination.destinationDefinition.displayName}___${destination.id}`,
       });
     }
   });

@@ -31,6 +31,7 @@ export type Traits = Record<string, any>;
 export type Destination = {
   id: string;
   displayName: string;
+  userFriendlyId: string;
   areTransformationsConnected: boolean;
   config: DestinationConfig;
   instance?: DeviceModeDestination;
