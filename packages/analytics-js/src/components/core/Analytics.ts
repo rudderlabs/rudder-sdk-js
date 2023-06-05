@@ -35,7 +35,7 @@ import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/t
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
+import { normalizeLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import {
   consumePreloadBufferedEvent,
   retrievePreloadBufferEvents,
@@ -141,7 +141,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = normaliseLoadOptions(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 
