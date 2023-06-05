@@ -52,7 +52,8 @@ const XhrQueue = (): ExtensionPlugin => ({
       );
 
       const eventsQueue = new Queue(
-        QUEUE_NAME,
+        // adding write key to the queue name to avoid conflicts
+        `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
           item: XHRQueueItem,

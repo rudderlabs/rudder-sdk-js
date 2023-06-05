@@ -35,8 +35,10 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         state.loadOptions.value.queueOptions as QueueOpts,
       );
 
+      const writeKey = state.lifecycle.writeKey.value as string;
       const eventsQueue = new Queue(
-        QUEUE_NAME,
+        // adding write key to the queue name to avoid conflicts
+        `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
           logger?.debug(`Forwarding ${item.type} event to destinations`);

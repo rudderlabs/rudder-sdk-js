@@ -11,6 +11,10 @@ jest.mock('@rudderstack/analytics-js-plugins/utilities/common', () => ({
 }));
 
 describe('XhrQueue', () => {
+  beforeAll(() => {
+    state.lifecycle.writeKey.value = 'sampleWriteKey';
+  });
+
   const httpClient = new HttpClient();
 
   it('should add itself to the loaded plugins list on initialized', () => {
@@ -36,7 +40,7 @@ describe('XhrQueue', () => {
 
     expect(queue).toBeDefined();
     expect(queue.running).toBeTruthy();
-    expect(queue.name).toBe('rudder');
+    expect(queue.name).toBe('rudder_sampleWriteKey');
   });
 
   it('should add item in queue on enqueue', () => {
