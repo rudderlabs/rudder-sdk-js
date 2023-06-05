@@ -138,12 +138,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               logger?.debug(`Initializing destination: ${dest.userFriendlyId}`);
               destInstance.init();
 
-              isDestinationReady(destInstance, logger)
+              const initializedDestination = clone(dest);
+              initializedDestination.instance = destInstance;
+
+              isDestinationReady(initializedDestination, logger)
                 .then(() => {
                   logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
 
-                  const initializedDestination = clone(dest);
-                  initializedDestination.instance = destInstance;
                   state.nativeDestinations.initializedDestinations.value = [
                     ...state.nativeDestinations.initializedDestinations.value,
                     initializedDestination,

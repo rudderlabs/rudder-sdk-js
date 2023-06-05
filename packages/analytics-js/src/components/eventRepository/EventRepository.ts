@@ -100,7 +100,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(dpQEvent);
     } catch (error) {
-      this.onError(error, 'API callback invocation failed');
+      this.onError(error, 'API Callback Invocation Failed');
     }
   }
 
