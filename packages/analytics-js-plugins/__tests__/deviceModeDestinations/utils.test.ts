@@ -1,7 +1,7 @@
-import { filterDestinationsToLoad } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
+import { filterDestinations } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 
 describe('deviceModeDestinations utils', () => {
-  describe('filterDestinationsToLoad', () => {
+  describe('filterDestinations', () => {
     const destinations = [
       {
         name: 'GA4',
@@ -19,7 +19,7 @@ describe('deviceModeDestinations utils', () => {
         'Google Analytics 4 (GA4)': false,
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, destinations);
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
 
       expect(filteredDestinations).toEqual([
         {
@@ -35,7 +35,7 @@ describe('deviceModeDestinations utils', () => {
         'Google Analytics 4 (GA4)': true,
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, destinations);
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
 
       expect(filteredDestinations).toEqual([
         {
@@ -50,7 +50,7 @@ describe('deviceModeDestinations utils', () => {
         All: true,
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, destinations);
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
 
       expect(filteredDestinations).toEqual(destinations);
     });
@@ -60,7 +60,7 @@ describe('deviceModeDestinations utils', () => {
         All: false,
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, destinations);
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
 
       expect(filteredDestinations).toEqual([]);
     });
@@ -74,7 +74,7 @@ describe('deviceModeDestinations utils', () => {
         Braze: [1, 2, 3],
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, destinations);
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
 
       expect(filteredDestinations).toEqual(destinations);
     });
@@ -101,7 +101,7 @@ describe('deviceModeDestinations utils', () => {
         Braze: 0,
       };
 
-      const filteredDestinations = filterDestinationsToLoad(loadOptions, configDestinations);
+      const filteredDestinations = filterDestinations(loadOptions, configDestinations);
 
       expect(filteredDestinations).toEqual([
         {

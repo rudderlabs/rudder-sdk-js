@@ -15,6 +15,7 @@ import {
 } from '../types/common';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
+import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
 const pluginName = PluginName.NativeDestinationQueue;
 
@@ -49,7 +50,12 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
           logger?.debug(`Forwarding ${item.type} event to destinations`);
-          state.nativeDestinations.initializedDestinations.value.forEach((dest: Destination) => {
+          const destinationsToSend = filterDestinations(
+            item.integrations,
+            state.nativeDestinations.initializedDestinations.value,
+          );
+
+          destinationsToSend.forEach((dest: Destination) => {
             const sendEvent = !isEventDenyListed(item.event, dest);
             if (!sendEvent) {
               logger?.debug(
@@ -96,6 +102,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): void {
+      event.integrations = normalizeIntegrationOptions(event.integrations);
       eventsQueue.addItem(event);
     },
 

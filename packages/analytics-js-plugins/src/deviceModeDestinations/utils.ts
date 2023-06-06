@@ -134,22 +134,19 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
   return normalizedIntegrationOptions;
 };
 
-const filterDestinationsToLoad = (
-  loadIntgOpts: IntegrationOpts,
-  configSupportedDestinations: Destination[],
-) => {
-  const allOptVal = loadIntgOpts.All;
-  return configSupportedDestinations.filter(dest => {
+const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
+  const allOptVal = intgOpts.All;
+  return destinations.filter(dest => {
     const dispName = dest.displayName;
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (!isUndefined(loadIntgOpts[dispName]) && Boolean(loadIntgOpts[dispName]) === false) {
+      if (!isUndefined(intgOpts[dispName]) && Boolean(intgOpts[dispName]) === false) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      if (!isUndefined(loadIntgOpts[dispName]) && Boolean(loadIntgOpts[dispName]) === true) {
+      if (!isUndefined(intgOpts[dispName]) && Boolean(intgOpts[dispName]) === true) {
         isDestEnabled = true;
       }
     }
@@ -163,5 +160,5 @@ export {
   createDestinationInstance,
   isDestinationReady,
   normalizeIntegrationOptions,
-  filterDestinationsToLoad,
+  filterDestinations,
 };

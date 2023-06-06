@@ -10,7 +10,7 @@ import {
   isDestinationSDKEvaluated,
   isDestinationReady,
   normalizeIntegrationOptions,
-  filterDestinationsToLoad,
+  filterDestinations,
 } from './utils';
 import {
   ExtensionPlugin,
@@ -54,7 +54,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Filter destinations that are disabled through load options
-      const destinationsToLoad = filterDestinationsToLoad(
+      const destinationsToLoad = filterDestinations(
         state.nativeDestinations.loadOnlyIntegrations.value,
         configSupportedDestinations,
       );
