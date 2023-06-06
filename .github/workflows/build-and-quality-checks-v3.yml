@@ -37,7 +37,7 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks - analytics-js
-        uses: rudderlabs/github-action-check-size-limit@v2.1.0
+        uses: rudderlabs/github-action-check-size-limit@v2.1.1
         env:
           HUSKY: 0
         with:
@@ -48,7 +48,7 @@ jobs:
           is_monorepo: true
 
       - name: Execute bundle size checks - analytics-js-plugins
-        uses: rudderlabs/github-action-check-size-limit@v2.1.0
+        uses: rudderlabs/github-action-check-size-limit@v2.1.1
         env:
           HUSKY: 0
         with:
