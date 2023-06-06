@@ -91,7 +91,7 @@ class RudderEventFactory {
 
     const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, this.logger);
     // override the User ID from the API inputs
-    enrichedEvent.userId = to;
+    enrichedEvent.userId = to ?? enrichedEvent.userId;
     return enrichedEvent;
   }
 

@@ -12,14 +12,14 @@ import {
   ExtensionPlugin,
   PluginName,
   ApplicationState,
-  DoneCallback,
-  HttpClient,
   IErrorHandler,
   ILogger,
   QueueOpts,
   RudderEvent,
+  IHttpClient,
 } from '../types/common';
-import { Queue, getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { DoneCallback, Queue } from './localstorage-retry';
 
 const pluginName = PluginName.XhrQueue;
 
@@ -33,14 +33,18 @@ const XhrQueue = (): ExtensionPlugin => ({
     /**
      * Initialize the queue for delivery
      * @param state Application state
+     * @param httpClient http client instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns Queue instance
      */
-    init(state: ApplicationState, errorHandler?: IErrorHandler, logger?: ILogger): Queue {
+    init(
+      state: ApplicationState,
+      httpClient: IHttpClient,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): Queue {
       const writeKey = state.lifecycle.writeKey.value as string;
-
-      const httpClient = new HttpClient(errorHandler, logger);
       httpClient.setAuthHeader(writeKey);
 
       const finalQOpts = getNormalizedQueueOptions(
@@ -134,6 +138,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization
       const headers = {
+        // TODO: why do we need this header value?
         AnonymousId: toBase64(event.anonymousId),
       };
 

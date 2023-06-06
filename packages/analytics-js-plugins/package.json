@@ -72,7 +72,9 @@
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
+    "@types/component-emitter": "1.2.11",
     "@preact/signals-core": "1.3.0",
+    "component-emitter": "1.3.0",
     "crypto-js": "4.1.1",
     "ramda": "0.29.0"
   },
@@ -97,7 +99,6 @@
     "@rollup/plugin-terser": "0.4.1",
     "@size-limit/file": "8.2.4",
     "@size-limit/webpack": "8.2.4",
-    "@types/component-emitter": "1.2.11",
     "@types/crypto-js": "4.1.1",
     "@types/jest": "29.5.1",
     "@types/ramda": "0.29.1",

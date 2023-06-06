@@ -2,7 +2,7 @@ import {
   INITIALIZED_CHECK_TIMEOUT,
   LOAD_CHECK_POLL_INTERVAL,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
-import { ClientIntegration, ILogger, NativeDestinationsState } from '../types/common';
+import { ClientIntegration, ILogger } from '../types/common';
 
 const isIntegrationSDKEvaluated = (pluginName: string, modName: string, logger?: ILogger) => {
   try {
@@ -73,11 +73,13 @@ const isInitialized = (instance: any, time = 0) =>
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
       throw Error('instance.init timeout expired');
     } else {
-      pause(LOAD_CHECK_POLL_INTERVAL).then(() =>
-        isInitialized(instance, time + LOAD_CHECK_POLL_INTERVAL)
-          .then(resolve)
-          .catch(() => {}),
-      );
+      pause(LOAD_CHECK_POLL_INTERVAL)
+        .then(() =>
+          isInitialized(instance, time + LOAD_CHECK_POLL_INTERVAL)
+            .then(resolve)
+            .catch(() => {}),
+        )
+        .catch(() => {});
     }
   });
 

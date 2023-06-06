@@ -1,4 +1,4 @@
-import { cookie } from '../../../src/npmPackages/component-cookie';
+import { cookie } from '@rudderstack/analytics-js/services/StoreManager/component-cookie';
 
 // TODO: clean up structure here, clean up cookie before each test
 describe('cookie(name, value)', () => {

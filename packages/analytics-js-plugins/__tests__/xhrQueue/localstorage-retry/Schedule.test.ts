@@ -2,7 +2,7 @@ import {
   DEFAULT_CLOCK_LATE_FACTOR,
   Schedule,
   ScheduleModes,
-} from '../../../src/npmPackages/localstorage-retry/Schedule';
+} from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/Schedule';
 
 describe('Schedule', () => {
   const clockTick = 500; // in ms

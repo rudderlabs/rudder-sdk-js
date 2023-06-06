@@ -36,8 +36,12 @@ describe('Core - Event Method Overloads', () => {
     expect(pageArgumentsToCallOptions('category', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'category',
-      category: 'category',
-      properties: { category: 'category', name: 'category' },
+      properties: { category: null, name: 'category' },
+    });
+    expect(pageArgumentsToCallOptions(undefined, 'name', callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      name: 'name',
+      properties: { category: null, name: 'name' },
     });
     expect(pageArgumentsToCallOptions(callbackMock)).toStrictEqual({
       callback: callbackMock,
@@ -52,9 +56,8 @@ describe('Core - Event Method Overloads', () => {
       pageArgumentsToCallOptions('category', { props: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
       callback: callbackMock,
-      category: 'category',
       name: 'category',
-      properties: { props: {}, category: 'category', name: 'category' },
+      properties: { props: {}, category: null, name: 'category' },
       options: { options: {} },
     });
   });
@@ -76,6 +79,7 @@ describe('Core - Event Method Overloads', () => {
     expect(trackArgumentsToCallOptions('event', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
+      properties: {},
     });
     expect(trackArgumentsToCallOptions('event', { properties: {} }, { options: {} })).toStrictEqual(
       {
@@ -137,6 +141,16 @@ describe('Core - Event Method Overloads', () => {
       callback: callbackMock,
       to: 'to',
       options: { options: {} },
+    });
+    expect(aliasArgumentsToCallOptions(callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      to: null,
+      from: undefined,
+    });
+    expect(aliasArgumentsToCallOptions({ options: {} })).toStrictEqual({
+      options: { options: {} },
+      to: null,
+      from: undefined,
     });
   });
 

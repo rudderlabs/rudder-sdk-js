@@ -46,7 +46,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: build
-          script: npm run check:size:json --workspace=@rudderstack/analytics-js
+          directory: packages/analytics-js/
+          script: npm run check:size
 
       - name: Execute bundle size checks - analytics-js-plugins
         uses: rudderlabs/github-action-check-size-limit@v2.0.0
@@ -55,4 +56,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: build
-          script: npm run check:size:json --workspace=@rudderstack/analytics-js-plugins
+          directory: packages/analytics-js-plugins/
+          script: npm run check:size
