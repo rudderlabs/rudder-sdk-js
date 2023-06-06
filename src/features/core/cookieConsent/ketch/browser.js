@@ -31,7 +31,6 @@ class Ketch {
     // getKetchUserDeniedPurposes returns current ketch opted-out purposes
     window.getKetchUserDeniedPurposes = () => this.userDeniedPurposes.slice();
 
-    // If ketch tag is loaded before rudderstack and has existing consent then update the consent state
     if (window.ketchConsent) {
       Object.entries(window.ketchConsent).forEach((e) => {
         const purposeCode = e[0];
@@ -68,7 +67,7 @@ class Ketch {
       const purposes = ketchConsentPurposes.map((p) => p.purpose).filter((n) => n);
 
       let containsAnyOfConsent = true;
-      // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+      // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
       containsAnyOfConsent = purposes.some((element) =>
         this.userConsentedPurposes.includes(element.trim()),
       );
