@@ -116,12 +116,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             });
         }
 
-        let timeoutId: number;
+        let timeoutId: NodeJS.Timeout;
         const intervalId = globalThis.setInterval(() => {
           const sdkTypeName = sdkName;
           if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
-            clearInterval(intervalId);
-            clearTimeout(timeoutId);
+            globalThis.clearInterval(intervalId);
+            globalThis.clearTimeout(timeoutId);
 
             logger?.debug(
               `SDK script evaluation successful for destination: ${dest.userFriendlyId}`,
@@ -165,7 +165,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
         }, INITIALIZED_CHECK_POLL_INTERVAL);
 
-        timeoutId = globalThis.setTimeout(() => {
+        timeoutId = global.setTimeout(() => {
           clearInterval(intervalId);
 
           logger?.debug(`SDK script evaluation timed out for destination: ${dest.userFriendlyId}`);

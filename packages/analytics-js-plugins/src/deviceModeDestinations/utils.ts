@@ -45,7 +45,7 @@ const isDestinationSDKEvaluated = (
   }
 };
 
-const pause = (time: number) =>
+const wait = (time: number) =>
   // eslint-disable-next-line compat/compat
   new Promise(resolve => {
     globalThis.setTimeout(resolve, time);
@@ -95,7 +95,7 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
       reject(new Error(`Destination "${dest.userFriendlyId}" ready check timed out`));
     } else {
-      pause(LOAD_CHECK_POLL_INTERVAL)
+      wait(LOAD_CHECK_POLL_INTERVAL)
         .then(() =>
           isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
             .then(resolve)
@@ -162,7 +162,7 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
 
 export {
   isDestinationSDKEvaluated,
-  pause,
+  wait,
   createDestinationInstance,
   isDestinationReady,
   normalizeIntegrationOptions,

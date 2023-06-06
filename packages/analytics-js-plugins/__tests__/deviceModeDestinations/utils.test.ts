@@ -1,4 +1,8 @@
-import { filterDestinations, normalizeIntegrationOptions } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
+import {
+  filterDestinations,
+  normalizeIntegrationOptions,
+  wait,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 
 describe('deviceModeDestinations utils', () => {
   describe('filterDestinations', () => {
@@ -116,7 +120,7 @@ describe('deviceModeDestinations utils', () => {
     it('should return integration options with all keys set with destination display names', () => {
       const integrationOptions = {
         All: true,
-        'GA4': true,
+        GA4: true,
         BRAZE: true,
       };
 
@@ -125,14 +129,14 @@ describe('deviceModeDestinations utils', () => {
       expect(normalizedIntegrationOptions).toEqual({
         All: true,
         'Google Analytics 4 (GA4)': true,
-        'Braze': true,
+        Braze: true,
       });
     });
 
     it('should return integration options with destinations unmodified that do not have any common names defined', () => {
       const integrationOptions = {
         All: true,
-        'GA4': true,
+        GA4: true,
         Braze: true,
         'Some Destination': true,
       };
@@ -142,7 +146,7 @@ describe('deviceModeDestinations utils', () => {
       expect(normalizedIntegrationOptions).toEqual({
         All: true,
         'Google Analytics 4 (GA4)': true,
-        'Braze': true,
+        Braze: true,
         'Some Destination': true,
       });
     });
@@ -150,7 +154,7 @@ describe('deviceModeDestinations utils', () => {
     it('should return integration options with destinations value unmodified', () => {
       const integrationOptions = {
         All: true,
-        'GA4': {
+        GA4: {
           customKey: 'customValue',
         },
         Braze: [1, 2, 3],
@@ -163,14 +167,14 @@ describe('deviceModeDestinations utils', () => {
         'Google Analytics 4 (GA4)': {
           customKey: 'customValue',
         },
-        'Braze': [1, 2, 3],
+        Braze: [1, 2, 3],
       });
     });
 
     it('should return integration options with "All" key with always a boolean value', () => {
       const integrationOptions = {
         All: '',
-        'GA4': true,
+        GA4: true,
         Braze: true,
       };
 
@@ -179,13 +183,13 @@ describe('deviceModeDestinations utils', () => {
       expect(normalizedIntegrationOptions).toEqual({
         All: false,
         'Google Analytics 4 (GA4)': true,
-        'Braze': true,
+        Braze: true,
       });
     });
 
     it('should return integration options with default value for "All" if "All" key is not defined', () => {
       const integrationOptions = {
-        'GA4': true,
+        GA4: true,
         Braze: true,
       };
 
@@ -194,8 +198,54 @@ describe('deviceModeDestinations utils', () => {
       expect(normalizedIntegrationOptions).toEqual({
         All: true,
         'Google Analytics 4 (GA4)': true,
-        'Braze': true,
+        Braze: true,
       });
+    });
+  });
+
+  describe('wait', () => {
+    it('should return a promise that resolves after the specified time', async () => {
+      const time = 1000;
+      const startTime = Date.now();
+
+      await wait(time);
+
+      const endTime = Date.now();
+
+      expect(endTime - startTime).toBeGreaterThanOrEqual(time);
+    });
+
+    it('should return a promise that resolves immediately even if the time is 0', async () => {
+      const time = 0;
+      const startTime = Date.now();
+
+      await wait(time);
+
+      const endTime = Date.now();
+
+      expect(endTime - startTime).toBeGreaterThanOrEqual(time);
+    });
+
+    it('should return a promise that resolves immediately even if the time is negative', async () => {
+      const time = -1000;
+      const startTime = Date.now();
+
+      await wait(time);
+
+      const endTime = Date.now();
+
+      expect(endTime - startTime).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return a promise that resolves immediately even if the time is not a number', async () => {
+      const time = '2 seconds';
+      const startTime = Date.now();
+
+      await wait(time);
+
+      const endTime = Date.now();
+
+      expect(endTime - startTime).toBeGreaterThanOrEqual(0);
     });
   });
 });
