@@ -88,20 +88,20 @@ const createDestinationInstance = (
 
 const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
   // eslint-disable-next-line compat/compat
-  new Promise(resolve => {
+  new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(this);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
-      throw Error(`Destination "${dest.userFriendlyId}" ready check timed out`);
+      reject(new Error(`Destination "${dest.userFriendlyId}" ready check timed out`));
     } else {
-      pause(LOAD_CHECK_POLL_INTERVAL).then(() =>
-        isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
-          .then(resolve)
-          .catch(e => {
-            throw e;
-          }),
-      );
+      pause(LOAD_CHECK_POLL_INTERVAL)
+        .then(() =>
+          isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
+            .then(resolve)
+            .catch(e => reject(e)),
+        )
+        .catch(e => reject(e));
     }
   });
 
