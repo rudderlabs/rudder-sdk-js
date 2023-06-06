@@ -43,6 +43,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           directory: packages/analytics-js/
+          skip_step: install
           build_script: check:size:build
           script: npm run check:size:ci
           is_monorepo: true
@@ -54,6 +55,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           directory: packages/analytics-js-plugins/
+          skip_step: install
           build_script: check:size:build
           script: npm run check:size:ci
           is_monorepo: true
