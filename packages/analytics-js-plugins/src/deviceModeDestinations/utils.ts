@@ -13,6 +13,7 @@ import {
 } from '@rudderstack/analytics-js-plugins/types/common';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
+import { isUndefined } from '../utilities/common';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -114,7 +115,7 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
     Object.keys(intgOptions).forEach(key => {
       const destOpts = clone(intgOptions[key]);
       if (key === 'All') {
-        normalizedIntegrationOptions[key] = destOpts as boolean;
+        normalizedIntegrationOptions[key] = Boolean(destOpts);
       } else {
         const displayName = destCNamesToDispNamesMap[key];
         if (displayName) {
@@ -126,7 +127,7 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
     });
   }
 
-  if (normalizedIntegrationOptions.All === undefined) {
+  if (isUndefined(normalizedIntegrationOptions.All)) {
     normalizedIntegrationOptions.All = true;
   }
 
@@ -143,13 +144,12 @@ const filterDestinationsToLoad = (
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (loadIntgOpts[dispName] !== undefined && Boolean(loadIntgOpts[dispName]) === false) {
+      if (!isUndefined(loadIntgOpts[dispName]) && Boolean(loadIntgOpts[dispName]) === false) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      // All false ==> check if intg true supplied
-      if (loadIntgOpts[dispName] !== undefined && Boolean(loadIntgOpts[dispName]) === true) {
+      if (!isUndefined(loadIntgOpts[dispName]) && Boolean(loadIntgOpts[dispName]) === true) {
         isDestEnabled = true;
       }
     }
