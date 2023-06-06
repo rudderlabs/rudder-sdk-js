@@ -45,10 +45,10 @@ jobs:
           directory: packages/analytics-js/
           skip_step: install
           build_script: check:size:build
-          script: npm run check:size:json
+          script: npm run check:size:ci
 
       - name: Execute bundle size checks - analytics-js-plugins
-        uses: rudderlabs/github-action-check-size-limit@v2.0.0
+        uses: rudderlabs/github-action-check-size-limit@v2.1.0
         env:
           HUSKY: 0
         with:
@@ -56,4 +56,4 @@ jobs:
           directory: packages/analytics-js-plugins/
           skip_step: install
           build_script: check:size:build
-          script: npm run check:size:json
+          script: npm run check:size:ci

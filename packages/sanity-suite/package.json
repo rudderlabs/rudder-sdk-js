@@ -21,7 +21,7 @@
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:size:build": "exit 0",
     "check:size": "exit 0",
-    "check:size:json": "exit 0",
+    "check:size:ci": "exit 0",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",

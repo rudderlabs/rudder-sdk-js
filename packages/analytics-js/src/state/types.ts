@@ -244,6 +244,7 @@ export type LoadOptions = {
   onLoaded?: (analytics: any) => void;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
+  // TODO: define type for sourceConfig once the trimmed response is implemented
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;

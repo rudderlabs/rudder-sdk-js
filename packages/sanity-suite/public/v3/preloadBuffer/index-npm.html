@@ -23,13 +23,15 @@
       window.OnetrustActiveGroups = ',C0001,C0003,';
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
+        'setDefaultInstanceKey',
+        'getAnalyticsInstance',
         'load',
+        'ready',
         'page',
         'track',
         'identify',
         'alias',
         'group',
-        'ready',
         'reset',
         'getAnonymousId',
         'setAnonymousId',
@@ -37,8 +39,9 @@
         'getUserTraits',
         'getGroupId',
         'getGroupTraits',
-        'endSession',
         'startSession',
+        'endSession',
+        'getSessionId'
       ];
 
       for (var i = 0; i < methods.length; i++) {
