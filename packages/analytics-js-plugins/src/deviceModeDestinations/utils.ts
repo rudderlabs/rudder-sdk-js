@@ -17,7 +17,7 @@ import { isUndefined } from '../utilities/common';
 
 /**
  * Determines if the destination SDK code is evaluated
- * @param destSDKIdentifier The name of the global window object that contains the destination SDK
+ * @param destSDKIdentifier The name of the global globalThis object that contains the destination SDK
  * @param sdkTypeName The name of the destination SDK type
  * @param logger Logger instance
  * @returns true if the destination SDK code is evaluated, false otherwise
@@ -31,10 +31,10 @@ const isDestinationSDKEvaluated = (
     const scriptIsEvaluated = Boolean(
       destSDKIdentifier &&
         sdkTypeName &&
-        (window as any)[destSDKIdentifier] &&
-        (window as any)[destSDKIdentifier][sdkTypeName] &&
-        (window as any)[destSDKIdentifier][sdkTypeName].prototype &&
-        typeof (window as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
+        (globalThis as any)[destSDKIdentifier] &&
+        (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
+        (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+        typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
           'undefined',
     );
 
@@ -48,7 +48,7 @@ const isDestinationSDKEvaluated = (
 const pause = (time: number) =>
   // eslint-disable-next-line compat/compat
   new Promise(resolve => {
-    window.setTimeout(resolve, time);
+    globalThis.setTimeout(resolve, time);
   });
 
 const createDestinationInstance = (
@@ -58,10 +58,10 @@ const createDestinationInstance = (
   state: ApplicationState,
   logger?: ILogger,
 ) => {
-  const analytics = (window as any).rudderanalytics;
+  const analytics = (globalThis as any).rudderanalytics;
 
   // TODO: avoid this object wrapping of the RudderAnalytics API methods
-  return new (window as any)[destSDKIdentifier][sdkTypeName](
+  return new (globalThis as any)[destSDKIdentifier][sdkTypeName](
     clone(dest.config),
     {
       loadIntegration: state.nativeDestinations.loadIntegration.value,

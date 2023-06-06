@@ -22,12 +22,12 @@ const DEFAULT_CLOCK_LATE_FACTOR = 2;
 
 const DEFAULT_CLOCK: ScheduleClock = {
   setTimeout(fn: ScheduleTaskHandler, ms: number): number {
-    return window.setTimeout(fn, ms);
+    return globalThis.setTimeout(fn, ms);
   },
   clearTimeout(id: number) {
-    return window.clearTimeout(id);
+    return globalThis.clearTimeout(id);
   },
-  Date: window.Date,
+  Date: globalThis.Date,
   clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR,
 };
 
