@@ -134,6 +134,12 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
   return normalizedIntegrationOptions;
 };
 
+/**
+ * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
+ * @param intgOpts Integration options object
+ * @param destinations Destinations array
+ * @returns Destinations array filtered based on the integration options
+ */
 const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
   const allOptVal = intgOpts.All;
   return destinations.filter(dest => {
