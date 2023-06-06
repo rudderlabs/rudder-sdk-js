@@ -27,7 +27,7 @@
     "unicorn/explicit-length-check": "error",
     "unicorn/prefer-array-find": "error",
     "unicorn/no-lonely-if": "error",
-    "unicorn/prefer-includes": "error",
+    "unicorn/prefer-includes": "off",
     "unicorn/prefer-array-flat-map": "error",
     "unicorn/no-useless-spread": "error",
     "unicorn/no-useless-length-check": "error",
