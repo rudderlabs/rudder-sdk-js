@@ -26,7 +26,7 @@
     "check:lint:dev": "lerna run check:lint:dev",
     "check:size": "lerna run check:size --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",
     "check:size:build": "lerna run check:size:build --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",
-    "check:size:ci": "lerna run check:size:ci --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",
+    "check:size:json": "lerna run check:size:json --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",
     "check:circular": "lerna run check:circular",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",

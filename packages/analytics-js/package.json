@@ -57,7 +57,7 @@
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:size:build": "npm run clean && npm run build:browser && npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
-    "check:size:ci": "size-limit --json",
+    "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
