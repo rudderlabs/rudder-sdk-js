@@ -36,25 +36,26 @@ jobs:
         run: |
           npm run check:security
 
-      - name: Build artifacts
-        run: npm run check:size:build
-
       - name: Execute bundle size checks - analytics-js
-        uses: rudderlabs/github-action-check-size-limit@v2.0.0
+        uses: rudderlabs/github-action-check-size-limit@v2.1.1
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: build
           directory: packages/analytics-js/
-          script: npm run check:size
+          skip_step: install
+          build_script: check:size:build
+          script: npm run check:size:ci
+          is_monorepo: true
 
       - name: Execute bundle size checks - analytics-js-plugins
-        uses: rudderlabs/github-action-check-size-limit@v2.0.0
+        uses: rudderlabs/github-action-check-size-limit@v2.1.1
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: build
           directory: packages/analytics-js-plugins/
-          script: npm run check:size
+          skip_step: install
+          build_script: check:size:build
+          script: npm run check:size:ci
+          is_monorepo: true
