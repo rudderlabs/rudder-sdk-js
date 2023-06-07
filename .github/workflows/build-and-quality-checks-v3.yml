@@ -37,7 +37,7 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.0.0
+        uses: rudderlabs/github-action-check-size-limit@v2.2.0
         env:
           HUSKY: 0
         with:
@@ -45,3 +45,4 @@ jobs:
           skip_step: install
           build_script: check:size:build
           script: echo '[' && npx lerna exec --loglevel=silent --scope=@rudderstack/analytics-js --scope=@rudderstack/analytics-js-plugins -- 'npx size-limit --json && echo ,' && echo '[]\n]'
+          is_monorepo: true

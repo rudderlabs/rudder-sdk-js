@@ -1,6 +1,6 @@
 import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { cookie } from '@rudderstack/analytics-js/npmPackages/component-cookie';
+import { cookie } from '../component-cookie';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';

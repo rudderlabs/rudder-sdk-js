@@ -20,6 +20,7 @@ const remotePluginNames: PluginName[] = [
   PluginName.StorageEncryption,
   PluginName.StorageEncryptionLegacy,
   PluginName.XhrQueue,
+  PluginName.OneTrust,
 ];
 
 export { localPluginNames, remotePluginNames };

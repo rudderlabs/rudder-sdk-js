@@ -40,6 +40,7 @@ const pluginsMap = {
   './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
   './GoogleLinker': './src/googleLinker/index.ts',
   './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
+  './OneTrust': './src/oneTrust/index.ts',
   './StorageEncryption': './src/storageEncryption/index.ts',
   './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
