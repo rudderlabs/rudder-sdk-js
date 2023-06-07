@@ -43,7 +43,7 @@ import {
   SAMESITE_COOKIE_OPTS,
   SYSTEM_KEYWORDS,
   UA_CH_LEVELS,
-  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
+  DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
 } from "../utils/constants";
 import { integrations } from "../integrations";
 import RudderElementBuilder from "../utils/RudderElementBuilder";
@@ -107,6 +107,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.bufferDataPlaneEventsUntilReady = false;
+    this.dataPlaneEventsBufferTimeout = DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS;
     this.integrationsData = {};
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
@@ -259,7 +260,7 @@ class Analytics {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
           this.processBufferedCloudModeEvents();
-        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
+        }, this.dataPlaneEventsBufferTimeout);
       }
 
       // If cookie consent object is return we filter according to consents given by user
@@ -1243,6 +1244,10 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && typeof options.dataPlaneEventsBufferTimeout === 'number') {
+      this.dataPlaneEventsBufferTimeout = options.dataPlaneEventsBufferTimeout;
     }
 
     if (options && typeof options.bufferDataPlaneEventsUntilReady === 'boolean') {
