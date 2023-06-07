@@ -41,7 +41,7 @@ describe('BingAds Track event', () => {
   beforeEach(() => {
     bingAds = new BingAds({ tagID: '12567839' }, { loglevel: 'DEBUG' });
     bingAds.init();
-    window.bing12567839.push = jest.fn((x, y, z) => output.push({ event: y, ...z }));
+    window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
   });
 
   test('Test for all properties not null', () => {
