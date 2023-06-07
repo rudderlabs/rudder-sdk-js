@@ -14,7 +14,7 @@ const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): Destinatio
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
 
 const isEventDenyListed = (eventName: Nullable<string>, dest: Destination) => {
-  if (!eventName || !(typeof eventName === 'string')) {
+  if (!eventName || typeof eventName !== 'string') {
     return false;
   }
 
