@@ -44,5 +44,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: install
           build_script: check:size:build
-          script: echo '[' && npx lerna exec --loglevel=silent --scope=@rudderstack/analytics-js --scope=@rudderstack/analytics-js-plugins -- 'npx size-limit --json && echo ,' && echo '[]\n]'
+          script: echo '[' && npx lerna exec --loglevel=silent --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins' -- 'npx size-limit --json && echo ,' && echo '[]\n]'
           is_monorepo: true
