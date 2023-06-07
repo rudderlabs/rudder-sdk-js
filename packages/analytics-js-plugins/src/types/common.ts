@@ -10,6 +10,8 @@ export type {
   DestinationsQueueOpts,
   LogLevel,
   ApiObject,
+  ApiOptions,
+  ApiCallback,
 } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
@@ -21,6 +23,7 @@ export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/sl
 export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
 export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 export { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
+export type { IRudderAnalytics } from '@rudderstack/analytics-js/app/IRudderAnalytics';
 
 export type ApplicationState = IApplicationState;
 

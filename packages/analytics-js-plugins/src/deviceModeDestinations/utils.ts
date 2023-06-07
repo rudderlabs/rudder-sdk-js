@@ -5,15 +5,27 @@ import {
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { clone } from 'ramda';
 import {
+  ApiCallback,
+  ApiObject,
+  ApiOptions,
   ApplicationState,
   Destination,
   DeviceModeDestination,
   ILogger,
+  IRudderAnalytics,
   IntegrationOpts,
+  Nullable,
 } from '@rudderstack/analytics-js-plugins/types/common';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
-import { isUndefined } from '../utilities/common';
+import {
+  aliasArgumentsToCallOptions,
+  groupArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
+  isUndefined,
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
+} from '../utilities/common';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -58,20 +70,49 @@ const createDestinationInstance = (
   state: ApplicationState,
   logger?: ILogger,
 ) => {
-  const analytics = (globalThis as any).rudderanalytics;
+  const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
+  const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
 
   // TODO: avoid this object wrapping of the RudderAnalytics API methods
+  // instead amend the integrations to accept IAnalytics instance
   return new (globalThis as any)[destSDKIdentifier][sdkTypeName](
     clone(dest.config),
     {
       loadIntegration: state.nativeDestinations.loadIntegration.value,
       logLevel: state.lifecycle.logLevel.value,
       loadOnlyIntegrations: state.nativeDestinations.loadOnlyIntegrations.value,
-      track: (...args: any) => analytics.track(...args),
-      page: (...args: any) => analytics.page(...args),
-      identify: (...args: any) => analytics.identify(...args),
-      group: (...args: any) => analytics.group(...args),
-      alias: (...args: any) => analytics.alias(...args),
+      page: (
+        category?: string | Nullable<ApiObject> | ApiCallback,
+        name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+        properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+        options?: Nullable<ApiOptions> | ApiCallback,
+        callback?: ApiCallback,
+      ) =>
+        analytics.page(pageArgumentsToCallOptions(category, name, properties, options, callback)),
+      track: (
+        event: string,
+        properties?: Nullable<ApiObject> | ApiCallback,
+        options?: Nullable<ApiOptions> | ApiCallback,
+        callback?: ApiCallback,
+      ) => analytics.track(trackArgumentsToCallOptions(event, properties, options, callback)),
+      identify: (
+        userId?: string | number | Nullable<ApiObject>,
+        traits?: Nullable<ApiObject> | ApiCallback,
+        options?: Nullable<ApiOptions> | ApiCallback,
+        callback?: ApiCallback,
+      ) => analytics.identify(identifyArgumentsToCallOptions(userId, traits, options, callback)),
+      alias: (
+        to?: Nullable<string> | ApiCallback,
+        from?: string | Nullable<ApiOptions> | ApiCallback,
+        options?: Nullable<ApiOptions> | ApiCallback,
+        callback?: ApiCallback,
+      ) => analytics.alias(aliasArgumentsToCallOptions(to, from, options, callback)),
+      group: (
+        groupId: string | number | Nullable<ApiObject> | ApiCallback,
+        traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+        options?: Nullable<ApiOptions> | ApiCallback,
+        callback?: ApiCallback,
+      ) => analytics.group(groupArgumentsToCallOptions(groupId, traits, options, callback)),
       getAnonymousId: () => analytics.getAnonymousId(),
       getUserId: () => analytics.getUserId(),
       getUserTraits: () => analytics.getUserTraits(),

@@ -6,3 +6,10 @@ export { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/o
 export { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 export { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 export { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
+export {
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
+  aliasArgumentsToCallOptions,
+  groupArgumentsToCallOptions,
+} from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
