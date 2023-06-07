@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   ILogger,
   ConsentInfo,
@@ -9,7 +8,7 @@ import {
 } from '../types/common';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
-const pluginName = PluginName.OneTrust;
+const pluginName = 'OneTrust';
 
 const OneTrust = (): ExtensionPlugin => ({
   name: pluginName,
@@ -66,8 +65,8 @@ const OneTrust = (): ExtensionPlugin => ({
       try {
         /**
      * Structure of OneTrust consent group destination config.
-     * 
-     * "oneTrustCookieCategories": 
+     *
+     * "oneTrustCookieCategories":
      * [
         {
             "oneTrustCookieCategory": "Performance Cookies"

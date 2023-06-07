@@ -12,15 +12,13 @@ import { configToIntNames } from '@rudderstack/analytics-js-plugins/deviceModeDe
 import {
   ExtensionPlugin,
   IExternalSrcLoader,
-  PluginName,
   ApplicationState,
   ILogger,
   ClientIntegration,
   InitialisedIntegration,
 } from '../types/common';
 
-// TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
-const pluginName = PluginName.DeviceModeDestinations;
+const pluginName = 'DeviceModeDestinations';
 
 // TODO: dummy implementation for testing until we implement device mode
 //  create proper implementation once relevant task is picked up

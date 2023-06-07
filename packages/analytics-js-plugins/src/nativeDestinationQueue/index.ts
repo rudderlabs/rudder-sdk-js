@@ -1,13 +1,7 @@
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  PluginName,
-  ApplicationState,
-  QueueOpts,
-  RudderEvent,
-} from '../types/common';
+import { ExtensionPlugin, ApplicationState, QueueOpts, RudderEvent } from '../types/common';
 
-const pluginName = PluginName.NativeDestinationQueue;
+const pluginName = 'NativeDestinationQueue';
 
 const NativeDestinationQueue = (): ExtensionPlugin => ({
   name: pluginName,

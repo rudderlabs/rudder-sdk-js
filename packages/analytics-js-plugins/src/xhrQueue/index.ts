@@ -10,7 +10,6 @@ import {
 } from './utilities';
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   IErrorHandler,
   ILogger,
@@ -21,7 +20,7 @@ import {
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 import { DoneCallback, Queue } from './localstorage-retry';
 
-const pluginName = PluginName.XhrQueue;
+const pluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,
