@@ -13,6 +13,7 @@ class Klaviyo {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.publicApiKey = config.publicApiKey;
     this.sendPageAsTrack = config.sendPageAsTrack;
     this.additionalPageInfo = config.additionalPageInfo;
@@ -72,7 +73,8 @@ class Klaviyo {
       'product added': 'Added to Cart',
       'checkout started': 'Started Checkout',
     };
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

@@ -6,9 +6,14 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.appId = config.appId;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

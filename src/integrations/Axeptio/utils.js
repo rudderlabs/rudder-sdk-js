@@ -2,14 +2,15 @@ import { isDefinedAndNotNull } from '../../utils/utils';
 
 /**
  * This function is used to trigger a callback.
- * @param {*} event - naem fo the event triggered
- * @param {*} payload - payload of the triggered event
+ * @param {*} event name fo the event triggered
+ * @param {*} payload payload of the triggered event
+ * @param {*} analytics rudderanalytics object
  */
-const makeACall = (event, payload) => {
+const makeACall = (event, payload, analytics) => {
   if (isDefinedAndNotNull(payload)) {
-    window.rudderanalytics.track(event, payload);
+    analytics.track(event, payload);
   } else {
-    window.rudderanalytics.track(event);
+    analytics.track(event);
   }
 };
 export default makeACall;

@@ -108,7 +108,7 @@ rudderanalytics.page('Alert! I am raising a bug', 'testing you', {
   referrer: 'referrer',
   testDimension: 'true',
 });
-window.rudderanalytics.page('I am no one', {
+rudderanalytics.page('I am no one', {
   score: 21,
   author: 'Author',
   postType: 'blog',
