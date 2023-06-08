@@ -62,13 +62,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       const consentedDestinations = destinationsToLoad.filter(
         dest =>
           // if consent manager is not configured, then default to load the destination
-          (pluginsManager.invokeSingle(
+          pluginsManager.invokeSingle(
             `consentManager.isDestinationConsented`,
             state,
             pluginsManager,
             dest.config,
             logger,
-          ) as boolean) || true,
+          ) ?? true,
       );
 
       state.nativeDestinations.activeDestinations.value = consentedDestinations;
