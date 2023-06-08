@@ -1,4 +1,8 @@
+const DIR_NAME = 'Rockerbox';
 const NAME = 'ROCKERBOX';
+const DISPLAY_NAME = 'Rockerbox';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Rockerbox: NAME,
@@ -9,4 +13,4 @@ const CNameMapping = {
   'Rocker Box': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

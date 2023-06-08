@@ -12,7 +12,8 @@ class Pendo {
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? '' : config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
@@ -50,13 +51,13 @@ class Pendo {
 
   initializeMe() {
     const userId =
-      this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
 
     const accountObj = {
-      id: this.analytics.groupId,
-      ...this.analytics.groupTraits,
+      id: this.analytics.getGroupId(),
+      ...this.analytics.getGroupTraits(),
     };
-    const visitorObj = { id: userId, ...this.analytics.userTraits };
+    const visitorObj = { id: userId, ...this.analytics.getUserTraits() };
 
     window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
@@ -88,14 +89,15 @@ class Pendo {
     let visitorObj = {};
     let accountObj = {};
     const { groupId } = this.analytics;
-    const id = this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+    const id =
+      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
     visitorObj = {
       id,
-      ...this.analytics.userTraits,
+      ...this.analytics.getUserTraits(),
     };
 
     if (groupId) {
-      accountObj = { id: groupId, ...this.analytics.groupTraits };
+      accountObj = { id: groupId, ...this.analytics.getGroupTraits() };
     }
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
@@ -108,7 +110,7 @@ class Pendo {
     let accountObj = {};
     let visitorObj = {};
     const { userId, traits } = rudderElement.message;
-    accountObj.id = this.analytics.groupId || this.analytics.anonymousId;
+    accountObj.id = this.analytics.getGroupId() || this.analytics.getAnonymousId();
     accountObj = {
       ...accountObj,
       ...traits,

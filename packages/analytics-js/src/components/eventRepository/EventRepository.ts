@@ -3,6 +3,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
+import { effect } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IEventRepository } from './types';
@@ -53,9 +54,17 @@ class EventRepository implements IEventRepository {
     this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
+      this.pluginsManager,
       this.errorHandler,
       this.logger,
     );
+
+    // Start the queue once the client destinations are ready
+    effect(() => {
+      if (state.nativeDestinations.clientDestinationsReady.value === true) {
+        this.destinationsEventsQueue.start();
+      }
+    });
   }
 
   /**
@@ -64,6 +73,7 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
+    this.logger?.debug('Enqueuing event: ', event);
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,

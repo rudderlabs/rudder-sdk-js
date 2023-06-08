@@ -1,4 +1,8 @@
+const DIR_NAME = 'AdobeAnalytics';
 const NAME = 'ADOBE_ANALYTICS';
+const DISPLAY_NAME = 'Adobe Analytics';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   'Adobe Analytics': NAME,
   ADOBEANALYTICS: NAME,
@@ -11,4 +15,4 @@ const CNameMapping = {
   'adobe Analytics': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

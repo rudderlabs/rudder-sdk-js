@@ -44,7 +44,14 @@ describe('EventRepository', () => {
       undefined,
       undefined,
     );
-    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', state, undefined, undefined);
+    expect(spy).nthCalledWith(
+      2,
+      'destinationsEventsQueue.init',
+      state,
+      defaultPluginsManager,
+      undefined,
+      undefined,
+    );
     spy.mockRestore();
   });
 });

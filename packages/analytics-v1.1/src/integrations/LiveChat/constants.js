@@ -1,4 +1,8 @@
+const DIR_NAME = 'LiveChat';
 const NAME = 'LIVECHAT';
+const DISPLAY_NAME = 'LiveChat';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   LiveChat: NAME,
@@ -9,4 +13,4 @@ const CNameMapping = {
   'live chat': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

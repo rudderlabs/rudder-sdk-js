@@ -1,7 +1,8 @@
-import { Schedule } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/Schedule';
-import { Queue } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry';
-import { QueueStatuses } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/QueueStatuses';
-import { getStorageEngine, Store } from '@rudderstack/analytics-js-plugins/utilities/common';
+import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
+import { Queue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
+import { getStorageEngine } from '@rudderstack/analytics-js-plugins/utilities/common';
+import { Store } from '@rudderstack/analytics-js-plugins/types/common';
 
 const size = (queue: Queue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,

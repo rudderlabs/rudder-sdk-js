@@ -5,16 +5,19 @@ import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/o
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE } from '@rudderstack/analytics-js/constants/urls';
 
-const normaliseLoadOptions = (
+const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
   loadOptions: Partial<LoadOptions>,
 ): LoadOptions => {
-  const normalisedLoadOptions = clone(loadOptions);
-  normalisedLoadOptions.plugins = normalisedLoadOptions.plugins ?? defaultOptionalPluginsList;
+  const normalizedLoadOptions = clone(loadOptions);
+  normalizedLoadOptions.plugins = normalizedLoadOptions.plugins ?? defaultOptionalPluginsList;
+
+  normalizedLoadOptions.useGlobalIntegrationsConfigInEvents =
+    normalizedLoadOptions.useGlobalIntegrationsConfigInEvents === true;
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(
     loadOptionsFromState,
-    normalisedLoadOptions,
+    normalizedLoadOptions,
   );
 
   return mergedLoadOptions;
@@ -23,4 +26,4 @@ const normaliseLoadOptions = (
 const getSourceConfigURL = (configUrlHost = 'https://api.rudderstack.com') =>
   `${configUrlHost}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&build=${BUILD_TYPE}`;
 
-export { normaliseLoadOptions, getSourceConfigURL };
+export { normalizeLoadOptions, getSourceConfigURL };

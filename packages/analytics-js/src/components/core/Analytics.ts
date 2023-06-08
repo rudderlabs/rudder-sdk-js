@@ -35,7 +35,7 @@ import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/t
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { normaliseLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
+import { normalizeLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import {
   consumePreloadBufferedEvent,
   retrievePreloadBufferEvents,
@@ -141,7 +141,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = normaliseLoadOptions(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 
@@ -186,9 +186,9 @@ class Analytics implements IAnalytics {
           this.processBufferedEvents();
           this.loadIntegrations();
           break;
-        case LifecycleStatus.IntegrationsLoading:
+        case LifecycleStatus.DestinationsLoading:
           break;
-        case LifecycleStatus.IntegrationsReady:
+        case LifecycleStatus.DestinationsReady:
           this.onReady();
           break;
         case LifecycleStatus.Ready:
@@ -330,37 +330,40 @@ class Analytics implements IAnalytics {
    */
   loadIntegrations() {
     // Set in state the desired activeIntegrations to inject in DOM
-    const totalClientIntegrationsToLoad = this.pluginsManager?.invokeSingle(
-      'nativeDestinations.setActiveIntegrations',
+    this.pluginsManager?.invokeSingle(
+      'nativeDestinations.setActiveDestinations',
       state,
+      this.pluginsManager,
+      this.logger,
     );
 
-    if (totalClientIntegrationsToLoad === 0) {
-      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
+    const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
+    if (totalDestinationsToLoad === 0) {
+      state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
       return;
     }
 
     // Start loading native integration scripts and create instances
-    state.lifecycle.status.value = LifecycleStatus.IntegrationsLoading;
+    state.lifecycle.status.value = LifecycleStatus.DestinationsLoading;
     this.pluginsManager?.invokeSingle(
-      'nativeDestinations.loadIntegrations',
+      'nativeDestinations.load',
       state,
       this.externalSrcLoader,
       this.logger,
     );
 
-    // Progress to next lifecycle phase if all native integrations are initialised or failed
+    // Progress to next lifecycle phase if all native integrations are initialized or failed
     effect(() => {
-      const isAllIntegrationsReady =
-        state.nativeDestinations.activeIntegrations.value.length === 0 ||
-        Object.keys(state.nativeDestinations.initialisedIntegrations.value ?? {}).length +
-          state.nativeDestinations.failedIntegrationScripts.value.length ===
-          state.nativeDestinations.activeIntegrations.value.length;
+      const areAllDestinationsReady =
+        totalDestinationsToLoad === 0 ||
+        state.nativeDestinations.initializedDestinations.value.length +
+          state.nativeDestinations.failedDestinations.value.length ===
+          totalDestinationsToLoad;
 
-      if (isAllIntegrationsReady) {
+      if (areAllDestinationsReady) {
         batch(() => {
-          state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
-          state.nativeDestinations.clientIntegrationsReady.value = true;
+          state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
+          state.nativeDestinations.clientDestinationsReady.value = true;
         });
       }
     });

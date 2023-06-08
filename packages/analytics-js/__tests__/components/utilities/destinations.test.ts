@@ -139,7 +139,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
 const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7DamldfkgO',
-    definitionName: 'GA4',
+    displayName: 'Google Analytics 4 (GA4)',
     areTransformationsConnected: true,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -159,10 +159,11 @@ const expectedFilteredDestinations = [
       extendPageViewParams: false,
       oneTrustCookieCategories: [],
     },
+    userFriendlyId: 'Google_Analytics_4_(GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
   },
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
-    definitionName: 'BRAZE',
+    displayName: 'Braze',
     areTransformationsConnected: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -182,6 +183,7 @@ const expectedFilteredDestinations = [
       extendPageViewParams: false,
       oneTrustCookieCategories: [],
     },
+    userFriendlyId: 'Braze___2LoR1TbVG2bcISXvy7Damldfkg1',
   },
 ];
 

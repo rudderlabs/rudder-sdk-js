@@ -1,4 +1,8 @@
+const DIR_NAME = 'ProfitWell';
 const NAME = 'PROFITWELL';
+const DISPLAY_NAME = 'ProfitWell';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   ProfitWell: NAME,
@@ -9,4 +13,4 @@ const CNameMapping = {
   'Profit well': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };
