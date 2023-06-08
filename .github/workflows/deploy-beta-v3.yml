@@ -40,7 +40,8 @@ jobs:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'beta'
         run: |
-          npm run setup
+          npm ci --no-audit
+          npm run setup:ci
           npm run build:browser
           npm run build:browser:modern
           npm run build:integrations

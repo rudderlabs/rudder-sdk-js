@@ -1,5 +1,4 @@
 import { Signal, signal } from '@preact/signals-core';
-import { getDefaultPageProperties } from '@rudderstack/analytics-js/components/utilities/page';
 
 export type PagePropertiesState = {
   readonly path: Signal<string>;
@@ -12,15 +11,14 @@ export type PagePropertiesState = {
   readonly [index: string]: Signal<string | undefined>;
 };
 
-const defPageProperties = getDefaultPageProperties();
 const pagePropertiesState: PagePropertiesState = {
-  path: signal(defPageProperties.path),
-  referrer: signal(defPageProperties.referrer),
-  referring_domain: signal(defPageProperties.referring_domain),
-  search: signal(defPageProperties.search),
-  title: signal(defPageProperties.title),
-  url: signal(defPageProperties.url),
-  tab_url: signal(defPageProperties.tab_url),
+  path: signal(''),
+  referrer: signal(''),
+  referring_domain: signal(''),
+  search: signal(''),
+  title: signal(''),
+  url: signal(''),
+  tab_url: signal(''),
 };
 
 export { pagePropertiesState };

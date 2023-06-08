@@ -6,8 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "setup": "npx lerna bootstrap && lerna run build && lerna link",
-    "setup:ci": "lerna bootstrap && lerna link",
+    "setup": "npx lerna bootstrap && lerna run build:package && lerna link",
+    "setup:ci": "lerna bootstrap && lerna run build:package && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
     "clean:cache": "lerna clean --yes && rimraf -rf ./node_modules/.cache",
     "start": "lerna run start --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",

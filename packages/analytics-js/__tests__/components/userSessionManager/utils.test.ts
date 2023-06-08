@@ -35,7 +35,7 @@ describe('Utility: User session manager', () => {
         timeout,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
-        sessionStart: true,
+        sessionStart: undefined,
       });
     });
   });
@@ -47,7 +47,7 @@ describe('Utility: User session manager', () => {
       expect(outcome).toEqual({
         manualTrack: true,
         id: sessionId,
-        sessionStart: true,
+        sessionStart: undefined,
       });
     });
     it('should return newly generated manual session if session id is not provided', () => {
@@ -55,7 +55,7 @@ describe('Utility: User session manager', () => {
       expect(outcome).toEqual({
         manualTrack: true,
         id: expect.any(Number),
-        sessionStart: true,
+        sessionStart: undefined,
       });
     });
     it('should print a error message if the provided session id is not a number', () => {

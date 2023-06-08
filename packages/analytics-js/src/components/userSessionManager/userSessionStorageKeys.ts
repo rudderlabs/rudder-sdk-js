@@ -9,12 +9,8 @@ const userSessionStorageKeys = {
   sessionInfo: 'rl_session',
 };
 
-const externallyLoadedSessionStorageKeys = {
-  segment: 'ajs_anonymous_id',
-};
-
 const inMemorySessionKeys = {
   session_id: 'sessionId',
 };
 
-export { userSessionStorageKeys, externallyLoadedSessionStorageKeys, inMemorySessionKeys };
+export { userSessionStorageKeys, inMemorySessionKeys };

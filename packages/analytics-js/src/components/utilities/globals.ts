@@ -1,4 +1,4 @@
-import { ExposedGlobals, IRudderStackGlobals } from '../core/IRudderStackGlobals';
+import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
 
 /**
  * Create globally accessible RudderStackGlobals object

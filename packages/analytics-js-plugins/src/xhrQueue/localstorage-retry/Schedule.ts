@@ -4,6 +4,7 @@ export type ScheduleTaskHandler = (
   timeout: number,
   mode: ScheduleModes,
 ) => any;
+
 export type ScheduleClock = {
   setTimeout: (fn: ScheduleTaskHandler, ms: number) => number;
   clearTimeout: (id: number) => void;

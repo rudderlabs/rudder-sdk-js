@@ -51,6 +51,19 @@
                 };
             })(method);
         }
+        // Sets the user ID/anonymous ID
+        // Sending these Identify and Track event to test the preload buffer
+        rudderanalytics.setAnonymousId("automationqa_123");
+
+        // Identify call
+        rudderanalytics.identify("12345", {
+            name: "Automation QA"
+        });
+
+        // Track call
+        rudderanalytics.track("test event", {
+          testProp: "automationQA_prop1" 
+        });
 
         rudderanalytics.load(
             '__WRITE_KEY__',
@@ -97,10 +110,15 @@
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js"></script>
     <style>
-        .collapsed-row pre{
-            height: 124px;
-            overflow: hidden;
-        }
+      .collapsed-row pre {
+        height: 124px;
+        overflow: hidden;
+      }
+
+      .collapsed-row .table-heading pre {
+        height: 0px;
+        overflow: hidden;
+      }
     </style>
     <script async src="./rudder-analytics.min.js"></script>
 </head>

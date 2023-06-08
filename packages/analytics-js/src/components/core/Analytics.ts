@@ -25,7 +25,6 @@ import {
   BufferedEvent,
   LifecycleStatus,
   LoadOptions,
-  SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
@@ -115,7 +114,6 @@ class Analytics implements IAnalytics {
     this.startSession = this.startSession.bind(this);
     this.endSession = this.endSession.bind(this);
     this.getSessionId = this.getSessionId.bind(this);
-    this.getSessionInfo = this.getSessionInfo.bind(this);
   }
 
   attachGlobalErrorHandler() {
@@ -234,12 +232,17 @@ class Analytics implements IAnalytics {
     this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
     this.storeManager = new StoreManager(this.errorHandler, this.logger, this.pluginsManager);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
-    this.eventRepository = new EventRepository(this.pluginsManager, this.errorHandler, this.logger);
-    this.eventManager = new EventManager(this.eventRepository, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
       this.errorHandler,
       this.logger,
       this.pluginsManager,
+    );
+    this.eventRepository = new EventRepository(this.pluginsManager, this.errorHandler, this.logger);
+    this.eventManager = new EventManager(
+      this.eventRepository,
+      this.userSessionManager,
+      this.errorHandler,
+      this.logger,
     );
   }
 
@@ -564,13 +567,10 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.end();
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getSessionId(): Nullable<number> {
-    const sessionInfo = this.getSessionInfo();
-    return sessionInfo?.id ?? null;
-  }
-
-  getSessionInfo(): Nullable<SessionInfo> | undefined {
-    return this.userSessionManager?.getSessionInfo();
+    this.userSessionManager?.refreshSession();
+    return state.session.sessionInfo.value?.id ?? null;
   }
   // End consumer exposed methods
 }

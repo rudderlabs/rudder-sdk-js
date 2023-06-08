@@ -86,7 +86,19 @@
         rudderAnalyticsMount();
       }
       // New addition to load script ends
+      // Sets the user ID/anonymous ID
+      // Sending these Identify and Track event to test the preload buffer
+      rudderanalytics.setAnonymousId("automationqa_123");
 
+        // Identify call
+      rudderanalytics.identify("12345", {
+          name: "Automation QA"
+        });
+
+        // Track call
+      rudderanalytics.track("test event", {
+          testProp: "automationQA_prop1" 
+        });
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
@@ -124,6 +136,11 @@
     <style>
       .collapsed-row pre {
         height: 124px;
+        overflow: hidden;
+      }
+
+      .collapsed-row .table-heading pre {
+        height: 0px;
         overflow: hidden;
       }
     </style>

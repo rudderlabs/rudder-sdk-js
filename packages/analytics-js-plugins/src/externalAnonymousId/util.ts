@@ -1,7 +1,7 @@
-import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
+import { StorageType, IStorage } from '../types/common';
+import { externallyLoadedSessionStorageKeys } from './constants';
 
-const getSegmentAnonymousId = () => {
+const getSegmentAnonymousId = (getStorageEngine: (type?: StorageType) => IStorage) => {
   let anonymousId;
   /**
    * First check the local storage for anonymousId
