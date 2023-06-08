@@ -300,7 +300,7 @@ We will be adding similar callbacks for APIs such as `track`, `page`, `identify`
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)Self-Hosted Control Plane
 
-If you are using a device mode destination like Heap, FullStory, etc., the JavaScript SDK needs to fetch the required configuration from the Control Plane. If you are using the RudderStack Config Generator to host your own Control Plane, then follow [this guide](https://docs.rudderstack.com/how-to-guides/rudderstack-config-generator) and make a `load` call as shown:
+If you are using user behavior monitoring tools such as Heap, FullStory, etc., the JavaScript SDK needs to fetch the required configuration from the Control Plane. If you are using the RudderStack Config Generator to host your own Control Plane, then follow [this guide](https://docs.rudderstack.com/how-to-guides/rudderstack-config-generator) and make a `load` call as shown:
 
 ```
 rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL, {configUrl: CONTROL_PLANE_URL});
