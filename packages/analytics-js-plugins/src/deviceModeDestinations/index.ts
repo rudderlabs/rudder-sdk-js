@@ -165,7 +165,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
         }, INITIALIZED_CHECK_POLL_INTERVAL);
 
-        timeoutId = global.setTimeout(() => {
+        timeoutId = globalThis.setTimeout(() => {
           clearInterval(intervalId);
 
           logger?.debug(`SDK script evaluation timed out for destination: ${dest.userFriendlyId}`);
