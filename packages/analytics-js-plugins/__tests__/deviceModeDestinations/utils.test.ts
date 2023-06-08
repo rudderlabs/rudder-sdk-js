@@ -2,7 +2,10 @@ import {
   filterDestinations,
   normalizeIntegrationOptions,
   wait,
+  isDestinationReady,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
+import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
+import { Destination } from '@rudderstack/analytics-js-plugins/types/common';
 
 describe('deviceModeDestinations utils', () => {
   describe('filterDestinations', () => {
@@ -246,6 +249,54 @@ describe('deviceModeDestinations utils', () => {
       const endTime = Date.now();
 
       expect(endTime - startTime).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('isDestinationReady', () => {
+    const originalInitializedCheckTimeout = dmdConstants.INITIALIZED_CHECK_TIMEOUT;
+    const originalInitializedPollInterval = dmdConstants.LOAD_CHECK_POLL_INTERVAL;
+    const destination = {
+      instance: {
+        isLoaded: () => false,
+      },
+      userFriendlyId: 'GA4___1234567890',
+    };
+
+    beforeEach(() => {
+      // temporarily manipulate the timeout and interval constants to speed up the test
+      dmdConstants.INITIALIZED_CHECK_TIMEOUT = 200;
+      dmdConstants.LOAD_CHECK_POLL_INTERVAL = 100;
+    });
+
+    afterEach(() => {
+      dmdConstants.INITIALIZED_CHECK_TIMEOUT = originalInitializedCheckTimeout;
+      dmdConstants.LOAD_CHECK_POLL_INTERVAL = originalInitializedPollInterval;
+      destination.instance.isLoaded = () => false;
+    });
+
+    it('should return a promise that gets resolved when the destination is ready immediately', async () => {
+      destination.instance.isLoaded = () => true;
+
+      const isReadyPromise = isDestinationReady(destination as Destination);
+      await expect(isReadyPromise).resolves.toEqual(true);
+    });
+
+    it('should return a promise that gets resolved when the destination is ready after some time', async () => {
+      const isReadyPromise = isDestinationReady(destination as Destination);
+
+      await wait(100);
+
+      destination.instance.isLoaded = () => true;
+
+      await expect(isReadyPromise).resolves.toEqual(true);
+    });
+
+    it('should return a promise that gets rejected when the destination is not ready after the timeout', async () => {
+      const isReadyPromise = isDestinationReady(destination as Destination);
+
+      await expect(isReadyPromise).rejects.toThrow(
+        new Error(`Destination "${destination.userFriendlyId}" ready check timed out`),
+      );
     });
   });
 });

@@ -132,7 +132,7 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
-      resolve(this);
+      resolve(true);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
       reject(new Error(`Destination "${dest.userFriendlyId}" ready check timed out`));
     } else {
