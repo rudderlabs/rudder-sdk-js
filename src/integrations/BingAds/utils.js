@@ -18,6 +18,7 @@ const EXCLUSION_KEYS = [
   'product_id',
   'sku',
   'event_action',
+  'items',
 ];
 
 const DEFAULT_PAGETYPE = 'other';
