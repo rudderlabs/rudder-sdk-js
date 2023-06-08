@@ -3,6 +3,28 @@ import { PARTNER_NAME, trackMapping } from './constants';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 const getContents = (message) => {
+    let contents = [];
+    const { properties } = message;
+    // eslint-disable-next-line camelcase
+    const { products, content_type, contentType } = properties;
+    if (Array.isArray(products)) {
+        contents = products.map(product => {
+            const singleProduct = {
+                content_type:
+                    // eslint-disable-next-line camelcase
+                    product.contentType || contentType || product.content_type || content_type || 'product',
+                content_id: product.product_id,
+                content_category: product.category,
+                content_name: product.name,
+                price: product.price,
+                quantity: product.quantity,
+                description: product.description,
+            };
+            return removeUndefinedAndNullValues(singleProduct);
+        });
+    }
+    return contents;
+};
     const contents = [];
     const { properties } = message;
     // eslint-disable-next-line camelcase
