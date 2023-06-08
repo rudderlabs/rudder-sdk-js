@@ -41,18 +41,15 @@ const isDestinationSDKEvaluated = (
 ): boolean => {
   try {
     const scriptIsEvaluated = Boolean(
-      destSDKIdentifier &&
-        sdkTypeName &&
-        (globalThis as any)[destSDKIdentifier] &&
+      (globalThis as any)[destSDKIdentifier] &&
         (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
         (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
         typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
           'undefined',
     );
-
     return scriptIsEvaluated;
   } catch (e) {
-    logger?.error(e);
+    logger?.error(`Error while checking if destination SDK is evaluated: ${e}`);
     return false;
   }
 };

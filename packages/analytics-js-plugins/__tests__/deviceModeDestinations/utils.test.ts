@@ -3,10 +3,11 @@ import {
   normalizeIntegrationOptions,
   wait,
   isDestinationReady,
-  createDestinationInstance
+  createDestinationInstance,
+  isDestinationSDKEvaluated,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
-import { Destination, IRudderAnalytics } from '@rudderstack/analytics-js-plugins/types/common';
+import { Destination, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
 import { signal } from '@preact/signals-core';
 
 describe('deviceModeDestinations utils', () => {
@@ -311,37 +312,45 @@ describe('deviceModeDestinations utils', () => {
       alias = () => {};
     }
 
+    // create two mock instances to later choose based on the write key
     const mockAnalyticsInstance_writeKey1 = new mockAnalytics();
     const mockAnalyticsInstance_writeKey2 = new mockAnalytics();
 
-
     class mockRudderAnalytics {
-      getAnalyticsInstance = (writeKey) => {
+      getAnalyticsInstance = writeKey => {
         const instancesMap = {
           '1234567890': mockAnalyticsInstance_writeKey1,
           '12345678910': mockAnalyticsInstance_writeKey2,
         };
         return instancesMap[writeKey];
-        }
+      };
     }
 
     const mockRudderAnalyticsInstance = new mockRudderAnalytics();
 
-    (window as any).rudderanalytics = mockRudderAnalyticsInstance;
-
+    // put destination SDK code on the window object
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
 
-    (window as any)[destSDKIdentifier] = {
-      [sdkTypeName]: class {
-        config: any;
-        analytics: any;
-        constructor(config, analytics) {
-          this.config = config;
-          this.analytics = analytics;
-        }
-      }
-    };
+    beforeAll(() => {
+      (window as any).rudderanalytics = mockRudderAnalyticsInstance;
+
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          config: any;
+          analytics: any;
+          constructor(config, analytics) {
+            this.config = config;
+            this.analytics = analytics;
+          }
+        },
+      };
+    });
+
+    afterAll(() => {
+      delete (window as any).rudderanalytics;
+      delete (window as any).GA4_RS;
+    });
 
     it('should return an instance of the destination', () => {
       const state = {
@@ -361,9 +370,14 @@ describe('deviceModeDestinations utils', () => {
         },
         areTransformationsConnected: false,
         id: 'GA4___5678',
-      }
+      };
 
-      const destinationInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, destination, state);
+      const destinationInstance = createDestinationInstance(
+        destSDKIdentifier,
+        sdkTypeName,
+        destination,
+        state,
+      );
 
       expect(destinationInstance).toBeInstanceOf((window as any)[destSDKIdentifier][sdkTypeName]);
       expect(destinationInstance.config).toEqual(destination.config);
@@ -385,9 +399,56 @@ describe('deviceModeDestinations utils', () => {
       });
 
       // Making sure that the call gets forwarded to the correct instance
-      jest.spyOn(mockAnalyticsInstance_writeKey2, 'page');
+      const pageCallSpy = jest.spyOn(mockAnalyticsInstance_writeKey2, 'page');
       destinationInstance.analytics.page();
       expect(mockAnalyticsInstance_writeKey2.page).toHaveBeenCalled();
+      pageCallSpy.mockRestore();
+    });
+  });
+
+  describe('isDestinationSDKEvaluated', () => {
+    const destSDKIdentifier = 'GA4_RS';
+    const sdkTypeName = 'GA4';
+
+    beforeEach(() => {});
+
+    afterEach(() => {
+      delete (window as any)[destSDKIdentifier];
+    });
+
+    class MockLogger implements ILogger {
+      warn = jest.fn();
+      log = jest.fn();
+      error = jest.fn();
+      info = jest.fn();
+      debug = jest.fn();
+      minLogLevel = 0;
+      scope = 'test scope';
+      setMinLogLevel = jest.fn();
+      setScope = jest.fn();
+      logProvider = console;
+    }
+
+    const mockLogger = new MockLogger();
+
+    it('should return false if the destination SDK is not evaluated', () => {
+      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+    });
+
+    it('should return false if the destination SDK is mounted but it is not a constructable type', () => {
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: 'not a constructable type',
+      };
+
+      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+    });
+
+    it('should return true if the destination SDK is a constructable type', () => {
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          constructor() {}
+        },
+      };
     });
   });
 });
