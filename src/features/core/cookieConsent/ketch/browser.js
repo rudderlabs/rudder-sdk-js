@@ -1,3 +1,4 @@
+import getConsent from '@ketch-sdk/ketch-consent';
 import logger from '../../../../utils/logUtil';
 
 /* eslint-disable class-methods-use-this */
@@ -9,19 +10,10 @@ class Ketch {
     // updateKetchConsent callback function to update current consent purpose state
     // this will be called from ketch rudderstack plugin
     window.updateKetchConsent = (consent) => {
-      if (consent.purposes) {
-        const consentState = consent.purposes;
+      if (consent) {
         this.userConsentedPurposes = [];
         this.userDeniedPurposes = [];
-        Object.entries(consentState).forEach((e) => {
-          const purposeCode = e[0];
-          const isConsented = e[1];
-          if (isConsented) {
-            this.userConsentedPurposes.push(purposeCode);
-          } else {
-            this.userDeniedPurposes.push(purposeCode);
-          }
-        });
+        this.updatePurposes(consent);
       }
     };
 
@@ -31,18 +23,26 @@ class Ketch {
     // getKetchUserDeniedPurposes returns current ketch opted-out purposes
     window.getKetchUserDeniedPurposes = () => this.userDeniedPurposes.slice();
 
+    // initialize purposes with existing user consent state
     if (window.ketchConsent) {
-      Object.entries(window.ketchConsent).forEach((e) => {
-        const purposeCode = e[0];
-        const isConsented = e[1];
-        if (isConsented) {
-          this.userConsentedPurposes.push(purposeCode);
-        } else {
-          this.userDeniedPurposes.push(purposeCode);
-        }
-      });
+      this.updatePurposes(window.ketchConsent);
+    } else {
+      const consent = getConsent(window);
+      this.updatePurposes(consent);
     }
   }
+
+  updatePurposes = (consent) => {
+    Object.entries(consent).forEach((e) => {
+      const purposeCode = e[0];
+      const isConsented = e[1];
+      if (isConsented) {
+        this.userConsentedPurposes.push(purposeCode);
+      } else {
+        this.userDeniedPurposes.push(purposeCode);
+      }
+    });
+  };
 
   isEnabled(destConfig) {
     try {
