@@ -57,7 +57,7 @@ const isDestinationSDKEvaluated = (
 const wait = (time: number) =>
   // eslint-disable-next-line compat/compat
   new Promise(resolve => {
-    globalThis.setTimeout(resolve, time);
+    (globalThis as typeof window).setTimeout(resolve, time);
   });
 
 const createDestinationInstance = (
