@@ -5,19 +5,25 @@ export type {
   RudderEvent,
   RudderEventType,
 } from '@rudderstack/analytics-js/components/eventManager/types';
-export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
+export type {
+  QueueOpts,
+  DestinationsQueueOpts,
+  LogLevel,
+  ApiObject,
+  ApiOptions,
+  ApiCallback,
+} from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-export type {
-  ClientIntegration,
-  InitialisedIntegration,
-} from '@rudderstack/analytics-js/state/types';
+export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
-export type { DestinationConfig } from '@rudderstack/analytics-js/state/types';
+export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
 export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
+export { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
+export type { IRudderAnalytics } from '@rudderstack/analytics-js/app/IRudderAnalytics';
 
 export type ApplicationState = IApplicationState;
 

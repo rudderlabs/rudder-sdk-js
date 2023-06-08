@@ -89,7 +89,7 @@ describe('Core - Analytics', () => {
       expect(loadIntegrationsSpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
-      state.lifecycle.status.value = LifecycleStatus.IntegrationsReady;
+      state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
       expect(onReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
     });

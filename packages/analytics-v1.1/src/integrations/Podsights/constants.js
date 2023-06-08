@@ -1,4 +1,8 @@
+const DIR_NAME = 'Podsights';
 const NAME = 'PODSIGHTS';
+const DISPLAY_NAME = 'Podsights';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Podsights: NAME,
@@ -203,4 +207,7 @@ export {
   CHECK_OUT_EVENT,
   PURCHASE_EVENT,
   LINE_ITEMS_CONFIG,
+  DISPLAY_NAME_TO_DIR_NAME_MAP,
+  DISPLAY_NAME,
+  DIR_NAME,
 };

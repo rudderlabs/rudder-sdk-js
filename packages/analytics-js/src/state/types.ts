@@ -30,9 +30,11 @@ export type Traits = Record<string, any>;
 
 export type Destination = {
   id: string;
-  definitionName: string;
+  displayName: string;
+  userFriendlyId: string;
   areTransformationsConnected: boolean;
   config: DestinationConfig;
+  instance?: DeviceModeDestination;
 };
 
 export type OneTrustCookieCategory = {
@@ -93,22 +95,15 @@ export type DestinationConfig = {
   [key: string]: any;
 };
 
-export type ClientIntegration = {
-  name: string;
-  config: DestinationConfig;
-  destinationInfo: {
-    areTransformationsConnected: boolean;
-    destinationId: string;
-  };
-};
-
-export type IntegrationInstance = {
+export type DeviceModeDestination = {
+  name: string; // this is same as the definition name
+  destinationId: string;
+  areTransformationsConnected: boolean;
+  analytics: any;
+  [index: string]: any;
   isLoaded: () => boolean;
   isReady?: () => boolean;
 };
-
-// TODO: is this still used? const intMod = window[pluginName];
-export type InitialisedIntegration = Record<string, any>;
 
 export enum CookieSameSite {
   Strict = 'Strict',
@@ -272,8 +267,8 @@ export enum LifecycleStatus {
   PluginsReady = 'pluginsReady',
   Initialized = 'initialized',
   Loaded = 'loaded',
-  IntegrationsLoading = 'integrationsLoading',
-  IntegrationsReady = 'integrationsReady',
+  DestinationsLoading = 'destinationsLoading',
+  DestinationsReady = 'destinationsReady',
   Ready = 'ready',
 }
 

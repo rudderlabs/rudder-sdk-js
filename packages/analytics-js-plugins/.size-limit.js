@@ -13,6 +13,6 @@ module.exports = [
     name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/cdn/modern/plugins/rudder-analytics-plugins-*.js',
     gzip: true,
-    limit: '20 kB',
+    limit: '21 kB',
   },
 ];

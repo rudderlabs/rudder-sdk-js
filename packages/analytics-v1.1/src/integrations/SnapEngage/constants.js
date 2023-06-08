@@ -1,4 +1,8 @@
+const DIR_NAME = 'SnapEngage';
 const NAME = 'SNAPENGAGE';
+const DISPLAY_NAME = 'SnapEngage';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   SnapEngage: NAME,
@@ -9,4 +13,4 @@ const CNameMapping = {
   'snap engage': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

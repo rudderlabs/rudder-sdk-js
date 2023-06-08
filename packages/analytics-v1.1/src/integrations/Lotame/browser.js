@@ -21,7 +21,8 @@ class Lotame {
       const { value } = mapping;
       this.mappings[key] = value;
     });
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -86,12 +87,6 @@ class Lotame {
     }
 
     this.storage.setLotameSynchTime(Date.now());
-    // emit on syncPixel
-    if (this.analytics.methodToCallbackMapping.syncPixel) {
-      this.analytics.emit('syncPixel', {
-        destination: this.name,
-      });
-    }
   }
 
   compileUrl(map, url) {

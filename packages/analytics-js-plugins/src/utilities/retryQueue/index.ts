@@ -1,9 +1,6 @@
 import Emitter from 'component-emitter';
-import {
-  generateUUID,
-  getStorageEngine,
-  Store,
-} from '@rudderstack/analytics-js-plugins/utilities/common';
+import { generateUUID, getStorageEngine } from '@rudderstack/analytics-js-plugins/utilities/common';
+import { StorageType, Store } from '@rudderstack/analytics-js-plugins/types/common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -91,7 +88,12 @@ class Queue extends Emitter {
   store: Store;
   running: boolean;
 
-  constructor(name: string, options: QueueOptions, queueProcessCb: QueueProcessCallback) {
+  constructor(
+    name: string,
+    options: QueueOptions,
+    queueProcessCb: QueueProcessCallback,
+    storageType: StorageType = 'localStorage',
+  ) {
     super();
 
     this.name = name;
@@ -125,7 +127,7 @@ class Queue extends Emitter {
         id: this.id,
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      getStorageEngine(storageType),
     );
     this.store.set(QueueStatuses.IN_PROGRESS, {});
     this.store.set(QueueStatuses.QUEUE, []);

@@ -1,4 +1,8 @@
+const DIR_NAME = 'ConvertFlow';
 const NAME = 'CONVERTFLOW';
+const DISPLAY_NAME = 'ConvertFlow';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Convertflow: NAME,
@@ -12,4 +16,4 @@ const CNameMapping = {
   'CONVERT FLOW': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

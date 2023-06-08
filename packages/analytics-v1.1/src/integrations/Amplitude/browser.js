@@ -17,7 +17,6 @@ class Amplitude {
     }
     this.name = NAME;
     this.analytics = analytics;
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
@@ -100,7 +99,7 @@ class Amplitude {
 
     if (traits) {
       const amplitudeIdentify = new window.amplitude.Identify();
-      Object.keys(traits).forEach((trait) => {
+      Object.keys(traits).forEach(trait => {
         const shouldIncrement = this.traitsToIncrement.includes(trait);
         const shouldSetOnce = this.traitsToSetOnce.includes(trait);
 
@@ -184,7 +183,7 @@ class Amplitude {
     let { revenueType } = trackEventMessage.properties;
     const { revenue, revenue_type } = trackEventMessage.properties;
     revenueType = revenueType || revenue_type;
-    products.forEach((product) => {
+    products.forEach(product => {
       trackEventMessage.properties = product;
       trackEventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
