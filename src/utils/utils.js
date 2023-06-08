@@ -720,6 +720,19 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   return isEnabled;
 };
 
+const parseQueryString = (url)=>{
+  const result = {};
+  try {
+    const urlObj = new URL(url);
+    urlObj.searchParams.forEach((value, qParam) => {
+        result[qParam] = value;
+    });
+  } catch (error) {
+    // Do nothing
+  }
+  return result;
+}
+
 export {
   replacer,
   generateUUID,
@@ -751,4 +764,5 @@ export {
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
+  parseQueryString,
 };
