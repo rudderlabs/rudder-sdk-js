@@ -1,4 +1,4 @@
-const DIR_NAME = 'Reddit';
+const DIR_NAME = 'RedditPixel';
 const NAME = 'REDDIT_PIXEL';
 const DISPLAY_NAME = 'Reddit Pixel';
 
