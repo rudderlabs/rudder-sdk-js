@@ -53,7 +53,6 @@ describe('XhrQueue', () => {
     const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
 
     expect(queue).toBeDefined();
-    expect(queue.running).toBeTruthy();
     expect(queue.name).toBe('rudder_sampleWriteKey');
   });
 
@@ -105,6 +104,10 @@ describe('XhrQueue', () => {
     const queueProcessCbSpy = jest.spyOn(queue, 'fn');
 
     XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+
+    // Explicitly start the queue to process the item
+    // In actual implementation, this is done based on the state signals
+    queue.start();
 
     expect(queueProcessCbSpy).toBeCalledWith(
       {

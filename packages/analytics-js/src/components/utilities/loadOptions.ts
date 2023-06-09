@@ -15,6 +15,9 @@ const normalizeLoadOptions = (
   normalizedLoadOptions.useGlobalIntegrationsConfigInEvents =
     normalizedLoadOptions.useGlobalIntegrationsConfigInEvents === true;
 
+  normalizedLoadOptions.bufferDataPlaneEventsUntilReady =
+    normalizedLoadOptions.bufferDataPlaneEventsUntilReady === true;
+
   const mergedLoadOptions: LoadOptions = mergeDeepRight(
     loadOptionsFromState,
     normalizedLoadOptions,

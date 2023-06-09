@@ -139,6 +139,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
               isDestinationReady(initializedDestination, logger)
                 .then(() => {
+                  // TODO: get the destination specific integrations data and set it in the state
                   logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
 
                   state.nativeDestinations.initializedDestinations.value = [

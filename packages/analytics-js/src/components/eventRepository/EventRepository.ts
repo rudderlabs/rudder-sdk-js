@@ -85,6 +85,19 @@ class EventRepository implements IEventRepository {
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     this.logger?.debug('Enqueuing event: ', event);
+
+    // Don't start the queue processing if the destinations are not ready
+    // TODO: Need to do this only for hybrid mode destinations
+    effect(() => {
+      const shouldBufferDpEvents =
+        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
+        state.nativeDestinations.clientDestinationsReady.value === false;
+
+      if (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.isRunning !== true) {
+        this.dataplaneEventsQueue?.start();
+      }
+    });
+
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,

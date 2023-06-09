@@ -268,7 +268,7 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   init() {
-    // Initialise storage
+    // Initialize storage
     this.storeManager?.init();
     this.clientDataStore = this.storeManager?.getStore('clientData') as Store;
     this.userSessionManager?.init(this.clientDataStore);
@@ -284,7 +284,7 @@ class Analytics implements IAnalytics {
       );
     }
 
-    // Initialise event manager
+    // Initialize event manager
     this.eventManager?.init();
   }
 

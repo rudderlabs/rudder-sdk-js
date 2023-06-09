@@ -112,8 +112,6 @@ const XhrQueue = (): ExtensionPlugin => ({
         storeManager,
       );
 
-      eventsQueue.start();
-
       return eventsQueue;
     },
 

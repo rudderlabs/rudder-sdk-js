@@ -202,6 +202,8 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  * @returns Final integrations config
  */
 const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
+  // TODO: Also, combine the data from the destination specific integrations data
+  // which is available in the state post their ready state
   let finalIntgConfig;
   if (shouldUseGlobalIntegrationsConfigInEvents()) {
     finalIntgConfig = state.nativeDestinations.loadOnlyIntegrations.value;

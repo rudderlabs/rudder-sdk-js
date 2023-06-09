@@ -246,6 +246,7 @@ export type LoadOptions = {
   plugins?: Nullable<PluginName[]>;
   polyfillURL?: string;
   useGlobalIntegrationsConfigInEvents?: boolean;
+  bufferDataPlaneEventsUntilReady?: boolean;
 };
 
 export type ApiCallback = (data?: any) => void;
