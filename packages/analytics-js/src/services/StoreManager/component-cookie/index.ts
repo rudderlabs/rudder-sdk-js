@@ -86,7 +86,7 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
     cookieString += `; secure`;
   }
 
-  window.document.cookie = cookieString;
+  globalThis.document.cookie = cookieString;
 };
 
 /**
@@ -96,7 +96,7 @@ const all = (): Record<string, Nullable<string>> => {
   let cookieStringValue;
 
   try {
-    cookieStringValue = window.document.cookie;
+    cookieStringValue = globalThis.document.cookie;
   } catch (err) {
     console.error((err as Error).stack || err);
     return {} as Record<string, Nullable<string>>;

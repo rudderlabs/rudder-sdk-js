@@ -1,3 +1,5 @@
+import { CookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/CookieStorage';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
   IStorage,
   StorageType,
@@ -6,7 +8,6 @@ import {
   IInMemoryStorageOptions,
 } from '../types';
 import { defaultInMemoryStorage } from './InMemoryStorage';
-import { defaultCookieStorage } from './CookieStorage';
 import { defaultLocalStorage } from './LocalStorage';
 
 // TODO: create session storage client (similar to localstorage if needed)
@@ -19,11 +20,11 @@ const getStorageEngine = (type?: StorageType): IStorage => {
     case 'localStorage':
       return defaultLocalStorage;
     case 'sessionStorage':
-      return window.sessionStorage;
+      return globalThis.sessionStorage;
     case 'memoryStorage':
       return defaultInMemoryStorage;
     case 'cookieStorage':
-      return defaultCookieStorage;
+      return new CookieStorage({}, defaultLogger);
     default:
       return defaultInMemoryStorage;
   }
@@ -33,7 +34,7 @@ const getStorageEngine = (type?: StorageType): IStorage => {
  * Configure cookie storage singleton
  */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
-  defaultCookieStorage.configure(options);
+  new CookieStorage({}, defaultLogger).configure(options);
 };
 
 /**

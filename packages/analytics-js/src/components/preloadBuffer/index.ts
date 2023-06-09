@@ -48,7 +48,7 @@ const retrieveEventsFromQueryString = (argumentsArray: PreloadedEventCall[] = []
     properties: QUERY_PARAM_PROPERTY_PREFIX,
   };
 
-  const queryObject = new URLSearchParams(window.location.search);
+  const queryObject = new URLSearchParams(globalThis.location.search);
 
   // Add track events with name and properties
   if (queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY)) {

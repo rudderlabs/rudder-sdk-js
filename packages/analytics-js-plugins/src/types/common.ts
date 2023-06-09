@@ -1,23 +1,31 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
 
+export type { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
 export type {
-  RudderEvent,
-  RudderEventType,
-} from '@rudderstack/analytics-js/components/eventManager/types';
-export type { QueueOpts } from '@rudderstack/analytics-js/state/types';
+  QueueOpts,
+  DestinationsQueueOpts,
+  ApiObject,
+  ApiOptions,
+  ApiCallback,
+} from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-export type {
-  ClientIntegration,
-  InitialisedIntegration,
-} from '@rudderstack/analytics-js/state/types';
+export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
-export type { DestinationConfig } from '@rudderstack/analytics-js/state/types';
+export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
 export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
+export type {
+  IRudderAnalytics,
+  AnalyticsAliasMethod,
+  AnalyticsGroupMethod,
+  AnalyticsIdentifyMethod,
+  AnalyticsPageMethod,
+  AnalyticsTrackMethod,
+} from '@rudderstack/analytics-js/app/IRudderAnalytics';
+export type { IStore, IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 export type ApplicationState = IApplicationState;
 
@@ -26,7 +34,7 @@ export interface ExtensionPoint {
 }
 
 export interface ExtensionPlugin {
-  name: string;
+  name: PluginName;
   initialize: (state: ApplicationState) => void;
   deps?: string[];
   [key: string]:
@@ -62,3 +70,22 @@ export type ConsentInfo = {
   allowedConsents?: Record<string, string>;
   deniedConsentIds?: string[];
 };
+
+// Not using the analytics-js package enums to avoid generation of another shared bundle
+export type PluginName =
+  | 'BeaconQueue'
+  | 'ConsentManager'
+  | 'DeviceModeDestinations'
+  | 'DeviceModeTransformation'
+  | 'ErrorReporting'
+  | 'ExternalAnonymousId'
+  | 'GoogleLinker'
+  | 'NativeDestinationQueue'
+  | 'StorageEncryption'
+  | 'StorageEncryptionLegacy'
+  | 'XhrQueue'
+  | 'OneTrust';
+
+export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
+
+export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';

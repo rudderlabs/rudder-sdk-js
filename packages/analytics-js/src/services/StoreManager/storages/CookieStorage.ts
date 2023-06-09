@@ -1,10 +1,9 @@
 import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { cookie } from '../component-cookie';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { cookie } from '../component-cookie';
 import { ICookieStorageOptions, IStorage } from '../types';
 import { getDefaultCookieOptions } from './defaultOptions';
 
@@ -12,20 +11,28 @@ import { getDefaultCookieOptions } from './defaultOptions';
  * A storage utility to persist values in cookies via Storage interface
  */
 class CookieStorage implements IStorage {
+  static globalSingleton: Nullable<CookieStorage> = null;
   logger?: ILogger;
-  options: ICookieStorageOptions;
+  options?: ICookieStorageOptions;
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
 
   constructor(options: Partial<ICookieStorageOptions> = {}, logger?: ILogger) {
+    if (CookieStorage.globalSingleton) {
+      // eslint-disable-next-line no-constructor-return
+      return CookieStorage.globalSingleton;
+    }
+
     this.options = getDefaultCookieOptions();
     this.logger = logger;
     this.configure(options);
+
+    CookieStorage.globalSingleton = this;
   }
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
-    this.options = mergeRight(this.options, options);
+    this.options = mergeRight(this.options ?? {}, options);
     this.isSupportAvailable = isStorageAvailable('cookieStorage', this);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
@@ -71,6 +78,4 @@ class CookieStorage implements IStorage {
   }
 }
 
-const defaultCookieStorage = new CookieStorage({}, defaultLogger);
-
-export { CookieStorage, defaultCookieStorage };
+export { CookieStorage };

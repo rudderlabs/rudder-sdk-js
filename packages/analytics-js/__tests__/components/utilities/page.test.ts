@@ -9,15 +9,21 @@ import {
 describe('utilities - page', () => {
   let windowSpy: any;
   let documentSpy: any;
+  let navigatorSpy: any;
+  let locationSpy: any;
 
   beforeEach(() => {
     windowSpy = jest.spyOn(window, 'window', 'get');
     documentSpy = jest.spyOn(window, 'document', 'get');
+    navigatorSpy = jest.spyOn(globalThis, 'navigator', 'get');
+    locationSpy = jest.spyOn(globalThis, 'location', 'get');
   });
 
   afterEach(() => {
     windowSpy.mockRestore();
     documentSpy.mockRestore();
+    navigatorSpy.mockRestore();
+    locationSpy.mockRestore();
   });
 
   it('should get User Agent', () => {
@@ -25,24 +31,17 @@ describe('utilities - page', () => {
   });
 
   it('should not get user agent if window navigator is undefined', () => {
-    windowSpy.mockImplementation(() => ({
-      navigator: undefined,
-    }));
-
+    navigatorSpy.mockReturnValue(undefined);
     expect(getUserAgent()).toBe(null);
   });
 
   it('should get Brave user agent for Brave browser', () => {
-    windowSpy.mockImplementation(() => {
-      const brave = {};
-      Object.setPrototypeOf(brave, { isBrave: true });
-      return {
-        navigator: {
-          userAgent:
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36',
-          brave,
-        },
-      };
+    const brave = {};
+    Object.setPrototypeOf(brave, { isBrave: true });
+    navigatorSpy.mockReturnValue({
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36',
+      brave,
     });
 
     expect(getUserAgent()).toBe(
@@ -51,23 +50,22 @@ describe('utilities - page', () => {
   });
 
   it('should get browser language', () => {
+    navigatorSpy.mockReturnValue({
+      language: 'en-US',
+    });
     expect(getLanguage()).toBe('en-US');
   });
 
   it('should not get browser language if window navigator is undefined', () => {
-    windowSpy.mockImplementation(() => ({
-      navigator: undefined,
-    }));
+    navigatorSpy.mockReturnValue(undefined);
 
     expect(getLanguage()).toBe(null);
   });
 
   it('should get browser language if navigator.language is undefined', () => {
-    windowSpy.mockImplementation(() => ({
-      navigator: {
-        language: undefined,
-        browserLanguage: 'en-US',
-      },
+    navigatorSpy.mockImplementation(() => ({
+      language: undefined,
+      browserLanguage: 'en-US',
     }));
 
     expect(getLanguage()).toBe('en-US');
@@ -132,11 +130,9 @@ describe('utilities - page', () => {
       getElementsByTagName: () => [linkScript],
     }));
 
-    windowSpy.mockImplementation(() => ({
-      location: {
-        href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
-        search: '?someKey=someVal',
-      },
+    locationSpy.mockImplementation(() => ({
+      href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+      search: '?someKey=someVal',
     }));
 
     expect(getDefaultPageProperties()).toEqual({

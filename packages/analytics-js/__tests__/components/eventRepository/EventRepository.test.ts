@@ -5,6 +5,7 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 
 describe('EventRepository', () => {
   const defaultPluginsManager = new PluginsManager(
@@ -13,26 +14,28 @@ describe('EventRepository', () => {
     defaultLogger,
   );
 
+  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+
   beforeEach(() => {
     batch(() => {
       state.lifecycle.writeKey.value = 'testWriteKey';
       state.lifecycle.activeDataplaneUrl.value = 'testDataPlaneUrl';
       state.loadOptions.value = {
         queueOptions: {
-          flushAt: 1,
+          maxItems: 1,
           flushInterval: 1,
           maxRetry: 1,
           backoffFactor: 1,
         },
         destinationsQueueOptions: {
-          flushAt: 1,
+          maxItems: 1,
         },
       };
     });
   });
 
   it('should invoke appropriate plugins start on init', () => {
-    const eventRepository = new EventRepository(defaultPluginsManager);
+    const eventRepository = new EventRepository(defaultPluginsManager, defaultStoreManager);
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
 
@@ -41,10 +44,19 @@ describe('EventRepository', () => {
       'dataplaneEventsQueue.init',
       state,
       expect.objectContaining({}),
+      defaultStoreManager,
       undefined,
       undefined,
     );
-    expect(spy).nthCalledWith(2, 'destinationsEventsQueue.init', state, undefined, undefined);
+    expect(spy).nthCalledWith(
+      2,
+      'destinationsEventsQueue.init',
+      state,
+      defaultPluginsManager,
+      defaultStoreManager,
+      undefined,
+      undefined,
+    );
     spy.mockRestore();
   });
 });

@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, Nullable, PluginName, ApplicationState } from '../types/common';
+import { ExtensionPlugin, Nullable, ApplicationState } from '../types/common';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import { parseLinker } from './utils';
 
-const pluginName = PluginName.GoogleLinker;
+const pluginName = 'GoogleLinker';
 
 // TODO: refactor this plugin and all related sourcecode to be typesafe
 const GoogleLinker = (): ExtensionPlugin => ({

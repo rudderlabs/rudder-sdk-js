@@ -1,7 +1,13 @@
-import { Schedule } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/Schedule';
-import { Queue } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry';
-import { QueueStatuses } from '@rudderstack/analytics-js-plugins/xhrQueue/localstorage-retry/QueueStatuses';
-import { getStorageEngine, Store } from '@rudderstack/analytics-js-plugins/utilities/common';
+/* eslint-disable import/no-extraneous-dependencies */
+import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
+import { Queue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
+import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 const size = (queue: Queue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,
@@ -13,6 +19,13 @@ describe('Queue', () => {
   // let clock: InstalledClock;
   let schedule: Schedule;
   const engine = getStorageEngine('localStorage');
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
+
+  const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   beforeAll(() => {
     jest.useFakeTimers();
@@ -24,7 +37,7 @@ describe('Queue', () => {
     schedule.now = () => +new window.Date();
 
     // Have the default function be a spied success
-    queue = new Queue('test', {}, jest.fn());
+    queue = new Queue('test', {}, jest.fn(), defaultStoreManager);
     queue.schedule = schedule;
   });
 
@@ -615,10 +628,23 @@ describe('Queue', () => {
 
 describe('events', () => {
   let queue: Queue;
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
+
+  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+
   beforeEach(() => {
-    queue = new Queue('events', (_, cb) => {
-      cb();
-    });
+    queue = new Queue(
+      'events',
+      {},
+      (_, cb) => {
+        cb();
+      },
+      defaultStoreManager,
+    );
   });
 
   afterEach(() => {
@@ -671,10 +697,23 @@ describe('events', () => {
 
 describe('end-to-end', () => {
   let queue: Queue;
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
+
+  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+
   beforeEach(() => {
-    queue = new Queue('e2e_test', (_, cb) => {
-      cb();
-    });
+    queue = new Queue(
+      'e2e_test',
+      {},
+      (_, cb) => {
+        cb();
+      },
+      defaultStoreManager,
+    );
   });
 
   afterEach(() => {

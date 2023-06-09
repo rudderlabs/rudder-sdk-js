@@ -1,4 +1,8 @@
+const DIR_NAME = 'Comscore';
 const NAME = 'COMSCORE';
+const DISPLAY_NAME = 'Comscore';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Comscore: NAME,
@@ -8,4 +12,4 @@ const CNameMapping = {
   'Com score': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

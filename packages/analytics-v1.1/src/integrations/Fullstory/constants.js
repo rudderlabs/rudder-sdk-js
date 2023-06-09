@@ -1,4 +1,8 @@
+const DIR_NAME = 'Fullstory';
 const NAME = 'FULLSTORY';
+const DISPLAY_NAME = 'Fullstory';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Fullstory: NAME,
@@ -10,4 +14,4 @@ const CNameMapping = {
   fullstory: NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

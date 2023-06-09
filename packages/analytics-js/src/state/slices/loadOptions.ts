@@ -37,6 +37,7 @@ const defaultLoadOptions: LoadOptions = {
   lockIntegrationsVersion: false,
   uaChTrackLevel: UaChTrackLevel.None,
   plugins: [],
+  useGlobalIntegrationsConfigInEvents: false,
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

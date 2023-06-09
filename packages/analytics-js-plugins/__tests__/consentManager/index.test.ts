@@ -14,7 +14,7 @@ describe('Plugin - ConsentManager', () => {
   });
   it('should add ConsentManager plugin in the loaded plugin list', () => {
     ConsentManager().initialize(state);
-    expect(state.plugins.loadedPlugins.value.includes(PluginName.ConsentManager)).toBe(true);
+    expect(state.plugins.loadedPlugins.value.includes('ConsentManager')).toBe(true);
   });
 
   it('should initialize the ConsentManager and add values in state when selected consent manager is initialized', () => {

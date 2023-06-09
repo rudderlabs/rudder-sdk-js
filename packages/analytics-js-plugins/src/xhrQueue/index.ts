@@ -9,8 +9,8 @@ import {
   getDeliveryUrl,
 } from './utilities';
 import {
+  IStoreManager,
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   IErrorHandler,
   ILogger,
@@ -19,9 +19,9 @@ import {
   IHttpClient,
 } from '../types/common';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
-import { DoneCallback, Queue } from './localstorage-retry';
+import { DoneCallback, Queue } from '../utilities/retryQueue';
 
-const pluginName = PluginName.XhrQueue;
+const pluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -34,6 +34,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * Initialize the queue for delivery
      * @param state Application state
      * @param httpClient http client instance
+     * @param storeManager Store Manager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns Queue instance
@@ -41,6 +42,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     init(
       state: ApplicationState,
       httpClient: IHttpClient,
+      storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): Queue {
@@ -52,7 +54,8 @@ const XhrQueue = (): ExtensionPlugin => ({
       );
 
       const eventsQueue = new Queue(
-        QUEUE_NAME,
+        // adding write key to the queue name to avoid conflicts
+        `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
           item: XHRQueueItem,
@@ -62,6 +65,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           willBeRetried: boolean,
         ) => {
           const { url, event, headers } = item;
+          logger?.debug(`Sending ${event.type} event to data plane`);
           // Update sentAt timestamp to the latest timestamp
           event.sentAt = getCurrentTimeFormatted();
           const data = getDeliveryPayload(event);
@@ -105,6 +109,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             done(null);
           }
         },
+        storeManager,
       );
 
       eventsQueue.start();
