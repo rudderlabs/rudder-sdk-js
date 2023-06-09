@@ -95,12 +95,12 @@ const jsFileLoader = (
       let timeoutID: number;
 
       const onload = () => {
-        clearTimeout(timeoutID);
+        (globalThis as typeof window).clearTimeout(timeoutID);
         resolve(id);
       };
 
       const onerror = () => {
-        clearTimeout(timeoutID);
+        (globalThis as typeof window).clearTimeout(timeoutID);
         reject(new Error(`Couldn't load the script: "${url}" with id ${id}.`));
       };
 
@@ -108,7 +108,7 @@ const jsFileLoader = (
       insertScript(createScriptElement(url, id, async, onload, onerror, extraAttributes));
 
       // Reject on timeout
-      timeoutID = window.setTimeout(() => {
+      timeoutID = (globalThis as typeof window).setTimeout(() => {
         reject(
           new Error(
             `Timeout (${timeout} ms) occurred. Couldn't load the script: "${url}" with id ${id}.`,

@@ -23,8 +23,7 @@
         'getGroupTraits',
         'startSession',
         'endSession',
-        'getSessionId',
-        'getSessionInfo',
+        'getSessionId'
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -52,16 +51,15 @@
         var rudderAnalyticsScript = document.createElement('script');
         rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
         rudderAnalyticsScript.async = true;
-        rudderAnalyticsScript.defer = true;
+        // Commented out as the local build file is auto-injected by rollup
         // document.head.appendChild(rudderAnalyticsScript);
       };
 
       // Feature detection of promise
       if(typeof Promise === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement('script');
-        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
         rudderAnalyticsPromisesScript.async = true;
-        rudderAnalyticsPromisesScript.defer = true;
         document.head.appendChild(rudderAnalyticsPromisesScript);
       } else {
         rudderAnalyticsMount();

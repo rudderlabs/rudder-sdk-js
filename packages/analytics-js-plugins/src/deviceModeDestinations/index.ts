@@ -15,17 +15,13 @@ import {
 import {
   ExtensionPlugin,
   IExternalSrcLoader,
-  PluginName,
   ApplicationState,
   ILogger,
   IPluginsManager,
 } from '../types/common';
 
-// TODO: if this is not an enum but a hardcoded string we save one request for the rudder-analytics-plugins-common.min.js file
-const pluginName = PluginName.DeviceModeDestinations;
+const pluginName = 'DeviceModeDestinations';
 
-// TODO: dummy implementation for testing until we implement device mode
-//  create proper implementation once relevant task is picked up
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,
   initialize: (state: ApplicationState) => {
@@ -116,12 +112,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             });
         }
 
-        let timeoutId: NodeJS.Timeout;
-        const intervalId = globalThis.setInterval(() => {
+        let timeoutId: number;
+        const intervalId = (globalThis as typeof window).setInterval(() => {
           const sdkTypeName = sdkName;
           if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
-            globalThis.clearInterval(intervalId);
-            globalThis.clearTimeout(timeoutId);
+            (globalThis as typeof window).clearInterval(intervalId);
+            (globalThis as typeof window).clearTimeout(timeoutId);
 
             logger?.debug(
               `SDK script evaluation successful for destination: ${dest.userFriendlyId}`,
@@ -165,7 +161,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
         }, INITIALIZED_CHECK_POLL_INTERVAL);
 
-        timeoutId = globalThis.setTimeout(() => {
+        timeoutId = (globalThis as typeof window).setTimeout(() => {
           clearInterval(intervalId);
 
           logger?.debug(`SDK script evaluation timed out for destination: ${dest.userFriendlyId}`);

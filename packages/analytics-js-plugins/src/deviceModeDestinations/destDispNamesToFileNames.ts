@@ -1,5 +1,4 @@
 // map of the destination display names to the destination directory names
-
 import {
   HubSpotDisplayNameToDirNameMap,
   GADisplayNameToDirNameMap,

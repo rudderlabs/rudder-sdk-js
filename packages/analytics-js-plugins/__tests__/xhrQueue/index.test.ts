@@ -1,9 +1,15 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 import { batch } from '@preact/signals-core';
 import { RudderEvent } from '@rudderstack/analytics-js-plugins/types/common';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 
 jest.mock('@rudderstack/analytics-js-plugins/utilities/common', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-plugins/utilities/common'),
@@ -11,6 +17,14 @@ jest.mock('@rudderstack/analytics-js-plugins/utilities/common', () => ({
 }));
 
 describe('XhrQueue', () => {
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
+
+  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+
   beforeAll(() => {
     state.lifecycle.writeKey.value = 'sampleWriteKey';
   });
@@ -36,7 +50,7 @@ describe('XhrQueue', () => {
       };
     });
 
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
 
     expect(queue).toBeDefined();
     expect(queue.running).toBeTruthy();
@@ -44,7 +58,7 @@ describe('XhrQueue', () => {
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
@@ -74,7 +88,7 @@ describe('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
 
     const event: RudderEvent = {
       type: 'track',

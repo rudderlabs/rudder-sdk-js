@@ -9,8 +9,8 @@ import {
   getDeliveryUrl,
 } from './utilities';
 import {
+  IStoreManager,
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   IErrorHandler,
   ILogger,
@@ -21,7 +21,7 @@ import {
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 import { DoneCallback, Queue } from '../utilities/retryQueue';
 
-const pluginName = PluginName.XhrQueue;
+const pluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -34,6 +34,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * Initialize the queue for delivery
      * @param state Application state
      * @param httpClient http client instance
+     * @param storeManager Store Manager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns Queue instance
@@ -41,6 +42,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     init(
       state: ApplicationState,
       httpClient: IHttpClient,
+      storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): Queue {
@@ -107,6 +109,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             done(null);
           }
         },
+        storeManager,
       );
 
       eventsQueue.start();

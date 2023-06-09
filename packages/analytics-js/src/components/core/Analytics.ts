@@ -117,7 +117,7 @@ class Analytics implements IAnalytics {
   }
 
   attachGlobalErrorHandler() {
-    window.addEventListener(
+    globalThis.addEventListener(
       'error',
       e => {
         this.errorHandler.onError(e, 'Global Boundary', state.lifecycle.writeKey.value);
@@ -230,14 +230,19 @@ class Analytics implements IAnalytics {
 
   prepareInternalServices() {
     this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
-    this.storeManager = new StoreManager(this.errorHandler, this.logger, this.pluginsManager);
+    this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
       this.errorHandler,
       this.logger,
       this.pluginsManager,
     );
-    this.eventRepository = new EventRepository(this.pluginsManager, this.errorHandler, this.logger);
+    this.eventRepository = new EventRepository(
+      this.pluginsManager,
+      this.storeManager,
+      this.errorHandler,
+      this.logger,
+    );
     this.eventManager = new EventManager(
       this.eventRepository,
       this.userSessionManager,

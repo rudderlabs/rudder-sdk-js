@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
-import { ExtensionPlugin, PluginName, ApplicationState } from '../types/common';
+import { ExtensionPlugin, ApplicationState } from '../types/common';
 import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';
 
-const pluginName = PluginName.StorageEncryptionLegacy;
+const pluginName = 'StorageEncryptionLegacy';
 
 // TODO: Migrate the existing encryption to new one
 const StorageEncryptionLegacy = (): ExtensionPlugin => ({

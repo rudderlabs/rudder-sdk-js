@@ -7,8 +7,8 @@ const isDatasetAvailable = (): boolean => {
 };
 
 const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
-  URLSearchParams: () => !window.URLSearchParams,
-  URL: () => typeof window.URL !== 'function',
+  URLSearchParams: () => !globalThis.URLSearchParams,
+  URL: () => typeof globalThis.URL !== 'function',
   MutationObserver: () => isUndefined(MutationObserver),
   Promise: () => typeof Promise === 'undefined',
   'Number.isNaN': () => !Number.isNaN,

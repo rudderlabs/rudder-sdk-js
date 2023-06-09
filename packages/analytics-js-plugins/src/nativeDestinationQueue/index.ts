@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { effect } from '@preact/signals-core';
 import { Queue, DoneCallback } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
 import {
+  IStoreManager,
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   QueueOpts,
   RudderEvent,
@@ -17,7 +16,7 @@ import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
-const pluginName = PluginName.NativeDestinationQueue;
+const pluginName = 'NativeDestinationQueue';
 
 const NativeDestinationQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -29,6 +28,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     /**
      * Initialize the queue for delivery to destinations
      * @param state Application state
+     * @param pluginsManager PluginsManager instance
+     * @param storeManager StoreManager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns Queue instance
@@ -36,6 +37,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     init(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
+      storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): Queue {
@@ -74,6 +76,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           // Mark success always
           done(null);
         },
+        storeManager,
         'memoryStorage',
       );
 

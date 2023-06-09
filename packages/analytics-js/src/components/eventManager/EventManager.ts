@@ -20,6 +20,7 @@ class EventManager implements IEventManager {
   /**
    *
    * @param eventRepository Event repository instance
+   * @param userSessionManager UserSession Manager instance
    * @param errorHandler Error handler object
    * @param logger Logger object
    */

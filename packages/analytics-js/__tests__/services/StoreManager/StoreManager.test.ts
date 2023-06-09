@@ -6,6 +6,10 @@ import {
 } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 import { state } from '@rudderstack/analytics-js/state';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
   __esModule: true,
@@ -22,11 +26,16 @@ describe('StoreManager', () => {
   let errorHandler: IErrorHandler;
   let logger: ILogger;
   let storeManager: StoreManager;
+  const defaultPluginsManager = new PluginsManager(
+    defaultPluginEngine,
+    defaultErrorHandler,
+    defaultLogger,
+  );
 
   beforeEach(() => {
     errorHandler = { onError: jest.fn() };
     logger = { error: jest.fn() };
-    storeManager = new StoreManager(errorHandler, logger);
+    storeManager = new StoreManager(defaultPluginsManager, errorHandler, logger);
   });
 
   afterEach(() => {

@@ -16,11 +16,11 @@ const getScreenDetails = (): ScreenInfo => {
   };
 
   screenDetails = {
-    width: window.screen.width,
-    height: window.screen.height,
-    density: window.devicePixelRatio,
-    innerWidth: window.innerWidth,
-    innerHeight: window.innerHeight,
+    width: globalThis.screen.width,
+    height: globalThis.screen.height,
+    density: globalThis.devicePixelRatio,
+    innerWidth: globalThis.innerWidth,
+    innerHeight: globalThis.innerHeight,
   };
 
   return screenDetails;

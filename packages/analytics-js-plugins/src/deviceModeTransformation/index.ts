@@ -2,7 +2,6 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   Destination,
   IErrorHandler,
@@ -11,7 +10,7 @@ import {
   RudderEvent,
 } from '../types/common';
 
-const pluginName = PluginName.DeviceModeTransformation;
+const pluginName = 'DeviceModeTransformation';
 
 const DeviceModeTransformation = (): ExtensionPlugin => ({
   name: pluginName,

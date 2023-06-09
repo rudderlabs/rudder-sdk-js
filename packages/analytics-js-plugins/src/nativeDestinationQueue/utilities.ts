@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from 'ramda';
+import { mergeDeepRight } from '@rudderstack/analytics-js-plugins/utilities/common';
 import {
   Destination,
   DestinationsQueueOpts,

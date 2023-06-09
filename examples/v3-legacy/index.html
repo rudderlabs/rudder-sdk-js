@@ -61,7 +61,7 @@
       // Feature detection of Promise
       if(typeof Promise === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement('script');
-        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
         rudderAnalyticsPromisesScript.async = true;
         rudderAnalyticsPromisesScript.defer = true;
         document.head.appendChild(rudderAnalyticsPromisesScript);

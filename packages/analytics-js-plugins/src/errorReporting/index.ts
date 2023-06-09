@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, PluginName, ApplicationState } from '../types/common';
+import { ExtensionPlugin, ApplicationState } from '../types/common';
 
-const pluginName = PluginName.ErrorReporting;
+const pluginName = 'ErrorReporting';
 
 const ErrorReporting = (): ExtensionPlugin => ({
   name: pluginName,
