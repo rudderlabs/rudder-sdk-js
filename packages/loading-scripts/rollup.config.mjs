@@ -25,7 +25,7 @@ import pkg from './package.json' assert { type: 'json' };
 dotenv.config();
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
-const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
+const variantSubfolder = isLegacyBuild ? 'legacy' : 'modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDirRoot = `dist/`;
