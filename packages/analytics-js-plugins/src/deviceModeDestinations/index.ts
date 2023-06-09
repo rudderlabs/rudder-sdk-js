@@ -19,6 +19,7 @@ import {
   ILogger,
   IPluginsManager,
 } from '../types/common';
+import { isFunction, mergeDeepRight } from '../utilities/common';
 
 const pluginName = 'DeviceModeDestinations';
 
@@ -141,6 +142,21 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 .then(() => {
                   // TODO: get the destination specific integrations data and set it in the state
                   logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
+
+                  // Collect the integrations data for the destination, if any
+                  if (isFunction(initializedDestination.instance?.getDataForIntegrationsObject)) {
+                    try {
+                      state.nativeDestinations.integrationsConfig.value = mergeDeepRight(
+                        state.nativeDestinations.integrationsConfig.value,
+                        initializedDestination.instance?.getDataForIntegrationsObject(),
+                      );
+                    } catch (e) {
+                      logger?.error(
+                        e,
+                        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`,
+                      );
+                    }
+                  }
 
                   state.nativeDestinations.initializedDestinations.value = [
                     ...state.nativeDestinations.initializedDestinations.value,
