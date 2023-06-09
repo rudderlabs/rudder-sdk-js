@@ -49,14 +49,14 @@ export default class GA4 {
       gtagParameterObject.send_page_view = false;
     }
     // Setting the userId as a part of configuration
-    if (sendUserIdToGA4(this.analytics.loadOnlyIntegrations) && this.analytics.userId) {
-      gtagParameterObject.user_id = this.analytics.userId;
+    if (sendUserIdToGA4(this.analytics.loadOnlyIntegrations) && this.analytics.getUserId()) {
+      gtagParameterObject.user_id = this.analytics.getUserId();
     }
 
     gtagParameterObject.cookie_prefix = 'rs';
     if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
-      gtagParameterObject.client_id = this.analytics.anonymousId;
-      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+      gtagParameterObject.client_id = this.analytics.getAnonymousId();
+      gtagParameterObject.session_id = this.analytics.getSessionId();
     }
 
     gtagParameterObject.debug_mode = true;
@@ -167,8 +167,8 @@ export default class GA4 {
     }
     const params = { ...parameters };
     params.send_to = this.measurementId;
-    if (sendUserIdToGA4(integrations) && this.analytics.userId) {
-      params.user_id = this.analytics.userId;
+    if (sendUserIdToGA4(integrations) && this.analytics.getUserId()) {
+      params.user_id = this.analytics.getUserId();
     }
     window.gtag('event', event, params);
   }
@@ -223,7 +223,7 @@ export default class GA4 {
   identify(rudderElement) {
     logger.debug('In GoogleAnalyticsManager Identify');
 
-    window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
+    window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
     // Setting the userId as a part of configuration
     if (sendUserIdToGA4(rudderElement.message.integrations) && rudderElement.message.userId) {
       const { userId } = rudderElement.message;
@@ -249,8 +249,8 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.userId) {
-        properties.user_id = this.analytics.userId;
+      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.getUserId()) {
+        properties.user_id = this.analytics.getUserId();
       }
       if (this.extendPageViewParams) {
         window.gtag('event', 'page_view', {
