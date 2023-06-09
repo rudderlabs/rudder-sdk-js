@@ -13,7 +13,7 @@ describe('tiktokads init tests', () => {
                 { from: 'Sign Up', to: 'Signup' },
                 { to: 'Lead', from: 'orderCompleted' },
                 { from: 'Page View', to: 'PageVisit' },
-                { from: 'productAdded', to: 'AddToCart' },
+                { from: 'productAdded', to: 'AddToCart' }
             ]
         }, { loglevel: "debug" });
         tiktokads.init();
@@ -68,7 +68,7 @@ describe("TiktokAds Track event", () => {
         tiktokads.init();
         window.ttq.track = jest.fn();
     });
-    test("Testing Track Custom Events", () => {
+    test("Testing Track Custom Events with no content_type in payload", () => {
         tiktokads.track({
             message: {
                 context: {},
@@ -87,7 +87,7 @@ describe("TiktokAds Track event", () => {
                             "customPropProd": "testPropProd",
                             product_id: 'abc',
                             category: 'Merch',
-                            name: 'Food/Drink',
+                            name: 'Food',
                             brand: '',
                             variant: 'Extra topped',
                             price: 3.00,
@@ -96,8 +96,6 @@ describe("TiktokAds Track event", () => {
                             position: 1,
                             value: 6.00,
                             typeOfProduct: 'Food',
-                            url: 'https://www.example.com/product/bacon-jam',
-                            image_url: 'https://www.example.com/product/bacon-jam.jpg'
                         }
                     ]
                 },
@@ -112,7 +110,7 @@ describe("TiktokAds Track event", () => {
                 {
                     "content_category": "Merch",
                     "content_id": "abc",
-                    "content_name": "Food/Drink",
+                    "content_name": "Food",
                     "content_type": "product",
                     price: 3.00,
                     quantity: 2,
@@ -121,7 +119,86 @@ describe("TiktokAds Track event", () => {
             ]
         });
     });
+    test("Testing Track Custom Events with content type in payload and multiple products", () => {
+        tiktokads.track({
+            message: {
+                context: {},
+                event: "Custom",
+                properties: {
+                    "customProp": "testProp",
+                    checkout_id: 'what is checkout id here??',
+                    event_id: 'purchaseId',
+                    order_id: "transactionId",
+                    value: 35.00,
+                    shipping: 4.00,
+                    coupon: 'APPARELSALE',
+                    currency: 'GBP',
+                    products: [
+                        {
+                            "customPropProd": "testPropProd",
+                            product_id: 'abc',
+                            category: 'Merch',
+                            name: 'Drink',
+                            brand: '',
+                            variant: 'Extra topped',
+                            price: 3.00,
+                            quantity: 2,
+                            currency: 'GBP',
+                            position: 1,
+                            value: 6.00,
+                            typeOfProduct: 'Food',
+                            url: 'https://www.example.com/product/bacon-jam',
+                            image_url: 'https://www.example.com/product/bacon-jam.jpg'
+                        },
+                        {
+                            product_id: 'PRODUCT_ID',
+                            category: 'Wholesaler',
+                            name: 'Drink',
+                            brand: '',
+                            variant: 'Extra Cheese',
+                            price: 50.00,
+                            quantity: 1,
+                            currency: 'GBP',
+                            position: 1,
+                            value: 30.00,
+                            typeOfProduct: 'Food',
+                            content_type: 'CONTENT_TYPE',
+                            url: 'https://www.example.com/product/bacon-jam',
+                            image_url: 'https://www.example.com/product/bacon-jam.jpg'
+                        }
+                    ]
+                }
+            }
+        });
+        expect(window.ttq.track.mock.calls[0][0]).toEqual("AddToCart");
+        expect(window.ttq.track.mock.calls[0][1]).toEqual({
+            value: 35.00,
+            "currency": "GBP",
+            "partner_name": "RudderStack",
+            contents: [
+                {
+                    "content_category": "Merch",
+                    "content_id": "abc",
+                    "content_name": "Drink",
+                    "content_type": "product",
+                    price: 3.00,
+                    quantity: 2,
+
+                },
+                {
+                    "content_category": "Wholesaler",
+                    "content_id": "PRODUCT_ID",
+                    "content_name": "Drink",
+                    "content_type": "CONTENT_TYPE",
+                    price: 50.00,
+                    quantity: 1,
+
+                }
+            ]
+        });
+    });
 });
+
 describe("TiktokAds Identify event", () => {
     let tiktokads;
     beforeEach(() => {
