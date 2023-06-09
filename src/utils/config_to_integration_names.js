@@ -73,6 +73,7 @@ const configToIntNames = {
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
   LEMNISK: "Lemnisk",
+  TIKTOK_ADS: "TiktokAds",
 };
 
 export { configToIntNames };
