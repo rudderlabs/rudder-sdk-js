@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 import { Queue, DoneCallback } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
 import {
+  IStoreManager,
   ExtensionPlugin,
   ApplicationState,
   QueueOpts,
@@ -27,6 +28,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     /**
      * Initialize the queue for delivery to destinations
      * @param state Application state
+     * @param pluginsManager PluginsManager instance
+     * @param storeManager StoreManager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
      * @returns Queue instance
@@ -34,6 +37,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     init(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
+      storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): Queue {
@@ -72,6 +76,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           // Mark success always
           done(null);
         },
+        storeManager,
         'memoryStorage',
       );
 

@@ -5,7 +5,6 @@ export type { RudderEvent } from '@rudderstack/analytics-js/components/eventMana
 export type {
   QueueOpts,
   DestinationsQueueOpts,
-  LogLevel,
   ApiObject,
   ApiOptions,
   ApiCallback,
@@ -18,8 +17,15 @@ export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
 export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
-export { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-export type { IRudderAnalytics } from '@rudderstack/analytics-js/app/IRudderAnalytics';
+export type {
+  IRudderAnalytics,
+  AnalyticsAliasMethod,
+  AnalyticsGroupMethod,
+  AnalyticsIdentifyMethod,
+  AnalyticsPageMethod,
+  AnalyticsTrackMethod,
+} from '@rudderstack/analytics-js/app/IRudderAnalytics';
+export type { IStore, IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 export type ApplicationState = IApplicationState;
 
@@ -81,3 +87,5 @@ export type PluginName =
   | 'OneTrust';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
+
+export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';

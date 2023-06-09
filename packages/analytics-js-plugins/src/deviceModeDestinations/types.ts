@@ -1,14 +1,24 @@
-import { ApiObject, IntegrationOpts, LogLevel, Nullable } from '../types/common';
+import {
+  ApiObject,
+  IntegrationOpts,
+  LogLevel,
+  Nullable,
+  AnalyticsAliasMethod,
+  AnalyticsGroupMethod,
+  AnalyticsIdentifyMethod,
+  AnalyticsPageMethod,
+  AnalyticsTrackMethod,
+} from '../types/common';
 
 export type DeviceModeDestinationsAnalyticsInstance = {
   loadIntegration: boolean;
   logLevel: LogLevel;
   loadOnlyIntegrations: IntegrationOpts;
-  track: (...args: any) => void;
-  page: (...args: any) => void;
-  identify: (...args: any) => void;
-  group: (...args: any) => void;
-  alias: (...args: any) => void;
+  track: AnalyticsTrackMethod;
+  page: AnalyticsPageMethod;
+  identify: AnalyticsIdentifyMethod;
+  group: AnalyticsGroupMethod;
+  alias: AnalyticsAliasMethod;
   getAnonymousId: () => string;
   getUserId: () => Nullable<string> | undefined;
   getUserTraits: () => Nullable<ApiObject> | undefined;

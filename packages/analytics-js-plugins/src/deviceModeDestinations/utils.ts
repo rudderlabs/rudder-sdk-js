@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  INITIALIZED_CHECK_TIMEOUT,
-  LOAD_CHECK_POLL_INTERVAL,
-} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { clone } from 'ramda';
 import {
   ApiCallback,
@@ -16,6 +12,7 @@ import {
   IntegrationOpts,
   Nullable,
 } from '@rudderstack/analytics-js-plugins/types/common';
+import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
@@ -70,8 +67,6 @@ const createDestinationInstance = (
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
 
-  // TODO: avoid this object wrapping of the RudderAnalytics API methods
-  // instead amend the integrations to accept IAnalytics instance
   return new (globalThis as any)[destSDKIdentifier][sdkTypeName](
     clone(dest.config),
     {

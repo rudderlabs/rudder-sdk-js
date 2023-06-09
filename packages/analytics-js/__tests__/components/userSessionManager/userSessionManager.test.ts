@@ -25,9 +25,9 @@ describe('User session manager', () => {
     defaultLogger,
   );
   const defaultStoreManager = new StoreManager(
+    defaultPluginsManager,
     defaultErrorHandler,
     defaultLogger,
-    defaultPluginsManager,
   );
 
   let userSessionManager: UserSessionManager;

@@ -22,8 +22,6 @@ import {
 
 const pluginName = 'DeviceModeDestinations';
 
-// TODO: dummy implementation for testing until we implement device mode
-//  create proper implementation once relevant task is picked up
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,
   initialize: (state: ApplicationState) => {
