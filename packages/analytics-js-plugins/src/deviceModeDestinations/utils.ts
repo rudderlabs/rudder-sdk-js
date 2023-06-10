@@ -19,7 +19,9 @@ import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
+  isFunction,
   isUndefined,
+  mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '../utilities/common';
@@ -193,6 +195,32 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
   });
 };
 
+/**
+ * Extracts the integration config, if any, from the given destination
+ * and merges it with the current integrations config
+ * @param dest Destination object
+ * @param curDestIntgConfig Current destinations integration config
+ * @param logger Logger object
+ * @returns Combined destinations integrations config
+ */
+const getCumulativeIntegrationsConfig = (dest: Destination, curDestIntgConfig: IntegrationOpts, logger?: ILogger): IntegrationOpts => {
+  let integrationsConfig: IntegrationOpts = curDestIntgConfig;
+  if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
+    try {
+      integrationsConfig = mergeDeepRight(
+        curDestIntgConfig,
+        dest.instance?.getDataForIntegrationsObject()
+      );
+    } catch (e) {
+      logger?.error(
+        e,
+        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`
+      );
+    }
+  }
+  return integrationsConfig;
+}
+
 export {
   isDestinationSDKEvaluated,
   wait,
@@ -200,4 +228,5 @@ export {
   isDestinationReady,
   normalizeIntegrationOptions,
   filterDestinations,
+  getCumulativeIntegrationsConfig,
 };
