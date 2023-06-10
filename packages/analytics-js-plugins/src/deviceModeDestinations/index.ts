@@ -143,7 +143,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
 
                   // Collect the integrations data for the destination
-                  state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(initializedDestination, state.nativeDestinations.integrationsConfig.value, logger);
+                  state.nativeDestinations.integrationsConfig.value =
+                    getCumulativeIntegrationsConfig(
+                      initializedDestination,
+                      state.nativeDestinations.integrationsConfig.value,
+                      logger,
+                    );
 
                   state.nativeDestinations.initializedDestinations.value = [
                     ...state.nativeDestinations.initializedDestinations.value,

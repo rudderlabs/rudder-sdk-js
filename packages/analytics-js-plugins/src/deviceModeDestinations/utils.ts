@@ -203,23 +203,27 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
  * @param logger Logger object
  * @returns Combined destinations integrations config
  */
-const getCumulativeIntegrationsConfig = (dest: Destination, curDestIntgConfig: IntegrationOpts, logger?: ILogger): IntegrationOpts => {
+const getCumulativeIntegrationsConfig = (
+  dest: Destination,
+  curDestIntgConfig: IntegrationOpts,
+  logger?: ILogger,
+): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject()
+        dest.instance?.getDataForIntegrationsObject(),
       );
     } catch (e) {
       logger?.error(
         e,
-        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`
+        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`,
       );
     }
   }
   return integrationsConfig;
-}
+};
 
 export {
   isDestinationSDKEvaluated,

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { clone } from 'ramda';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';
 import {
@@ -8,6 +7,7 @@ import {
   getDeliveryPayload,
   validatePayloadSize,
   getDeliveryUrl,
+  getFinalEventForDelivery,
 } from './utilities';
 import {
   IStoreManager,
@@ -18,14 +18,8 @@ import {
   QueueOpts,
   RudderEvent,
   IHttpClient,
-  IntegrationOpts,
 } from '../types/common';
-import {
-  getCurrentTimeFormatted,
-  isUndefined,
-  mergeDeepRight,
-  toBase64,
-} from '../utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 import { DoneCallback, Queue } from '../utilities/retryQueue';
 
 const pluginName = 'XhrQueue';
@@ -73,35 +67,10 @@ const XhrQueue = (): ExtensionPlugin => ({
         ) => {
           const { url, event, headers } = item;
           logger?.debug(`Sending ${event.type} event to data plane`);
-          // Update sentAt timestamp to the latest timestamp
-          event.sentAt = getCurrentTimeFormatted();
 
-          // Merge the destination specific integrations config with the event's integrations config
-          // However, if any of the integrations are set to false in the event's integrations config,
-          // we need to keep them as false even if they are set to true in the destination specific integrations config
-          // TODO: improve this logic to make it handle other generic cases as well
-          // TODO: move this into a utility function
-          let finalIntgConfig = event.integrations;
-          const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
-          const unOverriddenIntgOpts = Object.keys(finalIntgConfig)
-            .filter(
-              intgName =>
-                !(
-                  !isUndefined(finalIntgConfig[intgName]) &&
-                  Boolean(finalIntgConfig[intgName]) === true &&
-                  destinationsIntgConfig[intgName]
-                ),
-            )
-            .reduce((obj: IntegrationOpts, key: string) => {
-              const retVal = clone(obj);
-              retVal[key] = finalIntgConfig[key];
-              return retVal;
-            }, {});
+          const finalEvent = getFinalEventForDelivery(event, state);
 
-          finalIntgConfig = mergeDeepRight(destinationsIntgConfig, unOverriddenIntgOpts);
-          event.integrations = finalIntgConfig;
-
-          const data = getDeliveryPayload(event);
+          const data = getDeliveryPayload(finalEvent);
 
           if (data) {
             httpClient.getAsyncData({

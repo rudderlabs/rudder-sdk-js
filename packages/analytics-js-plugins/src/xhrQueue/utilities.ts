@@ -1,11 +1,25 @@
 import path from 'path';
+import { clone } from 'ramda';
 import {
   MAX_EVENT_PAYLOAD_SIZE_BYTES,
   DATA_PLANE_API_VERSION,
   DEFAULT_RETRY_QUEUE_OPTIONS,
 } from './constants';
-import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
-import { QueueOpts, RudderEvent, RudderEventType, ILogger, Nullable } from '../types/common';
+import {
+  getCurrentTimeFormatted,
+  isUndefined,
+  mergeDeepRight,
+  stringifyWithoutCircular,
+} from '../utilities/common';
+import {
+  QueueOpts,
+  RudderEvent,
+  RudderEventType,
+  ILogger,
+  Nullable,
+  ApplicationState,
+  IntegrationOpts,
+} from '../types/common';
 
 /**
  * Utility to get the stringified event payload
@@ -45,8 +59,54 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
 
-// TODO: Add polyfill for URL and URL.toString()
 const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string =>
+  // eslint-disable-next-line compat/compat
   new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
 
-export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl, getNormalizedQueueOptions };
+/**
+ * Mutates the event and return final event for delivery
+ * Updates certain parameters like sentAt timestamp, integrations config etc.
+ * @param event RudderEvent object
+ * @param state Application state
+ * @returns Final event ready to be delivered
+ */
+const getFinalEventForDelivery = (event: RudderEvent, state: ApplicationState): RudderEvent => {
+  const finalEvent = clone(event);
+
+  // Update sentAt timestamp to the latest timestamp
+  finalEvent.sentAt = getCurrentTimeFormatted();
+
+  // Merge the destination specific integrations config with the event's integrations config
+  // However, if any of the integrations are set to false in the event's integrations config,
+  // we need to keep them as false even if they are set to true in the destination specific integrations config
+  // TODO: improve this logic to make it handle other generic cases as well
+  let finalIntgConfig = event.integrations;
+  const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
+  const unOverriddenIntgOpts = Object.keys(finalIntgConfig)
+    .filter(
+      intgName =>
+        !(
+          !isUndefined(finalIntgConfig[intgName]) &&
+          Boolean(finalIntgConfig[intgName]) === true &&
+          destinationsIntgConfig[intgName]
+        ),
+    )
+    .reduce((obj: IntegrationOpts, key: string) => {
+      const retVal = clone(obj);
+      retVal[key] = finalIntgConfig[key];
+      return retVal;
+    }, {});
+
+  finalIntgConfig = mergeDeepRight(destinationsIntgConfig, unOverriddenIntgOpts);
+  finalEvent.integrations = finalIntgConfig;
+
+  return finalEvent;
+};
+
+export {
+  validatePayloadSize,
+  getDeliveryPayload,
+  getDeliveryUrl,
+  getNormalizedQueueOptions,
+  getFinalEventForDelivery,
+};

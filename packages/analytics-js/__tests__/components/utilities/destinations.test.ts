@@ -3,7 +3,7 @@ import {
   filterEnabledDestination,
   getNonCloudDestinations,
   isNonCloudDestination,
-  isHybridModeDestination
+  isHybridModeDestination,
 } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -205,7 +205,9 @@ describe('Config manager util - filterEnabledDestination', () => {
   });
 
   it('should detect if destination is non-cloud', () => {
-    const hybridDestination = isNonCloudDestination(dummySourceConfigResponse.source.destinations[0]);
+    const hybridDestination = isNonCloudDestination(
+      dummySourceConfigResponse.source.destinations[0],
+    );
     expect(hybridDestination).toBeTruthy();
 
     const nativeDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[1]);
@@ -216,7 +218,9 @@ describe('Config manager util - filterEnabledDestination', () => {
   });
 
   it('should detect if a destination is hybrid', () => {
-    const hybridDestination = isHybridModeDestination(dummySourceConfigResponse.source.destinations[0]);
+    const hybridDestination = isHybridModeDestination(
+      dummySourceConfigResponse.source.destinations[0],
+    );
     expect(hybridDestination).toBeTruthy();
 
     const nativeDest = isHybridModeDestination(dummySourceConfigResponse.source.destinations[1]);
@@ -225,7 +229,9 @@ describe('Config manager util - filterEnabledDestination', () => {
     const cloudDest = isHybridModeDestination(dummySourceConfigResponse.source.destinations[2]);
     expect(cloudDest).toBeFalsy();
 
-    const hybridDestination2 = isHybridModeDestination(dummySourceConfigResponse.source.destinations[3]);
+    const hybridDestination2 = isHybridModeDestination(
+      dummySourceConfigResponse.source.destinations[3],
+    );
     expect(hybridDestination2).toBeTruthy();
   });
 });

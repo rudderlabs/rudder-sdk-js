@@ -87,6 +87,9 @@ class EventRepository implements IEventRepository {
     this.logger?.debug('Enqueuing event: ', event);
 
     // Start the queue processing only when the destinations are ready
+    // However, events will be enqueued for now.
+    // At the time of processing the events, the integrations config data from destinations
+    // is merged into the event
     // TODO: Need to do this only for hybrid mode destinations
     effect(() => {
       const shouldBufferDpEvents =
