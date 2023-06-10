@@ -188,6 +188,37 @@ const dummySourceConfigResponse: SourceConfigResponse = {
         },
         areTransformationsConnected: false,
       },
+      {
+        config: {
+          measurementId: 'G-SC6JGS1234',
+          capturePageView: 'rs',
+          whitelistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          blacklistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          useNativeSDKToSend: true,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'dummyDestinationId4',
+        name: 'GA4 for JS SDK Cloud',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: true,
+        deleted: false,
+        destinationDefinition: {
+          name: 'GA4',
+          displayName: 'Google Analytics 4 (GA4)',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        areTransformationsConnected: false,
+      },
     ],
   },
 };
