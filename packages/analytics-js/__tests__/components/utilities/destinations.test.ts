@@ -204,7 +204,10 @@ describe('Config manager util - filterEnabledDestination', () => {
   });
 
   it('should detect if destination is non-cloud', () => {
-    const nativeDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[0]);
+    const hybridDestination = isNonCloudDestination(dummySourceConfigResponse.source.destinations[0]);
+    expect(hybridDestination).toBeTruthy();
+
+    const nativeDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[1]);
     expect(nativeDest).toBeTruthy();
 
     const cloudDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[2]);

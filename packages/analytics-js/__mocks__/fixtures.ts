@@ -139,7 +139,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
               eventName: '',
             },
           ],
-          useNativeSDKToSend: true,
+          useNativeSDK: true,
           eventFilteringOption: 'disable',
           extendPageViewParams: false,
           oneTrustCookieCategories: [],
