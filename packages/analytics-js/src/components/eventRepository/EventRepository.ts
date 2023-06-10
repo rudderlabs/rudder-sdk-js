@@ -86,7 +86,7 @@ class EventRepository implements IEventRepository {
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     this.logger?.debug('Enqueuing event: ', event);
 
-    // Don't start the queue processing if the destinations are not ready
+    // Start the queue processing only when the destinations are ready
     // TODO: Need to do this only for hybrid mode destinations
     effect(() => {
       const shouldBufferDpEvents =
