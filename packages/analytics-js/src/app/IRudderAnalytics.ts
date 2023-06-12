@@ -8,6 +8,79 @@ import {
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { IAnalytics } from '../components/core/IAnalytics';
 
+export type AnalyticsIdentifyMethod = {
+  (
+    userId?: string,
+    traits?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (userId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
+  (userId: string, callback: ApiCallback): void;
+  (traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+};
+
+export type AnalyticsPageMethod = {
+  (
+    category?: string,
+    name?: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (category: string, name: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
+  (
+    name: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (category: string, name: string, callback: ApiCallback): void;
+  (name: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
+  (name: string, callback: ApiCallback): void;
+  (properties: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (properties: Nullable<ApiObject>, callback?: ApiCallback): void;
+};
+
+export type AnalyticsTrackMethod = {
+  (
+    event: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (event: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
+  (event: string, callback: ApiCallback): void;
+};
+
+export type AnalyticsGroupMethod = {
+  (
+    groupId: string | number,
+    traits?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (groupId: string | number, traits: Nullable<ApiObject>, callback: ApiCallback): void;
+  (groupId: string | number, callback: ApiCallback): void;
+  (traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+};
+
+export type AnalyticsAliasMethod = {
+  (
+    to: Nullable<string>,
+    from?: string,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  (to: Nullable<string>, from: string, callback: ApiCallback): void;
+  (to: Nullable<string>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (to: Nullable<string>, callback: ApiCallback): void;
+  (to: ApiCallback): void;
+  (): void;
+};
+
 export interface IRudderAnalytics {
   analyticsInstances: Record<string, IAnalytics>;
   defaultAnalyticsKey: string;
@@ -40,93 +113,27 @@ export interface IRudderAnalytics {
   /**
    * To record a page view event
    */
-  page(
-    category?: string,
-    name?: string,
-    properties?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  page(
-    category: string,
-    name: string,
-    properties: Nullable<ApiObject>,
-    callback: ApiCallback,
-  ): void;
-  page(
-    name: string,
-    properties?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  page(category: string, name: string, callback: ApiCallback): void;
-  page(name: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
-  page(name: string, callback: ApiCallback): void;
-  page(
-    properties: Nullable<ApiObject>,
-    options: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  page(properties: Nullable<ApiObject>, callback?: ApiCallback): void;
+  page: AnalyticsPageMethod;
 
   /**
    * To record a user track event
    */
-  track(
-    event: string,
-    properties?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  track(event: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
-  track(event: string, callback: ApiCallback): void;
+  track: AnalyticsTrackMethod;
 
   /**
    * To record a user identification event
    */
-  identify(
-    userId?: string,
-    traits?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  identify(userId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
-  identify(userId: string, callback: ApiCallback): void;
-  identify(
-    traits: Nullable<ApiObject>,
-    options: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  identify(traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+  identify: AnalyticsIdentifyMethod;
 
   /**
    * To record a user alias event
    */
-  alias(
-    to: Nullable<string>,
-    from?: string,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  alias(to: Nullable<string>, from: string, callback: ApiCallback): void;
-  alias(to: Nullable<string>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: Nullable<string>, callback: ApiCallback): void;
-  alias(to: ApiCallback): void;
-  alias(): void;
+  alias: AnalyticsAliasMethod;
 
   /**
    * To record a user group event
    */
-  group(
-    groupId: string | number,
-    traits?: Nullable<ApiObject>,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  group(groupId: string | number, traits: Nullable<ApiObject>, callback: ApiCallback): void;
-  group(groupId: string | number, callback: ApiCallback): void;
-  group(traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  group(traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+  group: AnalyticsGroupMethod;
 
   /**
    * Clear user information

@@ -1,4 +1,8 @@
+const DIR_NAME = 'Appcues';
 const NAME = 'APPCUES';
+const DISPLAY_NAME = 'Appcues';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Appcues: NAME,
@@ -6,4 +10,4 @@ const CNameMapping = {
   appcues: NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

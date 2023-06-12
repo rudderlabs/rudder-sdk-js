@@ -1,5 +1,4 @@
 import { OneTrust } from '@rudderstack/analytics-js-plugins/oneTrust';
-import { PluginName } from '@rudderstack/analytics-js-plugins/types/common';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 
@@ -9,7 +8,7 @@ describe('Plugin - OneTrust', () => {
   });
   it('should add OneTrust plugin in the loaded plugin list', () => {
     OneTrust().initialize(state);
-    expect(state.plugins.loadedPlugins.value.includes(PluginName.OneTrust)).toBe(true);
+    expect(state.plugins.loadedPlugins.value.includes('OneTrust')).toBe(true);
   });
 
   it('should initialize the OneTrust and compute consentInfo if OneTrust native SDK is loaded', () => {

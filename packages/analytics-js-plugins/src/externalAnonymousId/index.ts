@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   AnonymousIdOptions,
   StorageType,
@@ -10,7 +9,7 @@ import {
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';
 
-const pluginName = PluginName.ExternalAnonymousId;
+const pluginName = 'ExternalAnonymousId';
 
 const ExternalAnonymousId = (): ExtensionPlugin => ({
   name: pluginName,

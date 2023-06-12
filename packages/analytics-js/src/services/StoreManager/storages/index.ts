@@ -1,4 +1,4 @@
-export { CookieStorage, defaultCookieStorage } from './CookieStorage';
+export { CookieStorage } from './CookieStorage';
 export { InMemoryStorage, defaultInMemoryStorage } from './InMemoryStorage';
 export { LocalStorage, defaultLocalStorage } from './LocalStorage';
 export {

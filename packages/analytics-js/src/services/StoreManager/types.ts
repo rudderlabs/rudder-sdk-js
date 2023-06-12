@@ -2,6 +2,7 @@ import { CookieSameSite } from '@rudderstack/analytics-js/state/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
+import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { CookieOptions } from './component-cookie';
 
 export type StoreId = 'clientData' | 'eventQueue' | string;
@@ -57,7 +58,7 @@ export interface IStoreManager {
   init(): void;
   initClientDataStore(): void;
   initQueueStore(): void;
-  setStore(storeConfig: IStoreConfig): void;
+  setStore(storeConfig: IStoreConfig): IStore;
   getStore(id: StoreId): IStore | undefined;
 }
 
@@ -72,9 +73,15 @@ export interface IStore {
   noCompoundKey?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
+  pluginManager?: IPluginsManager;
   createValidKey(key: string): string | undefined;
   swapQueueStoreToInMemoryEngine(): void;
   set(key: string, value: any): void;
   get<T = any>(key: string): Nullable<T>;
   remove(key: string): void;
+  getOriginalEngine(): IStorage;
+  decrypt(value?: Nullable<string>): Nullable<string>;
+  encrypt(value: any): string;
+  crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
+  onError(error: Error | unknown): void;
 }

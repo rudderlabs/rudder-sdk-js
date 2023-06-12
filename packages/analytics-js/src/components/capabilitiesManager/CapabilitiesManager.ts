@@ -68,7 +68,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
       state.capabilities.isIE11.value = isIE11();
-      state.capabilities.isOnline.value = window.navigator.onLine;
+      state.capabilities.isOnline.value = globalThis.navigator.onLine;
 
       // Get page context details
       state.context.userAgent.value = getUserAgent();
@@ -134,15 +134,15 @@ class CapabilitiesManager implements ICapabilitiesManager {
    */
   // eslint-disable-next-line class-methods-use-this
   attachWindowListeners() {
-    window.addEventListener('offline', () => {
+    globalThis.addEventListener('offline', () => {
       state.capabilities.isOnline.value = false;
     });
 
-    window.addEventListener('online', () => {
+    globalThis.addEventListener('online', () => {
       state.capabilities.isOnline.value = true;
     });
 
-    // TODO: add debounched listener for window.onResize event and update state.context.screen.value
+    // TODO: add debounched listener for globalThis.onResize event and update state.context.screen.value
   }
 
   /**

@@ -1,4 +1,8 @@
+const DIR_NAME = 'PinterestTag';
 const NAME = 'PINTEREST_TAG';
+const DISPLAY_NAME = 'Pinterest Tag';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   PinterestTag: NAME,
@@ -16,4 +20,4 @@ const CNameMapping = {
   'Pinterest ads': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

@@ -1,4 +1,8 @@
+const DIR_NAME = 'FacebookPixel';
 const NAME = 'FACEBOOK_PIXEL';
+const DISPLAY_NAME = 'Facebook Pixel';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   'FB Pixel': NAME,
@@ -74,4 +78,12 @@ const reserveTraits = [
   'country',
 ];
 
-export { traitsMapper, CNameMapping, NAME, reserveTraits };
+export {
+  traitsMapper,
+  CNameMapping,
+  NAME,
+  reserveTraits,
+  DISPLAY_NAME_TO_DIR_NAME_MAP,
+  DISPLAY_NAME,
+  DIR_NAME,
+};

@@ -4,7 +4,7 @@ import { domain } from '../top-domain';
 import { ICookieStorageOptions, IInMemoryStorageOptions, ILocalStorageOptions } from '../types';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
-  const topDomain = domain(window.location.href);
+  const topDomain = domain(globalThis.location?.href);
 
   return {
     maxage: DEFAULT_COOKIE_MAX_AGE,

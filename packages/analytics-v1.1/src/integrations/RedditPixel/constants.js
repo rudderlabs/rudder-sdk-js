@@ -1,4 +1,8 @@
+const DIR_NAME = 'RedditPixel';
 const NAME = 'REDDIT_PIXEL';
+const DISPLAY_NAME = 'Reddit Pixel';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   Reddit_Pixel: NAME,
@@ -10,4 +14,4 @@ const CNameMapping = {
   'reddit pixel': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

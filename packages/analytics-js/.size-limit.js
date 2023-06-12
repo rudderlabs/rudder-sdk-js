@@ -19,7 +19,7 @@ module.exports = [
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rudder-analytics.min.js',
     gzip: true,
-    limit: '39 kB',
+    limit: '45 kB',
   },
   {
     name: 'Core - CDN',

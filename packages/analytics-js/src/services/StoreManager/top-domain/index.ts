@@ -14,7 +14,8 @@ const legacyGetHostname = (href: string): string => {
  */
 const levelsFunc = (url: string): string[] => {
   // This is called before the polyfills load thus new URL cannot be used
-  const host = typeof window.URL !== 'function' ? legacyGetHostname(url) : new URL(url).hostname;
+  const host =
+    typeof globalThis.URL !== 'function' ? legacyGetHostname(url) : new URL(url).hostname;
   const parts = host?.split('.') ?? [];
   const last = parts[parts.length - 1];
   const levels: string[] = [];
