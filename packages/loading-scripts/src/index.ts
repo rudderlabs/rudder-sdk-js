@@ -1,6 +1,7 @@
 /* eslint-disable no-new */
 /** Loading snippet */
-const sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/v3/';
+const sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/v3';
+const sdkName = 'rudder-analytics.min.js';
 const writeKey = '<write-key>';
 const dataPlaneUrl = '<data-plane-url>';
 const options = {
@@ -51,24 +52,21 @@ try {
   // Do nothing
 }
 
-const rudderAnalyticsBaseUrl = sdkBaseUrl + sdkBuildType;
 const rudderAnalyticsMount = () => {
   const rudderAnalyticsScript = document.createElement('script');
-  rudderAnalyticsScript.src = `${rudderAnalyticsBaseUrl}/rudder-analytics.min.js`;
+  rudderAnalyticsScript.src = `${sdkBaseUrl}/${sdkBuildType}/${sdkName}`;
   rudderAnalyticsScript.async = true;
   document.head.appendChild(rudderAnalyticsScript);
 };
 
-// Feature detection of promise
 if (typeof Promise === 'undefined') {
   const rudderAnalyticsPromisesScript = document.createElement('script');
   rudderAnalyticsPromisesScript.src =
-    'https://polyfill.io/v3/polyfill.min.js?features=Promise&callback=rudderAnalyticsMount';
+    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = true;
   document.head.appendChild(rudderAnalyticsPromisesScript);
 } else {
   rudderAnalyticsMount();
 }
-// New addition to load script ends
 
 rudderanalytics.load(writeKey, dataPlaneUrl, options);
