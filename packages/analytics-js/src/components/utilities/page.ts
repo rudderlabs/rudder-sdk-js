@@ -28,12 +28,12 @@ const getCanonicalUrl = (): string => {
 };
 
 const getUserAgent = (): Nullable<string> => {
-  if (isUndefined(window.navigator)) {
+  if (isUndefined(globalThis.navigator)) {
     return null;
   }
 
-  let { userAgent } = window.navigator;
-  const { brave } = window.navigator as any;
+  let { userAgent } = globalThis.navigator;
+  const { brave } = globalThis.navigator as any;
 
   // For supporting Brave browser detection,
   // add "Brave/<version>" to the user agent with the version value from the Chrome component
@@ -51,11 +51,11 @@ const getUserAgent = (): Nullable<string> => {
 };
 
 const getLanguage = (): Nullable<string> => {
-  if (isUndefined(window.navigator)) {
+  if (isUndefined(globalThis.navigator)) {
     return null;
   }
 
-  return window.navigator.language ?? (window.navigator as any).browserLanguage;
+  return globalThis.navigator.language ?? (globalThis.navigator as any).browserLanguage;
 };
 
 /**
@@ -64,10 +64,10 @@ const getLanguage = (): Nullable<string> => {
  */
 const getDefaultPageProperties = (): Record<string, any> => {
   const canonicalUrl = getCanonicalUrl();
-  let path = window.location.pathname;
-  const { href: tabUrl } = window.location;
+  let path = globalThis.location.pathname;
+  const { href: tabUrl } = globalThis.location;
   let pageUrl = tabUrl;
-  const { search } = window.location;
+  const { search } = globalThis.location;
   if (canonicalUrl) {
     try {
       const urlObj = new URL(canonicalUrl);

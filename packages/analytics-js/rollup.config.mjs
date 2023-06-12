@@ -149,7 +149,7 @@ export function getDefaultConfig(distName) {
         htmlTemplate({
           template: process.env.TEST_FILE_PATH || 'public/index.html',
           target: 'index.html',
-          attrs: ['async', 'defer'],
+          attrs: ['async'],
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,

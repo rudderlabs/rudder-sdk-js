@@ -1,4 +1,8 @@
+const DIR_NAME = 'LaunchDarkly';
 const NAME = 'LAUNCHDARKLY';
+const DISPLAY_NAME = 'LaunchDarkly';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   LaunchDarkly: NAME,
@@ -8,4 +12,4 @@ const CNameMapping = {
   'launch darkly': NAME,
 };
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

@@ -124,16 +124,6 @@ class Store implements IStore {
     }
   }
 
-  // TODO: Do we really need this one?
-  // setStringItem(key: string, value: any) {
-  //   if (typeof value !== 'string') {
-  //     this.logger?.error(`Storage ${key} should be string`);
-  //     return;
-  //   }
-  //
-  //   this.set(key, value);
-  // }
-
   /**
    * Get by Key.
    */

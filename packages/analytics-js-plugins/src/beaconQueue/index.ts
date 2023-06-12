@@ -2,14 +2,13 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   ILogger,
   IErrorHandler,
   RudderEvent,
 } from '../types/common';
 
-const pluginName = PluginName.BeaconQueue;
+const pluginName = 'BeaconQueue';
 
 const BeaconQueue = (): ExtensionPlugin => ({
   name: pluginName,

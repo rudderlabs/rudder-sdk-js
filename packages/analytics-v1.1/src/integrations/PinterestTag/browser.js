@@ -53,7 +53,8 @@ export default class PinterestTag {
   }
 
   handleEnhancedMatch() {
-    const email = this.analytics.userTraits && this.analytics.userTraits.email;
+    const userTraits = this.analytics.getUserTraits();
+    const email = userTraits && userTraits.email;
     if (email && this.enhancedMatch) {
       window.pintrk('load', this.tagId, {
         em: email,
@@ -219,7 +220,7 @@ export default class PinterestTag {
       this.userDefinedEventsMapping,
       this.sendAsCustomEvent,
     );
-    destEventArray.forEach((eventName) => {
+    destEventArray.forEach(eventName => {
       const pinterestObject = this.generatePinterestObject(properties);
       pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
       this.setLdp(message);
@@ -240,7 +241,8 @@ export default class PinterestTag {
   }
 
   identify() {
-    const email = this.analytics.userTraits && this.analytics.userTraits.email;
+    const userTraits = this.analytics.getUserTraits();
+    const email = userTraits && userTraits.email;
     if (email) {
       const ldpObject = this.generateLdpObject();
       window.pintrk('set', { em: email, ...ldpObject });

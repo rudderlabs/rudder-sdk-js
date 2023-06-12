@@ -1,0 +1,46 @@
+diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
+index 7935008..0155c14 100644
+--- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
++++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
+@@ -3441,7 +3441,8 @@ function htmlTemplate(options = {}) {
+     target,
+     prefix,
+     attrs,
+-    replaceVars
++    replaceVars,
++    noInject
+   } = options;
+   const scriptTagAttributes = attrs && attrs.length > 0 ? attrs : [];
+   return {
+@@ -3491,7 +3492,7 @@ function htmlTemplate(options = {}) {
+ 
+           const finalTarget = path.join(targetDir, targetFile);
+           await lib.ensureFile(finalTarget);
+-          await lib.writeFile(finalTarget, injected);
++          await lib.writeFile(finalTarget, noInject ? buffer.toString("utf8") : injected);
+           resolve();
+         } catch (e) {
+           reject(e);
+diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
+index 81116b3..05878ac 100644
+--- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
++++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
+@@ -3437,7 +3437,8 @@ function htmlTemplate(options = {}) {
+     target,
+     prefix,
+     attrs,
+-    replaceVars
++    replaceVars,
++    noInject
+   } = options;
+   const scriptTagAttributes = attrs && attrs.length > 0 ? attrs : [];
+   return {
+@@ -3487,7 +3488,7 @@ function htmlTemplate(options = {}) {
+ 
+           const finalTarget = path.join(targetDir, targetFile);
+           await lib.ensureFile(finalTarget);
+-          await lib.writeFile(finalTarget, injected);
++          await lib.writeFile(finalTarget, noInject ? buffer.toString("utf8") : injected);
+           resolve();
+         } catch (e) {
+           reject(e);

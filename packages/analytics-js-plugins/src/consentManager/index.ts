@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   ILogger,
   IPluginsManager,
@@ -9,7 +8,7 @@ import {
 } from '../types/common';
 import { Batch } from './type';
 
-const pluginName = PluginName.ConsentManager;
+const pluginName = 'ConsentManager';
 
 const ConsentManager = (): ExtensionPlugin => ({
   name: pluginName,

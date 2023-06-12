@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import {
   ExtensionPlugin,
-  PluginName,
   ApplicationState,
   ILogger,
   ConsentInfo,
@@ -9,7 +8,7 @@ import {
 } from '../types/common';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
-const pluginName = PluginName.OneTrust;
+const pluginName = 'OneTrust';
 
 const OneTrust = (): ExtensionPlugin => ({
   name: pluginName,
@@ -23,7 +22,7 @@ const OneTrust = (): ExtensionPlugin => ({
 
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
-      if (!(window as any).OneTrust || !(window as any).OnetrustActiveGroups) {
+      if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
         logger?.error('OneTrust resources are not accessible.');
         return { consentProviderInitialized: false };
       }
@@ -32,14 +31,14 @@ const OneTrust = (): ExtensionPlugin => ({
       // the cookie categories Ids that the user has consented to.
       // Eg: ',C0001,C0003,'
       // We split it and save it as an array.
-      const allowedConsentIds = (window as any).OnetrustActiveGroups.split(',').filter(
+      const allowedConsentIds = (globalThis as any).OnetrustActiveGroups.split(',').filter(
         (n: string) => n,
       );
       const allowedConsents: Record<string, string> = {};
       const deniedConsentIds: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
-      const oneTrustAllGroupsInfo: OneTrustGroup[] = (window as any).OneTrust.GetDomainData()
+      const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
         .Groups;
 
       oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
@@ -66,8 +65,8 @@ const OneTrust = (): ExtensionPlugin => ({
       try {
         /**
      * Structure of OneTrust consent group destination config.
-     * 
-     * "oneTrustCookieCategories": 
+     *
+     * "oneTrustCookieCategories":
      * [
         {
             "oneTrustCookieCategory": "Performance Cookies"

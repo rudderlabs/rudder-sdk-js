@@ -16,7 +16,9 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.serverUrl = config.serverUrl;
     this.siteId = config.siteId;
     this.eventsMapToGoalId = config.eventsMapToGoalId;
@@ -45,7 +47,8 @@ class Matomo {
       CLEAR_ECOMMERCE_CART: 'CLEAR_ECOMMERCE_CART',
       TRACK_ECOMMERCE_CART_UPDATE: 'TRACK_ECOMMERCE_CART_UPDATE',
     };
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

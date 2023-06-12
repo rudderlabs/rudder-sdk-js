@@ -7,13 +7,16 @@ import { trigger } from './utils';
 
 class ConvertFlow {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.websiteId = config.websiteId;
     this.toggleToSendData = config.toggleToSendData;
     this.eventsList = config.eventsList;
     this.eventsMappping = config.eventsMappping;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

@@ -1,9 +1,6 @@
 import Emitter from 'component-emitter';
-import {
-  generateUUID,
-  getStorageEngine,
-  Store,
-} from '@rudderstack/analytics-js-plugins/utilities/common';
+import { generateUUID } from '@rudderstack/analytics-js-plugins/utilities/common';
+import { IStoreManager, StorageType, IStore } from '@rudderstack/analytics-js-plugins/types/common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -88,12 +85,20 @@ class Queue extends Emitter {
   timeouts: QueueTimeouts;
   schedule: Schedule;
   processId: string;
-  store: Store;
+  store: IStore;
+  storeManager: IStoreManager;
   running: boolean;
 
-  constructor(name: string, options: QueueOptions, queueProcessCb: QueueProcessCallback) {
+  constructor(
+    name: string,
+    options: QueueOptions,
+    queueProcessCb: QueueProcessCallback,
+    storeManager: IStoreManager,
+    storageType: StorageType = 'localStorage',
+  ) {
     super();
 
+    this.storeManager = storeManager;
     this.name = name;
     this.id = generateUUID();
     this.fn = queueProcessCb;
@@ -119,14 +124,12 @@ class Queue extends Emitter {
     this.processId = '0';
 
     // Set up our empty queues
-    this.store = new Store(
-      {
-        name: this.name,
-        id: this.id,
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
+    this.store = this.storeManager.setStore({
+      id: this.id,
+      name: this.name,
+      validKeys: QueueStatuses,
+      type: storageType,
+    });
     this.store.set(QueueStatuses.IN_PROGRESS, {});
     this.store.set(QueueStatuses.QUEUE, []);
 
@@ -325,14 +328,12 @@ class Queue extends Emitter {
   }
 
   reclaim(id: string) {
-    const other = new Store(
-      {
-        name: this.name,
-        id,
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
+    const other = this.storeManager.setStore({
+      id,
+      name: this.name,
+      validKeys: QueueStatuses,
+      type: 'localStorage',
+    });
     const our = {
       queue: (this.store.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
@@ -402,7 +403,7 @@ class Queue extends Emitter {
   }
 
   checkReclaim() {
-    const createReclaimStartTask = (store: Store) => () => {
+    const createReclaimStartTask = (store: IStore) => () => {
       if (store.get(QueueStatuses.RECLAIM_END) !== this.id) {
         return;
       }
@@ -413,7 +414,7 @@ class Queue extends Emitter {
 
       this.reclaim(store.id);
     };
-    const createReclaimEndTask = (store: Store) => () => {
+    const createReclaimEndTask = (store: IStore) => () => {
       if (store.get(QueueStatuses.RECLAIM_START) !== this.id) {
         return;
       }
@@ -426,7 +427,7 @@ class Queue extends Emitter {
         ScheduleModes.ABANDON,
       );
     };
-    const tryReclaim = (store: Store) => {
+    const tryReclaim = (store: IStore) => {
       store.set(QueueStatuses.RECLAIM_START, this.id);
       store.set(QueueStatuses.ACK, this.schedule.now());
 
@@ -436,8 +437,8 @@ class Queue extends Emitter {
         ScheduleModes.ABANDON,
       );
     };
-    const findOtherQueues = (name: string): Store[] => {
-      const res: Store[] = [];
+    const findOtherQueues = (name: string): IStore[] => {
+      const res: IStore[] = [];
       const storage = this.store.getOriginalEngine();
 
       for (let i = 0; i < storage.length; i++) {
@@ -460,14 +461,12 @@ class Queue extends Emitter {
         }
 
         res.push(
-          new Store(
-            {
-              name,
-              id: parts[1],
-              validKeys: QueueStatuses,
-            },
-            getStorageEngine('localStorage'),
-          ),
+          this.storeManager.setStore({
+            id: parts[1],
+            name,
+            validKeys: QueueStatuses,
+            type: 'localStorage',
+          }),
         );
       }
 
