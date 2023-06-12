@@ -19,6 +19,8 @@ import {
   Nullable,
   ApplicationState,
   IntegrationOpts,
+  ApiObject,
+  DestinationIntgConfig,
 } from '../types/common';
 
 /**
@@ -63,6 +65,12 @@ const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): strin
   // eslint-disable-next-line compat/compat
   new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
 
+const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
+  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
+
+const isDestIntgConfigFalsy = (destIntgConfig: DestinationIntgConfig): boolean =>
+  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === false;
+
 /**
  * Mutates the event and return final event for delivery
  * Updates certain parameters like sentAt timestamp, integrations config etc.
@@ -76,28 +84,30 @@ const getFinalEventForDelivery = (event: RudderEvent, state: ApplicationState): 
   // Update sentAt timestamp to the latest timestamp
   finalEvent.sentAt = getCurrentTimeFormatted();
 
+  // IMPORTANT: This logic has been improved over the v1.1 to handle other generic cases as well
   // Merge the destination specific integrations config with the event's integrations config
-  // However, if any of the integrations are set to false in the event's integrations config,
-  // we need to keep them as false even if they are set to true in the destination specific integrations config
-  // TODO: improve this logic to make it handle other generic cases as well
+  // In general, the preference is given to the event's integrations config
   let finalIntgConfig = event.integrations;
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
-  const unOverriddenIntgOpts = Object.keys(finalIntgConfig)
-    .filter(
-      intgName =>
-        !(
-          !isUndefined(finalIntgConfig[intgName]) &&
-          Boolean(finalIntgConfig[intgName]) === true &&
-          destinationsIntgConfig[intgName]
-        ),
-    )
+  const overriddenIntgOpts = Object.keys(finalIntgConfig)
+    .filter(intgName => {
+      const eventDestConfig = finalIntgConfig[intgName];
+      const globalDestConfig = destinationsIntgConfig[intgName];
+
+      // unless the event dest config is undefined, use it (falsy or truthy)
+      if (typeof eventDestConfig !== 'boolean') {
+        return !isUndefined(eventDestConfig);
+      }
+
+      return eventDestConfig === false ? true : isDestIntgConfigFalsy(globalDestConfig);
+    })
     .reduce((obj: IntegrationOpts, key: string) => {
       const retVal = clone(obj);
       retVal[key] = finalIntgConfig[key];
       return retVal;
     }, {});
 
-  finalIntgConfig = mergeDeepRight(destinationsIntgConfig, unOverriddenIntgOpts);
+  finalIntgConfig = mergeDeepRight(destinationsIntgConfig, overriddenIntgOpts);
   finalEvent.integrations = finalIntgConfig;
 
   return finalEvent;
@@ -109,4 +119,6 @@ export {
   getDeliveryUrl,
   getNormalizedQueueOptions,
   getFinalEventForDelivery,
+  isDestIntgConfigTruthy,
+  isDestIntgConfigFalsy,
 };

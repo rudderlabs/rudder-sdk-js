@@ -8,6 +8,7 @@ export type {
   ApiObject,
   ApiOptions,
   ApiCallback,
+  DestinationIntgConfig,
 } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
