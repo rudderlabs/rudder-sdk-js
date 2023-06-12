@@ -1,9 +1,11 @@
 /* eslint-disable no-new */
-/** * Non-Minified standard loading snippet */
-const rudderCdnBaseUrlHost = 'https://cdn.rudderlabs.com/beta/v3/';
-const writeKey = '';
-const dataPlaneUrl = '';
-const options = {};
+/** Loading snippet */
+const sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/v3/';
+const writeKey = '<write-key>';
+const dataPlaneUrl = '<data-plane-url>';
+const options = {
+  // configure your load options here
+};
 (window as any).rudderanalytics = [];
 const { rudderanalytics } = window as any;
 const methods: string[] = [
@@ -49,7 +51,7 @@ try {
   // Do nothing
 }
 
-const rudderAnalyticsBaseUrl = rudderCdnBaseUrlHost + sdkBuildType;
+const rudderAnalyticsBaseUrl = sdkBaseUrl + sdkBuildType;
 const rudderAnalyticsMount = () => {
   const rudderAnalyticsScript = document.createElement('script');
   rudderAnalyticsScript.src = `${rudderAnalyticsBaseUrl}/rudder-analytics.min.js`;
