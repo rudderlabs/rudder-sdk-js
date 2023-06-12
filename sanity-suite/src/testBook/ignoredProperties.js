@@ -4,20 +4,22 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: 'message.context.device.id',
-    type: 'string',
+    key: 'message.context.device',
+    type: 'object',
+    optional: true,
   },
   {
     key: 'message.context.library.version',
     type: 'string',
   },
   {
-    key: 'message.context.library.name', // TODO: remove this entry once we solve the bug of overriding the library name
+    key: 'message.context.locale',
     type: 'string',
   },
   {
-    key: 'message.context.locale',
+    key: 'message.context.network',
     type: 'string',
+    optional: true,
   },
   {
     key: 'message.context.userAgent',
@@ -30,6 +32,7 @@ const ignoredProperties = [
   {
     key: 'message.context.sessionStart',
     type: 'boolean',
+    optional: true,
   },
   {
     key: 'message.context.page.tab_url',
@@ -93,8 +96,14 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.user_properties',
+    type: 'object',
+    optional: true,
+  },
+  {
     key: 'message.sentAt',
     type: 'string',
+    optional: true,
   },
   {
     key: 'message.properties.referrer',
@@ -126,7 +135,7 @@ const ignoredProperties = [
   },
   {
     key: `message.integrations.Google Analytics 4.sessionId`,
-    type: 'string',
+    type: 'number',
   },
   {
     key: `message.integrations.Google Analytics 4.clientId`,

@@ -2,13 +2,14 @@ import logger from '../../../../utils/logUtil';
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {
+  isInitialized = false;
+
   constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      throw new Error(
-        'OneTrust resources are not accessible. Thus all the destinations will be loaded',
-      );
+      logger.error('OneTrust resources are not accessible.');
+      return;
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
     // the cookie categories that the user has consented to.
@@ -36,10 +37,14 @@ class OneTrust {
     });
 
     this.userSetConsentGroupIds = this.userSetConsentGroupIds.map((e) => e.toUpperCase());
+    this.isInitialized = true;
   }
 
   isEnabled(destConfig) {
     try {
+      if (!this.isInitialized) {
+        return true;
+      }
       /**
      * Structure of onetrust consent group destination config.
      * 
@@ -87,6 +92,9 @@ class OneTrust {
   }
 
   getDeniedList() {
+    if (!this.isInitialized) {
+      return [];
+    }
     return this.userDeniedConsentGroupIds;
   }
 }
