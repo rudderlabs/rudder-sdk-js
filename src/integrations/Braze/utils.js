@@ -8,9 +8,9 @@ const formatGender = (gender) => {
   const maleGenders = ['man', 'male', 'm'];
   const otherGenders = ['other', 'o'];
 
-  if (femaleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.FEMALE;
-  if (maleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.MALE;
-  if (otherGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.OTHER;
+  if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.FEMALE;
+  if (maleGenders.includes(gender.toLowerCase()) > -1) return window.braze.User.Genders.MALE;
+  if (otherGenders.includes(gender.toLowerCase()) > -1) return window.braze.User.Genders.OTHER;
   return undefined;
 };
 
