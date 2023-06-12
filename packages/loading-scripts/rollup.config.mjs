@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -11,16 +10,11 @@ import filesize from 'rollup-plugin-filesize';
 import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
-import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
-// import dts from 'rollup-plugin-dts';
-import alias from '@rollup/plugin-alias';
-import federation from '@originjs/vite-plugin-federation';
 import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
-import pkg from './package.json' assert { type: 'json' };
 
 dotenv.config();
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
@@ -98,16 +92,6 @@ export function getDefaultConfig(distName) {
       !isLegacyBuild &&
         externalGlobals({
           './legacyBuildPluginImports': 'null',
-        }),
-      !isLegacyBuild &&
-        federation({
-          remotes: {
-            rudderAnalyticsRemotePlugins: {
-              // use promise to set the path to allow override via loadOption value in case of proxy
-              external: remotePluginsHostPromise,
-              externalType: 'promise',
-            },
-          },
         }),
       process.env.UGLIFY === 'true' &&
         terser({
