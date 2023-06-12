@@ -244,11 +244,27 @@ class Braze {
       if (gender && formatGender(gender) !== formatGender(prevGender))
         setGender(formatGender(gender));
       if (address && !isEqual(address, prevAddress)) setAddress();
-      Object.keys(traits).forEach((key) => {
-        if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
-          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-        }
-      });
+      Object.keys(traits)
+        .filter(
+          (key) =>
+            [
+              'email',
+              'address',
+              'birthday',
+              'dob',
+              'firstName',
+              'lastName',
+              'firstname',
+              'lastname',
+              'gender',
+              'phone',
+            ].indexOf(key) === -1,
+        )
+        .forEach((key) => {
+          if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
+            window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+          }
+        });
     } else {
       window.braze.changeUser(userId);
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
@@ -260,9 +276,25 @@ class Braze {
       if (phone) setPhone();
       if (address) setAddress();
       if (calculatedBirthday) setBirthday();
-      Object.keys(traits).forEach((key) => {
-        window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-      });
+      Object.keys(traits)
+        .filter(
+          (key) =>
+            [
+              'email',
+              'address',
+              'birthday',
+              'dob',
+              'firstName',
+              'lastName',
+              'firstname',
+              'lastname',
+              'gender',
+              'phone',
+            ].indexOf(key) === -1,
+        )
+        .forEach((key) => {
+          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+        });
     }
     if (
       this.supportDedup &&
