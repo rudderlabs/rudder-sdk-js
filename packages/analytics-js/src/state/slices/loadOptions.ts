@@ -35,6 +35,7 @@ const defaultLoadOptions: LoadOptions = {
   uaChTrackLevel: UaChTrackLevel.None,
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
+  bufferDataPlaneEventsUntilReady: false,
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

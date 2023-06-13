@@ -117,6 +117,8 @@ export enum UaChTrackLevel {
   Full = 'full',
 }
 
+export type DestinationIntgConfig = boolean | undefined | ApiObject;
+
 /**
  * Represents the integration options object
  * Example usages:
@@ -129,7 +131,7 @@ export type IntegrationOpts = {
   // If set to false, specific integration should be set to true to send the event
   All?: boolean;
   // Destination name: true/false/integration specific information
-  [index: string]: boolean | undefined | ApiObject;
+  [index: string]: DestinationIntgConfig;
 };
 
 /**
@@ -246,6 +248,7 @@ export type LoadOptions = {
   plugins?: Nullable<PluginName[]>;
   polyfillURL?: string;
   useGlobalIntegrationsConfigInEvents?: boolean;
+  bufferDataPlaneEventsUntilReady?: boolean;
 };
 
 export type ApiCallback = (data?: any) => void;

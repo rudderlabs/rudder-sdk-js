@@ -14,6 +14,7 @@ import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
+import { isHybridModeDestination } from '../utilities/destinations';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -85,6 +86,28 @@ class EventRepository implements IEventRepository {
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     this.logger?.debug('Enqueuing event: ', event);
+
+    // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
+    // However, events will be enqueued for now.
+    // At the time of processing the events, the integrations config data from destinations
+    // is merged into the event object
+    effect(() => {
+      const shouldBufferDpEvents =
+        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
+        state.nativeDestinations.clientDestinationsReady.value === false;
+
+      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(dest =>
+        isHybridModeDestination(dest),
+      );
+
+      if (
+        hybridDestExist === false ||
+        (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true)
+      ) {
+        this.dataplaneEventsQueue?.start();
+      }
+    });
+
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
