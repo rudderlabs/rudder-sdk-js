@@ -90,14 +90,20 @@ class EventRepository implements IEventRepository {
     // Start the queue processing only when the destinations are ready
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations
-    // is merged into the event
-    // TODO: Need to do this only for hybrid mode destinations
+    // is merged into the event object
     effect(() => {
       const shouldBufferDpEvents =
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
         state.nativeDestinations.clientDestinationsReady.value === false;
 
-      if (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true) {
+      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(dest =>
+        isHybridModeDestination(dest),
+      );
+
+      if (
+        hybridDestExist === false ||
+        (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true)
+      ) {
         this.dataplaneEventsQueue?.start();
       }
     });
