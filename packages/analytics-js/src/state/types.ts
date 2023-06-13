@@ -323,6 +323,7 @@ export type SourceConfig = {
 export type StatsCollection = {
   errors: {
     enabled: boolean;
+    provider?: string;
   };
   metrics: {
     enabled: boolean;

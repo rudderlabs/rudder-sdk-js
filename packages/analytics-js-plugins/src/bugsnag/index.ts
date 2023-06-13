@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ExtensionPlugin, ApplicationState } from '../types/common';
 
-const pluginName = 'BeaconQueue';
+const pluginName = 'Bugsnag';
 
 const Bugsnag = (): ExtensionPlugin => ({
   name: pluginName,

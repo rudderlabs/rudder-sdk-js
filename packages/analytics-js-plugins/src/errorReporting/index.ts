@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ExtensionPlugin, ApplicationState } from '../types/common';
 
@@ -8,6 +9,9 @@ const ErrorReporting = (): ExtensionPlugin => ({
   deps: [],
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+  },
+  errorReporting: {
+    init: (state: ApplicationState) => {},
   },
 });
 

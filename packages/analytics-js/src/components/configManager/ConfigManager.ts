@@ -12,13 +12,27 @@ import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/ty
 import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import {
+  isFunction,
+  isString,
+  isUndefined,
+} from '@rudderstack/analytics-js/components/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
+import {
+  IConfigManager,
+  SourceConfigResponse,
+  ConsentManagersToPluginNameMap,
+  ErrorReportingProvidersToPluginNameMap,
+} from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
+import {
+  getErrorReportingEnabledFromConfig,
+  getErrorReportingProviderNameFromConfig,
+  getMetricsReportingEnabledFromConfig,
+} from '../utilities/statsCollection';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -174,10 +188,29 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.status.value = LifecycleStatus.Configured;
 
       // set the values in state for reporting slice
-      state.reporting.isErrorReportingEnabled.value =
-        res.source.config.statsCollection.errors.enabled || false;
-      state.reporting.isMetricsReportingEnabled.value =
-        res.source.config.statsCollection.metrics.enabled || false;
+      state.reporting.isErrorReportingEnabled.value = getErrorReportingEnabledFromConfig(
+        res.source.config,
+      );
+      state.reporting.isMetricsReportingEnabled.value = getMetricsReportingEnabledFromConfig(
+        res.source.config,
+      );
+
+      if (state.reporting.isErrorReportingEnabled.value) {
+        const errReportingProvider = getErrorReportingProviderNameFromConfig(res.source.config);
+
+        // Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
+        const errReportingProviderPlugin = errReportingProvider
+          ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
+          : undefined;
+        if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
+          // set the default error reporting provider
+          this.logger?.warn(
+            `The configured error reporting provider "${errReportingProvider}" is not supported. Using default error reporting provider (${errReportingProviderPlugin}).`,
+          );
+        }
+        state.reporting.errorCollectionProviderPlugin.value =
+          errReportingProviderPlugin || PluginName.Bugsnag;
+      }
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];

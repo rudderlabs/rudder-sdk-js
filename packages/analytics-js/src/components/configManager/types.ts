@@ -91,3 +91,7 @@ export interface IConfigManager {
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: PluginName.OneTrust,
 };
+
+export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {
+  bugsnag: PluginName.Bugsnag,
+};

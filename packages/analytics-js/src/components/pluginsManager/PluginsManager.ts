@@ -17,7 +17,10 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
-import { ConsentManagersToPluginNameMap } from '../configManager/types';
+import {
+  ConsentManagersToPluginNameMap,
+  ErrorReportingProvidersToPluginNameMap,
+} from '../configManager/types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -87,9 +90,24 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Error reporting related plugins
-    if (!state.reporting.isErrorReportingEnabled.value) {
+    const supportedErrorReportingProviderPlugins: string[] = Object.values(
+      ErrorReportingProvidersToPluginNameMap,
+    );
+    if (state.reporting.errorCollectionProviderPlugin.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.ErrorReporting,
+        pluginName =>
+          !(
+            pluginName !== state.reporting.errorCollectionProviderPlugin.value &&
+            supportedErrorReportingProviderPlugins.includes(pluginName)
+          ),
+      );
+    } else {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName === PluginName.ErrorReporting ||
+            supportedErrorReportingProviderPlugins.includes(pluginName)
+          ),
       );
     }
 
