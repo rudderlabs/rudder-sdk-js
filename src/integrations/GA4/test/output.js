@@ -1,8 +1,9 @@
-const gtag = [];
+const itemListName = "What's New";
+const affiliation = 'Apple Store';
 
-gtag('event', 'search', { search_term: 'HDMI cable' });
+window.gtag('event', 'search', { search_term: 'HDMI cable' });
 
-gtag('event', 'view_item_list', {
+window.gtag('event', 'view_item_list', {
   item_list_id: 'list1',
   items: [
     {
@@ -12,7 +13,7 @@ gtag('event', 'view_item_list', {
       index: 2,
       item_category: 'Games and Entertainment',
       item_list_id: 'list1',
-      item_list_name: "What's New",
+      item_list_name: itemListName,
     },
     {
       item_id: '343344ff5567ff3',
@@ -21,13 +22,13 @@ gtag('event', 'view_item_list', {
       index: 21,
       item_category: 'Card Games',
       item_list_id: 'list1',
-      item_list_name: "What's New",
+      item_list_name: itemListName,
     },
   ],
-  item_list_name: "What's New",
+  item_list_name: itemListName,
 });
 
-gtag('event', 'Product List Filtered', {
+window.gtag('event', 'Product List Filtered', {
   list_id: 'dealoftheday',
   filters: [
     {
@@ -67,11 +68,11 @@ gtag('event', 'Product List Filtered', {
   ],
 });
 
-gtag('event', 'view_promotion', { location_id: 'home_top' });
+window.gtag('event', 'view_promotion', { location_id: 'home_top' });
 
-gtag('event', 'select_promotion', { location_id: 'home_top' });
+window.gtag('event', 'select_promotion', { location_id: 'home_top' });
 
-gtag('event', 'select_item', {
+window.gtag('event', 'select_item', {
   items: [
     {
       item_id: '123',
@@ -91,7 +92,7 @@ gtag('event', 'select_item', {
   coupon: 'DISC21', // extra
 });
 
-gtag('event', 'view_item', {
+window.gtag('event', 'view_item', {
   items: [
     {
       item_id: '123',
@@ -190,7 +191,7 @@ window.gtag('event', 'begin_checkout', {
       price: 14,
       quantity: 1,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
@@ -200,12 +201,12 @@ window.gtag('event', 'begin_checkout', {
       price: 3.45,
       quantity: 2,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
   ],
-  affiliation: 'Apple Store',
+  affiliation,
   shipping: 22,
   tax: 1,
   coupon: 'ImagePro',
@@ -231,7 +232,7 @@ window.gtag('event', 'purchase', {
       price: 14,
       quantity: 1,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
@@ -241,12 +242,12 @@ window.gtag('event', 'purchase', {
       price: 3.45,
       quantity: 2,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
   ],
-  affiliation: 'Apple Store',
+  affiliation,
   value: 20,
   shipping: 22,
   tax: 1,
@@ -307,4 +308,83 @@ window.gtag('event', 'share', {
   method: 'SMS',
   content_type: 'Check this',
   content_id: '12345872254426',
+});
+
+window.gtag('event', 'earn_virtual_currency', {
+  send_to: 'G-xxxxx',
+  value: 5,
+  virtual_currency_name: 'Gems',
+});
+
+window.gtag('event', 'generate_lead', {
+  currency: 'USD',
+  send_to: 'G-xxxxx',
+  value: 99.99,
+});
+
+window.gtag('event', 'join_group', {
+  group_id: 'company@1',
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'level_end', {
+  level_name: 'The journey begins...',
+  send_to: 'G-xxxxx',
+  success: true,
+});
+
+window.gtag('event', 'level_start', {
+  level_name: 'The journey begins...',
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'level_up', {
+  character: 'Player 1',
+  level: 5,
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'login', {
+  method: 'Google',
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'sign_up', {
+  method: 'Facebook',
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'post_score', {
+  character: 'Player 1',
+  level: 5,
+  score: 10000,
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'select_content', {
+  content_id: 'C_12345',
+  content_type: 'product',
+  send_to: 'G-xxxxx',
+});
+
+window.gtag('event', 'spend_virtual_currency', {
+  item_name: 'Starter Boost',
+  send_to: 'G-xxxxx',
+  value: 5,
+  virtual_currency_name: 'Gems',
+});
+
+window.gtag('event', 'tutorial_begin', {
+  send_to: 'G-xxxxx',
+  tutorial: 'Maths',
+});
+
+window.gtag('event', 'tutorial_complete', {
+  send_to: 'G-xxxxx',
+  tutorial: 'Maths',
+});
+
+window.gtag('event', 'unlock_achievement', {
+  achievement_id: 'A_12345',
+  send_to: 'G-xxxxx',
 });

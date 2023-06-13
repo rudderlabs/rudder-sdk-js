@@ -1,3 +1,6 @@
+const url = 'https://www.website.com/product/path';
+const imageUrl = 'https://www.website.com/product/path.png';
+
 const rudderanalytics = [];
 
 rudderanalytics.track('Products Searched', {
@@ -94,8 +97,8 @@ rudderanalytics.track('Product Clicked', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  imageUrl,
 });
 
 rudderanalytics.track('Product Viewed', {
@@ -110,8 +113,8 @@ rudderanalytics.track('Product Viewed', {
   coupon: 'DISC21',
   currency: 'USD',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  imageUrl,
 });
 
 rudderanalytics.track('Product Added', {
@@ -125,8 +128,8 @@ rudderanalytics.track('Product Added', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  imageUrl,
 });
 
 rudderanalytics.track('Product Removed', {
@@ -140,8 +143,8 @@ rudderanalytics.track('Product Removed', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  imageUrl,
 });
 
 rudderanalytics.track('Cart Viewed', {
@@ -154,8 +157,8 @@ rudderanalytics.track('Cart Viewed', {
       price: 14.99,
       position: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      imageUrl,
     },
     {
       product_id: '345',
@@ -186,8 +189,8 @@ rudderanalytics.track('Checkout Started', {
       price: 14,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      imageUrl,
     },
     {
       product_id: '345',
@@ -225,7 +228,7 @@ rudderanalytics.track('Order Completed', {
       price: 14,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
+      url,
       image_url: 'https://www.website.com/product/path.jpg',
     },
     {
@@ -251,7 +254,7 @@ rudderanalytics.track('Order Refunded', {
       price: 17,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
+      url,
       image_url: 'https://www.website.com/product/path.jpg',
     },
     {
@@ -295,4 +298,67 @@ rudderanalytics.track('Product Shared', {
   price: 15.99,
   url: 'https://www.myecommercewebsite.com/product/prod',
   image_url: 'https://www.myecommercewebsite.com/product/prod.jpg',
+});
+
+rudderanalytics.track('earn_virtual_currency', {
+  virtual_currency_name: 'Gems',
+  value: 5,
+});
+
+rudderanalytics.track('generate_lead', {
+  currency: 'USD',
+  value: 99.99,
+});
+
+rudderanalytics.group('company@1');
+
+rudderanalytics.track('level_end', {
+  level_name: 'The journey begins...',
+  success: true,
+});
+
+rudderanalytics.track('level_start', {
+  level_name: 'The journey begins...',
+});
+
+rudderanalytics.track('level_up', {
+  level: 5,
+  character: 'Player 1',
+});
+
+rudderanalytics.track('login', {
+  method: 'Google',
+});
+
+rudderanalytics.track('sign_up', {
+  method: 'Facebook',
+});
+
+rudderanalytics.track('post_score', {
+  score: 10000,
+  level: 5,
+  character: 'Player 1',
+});
+
+rudderanalytics.track('select_content', {
+  content_type: 'product',
+  content_id: 'C_12345',
+});
+
+rudderanalytics.track('spend_virtual_currency', {
+  value: 5,
+  virtual_currency_name: 'Gems',
+  item_name: 'Starter Boost',
+});
+
+rudderanalytics.track('tutorial_begin', {
+  tutorial: 'Maths',
+});
+
+rudderanalytics.track('tutorial_complete', {
+  tutorial: 'Maths',
+});
+
+rudderanalytics.track('unlock_achievement', {
+  achievement_id: 'A_12345',
 });
