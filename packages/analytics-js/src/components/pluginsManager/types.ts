@@ -27,6 +27,7 @@ export enum PluginName {
   StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   XhrQueue = 'XhrQueue',
   OneTrust = 'OneTrust',
+  Bugsnag = 'Bugsnag',
 }
 
 export type PluginMap<T = ExtensionPlugin> = Record<string, () => T>;

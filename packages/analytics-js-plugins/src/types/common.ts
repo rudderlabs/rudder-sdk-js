@@ -85,7 +85,8 @@ export type PluginName =
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
   | 'XhrQueue'
-  | 'OneTrust';
+  | 'OneTrust'
+  | 'Bugsnag';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
