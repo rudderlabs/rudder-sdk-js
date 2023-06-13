@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./../../",
+    "module": "commonjs",
+    "target": "esnext",
+    "noEmit": true,
+    "sourceMap": false,
+    "inlineSourceMap": false
+  }
+}

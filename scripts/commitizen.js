@@ -18,5 +18,6 @@ module.exports = custom({
     'analytics-js-service-worker',
     'rudder-sdk-js',
     'analytics-js-sanity-suite',
+    'analytics-js-loading-script',
   ],
 });
