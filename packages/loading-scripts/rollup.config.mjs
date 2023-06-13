@@ -17,7 +17,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
-const isLegacyBuild = true;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDirRoot = `dist/`;
@@ -79,8 +78,8 @@ export function getDefaultConfig(distName) {
       }),
       process.env.UGLIFY === 'true' &&
         terser({
-          safari10: isLegacyBuild,
-          ecma: isLegacyBuild ? 2015 : 2017,
+          safari10: true,
+          ecma: 2015,
           format: {
             comments: false,
           },
@@ -138,7 +137,7 @@ const outputFilesCdn = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: isLegacyBuild ? 'es5' : 'es2015',
+      preset: 'es5',
     },
   },
 ];

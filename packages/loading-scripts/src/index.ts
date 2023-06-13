@@ -58,7 +58,11 @@ const rudderAnalyticsMount = () => {
   const rudderAnalyticsScript = document.createElement('script');
   rudderAnalyticsScript.src = `${sdkBaseUrl}/${sdkBuildType}/${sdkName}`;
   rudderAnalyticsScript.async = asyncScript;
-  document.head.appendChild(rudderAnalyticsScript);
+  if (document.head) {
+    document.head.appendChild(rudderAnalyticsScript);
+  } else {
+    document.body.appendChild(rudderAnalyticsScript);
+  }
 };
 
 if (typeof Promise === 'undefined') {
@@ -66,7 +70,11 @@ if (typeof Promise === 'undefined') {
   rudderAnalyticsPromisesScript.src =
     'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = asyncScript;
-  document.head.appendChild(rudderAnalyticsPromisesScript);
+  if (document.head) {
+    document.head.appendChild(rudderAnalyticsPromisesScript);
+  } else {
+    document.body.appendChild(rudderAnalyticsPromisesScript);
+  }
 } else {
   rudderAnalyticsMount();
 }
