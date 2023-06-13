@@ -1,4 +1,3 @@
-import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import * as R from 'ramda';
 import Logger from '../../utils/logger';
@@ -152,7 +151,6 @@ class Braze {
     const calculatedFirstName = firstName || firstname;
     const calculatedLastName = lastName || lastname;
 
-    // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
       'address',
       'birthday',
@@ -166,7 +164,6 @@ class Braze {
       'external_id',
       'country',
       'home_city',
-      'bio',
       'email_subscribe',
       'push_subscribe',
     ];
@@ -185,7 +182,7 @@ class Braze {
         }
         window.braze
           .getUser()
-          .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+          .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
         logger.error('Error in setting birthday', error);
       }
@@ -216,14 +213,6 @@ class Braze {
         context: { traits },
       },
     } = rudderElement;
-    let clonedTraits = {};
-    if (traits) {
-      clonedTraits = cloneDeep(traits);
-    }
-
-    reserved.forEach((element) => {
-      delete clonedTraits[element];
-    });
 
     const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || null;
     if (this.supportDedup && !R.isEmpty(previousPayload) && userId === previousPayload?.userId) {
@@ -245,21 +234,7 @@ class Braze {
         setGender(formatGender(gender));
       if (address && !isEqual(address, prevAddress)) setAddress();
       Object.keys(traits)
-        .filter(
-          (key) =>
-            [
-              'email',
-              'address',
-              'birthday',
-              'dob',
-              'firstName',
-              'lastName',
-              'firstname',
-              'lastname',
-              'gender',
-              'phone',
-            ].indexOf(key) === -1,
-        )
+        .filter((key) => reserved.indexOf(key) === -1)
         .forEach((key) => {
           if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
             window.braze.getUser().setCustomUserAttribute(key, traits[key]);
@@ -277,21 +252,7 @@ class Braze {
       if (address) setAddress();
       if (calculatedBirthday) setBirthday();
       Object.keys(traits)
-        .filter(
-          (key) =>
-            [
-              'email',
-              'address',
-              'birthday',
-              'dob',
-              'firstName',
-              'lastName',
-              'firstname',
-              'lastname',
-              'gender',
-              'phone',
-            ].indexOf(key) === -1,
-        )
+        .filter((key) => reserved.indexOf(key) === -1)
         .forEach((key) => {
           window.braze.getUser().setCustomUserAttribute(key, traits[key]);
         });
@@ -354,7 +315,7 @@ class Braze {
   }
 
   isReady() {
-    return this.appKe && window.brazeQueue === null;
+    return this.appKey && window.brazeQueue === null;
   }
 }
 
