@@ -7,6 +7,7 @@ import {
 } from './constants';
 import {
   getCurrentTimeFormatted,
+  isDestIntgConfigFalsy,
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
@@ -19,7 +20,6 @@ import {
   Nullable,
   ApplicationState,
   IntegrationOpts,
-  DestinationIntgConfig,
 } from '../types/common';
 
 /**
@@ -64,12 +64,6 @@ const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): strin
   // eslint-disable-next-line compat/compat
   new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
 
-const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
-  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
-
-const isDestIntgConfigFalsy = (destIntgConfig: DestinationIntgConfig): boolean =>
-  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === false;
-
 /**
  * Mutates the event and return final event for delivery
  * Updates certain parameters like sentAt timestamp, integrations config etc.
@@ -98,7 +92,11 @@ const getFinalEventForDelivery = (event: RudderEvent, state: ApplicationState): 
         return !isUndefined(eventDestConfig);
       }
 
-      return eventDestConfig === false ? true : isDestIntgConfigFalsy(globalDestConfig);
+      if (eventDestConfig === false || isUndefined(globalDestConfig)) {
+        return true;
+      }
+
+      return isDestIntgConfigFalsy(globalDestConfig);
     })
     .reduce((obj: IntegrationOpts, key: string) => {
       const retVal = clone(obj);
@@ -118,6 +116,4 @@ export {
   getDeliveryUrl,
   getNormalizedQueueOptions,
   getFinalEventForDelivery,
-  isDestIntgConfigTruthy,
-  isDestIntgConfigFalsy,
 };

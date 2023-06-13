@@ -19,6 +19,8 @@ import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
+  isDestIntgConfigFalsy,
+  isDestIntgConfigTruthy,
   isFunction,
   isUndefined,
   mergeDeepRight,
@@ -182,12 +184,12 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (!isUndefined(intgOpts[dispName]) && Boolean(intgOpts[dispName]) === false) {
+      if (isDestIntgConfigFalsy(intgOpts[dispName])) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      if (!isUndefined(intgOpts[dispName]) && Boolean(intgOpts[dispName]) === true) {
+      if (isDestIntgConfigTruthy(intgOpts[dispName])) {
         isDestEnabled = true;
       }
     }
