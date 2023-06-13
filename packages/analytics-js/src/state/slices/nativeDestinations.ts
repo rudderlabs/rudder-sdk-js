@@ -7,9 +7,9 @@ export type NativeDestinationsState = {
   loadOnlyIntegrations: Signal<IntegrationOpts>;
   failedDestinations: Signal<Destination[]>;
   loadIntegration: Signal<boolean>;
-  integrationsData: Signal<Record<string, any>>;
   initializedDestinations: Signal<Destination[]>;
   clientDestinationsReady: Signal<boolean>;
+  integrationsConfig: Signal<IntegrationOpts>;
 };
 
 const nativeDestinationsState: NativeDestinationsState = {
@@ -18,9 +18,9 @@ const nativeDestinationsState: NativeDestinationsState = {
   loadOnlyIntegrations: signal({}),
   failedDestinations: signal([]),
   loadIntegration: signal(true),
-  integrationsData: signal({}),
   initializedDestinations: signal([]),
   clientDestinationsReady: signal(false),
+  integrationsConfig: signal({}),
 };
 
 export { nativeDestinationsState };

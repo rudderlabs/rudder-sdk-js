@@ -202,7 +202,7 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  * @returns Final integrations config
  */
 const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
-  let finalIntgConfig;
+  let finalIntgConfig: IntegrationOpts;
   if (shouldUseGlobalIntegrationsConfigInEvents()) {
     finalIntgConfig = state.nativeDestinations.loadOnlyIntegrations.value;
   } else if (isObjectLiteralAndNotNull(integrationsConfig)) {

@@ -34,7 +34,14 @@ const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[])
 const isNonCloudDestination = (destination: Destination): boolean =>
   Boolean(
     destination.config.connectionMode !== DestinationConnectionMode.Cloud ||
-      destination.config.useNativeSDKToSend,
+      destination.config.useNativeSDKToSend === true || // this is the older flag for hybrid mode destinations
+      destination.config.useNativeSDK === true,
+  );
+
+const isHybridModeDestination = (destination: Destination): boolean =>
+  Boolean(
+    destination.config.connectionMode === DestinationConnectionMode.Hybrid ||
+      destination.config.useNativeSDKToSend === true,
   );
 
 /**
@@ -46,4 +53,9 @@ const isNonCloudDestination = (destination: Destination): boolean =>
 const getNonCloudDestinations = (destinations: Destination[]): Destination[] | [] =>
   destinations.filter(isNonCloudDestination);
 
-export { filterEnabledDestination, isNonCloudDestination, getNonCloudDestinations };
+export {
+  filterEnabledDestination,
+  isNonCloudDestination,
+  getNonCloudDestinations,
+  isHybridModeDestination,
+};
