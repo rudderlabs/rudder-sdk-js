@@ -3,13 +3,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
-
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class Woopra {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.projectName = config.projectName;
     this.name = NAME;
     this.cookieName = config.cookieName;
@@ -22,7 +24,8 @@ class Woopra {
     this.ignoreQueryUrl = config.ignoreQueryUrl;
     this.outgoingIgnoreSubdomain = config.outgoingIgnoreSubdomain;
     this.outgoingTracking = config.outgoingTracking;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

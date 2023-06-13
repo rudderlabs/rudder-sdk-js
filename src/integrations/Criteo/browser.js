@@ -17,6 +17,7 @@ class Criteo {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;
@@ -30,7 +31,8 @@ class Criteo {
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

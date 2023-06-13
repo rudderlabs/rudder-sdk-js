@@ -15,9 +15,11 @@ class GA360 extends GA {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    super(config, analytics);
+    super(config, analytics, destinationInfo);
+    this.analytics = analytics;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
