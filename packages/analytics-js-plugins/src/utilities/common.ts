@@ -16,6 +16,8 @@ export {
   groupArgumentsToCallOptions,
 } from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
 
+export { isHybridModeDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
+
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
   !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
 

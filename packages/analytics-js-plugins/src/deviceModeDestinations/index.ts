@@ -20,6 +20,7 @@ import {
   ILogger,
   IPluginsManager,
 } from '../types/common';
+import { isHybridModeDestination } from '../utilities/common';
 
 const pluginName = 'DeviceModeDestinations';
 
@@ -142,13 +143,15 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 .then(() => {
                   logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
 
-                  // Collect the integrations data for the destination
-                  state.nativeDestinations.integrationsConfig.value =
-                    getCumulativeIntegrationsConfig(
-                      initializedDestination,
-                      state.nativeDestinations.integrationsConfig.value,
-                      logger,
-                    );
+                  // Collect the integrations data for the hybrid mode destinations
+                  if (isHybridModeDestination(initializedDestination)) {
+                    state.nativeDestinations.integrationsConfig.value =
+                      getCumulativeIntegrationsConfig(
+                        initializedDestination,
+                        state.nativeDestinations.integrationsConfig.value,
+                        logger,
+                      );
+                  }
 
                   state.nativeDestinations.initializedDestinations.value = [
                     ...state.nativeDestinations.initializedDestinations.value,
