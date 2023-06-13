@@ -112,7 +112,7 @@ class MoEngage {
         debug_logs: this.debug ? 1 : 0,
       });
     }
-    this.initialUserId = this.analytics.userId;
+    this.initialUserId = this.analytics.getUserId();
   }
 
   isLoaded = () => {
@@ -153,7 +153,7 @@ class MoEngage {
   reset() {
     logger.debug('inside reset');
     // reset the user id
-    this.initialUserId = this.analytics.userId;
+    this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();
   }
 
