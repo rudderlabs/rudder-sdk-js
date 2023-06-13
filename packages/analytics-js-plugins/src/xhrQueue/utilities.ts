@@ -19,7 +19,6 @@ import {
   Nullable,
   ApplicationState,
   IntegrationOpts,
-  ApiObject,
   DestinationIntgConfig,
 } from '../types/common';
 
