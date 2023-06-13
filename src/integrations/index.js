@@ -70,6 +70,7 @@ import * as MicrosoftClarity from './MicrosoftClarity';
 import * as Sendinblue from './Sendinblue';
 import * as Olark from './Olark';
 import * as Lemnisk from "./Lemnisk";
+import * as TiktokAds from "./TiktokAds";
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -146,6 +147,7 @@ const integrations = {
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
   LEMNISK: Lemnisk.default,
+  TIKTOK_ADS: TiktokAds.default,
 };
 
 export { integrations };
