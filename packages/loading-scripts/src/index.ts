@@ -54,7 +54,7 @@ if (!disableDynamicImports) {
   }
 }
 
-const rudderAnalyticsMount = () => {
+(window as any).rudderAnalyticsMount = () => {
   const rudderAnalyticsScript = document.createElement('script');
   rudderAnalyticsScript.src = `${sdkBaseUrl}/${sdkBuildType}/${sdkName}`;
   rudderAnalyticsScript.async = asyncScript;
@@ -68,7 +68,7 @@ const rudderAnalyticsMount = () => {
 if (typeof Promise === 'undefined') {
   const rudderAnalyticsPromisesScript = document.createElement('script');
   rudderAnalyticsPromisesScript.src =
-    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
+    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=window.rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = asyncScript;
   if (document.head) {
     document.head.appendChild(rudderAnalyticsPromisesScript);
@@ -76,7 +76,7 @@ if (typeof Promise === 'undefined') {
     document.body.appendChild(rudderAnalyticsPromisesScript);
   }
 } else {
-  rudderAnalyticsMount();
+  (window as any).rudderAnalyticsMount();
 }
 const options = {
   // configure your load options here
