@@ -301,14 +301,14 @@ class Analytics implements IAnalytics {
    * Trigger onLoaded callback if any is provided in config
    */
   onLoaded() {
+    // Process any preloaded events
+    this.processDataInPreloadBuffer();
+
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
       state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
-
-    // Process any preloaded events
-    this.processDataInPreloadBuffer();
 
     // Execute onLoaded callback if provided in load options
     if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
