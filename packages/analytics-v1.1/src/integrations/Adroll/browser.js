@@ -14,6 +14,7 @@ class Adroll {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.advId = config.advId;
     this.pixId = config.pixId;
     this.name = NAME;

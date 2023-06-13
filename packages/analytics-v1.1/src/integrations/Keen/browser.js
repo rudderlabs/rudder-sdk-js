@@ -7,6 +7,7 @@ class Keen {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.projectID = config.projectID;
     this.writeKey = config.writeKey;
     this.ipAddon = config.ipAddon;
@@ -15,7 +16,8 @@ class Keen {
     this.referrerAddon = config.referrerAddon;
     this.client = null;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

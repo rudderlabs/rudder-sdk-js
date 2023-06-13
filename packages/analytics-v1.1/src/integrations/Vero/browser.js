@@ -10,6 +10,7 @@ class Vero {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.apiKey = config.apiKey;
     this.name = NAME;
     this.areTransformationsConnected =

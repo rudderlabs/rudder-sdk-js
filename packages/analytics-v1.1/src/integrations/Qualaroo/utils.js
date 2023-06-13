@@ -22,15 +22,16 @@ const swapKeyValuePairs = standardEventsMap => {
  * @param {*} standardEventsMap mapping of events done by the user
  * @param {*} eventName standard event name
  * @param {*} updateEventNames boolean variable to change eventName
+ * @param {*} analytics rudderanalytics object
  */
-const triggerCallback = (standardEventsMap, eventName, updateEventNames) => {
+const triggerCallback = (standardEventsMap, eventName, updateEventNames, analytics) => {
   const updatedEvent =
     standardEventsMap[eventName] && updateEventNames ? standardEventsMap[eventName] : eventName;
   window._kiq.push([
     'eventHandler',
     eventName,
     function () {
-      window.rudderanalytics.track(
+      analytics.track(
         `${updatedEvent}`,
         {},
         {
@@ -46,17 +47,19 @@ const triggerCallback = (standardEventsMap, eventName, updateEventNames) => {
  * @param {*} updateEventNames boolean variable to change eventName
  * @param {*} userDefinedEventsList list of requested events by the user
  * @param {*} userDefinedEventsMapping mapping of events in the webapp by the user
+ * @param {*} analytics rudderanalytics object
  */
 const recordQualarooEvents = (
   updateEventNames,
   userDefinedEventsList,
   userDefinedEventsMapping,
+  analytics,
 ) => {
   let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
   standardEventsList.forEach(event => {
     if (userDefinedEventsList.includes(event)) {
-      triggerCallback(standardEventsMap, event, updateEventNames);
+      triggerCallback(standardEventsMap, event, updateEventNames, analytics);
     }
   });
 };

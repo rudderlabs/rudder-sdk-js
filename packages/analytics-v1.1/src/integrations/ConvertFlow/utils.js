@@ -47,16 +47,17 @@ const populatingProperties = data => {
 
 /**
  * This function is used to trigger a callback.
- * @param {*} standardEventsMap - mapping of events done by the user
- * @param {*} eventName - standard event name
- * @param {*} data - data here, contains all the details about the event.
+ * @param {*} standardEventsMap mapping of events done by the user
+ * @param {*} eventName standard event name
+ * @param {*} data data here, contains all the details about the event.
+ * @param {*} analytics rudderanalytics object
  * eg. For event CTA Viewed
  * data: {
  * cta_name: {cta.name}
  * cta_type: {cta.cta_type}
  * }
  */
-const makeACall = (standardEventsMap, eventName, data) => {
+const makeACall = (standardEventsMap, eventName, data, analytics) => {
   // Updating the event name with any mapping from the webapp if available else
   // storing default event name in the updatedEvent
   const updatedEvent = standardEventsMap[eventName]
@@ -69,20 +70,21 @@ const makeACall = (standardEventsMap, eventName, data) => {
     properties = populatingProperties(data);
   }
   if (isDefinedAndNotNullAndNotEmpty(properties)) {
-    window.rudderanalytics.track(updatedEvent, properties);
+    analytics.track(updatedEvent, properties);
   } else {
-    window.rudderanalytics.track(updatedEvent);
+    analytics.track(updatedEvent);
   }
 };
 
 /**
- * This function has event listners for the occuring events and to make a call for the event after
+ * This function has event listeners for the occurring events and to make a call for the event after
  * collecting the data.
- * @param {*} userDefinedEventsMappping - Mapping of events in the webapp by the user
- * @param {*} userDefinedEventsList - List of requested events by the user.
+ * @param {*} userDefinedEventsMapping Mapping of events in the webapp by the user
+ * @param {*} userDefinedEventsList List of requested events by the user.
+ * @param {*} analytics rudderanalytics object
  */
-const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
-  let standardEventsMap = getHashFromArray(userDefinedEventsMappping);
+const trigger = (userDefinedEventsMapping, userDefinedEventsList, analytics) => {
+  let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
   const standardEventsList = [
     'cfReady',
@@ -96,7 +98,7 @@ const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
   standardEventsList.forEach(events => {
     if (userDefinedEventsList.includes(events)) {
       window.addEventListener(events, function (event) {
-        makeACall(standardEventsMap, event.type, event.detail);
+        makeACall(standardEventsMap, event.type, event.detail, analytics);
       });
     }
   });

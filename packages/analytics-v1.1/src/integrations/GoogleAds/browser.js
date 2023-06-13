@@ -18,7 +18,7 @@ class GoogleAds {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-
+    this.analytics = analytics;
     this.conversionId = config.conversionID;
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
@@ -39,7 +39,8 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
