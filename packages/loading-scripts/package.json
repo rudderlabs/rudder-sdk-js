@@ -2,11 +2,7 @@
   "name": "@rudderstack/analytics-js-loading-script",
   "version": "3.0.0",
   "description": "Loading script for RudderStack Javascript SDK",
-  "main": "modern/cjs/index.js",
-  "module": "modern/esm/index.js",
-  "publishConfig": {
-    "directory": "dist/npm"
-  },
+  "main": "./src/index.js",
   "keywords": [
     "analytics",
     "rudder"
@@ -16,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
-    "directory": "packages/analytics-js"
+    "directory": "packages/loading-scripts"
   },
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
@@ -26,7 +22,7 @@
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "build": "npm run build:browser",
-    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
+    "build:browser:modern": "exit 0",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
     "test": "exit 0",
     "test:ci": "exit 0",
@@ -40,7 +36,6 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build:modern": "npm run build:browser:modern"
   },
   "engines": {
@@ -135,9 +130,6 @@
       "Chrome >= 37",
       "Safari >= 7",
       "Opera >= 23"
-    ],
-    "modern": [
-      "defaults and supports es6-module-dynamic-import"
     ],
     "development": [
       "last 1 chrome version",

@@ -13,23 +13,19 @@ import htmlTemplate from 'rollup-plugin-generate-html-template';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
-import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
-const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
-const variantSubfolder = isLegacyBuild ? 'legacy' : 'modern';
+const isLegacyBuild = true;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDirRoot = `dist/`;
-const outDirCDN = `${outDirRoot}${variantSubfolder}`;
+const outDirCDN = `${outDirRoot}legacy`;
 const distName = 'loading-script';
 const modName = 'script';
-const moduleType = process.env.MODULE_TYPE || 'cdn';
 
 export function getDefaultConfig(distName) {
-  const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = process.env.DEV_SERVER;
 
   return {
@@ -49,10 +45,6 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
-        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
-        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __SDK_BUNDLE_FILENAME__: distName,
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
@@ -85,14 +77,6 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      isLegacyBuild &&
-        externalGlobals({
-          './modernBuildPluginImports': 'null',
-        }),
-      !isLegacyBuild &&
-        externalGlobals({
-          './legacyBuildPluginImports': 'null',
-        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -119,6 +103,7 @@ export function getDefaultConfig(distName) {
           template: process.env.TEST_FILE_PATH || 'public/index.html',
           target: 'index.html',
           attrs: [],
+          noInject: true,
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
@@ -132,7 +117,7 @@ export function getDefaultConfig(distName) {
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/${isLegacyBuild ? 'legacy' : 'modern'}/index.html`,
+          openPage: `/legacy/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3004,
