@@ -14,6 +14,7 @@ import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
+import { isHybridModeDestination } from '../utilities/destinations';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -96,7 +97,7 @@ class EventRepository implements IEventRepository {
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
         state.nativeDestinations.clientDestinationsReady.value === false;
 
-      if (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.isRunning !== true) {
+      if (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true) {
         this.dataplaneEventsQueue?.start();
       }
     });
