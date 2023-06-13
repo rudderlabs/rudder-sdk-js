@@ -13,13 +13,15 @@ class Olark {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.siteId = config.siteId;
     this.groupId = config.groupId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.standardToEvent = config.standardToEvent;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -70,11 +72,11 @@ class Olark {
   isReady() {
     logger.debug('===In isReady Olark===');
 
-    // Dasboard Other Settings
+    // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.standardToEvent, 'from', 'to', false);
 
-      recordingLiveChatEvents(this.updateEventNames, standardEventsMap);
+      recordingLiveChatEvents(this.updateEventNames, standardEventsMap, this.analytics);
     }
     return !!window.olark;
   }
