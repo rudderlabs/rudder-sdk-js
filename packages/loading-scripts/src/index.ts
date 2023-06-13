@@ -68,7 +68,7 @@ if (!disableDynamicImports) {
 if (typeof Promise === 'undefined') {
   const rudderAnalyticsPromisesScript = document.createElement('script');
   rudderAnalyticsPromisesScript.src =
-    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=window.rudderAnalyticsMount';
+    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = asyncScript;
   if (document.head) {
     document.head.appendChild(rudderAnalyticsPromisesScript);
