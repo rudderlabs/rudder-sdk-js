@@ -183,8 +183,8 @@ class Analytics implements IAnalytics {
           this.onLoaded();
           break;
         case LifecycleStatus.Loaded:
-          this.processBufferedEvents();
           this.loadIntegrations();
+          this.processBufferedEvents();
           break;
         case LifecycleStatus.DestinationsLoading:
           break;
