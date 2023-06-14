@@ -43,6 +43,7 @@ class Mixpanel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.accountId = config.accountId;
     this.token = config.token;
@@ -76,7 +77,8 @@ class Mixpanel {
       username: '$username',
       phone: '$phone',
     };
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

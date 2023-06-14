@@ -2,61 +2,59 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-import Logger from "../../utils/logger";
+import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 const logger = new Logger(NAME);
-class Lemnisk{
+class Lemnisk {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId;
     this.sdkWriteKey = config.sdkWriteKey;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
     logger.debug('===in init Lemnisk Marketing Automation===');
     (function (window, tag, o, a, r) {
-
-      var methods = [
-        "init",
-        "page",
-        "track",
-        "identify"
-      ];
+      var methods = ['init', 'page', 'track', 'identify'];
       window.lmSMTObj = window.lmSMTObj || [];
 
       for (var i = 0; i < methods.length; i++) {
-        lmSMTObj[methods[i]] = function (methodName) {
+        lmSMTObj[methods[i]] = (function (methodName) {
           return function () {
             lmSMTObj.push([methodName].concat(Array.prototype.slice.call(arguments)));
           };
-        }(methods[i]);
+        })(methods[i]);
       }
       // eslint-disable-next-line no-param-reassign
       a = o.getElementsByTagName('head')[0];
       // eslint-disable-next-line no-param-reassign
       r = o.createElement('script');
       r.setAttribute('data-loader', LOAD_ORIGIN);
-      r.type = "text/javascript";
+      r.type = 'text/javascript';
       r.async = 1;
       r.src = tag;
       a.appendChild(r);
     })(
       window,
-      document.location.protocol === 'https:' ? `https://cdn25.lemnisk.co/ssp/st/${  this.accountId  }.js` : `http://cdn25.lemnisk.co/ssp/st/${  this.accountId  }.js`,
-      document
+      document.location.protocol === 'https:'
+        ? `https://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`
+        : `http://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`,
+      document,
     );
     window.lmSMTObj.init(this.sdkWriteKey);
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Lemnisk Marketing Automation===");
+    logger.debug('===In isLoaded Lemnisk Marketing Automation===');
     return !!window.lmSMTObj;
   }
 
@@ -75,11 +73,9 @@ class Lemnisk{
     // disabling eslint as message will be there iinn any case
     // eslint-disable-next-line no-unsafe-optional-chaining
     const { traits } = rudderElement.message?.context;
-    if(traits){
+    if (traits) {
       window.lmSMTObj.identify(rudderElement.message.userId, traits);
-    }
-    else
-    {
+    } else {
       window.lmSMTObj.identify(rudderElement.message.userId);
     }
   }

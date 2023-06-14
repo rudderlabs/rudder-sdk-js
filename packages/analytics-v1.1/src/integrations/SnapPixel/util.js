@@ -206,7 +206,7 @@ const ecommEventPayload = (event, message, deduplicationKey, enableDeduplication
 };
 
 /*
- Here, We take user parameters in payload i.e. userEmail and userPhoneNumber and hashMethod, so if hashMethod is `sha256`, 
+ Here, We take user parameters in payload i.e. userEmail and userPhoneNumber and hashMethod, so if hashMethod is `sha256`,
  then we convert the userEmail and userPhoneNumber to user_hashed_email and user_hashed_phone_number respectively in `sha256` format.
  Otherwise if hashMethod not in `sha256` then we pass the userEmail and userPhoneNumber as user_email and user_phone_number respectively.
 */

@@ -7,21 +7,18 @@ const integrationContext = {
 
 /**
  * This function is used to trigger a callback.
- * @param {*} standardEventsMap - mapping of events done by the user
- * @param {*} eventName - standard event name
- * @param {*} updateEventNames - boolean variable to change eventName.
+ * @param {*} standardEventsMap mapping of events done by the user
+ * @param {*} eventName standard event name
+ * @param {*} updateEventNames boolean variable to change eventName.
+ * @param {*} analytics rudderanalytics object
  */
-const makeACall = (standardEventsMap, eventName, updateEventNames) => {
+const makeACall = (standardEventsMap, eventName, updateEventNames, analytics) => {
   // Updating the event name with any mapping from the webapp if available else
   // storing default event name in the updatedEvent
   const updatedEvent =
     standardEventsMap[eventName] && updateEventNames ? standardEventsMap[eventName] : eventName;
 
-  window.rudderanalytics.track(
-    `${updatedEvent}`,
-    {},
-    { context: { integration: integrationContext } },
-  );
+  analytics.track(`${updatedEvent}`, {}, { context: { integration: integrationContext } });
 };
 
 const swapKeyValuePairs = standardEventsMap => {
@@ -33,16 +30,18 @@ const swapKeyValuePairs = standardEventsMap => {
 };
 
 /**
- * This function has event listners for the occuring events and to make a call for the event after
+ * This function has event listeners for the occurring events and to make a call for the event after
  * collecting the data.
- * @param {*} updateEventNames - variable to Update event name .
- *  @param {*} userDefinedEventsList - List of requested events by the user.
- * @param {*} userDefinedEventsMapping - Mapping of events in the webapp by the user
+ * @param {*} updateEventNames variable to Update event name .
+ * @param {*} userDefinedEventsList List of requested events by the user.
+ * @param {*} userDefinedEventsMapping Mapping of events in the webapp by the user
+ * @param {*} analytics rudderanalytics object
  */
 function recordingLiveChatEvents(
   updateEventNames,
   userDefinedEventsList,
   userDefinedEventsMapping,
+  analytics,
 ) {
   let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
@@ -61,7 +60,7 @@ function recordingLiveChatEvents(
     ].forEach(function (eventName) {
       if (userDefinedEventsList.includes(eventName)) {
         api.on(eventName, function (payload) {
-          makeACall(standardEventsMap, eventName, updateEventNames);
+          makeACall(standardEventsMap, eventName, updateEventNames, analytics);
         });
       }
     });

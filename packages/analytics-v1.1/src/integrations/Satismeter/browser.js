@@ -9,10 +9,10 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 const logger = new Logger(NAME);
 class Satismeter {
   constructor(config, analytics, destinationInfo) {
-    this.analytics = analytics;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.writeKey = config.writeKey;
     this.identifyAnonymousUsers = config.identifyAnonymousUsers;
@@ -20,7 +20,8 @@ class Satismeter {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -53,7 +54,12 @@ class Satismeter {
   isReady() {
     logger.debug('===In isReady Satismeter===');
     if (this.recordSatismeterEvents) {
-      recordSatismeterEvents(this.updateEventNames, this.eventsList, this.eventsToStandard);
+      recordSatismeterEvents(
+        this.updateEventNames,
+        this.eventsList,
+        this.eventsToStandard,
+        this.analytics,
+      );
     }
     return !!window.satismeter;
   }

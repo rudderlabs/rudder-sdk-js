@@ -10,14 +10,18 @@ import { NAME } from './constants';
 
 class LiveChat {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.name = NAME;
     this.licenseId = config.licenseId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -69,9 +73,14 @@ class LiveChat {
   isReady() {
     logger.debug('===In isReady LiveChat===');
 
-    // Dasboard Other Settings
+    // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
-      recordingLiveChatEvents(this.updateEventNames, this.eventsList, this.eventsToStandard);
+      recordingLiveChatEvents(
+        this.updateEventNames,
+        this.eventsList,
+        this.eventsToStandard,
+        this.analytics,
+      );
     }
     return !!window.LiveChatWidget;
   }
@@ -79,8 +88,8 @@ class LiveChat {
   identify(rudderElement) {
     logger.debug('===In LiveChat Identify===');
     const { message } = rudderElement;
-    const { userId } = message;
-    const { traits } = rudderElement.message.context;
+    const { userId, context } = message;
+    const { traits } = context;
     const email = get(message, 'context.traits.email');
 
     if (email) {
