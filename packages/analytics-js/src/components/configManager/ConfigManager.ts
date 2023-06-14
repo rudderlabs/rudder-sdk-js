@@ -205,7 +205,9 @@ class ConfigManager implements IConfigManager {
         if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
           // set the default error reporting provider
           this.logger?.warn(
-            `The configured error reporting provider "${errReportingProvider}" is not supported. Using default error reporting provider (${errReportingProviderPlugin}).`,
+            `The configured error reporting provider "${errReportingProvider}" is not supported. Supported providers are ${Object.keys(
+              ErrorReportingProvidersToPluginNameMap,
+            )}. Using default provider (${errReportingProviderPlugin}).`,
           );
         }
         state.reporting.errorCollectionProviderPlugin.value =
