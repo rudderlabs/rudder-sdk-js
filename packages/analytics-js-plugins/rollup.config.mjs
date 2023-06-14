@@ -74,7 +74,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
         __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
-        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{RS_BUGSNAG_API_KEY}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
       resolve({
