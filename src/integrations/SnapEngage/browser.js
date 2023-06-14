@@ -11,13 +11,17 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class SnapEngage {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.widgetId = config.widgetId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -55,11 +59,11 @@ class SnapEngage {
   isReady() {
     logger.debug('===In isReady SnapEngage===');
 
-    // Dasboard Other Settings
+    // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.eventsToStandard);
 
-      recordingLiveChatEvents(this.updateEventNames, standardEventsMap);
+      recordingLiveChatEvents(this.updateEventNames, standardEventsMap, this.analytics);
     }
     return !!window.SnapEngage;
   }

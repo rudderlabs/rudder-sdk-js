@@ -19,22 +19,23 @@ const traitsMap = {
   id: null,
 };
 class MoEngage {
-  constructor(config, analyticsinstance, destinationInfo) {
-    if (analyticsinstance.logLevel) {
-      logger.setLogLevel(analyticsinstance.logLevel);
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;
     this.name = NAME;
-    this.analyticsinstance = analyticsinstance;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
     const self = this;
-    logger.debug('===in init MoEnagage===');
+    logger.debug('===in init MoEngage===');
     // loading the script for moengage web sdk
     /* eslint-disable */
     (function (i, s, o, g, r, a, m, n) {
@@ -111,7 +112,7 @@ class MoEngage {
         debug_logs: this.debug ? 1 : 0,
       });
     }
-    this.initialUserId = this.analyticsinstance.userId;
+    this.initialUserId = this.analytics.getUserId();
   }
 
   isLoaded = () => {
@@ -152,7 +153,7 @@ class MoEngage {
   reset() {
     logger.debug('inside reset');
     // reset the user id
-    this.initialUserId = this.analyticsinstance.userId;
+    this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();
   }
 
