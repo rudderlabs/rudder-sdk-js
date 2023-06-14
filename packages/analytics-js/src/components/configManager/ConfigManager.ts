@@ -176,6 +176,7 @@ class ConfigManager implements IConfigManager {
     batch(() => {
       // set source related information in state
       state.source.value = {
+        config: res.source.config,
         id: res.source.id,
       };
 
