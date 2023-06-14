@@ -9,6 +9,7 @@ class QuoraPixel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.pixelId = config.pixelId;
     this.eventsToQPEvents = config.eventsToQPEvents;

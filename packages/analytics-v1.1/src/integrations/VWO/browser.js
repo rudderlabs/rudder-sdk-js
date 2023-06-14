@@ -10,6 +10,7 @@ class VWO {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId; // 1549611
     this.settingsTolerance = config.settingsTolerance;
     this.isSPA = config.isSPA;
@@ -18,8 +19,8 @@ class VWO {
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = NAME;
-    this.analytics = analytics;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }

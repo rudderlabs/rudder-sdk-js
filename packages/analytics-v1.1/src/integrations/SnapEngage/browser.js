@@ -14,6 +14,7 @@ class SnapEngage {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.widgetId = config.widgetId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
@@ -58,11 +59,11 @@ class SnapEngage {
   isReady() {
     logger.debug('===In isReady SnapEngage===');
 
-    // Dasboard Other Settings
+    // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.eventsToStandard);
 
-      recordingLiveChatEvents(this.updateEventNames, standardEventsMap);
+      recordingLiveChatEvents(this.updateEventNames, standardEventsMap, this.analytics);
     }
     return !!window.SnapEngage;
   }

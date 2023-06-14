@@ -153,6 +153,10 @@ const ignoredProperties = [
     type: 'number',
     optional: true,
   },
+  {
+    key: `message.integrations.Google Analytics 4.sessionNumber`,
+    type: 'number',
+  },
 ];
 
 export { ignoredProperties };

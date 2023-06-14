@@ -67,6 +67,11 @@ export default class GA4 {
       window.gtag('config', measurementId, gtagParameterObject);
     }
 
+    // If userTraits available, setting it as a part of global gtag object
+    if (this.analytics.userTraits) {
+      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
+    }
+
     /**
      * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
