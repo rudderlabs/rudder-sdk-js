@@ -4,6 +4,8 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { state } from '@rudderstack/analytics-js/state';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { isAllowedToBeNotified, processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
@@ -13,11 +15,41 @@ import { IErrorHandler, SDKError } from './types';
 class ErrorHandler implements IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
+  errReportingClient?: any;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
+  }
+
+  init(externalSrcLoader: IExternalSrcLoader) {
+    if (!this.pluginEngine) {
+      return;
+    }
+
+    try {
+      const errReportingInitVal = this.pluginEngine.invokeSingle(
+        'errorReporting.init',
+        state,
+        this.pluginEngine,
+        externalSrcLoader,
+        this.logger,
+      );
+      if (errReportingInitVal === null) {
+        this.logger?.error('Unable to initialize error reporting plugin.');
+      } else if (errReportingInitVal instanceof Promise) {
+        errReportingInitVal
+          .then((client: any) => {
+            this.errReportingClient = client;
+          })
+          .catch(() => {
+            this.logger?.error('Unable to initialize error reporting plugin.');
+          });
+      }
+    } catch (err) {
+      this.onError(err, 'errorMonitoring.initialize');
+    }
   }
 
   onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
@@ -52,18 +84,18 @@ class ErrorHandler implements IErrorHandler {
       (error as Error).message = errorMessage;
     }
 
-    const normalisedError = isTypeOfError ? error : new Error(errorMessage);
+    const normalizeError = isTypeOfError ? error : new Error(errorMessage);
 
-    this.notifyError(normalisedError);
+    this.notifyError(normalizeError);
 
     if (this.logger) {
       this.logger.error(errorMessage);
 
       if (shouldAlwaysThrow) {
-        throw normalisedError;
+        throw normalizeError;
       }
     } else {
-      throw normalisedError;
+      throw normalizeError;
     }
   }
 
@@ -76,9 +108,15 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb(breadcrumb: string) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invokeMultiple('errorMonitoring.breadcrumb', breadcrumb, this.logger);
+        this.pluginEngine.invokeSingle(
+          'errorReporting.breadcrumb',
+          this.pluginEngine,
+          this.errReportingClient,
+          breadcrumb,
+          this.logger,
+        );
       } catch (err) {
-        this.onError(err, 'errorMonitoring.breadcrumb');
+        this.onError(err, 'errorReporting.breadcrumb');
       }
     }
   }
@@ -91,9 +129,15 @@ class ErrorHandler implements IErrorHandler {
   notifyError(error: Error) {
     if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
-        this.pluginEngine.invokeMultiple('errorMonitoring.notify', error, this.logger);
+        this.pluginEngine.invokeSingle(
+          'errorReporting.notify',
+          this.pluginEngine,
+          this.errReportingClient,
+          error,
+          this.logger,
+        );
       } catch (err) {
-        this.onError(err, 'errorMonitoring.notify');
+        this.onError(err, 'errorReporting.notify');
       }
     }
   }

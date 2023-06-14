@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 

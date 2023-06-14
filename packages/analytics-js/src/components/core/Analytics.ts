@@ -268,6 +268,8 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   init() {
+    this.errorHandler.init(this.externalSrcLoader);
+
     // Initialize storage
     this.storeManager?.init();
     this.clientDataStore = this.storeManager?.getStore('clientData') as Store;
