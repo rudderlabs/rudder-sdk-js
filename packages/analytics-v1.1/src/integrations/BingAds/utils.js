@@ -2,24 +2,28 @@
 const EXCLUSION_KEYS = [
   'event',
   'category',
+  'category_id',
   'currency',
   'total',
   'value',
   'revenue',
-  'ecommCategory',
+  'ecomm_category',
   'transaction_id',
   'order_id',
   'checkout_id',
-  'ecommPageType',
+  'ecomm_pagetype',
   'pagetype',
   'query',
   'products',
   'product_id',
   'sku',
-  'eventAction',
+  'event_action',
+  'items',
 ];
 
-const buildCommonPayload = (message) => {
+const DEFAULT_PAGETYPE = 'other';
+
+const buildCommonPayload = message => {
   const { event, properties = {} } = message;
   const { category, currency, total, value, revenue } = properties;
   const payload = {
@@ -31,24 +35,23 @@ const buildCommonPayload = (message) => {
   return payload;
 };
 
-const handleProductsArray = (properties) => {
+const handleProductsArray = properties => {
   const productIds = [];
   const items = [];
-  let ecommTotalValue = 0;
 
   const products = Array.isArray(properties.products) ? properties.products : [properties];
 
-  products.forEach((product) => {
+  products.forEach(product => {
     const { product_id, sku, price, quantity = 1 } = product;
     const productId = product_id || sku;
 
     if (productId) {
       productIds.push(productId);
-      items.push({ id: productId, quantity, price });
-
-      if (price) {
-        ecommTotalValue += parseFloat(price) * parseInt(quantity, 10);
+      const item = { id: productId, quantity };
+      if (price && !Number.isNaN(price)) {
+        item.price = price;
       }
+      items.push(item);
     }
   });
 
@@ -56,44 +59,43 @@ const handleProductsArray = (properties) => {
   if (items.length > 0) {
     payload.ecomm_prodid = productIds;
     payload.items = items;
-    if (ecommTotalValue !== 0) {
-      payload.ecomm_totalvalue = ecommTotalValue;
-    }
   }
 
   return payload;
 };
 
-const buildEcommPayload = (message) => {
+const buildEcommPayload = message => {
   const { properties = {} } = message;
   const {
-    category,
+    category_id,
     total,
     value,
-    revenue,
-    ecommCategory,
+    ecomm_category,
     transaction_id,
     order_id,
     checkout_id,
-    ecommPageType,
+    ecomm_pagetype,
     pagetype,
     query,
   } = properties;
+
   const ecommPayload = {
-    ecomm_totalvalue: total || value || revenue,
+    ecomm_totalvalue: total || value,
     search_term: query,
     ecomm_query: query,
-    ecomm_category: ecommCategory || category,
+    ecomm_category: ecomm_category || category_id,
     transaction_id: transaction_id || order_id || checkout_id,
-    ecomm_pagetype: ecommPageType || pagetype,
+    ecomm_pagetype: ecomm_pagetype || pagetype || DEFAULT_PAGETYPE,
   };
-
   const payload = handleProductsArray(properties);
-  if (ecommPayload.ecomm_totalvalue) {
-    // giving priority to total, value, revenue
-    delete payload.ecomm_totalvalue;
-  }
+
   return { ...ecommPayload, ...payload };
 };
 
-export { buildCommonPayload, buildEcommPayload, handleProductsArray, EXCLUSION_KEYS };
+export {
+  buildCommonPayload,
+  buildEcommPayload,
+  handleProductsArray,
+  EXCLUSION_KEYS,
+  DEFAULT_PAGETYPE,
+};

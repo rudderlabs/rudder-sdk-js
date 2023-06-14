@@ -2,7 +2,25 @@
   "settings": {
     "import/resolver": {
       "typescript": {}
-    }
+    },
+    "lintAllEsApis": true,
+    "polyfills": [
+      "Promise",
+      "URL",
+      "URLSearchParams",
+      "Number.isNaN",
+      "Number.isInteger",
+      "Array.from",
+      "Array.prototype.find",
+      "Array.prototype.includes",
+      "String.prototype.endsWith",
+      "String.prototype.startsWith",
+      "String.prototype.includes",
+      "Object.entries",
+      "Object.values",
+      "Element.prototype.dataset",
+      "String.prototype.replaceAll"
+    ]
   },
   "env": {
     "browser": true,
@@ -49,7 +67,10 @@
     "sonarjs/no-nested-template-literals": "off",
     "sonarjs/max-switch-cases": "off",
     "sonarjs/cognitive-complexity": ["error", 40],
-    "compat/compat": "warn",
+    "compat/compat": [
+      "warn",
+      "defaults,Edge >= 15,Firefox >= 40,IE >= 11,Chrome >= 37,Safari >= 7,Opera >= 23"
+    ],
     "@typescript-eslint/lines-between-class-members": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",

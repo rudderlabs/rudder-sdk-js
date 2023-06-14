@@ -7,6 +7,7 @@ import {
   getDeliveryPayload,
   validatePayloadSize,
   getDeliveryUrl,
+  getFinalEventForDelivery,
 } from './utilities';
 import {
   IStoreManager,
@@ -66,9 +67,10 @@ const XhrQueue = (): ExtensionPlugin => ({
         ) => {
           const { url, event, headers } = item;
           logger?.debug(`Sending ${event.type} event to data plane`);
-          // Update sentAt timestamp to the latest timestamp
-          event.sentAt = getCurrentTimeFormatted();
-          const data = getDeliveryPayload(event);
+
+          const finalEvent = getFinalEventForDelivery(event, state);
+
+          const data = getDeliveryPayload(finalEvent);
 
           if (data) {
             httpClient.getAsyncData({
@@ -111,8 +113,6 @@ const XhrQueue = (): ExtensionPlugin => ({
         },
         storeManager,
       );
-
-      eventsQueue.start();
 
       return eventsQueue;
     },

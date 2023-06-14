@@ -10,6 +10,7 @@ class Rockerbox {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.clientAuthId = config.clientAuthId;
     this.name = NAME;
     this.customDomain = config.customDomain;

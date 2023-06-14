@@ -19,6 +19,7 @@ class Matomo {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.serverUrl = config.serverUrl;
     this.siteId = config.siteId;
     this.eventsMapToGoalId = config.eventsMapToGoalId;

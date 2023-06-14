@@ -10,13 +10,14 @@ class INTERCOM {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-    logger.debug('Config ', config);
   }
 
   init() {

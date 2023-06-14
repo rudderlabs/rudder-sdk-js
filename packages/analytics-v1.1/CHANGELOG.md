@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.35.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.34.0...v2.35.0) (2023-06-09)
+
+
+### Features
+
+* bing ads ecomm uet parameters ([#1108](https://github.com/rudderlabs/rudder-sdk-js/issues/1108)) ([d2aceda](https://github.com/rudderlabs/rudder-sdk-js/commit/d2aceda8f50ab406d413bef4010895d38b4b3d1e))
+* introduce flexible configuration for maximum buffering time of data plane events ([#1116](https://github.com/rudderlabs/rudder-sdk-js/issues/1116)) ([c6d775f](https://github.com/rudderlabs/rudder-sdk-js/commit/c6d775f143c3f082c124503500b532032838b4ba))
+* onboard tiktok device mode integration ([#1091](https://github.com/rudderlabs/rudder-sdk-js/issues/1091)) ([09d9ae2](https://github.com/rudderlabs/rudder-sdk-js/commit/09d9ae263743d65b51c52a02f1ac61b9145e49bc))
+
+
+### Bug Fixes
+
+* remove usage of .at() to ensure electron 7 works ([#1112](https://github.com/rudderlabs/rudder-sdk-js/issues/1112)) ([cbfe150](https://github.com/rudderlabs/rudder-sdk-js/commit/cbfe15083904b8f0794172f5c031f6dd268a33ad))
+* removed vulnerable package component-url ([#1138](https://github.com/rudderlabs/rudder-sdk-js/issues/1138)) ([3a0e547](https://github.com/rudderlabs/rudder-sdk-js/commit/3a0e547eed4925f36a2f09f5fd713032dff2ba6a))
+
 ## [2.34.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.1...v2.34.0) (2023-05-26)
 
 
