@@ -73,7 +73,6 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
-  // TODO: add logic for all plugins as we develop them
   /**
    * Determine the list of plugins that should be loaded based on sourceConfig & load options
    */
@@ -94,7 +93,7 @@ class PluginsManager implements IPluginsManager {
     }
 
     // dataplane events delivery plugins
-    if (state.loadOptions.value.useBeacon === true) {
+    if (state.loadOptions.value.useBeacon === true && state.capabilities.isBeaconAvailable.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== PluginName.XhrQueue,
       );
@@ -143,6 +142,8 @@ class PluginsManager implements IPluginsManager {
           ),
       );
     }
+
+    // TODO: add logic for all plugins as we develop them
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }

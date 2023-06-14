@@ -24,21 +24,18 @@
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
         'load',
+        'ready',
         'page',
         'track',
         'identify',
         'alias',
         'group',
-        'ready',
         'reset',
         'getAnonymousId',
         'setAnonymousId',
-        'getUserId',
-        'getUserTraits',
-        'getGroupId',
-        'getGroupTraits',
-        'endSession',
         'startSession',
+        'endSession',
+        'getSessionId'
       ];
 
       for (var i = 0; i < methods.length; i++) {

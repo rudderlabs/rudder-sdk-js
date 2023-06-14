@@ -21,36 +21,16 @@
         }
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
-      rudderanalytics = window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'getAnalyticsInstance',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'getAnonymousId',
-        'setAnonymousId',
-        'getUserId',
-        'getUserTraits',
-        'getGroupId',
-        'getGroupTraits',
-        'startSession',
-        'endSession',
-        'getSessionId'
-      ];
 
+      window.rudderanalytics = [];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
-        rudderanalytics[method] = (function (methodName) {
-          return function () {
-            rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+        window.rudderanalytics[method] = function(methodName) {
+          return function() {
+            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
           };
-        })(method);
+        }(method);
       }
     </script>
     <link

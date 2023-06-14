@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charSet="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>RudderStack JS SDK v3 Example</title>
     <script>
       var sdkBaseUrl = "https://cdn.rudderlabs.com/beta/3.0.0-beta";
       var sdkName = "rudder-analytics.min.js";
@@ -24,12 +28,11 @@
         var rudderAnalyticsScript = document.createElement("script");
         rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
-        // Commented out as the local build file is auto-injected by rollup
-        // if (document.head) {
-        //   document.head.appendChild(rudderAnalyticsScript);
-        // } else {
-        //   document.body.appendChild(rudderAnalyticsScript);
-        // }
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsScript);
+        }
       };
       if (typeof Promise === "undefined") {
         var rudderAnalyticsPromisesScript = document.createElement("script");
@@ -47,10 +50,10 @@
 
       var loadOptions={
         logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        // destSDKBaseURL: '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
-        // useBeacon: true
+        configUrl: 'https://api.rudderlabs.com',
+        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+        useBeacon: true
       };
 
       rudderanalytics.load(
@@ -133,10 +136,18 @@
       rudderanalytics.ready(function() {
         console.log('All ready!!!');
       });
+
+      // TODO: Call other APIs here
     </script>
+
+    <!-- ============ V3 ============ -->
+    <!--    <script src="https://cdn.rudderlabs.com/beta/v3/modern/rudder-analytics.min.js"></script>-->
+    <!--    <script src="https://cdn.rudderlabs.com/beta/v3/legacy/rudder-analytics.min.js"></script>-->
+    <!-- ============ V3 ============ -->
+
   </head>
   <body>
-    <h1>Test HTML file</h1>
+    <h1>Page Loaded</h1>
     <br />
 
     <button data-testid="page-btn" onclick="page()">Page</button>

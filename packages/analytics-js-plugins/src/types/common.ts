@@ -1,6 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
 
+export type ApplicationState = IApplicationState;
+
 export type { RudderEvent } from '@rudderstack/analytics-js/components/eventManager/types';
 export type {
   QueueOpts,
@@ -9,6 +11,9 @@ export type {
   ApiOptions,
   ApiCallback,
   DestinationIntgConfig,
+  BeaconQueueOpts,
+  DestinationConfig,
+  IntegrationOpts,
 } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
@@ -16,8 +21,12 @@ export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
-export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
-export type { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
+export type {
+  IStore,
+  IStoreManager,
+  IStorage,
+  StorageType,
+} from '@rudderstack/analytics-js/services/StoreManager/types';
 export type {
   IRudderAnalytics,
   AnalyticsAliasMethod,
@@ -26,9 +35,6 @@ export type {
   AnalyticsPageMethod,
   AnalyticsTrackMethod,
 } from '@rudderstack/analytics-js/app/IRudderAnalytics';
-export type { IStore, IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
-
-export type ApplicationState = IApplicationState;
 
 export interface ExtensionPoint {
   [lifeCycleName: string]: (...args: any[]) => unknown;

@@ -27,6 +27,8 @@ const ExternalAnonymousId = (): ExtensionPlugin => ({
         if (!Object.keys(externallyLoadedSessionStorageKeys).includes(source)) {
           return anonymousId;
         }
+
+        // eslint-disable-next-line sonarjs/no-small-switch
         switch (source) {
           case 'segment':
             anonymousId = getSegmentAnonymousId(getStorageEngine);

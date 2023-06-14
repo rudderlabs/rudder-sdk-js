@@ -78,7 +78,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       logger?: ILogger,
       externalScriptOnLoad?: (id?: string) => unknown,
     ) {
-      const { destSDKBaseURL } = state.loadOptions.value;
+      const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
       const onLoadCallback =
         externalScriptOnLoad ??
@@ -96,7 +96,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         logger?.debug(`Loading destination: ${dest.userFriendlyId}`);
 
         if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
-          const destSdkURL = `${destSDKBaseURL}/${sdkName}.min.js`;
+          const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader
             .loadJSFile({
               url: destSdkURL,

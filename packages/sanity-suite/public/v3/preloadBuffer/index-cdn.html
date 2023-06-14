@@ -21,50 +21,82 @@
         }
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
-      rudderanalytics = window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'getAnalyticsInstance',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'getAnonymousId',
-        'setAnonymousId',
-        'getUserId',
-        'getUserTraits',
-        'getGroupId',
-        'getGroupTraits',
-        'startSession',
-        'endSession',
-        'getSessionId'
-      ];
 
+      var sdkBaseUrl = "https://cdn.rudderlabs.com/beta/3.0.0-beta";
+      var sdkName = "rudder-analytics.min.js";
+      var asyncScript = true;
+      window.rudderAnalyticsBuildType = "legacy";
+      window.rudderanalytics = [];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
-        rudderanalytics[method] = (function (methodName) {
-          return function () {
-            rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+        window.rudderanalytics[method] = function(methodName) {
+          return function() {
+            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
           };
-        })(method);
+        }(method);
       }
-
-      rudderanalytics.load('__FEATURE_PRELOAD_BUFFER_WRITE_KEY__', '__DATAPLANE_URL__', {
-        logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__',
-        cookieConsentManager: {
-            oneTrust: {
-                enabled: true,
-            }
+      try {
+        new Function('return import("")');
+        window.rudderAnalyticsBuildType = "modern";
+      } catch (e) {}
+      window.rudderAnalyticsMount = function() {
+        var rudderAnalyticsScript = document.createElement("script");
+        rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+        rudderAnalyticsScript.async = asyncScript;
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsScript);
         }
+      };
+      if (typeof Promise === "undefined") {
+        var rudderAnalyticsPromisesScript = document.createElement("script");
+        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount";
+        rudderAnalyticsPromisesScript.async = asyncScript;
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsPromisesScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsPromisesScript);
+        }
+      } else {
+        window.rudderAnalyticsMount();
+      }
+      // New addition to load script ends
+
+      // Sets the user ID/anonymous ID
+      // Sending these Identify and Track event to test the preload buffer
+      rudderanalytics.setAnonymousId("automationqa_123");
+
+      // Identify call
+      rudderanalytics.identify("12345", {
+        name: "Automation QA"
       });
 
-      rudderanalytics.ready(function() {
+      // Track call
+      rudderanalytics.track("test event", {
+        testProp: "automationQA_prop1"
+      });
+
+      var loadOptions={
+        logLevel: 'DEBUG',
+        configUrl: '__CONFIG_SERVER_HOST__',
+        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+        cookieConsentManager: {
+          oneTrust: {
+            enabled: true,
+          },
+        },
+      };
+
+      rudderanalytics.load(
+        '__FEATURE_PRELOAD_BUFFER_WRITE_KEY__',
+        '__DATAPLANE_URL__',
+        loadOptions
+      );
+
+      rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
     </script>
