@@ -13,18 +13,12 @@ import {
 
 const isValidVersion = (globalLibInstance: any) => {
   // For version 7
-  let version =
-    globalLibInstance &&
-    // eslint-disable-next-line no-underscore-dangle
-    globalLibInstance._client &&
-    // eslint-disable-next-line no-underscore-dangle
-    globalLibInstance._client._notifier &&
-    // eslint-disable-next-line no-underscore-dangle
-    globalLibInstance._client._notifier.version;
+  // eslint-disable-next-line no-underscore-dangle
+  let version = globalLibInstance?._client?._notifier?.version;
 
   // For versions older than 7
   if (!version) {
-    let tempInstance = globalLibInstance({
+    const tempInstance = globalLibInstance({
       apiKey: API_KEY,
       releaseStage: 'version-test',
       // eslint-disable-next-line func-names, object-shorthand
@@ -32,8 +26,7 @@ const isValidVersion = (globalLibInstance: any) => {
         return false;
       },
     });
-    version = tempInstance.notifier && tempInstance.notifier.version;
-    tempInstance = undefined;
+    version = tempInstance.notifier?.version;
   }
 
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
@@ -130,7 +123,7 @@ const isApiKeyValid = (): boolean => {
 
 const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger) => {
   const isNotLoaded = GLOBAL_LIBRARY_OBJECT_NAMES.every(
-    globalKeyName => !Object.hasOwn(globalThis, globalKeyName),
+    globalKeyName => !(globalThis as any)[globalKeyName],
   );
 
   if (!isNotLoaded) {

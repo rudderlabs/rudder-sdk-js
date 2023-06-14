@@ -1,13 +1,7 @@
 /* eslint-disable compat/compat */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  IExternalSrcLoader,
-  ILogger,
-  IErrorHandler,
-} from '../types/common';
+import { ExtensionPlugin, ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
 

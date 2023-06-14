@@ -1,16 +1,16 @@
 import { SourceConfig } from '@rudderstack/analytics-js/state/types';
 
-const getErrorReportingEnabledFromConfig = (sourceConfig?: SourceConfig): boolean =>
-  sourceConfig?.statsCollection?.errors.enabled || false;
+const isErrorReportingEnabled = (sourceConfig?: SourceConfig): boolean =>
+  sourceConfig?.statsCollection?.errors.enabled === true;
 
 const getErrorReportingProviderNameFromConfig = (sourceConfig?: SourceConfig): string | undefined =>
   sourceConfig?.statsCollection?.errors.provider;
 
-const getMetricsReportingEnabledFromConfig = (sourceConfig?: SourceConfig): boolean =>
-  sourceConfig?.statsCollection?.metrics.enabled || false;
+const isMetricsReportingEnabled = (sourceConfig?: SourceConfig): boolean =>
+  sourceConfig?.statsCollection?.metrics.enabled === true;
 
 export {
-  getErrorReportingEnabledFromConfig,
+  isErrorReportingEnabled,
   getErrorReportingProviderNameFromConfig,
-  getMetricsReportingEnabledFromConfig,
+  isMetricsReportingEnabled,
 };
