@@ -34,12 +34,9 @@ const isEventDenyListed = (
       if (!isValidEventName(eventName)) {
         return false;
       }
-      // TODO: might have to make this logic case-sensitive
-      const formattedEventName = (eventName as string).trim().toUpperCase();
+      const trimmedEventName = (eventName as string).trim();
       if (Array.isArray(blacklistedEvents)) {
-        return blacklistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-        );
+        return blacklistedEvents.some(eventObj => eventObj.eventName.trim() === trimmedEventName);
       }
       return false;
     }
@@ -49,12 +46,9 @@ const isEventDenyListed = (
       if (!isValidEventName(eventName)) {
         return true;
       }
-      // TODO: might have to make this logic case-sensitive
-      const formattedEventName = (eventName as string).trim().toUpperCase();
+      const trimmedEventName = (eventName as string).trim();
       if (Array.isArray(whitelistedEvents)) {
-        return !whitelistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-        );
+        return !whitelistedEvents.some(eventObj => eventObj.eventName.trim() === trimmedEventName);
       }
       return true;
     }

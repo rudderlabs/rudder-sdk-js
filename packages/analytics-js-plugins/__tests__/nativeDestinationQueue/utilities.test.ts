@@ -65,6 +65,13 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
       const outcome1 = isEventDenyListed('track', 'sample track event 1234', mockDest);
       expect(outcome1).toBeFalsy();
     });
+    it('should return false if deny list is selected and track event name is in different case than with denylist event name', () => {
+      const mockDest = clone(mockDestination);
+      mockDest.config.eventFilteringOption = 'blacklistedEvents';
+
+      const outcome1 = isEventDenyListed('track', 'Sample track event 2', mockDest);
+      expect(outcome1).toBeFalsy();
+    });
     it('should return true if allow list is selected and track event does not have event name property', () => {
       const outcome1 = isEventDenyListed('track', undefined, mockDestination);
       expect(outcome1).toBeTruthy();
@@ -81,6 +88,10 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
     });
     it('should return true if allow list is selected and track event name does not matches with allowlist event name', () => {
       const outcome1 = isEventDenyListed('track', 'sample track event 1234', mockDestination);
+      expect(outcome1).toBeTruthy();
+    });
+    it('should return true if allow list is selected and track event name is in different case than with with allowlist event name', () => {
+      const outcome1 = isEventDenyListed('track', 'Sample track event 1', mockDestination);
       expect(outcome1).toBeTruthy();
     });
   });
