@@ -13,29 +13,34 @@ import { DEFAULT_QUEUE_OPTIONS } from './constants';
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
 
-const isEventDenyListed = (eventName: Nullable<string>, dest: Destination) => {
-  if (!eventName || typeof eventName !== 'string') {
+const isEventDenyListed = (eventType: string, eventName: Nullable<string>, dest: Destination) => {
+  if (eventType !== 'track') {
     return false;
   }
 
   const { blacklistedEvents, whitelistedEvents, eventFilteringOption } = dest.config;
-  // TODO: might have to make this logic case-sensitive
-  const formattedEventName = eventName.trim().toUpperCase();
+
   switch (eventFilteringOption) {
     // Blacklist is chosen for filtering events
     case 'blacklistedEvents':
+      if (!eventName || typeof eventName !== 'string') {
+        return false;
+      }
       if (Array.isArray(blacklistedEvents)) {
         return blacklistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
+          eventObj => eventObj.eventName.trim().toUpperCase() === eventName.trim().toUpperCase(), // TODO: might have to make this logic case-sensitive
         );
       }
       return false;
 
     // Whitelist is chosen for filtering events
     case 'whitelistedEvents':
+      if (!eventName || typeof eventName !== 'string') {
+        return true;
+      }
       if (Array.isArray(whitelistedEvents)) {
         return !whitelistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
+          eventObj => eventObj.eventName.trim().toUpperCase() === eventName.trim().toUpperCase(), // TODO: might have to make this logic case-sensitive
         );
       }
       return true;
