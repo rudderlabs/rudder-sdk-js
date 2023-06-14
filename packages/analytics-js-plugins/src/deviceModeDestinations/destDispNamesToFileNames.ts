@@ -72,6 +72,7 @@ import {
   SendinblueDisplayNameToDirNameMap,
   OlarkDisplayNameToDirNameMap,
   LemniskDisplayNameToDirNameMap,
+  TiktokAdsDisplayNameToDirNameMap,
 } from './destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
@@ -148,6 +149,7 @@ const destDispNamesToFileNamesMap: Record<string, string> = {
   ...SendinblueDisplayNameToDirNameMap,
   ...OlarkDisplayNameToDirNameMap,
   ...LemniskDisplayNameToDirNameMap,
+  ...TiktokAdsDisplayNameToDirNameMap,
 };
 
 export { destDispNamesToFileNamesMap };
