@@ -3,14 +3,14 @@ const integrationContext = {
   version: '1.0.0',
 };
 
-function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
+function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics) {
   const eventNames = standardEventsMap;
   window.olark('api.chat.onBeginConversation', () => {
     let eventName = 'Live Chat Conversation Started';
     if (updateEventNames && eventNames?.startChat) {
       eventName = eventNames.startChat;
     }
-    window.rudderanalytics.track(
+    analytics.track(
       `${eventName}`,
       {},
       {
@@ -24,7 +24,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.chatMessageSent) {
       eventName = eventNames.chatMessageSent;
     }
-    window.rudderanalytics.track(
+    analytics.track(
       `${eventName}`,
       {},
       {
@@ -38,7 +38,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.chatMessageReceived) {
       eventName = eventNames.chatMessageReceived;
     }
-    window.rudderanalytics.track(
+    analytics.track(
       `${eventName}`,
       {},
       {

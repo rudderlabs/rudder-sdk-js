@@ -71,6 +71,7 @@ const clientToServerNames = {
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
   LEMNISK: 'Lemnisk',
+  TIKTOK_ADS: 'TikTok Ads',
 };
 
 export { clientToServerNames };
