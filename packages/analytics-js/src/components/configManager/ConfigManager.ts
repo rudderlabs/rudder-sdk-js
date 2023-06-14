@@ -211,7 +211,7 @@ class ConfigManager implements IConfigManager {
             )}. Using default provider (${errReportingProviderPlugin}).`,
           );
         }
-        state.reporting.errorCollectionProviderPlugin.value =
+        state.reporting.errorReportingProviderPlugin.value =
           errReportingProviderPlugin || PluginName.Bugsnag;
       }
 

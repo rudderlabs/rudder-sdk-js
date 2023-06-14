@@ -93,11 +93,11 @@ class PluginsManager implements IPluginsManager {
     const supportedErrorReportingProviderPlugins: string[] = Object.values(
       ErrorReportingProvidersToPluginNameMap,
     );
-    if (state.reporting.errorCollectionProviderPlugin.value) {
+    if (state.reporting.errorReportingProviderPlugin.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName !== state.reporting.errorCollectionProviderPlugin.value &&
+            pluginName !== state.reporting.errorReportingProviderPlugin.value &&
             supportedErrorReportingProviderPlugins.includes(pluginName)
           ),
       );
