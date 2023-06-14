@@ -25,6 +25,7 @@ class Podsights {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.enableAliasCall = config.enableAliasCall;

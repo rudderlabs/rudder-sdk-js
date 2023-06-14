@@ -1,11 +1,5 @@
 import * as R from 'ramda';
-
-/**
- * Checks if the input is an object and not null
- * @param val Input value
- * @returns true if the input is an object and not null
- */
-const isObjectAndNotNull = val => typeof val === 'object' && !Array.isArray(val) && val !== null;
+import logger from './logUtil';
 
 const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
@@ -14,11 +8,8 @@ const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
 
   const mergedArray = R.clone(leftValue);
   rightValue.forEach((value, index) => {
-    mergedArray[index] =
-      Array.isArray(value) || isObjectAndNotNull(value)
-        ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          mergeDeepRight(mergedArray[index], value)
-        : value;
+    // eslint-disable-next-line no-use-before-define
+    mergedArray[index] = mergeDeepRight(mergedArray[index], value);
   });
 
   return mergedArray;
@@ -43,11 +34,12 @@ const getCircularReplacer = excludeNull => {
     }
 
     // `this` is the object that value is contained in, i.e., its direct parent.
-    while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
       ancestors.pop();
     }
 
     if (ancestors.includes(value)) {
+      logger.debug(`Circular Reference detected for key: ${key}`);
       return '[Circular Reference]';
     }
 

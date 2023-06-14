@@ -8,10 +8,12 @@ class Appcues {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     // this.sendToAllDestinations = config.sendToAll;
   }
@@ -31,7 +33,7 @@ class Appcues {
     // This block of code enables us to send Appcues Flow events to all the other destinations connected to the same source (we might use it in future)
     // if (this.sendToAllDestinations && window.Appcues) {
     //   window.Appcues.on("all", function(eventName, event) {
-    //     window.rudderanalytics.track(eventName, event, {
+    //     this.analytics.track(eventName, event, {
     //       integrations: {
     //         All: true,
     //         APPCUES: false

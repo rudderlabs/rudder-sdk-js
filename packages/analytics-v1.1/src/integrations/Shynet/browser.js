@@ -7,6 +7,7 @@ class Shynet {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     const { heartBeatFrequencyInMs } = config;
     const { shynetServiceUrl } = config;
     this.scriptCheck = false;

@@ -14,6 +14,7 @@ class YandexMetrica {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.tagId = config.tagId;
     this.clickMap = config.clickMap;
     this.trackLinks = config.trackLinks;

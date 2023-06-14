@@ -47,7 +47,6 @@ describe('Handle products array utility tests', () => {
         { id: '123', price: 14.99, quantity: 2 },
         { id: '345', price: 3.99, quantity: 1 },
       ],
-      ecomm_totalvalue: 33.97,
     });
   });
 
@@ -61,7 +60,6 @@ describe('Handle products array utility tests', () => {
     expect(payload).toEqual({
       ecomm_prodid: ['123'],
       items: [{ id: '123', price: 13.49, quantity: 2 }],
-      ecomm_totalvalue: 26.98,
     });
   });
 
@@ -79,9 +77,9 @@ describe('Build ecomm payload utility tests', () => {
         total: 18.9,
         value: 20,
         revenue: 25.5,
-        ecommCategory: 'Sports',
+        ecomm_category: '80',
         transaction_id: 'txn-123',
-        ecommPageType: 'Cart',
+        ecomm_pagetype: 'Cart',
         query,
         products,
       },
@@ -89,7 +87,7 @@ describe('Build ecomm payload utility tests', () => {
     expect(payload).toEqual({
       search_term: query,
       ecomm_query: query,
-      ecomm_category: 'Sports',
+      ecomm_category: '80',
       transaction_id: 'txn-123',
       ecomm_pagetype: 'Cart',
       ecomm_prodid: ['123', '345'],
@@ -105,9 +103,9 @@ describe('Build ecomm payload utility tests', () => {
     const payload = buildEcommPayload({
       properties: {
         category: 'Food',
-        ecommCategory: 'Sports',
+        category_id: '80',
         transaction_id: 'txn-123',
-        ecommPageType: 'Cart',
+        ecomm_pagetype: 'Cart',
         query,
         products,
       },
@@ -115,7 +113,7 @@ describe('Build ecomm payload utility tests', () => {
     expect(payload).toEqual({
       search_term: 'Sport T-Shirt',
       ecomm_query: 'Sport T-Shirt',
-      ecomm_category: 'Sports',
+      ecomm_category: '80',
       transaction_id: 'txn-123',
       ecomm_pagetype: 'Cart',
       ecomm_prodid: ['123', '345'],
@@ -123,7 +121,6 @@ describe('Build ecomm payload utility tests', () => {
         { id: '123', price: 14.99, quantity: 2 },
         { id: '345', price: 3.99, quantity: 1 },
       ],
-      ecomm_totalvalue: 33.97,
     });
   });
 
@@ -135,6 +132,7 @@ describe('Build ecomm payload utility tests', () => {
       ecomm_category: undefined,
       transaction_id: undefined,
       ecomm_totalvalue: undefined,
+      ecomm_pagetype: 'other',
     });
   });
 });

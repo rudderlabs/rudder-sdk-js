@@ -9,13 +9,15 @@ class GoogleOptimize {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.ga = config.ga;
     this.trackingId = config.trackingId;
     this.containerId = config.containerId;
     this.async = config.async;
     this.aflicker = config.aflicker;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

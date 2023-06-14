@@ -3,7 +3,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
-
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
@@ -12,6 +11,7 @@ class Woopra {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.projectName = config.projectName;
     this.name = NAME;
     this.cookieName = config.cookieName;
