@@ -12,7 +12,7 @@ function flip(data) {
   return Object.fromEntries(Object.entries(data).map(([key, value]) => [value, key]));
 }
 
-function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
+function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics) {
   const eventNames = flip(standardEventsMap);
 
   window.SnapEngage.setCallback('StartChat', function () {
@@ -20,11 +20,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.startChat) {
       eventName = eventNames.startChat;
     }
-    window.rudderanalytics.track(
-      `${eventName}`,
-      {},
-      { context: { integration: integrationContext } },
-    );
+    analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
   window.SnapEngage.setCallback('ChatMessageReceived', function (agent) {
@@ -32,7 +28,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.chatMessageReceived) {
       eventName = eventNames.chatMessageReceived;
     }
-    window.rudderanalytics.track(
+    analytics.track(
       `${eventName}`,
       { agentUsername: agent },
       { context: { integration: integrationContext } },
@@ -44,11 +40,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.chatMessageSent) {
       eventName = eventNames.chatMessageSent;
     }
-    window.rudderanalytics.track(
-      `${eventName}`,
-      {},
-      { context: { integration: integrationContext } },
-    );
+    analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
   window.SnapEngage.setCallback('Close', function () {
@@ -56,11 +48,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.close) {
       eventName = eventNames.close;
     }
-    window.rudderanalytics.track(
-      `${eventName}`,
-      {},
-      { context: { integration: integrationContext } },
-    );
+    analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
   window.SnapEngage.setCallback('InlineButtonClicked', function () {
@@ -68,11 +56,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     if (updateEventNames && eventNames?.inlineButtonClicked) {
       eventName = eventNames.inlineButtonClicked;
     }
-    window.rudderanalytics.track(
-      `${eventName}`,
-      {},
-      { context: { integration: integrationContext } },
-    );
+    analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 }
 

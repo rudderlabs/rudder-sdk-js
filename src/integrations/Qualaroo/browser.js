@@ -11,6 +11,7 @@ class Qualaroo {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.customerId = config.customerId;
     this.siteToken = config.siteToken;
@@ -18,7 +19,8 @@ class Qualaroo {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -43,7 +45,12 @@ class Qualaroo {
   isReady() {
     logger.debug('===In isReady Qualaroo===');
     if (this.recordQualarooEvents) {
-      recordQualarooEvents(this.updateEventNames, this.eventsList, this.eventsToStandard);
+      recordQualarooEvents(
+        this.updateEventNames,
+        this.eventsList,
+        this.eventsToStandard,
+        this.analytics,
+      );
     }
     return !!window._kiq && typeof window._kiq === 'object';
   }

@@ -17,7 +17,6 @@ class Amplitude {
     }
     this.name = NAME;
     this.analytics = analytics;
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;

@@ -98,7 +98,7 @@ export function getDefaultConfig(distName) {
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
             __CONFIG_SERVER_HOST__:
               process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
-            __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+            __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL || '',
           },
         }),
       process.env.DEV_SERVER &&

@@ -15,6 +15,9 @@ const logger = new Logger(NAME);
 
 class Iterable {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.apiKey = config.apiKey;
     this.initialisationIdentifier = config.initialisationIdentifier;
     this.fetchAppEvents = undefined;
@@ -43,7 +46,8 @@ class Iterable {
     this.isRequiredToDismissMessage = config.isRequiredToDismissMessage;
     this.closeButtonPosition = config.closeButtonPosition;
 
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
