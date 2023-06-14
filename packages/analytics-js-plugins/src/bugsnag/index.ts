@@ -8,6 +8,7 @@ import {
   ILogger,
   IErrorHandler,
 } from '../types/common';
+import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
 
 const pluginName = 'Bugsnag';
@@ -27,7 +28,7 @@ const Bugsnag = (): ExtensionPlugin => ({
       new Promise((resolve, reject) => {
         // If API key token is not parsed or invalid, don't proceed to initialize the client
         if (!isApiKeyValid()) {
-          reject();
+          reject(new Error(`The Bugsnag API key (${API_KEY}) is invalid or not provided`));
           return;
         }
 

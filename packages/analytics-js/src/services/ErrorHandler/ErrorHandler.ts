@@ -43,8 +43,8 @@ class ErrorHandler implements IErrorHandler {
           .then((client: any) => {
             this.errReportingClient = client;
           })
-          .catch(() => {
-            this.logger?.error('Unable to initialize error reporting plugin.');
+          .catch(err => {
+            this.logger?.error('Unable to initialize error reporting plugin.', err);
           });
       }
     } catch (err) {
