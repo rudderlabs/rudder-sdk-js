@@ -1,4 +1,4 @@
-import { isApiKeyValid, getGlobalBugsnagLibInstance, getReleaseStage } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import { isApiKeyValid, getGlobalBugsnagLibInstance, getReleaseStage, isValidVersion } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -66,6 +66,32 @@ describe('Bugsnag utilities', () => {
       }));
 
       expect(getReleaseStage()).toBe(expectedReleaseStage);
+    });
+  });
+
+  describe('isValidVersion', () => {
+    it('should return true if bugsnag version 6 is present in window scope', () => {
+      (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
+
+      expect(isValidVersion((window as any).bugsnag)).toBe(true);
+
+      delete (window as any).bugsnag;
+    });
+
+    it('should return false if bugsnag version 7 is present in window scope', () => {
+      (window as any).bugsnag = { _client: { _notifier: { version: '7.0.0' } } };
+
+      expect(isValidVersion((window as any).bugsnag)).toBe(false);
+
+      delete (window as any).bugsnag;
+    });
+
+    it('should return false if bugsnag version 4 is present in window scope', () => {
+      (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '4.0.0' } }));
+
+      expect(isValidVersion((window as any).bugsnag)).toBe(false);
+
+      delete (window as any).bugsnag;
     });
   });
 });
