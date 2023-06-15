@@ -182,4 +182,6 @@ export {
   initBugsnagClient,
   getReleaseStage,
   isRudderSDKError,
+  enhanceErrorEventMutator,
+  onError,
 };

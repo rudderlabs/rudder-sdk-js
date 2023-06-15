@@ -1,4 +1,11 @@
-import { isApiKeyValid, getGlobalBugsnagLibInstance, getReleaseStage, isValidVersion, isRudderSDKError } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import {
+  isApiKeyValid,
+  getGlobalBugsnagLibInstance,
+  getReleaseStage,
+  isValidVersion,
+  isRudderSDKError,
+  enhanceErrorEventMutator,
+} from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -21,7 +28,7 @@ describe('Bugsnag utilities', () => {
   describe('getGlobalBugsnagLibInstance', () => {
     it('should return the global Bugsnag instance if defined on the window object', () => {
       const bsObj = {
-        version: "1.2.3",
+        version: '1.2.3',
       };
       (window as any).bugsnag = bsObj;
 
@@ -40,12 +47,12 @@ describe('Bugsnag utilities', () => {
     let documentSpy: any;
     let navigatorSpy: any;
     let locationSpy: any;
-  
+
     beforeEach(() => {
       windowSpy = jest.spyOn(window, 'window', 'get');
       locationSpy = jest.spyOn(globalThis, 'location', 'get');
     });
-  
+
     afterEach(() => {
       windowSpy.mockRestore();
       locationSpy.mockRestore();
@@ -60,13 +67,16 @@ describe('Bugsnag utilities', () => {
       ['www.validhost.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
     ];
 
-    it.each(testCaseData)('if window host name is "%s" then it should return the release stage as "%s" ', (hostName, expectedReleaseStage) => {
-      locationSpy.mockImplementation(() => ({
-        hostname: hostName,
-      }));
+    it.each(testCaseData)(
+      'if window host name is "%s" then it should return the release stage as "%s" ',
+      (hostName, expectedReleaseStage) => {
+        locationSpy.mockImplementation(() => ({
+          hostname: hostName,
+        }));
 
-      expect(getReleaseStage()).toBe(expectedReleaseStage);
-    });
+        expect(getReleaseStage()).toBe(expectedReleaseStage);
+      },
+    );
   });
 
   describe('isValidVersion', () => {
@@ -107,21 +117,78 @@ describe('Bugsnag utilities', () => {
       [undefined, false],
       [null, false],
       [1, false],
-      ["", false],
+      ['', false],
       ['testdomain.com', false],
     ];
 
-    it.each(testCaseData)('if script src is "%s" then it should return the value as "%s" ', (scriptSrc, expectedValue) => {
-      // Bugsnag error event object structure
+    it.each(testCaseData)(
+      'if script src is "%s" then it should return the value as "%s" ',
+      (scriptSrc, expectedValue) => {
+        // Bugsnag error event object structure
+        const event = {
+          stacktrace: [
+            {
+              file: scriptSrc,
+            },
+          ],
+        };
+
+        expect(isRudderSDKError(event)).toBe(expectedValue);
+      },
+    );
+  });
+
+  describe('enhanceErrorEventMutator', () => {
+    it('should return the enhanced error event object', () => {
       const event = {
+        metadata: {},
         stacktrace: [
           {
-            file: scriptSrc,
+            file: 'https://testdomain.com/rudder-analytics.min.js',
           },
-        ]
+        ],
+        updateMetaData: function (key, value) {
+          this.metadata[key] = value;
+        },
+        errorMessage: 'test error message',
       };
 
-      expect(isRudderSDKError(event)).toBe(expectedValue);
+      enhanceErrorEventMutator(event, 'dummyMetadataVal');
+
+      expect(event.metadata).toEqual({
+        source: {
+          metadataSource: 'dummyMetadataVal',
+        },
+      });
+
+      expect(event.context).toBe('test error message');
+      expect(event.severity).toBe('error');
+    });
+
+    it('should return the enhanced error event object if the error is for script loads', () => {
+      const event = {
+        metadata: {},
+        stacktrace: [
+          {
+            file: 'https://testdomain.com/rudder-analytics.min.js',
+          },
+        ],
+        updateMetaData: function (key, value) {
+          this.metadata[key] = value;
+        },
+        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+      };
+
+      enhanceErrorEventMutator(event, 'dummyMetadataVal');
+
+      expect(event.metadata).toEqual({
+        source: {
+          metadataSource: 'dummyMetadataVal',
+        },
+      });
+
+      expect(event.context).toBe('Script load failures');
+      expect(event.severity).toBe('error');
     });
   });
 });
