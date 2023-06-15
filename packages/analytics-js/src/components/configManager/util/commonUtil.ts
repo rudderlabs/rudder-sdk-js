@@ -1,6 +1,5 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { PluginName } from '../../pluginsManager/types';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
@@ -9,6 +8,7 @@ import {
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse, ErrorReportingProvidersToPluginNameMap } from '../types';
 import { isUndefined } from '../../utilities/checks';
+import { DEFAULT_ERROR_REPORTING_PROVIDER } from '../constants';
 
 /**
  * Determines the SDK url
@@ -54,13 +54,14 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
-        `The configured error reporting provider "${errReportingProvider}" is not supported. Supported providers are ${Object.keys(
+        `The configured error reporting provider "${errReportingProvider}" is not supported. Supported provider(s) is/are "${Object.keys(
           ErrorReportingProvidersToPluginNameMap,
-        )}. Using default provider (${errReportingProviderPlugin}).`,
+        )}". Using the default provider (${DEFAULT_ERROR_REPORTING_PROVIDER}).`,
       );
     }
     state.reporting.errorReportingProviderPlugin.value =
-      errReportingProviderPlugin ?? PluginName.Bugsnag;
+      errReportingProviderPlugin ??
+      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
   }
 };
 
