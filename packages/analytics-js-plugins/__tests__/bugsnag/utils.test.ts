@@ -5,7 +5,11 @@ import {
   isValidVersion,
   isRudderSDKError,
   enhanceErrorEventMutator,
+  initBugsnagClient,
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import { signal } from '@preact/signals-core';
+import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
+import { clone } from 'ramda';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -189,6 +193,59 @@ describe('Bugsnag utilities', () => {
 
       expect(event.context).toBe('Script load failures');
       expect(event.severity).toBe('error');
+    });
+  });
+
+  describe('initBugsnagClient', () => {
+    const state = {
+      source: signal({
+        id: 'dummy-source-id',
+      }),
+    };
+
+    const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
+
+    const mountBugsnagSDK = () => {
+      (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
+    };
+
+    afterEach(() => {
+      delete (window as any).bugsnag;
+      bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = origSdkMaxWait;
+    });
+
+    it('should resolve the promise immediately if the bugsnag SDK is already loaded', async () => {
+      mountBugsnagSDK();
+
+      const bsClient = await new Promise((resolve, reject) => {
+        initBugsnagClient(state, resolve, reject);
+      });
+
+      expect(bsClient).toBeDefined();
+    });
+
+    it('should resolve the promise after some time when the bugsnag SDK is loaded', async () => {
+      setTimeout(() => {
+        mountBugsnagSDK();
+      }, 1000);
+
+      const bsClientPromise = new Promise((resolve, reject) => {
+        initBugsnagClient(state, resolve, reject);
+      });
+
+      const bsClient = await bsClientPromise;
+
+      expect(bsClient).toBeDefined();
+    });
+
+    it('should reject the promise if the Bugsnag SDK is not loaded', async () => {
+      bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = 1000;
+
+      const bsClientPromise = new Promise((resolve, reject) => {
+        initBugsnagClient(state, resolve, reject);
+      });
+
+      await expect(bsClientPromise).rejects.toThrow('Bugsnag SDK load timed out.');
     });
   });
 });
