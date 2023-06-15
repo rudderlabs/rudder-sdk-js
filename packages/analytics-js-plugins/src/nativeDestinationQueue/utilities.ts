@@ -7,38 +7,51 @@ import {
   ILogger,
   Nullable,
   RudderEvent,
+  RudderEventType,
 } from '../types/common';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
 
-const isEventDenyListed = (eventName: Nullable<string>, dest: Destination) => {
-  if (!eventName || typeof eventName !== 'string') {
+const isValidEventName = (eventName: Nullable<string>) =>
+  eventName && typeof eventName === 'string';
+
+const isEventDenyListed = (
+  eventType: RudderEventType,
+  eventName: Nullable<string>,
+  dest: Destination,
+) => {
+  if (eventType !== 'track') {
     return false;
   }
 
   const { blacklistedEvents, whitelistedEvents, eventFilteringOption } = dest.config;
-  // TODO: might have to make this logic case-sensitive
-  const formattedEventName = eventName.trim().toUpperCase();
+
   switch (eventFilteringOption) {
     // Blacklist is chosen for filtering events
-    case 'blacklistedEvents':
+    case 'blacklistedEvents': {
+      if (!isValidEventName(eventName)) {
+        return false;
+      }
+      const trimmedEventName = (eventName as string).trim();
       if (Array.isArray(blacklistedEvents)) {
-        return blacklistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-        );
+        return blacklistedEvents.some(eventObj => eventObj.eventName.trim() === trimmedEventName);
       }
       return false;
+    }
 
     // Whitelist is chosen for filtering events
-    case 'whitelistedEvents':
+    case 'whitelistedEvents': {
+      if (!isValidEventName(eventName)) {
+        return true;
+      }
+      const trimmedEventName = (eventName as string).trim();
       if (Array.isArray(whitelistedEvents)) {
-        return !whitelistedEvents.some(
-          eventObj => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-        );
+        return !whitelistedEvents.some(eventObj => eventObj.eventName.trim() === trimmedEventName);
       }
       return true;
+    }
 
     case 'disable':
     default:

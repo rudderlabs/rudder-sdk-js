@@ -58,7 +58,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           );
 
           destinationsToSend.forEach((dest: Destination) => {
-            const sendEvent = !isEventDenyListed(item.event, dest);
+            const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
               logger?.debug(
                 `"${item.event}" event is denylisted for destination: ${dest.userFriendlyId}`,
