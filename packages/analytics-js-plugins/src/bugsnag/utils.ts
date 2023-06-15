@@ -168,6 +168,7 @@ const initBugsnagClient = (
       state,
       promiseResolve,
       promiseReject,
+      logger,
       time + SDK_LOAD_POLL_INTERVAL_MS,
     );
   }
