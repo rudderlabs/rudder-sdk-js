@@ -7,13 +7,17 @@ import { trigger } from './utils';
 
 class ConvertFlow {
   constructor(config, analytics, destinationInfo) {
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.websiteId = config.websiteId;
     this.toggleToSendData = config.toggleToSendData;
     this.eventsList = config.eventsList;
     this.eventsMappping = config.eventsMappping;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -28,7 +32,7 @@ class ConvertFlow {
   isLoaded() {
     logger.debug('===In isLoaded convertflow===');
     if (this.toggleToSendData) {
-      trigger(this.eventsMappping, this.eventsList);
+      trigger(this.eventsMappping, this.eventsList, this.analytics);
     }
     return !!window.convertflow && typeof window.convertflow === 'object';
   }
@@ -44,7 +48,7 @@ class ConvertFlow {
     const { message } = rudderElement;
     const email = message.context.traits?.email || message.traits?.email;
     if (!email) {
-      logger.error('email is rquired for identify call');
+      logger.error('email is required for identify call');
     }
     const payload = { email, override: true };
     window.convertflow.identify(payload);

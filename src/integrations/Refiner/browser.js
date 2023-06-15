@@ -9,11 +9,13 @@ class Refiner {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.apiKey = config.webClientApiKey;
     this.userAttributesMapping = config.userAttributesMapping;
     this.accountAttributesMapping = config.accountAttributesMapping;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

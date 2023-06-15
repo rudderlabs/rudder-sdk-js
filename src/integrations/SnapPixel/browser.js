@@ -17,6 +17,7 @@ class SnapPixel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.pixelId = config.pixelId;
     this.hashMethod = config.hashMethod;
     this.name = NAME;
@@ -59,7 +60,8 @@ class SnapPixel {
       'custom_event_4',
       'custom_event_5',
     ];
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

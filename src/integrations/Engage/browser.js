@@ -8,15 +8,17 @@ import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 class Engage {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.api_key = config.publicKey;
     this.api_secret = config.privateKey;
     this.name = NAME;
     this.listsIds = config.listsIds;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-    if (analytics.logLevel) {
-      logger.setLogLevel(analytics.logLevel);
-    }
   }
 
   init() {

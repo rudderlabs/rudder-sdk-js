@@ -25,7 +25,8 @@ class Chartbeat {
     this.failed = false;
     this.isFirstPageCallMade = false;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -138,7 +139,6 @@ class Chartbeat {
       if (this.isLoaded()) {
         this.failed = false;
         logger.debug('===chartbeat loaded successfully===');
-        instance.analytics.emit('ready');
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {

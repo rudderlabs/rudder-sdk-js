@@ -10,6 +10,7 @@ class BingAds {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.tagID = config.tagID;
     this.name = NAME;
     this.areTransformationsConnected = destinationInfo?.areTransformationsConnected;
