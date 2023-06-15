@@ -1,4 +1,4 @@
-import { isApiKeyValid } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import { isApiKeyValid, getGlobalBugsnagLibInstance } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -15,6 +15,23 @@ describe('Bugsnag utilities', () => {
     it('should return false for an invalid API key', () => {
       const apiKey = '';
       expect(isApiKeyValid(apiKey)).toBe(false);
+    });
+  });
+
+  describe('getGlobalBugsnagLibInstance', () => {
+    it('should return the global Bugsnag instance if defined on the window object', () => {
+      const bsObj = {
+        version: "1.2.3",
+      };
+      (window as any).bugsnag = bsObj;
+
+      expect(getGlobalBugsnagLibInstance()).toBe(bsObj);
+
+      delete (window as any).bugsnag;
+    });
+
+    it('should return undefined if the global Bugsnag instance is not defined on the window object', () => {
+      expect(getGlobalBugsnagLibInstance()).toBe(undefined);
     });
   });
 });
