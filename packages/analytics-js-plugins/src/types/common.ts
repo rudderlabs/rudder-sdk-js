@@ -28,6 +28,7 @@ export type {
   AnalyticsTrackMethod,
 } from '@rudderstack/analytics-js/app/IRudderAnalytics';
 export type { IStore, IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+export { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/ExternalSrcLoader';
 
 export type ApplicationState = IApplicationState;
 

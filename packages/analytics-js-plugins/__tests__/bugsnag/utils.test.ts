@@ -6,10 +6,11 @@ import {
   isRudderSDKError,
   enhanceErrorEventMutator,
   initBugsnagClient,
+  loadBugsnagSDK,
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { clone } from 'ramda';
+import { ExternalSrcLoader, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -246,6 +247,73 @@ describe('Bugsnag utilities', () => {
       });
 
       await expect(bsClientPromise).rejects.toThrow('Bugsnag SDK load timed out.');
+    });
+  });
+
+  describe('loadBugsnagSDK', () => {
+    let insertBeforeSpy: any;
+
+    class MockLogger implements ILogger {
+      warn = jest.fn();
+      log = jest.fn();
+      error = jest.fn();
+      info = jest.fn();
+      debug = jest.fn();
+      minLogLevel = 0;
+      scope = 'test scope';
+      setMinLogLevel = jest.fn();
+      setScope = jest.fn();
+      logProvider = console;
+    }
+
+    const mockLogger = new MockLogger();
+    const extSrcLoader = new ExternalSrcLoader();
+
+    const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
+
+    beforeEach(() => {
+      insertBeforeSpy = jest.spyOn(document.head, 'insertBefore');
+    });
+
+    afterEach(() => {
+      insertBeforeSpy.mockRestore();
+      delete (window as any).Bugsnag;
+      delete (window as any).bugsnag;
+      bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
+    });
+
+    it('should not load Bugsnag SDK if it (<=v6) is already loaded', () => {
+      (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
+
+      loadBugsnagSDK();
+
+      expect(insertBeforeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not load Bugsnag SDK if it (>v6) is already loaded', () => {
+      (window as any).Bugsnag = { _client: { _notifier: { version: '7.0.0' } } };
+
+      loadBugsnagSDK();
+
+      expect(insertBeforeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should attempt to load Bugsnag SDK if not already loaded', () => {
+      loadBugsnagSDK(extSrcLoader);
+
+      expect(insertBeforeSpy).toHaveBeenCalled();
+    });
+
+    it('should log error if Bugsnag SDK could not be loaded', done => {
+      bugsnagConstants.BUGSNAG_CDN_URL = 'https://testdomain.com/bugsnag.min.js';
+      loadBugsnagSDK(extSrcLoader, mockLogger);
+
+      setTimeout(() => {
+        done();
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'Script load failed for Bugsnag. Error message: A script with the id "rs-bugsnag" is already loaded. Hence, skipping it.',
+        );
+      }, 500);
     });
   });
 });

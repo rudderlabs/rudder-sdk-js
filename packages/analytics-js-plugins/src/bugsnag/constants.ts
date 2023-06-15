@@ -1,6 +1,6 @@
 import { destDispNamesToFileNamesMap } from '../deviceModeDestinations/destDispNamesToFileNames';
 
-const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and bellow
+const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and below
 const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';
 const GLOBAL_LIBRARY_OBJECT_NAMES = [
   BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
