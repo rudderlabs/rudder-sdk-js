@@ -61,7 +61,7 @@ class UserSessionManager implements IUserSessionManager {
     this.setUserTraits(this.getUserTraits() ?? {});
     this.setGroupId(this.getGroupId() ?? '');
     this.setGroupTraits(this.getGroupTraits() ?? {});
-    this.setAnonymousId(this.getAnonymousId());
+    this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
 
     const initialReferrer = this.getInitialReferrer();
     const initialReferringDomain = this.getInitialReferringDomain();
@@ -255,12 +255,12 @@ class UserSessionManager implements IUserSessionManager {
 
     if (!persistedAnonymousId && options) {
       // fetch anonymousId from external source
-      const autoCapturedAnonymousId = this.pluginManager?.invokeMultiple<string | undefined>(
+      const autoCapturedAnonymousId = this.pluginManager?.invokeSingle<string | undefined>(
         'storage.getAnonymousId',
         getStorageEngine,
         options,
       );
-      persistedAnonymousId = autoCapturedAnonymousId?.[0];
+      persistedAnonymousId = autoCapturedAnonymousId;
     }
     state.session.anonymousUserId.value = persistedAnonymousId || this.generateAnonymousId();
     return state.session.anonymousUserId.value as string;
