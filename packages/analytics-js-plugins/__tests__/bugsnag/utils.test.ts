@@ -309,10 +309,10 @@ describe('Bugsnag utilities', () => {
       loadBugsnagSDK(extSrcLoader, mockLogger);
 
       setTimeout(() => {
-        done();
         expect(mockLogger.error).toHaveBeenCalledWith(
           'Script load failed for Bugsnag. Error message: A script with the id "rs-bugsnag" is already loaded. Hence, skipping it.',
         );
+        done();
       }, 500);
     });
   });
