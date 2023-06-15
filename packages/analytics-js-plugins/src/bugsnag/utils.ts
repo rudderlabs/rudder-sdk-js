@@ -180,4 +180,5 @@ export {
   loadBugsnagSDK,
   getGlobalBugsnagLibInstance,
   initBugsnagClient,
+  getReleaseStage,
 };
