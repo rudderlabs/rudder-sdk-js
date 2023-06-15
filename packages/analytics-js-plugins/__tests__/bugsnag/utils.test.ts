@@ -1,4 +1,4 @@
-import { isApiKeyValid, getGlobalBugsnagLibInstance, getReleaseStage, isValidVersion } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import { isApiKeyValid, getGlobalBugsnagLibInstance, getReleaseStage, isValidVersion, isRudderSDKError } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -92,6 +92,36 @@ describe('Bugsnag utilities', () => {
       expect(isValidVersion((window as any).bugsnag)).toBe(false);
 
       delete (window as any).bugsnag;
+    });
+  });
+
+  describe('isRudderSDKError', () => {
+    const testCaseData = [
+      ['https://testdomain.com/rudder-analytics.min.js', true],
+      ['https://testdomain.com/rudderanalytics.min.js', false],
+      ['https://testdomain.com/rudder-analytics-plugins-Beacon.min.js', true],
+      ['https://testdomain.com/Amplitude.min.js', true],
+      ['https://testdomain.com/Qualaroo.min.js', true],
+      ['https://testdomain.com/test.js', false],
+      ['https://testdomain.com/rudder-analytics.css', false],
+      [undefined, false],
+      [null, false],
+      [1, false],
+      ["", false],
+      ['testdomain.com', false],
+    ];
+
+    it.each(testCaseData)('if script src is "%s" then it should return the value as "%s" ', (scriptSrc, expectedValue) => {
+      // Bugsnag error event object structure
+      const event = {
+        stacktrace: [
+          {
+            file: scriptSrc,
+          },
+        ]
+      };
+
+      expect(isRudderSDKError(event)).toBe(expectedValue);
     });
   });
 });

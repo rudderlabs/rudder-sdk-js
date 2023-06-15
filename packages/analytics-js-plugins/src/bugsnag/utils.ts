@@ -181,4 +181,5 @@ export {
   getGlobalBugsnagLibInstance,
   initBugsnagClient,
   getReleaseStage,
+  isRudderSDKError,
 };
