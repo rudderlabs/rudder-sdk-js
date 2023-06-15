@@ -93,8 +93,10 @@ const getReleaseStage = () => {
   return host && devHosts.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
 };
 
+const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
+
 const getNewClient = (state: ApplicationState): any => {
-  const globalBugsnagLibInstance = (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
+  const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
 
   const client = globalBugsnagLibInstance({
     apiKey: API_KEY,
@@ -142,8 +144,6 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
       logger?.error(`Script load failed for Bugsnag. Error message: ${e.message}`);
     });
 };
-
-const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
 const initBugsnagClient = (
   state: ApplicationState,
