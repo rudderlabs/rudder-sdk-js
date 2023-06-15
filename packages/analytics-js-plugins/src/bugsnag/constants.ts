@@ -12,7 +12,7 @@ const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
 const API_KEY = '__RS_BUGSNAG_API_KEY__';
 const BUGSNAG_VALID_MAJOR_VERSION = '6';
 const SDK_LOAD_POLL_INTERVAL_MS = 100; // ms
-const MAX_WAIT_FOR_SDK_LOAD_MS = 10 * SDK_LOAD_POLL_INTERVAL_MS; // ms
+const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 
 // Errors from the below scripts are NOT allowed to reach Bugsnag
 const SDK_FILE_NAME_PREFIXES = [
