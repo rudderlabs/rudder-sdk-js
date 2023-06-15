@@ -7,6 +7,7 @@ import {
   enhanceErrorEventMutator,
   initBugsnagClient,
   loadBugsnagSDK,
+  onError,
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
@@ -314,6 +315,69 @@ describe('Bugsnag utilities', () => {
         );
         done();
       }, 500);
+    });
+  });
+
+  describe('onError', () => {
+    const state = {
+      source: signal({
+        id: 'dummy-source-id',
+      }),
+    };
+
+    it('should return a function', () => {
+      expect(typeof onError(state)).toBe('function');
+    });
+
+    it('should return a function that returns false if the error is not from RudderStack SDK', () => {
+      const error = {
+        stacktrace: [
+          {
+            file: 'https://testdomain.com/not-rudder-analytics.min.js',
+          },
+        ],
+      };
+
+      const onErrorFn = onError(state);
+
+      expect(onErrorFn(error)).toBe(false);
+    });
+
+    it('should return a function that returns true and enhances the error event if the error is from RudderStack SDK', () => {
+      const error = {
+        stacktrace: [
+          {
+            file: 'https://testdomain.com/rudder-analytics.min.js',
+          },
+        ],
+        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        updateMetaData: jest.fn(),
+      } as any;
+
+      const onErrorFn = onError(state);
+
+      expect(onErrorFn(error)).toBe(true);
+      expect(error.updateMetaData).toHaveBeenCalledWith('source', {
+        metadataSource: 'dummy-source-id',
+      });
+      expect(error.severity).toBe('error');
+      expect(error.context).toBe('Script load failures');
+    });
+
+    it('should return a function that returns false if processing the event results in any unhandled exception', () => {
+      // Not defining `updateMetaData` on the error object to simulate an unhandled exception
+      const error = {
+        stacktrace: [
+          {
+            file: 'https://testdomain.com/rudder-analytics.min.js',
+          },
+        ],
+        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+      } as any;
+
+      const onErrorFn = onError(state);
+
+      expect(onErrorFn(error)).toBe(false);
     });
   });
 });
