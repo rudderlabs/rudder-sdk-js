@@ -116,8 +116,8 @@ const getNewClient = (state: ApplicationState): any => {
   return client;
 };
 
-const isApiKeyValid = (): boolean => {
-  const isAPIKeyValid = !(API_KEY.startsWith('{{') || API_KEY.endsWith('}}'));
+const isApiKeyValid = (apiKey: string): boolean => {
+  const isAPIKeyValid = !(apiKey.startsWith('{{') || apiKey.endsWith('}}') || apiKey.length === 0);
   return isAPIKeyValid;
 };
 

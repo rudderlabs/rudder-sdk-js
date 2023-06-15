@@ -21,7 +21,7 @@ const Bugsnag = (): ExtensionPlugin => ({
     ): Promise<any> =>
       new Promise((resolve, reject) => {
         // If API key token is not parsed or invalid, don't proceed to initialize the client
-        if (!isApiKeyValid()) {
+        if (!isApiKeyValid(API_KEY)) {
           reject(new Error(`The Bugsnag API key (${API_KEY}) is invalid or not provided`));
           return;
         }
