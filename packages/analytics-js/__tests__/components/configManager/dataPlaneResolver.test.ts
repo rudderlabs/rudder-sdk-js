@@ -1,18 +1,5 @@
 import { resolveDataPlaneUrl } from '@rudderstack/analytics-js/components/configManager/util/dataPlaneResolver';
 import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-
-jest.mock('../../../src/services/Logger', () => {
-  const originalModule = jest.requireActual('../../../src/services/Logger');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    defaultLogger: {
-      error: jest.fn((): void => {}),
-    },
-  };
-});
 
 const usDataplaneUrl = 'https://sample.rudderlabs.com/us';
 const euDataplaneUrl = 'https://sample.rudderlabs.com/eu';
@@ -168,8 +155,6 @@ test.each(testCaseData)('$description', ({ input, output }) => {
 });
 
 test.each(testCaseDataWithInvalidDataplaneUrl)('$description', ({ input }) => {
-  resolveDataPlaneUrl(input.response, input.serverUrl, input.options, defaultLogger);
-  expect(defaultLogger.error).toHaveBeenCalledWith(
-    'Unable to load the SDK due to invalid data plane URL',
-  );
+  const url = resolveDataPlaneUrl(input.response, input.serverUrl, input.options);
+  expect(url).toBe(undefined);
 });

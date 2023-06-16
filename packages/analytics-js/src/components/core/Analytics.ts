@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
@@ -45,6 +44,7 @@ import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preload
 import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
 import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
+import { clone } from 'ramda';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -53,6 +53,7 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
+import { isObjectAndNotNull } from '../utilities/object';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -138,17 +139,20 @@ class Analytics implements IAnalytics {
     // Attach global error boundary handler
     this.attachGlobalErrorHandler();
 
+    let clonedDataPlaneUrl = clone(dataPlaneUrl);
+    let clonedLoadOptions = clone(loadOptions);
+
     // dataPlaneUrl is not provided
-    if (typeof dataPlaneUrl === 'object' && dataPlaneUrl !== null) {
-      loadOptions = dataPlaneUrl;
-      dataPlaneUrl = undefined;
+    if (isObjectAndNotNull(dataPlaneUrl)) {
+      clonedLoadOptions = dataPlaneUrl as Partial<LoadOptions>;
+      clonedDataPlaneUrl = undefined;
     }
 
     // Set initial state values
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
-      state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl;
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
 

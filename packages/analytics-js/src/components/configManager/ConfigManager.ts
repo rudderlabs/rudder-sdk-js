@@ -157,6 +157,7 @@ class ConfigManager implements IConfigManager {
     );
 
     if (!dataPlaneUrl) {
+      this.onError(`Unable to load the SDK as data plane URL could not be determined`);
       return;
     }
     const nativeDestinations: Destination[] =
