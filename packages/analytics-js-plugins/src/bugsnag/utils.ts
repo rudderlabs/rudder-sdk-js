@@ -4,6 +4,7 @@ import {
   BUGSNAG_CDN_URL,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_VALID_MAJOR_VERSION,
+  DEV_HOSTS,
   ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
   GLOBAL_LIBRARY_OBJECT_NAMES,
   MAX_WAIT_FOR_SDK_LOAD_MS,
@@ -88,9 +89,7 @@ const onError = (state: ApplicationState) => {
 
 const getReleaseStage = () => {
   const host = globalThis.location.hostname;
-  const devHosts = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
-
-  return host && devHosts.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
+  return host && DEV_HOSTS.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
 };
 
 const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];

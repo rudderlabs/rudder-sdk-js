@@ -20,6 +20,8 @@ const SDK_FILE_NAME_PREFIXES = [
   ...Object.values(destDispNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
 ];
 
+const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
+
 export {
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
@@ -31,4 +33,5 @@ export {
   MAX_WAIT_FOR_SDK_LOAD_MS,
   SDK_FILE_NAME_PREFIXES,
   SDK_LOAD_POLL_INTERVAL_MS,
+  DEV_HOSTS,
 };
