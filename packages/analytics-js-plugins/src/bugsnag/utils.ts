@@ -1,4 +1,4 @@
-import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, BugsnagClient, IExternalSrcLoader, ILogger } from '../types/common';
 import {
   API_KEY,
   BUGSNAG_CDN_URL,
@@ -95,10 +95,10 @@ const getReleaseStage = () => {
 
 const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-const getNewClient = (state: ApplicationState): any => {
+const getNewClient = (state: ApplicationState): BugsnagClient => {
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
 
-  const client = globalBugsnagLibInstance({
+  const client: BugsnagClient = globalBugsnagLibInstance({
     apiKey: API_KEY,
     appVersion: '__PACKAGE_VERSION__', // Set SDK version as the app version from build config
     metaData: {

@@ -1,7 +1,13 @@
 /* eslint-disable compat/compat */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin, ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import {
+  ExtensionPlugin,
+  ApplicationState,
+  IExternalSrcLoader,
+  ILogger,
+  BugsnagClient,
+} from '../types/common';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
 
@@ -18,7 +24,7 @@ const Bugsnag = (): ExtensionPlugin => ({
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
-    ): Promise<any> =>
+    ): Promise<BugsnagClient> =>
       new Promise((resolve, reject) => {
         // If API key token is not parsed or invalid, don't proceed to initialize the client
         if (!isApiKeyValid(API_KEY)) {
@@ -30,10 +36,10 @@ const Bugsnag = (): ExtensionPlugin => ({
 
         initBugsnagClient(state, resolve, reject, logger);
       }),
-    notify: (client: any, error: Error, logger?: ILogger): void => {
+    notify: (client: BugsnagClient, error: Error, logger?: ILogger): void => {
       client?.notify(error);
     },
-    breadcrumb: (client: any, message: string, logger?: ILogger): void => {
+    breadcrumb: (client: BugsnagClient, message: string, logger?: ILogger): void => {
       client?.leaveBreadcrumb(message);
     },
   },
