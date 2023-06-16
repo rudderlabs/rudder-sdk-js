@@ -102,6 +102,34 @@ describe('Config Manager Common Utilities', () => {
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
+    it('should update reporting state with the data from source config even if error reporting provider is not specified', () => {
+      const mockLogger = {
+        warn: jest.fn(),
+      };
+      const mockSourceConfig = {
+        source: {
+          config: {
+            statsCollection: {
+              errors: {
+                enabled: true,
+              },
+              metrics: {
+                enabled: true,
+              },
+            },
+          },
+        },
+      };
+
+      updateReportingState(mockSourceConfig, mockLogger);
+
+      expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
+      expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
+      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+
+      expect(mockLogger.warn).not.toHaveBeenCalled();
+    });
+
     it('should log a warning if the error reporting provider is not supported', () => {
       const mockLogger = {
         warn: jest.fn(),
