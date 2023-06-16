@@ -127,7 +127,7 @@ class ConfigManager implements IConfigManager {
   processConfig(response?: SourceConfigResponse | string, rejectionDetails?: RejectionDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`, undefined, true);
+      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`);
       return;
     }
 
@@ -157,6 +157,11 @@ class ConfigManager implements IConfigManager {
       state.loadOptions.value.residencyServer,
       this.logger,
     );
+
+    if (!dataPlaneUrl) {
+      this.onError(`Unable to load the SDK as data plane URL could not be determined`);
+      return;
+    }
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
 
