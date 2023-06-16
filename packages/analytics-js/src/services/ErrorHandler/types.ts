@@ -1,7 +1,5 @@
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
-// eslint-disable-next-line import/no-cycle
-import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 
 export type SDKError = Error | Event | string | unknown;
 
@@ -17,4 +15,20 @@ export interface IErrorHandler {
   ): void;
   leaveBreadcrumb(breadcrumb: string): void;
   notifyError(error: Error): void;
+}
+
+export interface IExternalSourceLoadConfig {
+  url: string;
+  id: string;
+  callback?(id?: string): unknown;
+  async?: boolean;
+  timeout?: number;
+  extraAttributes?: Record<string, string>;
+}
+
+export interface IExternalSrcLoader {
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  timeout: number;
+  loadJSFile(config: IExternalSourceLoadConfig): Promise<void>;
 }

@@ -11,7 +11,10 @@ export type {
   DestinationIntgConfig,
 } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+export type {
+  IErrorHandler,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
@@ -47,13 +50,6 @@ export interface ExtensionPlugin {
     | ((...args: any[]) => unknown)
     | string[]
     | undefined;
-}
-
-export interface IExternalSrcLoader {
-  errorHandler?: any;
-  logger?: any;
-  timeout: number;
-  loadJSFile(config: Record<string, any>): Promise<void>;
 }
 
 export type Nullable<T> = T | null;

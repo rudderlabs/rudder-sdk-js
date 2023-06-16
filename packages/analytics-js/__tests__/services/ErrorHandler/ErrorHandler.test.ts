@@ -1,8 +1,10 @@
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { SDKError } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ErrorHandler } from '../../../src/services/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import {
+  SDKError,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { state } from '@rudderstack/analytics-js/state';
 

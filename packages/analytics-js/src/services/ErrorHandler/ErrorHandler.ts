@@ -4,10 +4,9 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
 import { isAllowedToBeNotified, processError } from './processError';
-import { IErrorHandler, SDKError } from './types';
+import { IErrorHandler, IExternalSrcLoader, SDKError } from './types';
 
 /**
  * A service to handle errors
