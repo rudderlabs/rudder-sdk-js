@@ -3,7 +3,6 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { state } from '@rudderstack/analytics-js/state';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { isAllowedToBeNotified, processError } from './processError';
@@ -37,7 +36,7 @@ class ErrorHandler implements IErrorHandler {
         this.logger,
       );
       if (errReportingInitVal === null) {
-        this.logger?.error('Unable to initialize error reporting plugin.');
+        this.logger?.error('Something went wrong during error reporting plugin invocation.');
       } else if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
@@ -48,28 +47,14 @@ class ErrorHandler implements IErrorHandler {
           });
       }
     } catch (err) {
-      this.onError(err, 'errorMonitoring.initialize');
+      this.onError(err, 'errorReporting.init');
     }
   }
 
   onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
     const isTypeOfError = error instanceof Error;
-    let errorMessage = '';
-
-    try {
-      errorMessage = processError(error);
-    } catch (err) {
-      this.notifyError(err as Error);
-
-      if (this.logger) {
-        this.logger.error(`Exception:: ${(err as Error).message}`);
-        this.logger.error(
-          `Original error:: ${stringifyWithoutCircular(error as Record<string, any>)}`,
-        );
-      } else {
-        throw err;
-      }
-    }
+    // Error handling is already implemented in processError method
+    let errorMessage = processError(error);
 
     // If no error message after we normalize, then we swallow/ignore the errors
     if (!errorMessage) {

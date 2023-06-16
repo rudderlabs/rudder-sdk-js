@@ -25,8 +25,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): Nullable<Promise<any>> => {
       if (!state.source.value?.config || !state.source.value?.id) {
-        logger?.error(`Invalid source configuration or source id.`);
-        return null;
+        return Promise.reject(new Error('Invalid source configuration or source id.'));
       }
 
       return pluginEngine.invokeSingle(

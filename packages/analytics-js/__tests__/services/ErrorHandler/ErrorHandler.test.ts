@@ -2,6 +2,9 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { SDKError } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { state } from '@rudderstack/analytics-js/state';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -147,30 +150,117 @@ describe('ErrorHandler', () => {
     }
   });
 
-  it('should log error if processError throws and logger exists', () => {
-    errorHandlerInstance.onError(null);
-
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
-      'errorReporting.notify',
-      defaultPluginEngine,
-      undefined,
-      expect.any(Error),
-      expect.any(Object),
-    );
-
-    expect(defaultLogger.error).toHaveBeenCalledTimes(2);
-    expect(defaultLogger.error).nthCalledWith(
-      1,
-      "Exception:: Cannot read properties of null (reading 'message')",
-    );
-    expect(defaultLogger.error).nthCalledWith(2, 'Original error:: null');
-  });
-
   it('should swallow Errors based on processError logic', () => {
     errorHandlerInstance.onError('');
 
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
     expect(defaultLogger.error).toHaveBeenCalledTimes(0);
+  });
+
+  it('should log error on notifyError if invoking plugin results in an exception', () => {
+    defaultPluginEngine.invokeSingle = jest.fn(() => {
+      throw new Error('dummy error');
+    });
+
+    errorHandlerInstance.notifyError(new Error('notify'));
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'Error while notifying error',
+      new Error('dummy error'),
+    );
+  });
+
+  it('should invoke onError on leaveBreadcrumb if invoking plugin results in an exception', () => {
+    defaultPluginEngine.invokeSingle = jest.fn(() => {
+      throw new Error('dummy error');
+    });
+
+    const onErrorSpy = jest.spyOn(errorHandlerInstance, 'onError');
+    errorHandlerInstance.leaveBreadcrumb('breadcrumb');
+
+    expect(onErrorSpy).toHaveBeenCalledTimes(1);
+    expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'errorReporting.breadcrumb');
+    onErrorSpy.mockRestore();
+  });
+
+  describe('init', () => {
+    const extSrcLoader = {} as IExternalSrcLoader;
+
+    it('reporting client should not be defined if the plugin engine is not supplied', () => {
+      errorHandlerInstance = new ErrorHandler(defaultLogger);
+      errorHandlerInstance.init(extSrcLoader);
+
+      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
+    });
+
+    it('reporting client should be defined', done => {
+      const invokeSingleSpy = jest
+        .spyOn(defaultPluginEngine, 'invokeSingle')
+        .mockReturnValue(Promise.resolve({}));
+
+      errorHandlerInstance.init(extSrcLoader);
+
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'errorReporting.init',
+        state,
+        defaultPluginEngine,
+        extSrcLoader,
+        defaultLogger,
+      );
+
+      setTimeout(() => {
+        expect(errorHandlerInstance.errReportingClient).toBeDefined();
+        invokeSingleSpy.mockRestore();
+        done();
+      }, 0);
+    });
+
+    it('reporting client should not be defined if the plugin returns a promise that rejects', done => {
+      const invokeSingleSpy = jest
+        .spyOn(defaultPluginEngine, 'invokeSingle')
+        .mockReturnValue(Promise.reject(new Error('dummy error')));
+
+      errorHandlerInstance.init(extSrcLoader);
+
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
+      setTimeout(() => {
+        expect(errorHandlerInstance.errReportingClient).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'Unable to initialize error reporting plugin.',
+          new Error('dummy error'),
+        );
+
+        invokeSingleSpy.mockRestore();
+        done();
+      }, 0);
+    });
+
+    it('should invoke onError if invoking the plugin results in an exception', () => {
+      defaultPluginEngine.invokeSingle = jest.fn(() => {
+        throw new Error('dummy error');
+      });
+
+      const onErrorSpy = jest.spyOn(errorHandlerInstance, 'onError');
+      errorHandlerInstance.init(extSrcLoader);
+
+      expect(onErrorSpy).toHaveBeenCalledTimes(1);
+      expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'errorReporting.init');
+      onErrorSpy.mockRestore();
+    });
+
+    it('should log error if plugin engine return null', () => {
+      defaultPluginEngine.invokeSingle = jest.fn(() => null);
+
+      errorHandlerInstance.init(extSrcLoader);
+
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Something went wrong during error reporting plugin invocation.',
+      );
+      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
+    });
   });
 });
