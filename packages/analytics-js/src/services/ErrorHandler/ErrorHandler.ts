@@ -5,6 +5,7 @@ import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/t
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
 import { isAllowedToBeNotified, processError } from './processError';
 import { IErrorHandler, SDKError } from './types';
 
@@ -52,7 +53,6 @@ class ErrorHandler implements IErrorHandler {
   }
 
   onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
-    const isTypeOfError = error instanceof Error;
     // Error handling is already implemented in processError method
     let errorMessage = processError(error);
 
@@ -63,15 +63,15 @@ class ErrorHandler implements IErrorHandler {
 
     errorMessage = removeDoubleSpaces(`${context}:: ${customMessage} ${errorMessage}`);
 
+    let normalizedError = error;
     // Enhance error message
-    if (isTypeOfError) {
-      // eslint-disable-next-line no-param-reassign
-      (error as Error).message = errorMessage;
+    if (isTypeOfError(error)) {
+      (normalizedError as Error).message = errorMessage;
+    } else {
+      normalizedError = new Error(errorMessage);
     }
 
-    const normalizedError = isTypeOfError ? error : new Error(errorMessage);
-
-    this.notifyError(normalizedError);
+    this.notifyError(normalizedError as Error);
 
     if (this.logger) {
       this.logger.error(errorMessage);
