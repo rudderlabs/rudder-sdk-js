@@ -64,8 +64,8 @@ const resolveDataPlaneUrl = (
     return serverUrl;
   }
 
-  // Throw error if correct data plane url is not provided
-  throw Error(`Unable to load the SDK due to invalid data plane URL`);
+  // Log error if correct data plane url is not provided
+  return logger?.error(`Unable to load the SDK due to invalid data plane URL`);
 };
 
 export { resolveDataPlaneUrl };

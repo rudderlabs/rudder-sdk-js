@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
@@ -129,13 +130,19 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
+  load(writeKey: string, dataPlaneUrl?: string, loadOptions: Partial<LoadOptions> = {}) {
     if (state.lifecycle.status.value) {
       return;
     }
 
     // Attach global error boundary handler
     this.attachGlobalErrorHandler();
+
+    // dataPlaneUrl is not provided
+    if (typeof dataPlaneUrl === 'object' && dataPlaneUrl !== null) {
+      loadOptions = dataPlaneUrl;
+      dataPlaneUrl = undefined;
+    }
 
     // Set initial state values
     batch(() => {
