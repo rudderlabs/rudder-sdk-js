@@ -69,18 +69,18 @@ class ErrorHandler implements IErrorHandler {
       (error as Error).message = errorMessage;
     }
 
-    const normalizeError = isTypeOfError ? error : new Error(errorMessage);
+    const normalizedError = isTypeOfError ? error : new Error(errorMessage);
 
-    this.notifyError(normalizeError);
+    this.notifyError(normalizedError);
 
     if (this.logger) {
       this.logger.error(errorMessage);
 
       if (shouldAlwaysThrow) {
-        throw normalizeError;
+        throw normalizedError;
       }
     } else {
-      throw normalizeError;
+      throw normalizedError;
     }
   }
 
