@@ -1,7 +1,9 @@
+import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import {
   getSDKUrl,
   updateReportingState,
 } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 
 const createScriptElement = (url: string) => {
@@ -14,7 +16,7 @@ const createScriptElement = (url: string) => {
 
 const removeScriptElement = () => {
   const scriptElem = document.getElementById('SOME_ID');
-  scriptElem.remove();
+  scriptElem?.remove();
 };
 
 describe('Config Manager Common Utilities', () => {
@@ -73,10 +75,11 @@ describe('Config Manager Common Utilities', () => {
       resetState();
     });
 
+    const mockLogger = {
+      warn: jest.fn(),
+    } as unknown as ILogger;
+
     it('should update reporting state with the data from source config', () => {
-      const mockLogger = {
-        warn: jest.fn(),
-      };
       const mockSourceConfig = {
         source: {
           config: {
@@ -91,7 +94,7 @@ describe('Config Manager Common Utilities', () => {
             },
           },
         },
-      };
+      } as SourceConfigResponse;
 
       updateReportingState(mockSourceConfig, mockLogger);
 
@@ -103,9 +106,6 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update reporting state with the data from source config even if error reporting provider is not specified', () => {
-      const mockLogger = {
-        warn: jest.fn(),
-      };
       const mockSourceConfig = {
         source: {
           config: {
@@ -119,7 +119,7 @@ describe('Config Manager Common Utilities', () => {
             },
           },
         },
-      };
+      } as SourceConfigResponse;
 
       updateReportingState(mockSourceConfig, mockLogger);
 
@@ -131,9 +131,6 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log a warning if the error reporting provider is not supported', () => {
-      const mockLogger = {
-        warn: jest.fn(),
-      };
       const mockSourceConfig = {
         source: {
           config: {
@@ -148,7 +145,7 @@ describe('Config Manager Common Utilities', () => {
             },
           },
         },
-      };
+      } as SourceConfigResponse;
 
       updateReportingState(mockSourceConfig, mockLogger);
 

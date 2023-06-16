@@ -10,6 +10,10 @@ import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import {
+  ErrorReportingProvidersToPluginNameMap,
+  ConsentManagersToPluginNameMap,
+} from '@rudderstack/analytics-js/components/configManager/constants';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -17,10 +21,6 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
-import {
-  ConsentManagersToPluginNameMap,
-  ErrorReportingProvidersToPluginNameMap,
-} from '../configManager/types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins

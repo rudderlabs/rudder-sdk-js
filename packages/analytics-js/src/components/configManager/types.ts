@@ -8,8 +8,6 @@ import {
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { PluginName } from '../pluginsManager/types';
-import { DEFAULT_ERROR_REPORTING_PROVIDER } from './constants';
 
 export type DestinationDefinition = {
   name: string;
@@ -88,11 +86,3 @@ export interface IConfigManager {
   getConfig: () => void;
   processConfig: () => void;
 }
-
-export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
-  oneTrust: PluginName.OneTrust,
-};
-
-export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {
-  [DEFAULT_ERROR_REPORTING_PROVIDER]: PluginName.Bugsnag,
-};

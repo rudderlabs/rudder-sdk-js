@@ -16,10 +16,11 @@ import { isFunction, isString } from '@rudderstack/analytics-js/components/utili
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
+import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
 import { updateReportingState } from './util/commonUtil';
+import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;

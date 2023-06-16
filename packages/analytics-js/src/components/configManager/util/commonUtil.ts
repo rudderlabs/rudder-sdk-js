@@ -6,9 +6,12 @@ import {
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse, ErrorReportingProvidersToPluginNameMap } from '../types';
+import { SourceConfigResponse } from '../types';
 import { isUndefined } from '../../utilities/checks';
-import { DEFAULT_ERROR_REPORTING_PROVIDER } from '../constants';
+import {
+  DEFAULT_ERROR_REPORTING_PROVIDER,
+  ErrorReportingProvidersToPluginNameMap,
+} from '../constants';
 
 /**
  * Determines the SDK url
