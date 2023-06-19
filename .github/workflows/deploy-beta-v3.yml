@@ -45,9 +45,9 @@ jobs:
       - name: Build and sync files to S3
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/beta/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'beta'
+          BUGSNAG_RELEASE_STAGE: '${{ steps.extract_branch.outputs.branch_type }}'
         run: |
           npm ci --no-audit
           npm run setup:ci
