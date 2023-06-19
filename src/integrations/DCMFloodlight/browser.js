@@ -29,7 +29,8 @@ class DCMFloodlight {
     this.googleNetworkId = config.googleNetworkId;
     this.tagFormat = config.tagFormat || GTAG;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -77,7 +78,7 @@ class DCMFloodlight {
       const image = document.createElement('img');
       image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
         this.googleNetworkId
-      }&google_hm=${btoa(this.analytics.anonymousId)}`;
+      }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
       document.getElementsByTagName('head')[0].appendChild(image);
     }
   }
