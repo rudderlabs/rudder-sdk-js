@@ -4,12 +4,13 @@ import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGloba
  * Create globally accessible RudderStackGlobals object
  */
 const createExposedGlobals = (analyticsInstanceId = 'app') => {
-  if (!(window as any).RudderStackGlobals) {
-    (window as any).RudderStackGlobals = {} as IRudderStackGlobals;
+  if (!(globalThis as typeof window).RudderStackGlobals) {
+    (globalThis as typeof window).RudderStackGlobals = {} as IRudderStackGlobals;
   }
 
-  if (!(window as any).RudderStackGlobals[analyticsInstanceId]) {
-    (window as any).RudderStackGlobals[analyticsInstanceId] = {} as IRudderStackGlobals;
+  if (!(globalThis as typeof window).RudderStackGlobals[analyticsInstanceId]) {
+    (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId] =
+      {} as IRudderStackGlobals;
   }
 };
 
@@ -18,7 +19,7 @@ const createExposedGlobals = (analyticsInstanceId = 'app') => {
  */
 const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'app') => {
   createExposedGlobals(analyticsInstanceId);
-  (window as any).RudderStackGlobals[analyticsInstanceId][keyName] = value;
+  (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId][keyName] = value;
 };
 
 /**
@@ -29,7 +30,7 @@ const getExposedGlobal = (
   analyticsInstanceId = 'app',
 ): Partial<ExposedGlobals> => {
   createExposedGlobals(analyticsInstanceId);
-  return (window as any).RudderStackGlobals[analyticsInstanceId][keyName];
+  return (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId][keyName];
 };
 
 export { createExposedGlobals, setExposedGlobal, getExposedGlobal };
