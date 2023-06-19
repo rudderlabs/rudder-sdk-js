@@ -32,10 +32,11 @@ jobs:
           npm ci
 
       - name: Execute unit tests
-        env:
-          HUSKY: 0
         run: |
           npm run test:ci
+
+      - name: Execute linting check
+        run: |
           npm run check:lint
 
       - name: Fix filesystem paths in generated reports

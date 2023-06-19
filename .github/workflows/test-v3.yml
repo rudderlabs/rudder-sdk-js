@@ -33,10 +33,11 @@ jobs:
           npm run setup
 
       - name: Execute unit tests
-        env:
-          HUSKY: 0
         run: |
           npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+
+      - name: Execute linting check
+        run: |
           npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
 
       - name: Fix filesystem paths in generated reports
