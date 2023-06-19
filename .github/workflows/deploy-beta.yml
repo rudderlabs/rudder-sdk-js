@@ -57,4 +57,4 @@ jobs:
           aws s3 cp dist/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp dist/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp dist/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/js-integrations/ --recursive --cache-control max-age=3600
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"
