@@ -1,7 +1,6 @@
 import { signal, Signal } from '@preact/signals-core';
 import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { LifecycleStatus, LogLevel, ReadyCallback } from '@rudderstack/analytics-js/state/types';
-import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 
 export type LifecycleState = {
   activeDataplaneUrl: Signal<string | undefined>;
