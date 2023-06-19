@@ -25,12 +25,17 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Execute unit tests
+      - name: Install dependencies
         env:
           HUSKY: 0
         run: |
           npm ci --no-audit
           npm run setup
+
+      - name: Execute unit tests
+        env:
+          HUSKY: 0
+        run: |
           npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
           npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
 

@@ -25,11 +25,16 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Execute unit tests
+      - name: Install dependencies
         env:
           HUSKY: 0
         run: |
           npm ci
+
+      - name: Execute unit tests
+        env:
+          HUSKY: 0
+        run: |
           npm run test:ci
           npm run check:lint
 
