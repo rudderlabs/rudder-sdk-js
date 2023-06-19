@@ -1,4 +1,17 @@
+import { state } from '@rudderstack/analytics-js/state';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import {
+  isErrorReportingEnabled,
+  isMetricsReportingEnabled,
+  getErrorReportingProviderNameFromConfig,
+} from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
+import { SourceConfigResponse } from '../types';
+import { isUndefined } from '../../utilities/checks';
+import {
+  DEFAULT_ERROR_REPORTING_PROVIDER,
+  ErrorReportingProvidersToPluginNameMap,
+} from '../constants';
 
 /**
  * Determines the SDK url
@@ -25,4 +38,34 @@ const getSDKUrl = (): string | undefined => {
   return sdkURL;
 };
 
-export { getSDKUrl };
+/**
+ * Updates the reporting state variables from the source config data
+ * @param res Source config
+ * @param logger Logger instance
+ */
+const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void => {
+  state.reporting.isErrorReportingEnabled.value = isErrorReportingEnabled(res.source.config);
+  state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
+
+  if (state.reporting.isErrorReportingEnabled.value) {
+    const errReportingProvider = getErrorReportingProviderNameFromConfig(res.source.config);
+
+    // Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
+    const errReportingProviderPlugin = errReportingProvider
+      ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
+      : undefined;
+    if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
+      // set the default error reporting provider
+      logger?.warn(
+        `The configured error reporting provider "${errReportingProvider}" is not supported. Supported provider(s) is/are "${Object.keys(
+          ErrorReportingProvidersToPluginNameMap,
+        )}". Using the default provider (${DEFAULT_ERROR_REPORTING_PROVIDER}).`,
+      );
+    }
+    state.reporting.errorReportingProviderPlugin.value =
+      errReportingProviderPlugin ??
+      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
+  }
+};
+
+export { getSDKUrl, updateReportingState };

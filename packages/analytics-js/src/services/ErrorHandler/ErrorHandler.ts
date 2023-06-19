@@ -3,9 +3,10 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { state } from '@rudderstack/analytics-js/state';
+import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
 import { isAllowedToBeNotified, processError } from './processError';
-import { IErrorHandler, SDKError } from './types';
+import { IErrorHandler, IExternalSrcLoader, SDKError } from './types';
 
 /**
  * A service to handle errors
@@ -13,6 +14,7 @@ import { IErrorHandler, SDKError } from './types';
 class ErrorHandler implements IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
+  errReportingClient?: any;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
@@ -20,24 +22,38 @@ class ErrorHandler implements IErrorHandler {
     this.pluginEngine = pluginEngine;
   }
 
-  onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
-    const isTypeOfError = error instanceof Error;
-    let errorMessage = '';
+  init(externalSrcLoader: IExternalSrcLoader) {
+    if (!this.pluginEngine) {
+      return;
+    }
 
     try {
-      errorMessage = processError(error);
-    } catch (err) {
-      this.notifyError(err as Error);
-
-      if (this.logger) {
-        this.logger.error(`Exception:: ${(err as Error).message}`);
-        this.logger.error(
-          `Original error:: ${stringifyWithoutCircular(error as Record<string, any>)}`,
-        );
-      } else {
-        throw err;
+      const errReportingInitVal = this.pluginEngine.invokeSingle(
+        'errorReporting.init',
+        state,
+        this.pluginEngine,
+        externalSrcLoader,
+        this.logger,
+      );
+      if (errReportingInitVal === null) {
+        this.logger?.error('Something went wrong during error reporting plugin invocation.');
+      } else if (errReportingInitVal instanceof Promise) {
+        errReportingInitVal
+          .then((client: any) => {
+            this.errReportingClient = client;
+          })
+          .catch(err => {
+            this.logger?.error('Unable to initialize error reporting plugin.', err);
+          });
       }
+    } catch (err) {
+      this.onError(err, 'errorReporting.init');
     }
+  }
+
+  onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
+    // Error handling is already implemented in processError method
+    let errorMessage = processError(error);
 
     // If no error message after we normalize, then we swallow/ignore the errors
     if (!errorMessage) {
@@ -46,24 +62,24 @@ class ErrorHandler implements IErrorHandler {
 
     errorMessage = removeDoubleSpaces(`${context}:: ${customMessage} ${errorMessage}`);
 
+    let normalizedError = error;
     // Enhance error message
-    if (isTypeOfError) {
-      // eslint-disable-next-line no-param-reassign
-      (error as Error).message = errorMessage;
+    if (isTypeOfError(error)) {
+      (normalizedError as Error).message = errorMessage;
+    } else {
+      normalizedError = new Error(errorMessage);
     }
 
-    const normalisedError = isTypeOfError ? error : new Error(errorMessage);
-
-    this.notifyError(normalisedError);
+    this.notifyError(normalizedError as Error);
 
     if (this.logger) {
       this.logger.error(errorMessage);
 
       if (shouldAlwaysThrow) {
-        throw normalisedError;
+        throw normalizedError;
       }
     } else {
-      throw normalisedError;
+      throw normalizedError;
     }
   }
 
@@ -76,9 +92,15 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb(breadcrumb: string) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invokeMultiple('errorMonitoring.breadcrumb', breadcrumb, this.logger);
+        this.pluginEngine.invokeSingle(
+          'errorReporting.breadcrumb',
+          this.pluginEngine,
+          this.errReportingClient,
+          breadcrumb,
+          this.logger,
+        );
       } catch (err) {
-        this.onError(err, 'errorMonitoring.breadcrumb');
+        this.onError(err, 'errorReporting.breadcrumb');
       }
     }
   }
@@ -91,9 +113,16 @@ class ErrorHandler implements IErrorHandler {
   notifyError(error: Error) {
     if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
-        this.pluginEngine.invokeMultiple('errorMonitoring.notify', error, this.logger);
+        this.pluginEngine.invokeSingle(
+          'errorReporting.notify',
+          this.pluginEngine,
+          this.errReportingClient,
+          error,
+          this.logger,
+        );
       } catch (err) {
-        this.onError(err, 'errorMonitoring.notify');
+        // Not calling onError here as we don't want to go into infinite loop
+        this.logger?.error('Error while notifying error', err);
       }
     }
   }

@@ -7,8 +7,10 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import {
+  IErrorHandler,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';

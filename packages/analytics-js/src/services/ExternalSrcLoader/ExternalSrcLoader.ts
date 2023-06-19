@@ -1,9 +1,12 @@
 import { DEFAULT_EXT_SRC_LOAD_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import {
+  IErrorHandler,
+  IExternalSourceLoadConfig,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { jsFileLoader } from './jsFileLoader';
-import { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
 
 /**
  * Service to load external resources/files

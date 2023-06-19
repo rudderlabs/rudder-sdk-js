@@ -33,6 +33,8 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
     case PluginName.OneTrust:
       return () => import('rudderAnalyticsRemotePlugins/OneTrust');
+    case PluginName.Bugsnag:
+      return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     default:
       return undefined;
   }

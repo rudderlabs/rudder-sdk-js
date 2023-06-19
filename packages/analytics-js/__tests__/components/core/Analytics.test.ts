@@ -106,6 +106,15 @@ describe('Core - Analytics', () => {
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
+    it('should load the analytics script without dataPlaneUrl the given options', () => {
+      const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
+      analytics.load(dummyWriteKey, { logLevel: LogLevel.Error });
+      expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
+      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+      expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
+    });
   });
 
   describe('loadConfig', () => {

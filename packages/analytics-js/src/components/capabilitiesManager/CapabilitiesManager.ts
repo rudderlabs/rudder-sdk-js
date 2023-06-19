@@ -2,8 +2,10 @@ import { state } from '@rudderstack/analytics-js/state';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import {
+  IErrorHandler,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { batch } from '@preact/signals-core';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import {
