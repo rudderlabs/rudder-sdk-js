@@ -25,6 +25,7 @@ export default class GA4 {
     this.sessionNumber = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
+    this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
@@ -59,7 +60,9 @@ export default class GA4 {
       gtagParameterObject.session_id = this.analytics.getSessionId();
     }
 
-    gtagParameterObject.debug_mode = true;
+    if (this.debugView) {
+      gtagParameterObject.debug_mode = true;
+    }
 
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
