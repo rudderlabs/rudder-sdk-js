@@ -359,3 +359,8 @@ export {
   DISPLAY_NAME as LemniskDisplayName,
   DISPLAY_NAME_TO_DIR_NAME_MAP as LemniskDisplayNameToDirNameMap,
 } from '../../../analytics-v1.1/src/integrations/Lemnisk/constants';
+export {
+  CNameMapping as TiktokAdsCNameMapping,
+  DISPLAY_NAME as TiktokAdsDisplayName,
+  DISPLAY_NAME_TO_DIR_NAME_MAP as TiktokAdsDisplayNameToDirNameMap,
+} from '../../../analytics-v1.1/src/integrations/TiktokAds/constants';

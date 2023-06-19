@@ -11,9 +11,13 @@ export type {
   DestinationIntgConfig,
 } from '@rudderstack/analytics-js/state/types';
 export type { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-export type { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+export type {
+  IErrorHandler,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+export type { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type { DestinationConfig, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
@@ -27,6 +31,7 @@ export type {
   AnalyticsTrackMethod,
 } from '@rudderstack/analytics-js/app/IRudderAnalytics';
 export type { IStore, IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+export { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/ExternalSrcLoader';
 
 export type ApplicationState = IApplicationState;
 
@@ -45,13 +50,6 @@ export interface ExtensionPlugin {
     | ((...args: any[]) => unknown)
     | string[]
     | undefined;
-}
-
-export interface IExternalSrcLoader {
-  errorHandler?: any;
-  logger?: any;
-  timeout: number;
-  loadJSFile(config: Record<string, any>): Promise<void>;
 }
 
 export type Nullable<T> = T | null;
@@ -85,8 +83,11 @@ export type PluginName =
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
   | 'XhrQueue'
-  | 'OneTrust';
+  | 'OneTrust'
+  | 'Bugsnag';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
+
+export type { Bugsnag as BugsnagLib } from '@bugsnag/js';

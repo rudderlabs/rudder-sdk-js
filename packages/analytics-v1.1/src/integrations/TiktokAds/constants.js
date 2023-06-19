@@ -1,4 +1,8 @@
+const DIR_NAME = 'TiktokAds';
 const NAME = 'TIKTOK_ADS';
+const DISPLAY_NAME = 'TikTok Ads';
+
+const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
   TiktokAds: NAME,
@@ -82,4 +86,13 @@ const eventNameMapping = {
   subscribe: 'Subscribe',
 };
 
-export { NAME, CNameMapping, PARTNER_NAME, trackMapping, eventNameMapping };
+export {
+  NAME,
+  CNameMapping,
+  PARTNER_NAME,
+  trackMapping,
+  eventNameMapping,
+  DISPLAY_NAME_TO_DIR_NAME_MAP,
+  DISPLAY_NAME,
+  DIR_NAME,
+};

@@ -143,6 +143,8 @@ import {
   OlarkDisplayName,
   LemniskCNameMapping,
   LemniskDisplayName,
+  TiktokAdsCNameMapping,
+  TiktokAdsDisplayName,
 } from './destinationNames';
 
 const replaceValuesWithDisplayName = (
@@ -231,6 +233,7 @@ const destCNamesToDispNamesMap: Record<string, string> = {
   ...replaceValuesWithDisplayName(SendinblueCNameMapping, SendinblueDisplayName),
   ...replaceValuesWithDisplayName(OlarkCNameMapping, OlarkDisplayName),
   ...replaceValuesWithDisplayName(LemniskCNameMapping, LemniskDisplayName),
+  ...replaceValuesWithDisplayName(TiktokAdsCNameMapping, TiktokAdsDisplayName),
 };
 
 export { destCNamesToDispNamesMap };

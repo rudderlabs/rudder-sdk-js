@@ -34,4 +34,11 @@ const isUndefined = (value: any): boolean => typeof value === 'undefined';
  */
 const isNullOrUndefined = (value: any): boolean => isNull(value) || isUndefined(value);
 
-export { isFunction, isString, isNull, isUndefined, isNullOrUndefined };
+/**
+ * Determines if the input is an instance of Error
+ * @param obj input value
+ * @returns true if the input is an instance of Error and false otherwise
+ */
+const isTypeOfError = (obj: any) => obj instanceof Error;
+
+export { isFunction, isString, isNull, isUndefined, isNullOrUndefined, isTypeOfError };
