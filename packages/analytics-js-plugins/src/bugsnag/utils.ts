@@ -94,7 +94,7 @@ const getReleaseStage = () => {
 
 const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-const getNewClient = (state: ApplicationState): BugsnagLib.Client => {
+const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Client => {
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
 
   const clientConfig: BugsnagLib.IConfig = {
@@ -107,14 +107,16 @@ const getNewClient = (state: ApplicationState): BugsnagLib.Client => {
       },
     },
     beforeSend: onError(state),
-    autoTrackSessions: false, // auto tracking sessions is disabled
+    autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
-    enabledBreadcrumbTypes: ['error', 'log', 'user'],
+    // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
     maxEvents: 100,
+    maxBreadcrumbs: 40,
     releaseStage: getReleaseStage(),
     user: {
       id: state.lifecycle.writeKey.value,
     },
+    logger,
   };
 
   const client: BugsnagLib.Client = globalBugsnagLibInstance(clientConfig);
@@ -159,7 +161,7 @@ const initBugsnagClient = (
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
   if (typeof globalBugsnagLibInstance === 'function') {
     if (isValidVersion(globalBugsnagLibInstance)) {
-      const client = getNewClient(state);
+      const client = getNewClient(state, logger);
       promiseResolve(client);
     }
   } else if (time >= MAX_WAIT_FOR_SDK_LOAD_MS) {
