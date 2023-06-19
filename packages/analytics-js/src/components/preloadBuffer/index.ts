@@ -105,7 +105,7 @@ const retrievePreloadBufferEvents = (instance: IAnalytics) => {
     ? (window as any).rudderanalytics
     : [];
 
-  // Get events that are prepopulated via query string params
+  // Get events that are pre-populated via query string params
   retrieveEventsFromQueryString(preloadedEventsArray);
   const sanitizedPreloadedEventsArray = preloadedEventsArray.filter(
     bufferedEvent => bufferedEvent[0] !== 'load',

@@ -16,9 +16,11 @@ import { isFunction, isString } from '@rudderstack/analytics-js/components/utili
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
+import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
+import { updateReportingState } from './util/commonUtil';
+import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -167,6 +169,7 @@ class ConfigManager implements IConfigManager {
     batch(() => {
       // set source related information in state
       state.source.value = {
+        config: res.source.config,
         id: res.source.id,
       };
 
@@ -179,10 +182,7 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.status.value = LifecycleStatus.Configured;
 
       // set the values in state for reporting slice
-      state.reporting.isErrorReportingEnabled.value =
-        res.source.config.statsCollection.errors.enabled || false;
-      state.reporting.isMetricsReportingEnabled.value =
-        res.source.config.statsCollection.metrics.enabled || false;
+      updateReportingState(res, this.logger);
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
