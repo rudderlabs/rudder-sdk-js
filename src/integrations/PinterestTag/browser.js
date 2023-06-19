@@ -30,8 +30,10 @@ export default class PinterestTag {
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.sendAsCustomEvent = config.sendAsCustomEvent || false;
   }

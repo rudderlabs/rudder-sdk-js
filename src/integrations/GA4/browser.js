@@ -30,8 +30,10 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
   }
 
   loadScript(measurementId) {

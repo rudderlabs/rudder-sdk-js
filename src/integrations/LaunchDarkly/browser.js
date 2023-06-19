@@ -14,8 +14,10 @@ class LaunchDarkly {
     this.name = NAME;
     this.clientSideId = config.clientSideId;
     this.anonymousUsersSharedKey = config.anonymousUsersSharedKey;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

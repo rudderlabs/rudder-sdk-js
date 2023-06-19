@@ -22,7 +22,10 @@ class Posthog {
     this.propertyBlackList = [];
     this.xhrHeaders = {};
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {

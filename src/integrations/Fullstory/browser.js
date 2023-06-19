@@ -15,8 +15,10 @@ class Fullstory {
     this.fs_host = config.fs_host || 'fullstory.com';
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

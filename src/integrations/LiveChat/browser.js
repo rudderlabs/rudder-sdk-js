@@ -20,8 +20,10 @@ class LiveChat {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

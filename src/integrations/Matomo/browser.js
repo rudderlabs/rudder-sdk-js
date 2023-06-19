@@ -48,8 +48,10 @@ class Matomo {
       CLEAR_ECOMMERCE_CART: 'CLEAR_ECOMMERCE_CART',
       TRACK_ECOMMERCE_CART_UPDATE: 'TRACK_ECOMMERCE_CART_UPDATE',
     };
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

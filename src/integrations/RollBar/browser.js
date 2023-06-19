@@ -20,8 +20,10 @@ class RollBar {
     this.ignoredMessages = config.ignoredMessages;
     this.environment = config.environment;
     this.sourceMapEnabled = config.sourceMapEnabled;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

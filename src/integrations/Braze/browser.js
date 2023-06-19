@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { del } from 'obj-case';
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import Logger from "../../utils/logger";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
 
@@ -37,7 +37,9 @@ class Braze {
     this.name = NAME;
     this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError = destinationInfo?.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
@@ -151,12 +153,11 @@ class Braze {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug("in Braze identify");
+    logger.debug('in Braze identify');
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
     const birthday =
-      rudderElement.message.context.traits?.birthday ||
-      rudderElement.message.context.traits?.dob;
+      rudderElement.message.context.traits?.birthday || rudderElement.message.context.traits?.dob;
     const { email } = rudderElement.message.context.traits;
     const firstname =
       rudderElement.message.context.traits?.firstname ||
@@ -169,21 +170,21 @@ class Braze {
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
-      "address",
-      "birthday",
-      "email",
-      "id",
-      "firstname",
-      "gender",
-      "lastname",
-      "phone",
-      "dob",
-      "external_id",
-      "country",
-      "home_city",
-      "bio",
-      "email_subscribe",
-      "push_subscribe",
+      'address',
+      'birthday',
+      'email',
+      'id',
+      'firstname',
+      'gender',
+      'lastname',
+      'phone',
+      'dob',
+      'external_id',
+      'country',
+      'home_city',
+      'bio',
+      'email_subscribe',
+      'push_subscribe',
     ];
     // function set Address
     function setAddress() {
@@ -197,7 +198,7 @@ class Braze {
         .setDateOfBirth(
           birthday.getUTCFullYear(),
           birthday.getUTCMonth() + 1,
-          birthday.getUTCDate()
+          birthday.getUTCDate(),
         );
     }
     // function set Email
@@ -290,14 +291,14 @@ class Braze {
     del(properties, 'currency');
 
     // we have to make a separate call to appboy for each product
-    if(products && Array.isArray(products) && products.length > 0) {
-        products.forEach((product) => {
-          const productId = product.product_id;
-          const { price } = product;
-          const { quantity } = product;
-          if (quantity && price && productId)
-            window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
-        });
+    if (products && Array.isArray(products) && products.length > 0) {
+      products.forEach((product) => {
+        const productId = product.product_id;
+        const { price } = product;
+        const { quantity } = product;
+        if (quantity && price && productId)
+          window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
+      });
     }
   }
 

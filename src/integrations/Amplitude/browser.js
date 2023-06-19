@@ -39,8 +39,10 @@ class Amplitude {
     this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {

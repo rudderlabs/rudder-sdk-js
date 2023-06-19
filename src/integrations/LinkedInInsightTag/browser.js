@@ -13,8 +13,10 @@ class LinkedInInsightTag {
     this.name = NAME;
     this.partnerId = config.partnerId;
     this.eventToConversionIdMap = config.eventToConversionIdMap;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

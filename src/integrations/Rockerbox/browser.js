@@ -17,8 +17,10 @@ class Rockerbox {
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
     this.useNativeSDKToSend = config.useNativeSDKToSend;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.enableTransformationForDeviceMode =
+      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.propagateEventsUntransformedOnError =
+      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
