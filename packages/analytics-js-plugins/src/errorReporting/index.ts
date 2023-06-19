@@ -36,8 +36,14 @@ const ErrorReporting = (): ExtensionPlugin => ({
       );
     },
   },
-  notify: (pluginEngine: IPluginEngine, client: any, error: Error, logger?: ILogger): void => {
-    pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, logger);
+  notify: (
+    pluginEngine: IPluginEngine,
+    client: any,
+    error: Error,
+    state: ApplicationState,
+    logger?: ILogger,
+  ): void => {
+    pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
   },
   breadcrumb: (
     pluginEngine: IPluginEngine,

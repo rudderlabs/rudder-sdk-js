@@ -69,6 +69,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
   });
@@ -82,6 +83,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
 
@@ -100,6 +102,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
 
@@ -119,6 +122,7 @@ describe('ErrorHandler', () => {
         defaultPluginEngine,
         undefined,
         expect.any(Error),
+        state,
         expect.any(Object),
       );
 

@@ -1,4 +1,5 @@
 import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
+import { convertSignalsToJSON } from '../utilities/common';
 import {
   API_KEY,
   BUGSNAG_CDN_URL,
@@ -180,6 +181,20 @@ const initBugsnagClient = (
   }
 };
 
+const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
+  // List of keys to exclude from the metadata
+  // Potential PII or sensitive data
+  const excludes: string[] = [
+    'userId',
+    'userTraits',
+    'groupId',
+    'groupTraits',
+    'anonymousId',
+    'config',
+  ];
+  return convertSignalsToJSON(state, excludes);
+};
+
 export {
   isValidVersion,
   getNewClient,
@@ -191,4 +206,5 @@ export {
   isRudderSDKError,
   enhanceErrorEventMutator,
   onError,
+  getAppStateForMetadata,
 };

@@ -18,6 +18,8 @@ export {
 
 export { isHybridModeDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 
+export { convertSignalsToJSON } from '@rudderstack/analytics-js/components/utilities/signal';
+
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
   !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
 

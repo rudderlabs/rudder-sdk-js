@@ -118,6 +118,7 @@ class ErrorHandler implements IErrorHandler {
           this.pluginEngine,
           this.errReportingClient,
           error,
+          state,
           this.logger,
         );
       } catch (err) {
