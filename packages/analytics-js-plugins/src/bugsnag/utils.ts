@@ -1,4 +1,4 @@
-import { ApplicationState, BugsnagClient, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
 import {
   API_KEY,
   BUGSNAG_CDN_URL,
@@ -94,10 +94,10 @@ const getReleaseStage = () => {
 
 const getGlobalBugsnagLibInstance = () => (globalThis as any)[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-const getNewClient = (state: ApplicationState): BugsnagClient => {
+const getNewClient = (state: ApplicationState): BugsnagLib.Client => {
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
 
-  const client: BugsnagClient = globalBugsnagLibInstance({
+  const clientConfig: BugsnagLib.IConfig = {
     apiKey: API_KEY,
     appVersion: '__PACKAGE_VERSION__', // Set SDK version as the app version from build config
     metaData: {
@@ -112,7 +112,12 @@ const getNewClient = (state: ApplicationState): BugsnagClient => {
     enabledBreadcrumbTypes: ['error', 'log', 'user'],
     maxEvents: 100,
     releaseStage: getReleaseStage(),
-  });
+    user: {
+      id: state.lifecycle.writeKey.value,
+    },
+  };
+
+  const client: BugsnagLib.Client = globalBugsnagLibInstance(clientConfig);
 
   return client;
 };
@@ -158,7 +163,7 @@ const initBugsnagClient = (
       promiseResolve(client);
     }
   } else if (time >= MAX_WAIT_FOR_SDK_LOAD_MS) {
-    promiseReject(new Error('Bugsnag SDK load timed out.'));
+    promiseReject(new Error('The Bugsnag SDK load timed out.'));
   } else {
     // Try to initialize the client after a delay
     setTimeout(

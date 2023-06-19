@@ -203,6 +203,9 @@ describe('Bugsnag utilities', () => {
       source: signal({
         id: 'dummy-source-id',
       }),
+      lifecycle: {
+        writeKey: signal('dummy-write-key'),
+      },
     };
 
     const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;

@@ -6,7 +6,7 @@ import {
   ApplicationState,
   IExternalSrcLoader,
   ILogger,
-  BugsnagClient,
+  BugsnagLib,
 } from '../types/common';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
@@ -24,11 +24,11 @@ const Bugsnag = (): ExtensionPlugin => ({
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
-    ): Promise<BugsnagClient> =>
+    ): Promise<BugsnagLib.Client> =>
       new Promise((resolve, reject) => {
         // If API key token is not parsed or invalid, don't proceed to initialize the client
         if (!isApiKeyValid(API_KEY)) {
-          reject(new Error(`The Bugsnag API key (${API_KEY}) is invalid or not provided`));
+          reject(new Error(`The Bugsnag API key (${API_KEY}) is invalid or not provided.`));
           return;
         }
 
@@ -36,10 +36,10 @@ const Bugsnag = (): ExtensionPlugin => ({
 
         initBugsnagClient(state, resolve, reject, logger);
       }),
-    notify: (client: BugsnagClient, error: Error, logger?: ILogger): void => {
+    notify: (client: BugsnagLib.Client, error: Error, logger?: ILogger): void => {
       client?.notify(error);
     },
-    breadcrumb: (client: BugsnagClient, message: string, logger?: ILogger): void => {
+    breadcrumb: (client: BugsnagLib.Client, message: string, logger?: ILogger): void => {
       client?.leaveBreadcrumb(message);
     },
   },
