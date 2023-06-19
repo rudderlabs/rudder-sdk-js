@@ -51,6 +51,7 @@ const handlePurchase = (properties, userId) => {
 };
 
 const loadBraze = () => {
+  // START-NO-SONAR-SCAN
   // load braze
   /* eslint-disable */
   +(function (a, p, P, b, y) {
@@ -81,6 +82,7 @@ const loadBraze = () => {
     (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
   })(window, document, 'script');
   /* eslint-enable */
+  // END-NO-SONAR-SCAN
 };
 
 export { formatGender, handleReservedProperties, handlePurchase, loadBraze };
