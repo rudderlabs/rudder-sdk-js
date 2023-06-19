@@ -63,7 +63,6 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
   "dependencies": {
-    "@ketch-sdk/ketch-consent": "^0.0.5",
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/defaults": "2.0.1",
     "@ndhoule/each": "2.0.1",

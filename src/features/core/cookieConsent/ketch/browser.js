@@ -1,5 +1,5 @@
-import getConsent from '@ketch-sdk/ketch-consent';
 import logger from '../../../../utils/logUtil';
+import { Cookie } from '../../../../utils/storage/cookie';
 
 /* eslint-disable class-methods-use-this */
 class Ketch {
@@ -27,7 +27,7 @@ class Ketch {
     if (window.ketchConsent) {
       this.updatePurposes(window.ketchConsent);
     } else {
-      const consent = getConsent(window);
+      const consent = this.getConsent();
       this.updatePurposes(consent);
     }
   }
@@ -80,6 +80,34 @@ class Ketch {
 
   getDeniedList() {
     return this.userDeniedPurposes;
+  }
+
+  getConsent() {
+    const value = Cookie.get('_swb_consent_');
+    if (!value) {
+      return undefined;
+    }
+    let consentObj;
+    try {
+      consentObj = JSON.parse(atob(value));
+    } catch (e) {
+      logger.error(`Error occured while parsing consent cookie ${e}`);
+      return undefined;
+    }
+    if (!consentObj || !consentObj.purposes) {
+      return undefined;
+    }
+    const consent = {};
+    Object.entries(consentObj.purposes).forEach((e) => {
+      const purposeCode = e[0];
+      const purposeValue = e[1];
+      if (typeof purposeValue === 'string') {
+        consent[purposeCode] = purposeValue === 'true';
+      } else if (purposeValue.allowed) {
+        consent[purposeCode] = purposeValue.allowed === 'true';
+      }
+    });
+    return consent;
   }
 }
 
