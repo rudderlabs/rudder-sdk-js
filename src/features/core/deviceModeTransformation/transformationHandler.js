@@ -106,7 +106,6 @@ class TransformationsHandler {
               }
 
               // If the request is not successful
-              // one or more transformation is unsuccessfull
               // retry till the retryAttempt is exhausted
               if (retryAttempt > 0) {
                 const newRetryAttempt = retryAttempt - 1;
@@ -120,7 +119,12 @@ class TransformationsHandler {
               } else {
                 // Even after all the retries event transformation
                 // is not successful, ignore the event
-                reject(`[Transformation]:: Transformation failed with status ${status}`);
+                resolve({
+                  transformedPayload: payload.batch,
+                  transformationServerAccess: true,
+                  retryFailed: true,
+                  status,
+                });
                 return;
               }
             } catch (err) {

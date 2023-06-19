@@ -14,7 +14,6 @@ import {
 } from '../__mocks__/fixtures';
 
 describe('Test suite for device mode transformation feature', () => {
-
   beforeAll(() => {
     server.listen();
   });
@@ -97,14 +96,12 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Validate whether the SDK is retrying the request in case failures', async () => {
+  it('Validate whether the SDK is retrying the request in case failures and send the original event back to calling fn when retry count exhausted', async () => {
     let counter = 0;
     server.use(
       rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
-          counter +=1;
-          return res(
-            ctx.status(500)
-          )
+        counter += 1;
+        return res(ctx.status(500));
       }),
     );
 
@@ -113,7 +110,11 @@ describe('Test suite for device mode transformation feature', () => {
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then((response) => {
         console.log(response);
-        expect('to').toBe('fail');
+        expect(counter).toEqual(retryCount + 1); // retryCount+ first attempt
+        expect(response.transformedPayload).toStrictEqual(payload.batch);
+        expect(response.transformationServerAccess).toBe(true);
+        expect(response.retryFailed).toBe(true);
+        expect(response.status).toBe(500);
       })
       .catch((e) => {
         expect(typeof e).toBe('string');
@@ -121,22 +122,20 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Transformation server returning response for partial success,SDK silently drops the unsuccessful events and procced', async () => {
+  it('Should not filter transformed events that are not 200', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/partialSuccess`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then((response) => {
         let totalTransformedEvents = 0;
-        let successfulTransformedEvents = 0;
+        let totalTransformedEventsInResponse = 0;
         samplePayloadPartialSuccess.transformedBatch.forEach((dest) => {
           totalTransformedEvents += dest.payload.length;
         });
         response.transformedPayload.forEach((dest) => {
-          dest.payload.forEach((tEvent) => {
-            if (tEvent.status === '200') successfulTransformedEvents++;
-          });
+          totalTransformedEventsInResponse += dest.payload.length;
         });
-        expect(successfulTransformedEvents).toBeLessThan(totalTransformedEvents);
+        expect(totalTransformedEventsInResponse).toEqual(totalTransformedEvents);
       })
       .catch((e) => {
         console.log(e);
@@ -159,17 +158,14 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   it('Transformation server returns success after intermediate retry', async () => {
-
     let counter = 0;
     server.use(
       rest.post(`${dummyDataplaneHost}/success/transform`, (req, res, ctx) => {
-        if(counter === 0){
-          counter +=1;
-          return res(
-            ctx.status(500)
-          )
+        if (counter === 0) {
+          counter += 1;
+          return res(ctx.status(500));
         }
-        counter +=1;
+        counter += 1;
         return res(ctx.status(200), ctx.json(samplePayloadSuccess));
       }),
     );

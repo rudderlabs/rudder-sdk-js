@@ -264,8 +264,10 @@ class Analytics {
             name: destination.destinationDefinition.name,
             config: destination.config,
             destinationInfo: {
-              enableTransformationForDeviceMode: destination.enableTransformationForDeviceMode || false,
-              propagateEventsUntransformedOnError: destination.propagateEventsUntransformedOnError || false,
+              enableTransformationForDeviceMode:
+                destination.enableTransformationForDeviceMode || false,
+              propagateEventsUntransformedOnError:
+                destination.propagateEventsUntransformedOnError || false,
               destinationId: destination.id,
             },
           });
@@ -413,12 +415,12 @@ class Analytics {
       // Process Transformation
       this.transformationHandler.enqueue(
         rudderElement,
-        ({ transformedPayload, transformationServerAccess }) => {
+        ({ transformedPayload, transformationServerAccess, retryFailed, status }) => {
           if (transformedPayload) {
             destWithTransformation.forEach((intg) => {
               try {
                 let transformedEvents = [];
-                if (transformationServerAccess) {
+                if (transformationServerAccess && !retryFailed) {
                   // filter the transformed event for that destination
                   const destTransformedResult = transformedPayload.find(
                     (e) => e.id === intg.destinationId,
@@ -433,12 +435,22 @@ class Analytics {
                   destTransformedResult?.payload.forEach((tEvent) => {
                     if (tEvent.status === '200') {
                       transformedEvents.push(tEvent);
+                    } else if (intg.propagateEventsUntransformedOnError === true) {
+                      transformedEvents.push({ event: rudderElement.message });
                     } else {
                       logger.error(
                         `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
                       );
                     }
                   });
+                } else if (
+                  retryFailed === true &&
+                  intg.propagateEventsUntransformedOnError === false
+                ) {
+                  logger.error(
+                    `[DMT]::Transformation failed with status ${status}. Dropping the event.`,
+                  );
+                  return;
                 } else {
                   transformedEvents = transformedPayload;
                 }
