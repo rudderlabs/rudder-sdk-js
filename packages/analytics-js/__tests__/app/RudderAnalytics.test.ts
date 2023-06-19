@@ -106,7 +106,10 @@ describe('Core - Rudder Analytics Facade', () => {
     const pageSpy = jest.spyOn(analyticsInstance, 'page');
 
     rudderAnalytics.page('category');
-    expect(pageSpy).toHaveBeenCalledWith({ properties: { category: null, name: null } });
+    expect(pageSpy).toHaveBeenCalledWith({
+      name: 'category',
+      properties: { category: null, name: 'category' },
+    });
   });
 
   it('should process track arguments and forwards to track call', () => {

@@ -221,7 +221,7 @@ class ConfigManager implements IConfigManager {
 
     // fetch source config from config url API
     this.httpClient.getAsyncData({
-      url: state.lifecycle.sourceConfigUrl.value,
+      url: state.lifecycle.sourceConfigUrl.value as string,
       options: {
         headers: {
           'Content-Type': undefined,

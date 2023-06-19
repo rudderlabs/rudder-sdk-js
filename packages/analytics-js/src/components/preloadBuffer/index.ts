@@ -101,8 +101,10 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
  * Retrieve any existing events that were triggered before SDK load and enqueue in buffer
  */
 const retrievePreloadBufferEvents = (instance: IAnalytics) => {
-  const preloadedEventsArray: PreloadedEventCall[] = Array.isArray((window as any).rudderanalytics)
-    ? (window as any).rudderanalytics
+  const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
+    (globalThis as typeof window).rudderanalytics,
+  )
+    ? (globalThis as typeof window).rudderanalytics
     : [];
 
   // Get events that are prepopulated via query string params

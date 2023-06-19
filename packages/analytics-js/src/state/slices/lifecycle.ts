@@ -7,7 +7,7 @@ export type LifecycleState = {
   activeDataplaneUrl: Signal<string | undefined>;
   integrationsCDNPath: Signal<string | undefined>;
   pluginsCDNPath: Signal<string | undefined>;
-  sourceConfigUrl: Signal<string>;
+  sourceConfigUrl: Signal<string | undefined>;
   status: Signal<LifecycleStatus | undefined>;
   initialized: Signal<boolean>;
   logLevel: Signal<LogLevel>;
@@ -21,7 +21,7 @@ const lifecycleState: LifecycleState = {
   activeDataplaneUrl: signal(undefined),
   integrationsCDNPath: signal(DEST_SDK_BASE_URL),
   pluginsCDNPath: signal(PLUGINS_BASE_URL),
-  sourceConfigUrl: signal(getSourceConfigURL()),
+  sourceConfigUrl: signal(undefined),
   status: signal(undefined),
   initialized: signal(false),
   logLevel: signal(LogLevel.Error),
