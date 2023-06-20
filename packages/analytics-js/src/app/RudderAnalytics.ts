@@ -122,9 +122,9 @@ class RudderAnalytics implements IRudderAnalytics {
    */
   triggerBufferedLoadEvent() {
     const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-      (window as any).rudderanalytics,
+      (globalThis as typeof window).rudderanalytics,
     )
-      ? (window as any).rudderanalytics
+      ? (globalThis as typeof window).rudderanalytics
       : [];
 
     // Get any load method call that is buffered if any

@@ -105,6 +105,26 @@ const pageArgumentsToCallOptions = (
     delete payload.name;
   }
 
+  if (isObjectLiteralAndNotNull(options) && !isString(payload.options)) {
+    payload.options = options as ApiOptions;
+  }
+
+  if (
+    isObjectLiteralAndNotNull(properties) &&
+    !isString(payload.properties) &&
+    !isObjectLiteralAndNotNull(name)
+  ) {
+    payload.properties = properties as ApiObject;
+  }
+
+  if (isString(category) && !isString(payload.category)) {
+    payload.category = category as string;
+  }
+
+  if (isString(name) && !isString(payload.name)) {
+    payload.name = name as string;
+  }
+
   if (isString(payload.category) && !isString(payload.name)) {
     payload.name = payload.category;
     delete payload.category;
@@ -293,7 +313,7 @@ const groupArgumentsToCallOptions = (
   if (isFunction(groupId)) {
     payload.callback = groupId as ApiCallback;
   } else if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
-    payload.traits = isNull(groupId) ? null : clone(groupId as Nullable<ApiObject>);
+    payload.traits = isNull(groupId) ? undefined : clone(groupId as Nullable<ApiObject>);
 
     if (isFunction(traits)) {
       payload.callback = traits as ApiCallback;
@@ -302,6 +322,12 @@ const groupArgumentsToCallOptions = (
     }
   } else {
     payload.groupId = tryStringify(groupId);
+    payload.traits = !isObjectLiteralAndNotNull(traits)
+      ? undefined
+      : clone(traits as Nullable<ApiObject>);
+    payload.options = !isObjectLiteralAndNotNull(options)
+      ? undefined
+      : clone(options as Nullable<ApiOptions>);
   }
 
   return payload;
