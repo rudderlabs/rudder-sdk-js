@@ -1,7 +1,8 @@
 import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
-import { convertSignalsToJSON } from '../utilities/common';
+import { stringifyWithoutCircular } from '../utilities/common';
 import {
   API_KEY,
+  APP_STATE_EXCLUDE_KEYS,
   BUGSNAG_CDN_URL,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_VALID_MAJOR_VERSION,
@@ -181,19 +182,8 @@ const initBugsnagClient = (
   }
 };
 
-const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
-  // List of keys to exclude from the metadata
-  // Potential PII or sensitive data
-  const excludes: string[] = [
-    'userId',
-    'userTraits',
-    'groupId',
-    'groupTraits',
-    'anonymousId',
-    'config',
-  ];
-  return convertSignalsToJSON(state, excludes);
-};
+const getAppStateForMetadata = (state: ApplicationState): Record<string, any> =>
+  JSON.parse(stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS) as string);
 
 export {
   isValidVersion,

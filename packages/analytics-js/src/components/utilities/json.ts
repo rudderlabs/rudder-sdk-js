@@ -4,6 +4,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 
 const getCircularReplacer = (
   excludeNull?: boolean,
+  excludeKeys?: string[],
   logger?: ILogger,
 ): ((key: string, value: any) => any) => {
   const ancestors: any[] = [];
@@ -11,6 +12,10 @@ const getCircularReplacer = (
   // Here we do not want to use arrow function to use "this" in function context
   // eslint-disable-next-line func-names
   return function (key, value): any {
+    if (excludeKeys?.includes(key)) {
+      return undefined;
+    }
+
     if (excludeNull && isNullOrUndefined(value)) {
       return undefined;
     }
@@ -47,7 +52,9 @@ const getCircularReplacer = (
 const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | string>(
   value?: Nullable<T>,
   excludeNull?: boolean,
+  excludeKeys?: string[],
   logger?: ILogger,
-): string | undefined => JSON.stringify(value, getCircularReplacer(excludeNull, logger));
+): string | undefined =>
+  JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
 
 export { stringifyWithoutCircular };

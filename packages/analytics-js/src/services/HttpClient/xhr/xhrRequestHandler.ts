@@ -100,7 +100,7 @@ const xhrRequest = (
       payload = options.data;
     } else {
       try {
-        payload = stringifyWithoutCircular(options.data, false, logger);
+        payload = stringifyWithoutCircular(options.data, false, [], logger);
       } catch (err) {
         reject({
           error: new Error(
