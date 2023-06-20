@@ -35,23 +35,23 @@ const ErrorReporting = (): ExtensionPlugin => ({
         logger,
       );
     },
-  },
-  notify: (
-    pluginEngine: IPluginEngine,
-    client: any,
-    error: Error,
-    state: ApplicationState,
-    logger?: ILogger,
-  ): void => {
-    pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
-  },
-  breadcrumb: (
-    pluginEngine: IPluginEngine,
-    client: any,
-    message: string,
-    logger?: ILogger,
-  ): void => {
-    pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+    notify: (
+      pluginEngine: IPluginEngine,
+      client: any,
+      error: Error,
+      state: ApplicationState,
+      logger?: ILogger,
+    ): void => {
+      pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
+    },
+    breadcrumb: (
+      pluginEngine: IPluginEngine,
+      client: any,
+      message: string,
+      logger?: ILogger,
+    ): void => {
+      pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+    },
   },
 });
 
