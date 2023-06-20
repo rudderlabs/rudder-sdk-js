@@ -28,7 +28,7 @@ describe('convertSignalsToJSON', () => {
         someKey3: 2.5,
         testSignal: 'test',
       },
-      [],
+      undefined
     ],
     [
       {
