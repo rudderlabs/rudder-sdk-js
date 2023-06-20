@@ -426,10 +426,14 @@ class Analytics {
                     (e) => e.id === intg.destinationId,
                   );
                   if (!destTransformedResult) {
-                    logger.error(
-                      `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
-                    );
-                    return;
+                    if (intg.propagateEventsUntransformedOnError === true) {
+                      transformedEvents.push({ event: rudderElement.message });
+                    } else {
+                      logger.error(
+                        `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
+                      );
+                      return;
+                    }
                   }
 
                   destTransformedResult?.payload.forEach((tEvent) => {
