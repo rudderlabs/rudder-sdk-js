@@ -22,6 +22,21 @@ const SDK_FILE_NAME_PREFIXES = [
 
 const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
 
+// List of keys to exclude from the metadata
+// Potential PII or sensitive data
+const APP_STATE_EXCLUDE_KEYS = [
+  'userId',
+  'userTraits',
+  'groupId',
+  'groupTraits',
+  'anonymousId',
+  'config',
+  'instance', // destination instance objects
+  'anonymousUserId',
+  'eventBuffer', // pre-load event buffer (may contain PII)
+  'traits',
+];
+
 export {
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
@@ -34,4 +49,5 @@ export {
   SDK_FILE_NAME_PREFIXES,
   SDK_LOAD_POLL_INTERVAL_MS,
   DEV_HOSTS,
+  APP_STATE_EXCLUDE_KEYS,
 };

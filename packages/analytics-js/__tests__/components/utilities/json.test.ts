@@ -127,5 +127,13 @@ describe('Common Utils - JSON', () => {
       expect(nullJson).toBe('null');
       expect(undefinedJson).toBe(undefined);
     });
+
+    it('should stringify json after removing the exclude keys', () => {
+      const objWithoutCircular = clone(identifyTraitsPayloadMock);
+
+      const json = stringifyWithoutCircular(objWithoutCircular, true, ['size', 'city']);
+      expect(json).not.toContain('size');
+      expect(json).not.toContain('city');
+    });
   });
 });
