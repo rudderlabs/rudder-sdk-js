@@ -15,6 +15,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.XhrQueue,
   PluginName.OneTrust,
   PluginName.BeaconQueue,
+  PluginName.Bugsnag,
 ];
 
 export { defaultOptionalPluginsList };

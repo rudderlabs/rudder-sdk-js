@@ -10,6 +10,10 @@ import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import {
+  ErrorReportingProvidersToPluginNameMap,
+  ConsentManagersToPluginNameMap,
+} from '@rudderstack/analytics-js/components/configManager/constants';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -17,7 +21,6 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
-import { ConsentManagersToPluginNameMap } from '../configManager/types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -86,9 +89,24 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Error reporting related plugins
-    if (!state.reporting.isErrorReportingEnabled.value) {
+    const supportedErrorReportingProviderPlugins: string[] = Object.values(
+      ErrorReportingProvidersToPluginNameMap,
+    );
+    if (state.reporting.errorReportingProviderPlugin.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.ErrorReporting,
+        pluginName =>
+          !(
+            pluginName !== state.reporting.errorReportingProviderPlugin.value &&
+            supportedErrorReportingProviderPlugins.includes(pluginName)
+          ),
+      );
+    } else {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName =>
+          !(
+            pluginName === PluginName.ErrorReporting ||
+            supportedErrorReportingProviderPlugins.includes(pluginName)
+          ),
       );
     }
 

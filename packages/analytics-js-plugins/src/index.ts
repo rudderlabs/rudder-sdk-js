@@ -10,3 +10,4 @@ export { default as StorageEncryption } from './storageEncryption';
 export { default as StorageEncryptionLegacy } from './storageEncryptionLegacy';
 export { default as XhrQueue } from './xhrQueue';
 export { default as OneTrust } from './oneTrust';
+export { default as Bugsnag } from './bugsnag';

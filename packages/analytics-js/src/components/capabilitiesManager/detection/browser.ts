@@ -5,7 +5,7 @@ import {
   isFunction,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 
-const isBrowser = (): boolean => !isUndefined(window) && !isUndefined(globalThis.document);
+const isBrowser = (): boolean => !isUndefined(globalThis) && !isUndefined(globalThis.document);
 
 const isNode = (): boolean =>
   !isUndefined(process) && !isNull(process.versions) && !isNull(process.versions.node);

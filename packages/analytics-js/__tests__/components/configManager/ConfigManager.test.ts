@@ -166,6 +166,7 @@ describe('ConfigManager', () => {
   it('should update source, destination, lifecycle and reporting state with proper values', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
+      config: dummySourceConfigResponse.source.config,
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
 

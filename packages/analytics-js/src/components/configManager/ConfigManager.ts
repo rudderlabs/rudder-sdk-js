@@ -16,9 +16,11 @@ import { isFunction, isString } from '@rudderstack/analytics-js/components/utili
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse, ConsentManagersToPluginNameMap } from './types';
+import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
+import { updateReportingState } from './util/commonUtil';
+import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -125,7 +127,7 @@ class ConfigManager implements IConfigManager {
   processConfig(response?: SourceConfigResponse | string, rejectionDetails?: RejectionDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`, undefined, true);
+      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`);
       return;
     }
 
@@ -155,6 +157,11 @@ class ConfigManager implements IConfigManager {
       state.loadOptions.value.residencyServer,
       this.logger,
     );
+
+    if (!dataPlaneUrl) {
+      this.onError(`Unable to load the SDK as data plane URL could not be determined`);
+      return;
+    }
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
 
@@ -162,6 +169,7 @@ class ConfigManager implements IConfigManager {
     batch(() => {
       // set source related information in state
       state.source.value = {
+        config: res.source.config,
         id: res.source.id,
       };
 
@@ -174,10 +182,7 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.status.value = LifecycleStatus.Configured;
 
       // set the values in state for reporting slice
-      state.reporting.isErrorReportingEnabled.value =
-        res.source.config.statsCollection.errors.enabled || false;
-      state.reporting.isMetricsReportingEnabled.value =
-        res.source.config.statsCollection.metrics.enabled || false;
+      updateReportingState(res, this.logger);
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
@@ -216,7 +221,7 @@ class ConfigManager implements IConfigManager {
 
     // fetch source config from config url API
     this.httpClient.getAsyncData({
-      url: state.lifecycle.sourceConfigUrl.value,
+      url: state.lifecycle.sourceConfigUrl.value as string,
       options: {
         headers: {
           'Content-Type': undefined,

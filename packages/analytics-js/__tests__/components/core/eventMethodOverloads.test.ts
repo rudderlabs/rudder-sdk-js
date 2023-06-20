@@ -38,6 +38,37 @@ describe('Core - Event Method Overloads', () => {
       name: 'category',
       properties: { category: null, name: 'category' },
     });
+    expect(pageArgumentsToCallOptions('category')).toStrictEqual({
+      name: 'category',
+      properties: { category: null, name: 'category' },
+    });
+    expect(pageArgumentsToCallOptions('category', 'name')).toStrictEqual({
+      name: 'name',
+      category: 'category',
+      properties: { category: 'category', name: 'name' },
+    });
+    expect(pageArgumentsToCallOptions('category', 'name', { props: {} })).toStrictEqual({
+      name: 'name',
+      category: 'category',
+      properties: { category: 'category', name: 'name', props: {} },
+    });
+    expect(
+      pageArgumentsToCallOptions('category', 'name', { props: {} }, { options: {} }),
+    ).toStrictEqual({
+      name: 'name',
+      category: 'category',
+      options: {
+        options: {},
+      },
+      properties: { category: 'category', name: 'name', props: {} },
+    });
+    expect(pageArgumentsToCallOptions('category', { props: {} }, { options: {} })).toStrictEqual({
+      name: 'category',
+      options: {
+        options: {},
+      },
+      properties: { category: null, name: 'category', props: {} },
+    });
     expect(pageArgumentsToCallOptions(undefined, 'name', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'name',
@@ -92,6 +123,10 @@ describe('Core - Event Method Overloads', () => {
       properties: { properties: {} },
       name: 'event',
     });
+    expect(trackArgumentsToCallOptions('event')).toStrictEqual({
+      properties: {},
+      name: 'event',
+    });
   });
 
   it('should convert facade identify method arguments to analytics identify call options', () => {
@@ -116,6 +151,11 @@ describe('Core - Event Method Overloads', () => {
       identifyArgumentsToCallOptions({ traits: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
       callback: callbackMock,
+      traits: { traits: {} },
+      options: { options: {} },
+    });
+    expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
+      userId: '1234',
       traits: { traits: {} },
       options: { options: {} },
     });
@@ -147,6 +187,11 @@ describe('Core - Event Method Overloads', () => {
       to: null,
       from: undefined,
     });
+    expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
+      userId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
+    });
     expect(aliasArgumentsToCallOptions({ options: {} })).toStrictEqual({
       options: { options: {} },
       to: null,
@@ -166,10 +211,13 @@ describe('Core - Event Method Overloads', () => {
     expect(groupArgumentsToCallOptions('groupId', { traits: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       groupId: 'groupId',
+      options: undefined,
       traits: { traits: {} },
     });
     expect(groupArgumentsToCallOptions('groupId', callbackMock)).toStrictEqual({
       callback: callbackMock,
+      options: undefined,
+      traits: undefined,
       groupId: 'groupId',
     });
     expect(groupArgumentsToCallOptions(callbackMock)).toStrictEqual({
@@ -185,6 +233,11 @@ describe('Core - Event Method Overloads', () => {
     expect(groupArgumentsToCallOptions({ traits: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       traits: { traits: {} },
+    });
+    expect(groupArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
+      groupId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   isString,
   isUndefined,
   isNullOrUndefined,
+  isTypeOfError,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 
 describe('Common Utils - Checks', () => {
@@ -53,6 +54,18 @@ describe('Common Utils - Checks', () => {
       expect(isNullOrUndefined([])).toBeFalsy();
       expect(isNullOrUndefined(null)).toBeTruthy();
       expect(isNullOrUndefined(undefined)).toBeTruthy();
+    });
+  });
+
+  describe('isTypeOfError', () => {
+    it('should check if value is instance of Error', () => {
+      expect(isTypeOfError(new Error())).toBeTruthy();
+      expect(isTypeOfError('')).toBeFalsy();
+      expect(isTypeOfError({})).toBeFalsy();
+      expect(isTypeOfError(0)).toBeFalsy();
+      expect(isTypeOfError([])).toBeFalsy();
+      expect(isTypeOfError(null)).toBeFalsy();
+      expect(isTypeOfError(undefined)).toBeFalsy();
     });
   });
 });

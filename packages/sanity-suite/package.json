@@ -137,12 +137,12 @@
   "browserslist": {
     "production": [
       "defaults",
-      "Edge >= 15",
-      "Firefox >= 40",
-      "IE >= 10",
-      "Chrome >= 37",
+      "Edge >= 80",
+      "Firefox >= 47",
+      "IE >= 11",
+      "Chrome >= 54",
       "Safari >= 7",
-      "Opera >= 23"
+      "Opera >= 43"
     ],
     "development": [
       "last 1 chrome version",

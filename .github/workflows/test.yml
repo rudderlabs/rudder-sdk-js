@@ -25,12 +25,18 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Execute unit tests
+      - name: Install dependencies
         env:
           HUSKY: 0
         run: |
           npm ci
+
+      - name: Execute unit tests
+        run: |
           npm run test:ci
+
+      - name: Execute linting check
+        run: |
           npm run check:lint
 
       - name: Fix filesystem paths in generated reports
