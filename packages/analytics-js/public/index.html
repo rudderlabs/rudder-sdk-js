@@ -48,9 +48,12 @@
       var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        // destSDKBaseURL: '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
+        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
-        // useBeacon: true
+        // useBeacon: true,
+        // beaconQueueOptions: {
+        //   flushQueueInterval: 60 * 1000,
+        // }
       };
 
       rudderanalytics.load(

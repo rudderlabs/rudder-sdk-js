@@ -53,7 +53,10 @@
         configUrl: 'https://api.rudderlabs.com',
         destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        useBeacon: true
+        useBeacon: true,
+        beaconQueueOptions: {
+          flushQueueInterval: 60 * 1000,
+        }
       };
 
       rudderanalytics.load(
