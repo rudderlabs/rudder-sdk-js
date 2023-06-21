@@ -12,6 +12,7 @@
       "ignoreChanges": [
         "**/__tests__/**",
         "**/__mocks__/**",
+        "**/__fixtures__/**",
         "tsconfig.*",
         "*.config.*",
         "*.md",

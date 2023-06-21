@@ -2,7 +2,13 @@
   "threshold": 10,
   "reporters": ["html", "console"],
   "pattern": "**/(src)/**/*",
-  "ignore": ["**/__tests__/**", "**/__mocks__/**", "**/node_modules/**", "*.test.*"],
+  "ignore": [
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/__fixtures__/**",
+    "**/node_modules/**",
+    "*.test.*"
+  ],
   "absolute": true,
   "gitignore": true,
   "output": "./reports/",

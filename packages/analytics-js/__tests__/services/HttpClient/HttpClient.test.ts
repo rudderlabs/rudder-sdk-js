@@ -1,9 +1,9 @@
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { server } from '../../../__mocks__/msw.server';
-import { dummyDataplaneHost } from '../../../__mocks__/fixtures';
 import { RejectionDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { server } from '../../../__fixtures__/msw.server';
+import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');

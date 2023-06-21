@@ -5,8 +5,8 @@ import {
   createScriptElement,
   insertScript,
 } from '@rudderstack/analytics-js/services/ExternalSrcLoader/jsFileLoader';
-import { server } from '../../../__mocks__/msw.server';
-import { dummyDataplaneHost } from '../../../__mocks__/fixtures';
+import { server } from '../../../__fixtures__/msw.server';
+import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');

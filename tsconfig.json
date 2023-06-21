@@ -28,6 +28,7 @@
   "include": [
     "packages/**/src/**/*",
     "packages/**/__mocks__/**/*",
+    "packages/**/__fixtures__/**/*",
     "packages/**/__tests__/**/*",
     "packages/**/scripts/**/*.js",
     "types/**/*",

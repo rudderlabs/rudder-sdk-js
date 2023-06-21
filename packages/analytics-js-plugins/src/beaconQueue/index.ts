@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { Queue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { DoneCallback, ExtensionPlugin, IQueue, QueueItem } from '../types/plugins';
+import { getCurrentTimeFormatted } from '../utilities/common';
+// TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
+import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
 import {
-  ExtensionPlugin,
   ApplicationState,
   ILogger,
   IErrorHandler,
@@ -11,7 +12,10 @@ import {
   IStoreManager,
   BeaconQueueOpts,
 } from '../types/common';
-import { getNormalizedBeaconQueueOptions, getDeliveryUrl } from './utilities';
+import { Queue } from './Queue';
+import { QUEUE_NAME } from './constants';
+import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
+import { BeaconQueueItem } from './types';
 
 const pluginName = 'BeaconQueue';
 
@@ -37,27 +41,64 @@ const BeaconQueue = (): ExtensionPlugin => ({
       storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): Queue {
+    ): IQueue {
+      const writeKey = state.lifecycle.writeKey.value as string;
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
-      const url = getDeliveryUrl(dataplaneUrl);
+      const url = getDeliveryUrl(dataplaneUrl, writeKey);
 
-      const finalQOpts = getNormalizedBeaconQueueOptions(
-        state.loadOptions.value.beaconQueueOptions ?? ({} as BeaconQueueOpts),
+      const finalQOpts: BeaconQueueOpts = getNormalizedBeaconQueueOptions(
+        state.loadOptions.value.beaconQueueOptions ?? {},
       );
 
-      // const eventsQueue = new Queue();
-      //
-      // window.addEventListener('unload', sendQueueData);
-      //
-      // return eventsQueue;
+      const queueProcessCallback = (
+        queueItems: QueueItem<BeaconQueueItem>[],
+        done: DoneCallback,
+      ) => {
+        logger?.debug(`Sending beacon events to data plane`);
+        const finalEvents = queueItems.map(queueItems =>
+          getFinalEventForDeliveryMutator(queueItems.item.event, state),
+        );
+        const data = getDeliveryPayload(finalEvents);
 
-      return new Queue('dummy', {}, () => {}, storeManager);
+        if (data) {
+          try {
+            if (!state.capabilities.isBeaconAvailable) {
+              logger?.error('Beacon API is not supported by browser');
+            }
+
+            const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
+            if (!isEnqueuedInBeacon) {
+              logger?.error("Unable to queue data to browser's beacon queue");
+            }
+
+            done(null, isEnqueuedInBeacon);
+          } catch (e) {
+            (e as Error).message = `${(e as Error).message} - While sending Beacon data to: ${url}`;
+            done(e);
+          }
+        } else {
+          logger?.error(
+            `Unable to prepare the event batch payload for delivery. It'll be dropped.`,
+          );
+          // Mark the item as done so that it can be removed from the queue
+          done(null);
+        }
+      };
+
+      const eventsQueue = new Queue(
+        `${QUEUE_NAME}_${writeKey}}`,
+        finalQOpts,
+        queueProcessCallback,
+        storeManager,
+      );
+
+      return eventsQueue;
     },
 
     /**
      * Add event to the queue for delivery
      * @param state Application state
-     * @param eventsQueue Queue instance
+     * @param eventsQueue IQueue instance
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance
@@ -65,14 +106,19 @@ const BeaconQueue = (): ExtensionPlugin => ({
      */
     enqueue(
       state: ApplicationState,
-      eventsQueue: any,
+      eventsQueue: IQueue,
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): void {
-      // TODO: Implement this
-      // TODO: Remove this console log
-      logger?.log('Item enqueued', event);
+      // sentAt is only added here for the validation step
+      // It'll be updated to the latest timestamp during actual delivery
+      event.sentAt = getCurrentTimeFormatted();
+      validateEventPayloadSize(event, logger);
+
+      eventsQueue.addItem({
+        event,
+      } as BeaconQueueItem);
     },
   },
 });

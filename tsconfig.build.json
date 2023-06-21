@@ -7,6 +7,6 @@
     "declarationDir": "dist/dts"
   },
   "include": ["./package.json", "./packages/**/src/**/*", "./types/**/*"],
-  "exclude": ["node_modules/", "dist/", "__tests__/", "__mocks__/"],
+  "exclude": ["node_modules/", "dist/", "__tests__/", "__mocks__/", "__fixtures__/"],
   "references": []
 }

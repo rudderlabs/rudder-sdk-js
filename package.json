@@ -56,6 +56,7 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
   "dependencies": {
+    "@bugsnag/js": "6.5.2",
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/defaults": "2.0.1",
     "@ndhoule/each": "2.0.1",

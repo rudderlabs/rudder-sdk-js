@@ -1,9 +1,9 @@
-import track1ExpectedData from '../../__mocks__/track1.json';
-import track2ExpectedData from '../../__mocks__/track2.json';
-import track4ExpectedData from '../../__mocks__/track4.json';
-import track5ExpectedData from '../../__mocks__/track5.json';
-import track6ExpectedData from '../../__mocks__/track6.json';
-import track7ExpectedData from '../../__mocks__/track7.json';
+import track1ExpectedData from '../../__fixtures__/track1.json';
+import track2ExpectedData from '../../__fixtures__/track2.json';
+import track4ExpectedData from '../../__fixtures__/track4.json';
+import track5ExpectedData from '../../__fixtures__/track5.json';
+import track6ExpectedData from '../../__fixtures__/track6.json';
+import track7ExpectedData from '../../__fixtures__/track7.json';
 
 const trackMethodSuite = {
   id: 'trackMethod',

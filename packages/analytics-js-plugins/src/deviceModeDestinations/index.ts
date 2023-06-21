@@ -1,9 +1,4 @@
 /* eslint-disable no-param-reassign */
-import {
-  INITIALIZED_CHECK_POLL_INTERVAL,
-  LOAD_CHECK_TIMEOUT,
-} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
-import { destDispNamesToFileNamesMap } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/destDispNamesToFileNames';
 import { clone } from 'ramda';
 import {
   createDestinationInstance,
@@ -13,14 +8,11 @@ import {
   filterDestinations,
   getCumulativeIntegrationsConfig,
 } from './utils';
-import {
-  ExtensionPlugin,
-  IExternalSrcLoader,
-  ApplicationState,
-  ILogger,
-  IPluginsManager,
-} from '../types/common';
+import { IExternalSrcLoader, ApplicationState, ILogger, IPluginsManager } from '../types/common';
+import { ExtensionPlugin } from '../types/plugins';
 import { isHybridModeDestination } from '../utilities/common';
+import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
+import { destDispNamesToFileNamesMap } from './destDispNamesToFileNames';
 
 const pluginName = 'DeviceModeDestinations';
 

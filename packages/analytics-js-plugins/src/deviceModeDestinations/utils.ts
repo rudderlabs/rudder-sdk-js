@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
+import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 import {
   ApiCallback,
   ApiObject,
@@ -10,8 +11,8 @@ import {
   ILogger,
   IRudderAnalytics,
   IntegrationOpts,
-  Nullable,
-} from '@rudderstack/analytics-js-plugins/types/common';
+} from '../types/common';
+import { Nullable } from '../types/plugins';
 import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
@@ -19,8 +20,6 @@ import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
-  isDestIntgConfigFalsy,
-  isDestIntgConfigTruthy,
   isFunction,
   isUndefined,
   mergeDeepRight,
@@ -117,7 +116,8 @@ const createDestinationInstance = (
       getSessionId: () => analytics.getSessionId(),
     } as DeviceModeDestinationsAnalyticsInstance,
     {
-      areTransformationsConnected: dest.areTransformationsConnected,
+      enableTransformationForDeviceMode: dest.enableTransformationForDeviceMode,
+      propagateEventsUntransformedOnError: dest.propagateEventsUntransformedOnError,
       destinationId: dest.id,
     },
   );

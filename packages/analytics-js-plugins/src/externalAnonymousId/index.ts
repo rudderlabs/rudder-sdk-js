@@ -1,11 +1,6 @@
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  AnonymousIdOptions,
-  StorageType,
-  IStorage,
-} from '../types/common';
+import { ApplicationState, StorageType, IStorage } from '../types/common';
+import { ExtensionPlugin, AnonymousIdOptions } from '../types/plugins';
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';
 

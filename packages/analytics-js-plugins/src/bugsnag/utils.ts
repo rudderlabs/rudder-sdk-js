@@ -1,4 +1,5 @@
-import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { BugsnagLib } from '../types/plugins';
 import {
   API_KEY,
   BUGSNAG_CDN_URL,
@@ -129,7 +130,11 @@ const isApiKeyValid = (apiKey: string): boolean => {
   return isAPIKeyValid;
 };
 
-const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger) => {
+const loadBugsnagSDK = (
+  externalSrcLoader: IExternalSrcLoader,
+  logger?: ILogger,
+  done?: () => void,
+) => {
   const isNotLoaded = GLOBAL_LIBRARY_OBJECT_NAMES.every(
     globalKeyName => !(globalThis as any)[globalKeyName],
   );

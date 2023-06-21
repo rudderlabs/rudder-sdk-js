@@ -1,50 +1,38 @@
-import {
-  MAX_EVENT_PAYLOAD_SIZE_BYTES,
-  DATA_PLANE_API_VERSION,
-  DEFAULT_BEACON_QUEUE_OPTIONS,
-} from './constants';
+import { DATA_PLANE_API_VERSION, DEFAULT_BEACON_QUEUE_OPTIONS } from './constants';
 import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
-import { BeaconQueueOpts, RudderEvent, ILogger, Nullable } from '../types/common';
+import { BeaconQueueOpts, RudderEvent, ILogger } from '../types/common';
+import { BeaconBatchData } from './types';
 
 /**
- * Utility to get the stringified event payload
- * @param event RudderEvent object
+ * Utility to get the stringified event payload as Blob
+ * @param events RudderEvent object array
  * @param logger Logger instance
- * @returns stringified event payload. Empty string if error occurs.
+ * @returns stringified events payload as Blob, undefined if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> => {
-  let deliveryPayloadStr: Nullable<string> = '';
+const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
+  const data: BeaconBatchData = {
+    batch: events,
+  };
+
   try {
-    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
-  } catch (err) {
-    logger?.error(`Error while converting event object to string. Error: ${err}.`);
-  }
-  return deliveryPayloadStr;
-};
+    const blobPayload = stringifyWithoutCircular(data, true);
+    const blobOptions: BlobPropertyBag = { type: 'text/plain' };
 
-/**
- * Utility to validate final payload size before sending to server
- * @param event RudderEvent object
- * @param logger Logger instance
- */
-const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
-  const payloadStr = getDeliveryPayload(event, logger);
-  if (payloadStr) {
-    const payloadSize = payloadStr.length;
-    if (payloadSize > MAX_EVENT_PAYLOAD_SIZE_BYTES) {
-      logger?.warn(
-        `The event payload size (${payloadSize}) exceeds the maximum limit of ${MAX_EVENT_PAYLOAD_SIZE_BYTES} bytes. The event might get dropped.`,
-      );
+    if (blobPayload) {
+      return new Blob([blobPayload], blobOptions);
     }
-  } else {
-    logger?.error(`Error while calculating event payload size.`);
+    logger?.error(`Error while converting event batch object to Blob.`);
+  } catch (err) {
+    logger?.error(`Error while converting event batch object to string. Error: ${err}.`);
   }
+
+  return undefined;
 };
 
 const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueueOpts =>
   mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
 
-const getDeliveryUrl = (dataplaneUrl: string): string =>
-  new URL(`/beacon/${DATA_PLANE_API_VERSION}/batch`, dataplaneUrl).toString();
+const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string =>
+  new URL(`/beacon/${DATA_PLANE_API_VERSION}/batch?writeKey=${writeKey}`, dataplaneUrl).toString();
 
-export { validatePayloadSize, getDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };
+export { getDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

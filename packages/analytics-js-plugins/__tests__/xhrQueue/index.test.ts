@@ -101,7 +101,7 @@ describe('XhrQueue', () => {
       originalTimestamp: 'test',
     };
 
-    const queueProcessCbSpy = jest.spyOn(queue, 'fn');
+    const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
     XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
 

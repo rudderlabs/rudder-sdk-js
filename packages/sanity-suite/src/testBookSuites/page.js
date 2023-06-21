@@ -1,10 +1,10 @@
-import page1ExpectedData from '../../__mocks__/page1.json';
-import page2ExpectedData from '../../__mocks__/page2.json';
-import page4ExpectedData from '../../__mocks__/page4.json';
-import page5ExpectedData from '../../__mocks__/page5.json';
-import page6ExpectedData from '../../__mocks__/page6.json';
-import page7ExpectedData from '../../__mocks__/page7.json';
-import page8ExpectedData from '../../__mocks__/page8.json';
+import page1ExpectedData from '../../__fixtures__/page1.json';
+import page2ExpectedData from '../../__fixtures__/page2.json';
+import page4ExpectedData from '../../__fixtures__/page4.json';
+import page5ExpectedData from '../../__fixtures__/page5.json';
+import page6ExpectedData from '../../__fixtures__/page6.json';
+import page7ExpectedData from '../../__fixtures__/page7.json';
+import page8ExpectedData from '../../__fixtures__/page8.json';
 
 const pageMethodSuite = {
   id: 'pageMethod',

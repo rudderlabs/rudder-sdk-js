@@ -1,17 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { XHRQueueItem } from './types';
 import {
-  getNormalizedQueueOptions,
   getDeliveryPayload,
-  validatePayloadSize,
-  getDeliveryUrl,
-  getFinalEventForDelivery,
-} from './utilities';
+  getFinalEventForDeliveryMutator,
+  validateEventPayloadSize,
+} from '../utilities/queue';
 import {
   IStoreManager,
-  ExtensionPlugin,
   ApplicationState,
   IErrorHandler,
   ILogger,
@@ -19,8 +14,12 @@ import {
   RudderEvent,
   IHttpClient,
 } from '../types/common';
+import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
-import { DoneCallback, Queue } from '../utilities/retryQueue';
+import { Queue } from '../utilities/retryQueue';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { XHRQueueItem } from './types';
+import { getNormalizedQueueOptions, getDeliveryUrl } from './utilities';
 
 const pluginName = 'XhrQueue';
 
@@ -61,14 +60,14 @@ const XhrQueue = (): ExtensionPlugin => ({
         (
           item: XHRQueueItem,
           done: DoneCallback,
-          attemptNumber: number,
-          maxRetryAttempts: number,
-          willBeRetried: boolean,
+          attemptNumber?: number,
+          maxRetryAttempts?: number,
+          willBeRetried?: boolean,
         ) => {
           const { url, event, headers } = item;
           logger?.debug(`Sending ${event.type} event to data plane`);
 
-          const finalEvent = getFinalEventForDelivery(event, state);
+          const finalEvent = getFinalEventForDeliveryMutator(event, state);
 
           const data = getDeliveryPayload(finalEvent);
 
@@ -128,7 +127,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      */
     enqueue(
       state: ApplicationState,
-      eventsQueue: Queue,
+      eventsQueue: IQueue,
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
@@ -136,7 +135,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
-      validatePayloadSize(event, logger);
+      validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);

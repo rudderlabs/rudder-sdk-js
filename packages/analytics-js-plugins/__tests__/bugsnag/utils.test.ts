@@ -11,7 +11,8 @@ import {
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ExternalSrcLoader, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-plugins/utilities/common';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -302,10 +303,13 @@ describe('Bugsnag utilities', () => {
       expect(insertBeforeSpy).not.toHaveBeenCalled();
     });
 
-    it('should attempt to load Bugsnag SDK if not already loaded', () => {
-      loadBugsnagSDK(extSrcLoader);
+    it('should attempt to load Bugsnag SDK if not already loaded', done => {
+      loadBugsnagSDK(extSrcLoader, undefined);
 
-      expect(insertBeforeSpy).toHaveBeenCalled();
+      setTimeout(() => {
+        expect(insertBeforeSpy).toHaveBeenCalled();
+        done();
+      }, 500);
     });
 
     it('should log error if Bugsnag SDK could not be loaded', done => {

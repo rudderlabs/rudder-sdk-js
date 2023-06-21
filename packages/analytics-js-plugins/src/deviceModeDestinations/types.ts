@@ -1,14 +1,13 @@
 import {
   ApiObject,
   IntegrationOpts,
-  LogLevel,
-  Nullable,
   AnalyticsAliasMethod,
   AnalyticsGroupMethod,
   AnalyticsIdentifyMethod,
   AnalyticsPageMethod,
   AnalyticsTrackMethod,
 } from '../types/common';
+import { LogLevel, Nullable } from '../types/plugins';
 
 export type DeviceModeDestinationsAnalyticsInstance = {
   loadIntegration: boolean;

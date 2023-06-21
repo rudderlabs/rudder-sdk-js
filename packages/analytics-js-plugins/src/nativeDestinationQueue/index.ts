@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { Queue, DoneCallback } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { Queue } from '../utilities/retryQueue';
 import {
   IStoreManager,
-  ExtensionPlugin,
   ApplicationState,
   QueueOpts,
   RudderEvent,
@@ -12,6 +11,7 @@ import {
   Destination,
   IPluginsManager,
 } from '../types/common';
+import { DoneCallback, ExtensionPlugin } from '../types/plugins';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
@@ -66,7 +66,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               return;
             }
 
-            if (dest.areTransformationsConnected) {
+            if (dest.enableTransformationForDeviceMode) {
               pluginsManager.invokeSingle('transformEvent.enqueue', state, item, dest, logger);
             } else {
               sendEventToDestination(item, dest, errorHandler, logger);
