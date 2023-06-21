@@ -8,6 +8,8 @@ import {
   validatePayloadSize,
   getDeliveryUrl,
   getFinalEventForDelivery,
+  isErrRetryable,
+  logErrorOnFailure,
 } from './utilities';
 import {
   IStoreManager,
@@ -84,25 +86,19 @@ const XhrQueue = (): ExtensionPlugin => ({
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
               callback: (result, rejectionReason) => {
-                // TODO: use rejectionReason.hxr.status to determine retry logic
-                //   v1.1 was 429 and 500 <= 600
-                if (result === undefined) {
-                  let errMsg = `Unable to deliver event to ${url}.`;
+                // null means item will not be requeued
+                const queueErrResp = isErrRetryable(rejectionReason) ? rejectionReason : null;
 
-                  if (willBeRetried) {
-                    errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
-                  } else {
-                    errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
-                  }
+                logErrorOnFailure(
+                  rejectionReason,
+                  item,
+                  willBeRetried,
+                  attemptNumber,
+                  maxRetryAttempts,
+                  logger,
+                );
 
-                  logger?.error(errMsg);
-
-                  // failed
-                  done(result);
-                } else {
-                  // success
-                  done(null);
-                }
+                done(queueErrResp, result);
               },
             });
           } else {

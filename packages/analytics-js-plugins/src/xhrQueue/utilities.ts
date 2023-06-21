@@ -20,7 +20,9 @@ import {
   Nullable,
   ApplicationState,
   IntegrationOpts,
+  RejectionDetails,
 } from '../types/common';
+import { XHRQueueItem } from './types';
 
 /**
  * Utility to get the stringified event payload
@@ -60,9 +62,10 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
 
-const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string =>
-  // eslint-disable-next-line compat/compat
-  new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
+const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => {
+  const dpUrl = new URL(dataplaneUrl);
+  return new URL(path.join(dpUrl.pathname, DATA_PLANE_API_VERSION, eventType), dpUrl).href;
+};
 
 /**
  * Mutates the event and return final event for delivery
@@ -110,10 +113,48 @@ const getFinalEventForDelivery = (event: RudderEvent, state: ApplicationState): 
   return finalEvent;
 };
 
+const isErrRetryable = (rejectionReason?: RejectionDetails) => {
+  let isRetryableNWFailure = false;
+  if (rejectionReason?.xhr) {
+    const xhrStatus = rejectionReason.xhr.status;
+    // same as in v1.1
+    isRetryableNWFailure = xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
+  }
+  return isRetryableNWFailure;
+};
+
+const logErrorOnFailure = (
+  rejectionReason: RejectionDetails | undefined,
+  item: XHRQueueItem,
+  willBeRetried: boolean,
+  attemptNumber: number,
+  maxRetryAttempts: number,
+  logger?: ILogger,
+) => {
+  if (isUndefined(rejectionReason) || isUndefined(logger)) {
+    return;
+  }
+
+  const isRetryableFailure = isErrRetryable(rejectionReason);
+  let errMsg = `Unable to deliver event to ${item.url}.`;
+  if (isRetryableFailure) {
+    if (willBeRetried) {
+      errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+    } else {
+      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
+    }
+  } else {
+    errMsg = `${errMsg} It'll be dropped.`;
+  }
+  logger?.error(errMsg);
+};
+
 export {
   validatePayloadSize,
   getDeliveryPayload,
   getDeliveryUrl,
   getNormalizedQueueOptions,
   getFinalEventForDelivery,
+  isErrRetryable,
+  logErrorOnFailure,
 };

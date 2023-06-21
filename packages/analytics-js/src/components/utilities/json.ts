@@ -54,7 +54,13 @@ const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | str
   excludeNull?: boolean,
   excludeKeys?: string[],
   logger?: ILogger,
-): string | undefined =>
-  JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
+): Nullable<string> => {
+  try {
+    return JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
+  } catch (err) {
+    logger?.debug(`Error occurred while converting to string: ${err}`);
+    return null;
+  }
+};
 
 export { stringifyWithoutCircular };
