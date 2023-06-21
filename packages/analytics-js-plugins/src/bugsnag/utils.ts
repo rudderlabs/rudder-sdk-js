@@ -1,5 +1,5 @@
 import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
-import { isUndefined, stringifyWithoutCircular } from '../utilities/common';
+import { stringifyWithoutCircular } from '../utilities/common';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
