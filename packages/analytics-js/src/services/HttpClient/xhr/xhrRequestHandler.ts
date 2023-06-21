@@ -61,7 +61,7 @@ const xhrRequest = (
           undefined,
           options,
         });
-        // return and don't process further
+        // return and don't process further if the payload could not be stringified
         return;
       }
     }

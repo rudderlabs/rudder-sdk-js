@@ -21,7 +21,7 @@ import {
   RudderEvent,
   IHttpClient,
 } from '../types/common';
-import { getCurrentTimeFormatted, isUndefined, toBase64 } from '../utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 import { DoneCallback, Queue } from '../utilities/retryQueue';
 
 const pluginName = 'XhrQueue';
