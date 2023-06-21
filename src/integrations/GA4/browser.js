@@ -70,15 +70,11 @@ export default class GA4 {
       if (!defaultGA4Cookie && clientCookie && sessionCookie) {
         const clientCookieArray = clientCookie.split('.');
 
-        let clientId;
-        if (clientCookieArray.length > 3) {
-          // client_id cookie : GA1.1.51545857.1686555747
-          clientId = `${clientCookieArray[2]}.${clientCookieArray[3]}`;
-        } else {
-          // client_id cookie : GA1.1.48512441-5e44-4860-9900-a8f6e6bc4041
-          const [, , rest] = clientCookieArray[2];
-          clientId = rest;
-        }
+        // client_id cookie : GA1.1.51545857.1686555747
+        // client_id cookie : GA1.1.48512441-5e44-4860-9900-a8f6e6bc4041
+        const clientId = clientCookieArray.length > 3
+          ? `${clientCookieArray[2]}.${clientCookieArray[3]}`
+          : clientCookieArray[2];
 
         // session_id cookie : GS1.1.1686558743.1.1.1686558965.7.0.0
         const sessionCookieArray = sessionCookie.split('.');
