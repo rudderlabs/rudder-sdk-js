@@ -635,38 +635,42 @@ class FacebookPixel {
     ];
     const whitelistPiiProperties = this.whitelistPiiProperties || [];
     const blacklistPiiProperties = this.blacklistPiiProperties || [];
-    const customPiiProperties = {};
-    for (let i = 0; i < blacklistPiiProperties[i]; i += 1) {
-      const configuration = blacklistPiiProperties[i];
-      customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
-    }
-    const payload = {};
+
+    const shouldPropBeHashedMap = blacklistPiiProperties.reduce((acc, currProp) => {
+      acc[currProp.blacklistPiiProperties] = currProp.blacklistPiiHash;
+      return acc;
+    }, {});
+    const whitelistPiiPropertiesNames = whitelistPiiProperties.map(
+      (propObject) => propObject.whitelistPiiProperties,
+    );
+
     const { properties } = rudderElement.message;
-    for (const property in properties) {
-      if (!properties.hasOwnProperty(property)) {
-        continue;
+
+    const payload = Object.entries(properties).reduce((acc, [currPropName, currPropValue]) => {
+      const isPropertyPii =
+        defaultPiiProperties.includes(currPropName) ||
+        shouldPropBeHashedMap.hasOwnProperty(currPropName);
+
+      const isProperyWhiteListed = whitelistPiiPropertiesNames.includes(currPropName);
+
+      const isDateProp = dateFields.includes(currPropName) && is.date(currPropValue);
+
+      if (isDateProp) {
+        [acc[currPropName]] = currPropValue.toISOString().split('T');
       }
 
-      const value = properties[property];
+      if (shouldPropBeHashedMap[currPropName] && typeof currPropValue === 'string') {
+        acc[currPropName] = sha256(currPropValue).toString();
+      } else if ((!isPropertyPii || isProperyWhiteListed) && !isDateProp) {
+        acc[currPropName] = currPropValue;
+      } else {
+        logger.debug(
+          `[Facebook Pixel] PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
+        );
+      }
 
-      if (dateFields.includes(properties) && is.date(value)) {
-        const [dateValue] = value.toISOString().split('T');
-        payload[property] = dateValue;
-        continue;
-      }
-      if (
-        customPiiProperties.hasOwnProperty(property) &&
-        customPiiProperties[property] &&
-        typeof value === 'string'
-      ) {
-        payload[property] = sha256(value).toString();
-      }
-      const isPropertyPii = defaultPiiProperties.includes(property);
-      const isProperyWhiteListed = whitelistPiiProperties.includes(property);
-      if (!isPropertyPii || isProperyWhiteListed) {
-        payload[property] = value;
-      }
-    }
+      return acc;
+    }, {});
     return payload;
   }
 }
