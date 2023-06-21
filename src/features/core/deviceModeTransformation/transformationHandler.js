@@ -61,71 +61,75 @@ class TransformationsHandler {
               const { status } = xhr;
               let { response } = xhr;
 
-              if (status === 200) {
-                if (response && typeof response === 'string') {
-                  response = JSON.parse(response);
-                } else {
-                  reject(`[Transformation]:: Transformation failed. Invalid response from server.`);
+              switch (status) {
+                case 200: {
+                  if (response && typeof response === 'string') {
+                    response = JSON.parse(response);
+                  }
+                  /**
+                   * Sample Response format:
+                   * {
+                      "transformedBatch" :[
+                        {
+                          "id": "destination-id",
+                          "payload": [
+                            {
+                              "orderNo":1,
+                              "status": "200",
+                              "event": {
+                                "message": { ...}
+                            }]
+                        }]
+                      } 
+                  */
+                  resolve({
+                    status,
+                    transformedPayload: response.transformedBatch,
+                    transformationServerAccess: true,
+                  });
                   return;
                 }
-                /**
-                 * Sample Response format:
-                 * {
-                    "transformedBatch" :[
-                      {
-                        "id": "destination-id",
-                        "payload": [
-                          {
-                            "orderNo":1,
-                            "status": "200",
-                            "event": {
-                              "message": { ...}
-                          }]
-                      }]
-                    } 
-                */
-                resolve({
-                  transformedPayload: response.transformedBatch,
-                  transformationServerAccess: true,
-                });
-                return;
-              }
-              if (status === 400) {
-                const errorMessage = response
-                  ? `[Transformation]:: ${response}`
-                  : `[Transformation]:: Invalid request payload`;
-                reject(errorMessage);
-                return;
-              }
-              if (status === 404) {
-                resolve({
-                  transformedPayload: payload.batch,
-                  transformationServerAccess: false,
-                });
-                return;
-              }
-
-              // If the request is not successful
-              // retry till the retryAttempt is exhausted
-              if (retryAttempt > 0) {
-                const newRetryAttempt = retryAttempt - 1;
-                setTimeout(
-                  () =>
-                    this.sendEventForTransformation(payload, newRetryAttempt)
-                      .then(resolve)
-                      .catch(reject),
-                  RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
-                );
-              } else {
-                // Even after all the retries event transformation
-                // is not successful, ignore the event
-                resolve({
-                  transformedPayload: payload.batch,
-                  transformationServerAccess: true,
-                  retryFailed: true,
-                  status,
-                });
-                return;
+                case 400: {
+                  const errorMessage = response
+                    ? `[Transformation]:: ${response}`
+                    : `[Transformation]:: Invalid request payload`;
+                  resolve({
+                    status,
+                    transformationServerAccess: true,
+                    errorMessage,
+                  });
+                  return;
+                }
+                case 404: {
+                  resolve({
+                    status,
+                    transformationServerAccess: false,
+                  });
+                  return;
+                }
+                default: {
+                  // If the request is not successful
+                  // retry till the retryAttempt is exhausted
+                  if (retryAttempt > 0) {
+                    const newRetryAttempt = retryAttempt - 1;
+                    setTimeout(
+                      () =>
+                        this.sendEventForTransformation(payload, newRetryAttempt)
+                          .then(resolve)
+                          .catch(reject),
+                      RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
+                    );
+                  } else {
+                    // Even after all the retries event transformation
+                    // is not successful, return the response with a flag retryExhausted
+                    resolve({
+                      status,
+                      transformationServerAccess: true,
+                      retryExhausted: true,
+                    });
+                    return;
+                  }
+                }
               }
             } catch (err) {
               reject(err);

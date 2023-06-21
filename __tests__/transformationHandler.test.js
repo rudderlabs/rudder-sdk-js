@@ -62,33 +62,13 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Transformation server response is in wrong format in case of successful transformation', async () => {
-    DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/invalidResponse`);
-
-    await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
-      .then((response) => {
-        console.log(response);
-        expect('to').toBe('fail');
-      })
-      .catch((e) => {
-        expect(typeof e).toBe('string');
-      });
-  });
-
   it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/accessDenied`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then((response) => {
         expect(response.transformationServerAccess).toEqual(false);
-        expect(response.transformedPayload).toEqual(payload.batch);
-
-        const destObj = response.transformedPayload[0];
-
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'event')).toBe(true);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'orderNo')).toBe(true);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'id')).toBe(false);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'payload')).toEqual(false);
+        expect(response.status).toEqual(404);
       })
       .catch((e) => {
         console.log(e);
@@ -96,7 +76,7 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Validate whether the SDK is retrying the request in case failures and send the original event back to calling fn when retry count exhausted', async () => {
+  it('Validate whether the SDK is retrying the request in case failures and send retryExhausted flag as true', async () => {
     let counter = 0;
     server.use(
       rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
@@ -111,9 +91,8 @@ describe('Test suite for device mode transformation feature', () => {
       .then((response) => {
         console.log(response);
         expect(counter).toEqual(retryCount + 1); // retryCount+ first attempt
-        expect(response.transformedPayload).toStrictEqual(payload.batch);
         expect(response.transformationServerAccess).toBe(true);
-        expect(response.retryFailed).toBe(true);
+        expect(response.retryExhausted).toBe(true);
         expect(response.status).toBe(500);
       })
       .catch((e) => {
@@ -149,7 +128,9 @@ describe('Test suite for device mode transformation feature', () => {
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then((response) => {
         console.log(response);
-        expect('to').toBe('fail');
+        expect(response.transformationServerAccess).toBe(true);
+        expect(typeof response.errorMessage).toBe('string');
+        expect(response.status).toBe(400);
       })
       .catch((e) => {
         expect(typeof e).toBe('string');
