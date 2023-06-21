@@ -15,7 +15,10 @@ export type {
   IErrorHandler,
   IExternalSrcLoader,
 } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-export type { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+export type {
+  IHttpClient,
+  RejectionDetails,
+} from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';

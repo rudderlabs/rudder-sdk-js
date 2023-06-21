@@ -8,6 +8,8 @@ import {
   validatePayloadSize,
   getDeliveryUrl,
   getFinalEventForDelivery,
+  isErrRetryable,
+  logErrorOnFailure,
 } from './utilities';
 import {
   IStoreManager,
@@ -84,34 +86,17 @@ const XhrQueue = (): ExtensionPlugin => ({
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
               callback: (result, rejectionReason) => {
-                // default response is null
-                // to remove the entry from the queue
-                let queueErrResp = null;
+                // null means item will not be requeued
+                const queueErrResp = isErrRetryable(rejectionReason) ? rejectionReason : null;
 
-                // rejectionReason is defined only when there is a failure
-                if (!isUndefined(rejectionReason)) {
-                  let errMsg = `Unable to deliver event to ${url}.`;
-                  let isRetryableNWFailure = false;
-                  if (rejectionReason?.xhr) {
-                    const xhrStatus = rejectionReason.xhr.status;
-                    // same as in v1.1
-                    isRetryableNWFailure =
-                      xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
-                  }
-
-                  if (isRetryableNWFailure) {
-                    if (willBeRetried) {
-                      errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
-                      queueErrResp = rejectionReason;
-                    } else {
-                      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
-                    }
-                  } else {
-                    errMsg = `${errMsg} It'll be dropped.`;
-                  }
-
-                  logger?.error(errMsg);
-                }
+                logErrorOnFailure(
+                  rejectionReason,
+                  item,
+                  willBeRetried,
+                  attemptNumber,
+                  maxRetryAttempts,
+                  logger,
+                );
 
                 done(queueErrResp, result);
               },
