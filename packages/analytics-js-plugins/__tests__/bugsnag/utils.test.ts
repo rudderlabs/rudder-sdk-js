@@ -508,11 +508,18 @@ describe('Bugsnag utilities', () => {
         },
         ['key4', 'key6'], // excluded keys
       ],
+      [
+        {
+          someKey: BigInt(123),
+        },
+        undefined,
+        [],
+      ],
     ];
 
     it.each(tcData)('should convert signals to JSON %#', (input, expected, excludes) => {
       bugsnagConstants.APP_STATE_EXCLUDE_KEYS = excludes;
-      expect(getAppStateForMetadata(input)).toMatchObject(expected);
+      expect(getAppStateForMetadata(input)).toEqual(expected);
     });
   });
 });

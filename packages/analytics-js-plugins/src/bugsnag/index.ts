@@ -1,4 +1,3 @@
-/* eslint-disable compat/compat */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import {

@@ -60,9 +60,10 @@ const validatePayloadSize = (event: RudderEvent, logger?: ILogger) => {
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
 
-const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string =>
-  // eslint-disable-next-line compat/compat
-  new URL(path.join(DATA_PLANE_API_VERSION, eventType), dataplaneUrl).toString();
+const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => {
+  const dpUrl = new URL(dataplaneUrl);
+  return new URL(path.join(dpUrl.pathname, DATA_PLANE_API_VERSION, eventType), dpUrl).href;
+};
 
 /**
  * Mutates the event and return final event for delivery

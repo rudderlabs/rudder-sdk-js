@@ -1,5 +1,5 @@
 import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
-import { stringifyWithoutCircular } from '../utilities/common';
+import { isUndefined, stringifyWithoutCircular } from '../utilities/common';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -182,8 +182,10 @@ const initBugsnagClient = (
   }
 };
 
-const getAppStateForMetadata = (state: ApplicationState): Record<string, any> =>
-  JSON.parse(stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS) as string);
+const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
+  const stateStr = stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  return stateStr !== null ? JSON.parse(stateStr) : undefined;
+};
 
 export {
   isValidVersion,

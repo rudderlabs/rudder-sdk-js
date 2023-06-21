@@ -19,7 +19,7 @@ import {
   RudderEvent,
   IHttpClient,
 } from '../types/common';
-import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { getCurrentTimeFormatted, isUndefined, toBase64 } from '../utilities/common';
 import { DoneCallback, Queue } from '../utilities/retryQueue';
 
 const pluginName = 'XhrQueue';
@@ -84,25 +84,36 @@ const XhrQueue = (): ExtensionPlugin => ({
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
               callback: (result, rejectionReason) => {
-                // TODO: use rejectionReason.hxr.status to determine retry logic
-                //   v1.1 was 429 and 500 <= 600
-                if (result === undefined) {
-                  let errMsg = `Unable to deliver event to ${url}.`;
+                // default response is null
+                // to remove the entry from the queue
+                let queueErrResp = null;
 
-                  if (willBeRetried) {
-                    errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+                // rejectionReason is defined only when there is a failure
+                if (!isUndefined(rejectionReason)) {
+                  let errMsg = `Unable to deliver event to ${url}.`;
+                  let isRetryableNWFailure = false;
+                  if (rejectionReason?.xhr) {
+                    const xhrStatus = rejectionReason.xhr.status;
+                    // same as in v1.1
+                    isRetryableNWFailure =
+                      xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
+                  }
+
+                  if (isRetryableNWFailure) {
+                    if (willBeRetried) {
+                      errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+                      queueErrResp = rejectionReason;
+                    } else {
+                      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
+                    }
                   } else {
-                    errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
+                    errMsg = `${errMsg} It'll be dropped.`;
                   }
 
                   logger?.error(errMsg);
-
-                  // failed
-                  done(result);
-                } else {
-                  // success
-                  done(null);
                 }
+
+                done(queueErrResp, result);
               },
             });
           } else {
