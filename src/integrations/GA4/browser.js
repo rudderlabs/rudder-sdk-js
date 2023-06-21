@@ -71,8 +71,8 @@ export default class GA4 {
     }
 
     // If userTraits available, setting it as a part of global gtag object
-    if (this.analytics.userTraits) {
-      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
+    if (this.analytics.getUserTraits()) {
+      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
     }
 
     /**
