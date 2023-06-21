@@ -89,5 +89,11 @@ describe('xhrQueue Plugin Utilities', () => {
 
       expect(deliveryUrl).toEqual('https://test.com/v1/track');
     });
+
+    it('should return delivery url if dataplane url contains additional path components', () => {
+      const deliveryUrl = getDeliveryUrl('https://test.com/some/path////', 'track');
+
+      expect(deliveryUrl).toEqual('https://test.com/some/path/v1/track');
+    });
   });
 });

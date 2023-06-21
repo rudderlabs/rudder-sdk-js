@@ -127,5 +127,28 @@ describe('Common Utils - JSON', () => {
       expect(nullJson).toBe('null');
       expect(undefinedJson).toBe(undefined);
     });
+
+    it('should stringify json after removing the exclude keys', () => {
+      const objWithoutCircular = clone(identifyTraitsPayloadMock);
+
+      const json = stringifyWithoutCircular(objWithoutCircular, true, ['size', 'city']);
+      expect(json).not.toContain('size');
+      expect(json).not.toContain('city');
+    });
+
+    it('should return null for input containing BigInt values', () => {
+      const mockLogger = {
+        debug: jest.fn(),
+      };
+
+      const objWithBigInt = {
+        bigInt: BigInt(9007199254740991),
+      };
+      const json = stringifyWithoutCircular(objWithBigInt, false, [], mockLogger);
+      expect(json).toBe(null);
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        'Error occurred while converting to string: TypeError: Do not know how to serialize a BigInt',
+      );
+    });
   });
 });

@@ -13,6 +13,7 @@ jest.mock('../../../src/services/Logger', () => {
     ...originalModule,
     defaultLogger: {
       error: jest.fn((): void => {}),
+      debug: jest.fn((): void => {}),
     },
   };
 });
@@ -225,6 +226,28 @@ describe('HttpClient', () => {
     clientInstance.getAsyncData({
       callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
+    });
+  });
+
+  it('should handle if input data contains non-stringifiable values', done => {
+    const callback = (response: any) => {
+      expect(response).toBeUndefined();
+      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+        new Error('Failed to prepare data for the request.'),
+        'HttpClient',
+      );
+      done();
+    };
+    clientInstance.getAsyncData({
+      callback,
+      url: `${dummyDataplaneHost}/nonStringifiableDataSample`,
+      options: {
+        data: {
+          a: 1,
+          b: BigInt(1),
+        },
+      },
     });
   });
 });

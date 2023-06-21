@@ -55,7 +55,6 @@ const isDestinationSDKEvaluated = (
 };
 
 const wait = (time: number) =>
-  // eslint-disable-next-line compat/compat
   new Promise(resolve => {
     (globalThis as typeof window).setTimeout(resolve, time);
   });
@@ -124,7 +123,6 @@ const createDestinationInstance = (
 };
 
 const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
-  // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {

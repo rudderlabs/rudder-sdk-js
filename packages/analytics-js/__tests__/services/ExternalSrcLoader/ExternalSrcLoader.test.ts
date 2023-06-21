@@ -79,7 +79,7 @@ describe('External Source Loader', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new Error(
-          'Couldn\'t load the script: "https://dummy.dataplane.host.com/noConnectionSample" with id dummyScript.',
+          'Couldn\'t load the script "https://dummy.dataplane.host.com/noConnectionSample" with id dummyScript.',
         ),
         'ExternalSrcLoader',
       );

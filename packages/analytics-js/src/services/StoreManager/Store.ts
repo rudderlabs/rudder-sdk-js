@@ -103,7 +103,7 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already stringifies json
       this.engine.setItem(
         validKey,
-        this.encrypt(stringifyWithoutCircular(value, false, this.logger)),
+        this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {

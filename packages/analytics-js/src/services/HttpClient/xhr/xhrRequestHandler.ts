@@ -1,10 +1,10 @@
-/* eslint-disable compat/compat */
 /* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
+import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
 import { IXHRRequestOptions } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
@@ -50,6 +50,22 @@ const xhrRequest = (
   logger?: ILogger,
 ): Promise<string | undefined> =>
   new Promise((resolve, reject) => {
+    let payload;
+    if (options.sendRawData === true) {
+      payload = options.data;
+    } else {
+      payload = stringifyWithoutCircular(options.data, false, [], logger);
+      if (isNull(payload)) {
+        reject({
+          error: new Error(`Failed to prepare data for the request.`),
+          undefined,
+          options,
+        });
+        // return and don't process further if the payload could not be stringified
+        return;
+      }
+    }
+
     const xhr = new XMLHttpRequest();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const xhrReject = (e?: ProgressEvent) => {
@@ -94,23 +110,6 @@ const xhrRequest = (
         xhr.setRequestHeader(headerName, options.headers[headerName] as string);
       }
     });
-
-    let payload;
-    if (options.sendRawData === true) {
-      payload = options.data;
-    } else {
-      try {
-        payload = stringifyWithoutCircular(options.data, false, logger);
-      } catch (err) {
-        reject({
-          error: new Error(
-            `Request data parsing failed for URL: ${options.url}, ${(err as Error).message}`,
-          ),
-          xhr,
-          options,
-        });
-      }
-    }
 
     try {
       xhr.send(payload);
