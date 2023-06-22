@@ -715,10 +715,11 @@ class Analytics {
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
 
-    if (userId && this.userId && userId !== this.userId) {
+    const normalisedUserId = getStringId(userId);
+    if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
       this.reset();
     }
-    this.userId = getStringId(userId);
+    this.userId = normalisedUserId;
     this.storage.setUserId(this.userId);
 
     const clonedTraits = R.clone(traits);
