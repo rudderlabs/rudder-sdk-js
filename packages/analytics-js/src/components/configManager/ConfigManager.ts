@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, RejectionDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { batch, effect } from '@preact/signals-core';
@@ -124,10 +124,10 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string, rejectionDetails?: RejectionDetails) {
+  processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`);
+      this.onError(`Unable to fetch source config ${details?.error}`);
       return;
     }
 

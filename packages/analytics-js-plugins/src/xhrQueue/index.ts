@@ -85,12 +85,12 @@ const XhrQueue = (): ExtensionPlugin => ({
               },
               isRawResponse: true,
               timeout: REQUEST_TIMEOUT_MS,
-              callback: (result, rejectionReason) => {
+              callback: (result, details) => {
                 // null means item will not be requeued
-                const queueErrResp = isErrRetryable(rejectionReason) ? rejectionReason : null;
+                const queueErrResp = isErrRetryable(details) ? details : null;
 
                 logErrorOnFailure(
-                  rejectionReason,
+                  details,
                   item,
                   willBeRetried,
                   attemptNumber,
