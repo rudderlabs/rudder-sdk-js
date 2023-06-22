@@ -27,6 +27,7 @@ export default class GA4 {
     this.cookie = Cookie;
     this.analytics = analytics;
     this.measurementId = config.measurementId;
+    this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
@@ -94,7 +95,9 @@ export default class GA4 {
       }
     }
 
-    gtagParameterObject.debug_mode = true;
+    if (this.debugView) {
+      gtagParameterObject.debug_mode = true;
+    }
 
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
@@ -103,7 +106,7 @@ export default class GA4 {
     }
 
     // If userTraits available, setting it as a part of global gtag object
-    if (this.analytics.userTraits) {
+    if (this.analytics.getUserTraits()) {
       window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
     }
 
