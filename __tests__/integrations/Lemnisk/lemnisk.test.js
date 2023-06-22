@@ -10,7 +10,6 @@ describe('lemnisk init tests', () => {
 
     test('Testing init call of Lemnisk', () => {
         lemnisk = new Lemnisk({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "debug" }, destinationInfo);
-
         lemnisk.init();
         expect(typeof window.lmSMTObj).toBe('object');
     });

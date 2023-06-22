@@ -11,3 +11,46 @@ index 5e3fffe..656a774 100644
  
  var inMemoryStore = {
    _data: {},
+diff --git a/node_modules/@segment/localstorage-retry/lib/index.js b/node_modules/@segment/localstorage-retry/lib/index.js
+index 34220e8..1fecf90 100644
+--- a/node_modules/@segment/localstorage-retry/lib/index.js
++++ b/node_modules/@segment/localstorage-retry/lib/index.js
+@@ -283,6 +283,7 @@ Queue.prototype._checkReclaim = function() {
+     var storage = self._store.getOriginalEngine();
+     for (var i = 0; i < storage.length; i++) {
+       var k = storage.key(i);
++      if (k === null) continue;
+       var parts = k.split('.');
+       if (parts.length !== 3) continue;
+       if (parts[0] !== name) continue;
+@@ -344,13 +345,23 @@ Queue.prototype._reclaim = function(id) {
+   });
+ 
+   this._store.set(this.keys.QUEUE, our.queue);
+-
+-  // remove all keys
+-  other.remove(this.keys.IN_PROGRESS);
+-  other.remove(this.keys.QUEUE);
+-  other.remove(this.keys.RECLAIM_START);
+-  other.remove(this.keys.RECLAIM_END);
+-  other.remove(this.keys.ACK);
++  // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
++  const localStorageBackoff = 10;
++  setTimeout(() => {
++    other.remove(this.keys.IN_PROGRESS);
++    setTimeout(() => {
++      other.remove(this.keys.QUEUE);
++      setTimeout(() => {
++        other.remove(this.keys.RECLAIM_START);
++        setTimeout(() => {
++          other.remove(this.keys.RECLAIM_END);
++          setTimeout(() => {
++            other.remove(this.keys.ACK);
++          }, localStorageBackoff);
++        }, localStorageBackoff);
++      }, localStorageBackoff);
++    }, localStorageBackoff);
++  }, localStorageBackoff);
+ 
+   // process the new items we claimed
+   this._processHead();

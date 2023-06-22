@@ -4,11 +4,12 @@ import ScriptLoader from '../../utils/ScriptLoader';
 
 import {
   isReservedName,
+  sendUserIdToGA4,
+  getPageViewProperty,
+  hasRequiredParameters,
   getDestinationEventName,
   getDestinationEventProperties,
   getDestinationItemProperties,
-  getPageViewProperty,
-  hasRequiredParameters,
 } from './utils';
 import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
@@ -19,16 +20,19 @@ export default class GA4 {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
+    this.clientId = '';
     this.sessionId = '';
+    this.sessionNumber = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
+    this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
-    this.overrideSessionId = config.overrideSessionId || false;
+    this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.extendPageViewParams = config.extendPageViewParams || false;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
-    this.extendPageViewParams = config.extendPageViewParams || false;
-    this.isHybridModeEnabled = config.connectionMode === 'hybrid';
   }
 
   loadScript(measurementId) {
@@ -46,15 +50,19 @@ export default class GA4 {
       gtagParameterObject.send_page_view = false;
     }
     // Setting the userId as a part of configuration
-    if (this.analytics.userId) {
-      gtagParameterObject.user_id = this.analytics.userId;
+    if (sendUserIdToGA4(this.analytics.loadOnlyIntegrations) && this.analytics.getUserId()) {
+      gtagParameterObject.user_id = this.analytics.getUserId();
     }
+
     gtagParameterObject.cookie_prefix = 'rs';
-    gtagParameterObject.client_id = this.analytics.anonymousId;
-    if (this.isHybridModeEnabled && this.overrideSessionId) {
-      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+    if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
+      gtagParameterObject.client_id = this.analytics.getAnonymousId();
+      gtagParameterObject.session_id = this.analytics.getSessionId();
     }
-    gtagParameterObject.debug_mode = true;
+
+    if (this.debugView) {
+      gtagParameterObject.debug_mode = true;
+    }
 
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
@@ -62,12 +70,23 @@ export default class GA4 {
       window.gtag('config', measurementId, gtagParameterObject);
     }
 
+    // If userTraits available, setting it as a part of global gtag object
+    if (this.analytics.getUserTraits()) {
+      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
+    }
+
     /**
-     * Setting the parameter sessionId using gtag api
+     * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
+    });
+    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
+      this.clientId = clientId;
+    });
+    window.gtag('get', this.measurementId, 'session_number', (sessionNumber) => {
+      this.sessionNumber = sessionNumber;
     });
 
     ScriptLoader(
@@ -86,7 +105,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!this.sessionId;
+    return !!(this.sessionId && this.clientId);
   }
 
   isReady() {
@@ -150,19 +169,19 @@ export default class GA4 {
     return destinationProperties;
   }
 
-  sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
+  sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj, integrations) {
     if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
       throw Error('Payload must have required parameters..');
     }
     const params = { ...parameters };
     params.send_to = this.measurementId;
-    if (this.analytics.userId) {
-      params.user_id = this.analytics.userId;
+    if (sendUserIdToGA4(integrations) && this.analytics.getUserId()) {
+      params.user_id = this.analytics.getUserId();
     }
     window.gtag('event', event, params);
   }
 
-  handleEventMapper(eventMappingObj, properties, products) {
+  handleEventMapper(eventMappingObj, properties, products, integrations) {
     let destinationProperties = {};
     const event = eventMappingObj.dest;
     if (eventMappingObj.onlyIncludeParams) {
@@ -178,7 +197,7 @@ export default class GA4 {
         eventMappingObj.includeList,
       );
     }
-    this.sendGAEvent(event, destinationProperties, true, eventMappingObj);
+    this.sendGAEvent(event, destinationProperties, true, eventMappingObj, integrations);
   }
 
   /**
@@ -193,7 +212,7 @@ export default class GA4 {
 
     logger.debug('In GoogleAnalyticsManager Track');
     const { event } = rudderElement.message;
-    const { properties } = rudderElement.message;
+    const { properties, integrations } = rudderElement.message;
     const { products } = properties;
     if (!event || isReservedName(event)) {
       throw Error('Cannot call un-named/reserved named track event');
@@ -202,23 +221,19 @@ export default class GA4 {
     const eventMappingArray = getDestinationEventName(event);
     if (eventMappingArray && eventMappingArray.length > 0) {
       eventMappingArray.forEach((events) => {
-        this.handleEventMapper(events, properties, products);
+        this.handleEventMapper(events, properties, products, integrations);
       });
     } else {
-      this.sendGAEvent(event, flattenJsonPayload(properties), false);
+      this.sendGAEvent(event, flattenJsonPayload(properties), false, {}, integrations);
     }
   }
 
   identify(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return;
-    }
-
     logger.debug('In GoogleAnalyticsManager Identify');
-    window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
+
+    window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
     // Setting the userId as a part of configuration
-    if (rudderElement.message.userId) {
+    if (sendUserIdToGA4(rudderElement.message.integrations) && rudderElement.message.userId) {
       const { userId } = rudderElement.message;
       if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
@@ -242,8 +257,8 @@ export default class GA4 {
       pageProps = flattenJsonPayload(pageProps);
       const properties = { ...getPageViewProperty(pageProps) };
       properties.send_to = this.measurementId;
-      if (this.analytics.userId) {
-        properties.user_id = this.analytics.userId;
+      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.getUserId()) {
+        properties.user_id = this.analytics.getUserId();
       }
       if (this.extendPageViewParams) {
         window.gtag('event', 'page_view', {
@@ -264,24 +279,29 @@ export default class GA4 {
 
     logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
-    const { traits } = rudderElement.message;
-    if (this.analytics.userId) {
-      traits.user_id = this.analytics.userId;
-    }
+    const { traits, integrations } = rudderElement.message;
     traits.send_to = this.measurementId;
 
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
-      this.sendGAEvent(events.dest, {
-        group_id: groupId,
-        ...traits,
-      });
+      this.sendGAEvent(
+        events.dest,
+        {
+          group_id: groupId,
+          ...traits,
+        },
+        false,
+        {},
+        integrations,
+      );
     });
   }
 
   getDataForIntegrationsObject() {
     return {
       'Google Analytics 4': {
+        clientId: this.clientId,
         sessionId: this.sessionId,
+        sessionNumber: this.sessionNumber,
       },
     };
   }

@@ -14,7 +14,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
-import { parse } from 'component-querystring';
 import * as R from 'ramda';
 import {
   getJSONTrimmed,
@@ -30,6 +29,7 @@ import {
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
+  parseQueryString,
 } from '../utils/utils';
 import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
 import { handleError } from '../utils/errorHandler';
@@ -41,7 +41,8 @@ import {
   POLYFILL_URL,
   SAMESITE_COOKIE_OPTS,
   UA_CH_LEVELS,
-  MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS,
+  DEFAULT_INTEGRATIONS_CONFIG,
+  DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -95,6 +96,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.bufferDataPlaneEventsUntilReady = false;
+    this.dataPlaneEventsBufferTimeout = DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -186,12 +188,16 @@ class Analytics {
   integrationSDKLoaded(pluginName, modName) {
     try {
       return (
+        pluginName &&
+        modName &&
+        window[pluginName] &&
         window.hasOwnProperty(pluginName) &&
         window[pluginName][modName] &&
+        typeof window[pluginName][modName].prototype &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
-      handleError(e);
+      handleError(e, `While attempting to load ${pluginName} ${modName}`);
       return false;
     }
   }
@@ -216,7 +222,8 @@ class Analytics {
 
         // Do not proceed if the ultimate response value is not an object
         if (!response || typeof response !== 'object' || Array.isArray(response)) {
-          throw new Error('Invalid source configuration');
+          logger.error('Invalid source configuration');
+          return;
         }
       } catch (err) {
         handleError(err);
@@ -289,6 +296,15 @@ class Analytics {
         }
       }
 
+      // filter destination that doesn't have mapping config-->Integration names
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        if (configToIntNames[intg.name]) {
+          return true;
+        }
+        logger.error(`[Analytics] Integration:: ${intg.name} not available for initialization`);
+        return false;
+      });
+
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
@@ -301,7 +317,7 @@ class Analytics {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
           this.processBufferedCloudModeEvents();
-        }, MAX_TIME_TO_BUFFER_CLOUD_MODE_EVENTS);
+        }, this.dataPlaneEventsBufferTimeout);
       }
 
       this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
@@ -699,10 +715,11 @@ class Analytics {
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
 
-    if (userId && this.userId && userId !== this.userId) {
+    const normalisedUserId = getStringId(userId);
+    if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
       this.reset();
     }
-    this.userId = getStringId(userId);
+    this.userId = normalisedUserId;
     this.storage.setUserId(this.userId);
 
     const clonedTraits = R.clone(traits);
@@ -833,6 +850,18 @@ class Analytics {
   }
 
   /**
+   * A function to determine whether SDK should use the integration option provided in load call
+   * @returns boolean
+   */
+  shouldUseGlobalIntegrationsConfigInEvents() {
+    return (
+      this.useGlobalIntegrationsConfigInEvents &&
+      this.loadOnlyIntegrations &&
+      Object.keys(this.loadOnlyIntegrations).length > 0
+    );
+  }
+
+  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -880,7 +909,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds,
+          deniedConsentIds: this.deniedConsentIds || [],
         };
       }
 
@@ -890,11 +919,20 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+      let clientSuppliedIntegrations = rudderElement.message.integrations;
 
-      // structure user supplied integrations object to rudder format
-      transformToRudderNames(clientSuppliedIntegrations);
+      if (clientSuppliedIntegrations) {
+        // structure user supplied integrations object to rudder format
+        transformToRudderNames(clientSuppliedIntegrations);
+      } else if (this.shouldUseGlobalIntegrationsConfigInEvents()) {
+        // when useGlobalIntegrationsConfigInEvents load option is set to true and integration object provided in load
+        // is not empty use it at event level
+        clientSuppliedIntegrations = this.loadOnlyIntegrations;
+      } else {
+        // if not specified at event level, use default integration option
+        clientSuppliedIntegrations = DEFAULT_INTEGRATIONS_CONFIG;
+      }
+
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
       try {
@@ -939,35 +977,33 @@ class Analytics {
       }
 
       // logger.debug(`${type} is called `)
-      if (callback) {
-        callback(rudderElement);
+      if (callback && typeof callback === 'function') {
+        callback(clonedRudderElement);
       }
     } catch (error) {
       handleError(error);
     }
   }
 
-  utm(query) {
-    // Remove leading ? if present
-    if (query.charAt(0) === '?') {
-      query = query.substring(1);
+  utm(url) {
+    const result = {};
+    try {
+      const urlObj = new URL(url);
+      const UTM_PREFIX = 'utm_';
+      urlObj.searchParams.forEach((value, sParam) => {
+        if (sParam.startsWith(UTM_PREFIX)) {
+          let utmParam = sParam.substring(UTM_PREFIX.length);
+          // Not sure why we're doing this
+          if (utmParam === 'campaign') {
+            utmParam = 'name';
+          }
+          result[utmParam] = value;
+        }
+      });
+    } catch (error) {
+      // Do nothing
     }
-
-    query = query.replace(/\?/g, '&');
-
-    let param;
-    const params = parse(query);
-    const results = {};
-
-    for (const key in params) {
-      if (Object.prototype.hasOwnProperty.call(params, key) && key.substr(0, 4) === 'utm_') {
-        param = key.substr(4);
-        if (param === 'campaign') param = 'name';
-        results[param] = params[key];
-      }
-    }
-
-    return results;
+    return result;
   }
 
   /**
@@ -977,8 +1013,8 @@ class Analytics {
   addCampaignInfo(rudderElement) {
     const msgContext = rudderElement.message.context;
     if (msgContext && typeof msgContext === 'object') {
-      const { search } = getDefaultPageProperties();
-      rudderElement.message.context.campaign = this.utm(search);
+      const { url } = getDefaultPageProperties();
+      rudderElement.message.context.campaign = this.utm(url);
     }
   }
 
@@ -1150,7 +1186,7 @@ class Analytics {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
-    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+    if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
@@ -1174,6 +1210,9 @@ class Analytics {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
     }
+
+    this.useGlobalIntegrationsConfigInEvents =
+      options && options.useGlobalIntegrationsConfigInEvents === true;
 
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
@@ -1213,6 +1252,10 @@ class Analytics {
       if (this.bufferDataPlaneEventsUntilReady) {
         this.preProcessQueue.init(this.options, this.queueEventForDataPlane.bind(this));
       }
+    }
+
+    if (options && typeof options.dataPlaneEventsBufferTimeout === 'number') {
+      this.dataPlaneEventsBufferTimeout = options.dataPlaneEventsBufferTimeout;
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
@@ -1270,7 +1313,8 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Promise ||
+        typeof window.URL !== 'function' ||
+        typeof Promise === 'undefined' ||
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
@@ -1299,7 +1343,10 @@ class Analytics {
         // In chrome 83 and below versions ID of a script is not part of window's scope
         // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
         // So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
+        if (
+          (window.hasOwnProperty(id) || document.getElementById(id) !== null) &&
+          typeof Promise !== 'undefined'
+        ) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
@@ -1428,10 +1475,10 @@ function processDataInAnalyticsArray(analytics) {
 }
 
 /**
- * parse the given query string into usable Rudder object
+ * parse the given url into usable Rudder object
  * @param {*} query
  */
-function parseQueryString(query) {
+function retrieveEventsFromQueryString(url) {
   const queryDefaults = {
     trait: 'ajs_trait_',
     prop: 'ajs_prop_',
@@ -1447,7 +1494,7 @@ function parseQueryString(query) {
     return data;
   }
 
-  const queryObject = parse(query);
+  const queryObject = parseQueryString(url);
   if (queryObject.ajs_aid) {
     instance.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
   }
@@ -1506,7 +1553,7 @@ if (isValidArgsArray) {
 }
 
 // parse querystring of the page url to send events
-parseQueryString(window.location.search);
+retrieveEventsFromQueryString(window.location.href);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 

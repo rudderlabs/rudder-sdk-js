@@ -11,6 +11,7 @@ import {
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
+  FAILED_REQUEST_ERR_MSG_PREFIX
 } from './constants';
 import { handleError } from './errorHandler';
 
@@ -119,7 +120,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
       // logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
-      handleError(new Error(`request failed with status: ${xhr.status} for url: ${url}`));
+      handleError(new Error(`${FAILED_REQUEST_ERR_MSG_PREFIX} ${status} for url: ${url}`));
       cb_(status);
     }
   };
@@ -719,6 +720,19 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   return isEnabled;
 };
 
+const parseQueryString = (url)=>{
+  const result = {};
+  try {
+    const urlObj = new URL(url);
+    urlObj.searchParams.forEach((value, qParam) => {
+        result[qParam] = value;
+    });
+  } catch (error) {
+    // Do nothing
+  }
+  return result;
+}
+
 export {
   replacer,
   generateUUID,
@@ -750,4 +764,5 @@ export {
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
+  parseQueryString,
 };

@@ -2,6 +2,71 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.35.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.34.0...v2.35.0) (2023-06-09)
+
+
+### Features
+
+* bing ads ecomm uet parameters ([#1108](https://github.com/rudderlabs/rudder-sdk-js/issues/1108)) ([d2aceda](https://github.com/rudderlabs/rudder-sdk-js/commit/d2aceda8f50ab406d413bef4010895d38b4b3d1e))
+* introduce flexible configuration for maximum buffering time of data plane events ([#1116](https://github.com/rudderlabs/rudder-sdk-js/issues/1116)) ([c6d775f](https://github.com/rudderlabs/rudder-sdk-js/commit/c6d775f143c3f082c124503500b532032838b4ba))
+* onboard tiktok device mode integration ([#1091](https://github.com/rudderlabs/rudder-sdk-js/issues/1091)) ([09d9ae2](https://github.com/rudderlabs/rudder-sdk-js/commit/09d9ae263743d65b51c52a02f1ac61b9145e49bc))
+
+
+### Bug Fixes
+
+* remove usage of .at() to ensure electron 7 works ([#1112](https://github.com/rudderlabs/rudder-sdk-js/issues/1112)) ([cbfe150](https://github.com/rudderlabs/rudder-sdk-js/commit/cbfe15083904b8f0794172f5c031f6dd268a33ad))
+* removed vulnerable package component-url ([#1138](https://github.com/rudderlabs/rudder-sdk-js/issues/1138)) ([3a0e547](https://github.com/rudderlabs/rudder-sdk-js/commit/3a0e547eed4925f36a2f09f5fd713032dff2ba6a))
+
+## [2.34.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.1...v2.34.0) (2023-05-26)
+
+
+### Features
+
+* **ga4:** added identify call support for hybrid mode connection ([#1082](https://github.com/rudderlabs/rudder-sdk-js/issues/1082)) ([98d6674](https://github.com/rudderlabs/rudder-sdk-js/commit/98d6674eb2e3d4aae1b46d8101e14871de3e0205))
+* remove custom property dependency for fb pixel ([#1097](https://github.com/rudderlabs/rudder-sdk-js/issues/1097)) ([5e0ba98](https://github.com/rudderlabs/rudder-sdk-js/commit/5e0ba9875658a760322c6b723b4a44a11a3fa086))
+
+
+### Bug Fixes
+
+* **ga4:** reverted cookie prefix change ([#1100](https://github.com/rudderlabs/rudder-sdk-js/issues/1100)) ([54b7930](https://github.com/rudderlabs/rudder-sdk-js/commit/54b7930b7145ec708ec91dc9935d40bd1b188f2b))
+* localstorage db connections buzy issue in outdated browsers ([#1086](https://github.com/rudderlabs/rudder-sdk-js/issues/1086)) ([b5855ea](https://github.com/rudderlabs/rudder-sdk-js/commit/b5855eac4c5aea75587119c73aaac99bc4f8f926))
+* security, circular reference issues, type checking & errors to logger fixes ([#1099](https://github.com/rudderlabs/rudder-sdk-js/issues/1099)) ([670bab2](https://github.com/rudderlabs/rudder-sdk-js/commit/670bab20f6d2fda64b69585d3600a6ff4e6f5609))
+* snap pixel price mapping ([#1094](https://github.com/rudderlabs/rudder-sdk-js/issues/1094)) ([cf9d71f](https://github.com/rudderlabs/rudder-sdk-js/commit/cf9d71f9a9113f20b99638d92c72e115a305a559))
+* suppress error notification for bugsnag ([#1087](https://github.com/rudderlabs/rudder-sdk-js/issues/1087)) ([252d4e5](https://github.com/rudderlabs/rudder-sdk-js/commit/252d4e5a64b49cdf19d1ee71eb87d2431b1808fa))
+
+### [2.33.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.0...v2.33.1) (2023-05-16)
+
+
+### Bug Fixes
+
+* revert bingAds changes ([323e0e0](https://github.com/rudderlabs/rudder-sdk-js/commit/323e0e0f7ddb93928e785b0d5f730d4f6d2ff688))
+
+## [2.33.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.32.0...v2.33.0) (2023-05-12)
+
+
+### Features
+
+* allow override of service worker flush transport layer ([#1052](https://github.com/rudderlabs/rudder-sdk-js/issues/1052)) ([00c67c7](https://github.com/rudderlabs/rudder-sdk-js/commit/00c67c753e1e714730204b90ec62b56acba01e5f))
+* **bingAds:** add UET ecomm fields ([#1058](https://github.com/rudderlabs/rudder-sdk-js/issues/1058)) ([4331209](https://github.com/rudderlabs/rudder-sdk-js/commit/43312097afa4562357a9cf60c4766e19c3df9b2a))
+* conversion label option added for google ads conversion events ([#914](https://github.com/rudderlabs/rudder-sdk-js/issues/914)) ([492d807](https://github.com/rudderlabs/rudder-sdk-js/commit/492d807432e4a31712187cc7d8dbc7dc4bdf0fae))
+* custom host for fullstory  ([#1060](https://github.com/rudderlabs/rudder-sdk-js/issues/1060)) ([f7a130c](https://github.com/rudderlabs/rudder-sdk-js/commit/f7a130c802804911122dfd20d0ff64a9668140a5))
+* delaying cloud mode events based on flag provided in options ([#1038](https://github.com/rudderlabs/rudder-sdk-js/issues/1038)) ([71c5094](https://github.com/rudderlabs/rudder-sdk-js/commit/71c50941ea52d16710ef39bc41fd7bc89dc3b99d))
+* **ga4:** override client_id and session_id in GA hybrid mode ([#1055](https://github.com/rudderlabs/rudder-sdk-js/issues/1055)) ([92f6fd6](https://github.com/rudderlabs/rudder-sdk-js/commit/92f6fd680a8cf4ac929546833d582c258c069b9b))
+* upgrade Amplitude SDK version to 8.21.4 ([#1065](https://github.com/rudderlabs/rudder-sdk-js/issues/1065)) ([0c31337](https://github.com/rudderlabs/rudder-sdk-js/commit/0c313379b2627d1a1345481ed8e764066b064e5f))
+
+
+### Bug Fixes
+
+* add type for new flushOverride option in service worker ([5e04a8a](https://github.com/rudderlabs/rudder-sdk-js/commit/5e04a8a1d28f79478c07c9edd4edaf9857ec9144))
+* **ga4:** updated hybridmode condition check ([#1029](https://github.com/rudderlabs/rudder-sdk-js/issues/1029)) ([de55628](https://github.com/rudderlabs/rudder-sdk-js/commit/de55628594f6fb4413ed7c5efae0c2d53814c5d6))
+* handle undefined destination in transformation response ([#1028](https://github.com/rudderlabs/rudder-sdk-js/issues/1028)) ([a3521cc](https://github.com/rudderlabs/rudder-sdk-js/commit/a3521cc6ca1d74fb91201c168304c8046d476203))
+* **integration:** bingads uet parameter check introduced ([#1044](https://github.com/rudderlabs/rudder-sdk-js/issues/1044)) ([659ab0b](https://github.com/rudderlabs/rudder-sdk-js/commit/659ab0bb84de22242ed6f5916416335fe31b098b))
+* integrations option propagation to events from load option ([#1054](https://github.com/rudderlabs/rudder-sdk-js/issues/1054)) ([82beef4](https://github.com/rudderlabs/rudder-sdk-js/commit/82beef477950889949627677b30e82bdae411ca0))
+* **integrations:** bing ads load func check added for uet class ([#1068](https://github.com/rudderlabs/rudder-sdk-js/issues/1068)) ([0f333c3](https://github.com/rudderlabs/rudder-sdk-js/commit/0f333c3ea63de8d074077276b1b3bc8a3deae378))
+* loading undefined integration ([#1053](https://github.com/rudderlabs/rudder-sdk-js/issues/1053)) ([03446d0](https://github.com/rudderlabs/rudder-sdk-js/commit/03446d0387189589bee15b7b6eab27ce81ad5e2f))
+* patch localstorage retry package ([#1050](https://github.com/rudderlabs/rudder-sdk-js/issues/1050)) ([bee7ee7](https://github.com/rudderlabs/rudder-sdk-js/commit/bee7ee7cfcdb70b41135f55f4eaf930966e33fd1))
+* suppress notifying unwanted errors to Bugsnag ([#1051](https://github.com/rudderlabs/rudder-sdk-js/issues/1051)) ([4fce079](https://github.com/rudderlabs/rudder-sdk-js/commit/4fce079f1bb21fed1cea2793d6447b65ad2311b0))
+
 ## [2.32.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.31.1...v2.32.0) (2023-04-24)
 
 

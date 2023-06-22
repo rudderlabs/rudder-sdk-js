@@ -3,9 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { replacer, removeTrailingSlashes } from '../../../utils/utils';
+import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
 import { handleError } from '../../../utils/errorHandler';
+import { stringifyWithoutCircular } from '../../../utils/ObjectUtils';
 
 const timeout = 10 * 1000;
 const EVENT_CHECK_INTERVAL = 100;
@@ -127,7 +128,7 @@ class TransformationsHandler {
             }
           }
         };
-        xhr.send(JSON.stringify(payload, replacer));
+        xhr.send(stringifyWithoutCircular(payload, true));
       } catch (error) {
         reject(error);
       }

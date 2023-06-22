@@ -3,7 +3,8 @@
 import logger from './logUtil';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
-import { getCurrentTimeFormatted, removeTrailingSlashes, replacer } from './utils';
+import { getCurrentTimeFormatted, removeTrailingSlashes } from './utils';
+import { stringifyWithoutCircular } from './ObjectUtils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -27,7 +28,6 @@ class EventRepository {
     let targetUrl = removeTrailingSlashes(url);
     if (options && options.useBeacon && navigator.sendBeacon) {
       if (
-        options &&
         options.beaconQueueOptions &&
         options.beaconQueueOptions != null &&
         typeof options.beaconQueueOptions === 'object'
@@ -67,7 +67,7 @@ class EventRepository {
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
     // check message size, if greater log an error
-    if (JSON.stringify(message, replacer).length > MESSAGE_LENGTH) {
+    if (stringifyWithoutCircular(message, true).length > MESSAGE_LENGTH) {
       logger.error('[EventRepository] enqueue:: message length greater 32 Kb ', message);
     }
 

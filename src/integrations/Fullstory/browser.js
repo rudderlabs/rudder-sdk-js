@@ -7,11 +7,16 @@ import { NAME } from './constants';
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.fs_org = config.fs_org;
     this.fs_debug_mode = config.fs_debug_mode;
+    this.fs_host = config.fs_host || 'fullstory.com';
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -52,7 +57,7 @@ class Fullstory {
   init() {
     logger.debug('===in init FULLSTORY===');
     window._fs_debug = this.fs_debug_mode;
-    window._fs_host = 'fullstory.com';
+    window._fs_host = this.fs_host;
     window._fs_script = 'edge.fullstory.com/s/fs.js';
     window._fs_org = this.fs_org;
     window._fs_namespace = 'FS';
@@ -128,7 +133,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug('Unable to access locaStorage');
+          logger.debug('Unable to access localStorage');
         }
 
         return null;
@@ -220,4 +225,4 @@ class Fullstory {
   }
 }
 
-export { Fullstory };
+export default Fullstory;
