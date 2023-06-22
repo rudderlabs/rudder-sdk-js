@@ -132,11 +132,7 @@ const isApiKeyValid = (apiKey: string): boolean => {
   return isAPIKeyValid;
 };
 
-const loadBugsnagSDK = (
-  externalSrcLoader: IExternalSrcLoader,
-  logger?: ILogger,
-  done?: () => void,
-) => {
+const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger) => {
   const isNotLoaded = GLOBAL_LIBRARY_OBJECT_NAMES.every(
     globalKeyName => !(globalThis as any)[globalKeyName],
   );

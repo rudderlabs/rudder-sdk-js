@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
+
 export type ApplicationState = IApplicationState;
 
 export type {

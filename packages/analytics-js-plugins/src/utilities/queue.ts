@@ -103,9 +103,14 @@ const getFinalEventForDeliveryMutator = (
   return finalEvent;
 };
 
+const removeDuplicateSlashes = (str: string): string => {
+  return str.replace(/\/{2,}/g, '/');
+};
+
 export {
   getDeliveryPayload,
   validateEventPayloadSize,
   getOverriddenIntegrationOptions,
   getFinalEventForDeliveryMutator,
+  removeDuplicateSlashes,
 };

@@ -1,5 +1,5 @@
-const externalAnonymousId = () => ({
-  name: 'externalAnonymousId',
+const ExternalAnonymousId = () => ({
+  name: 'ExternalAnonymousId',
   storage: {
     getAnonymousId: jest.fn(() => {
       return 'dummy-anonymousId-12345678';
@@ -7,4 +7,4 @@ const externalAnonymousId = () => ({
   },
 });
 
-export default externalAnonymousId;
+export default ExternalAnonymousId;

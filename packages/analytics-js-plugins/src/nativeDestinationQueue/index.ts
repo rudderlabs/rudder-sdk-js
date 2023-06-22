@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { Queue } from '../utilities/retryQueue';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import {
   IStoreManager,
   ApplicationState,
@@ -11,7 +11,7 @@ import {
   Destination,
   IPluginsManager,
 } from '../types/common';
-import { DoneCallback, ExtensionPlugin } from '../types/plugins';
+import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
@@ -32,7 +32,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
      * @param storeManager StoreManager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns Queue instance
+     * @returns IQueue instance
      */
     init(
       state: ApplicationState,
@@ -40,13 +40,13 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): Queue {
+    ): IQueue {
       const finalQOpts = getNormalizedQueueOptions(
         state.loadOptions.value.queueOptions as QueueOpts,
       );
 
       const writeKey = state.lifecycle.writeKey.value as string;
-      const eventsQueue = new Queue(
+      const eventsQueue = new RetryQueue(
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
@@ -92,7 +92,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
     /**
      * Add event to the queue for delivery to destinations
      * @param state Application state
-     * @param eventsQueue Queue instance
+     * @param eventsQueue IQueue instance
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance
@@ -100,7 +100,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
      */
     enqueue(
       state: ApplicationState,
-      eventsQueue: Queue,
+      eventsQueue: IQueue,
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,

@@ -1,4 +1,3 @@
-import Emitter from 'component-emitter';
 import { IStoreManager, StorageType, IStore } from '../../types/common';
 import {
   IQueue,
@@ -44,14 +43,14 @@ export type InProgressQueueItem = {
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 /**
- * Constructs a Queue backed by localStorage
+ * Constructs a RetryQueue backed by localStorage
  *
  * @constructor
  * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
  * @param {Object} [opts] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
  * @param {QueueProcessCallback} fn The function to call in order to process an item added to the queue
  */
-class Queue extends Emitter implements IQueue<QueueItemData> {
+class RetryQueue implements IQueue<QueueItemData> {
   name: string;
   id: string;
   processQueueCb: QueueProcessCallback<QueueItemData>;
@@ -73,8 +72,6 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
     storeManager: IStoreManager,
     storageType: StorageType = 'localStorage',
   ) {
-    super();
-
     this.storeManager = storeManager;
     this.name = name;
     this.id = generateUUID();
@@ -122,11 +119,12 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
     return this.store.get(name ?? this.name);
   }
 
+  // TODO: fix the type of different queues to be the same if possible
   setQueue(
     name?: string,
     value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
   ) {
-    this.store.set(name ?? this.name, value || []);
+    this.store.set(name ?? this.name, value ?? []);
   }
 
   /**
@@ -230,7 +228,7 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
         id: id || generateUUID(),
       });
     } else {
-      this.emit('discard', item, attemptNumber);
+      // Discard item
     }
   }
 
@@ -251,7 +249,6 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
       delete inProgress[id];
 
       this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
-      this.emit('processed', err, res, el.item);
 
       if (err) {
         this.requeue(el.item, el.attemptNumber + 1, err, el.id);
@@ -344,7 +341,7 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
         const id = el.id || generateUUID();
 
         if (trackMessageIds.includes(id)) {
-          this.emit('duplication', el.item, el.attemptNumber);
+          // duplicated event
         } else {
           our.queue.push({
             item: el.item,
@@ -482,10 +479,4 @@ class Queue extends Emitter implements IQueue<QueueItemData> {
   }
 }
 
-/**
- * Mix in event emitter
- */
-Emitter(Queue);
-
-// TODO: see if we can get rid of the Emitter
-export { Queue };
+export { RetryQueue };

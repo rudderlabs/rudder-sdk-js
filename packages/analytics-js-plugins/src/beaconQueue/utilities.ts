@@ -2,6 +2,7 @@ import { DATA_PLANE_API_VERSION, DEFAULT_BEACON_QUEUE_OPTIONS } from './constant
 import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
 import { BeaconQueueOpts, RudderEvent, ILogger } from '../types/common';
 import { BeaconBatchData } from './types';
+import { removeDuplicateSlashes } from '../utilities/queue';
 
 /**
  * Utility to get the stringified event payload as Blob
@@ -21,9 +22,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(`Error while converting event batch object to Blob.`);
+    logger?.error(`Error while converting event batch object to string.`);
   } catch (err) {
-    logger?.error(`Error while converting event batch object to string. Error: ${err}.`);
+    logger?.error(`Error while converting event batch object to Blog. Error: ${err}.`);
   }
 
   return undefined;
@@ -32,7 +33,21 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
 const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueueOpts =>
   mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
 
-const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string =>
-  new URL(`/beacon/${DATA_PLANE_API_VERSION}/batch?writeKey=${writeKey}`, dataplaneUrl).toString();
+const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
+  const dpUrl = new URL(dataplaneUrl);
+  return new URL(
+    removeDuplicateSlashes(
+      [
+        dpUrl.pathname,
+        'beacon',
+        '/',
+        DATA_PLANE_API_VERSION,
+        '/',
+        `batch?writeKey=${writeKey}`,
+      ].join(''),
+    ),
+    dpUrl,
+  ).href;
+};
 
 export { getDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

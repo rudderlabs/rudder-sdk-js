@@ -1,8 +1,8 @@
-import path from 'path';
 import { RudderEventType } from '../types/plugins';
-import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';
 import { isUndefined, mergeDeepRight } from '../utilities/common';
 import { QueueOpts, ILogger, RejectionDetails } from '../types/common';
+import { removeDuplicateSlashes } from '../utilities/queue';
+import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';
 import { XHRQueueItem } from './types';
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
@@ -10,7 +10,10 @@ const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
 
 const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => {
   const dpUrl = new URL(dataplaneUrl);
-  return new URL(path.join(dpUrl.pathname, DATA_PLANE_API_VERSION, eventType), dpUrl).href;
+  return new URL(
+    removeDuplicateSlashes([dpUrl.pathname, DATA_PLANE_API_VERSION, '/', eventType].join('')),
+    dpUrl,
+  ).href;
 };
 
 const isErrRetryable = (rejectionReason?: RejectionDetails) => {

@@ -12,7 +12,7 @@ import {
   IStoreManager,
   BeaconQueueOpts,
 } from '../types/common';
-import { Queue } from './Queue';
+import { BeaconItemsQueue } from './BeaconItemsQueue';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconQueueItem } from './types';
@@ -33,7 +33,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
      * @param storeManager Store Manager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns Queue instance
+     * @returns BeaconItemsQueue instance
      */
     init(
       state: ApplicationState,
@@ -55,17 +55,13 @@ const BeaconQueue = (): ExtensionPlugin => ({
         done: DoneCallback,
       ) => {
         logger?.debug(`Sending beacon events to data plane`);
-        const finalEvents = queueItems.map(queueItems =>
-          getFinalEventForDeliveryMutator(queueItems.item.event, state),
+        const finalEvents = queueItems.map(queueItem =>
+          getFinalEventForDeliveryMutator(queueItem.item.event, state),
         );
         const data = getDeliveryPayload(finalEvents);
 
         if (data) {
           try {
-            if (!state.capabilities.isBeaconAvailable) {
-              logger?.error('Beacon API is not supported by browser');
-            }
-
             const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
             if (!isEnqueuedInBeacon) {
               logger?.error("Unable to queue data to browser's beacon queue");
@@ -85,7 +81,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         }
       };
 
-      const eventsQueue = new Queue(
+      const eventsQueue = new BeaconItemsQueue(
         `${QUEUE_NAME}_${writeKey}}`,
         finalQOpts,
         queueProcessCallback,

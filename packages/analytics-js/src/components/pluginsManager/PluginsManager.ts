@@ -116,6 +116,10 @@ class PluginsManager implements IPluginsManager {
         pluginName => pluginName !== PluginName.XhrQueue,
       );
     } else {
+      if (state.loadOptions.value.useBeacon === true) {
+        this.logger?.error('Beacon API is not supported by browser. Falling back to XHR.');
+      }
+
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== PluginName.BeaconQueue,
       );

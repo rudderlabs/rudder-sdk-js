@@ -22,7 +22,7 @@ import {
 } from '../types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
-import { Queue } from '../utilities/retryQueue';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';
 
@@ -42,7 +42,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * @param storeManager Store Manager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns Queue instance
+     * @returns RetryQueue instance
      */
     init(
       state: ApplicationState,
@@ -50,7 +50,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): Queue {
+    ): IQueue {
       const writeKey = state.lifecycle.writeKey.value as string;
       httpClient.setAuthHeader(writeKey);
 
@@ -58,7 +58,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         state.loadOptions.value.queueOptions as QueueOpts,
       );
 
-      const eventsQueue = new Queue(
+      const eventsQueue = new RetryQueue(
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
@@ -118,7 +118,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     /**
      * Add event to the queue for delivery
      * @param state Application state
-     * @param eventsQueue Queue instance
+     * @param eventsQueue RetryQueue instance
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance

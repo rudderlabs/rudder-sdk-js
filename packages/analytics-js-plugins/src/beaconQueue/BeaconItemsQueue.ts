@@ -1,4 +1,3 @@
-import Emitter from 'component-emitter';
 import { IStoreManager, StorageType, IStore, BeaconQueueOpts } from '../types/common';
 import { generateUUID } from '../utilities/common';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
@@ -12,7 +11,7 @@ export type BeaconQueueTimeouts = {
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
-class Queue extends Emitter implements IQueue<BeaconQueueItem> {
+class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
   name: string;
   id: string;
   processQueueCb: QueueProcessCallback<QueueItem<BeaconQueueItem>[]>;
@@ -22,6 +21,8 @@ class Queue extends Emitter implements IQueue<BeaconQueueItem> {
   timeouts: BeaconQueueTimeouts;
   flushQueueTimeOut?: number;
   scheduleTimeoutActive: boolean;
+  flushInProgress: boolean;
+  nextFlushPending: boolean;
 
   constructor(
     name: string,
@@ -30,17 +31,17 @@ class Queue extends Emitter implements IQueue<BeaconQueueItem> {
     storeManager: IStoreManager,
     storageType: StorageType = 'memoryStorage',
   ) {
-    super();
-
     this.storeManager = storeManager;
     this.name = name;
     this.id = generateUUID();
     this.processQueueCb = queueProcessCb;
-    this.maxItems = options.maxItems || DEFAULT_BEACON_QUEUE_OPTIONS.maxItems;
+    this.maxItems = options.maxItems ?? DEFAULT_BEACON_QUEUE_OPTIONS.maxItems;
     this.timeouts = {
       flushQueueTimeOutInterval:
-        options.flushQueueInterval || DEFAULT_BEACON_QUEUE_OPTIONS.flushQueueInterval,
+        options.flushQueueInterval ?? DEFAULT_BEACON_QUEUE_OPTIONS.flushQueueInterval,
     };
+    this.flushInProgress = false;
+    this.nextFlushPending = false;
 
     // Set up our empty queues
     this.store = this.storeManager.setStore({
@@ -66,11 +67,11 @@ class Queue extends Emitter implements IQueue<BeaconQueueItem> {
   }
 
   getQueue(name?: string): QueueItem<BeaconQueueItem>[] {
-    return this.store.get(name ?? this.name) || [];
+    return this.store.get(name ?? this.name) ?? [];
   }
 
   setQueue(name?: string, value?: QueueItem<BeaconQueueItem>[]) {
-    this.store.set(name ?? this.name, value || []);
+    this.store.set(name ?? this.name, value ?? []);
   }
 
   start() {
@@ -137,36 +138,35 @@ class Queue extends Emitter implements IQueue<BeaconQueueItem> {
   }
 
   flushQueue(queueItems?: QueueItem<BeaconQueueItem>[]) {
-    const batchItems = queueItems ?? this.getQueue();
-    const batchData =
-      batchItems && batchItems.length > 0 ? batchItems.slice(0, batchItems.length) : [];
+    if (!this.flushInProgress) {
+      this.flushInProgress = true;
+      const batchItems = queueItems ?? this.getQueue();
+      const batchData =
+        batchItems && batchItems.length > 0 ? batchItems.slice(0, batchItems.length) : [];
 
-    // TODO: add retry mechanism here
-    const beaconSendCallback = (error?: any, response?: any) => {
-      if (!response) {
-        this.emit('discard', batchData);
-      } else {
-        this.emit('processed', batchData);
+      // TODO: add retry mechanism here
+      const beaconSendCallback = (error?: any, response?: any) => {
+        this.setQueue(this.name, []);
+        this.stop();
+        this.flushInProgress = false;
+
+        if (this.nextFlushPending) {
+          this.nextFlushPending = false;
+          this.flushQueue();
+        }
+      };
+
+      if (batchData.length > 0) {
+        this.processQueueCb(batchData, beaconSendCallback);
+        return;
       }
 
-      this.setQueue(this.name, []);
-      this.stop();
-    };
-
-    if (batchData.length > 0) {
-      this.processQueueCb(batchData, beaconSendCallback);
-      return;
+      // If no items to send just clear timer
+      beaconSendCallback(null);
+    } else {
+      this.nextFlushPending = true;
     }
-
-    // If no items to send just clear timer
-    beaconSendCallback(null);
   }
 }
 
-/**
- * Mix in event emitter
- */
-Emitter(Queue);
-
-// TODO: see if we can get rid of the Emitter
-export { Queue };
+export { BeaconItemsQueue };
