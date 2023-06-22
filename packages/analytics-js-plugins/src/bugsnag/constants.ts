@@ -17,7 +17,7 @@ const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 // Errors from the below scripts are NOT allowed to reach Bugsnag
 const SDK_FILE_NAME_PREFIXES = [
   'rudder-analytics', // Prefix for all the SDK scripts including plugins
-  ...Object.values(destDispNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
+  ...(Object.values ? Object.values(destDispNamesToFileNamesMap) : []), // Prefixes for all the destination SDK scripts
 ];
 
 const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
