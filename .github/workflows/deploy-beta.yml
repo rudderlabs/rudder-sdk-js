@@ -1,4 +1,4 @@
-name: Deploy BETA Feature
+name: Deploy BETA/BugBash Feature
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy BETA Feature
+    name: Deploy BETA/BugBash Feature
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash')
     steps:
