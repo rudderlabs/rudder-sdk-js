@@ -1012,8 +1012,7 @@ class Analytics {
   addCampaignInfo(rudderElement) {
     const msgContext = rudderElement.message.context;
     if (msgContext && typeof msgContext === 'object') {
-      const { url } = getDefaultPageProperties();
-      rudderElement.message.context.campaign = this.utm(url);
+      rudderElement.message.context.campaign = this.utm(window.location.href);
     }
   }
 
@@ -1475,7 +1474,7 @@ function processDataInAnalyticsArray(analytics) {
 
 /**
  * parse the given url into usable Rudder object
- * @param {*} query
+ * @param {*} url
  */
 function retrieveEventsFromQueryString(url) {
   const queryDefaults = {
