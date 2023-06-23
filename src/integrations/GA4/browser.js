@@ -88,11 +88,11 @@ export default class GA4 {
         if (sessionId) {
           gtagParameterObject.session_id = sessionId;
         }
-
-        // Remove rs prefixed cookies so that it won't used again
-        this.cookie.remove('rs_ga');
-        this.cookie.remove(`rs_ga_${measurementIdArray[1]}`);
       }
+      
+      // Remove rs prefixed cookies so that it won't used again
+      this.cookie.remove('rs_ga');
+      this.cookie.remove(`rs_ga_${measurementIdArray[1]}`);
     }
 
     if (this.debugView) {
