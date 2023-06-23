@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.35.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.35.0...v2.35.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* parse utm campaign values from locaton href instead of canonicalURL ([18a2a57](https://github.com/rudderlabs/rudder-sdk-js/commit/18a2a57caeaa03512e3b2fbce62aa8d0fe2963e7))
+
 ## [2.35.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.34.0...v2.35.0) (2023-06-09)
 
 
