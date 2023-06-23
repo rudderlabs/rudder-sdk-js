@@ -44,7 +44,7 @@ const isRudderSDKError = (event: any) => {
   }
 
   const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
-  return SDK_FILE_NAME_PREFIXES.some(
+  return SDK_FILE_NAME_PREFIXES().some(
     prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
   );
 };
