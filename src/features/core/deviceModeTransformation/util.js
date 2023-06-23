@@ -12,7 +12,7 @@ const createPayload = (event, destinationIds, token) => {
     batch: [
       {
         orderNo,
-        // destinationIds,
+        destinationIds,
         event: event.message,
       },
     ],

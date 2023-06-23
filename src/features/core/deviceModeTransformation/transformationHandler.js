@@ -86,7 +86,6 @@ class TransformationsHandler {
                   resolve({
                     status,
                     transformedPayload: response.transformedBatch,
-                    transformationServerAccess: true,
                   });
                   return;
                 }
@@ -96,7 +95,6 @@ class TransformationsHandler {
                     : `[Transformation]:: Invalid request payload`;
                   resolve({
                     status,
-                    transformationServerAccess: true,
                     errorMessage,
                   });
                   return;
@@ -104,7 +102,6 @@ class TransformationsHandler {
                 case 404: {
                   resolve({
                     status,
-                    transformationServerAccess: false,
                   });
                   return;
                 }
@@ -125,8 +122,7 @@ class TransformationsHandler {
                     // is not successful, return the response with a flag retryExhausted
                     resolve({
                       status,
-                      transformationServerAccess: true,
-                      retryExhausted: true,
+                      errorMessage: 'Retry exhausted',
                     });
                     return;
                   }
@@ -175,7 +171,7 @@ class TransformationsHandler {
         }
         this.isTransformationProcessing = false;
         // send null as response in case of error or retry fail
-        firstElement.cb({ transformedPayload: null });
+        firstElement.cb({ status: 0 });
         this.checkQueueLengthAndProcess();
       });
   }
