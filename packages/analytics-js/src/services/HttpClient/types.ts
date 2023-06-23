@@ -9,8 +9,8 @@ export interface IRequestConfig {
 }
 
 export type ResponseDetails = {
+  response: string;
   error?: Error;
-  response?: string | undefined;
   xhr?: XMLHttpRequest;
   options: IXHRRequestOptions;
 };
