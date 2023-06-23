@@ -1,6 +1,5 @@
 /* eslint-disable unicorn/prefer-export-from */
 import { isEmpty } from 'ramda';
-import Emitter from 'component-emitter';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   AnonymousIdOptions,
@@ -30,7 +29,6 @@ import { IRudderAnalytics } from './IRudderAnalytics';
  * expose overloaded methods
  * handle multiple Analytics instances
  * consume SDK preload event buffer
- * attach Emitter
  */
 class RudderAnalytics implements IRudderAnalytics {
   static globalSingleton: Nullable<RudderAnalytics> = null;
@@ -69,9 +67,6 @@ class RudderAnalytics implements IRudderAnalytics {
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
-
-    // TODO: remove the need for Emitter and deprecate it
-    Emitter(this);
 
     // eslint-disable-next-line no-constructor-return
     return this;

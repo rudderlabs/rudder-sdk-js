@@ -1,8 +1,8 @@
-import group1ExpectedData from '../../__mocks__/group1.json';
-import group2ExpectedData from '../../__mocks__/group2.json';
-import group4ExpectedData from '../../__mocks__/group4.json';
-import group5ExpectedData from '../../__mocks__/group5.json';
-import group6ExpectedData from '../../__mocks__/group6.json';
+import group1ExpectedData from '../../__fixtures__/group1.json';
+import group2ExpectedData from '../../__fixtures__/group2.json';
+import group4ExpectedData from '../../__fixtures__/group4.json';
+import group5ExpectedData from '../../__fixtures__/group5.json';
+import group6ExpectedData from '../../__fixtures__/group6.json';
 
 const groupMethodSuite = {
   id: 'groupMethod',

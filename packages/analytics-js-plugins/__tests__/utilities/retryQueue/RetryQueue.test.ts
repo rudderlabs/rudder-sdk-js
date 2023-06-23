@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
-import { Queue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue';
+import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
 import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
@@ -9,13 +9,13 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
-const size = (queue: Queue): { queue: number; inProgress: number } => ({
+const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,
   inProgress: Object.keys(queue.store.get(QueueStatuses.IN_PROGRESS) || {}).length,
 });
 
 describe('Queue', () => {
-  let queue: Queue;
+  let queue: RetryQueue;
   // let clock: InstalledClock;
   let schedule: Schedule;
   const engine = getStorageEngine('localStorage');
@@ -37,7 +37,7 @@ describe('Queue', () => {
     schedule.now = () => +new window.Date();
 
     // Have the default function be a spied success
-    queue = new Queue('test', {}, jest.fn(), defaultStoreManager);
+    queue = new RetryQueue('test', {}, jest.fn(), defaultStoreManager);
     queue.schedule = schedule;
   });
 
@@ -57,8 +57,8 @@ describe('Queue', () => {
 
     queue.addItem('a');
 
-    expect(queue.fn).toHaveBeenCalled();
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalled();
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should retry a task if it fails', () => {
@@ -69,40 +69,40 @@ describe('Queue', () => {
       .fn()
       .mockImplementationOnce((_, cb) => cb(new Error('no')))
       .mockImplementationOnce((_, cb) => cb());
-    queue.fn = mockProcessItemCb;
+    queue.processQueueCb = mockProcessItemCb;
 
     queue.addItem('a');
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
 
     // Delay for the first retry
     mockProcessItemCb.mockReset();
     const nextTickDelay = queue.getDelay(1);
     jest.advanceTimersByTime(nextTickDelay);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should delay retries', () => {
     const mockProcessItemCb = jest.fn((_, cb) => cb());
-    queue.fn = mockProcessItemCb;
+    queue.processQueueCb = mockProcessItemCb;
     queue.start();
 
     queue.requeue('b', 1);
     queue.addItem('a');
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
 
     // Delay for the retry
     mockProcessItemCb.mockReset();
     const nextTickDelay = queue.getDelay(1);
     jest.advanceTimersByTime(nextTickDelay);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
   });
 
   it('should respect shouldRetry', () => {
@@ -117,18 +117,18 @@ describe('Queue', () => {
     const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
 
     // Fail
-    queue.fn = mockProcessItemCb;
+    queue.processQueueCb = mockProcessItemCb;
     queue.start();
 
     // over maxattempts
     queue.requeue('a', 3);
     jest.advanceTimersByTime(queue.getDelay(3));
-    expect(queue.fn).toBeCalledTimes(0);
+    expect(queue.processQueueCb).toBeCalledTimes(0);
 
     mockProcessItemCb.mockReset();
     queue.requeue('a', 2);
     jest.advanceTimersByTime(queue.getDelay(2));
-    expect(queue.fn).toBeCalledTimes(1);
+    expect(queue.processQueueCb).toBeCalledTimes(1);
 
     // logic based on item state (eg. could be msg timestamp field)
     queue.shouldRetry = item => {
@@ -143,7 +143,7 @@ describe('Queue', () => {
     queue.requeue({ shouldRetry: false }, 1);
     jest.advanceTimersByTime(queue.getDelay(1));
 
-    expect(queue.fn).toBeCalledTimes(0);
+    expect(queue.processQueueCb).toBeCalledTimes(0);
   });
 
   it('should respect maxItems', () => {
@@ -187,8 +187,8 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should take over an in-progress task if a queue is abandoned', () => {
@@ -218,8 +218,8 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
@@ -256,8 +256,8 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
@@ -294,8 +294,8 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(1);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress and queue tasks', () => {
@@ -347,9 +347,9 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(2);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
   });
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
@@ -397,8 +397,8 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(4);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
   it('should take over multiple tasks if a queue is abandoned', () => {
@@ -435,9 +435,9 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-    expect(queue.fn).toHaveBeenCalledTimes(2);
-    expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
   });
 
   describe('while using in memory engine', () => {
@@ -472,8 +472,14 @@ describe('Queue', () => {
       // wait long enough for the other queue to expire and be reclaimed
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-      expect(queue.fn).toHaveBeenCalledTimes(1);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'a',
+        expect.any(Function),
+        0,
+        Infinity,
+        true,
+      );
     });
 
     it('should take over an in-progress task if a queue is abandoned', () => {
@@ -503,8 +509,14 @@ describe('Queue', () => {
       // wait long enough for the other queue to expire and be reclaimed
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-      expect(queue.fn).toHaveBeenCalledTimes(1);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'a',
+        expect.any(Function),
+        1,
+        Infinity,
+        true,
+      );
     });
 
     it('should take over multiple tasks if a queue is abandoned', () => {
@@ -541,9 +553,21 @@ describe('Queue', () => {
       // wait long enough for the other queue to expire and be reclaimed
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
-      expect(queue.fn).toHaveBeenCalledTimes(2);
-      expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-      expect(queue.fn).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'a',
+        expect.any(Function),
+        0,
+        Infinity,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'b',
+        expect.any(Function),
+        1,
+        Infinity,
+        true,
+      );
     });
   });
 
@@ -553,7 +577,7 @@ describe('Queue', () => {
     queue.maxItems = calls.length;
     queue.maxAttempts = 2;
 
-    queue.fn = (item, done) => {
+    queue.processQueueCb = (item, done) => {
       if (!calls[item.index]) {
         calls[item.index] = 1;
       } else {
@@ -581,7 +605,7 @@ describe('Queue', () => {
 
     queue.maxItems = 100;
     queue.maxAttempts = 2;
-    queue.fn = (_, done) => {
+    queue.processQueueCb = (_, done) => {
       waiting.push(done);
     };
 
@@ -626,77 +650,8 @@ describe('Queue', () => {
   });
 });
 
-describe('events', () => {
-  let queue: Queue;
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
-  beforeEach(() => {
-    queue = new Queue(
-      'events',
-      {},
-      (_, cb) => {
-        cb();
-      },
-      defaultStoreManager,
-    );
-  });
-
-  afterEach(() => {
-    queue.stop();
-  });
-
-  it('should emit processed with response, and item', done => {
-    queue.fn = (item, cb) => {
-      cb(null, { text: 'ok' });
-    };
-    queue.on('processed', (err, res, item) => {
-      if (err) done(err);
-      expect(item.a).toEqual('b');
-      expect(res.text).toEqual('ok');
-      done();
-    });
-    queue.start();
-    queue.addItem({ a: 'b' });
-  });
-
-  it('should include errors in callback to processed event', done => {
-    queue.fn = (item, cb) => {
-      cb(new Error('fail'));
-    };
-
-    queue.on('processed', (err, res, item) => {
-      expect(item.a).toEqual('c');
-      expect(err && err.message).toEqual('fail');
-      done();
-    });
-
-    queue.start();
-    queue.addItem({ a: 'c' });
-  });
-
-  it('should emit discard if the message fails shouldRetry', done => {
-    queue.fn = (item, cb) => {
-      cb(new Error('no'));
-    };
-    queue.shouldRetry = (item, attemptNumber) => attemptNumber < 2;
-    queue.on('discard', (item: Record<string, any>, attempts: number) => {
-      expect(item.a).toEqual('b');
-      expect(attempts).toEqual(2);
-      done();
-    });
-    queue.start();
-    queue.addItem({ a: 'b' });
-  });
-});
-
 describe('end-to-end', () => {
-  let queue: Queue;
+  let queue: RetryQueue;
   const defaultPluginsManager = new PluginsManager(
     defaultPluginEngine,
     defaultErrorHandler,
@@ -706,7 +661,7 @@ describe('end-to-end', () => {
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   beforeEach(() => {
-    queue = new Queue(
+    queue = new RetryQueue(
       'e2e_test',
       {},
       (_, cb) => {
@@ -721,7 +676,7 @@ describe('end-to-end', () => {
   });
 
   it('should run end-to-end', done => {
-    queue.fn = (item, cb) => {
+    queue.processQueueCb = (item, cb) => {
       cb();
       done();
     };
@@ -730,14 +685,12 @@ describe('end-to-end', () => {
   });
 
   it('should run end-to-end async', done => {
-    queue.fn = (item, cb) => {
+    queue.processQueueCb = (item, cb) => {
       setTimeout(() => {
         cb();
+        done();
       }, 1000);
     };
-    queue.on('processed', () => {
-      done();
-    });
 
     queue.start();
     queue.addItem({ a: 'b' });

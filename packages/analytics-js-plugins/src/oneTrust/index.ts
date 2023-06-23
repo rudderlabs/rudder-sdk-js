@@ -1,11 +1,6 @@
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  ILogger,
-  ConsentInfo,
-  DestinationConfig,
-} from '../types/common';
+import { ApplicationState, ILogger, DestinationConfig } from '../types/common';
+import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
 const pluginName = 'OneTrust';

@@ -101,7 +101,7 @@ const jsFileLoader = (
 
       const onerror = () => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(`Couldn't load the script: "${url}" with id ${id}.`));
+        reject(new Error(`Couldn't load the script "${url}" with id ${id}.`));
       };
 
       // Create the DOM element to load the script and add it to the DOM
@@ -111,14 +111,14 @@ const jsFileLoader = (
       timeoutID = (globalThis as typeof window).setTimeout(() => {
         reject(
           new Error(
-            `Timeout (${timeout} ms) occurred. Couldn't load the script: "${url}" with id ${id}.`,
+            `Timeout (${timeout} ms) occurred. Couldn't load the script "${url}" with id ${id}.`,
           ),
         );
       }, timeout);
     } catch (err) {
       reject(
         new Error(
-          `Exception occurred while loading the script "${url}" with id ${id}: "${stringifyWithoutCircular(
+          `Exception occurred while loading the script "${url}" with id ${id}. Original error: "${stringifyWithoutCircular(
             err as Record<string, any>,
           )}"`,
         ),

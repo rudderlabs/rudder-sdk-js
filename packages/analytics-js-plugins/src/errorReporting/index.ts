@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  Nullable,
-  ILogger,
-  IExternalSrcLoader,
-  IPluginEngine,
-} from '../types/common';
+import { ApplicationState, ILogger, IExternalSrcLoader, IPluginEngine } from '../types/common';
+import { ExtensionPlugin, Nullable } from '../types/plugins';
 
 const pluginName = 'ErrorReporting';
 
@@ -35,17 +29,23 @@ const ErrorReporting = (): ExtensionPlugin => ({
         logger,
       );
     },
-  },
-  notify: (pluginEngine: IPluginEngine, client: any, error: Error, logger?: ILogger): void => {
-    pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, logger);
-  },
-  breadcrumb: (
-    pluginEngine: IPluginEngine,
-    client: any,
-    message: string,
-    logger?: ILogger,
-  ): void => {
-    pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+    notify: (
+      pluginEngine: IPluginEngine,
+      client: any,
+      error: Error,
+      state: ApplicationState,
+      logger?: ILogger,
+    ): void => {
+      pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
+    },
+    breadcrumb: (
+      pluginEngine: IPluginEngine,
+      client: any,
+      message: string,
+      logger?: ILogger,
+    ): void => {
+      pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+    },
   },
 });
 

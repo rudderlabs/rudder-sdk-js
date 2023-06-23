@@ -8,10 +8,12 @@ import {
   initBugsnagClient,
   loadBugsnagSDK,
   onError,
+  getAppStateForMetadata,
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ExternalSrcLoader, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-plugins/utilities/common';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -302,10 +304,13 @@ describe('Bugsnag utilities', () => {
       expect(insertBeforeSpy).not.toHaveBeenCalled();
     });
 
-    it('should attempt to load Bugsnag SDK if not already loaded', () => {
-      loadBugsnagSDK(extSrcLoader);
+    it('should attempt to load Bugsnag SDK if not already loaded', done => {
+      loadBugsnagSDK(extSrcLoader, undefined);
 
-      expect(insertBeforeSpy).toHaveBeenCalled();
+      setTimeout(() => {
+        expect(insertBeforeSpy).toHaveBeenCalled();
+        done();
+      }, 500);
     });
 
     it('should log error if Bugsnag SDK could not be loaded', done => {
@@ -381,6 +386,144 @@ describe('Bugsnag utilities', () => {
       const onErrorFn = onError(state);
 
       expect(onErrorFn(error)).toBe(false);
+    });
+  });
+
+  describe('getAppStateForMetadata', () => {
+    const origAppStateExcludes = bugsnagConstants.APP_STATE_EXCLUDE_KEYS;
+
+    beforeEach(() => {
+      bugsnagConstants.APP_STATE_EXCLUDE_KEYS = origAppStateExcludes;
+    });
+
+    // Here we are just exploring different combinations of data where
+    // the signals could be buried inside objects, arrays, nested objects, etc.
+    const tcData = [
+      [
+        {
+          name: 'test',
+          value: 123,
+          someKey1: [1, 2, 3],
+          someKey2: {
+            key1: 'value1',
+            key2: 'value2',
+          },
+          someKey3: 2.5,
+          testSignal: signal('test'),
+        },
+        {
+          name: 'test',
+          value: 123,
+          someKey1: [1, 2, 3],
+          someKey2: {
+            key1: 'value1',
+            key2: 'value2',
+          },
+          someKey3: 2.5,
+          testSignal: 'test',
+        },
+        undefined,
+      ],
+      [
+        {
+          name: 'test',
+          someKey: {
+            key1: 'value1',
+            key2: signal('value2'),
+          },
+          someKey2: {
+            key1: 'value1',
+            key2: {
+              key3: signal('value3'),
+            },
+          },
+          someKey3: [signal('value1'), signal('value2'), 1, 3],
+          someKey4: [
+            {
+              key1: signal('value1'),
+              key2: signal('value2'),
+            },
+            'asdf',
+            1,
+            {
+              key3: 'value3',
+              key4: 'value4',
+            },
+          ],
+        },
+        {
+          name: 'test',
+          someKey: {
+            key1: 'value1',
+            key2: 'value2',
+          },
+          someKey2: {
+            key1: 'value1',
+            key2: {
+              key3: 'value3',
+            },
+          },
+          someKey3: ['value1', 'value2', 1, 3],
+          someKey4: [
+            {
+              key1: 'value1',
+              key2: 'value2',
+            },
+            'asdf',
+            1,
+            {
+              key3: 'value3',
+              key4: 'value4',
+            },
+          ],
+        },
+        [],
+      ],
+      [
+        {
+          someKey: signal({
+            key1: 'value1',
+            key2: signal('value2'),
+            key3: [signal('value1'), signal('value2'), undefined, null],
+            key4: true,
+            key7: {
+              key1: signal('value1'),
+              key2: signal('value2'),
+              key3: 'asdf',
+              key4: signal('value4'),
+            },
+            key5: signal([signal('value1'), signal('value2'), 1, 3]),
+            KEY6: 123,
+          }),
+        },
+        {
+          someKey: {
+            key1: 'value1',
+            key2: 'value2',
+            key3: ['value1', 'value2', null, null],
+            key7: {
+              key1: 'value1',
+              key2: 'value2',
+              key3: 'asdf',
+            },
+            key5: ['value1', 'value2', 1, 3],
+            KEY6: 123,
+          },
+        },
+        ['key4', 'key6'], // excluded keys
+      ],
+      [
+        {
+          someKey: BigInt(123),
+        },
+        undefined,
+        [],
+      ],
+    ];
+
+    it.each(tcData)('should convert signals to JSON %#', (input, expected, excludes) => {
+      bugsnagConstants.APP_STATE_EXCLUDE_KEYS = excludes;
+      expect(getAppStateForMetadata(input)).toEqual(expected);
     });
   });
 });

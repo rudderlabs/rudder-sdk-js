@@ -1,4 +1,4 @@
-# localstorage-retry
+# RetryQueue
 
 Provides durable retries with a queue held in `localStorage` (with graceful fallbacks to memory when necessary).
 
@@ -8,21 +8,16 @@ Each page maintains its own list of queued and in-progress tasks, while constant
 
 ## API
 
-### new Queue(name, [opts], processFunc(item, done(err, res)))
+### new RetryQueue(name, [opts], processFunc(item, done(err, res)))
 
 You can omit the `opts` argument to initialize the queue with defaults:
 
 ```javascript
-var queue = new Queue('my_queue_name', function process(item, done) {
+var queue = new RetryQueue('my_queue_name', function process(item, done) {
   sendAsync(item, function (err, res) {
     if (err) return done(err);
     done(null, res);
   });
-});
-
-queue.on('processed', function (err, res, item) {
-  if (err) return console.warn('processing %O failed with error %O', item, err);
-  console.log('successfully sent %O with response %O', item, res);
 });
 
 queue.start();
@@ -42,7 +37,7 @@ var options = {
   maxAttempts: Infinity  // max retry attempts before discarding
 };
 
-var queue = new Queue('my_queue_name', options, (item, done) => {
+var queue = new RetryQueue('my_queue_name', options, (item, done) => {
   sendAsync(item, (err, res) => {
     if (err) return done(err);
     done(null, res);
@@ -137,37 +132,4 @@ Stops the queue from processing. Any retries queued may be picked claimed by ano
 
 ```javascript
 queue.stop();
-```
-
-## Emitter
-
-You can listen for `processed` events, which are emitted with each invocation of the `processFunc` and passed any error or response provided along with the item itself.
-
-If a message is discarded entirely because it does not pass your `shouldRetry` logic upon attempted re-enqueuing, the queue will emit a `discard` event.
-
-If the queue is reclaiming events from an abandonded queue, and sees duplicate entries, we will keep the first, and discard the rest, emitting a `duplication` event for each.
-
-### `processed`
-
-```javascript
-queue.on('processed', function (err, res, item) {
-  if (err) return console.warn('processing %O failed with error %O', item, err);
-  console.log('successfully sent %O with response %O', item, res);
-});
-```
-
-### `discard`
-
-```javascript
-queue.on('discard', function (item, attempts) {
-  console.error('discarding message %O after %d attempts', item, attempts);
-});
-```
-
-### `duplication`
-
-```javascript
-queue.on('duplication', function (item, attempts) {
-  console.error('discarding message %O due to duplicate entries', item, attempts);
-});
 ```

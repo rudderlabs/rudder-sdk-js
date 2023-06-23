@@ -5,7 +5,7 @@ import {
   isNonCloudDestination,
   isHybridModeDestination,
 } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
+import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
   {
@@ -37,7 +37,8 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    areTransformationsConnected: true,
+    enableTransformationForDeviceMode: true,
+    propagateEventsUntransformedOnError: false,
   },
   {
     config: {
@@ -68,7 +69,8 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    areTransformationsConnected: false,
+    enableTransformationForDeviceMode: false,
+    propagateEventsUntransformedOnError: false,
   },
 ];
 
@@ -102,7 +104,8 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    areTransformationsConnected: true,
+    enableTransformationForDeviceMode: true,
+    propagateEventsUntransformedOnError: false,
   },
   {
     config: {
@@ -133,7 +136,8 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    areTransformationsConnected: false,
+    enableTransformationForDeviceMode: false,
+    propagateEventsUntransformedOnError: false,
   },
 ];
 
@@ -141,7 +145,8 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7DamldfkgO',
     displayName: 'Google Analytics 4 (GA4)',
-    areTransformationsConnected: true,
+    enableTransformationForDeviceMode: true,
+    propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
       capturePageView: 'rs',
@@ -165,7 +170,8 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
     displayName: 'Braze',
-    areTransformationsConnected: false,
+    enableTransformationForDeviceMode: false,
+    propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
       capturePageView: 'rs',

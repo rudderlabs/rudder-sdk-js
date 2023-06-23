@@ -20,5 +20,6 @@ module.exports = {
     '!<rootDir>/**/types.ts',
     '!<rootDir>/**/*.d.*',
     '!<rootDir>/**/__mocks__/**/*',
+    '!<rootDir>/**/__fixtures__/**/*',
   ],
 };

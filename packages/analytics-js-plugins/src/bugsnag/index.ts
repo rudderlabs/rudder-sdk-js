@@ -1,15 +1,9 @@
-/* eslint-disable compat/compat */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  IExternalSrcLoader,
-  ILogger,
-  BugsnagLib,
-} from '../types/common';
+import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { BugsnagLib, ExtensionPlugin } from '../types/plugins';
 import { API_KEY } from './constants';
-import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
+import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';
 
 const pluginName = 'Bugsnag';
 
@@ -36,8 +30,17 @@ const Bugsnag = (): ExtensionPlugin => ({
 
         initBugsnagClient(state, resolve, reject, logger);
       }),
-    notify: (client: BugsnagLib.Client, error: Error, logger?: ILogger): void => {
-      client?.notify(error);
+    notify: (
+      client: BugsnagLib.Client,
+      error: Error,
+      state: ApplicationState,
+      logger?: ILogger,
+    ): void => {
+      client?.notify(error, {
+        metaData: {
+          state: getAppStateForMetadata(state),
+        },
+      });
     },
     breadcrumb: (client: BugsnagLib.Client, message: string, logger?: ILogger): void => {
       client?.leaveBreadcrumb(message);

@@ -15,12 +15,27 @@ const SDK_LOAD_POLL_INTERVAL_MS = 100; // ms
 const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 
 // Errors from the below scripts are NOT allowed to reach Bugsnag
-const SDK_FILE_NAME_PREFIXES = [
+const SDK_FILE_NAME_PREFIXES = (): string[] => [
   'rudder-analytics', // Prefix for all the SDK scripts including plugins
   ...Object.values(destDispNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
 ];
 
 const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
+
+// List of keys to exclude from the metadata
+// Potential PII or sensitive data
+const APP_STATE_EXCLUDE_KEYS = [
+  'userId',
+  'userTraits',
+  'groupId',
+  'groupTraits',
+  'anonymousId',
+  'config',
+  'instance', // destination instance objects
+  'anonymousUserId',
+  'eventBuffer', // pre-load event buffer (may contain PII)
+  'traits',
+];
 
 export {
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
@@ -34,4 +49,5 @@ export {
   SDK_FILE_NAME_PREFIXES,
   SDK_LOAD_POLL_INTERVAL_MS,
   DEV_HOSTS,
+  APP_STATE_EXCLUDE_KEYS,
 };

@@ -5,7 +5,6 @@ import {
   IExternalSrcLoader,
 } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { state } from '@rudderstack/analytics-js/state';
 
 jest.mock('../../../src/services/Logger', () => {
@@ -69,6 +68,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
   });
@@ -82,6 +82,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
 
@@ -100,6 +101,7 @@ describe('ErrorHandler', () => {
       defaultPluginEngine,
       undefined,
       expect.any(Error),
+      state,
       expect.any(Object),
     );
 
@@ -119,6 +121,7 @@ describe('ErrorHandler', () => {
         defaultPluginEngine,
         undefined,
         expect.any(Error),
+        state,
         expect.any(Object),
       );
 

@@ -1,7 +1,7 @@
-import alias1ExpectedData from '../../__mocks__/alias1.json';
-import alias2ExpectedData from '../../__mocks__/alias2.json';
-import alias5ExpectedData from '../../__mocks__/alias5.json';
-import alias6ExpectedData from '../../__mocks__/alias6.json';
+import alias1ExpectedData from '../../__fixtures__/alias1.json';
+import alias2ExpectedData from '../../__fixtures__/alias2.json';
+import alias5ExpectedData from '../../__fixtures__/alias5.json';
+import alias6ExpectedData from '../../__fixtures__/alias6.json';
 
 const aliasMethodSuite = {
   id: 'aliasMethod',
