@@ -29,9 +29,10 @@ class TransformationsHandler {
   }
 
   // Enqueue the events and callbacks
-  enqueue(event, cb) {
+  enqueue(event, destinationIds, cb) {
     this.queue.push({
       event,
+      destinationIds,
       cb,
     });
   }
@@ -157,7 +158,7 @@ class TransformationsHandler {
   process() {
     this.isTransformationProcessing = true;
     const firstElement = this.queue.shift();
-    const payload = createPayload(firstElement.event, this.authToken);
+    const payload = createPayload(firstElement.event, firstElement.destinationIds, this.authToken);
 
     // Send event for transformation with payload, writekey and retryAttempt
     this.sendEventForTransformation(payload, this.retryAttempt)

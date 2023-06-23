@@ -265,9 +265,9 @@ class Analytics {
             config: destination.config,
             destinationInfo: {
               enableTransformationForDeviceMode:
-                destination.enableTransformationForDeviceMode || false,
+                destination.enableTransformationForDeviceMode || true,
               propagateEventsUntransformedOnError:
-                destination.propagateEventsUntransformedOnError || false,
+                destination.propagateEventsUntransformedOnError || true,
               destinationId: destination.id,
             },
           });
@@ -407,15 +407,56 @@ class Analytics {
     }
   }
 
+  sendUntransformedEvent() {}
+
   sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName) {
     try {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
-
+      const destinationIds = destWithTransformation.map((e) => e.destinationId);
       // Process Transformation
       this.transformationHandler.enqueue(
         rudderElement,
-        ({ status, transformedPayload, transformationServerAccess, retryExhausted }) => {
+        destinationIds,
+        ({
+          status,
+          transformedPayload,
+          transformationServerAccess,
+          retryExhausted,
+          // errorMessage,
+        }) => {
+          // destWithTransformation.forEach((intg) => {
+          //   if (status && status === 200) {
+          //     // filter the transformed event for that destination
+          //     const destTransformedResult = transformedPayload.find(
+          //       (e) => e.id === intg.destinationId,
+          //     );
+          //     const transformedEvents = [];
+          //     destTransformedResult?.payload.forEach((tEvent) => {
+          //       if (tEvent.status === '200') {
+          //         transformedEvents.push(tEvent);
+          //       } else if (intg.propagateEventsUntransformedOnError === true) {
+          //         transformedEvents.push({ event: rudderElement.message });
+          //       } else {
+          //         logger.error(
+          //           `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
+          //         );
+          //       }
+          //     });
+          //     // send transformed event to destination
+          //     transformedEvents?.forEach((tEvent) => {
+          //       if (tEvent.event) {
+          //         this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+          //       }
+          //     });
+          //   } else if (intg.propagateEventsUntransformedOnError === true) {
+          //     logger.warn(`[DMT]::[Destination: intg.name] ${errorMessage}`);
+          //     this.sendDataToDestination(intg, rudderElement, methodName);
+          //   } else {
+          //     logger.error(`[DMT]::[Destination: intg.name] ${errorMessage}`);
+          //   }
+          // });
+
           destWithTransformation.forEach((intg) => {
             try {
               // switch (status) {

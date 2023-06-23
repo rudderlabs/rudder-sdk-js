@@ -23,9 +23,9 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   let payload;
-
+  const destinationIds = ['id1', 'id2', 'id3'];
   beforeEach(() => {
-    payload = createPayload(samplePageEvent, 'sample-auth-token');
+    payload = createPayload(samplePageEvent, destinationIds, 'sample-auth-token');
   });
 
   it('Validate payload format', () => {
