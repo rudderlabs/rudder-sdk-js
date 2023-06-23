@@ -33,6 +33,7 @@ const modName = 'rudderAnalyticsRemotePlugins';
 const remotePluginsExportsFilename = `${distName}.js`;
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
+  './Bugsnag': './src/bugsnag/index.ts',
   './ConsentManager': './src/consentManager/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
@@ -45,7 +46,6 @@ const pluginsMap = {
   // './StorageEncryption': './src/storageEncryption/index.ts',
   './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
-  './Bugsnag': './src/bugsnag/index.ts',
 };
 
 export function getDefaultConfig(distName, moduleType = 'cdn') {

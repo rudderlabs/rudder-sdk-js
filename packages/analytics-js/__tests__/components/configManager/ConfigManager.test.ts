@@ -9,8 +9,8 @@ import { DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
 import { LogLevel } from '@rudderstack/analytics-js/state/types';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { server } from '../../../__mocks__/msw.server';
-import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
+import { server } from '../../../__fixtures__/msw.server';
+import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');

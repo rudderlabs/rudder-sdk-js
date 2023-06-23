@@ -1,11 +1,6 @@
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  ILogger,
-  IPluginsManager,
-  DestinationConfig,
-} from '../types/common';
+import { ApplicationState, ILogger, IPluginsManager, DestinationConfig } from '../types/common';
+import { ExtensionPlugin } from '../types/plugins';
 import { Batch } from './type';
 
 const pluginName = 'ConsentManager';

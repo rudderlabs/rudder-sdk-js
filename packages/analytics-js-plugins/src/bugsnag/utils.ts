@@ -1,4 +1,5 @@
-import { ApplicationState, BugsnagLib, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { BugsnagLib } from '../types/plugins';
 import { stringifyWithoutCircular } from '../utilities/common';
 import {
   API_KEY,
@@ -43,7 +44,7 @@ const isRudderSDKError = (event: any) => {
   }
 
   const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
-  return SDK_FILE_NAME_PREFIXES.some(
+  return SDK_FILE_NAME_PREFIXES().some(
     prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
   );
 };

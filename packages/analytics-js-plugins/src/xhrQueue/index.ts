@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { XHRQueueItem } from './types';
+import {
+  getDeliveryPayload,
+  getFinalEventForDeliveryMutator,
+  validateEventPayloadSize,
+} from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
-  getDeliveryPayload,
-  validatePayloadSize,
   getDeliveryUrl,
-  getFinalEventForDelivery,
   isErrRetryable,
   logErrorOnFailure,
 } from './utilities';
 import {
   IStoreManager,
-  ExtensionPlugin,
   ApplicationState,
   IErrorHandler,
   ILogger,
@@ -21,8 +20,11 @@ import {
   RudderEvent,
   IHttpClient,
 } from '../types/common';
+import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
-import { DoneCallback, Queue } from '../utilities/retryQueue';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { XHRQueueItem } from './types';
 
 const pluginName = 'XhrQueue';
 
@@ -40,7 +42,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * @param storeManager Store Manager instance
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns Queue instance
+     * @returns RetryQueue instance
      */
     init(
       state: ApplicationState,
@@ -48,7 +50,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       storeManager: IStoreManager,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): Queue {
+    ): IQueue {
       const writeKey = state.lifecycle.writeKey.value as string;
       httpClient.setAuthHeader(writeKey);
 
@@ -56,21 +58,21 @@ const XhrQueue = (): ExtensionPlugin => ({
         state.loadOptions.value.queueOptions as QueueOpts,
       );
 
-      const eventsQueue = new Queue(
+      const eventsQueue = new RetryQueue(
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
           item: XHRQueueItem,
           done: DoneCallback,
-          attemptNumber: number,
-          maxRetryAttempts: number,
-          willBeRetried: boolean,
+          attemptNumber?: number,
+          maxRetryAttempts?: number,
+          willBeRetried?: boolean,
         ) => {
           const { url, event, headers } = item;
           logger?.debug(`Sending ${event.type} event to data plane`);
 
-          const finalEvent = getFinalEventForDelivery(event, state);
+          const finalEvent = getFinalEventForDeliveryMutator(event, state);
 
           const data = getDeliveryPayload(finalEvent);
 
@@ -116,7 +118,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     /**
      * Add event to the queue for delivery
      * @param state Application state
-     * @param eventsQueue Queue instance
+     * @param eventsQueue RetryQueue instance
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance
@@ -124,7 +126,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      */
     enqueue(
       state: ApplicationState,
-      eventsQueue: Queue,
+      eventsQueue: IQueue,
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
@@ -132,7 +134,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
-      validatePayloadSize(event, logger);
+      validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);

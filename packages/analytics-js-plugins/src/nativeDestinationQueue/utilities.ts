@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '@rudderstack/analytics-js-plugins/utilities/common';
+import { mergeDeepRight } from '../utilities/common';
 import {
   Destination,
   DestinationsQueueOpts,
   IErrorHandler,
   ILogger,
-  Nullable,
   RudderEvent,
-  RudderEventType,
 } from '../types/common';
+import { Nullable, RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>

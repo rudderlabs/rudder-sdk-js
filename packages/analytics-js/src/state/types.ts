@@ -32,7 +32,8 @@ export type Destination = {
   id: string;
   displayName: string;
   userFriendlyId: string;
-  areTransformationsConnected: boolean;
+  enableTransformationForDeviceMode: boolean;
+  propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   instance?: DeviceModeDestination;
 };
@@ -98,7 +99,8 @@ export type DestinationConfig = {
 export type DeviceModeDestination = {
   name: string; // this is same as the definition name
   destinationId: string;
-  areTransformationsConnected: boolean;
+  enableTransformationForDeviceMode: boolean;
+  propagateEventsUntransformedOnError: boolean;
   analytics: any;
   [index: string]: any;
   isLoaded: () => boolean;

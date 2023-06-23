@@ -5,5 +5,11 @@
     "declarationDir": "./dist/dts",
     "isolatedModules": false
   },
-  "include": ["./package.json", "./src/**/*", "./__mocks__/*.json", "../../types/**/*"]
+  "include": [
+    "./package.json",
+    "./src/**/*",
+    "./__mocks__/*.json",
+    "./__fixtures__/*.json",
+    "../../types/**/*"
+  ]
 }
