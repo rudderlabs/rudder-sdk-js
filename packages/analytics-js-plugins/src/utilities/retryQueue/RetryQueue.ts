@@ -1,6 +1,13 @@
-import Emitter from 'component-emitter';
-import { generateUUID } from '@rudderstack/analytics-js-plugins/utilities/common';
-import { IStoreManager, StorageType, IStore } from '@rudderstack/analytics-js-plugins/types/common';
+import { IStoreManager, StorageType, IStore } from '../../types/common';
+import {
+  IQueue,
+  QueueItem,
+  Nullable,
+  QueueItemData,
+  DoneCallback,
+  QueueProcessCallback,
+} from '../../types/plugins';
+import { generateUUID } from '../common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -27,67 +34,36 @@ export type QueueTimeouts = {
   RECLAIM_WAIT: number;
 };
 
-export type QueueItem = {
-  item: Record<string, any> | string | number;
-  attemptNumber: number;
-  time: number;
-  id: string;
-};
-
 export type InProgressQueueItem = {
   item: Record<string, any> | string | number;
   done: DoneCallback;
   attemptNumber: number;
 };
 
-export type QueueItemData = Record<string, any> | string | number;
-
-/**
- * @callback processFunc
- * @param {any} item The item added to the queue to process
- * @param {Function} done A function to call when processing is completed.
- * @param {Number} retryAttemptNumber The number of times this item has been attempted to retry
- * @param {Number} maxRetryAttempts The maximum number of times this item should be attempted to retry
- * @param {Number} willBeRetried A boolean indicating if the item will be retried later
- */
-export type QueueProcessCallback = (
-  item: any,
-  done: DoneCallback,
-  retryAttemptNumber: number,
-  maxRetryAttempts: number,
-  willBeRetried: boolean,
-) => void;
-
-/**
- * @callback doneCallback
- * @param {Error} Optional error parameter if the processing failed
- * @param {Response} Optional response parameter to emit for async handling
- */
-export type DoneCallback = (error?: any, response?: any) => void;
-
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 /**
- * Constructs a Queue backed by localStorage
+ * Constructs a RetryQueue backed by localStorage
  *
  * @constructor
  * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
  * @param {Object} [opts] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
  * @param {QueueProcessCallback} fn The function to call in order to process an item added to the queue
  */
-class Queue extends Emitter {
+class RetryQueue implements IQueue<QueueItemData> {
   name: string;
   id: string;
-  fn: QueueProcessCallback;
-  maxItems: number;
-  maxAttempts: number;
-  backoff: QueueBackoff;
-  timeouts: QueueTimeouts;
-  schedule: Schedule;
-  processId: string;
+  processQueueCb: QueueProcessCallback<QueueItemData>;
   store: IStore;
   storeManager: IStoreManager;
-  running: boolean;
+  maxItems: number;
+  timeouts: QueueTimeouts;
+  scheduleTimeoutActive: boolean;
+
+  maxAttempts: number;
+  backoff: QueueBackoff;
+  schedule: Schedule;
+  processId: string;
 
   constructor(
     name: string,
@@ -96,12 +72,10 @@ class Queue extends Emitter {
     storeManager: IStoreManager,
     storageType: StorageType = 'localStorage',
   ) {
-    super();
-
     this.storeManager = storeManager;
     this.name = name;
     this.id = generateUUID();
-    this.fn = queueProcessCb;
+    this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems || Infinity;
     this.maxAttempts = options.maxAttempts || Infinity;
 
@@ -130,15 +104,27 @@ class Queue extends Emitter {
       validKeys: QueueStatuses,
       type: storageType,
     });
-    this.store.set(QueueStatuses.IN_PROGRESS, {});
-    this.store.set(QueueStatuses.QUEUE, []);
+    this.setQueue(QueueStatuses.IN_PROGRESS, {});
+    this.setQueue(QueueStatuses.QUEUE, []);
 
     // bind recurring tasks for ease of use
     this.ack = this.ack.bind(this);
     this.checkReclaim = this.checkReclaim.bind(this);
     this.processHead = this.processHead.bind(this);
 
-    this.running = false;
+    this.scheduleTimeoutActive = false;
+  }
+
+  getQueue(name?: string): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
+    return this.store.get(name ?? this.name);
+  }
+
+  // TODO: fix the type of different queues to be the same if possible
+  setQueue(
+    name?: string,
+    value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
+  ) {
+    this.store.set(name ?? this.name, value ?? []);
   }
 
   /**
@@ -146,18 +132,18 @@ class Queue extends Emitter {
    */
   stop() {
     this.schedule.cancelAll();
-    this.running = false;
+    this.scheduleTimeoutActive = false;
   }
 
   /**
    * Starts processing the queue
    */
   start() {
-    if (this.running) {
+    if (this.scheduleTimeoutActive) {
       this.stop();
     }
 
-    this.running = true;
+    this.scheduleTimeoutActive = true;
     this.ack();
     this.checkReclaim();
     this.processHead();
@@ -197,16 +183,16 @@ class Queue extends Emitter {
     return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
   }
 
-  enqueue(entry: QueueItem) {
-    let queue = this.store.get(QueueStatuses.QUEUE) || [];
+  enqueue(entry: QueueItem<QueueItemData>) {
+    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(entry);
     queue = queue.sort(sortByTime);
 
-    this.store.set(QueueStatuses.QUEUE, queue);
+    this.setQueue(QueueStatuses.QUEUE, queue);
 
-    if (this.running) {
+    if (this.scheduleTimeoutActive) {
       this.processHead();
     }
   }
@@ -242,7 +228,7 @@ class Queue extends Emitter {
         id: id || generateUUID(),
       });
     } else {
-      this.emit('discard', item, attemptNumber);
+      // Discard item
     }
   }
 
@@ -251,22 +237,24 @@ class Queue extends Emitter {
     this.schedule.cancel(this.processId);
 
     // Pop the head off the queue
-    let queue = this.store.get(QueueStatuses.QUEUE) || [];
-    const inProgress = this.store.get(QueueStatuses.IN_PROGRESS) || {};
+    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+    const inProgress =
+      (this.getQueue(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
     const now = this.schedule.now();
     const toRun: InProgressQueueItem[] = [];
-    // TODO: fix the type for the processItemCallback generated function
+
     const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
-      const inProgress = this.store.get(QueueStatuses.IN_PROGRESS) || {};
+      const inProgress =
+        (this.getQueue(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
       delete inProgress[id];
 
-      this.store.set(QueueStatuses.IN_PROGRESS, inProgress);
-      this.emit('processed', err, res, el.item);
+      this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
         this.requeue(el.item, el.attemptNumber + 1, err, el.id);
       }
     };
+
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
         item: el.item,
@@ -280,33 +268,35 @@ class Queue extends Emitter {
     // eslint-disable-next-line no-plusplus
     while (queue.length > 0 && queue[0].time <= now && inProgressSize++ < this.maxItems) {
       const el = queue.shift();
-      const id = generateUUID();
+      if (el) {
+        const id = generateUUID();
 
-      // Save this to the in progress map
-      inProgress[id] = {
-        item: el.item,
-        attemptNumber: el.attemptNumber,
-        time: this.schedule.now(),
-      };
+        // Save this to the in progress map
+        inProgress[id] = {
+          item: el.item,
+          attemptNumber: el.attemptNumber,
+          time: this.schedule.now(),
+        };
 
-      enqueueItem(el, id);
+        enqueueItem(el, id);
+      }
     }
 
-    this.store.set(QueueStatuses.QUEUE, queue);
-    this.store.set(QueueStatuses.IN_PROGRESS, inProgress);
+    this.setQueue(QueueStatuses.QUEUE, queue);
+    this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
 
     toRun.forEach(el => {
-      // TODO: handle fn timeout
+      // TODO: handle processQueueCb timeout
       try {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
-        this.fn(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
+        this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         console.error(`error: Process function threw error: ${err}`);
       }
     });
 
     // re-read the queue in case the process function finished immediately or added another item
-    queue = this.store.get(QueueStatuses.QUEUE) || [];
+    queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
     this.schedule.cancel(this.processId);
 
     if (queue.length > 0) {
@@ -321,9 +311,9 @@ class Queue extends Emitter {
 
   // Ack continuously to prevent other tabs from claiming our queue
   ack() {
-    this.store.set(QueueStatuses.ACK, this.schedule.now());
-    this.store.set(QueueStatuses.RECLAIM_START, null);
-    this.store.set(QueueStatuses.RECLAIM_END, null);
+    this.setQueue(QueueStatuses.ACK, this.schedule.now());
+    this.setQueue(QueueStatuses.RECLAIM_START, null);
+    this.setQueue(QueueStatuses.RECLAIM_END, null);
     this.schedule.run(this.ack, this.timeouts.ACK_TIMER, ScheduleModes.ASAP);
   }
 
@@ -335,7 +325,7 @@ class Queue extends Emitter {
       type: 'localStorage',
     });
     const our = {
-      queue: (this.store.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
+      queue: (this.getQueue(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
@@ -351,7 +341,7 @@ class Queue extends Emitter {
         const id = el.id || generateUUID();
 
         if (trackMessageIds.includes(id)) {
-          this.emit('duplication', el.item, el.attemptNumber);
+          // duplicated event
         } else {
           our.queue.push({
             item: el.item,
@@ -378,19 +368,19 @@ class Queue extends Emitter {
 
     our.queue = our.queue.sort(sortByTime);
 
-    this.store.set(QueueStatuses.QUEUE, our.queue);
+    this.setQueue(QueueStatuses.QUEUE, our.queue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
     const localStorageBackoff = 10;
-    setTimeout(() => {
+    (globalThis as typeof window).setTimeout(() => {
       other.remove(QueueStatuses.IN_PROGRESS);
-      setTimeout(() => {
+      (globalThis as typeof window).setTimeout(() => {
         other.remove(QueueStatuses.QUEUE);
-        setTimeout(() => {
+        (globalThis as typeof window).setTimeout(() => {
           other.remove(QueueStatuses.RECLAIM_START);
-          setTimeout(() => {
+          (globalThis as typeof window).setTimeout(() => {
             other.remove(QueueStatuses.RECLAIM_END);
-            setTimeout(() => {
+            (globalThis as typeof window).setTimeout(() => {
               other.remove(QueueStatuses.ACK);
             }, localStorageBackoff);
           }, localStorageBackoff);
@@ -489,10 +479,4 @@ class Queue extends Emitter {
   }
 }
 
-/**
- * Mix in event emitter
- */
-Emitter(Queue);
-
-// TODO: see if we can get rid of the Emitter
-export { Queue };
+export { RetryQueue };

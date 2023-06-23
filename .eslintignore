@@ -1,5 +1,6 @@
 .husky/
 __mocks__/
+__fixtures__/
 jest/
 dist/
 node_modules/

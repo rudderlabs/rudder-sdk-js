@@ -4,5 +4,11 @@
     "target": "es5",
     "declarationDir": "./dist/dts"
   },
-  "include": ["./package.json", "./src/**/*", "./__mocks__/*.json", "../../types/**/*"]
+  "include": [
+    "./package.json",
+    "./src/**/*",
+    "./__mocks__/*.json",
+    "./__fixtures__/*.json",
+    "../../types/**/*"
+  ]
 }

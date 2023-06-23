@@ -1,4 +1,4 @@
-import { Nullable } from '../types/common';
+import { Nullable } from '../types/plugins';
 import { crc32 } from './crc32';
 import { USER_INTERFACE } from './userLib';
 import { decode } from './base64Decoder';

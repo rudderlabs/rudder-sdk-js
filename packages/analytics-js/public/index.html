@@ -2,76 +2,65 @@
 <html>
   <head>
     <script>
-      // TODO: use detection to determine of should load legacy or modern package
-      rudderanalytics = window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'getAnalyticsInstance',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'getAnonymousId',
-        'setAnonymousId',
-        'getUserId',
-        'getUserTraits',
-        'getGroupId',
-        'getGroupTraits',
-        'startSession',
-        'endSession',
-        'getSessionId'
-      ];
-
+      var sdkBaseUrl = "https://cdn.rudderlabs.com/beta/3.0.0-beta";
+      var sdkName = "rudder-analytics.min.js";
+      var asyncScript = true;
+      window.rudderAnalyticsBuildType = "legacy";
+      window.rudderanalytics = [];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
-        rudderanalytics[method] = (function (methodName) {
-          return function () {
-            rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+        window.rudderanalytics[method] = function(methodName) {
+          return function() {
+            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
           };
-        })(method);
+        }(method);
       }
-
-      // New addition to load script starts
-      var sdkBuildType = 'legacy';
-
       try {
-        // Feature detection of dynamic imports
         new Function('return import("")');
-        sdkBuildType = 'modern';
-      } catch (e) {
-      }
-
-      var rudderCdnBaseUrlHost = 'https://cdn.rudderlabs.com/beta/v3/'
-      var rudderAnalyticsBaseUrl = rudderCdnBaseUrlHost + sdkBuildType;
-      var rudderAnalyticsMount = function() {
-        var rudderAnalyticsScript = document.createElement('script');
-        rudderAnalyticsScript.src = rudderAnalyticsBaseUrl + '/rudder-analytics.min.js';
-        rudderAnalyticsScript.async = true;
+        window.rudderAnalyticsBuildType = "modern";
+      } catch (e) {}
+      window.rudderAnalyticsMount = function() {
+        var rudderAnalyticsScript = document.createElement("script");
+        rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+        rudderAnalyticsScript.async = asyncScript;
         // Commented out as the local build file is auto-injected by rollup
-        // document.head.appendChild(rudderAnalyticsScript);
+        // if (document.head) {
+        //   document.head.appendChild(rudderAnalyticsScript);
+        // } else {
+        //   document.body.appendChild(rudderAnalyticsScript);
+        // }
       };
-
-      // Feature detection of promise
-      if(typeof Promise === 'undefined') {
-        var rudderAnalyticsPromisesScript = document.createElement('script');
-        rudderAnalyticsPromisesScript.src = 'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
-        rudderAnalyticsPromisesScript.async = true;
-        document.head.appendChild(rudderAnalyticsPromisesScript);
+      if (typeof Promise === "undefined") {
+        var rudderAnalyticsPromisesScript = document.createElement("script");
+        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount";
+        rudderAnalyticsPromisesScript.async = asyncScript;
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsPromisesScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsPromisesScript);
+        }
       } else {
-        rudderAnalyticsMount();
+        window.rudderAnalyticsMount();
       }
       // New addition to load script ends
 
-      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
+      var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + sdkBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + sdkBuildType + '/plugins'
-      });
+        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+        // useBeacon: true,
+        // beaconQueueOptions: {
+        //   flushQueueInterval: 60 * 1000,
+        // }
+      };
+
+      rudderanalytics.load(
+        '__WRITE_KEY__',
+        '__DATAPLANE_URL__',
+        loadOptions
+      );
 
       rudderanalytics.identify(
         'customUserID',

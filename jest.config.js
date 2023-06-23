@@ -52,8 +52,9 @@ module.exports = {
     '<rootDir>/packages/**/__tests__/**/*.(j|t)s?(x)',
     '<rootDir>/packages/**/src/**/*.?(spec|test).(j|t)s?(x)',
     '!<rootDir>/**/__mocks__/**/*',
+    '!<rootDir>/**/__fixtures__/**/*',
   ],
-  testPathIgnorePatterns: ['__mocks__'],
+  testPathIgnorePatterns: ['__mocks__', '__fixtures__'],
   moduleFileExtensions: ['web.ts', 'ts', 'web.js', 'js', 'json', 'node', 'mjs'],
   collectCoverageFrom: [
     '<rootDir>/packages/**/src/**/*.{js,ts}',

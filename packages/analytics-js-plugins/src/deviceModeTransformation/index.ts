@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import {
-  ExtensionPlugin,
   ApplicationState,
   Destination,
   IErrorHandler,
@@ -9,6 +8,7 @@ import {
   IPluginsManager,
   RudderEvent,
 } from '../types/common';
+import { ExtensionPlugin } from '../types/plugins';
 
 const pluginName = 'DeviceModeTransformation';
 

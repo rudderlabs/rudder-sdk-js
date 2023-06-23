@@ -1,10 +1,10 @@
-import identify1ExpectedData from '../../__mocks__/identify1.json';
-import identify2ExpectedData from '../../__mocks__/identify2.json';
-import identify3ExpectedData from '../../__mocks__/identify3.json';
-import identify4ExpectedData from '../../__mocks__/identify4.json';
-import identify5ExpectedData from '../../__mocks__/identify5.json';
-import identify6ExpectedData from '../../__mocks__/identify6.json';
-import identify7ExpectedData from '../../__mocks__/identify7.json';
+import identify1ExpectedData from '../../__fixtures__/identify1.json';
+import identify2ExpectedData from '../../__fixtures__/identify2.json';
+import identify3ExpectedData from '../../__fixtures__/identify3.json';
+import identify4ExpectedData from '../../__fixtures__/identify4.json';
+import identify5ExpectedData from '../../__fixtures__/identify5.json';
+import identify6ExpectedData from '../../__fixtures__/identify6.json';
+import identify7ExpectedData from '../../__fixtures__/identify7.json';
 
 const identifyMethodSuite = {
   id: 'identifyMethod',

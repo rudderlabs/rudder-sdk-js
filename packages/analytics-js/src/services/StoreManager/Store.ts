@@ -187,15 +187,16 @@ class Store implements IStore {
   /**
    * Encrypt value
    */
-  encrypt(value: any): string {
+  encrypt(value: Nullable<any>): string {
     return this.crypto(value, 'encrypt');
   }
 
   /**
    * Extension point to use with encryption plugins
    */
-  crypto(value: string, mode: 'encrypt' | 'decrypt'): string {
-    const noEncryption = !this.isEncrypted || !value || trim(value) === '';
+  crypto(value: Nullable<any>, mode: 'encrypt' | 'decrypt'): string {
+    const noEncryption =
+      !this.isEncrypted || !value || typeof value !== 'string' || trim(value) === '';
 
     if (noEncryption) {
       return value;

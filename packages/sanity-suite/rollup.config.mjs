@@ -128,7 +128,7 @@ const getCopyTargets = () => {
 
 const getBuildConfig = (featureName) => ({
   watch: {
-    include: ['src/**', 'public/**', '__mocks__/**'],
+    include: ['src/**', 'public/**', '__mocks__/**', '__fixtures__/**'],
   },
   external: [],
   onwarn(warning, warn) {
@@ -149,6 +149,7 @@ const getBuildConfig = (featureName) => ({
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
       APP_DEST_SDK_BASE_URL: getDestinationsURL(),
+      REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
       CDN_VERSION_PATH:
         `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
       STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
@@ -194,6 +195,7 @@ const getBuildConfig = (featureName) => ({
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
+        __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
           `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
         __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',

@@ -1,11 +1,6 @@
 /* eslint-disable no-param-reassign */
-import {
-  ExtensionPlugin,
-  ApplicationState,
-  AnonymousIdOptions,
-  StorageType,
-  IStorage,
-} from '../types/common';
+import { ApplicationState, StorageType, IStorage } from '../types/common';
+import { ExtensionPlugin, AnonymousIdOptions } from '../types/plugins';
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';
 
@@ -27,6 +22,8 @@ const ExternalAnonymousId = (): ExtensionPlugin => ({
         if (!Object.keys(externallyLoadedSessionStorageKeys).includes(source)) {
           return anonymousId;
         }
+
+        // eslint-disable-next-line sonarjs/no-small-switch
         switch (source) {
           case 'segment':
             anonymousId = getSegmentAnonymousId(getStorageEngine);

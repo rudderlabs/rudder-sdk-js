@@ -1,6 +1,6 @@
 import { advanceTo } from 'jest-date-mock';
 import { Analytics } from '../../src/service-worker';
-import { server } from './__mocks__/msw.server';
+import { server } from './__fixtures__/msw.server';
 import {
   aliasRequestPayload,
   dummyDataplaneHost,
@@ -11,7 +11,7 @@ import {
   pageRequestPayload,
   screenRequestPayload,
   trackRequestPayload,
-} from './__mocks__/fixtures';
+} from './__fixtures__/fixtures';
 
 jest.mock('uuid', () => ({ v4: () => '123456789' }));
 
