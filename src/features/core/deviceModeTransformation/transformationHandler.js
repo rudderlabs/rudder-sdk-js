@@ -90,9 +90,7 @@ class TransformationsHandler {
                   return;
                 }
                 case 400: {
-                  const errorMessage = response
-                    ? `[Transformation]:: ${response}`
-                    : `[Transformation]:: Invalid request payload`;
+                  const errorMessage = response ? `${response}` : `Invalid request payload`;
                   resolve({
                     status,
                     errorMessage,

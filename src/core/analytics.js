@@ -63,7 +63,7 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
-import { isDefinedAndNotNullAndNotEmpty } from '../utils/commonUtils';
+import { isNonEmptyObject } from '../utils/ObjectUtils';
 
 /**
  * class responsible for handling core
@@ -266,9 +266,9 @@ class Analytics {
             config: destination.config,
             destinationInfo: {
               enableTransformationForDeviceMode:
-                destination.enableTransformationForDeviceMode || true,
+                destination.enableTransformationForDeviceMode || false,
               propagateEventsUntransformedOnError:
-                destination.propagateEventsUntransformedOnError || true,
+                destination.propagateEventsUntransformedOnError || false,
               destinationId: destination.id,
             },
           });
@@ -408,8 +408,13 @@ class Analytics {
     }
   }
 
-  sendUntransformedEvent() {}
-
+  /**
+   * A function that gets the transformed event and
+   * depending on the response either send the transformed/untransformed event to destination or just log error.
+   * @param {Array} destWithTransformation   List of device mode destination that has transformation connected
+   * @param {Object} rudderElement           Rudder event
+   * @param {string} methodName              Type of event page/track/identify etc.
+   */
   sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName) {
     try {
       // convert integrations object to server identified names, kind of hack now!
@@ -421,112 +426,81 @@ class Analytics {
         destinationIds,
         ({ status, transformedPayload, errorMessage }) => {
           destWithTransformation.forEach((intg) => {
-            switch (status) {
-              case 200: {
-                // filter the transformed event for that destination
-                const destTransformedResult = transformedPayload.find(
-                  (e) => e.id === intg.destinationId,
-                );
-                const eventsToSent = [];
-                destTransformedResult?.payload.forEach((tEvent) => {
-                  if (tEvent.status === '200') {
-                    eventsToSent.push(tEvent);
-                  } else if (intg.propagateEventsUntransformedOnError === true) {
-                    let warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Sending untransformed event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`;
-                    if (tEvent.status === '410') {
-                      warningMessage = `[DMT]::Event transformation unsuccessful as the transformation is not available. Sending untransformed event.`;
-                    }
-                    logger.warn(warningMessage);
-                    eventsToSent.push({ event: rudderElement.message });
-                  } else {
-                    let errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Sending untransformed event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`;
-                    if (tEvent.status === '410') {
-                      errMessage = `[DMT]::Event transformation unsuccessful as the transformation is not available. Sending untransformed event.`;
-                    }
-                    logger.error(errMessage);
-                  }
-                });
-                // send transformed event to destination
-                eventsToSent?.forEach((tEvent) => {
-                  if (isDefinedAndNotNullAndNotEmpty(tEvent.event)) {
-                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
-                  }
-                });
-                break;
-              }
-              case 404: {
-                this.sendDataToDestination(intg, rudderElement, methodName);
-                break;
-              }
-              default: {
-                if (intg.propagateEventsUntransformedOnError === true) {
-                  logger.warn(
-                    `[DMT]::[Destination: ${intg.name}] :: Status: ${status}. Sending untransformed event. Error message: ${errorMessage}`,
+            try {
+              switch (status) {
+                // The transformation request is successful
+                case 200: {
+                  // filter destination specific transformed payload
+                  const destTransformedResult = transformedPayload.find(
+                    (e) => e.id === intg.destinationId,
                   );
-                  this.sendDataToDestination(intg, rudderElement, methodName);
-                } else {
-                  logger.error(
-                    `[DMT]::[Destination: ${intg.name}] :: Status: ${status}. Error message: ${errorMessage}`,
-                  );
+                  const eventsToSent = [];
+                  destTransformedResult?.payload.forEach((tEvent) => {
+                    // Transformation successful
+                    // event level status is 200
+                    if (tEvent.status === '200') {
+                      // push transformed event to the queue
+                      eventsToSent.push(tEvent);
+                    }
+                    // For any other status code that is not 200
+                    // but propagateEventsUntransformedOnError is set to true for that destination
+                    else if (intg.propagateEventsUntransformedOnError === true) {
+                      let warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Sending untransformed event.`;
+                      if (tEvent.status === '410') {
+                        warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Sending untransformed event.`;
+                      }
+                      logger.warn(warningMessage);
+                      // push untransformed event to the queue
+                      eventsToSent.push({ event: rudderElement.message });
+                    }
+                    // For any other status code that is not 200
+                    // and propagateEventsUntransformedOnError is not true for that destination
+                    else {
+                      let errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Status: "${tEvent.status}". Dropping the event.`;
+                      if (tEvent.status === '410') {
+                        errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Status: "${tEvent.status}". Dropping the event.`;
+                      }
+                      logger.error(errMessage);
+                    }
+                  });
+                  // send events to destination
+                  eventsToSent?.forEach((tEvent) => {
+                    // send only if the event is not null/undefined/empty object
+                    if (isNonEmptyObject(tEvent.event)) {
+                      this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                    }
+                  });
+                  break;
                 }
-                break;
+                // Transformation server access denied
+                case 404: {
+                  // send untransformed event to destination
+                  this.sendDataToDestination(intg, rudderElement, methodName);
+                  break;
+                }
+                // For any other cases
+                default: {
+                  if (intg.propagateEventsUntransformedOnError === true) {
+                    logger.warn(
+                      `[DMT]::[Destination: ${intg.name}] :: Transformation request failed with status: ${status} ${errorMessage}. Sending untransformed event.`,
+                    );
+                    // send untransformed event to destination
+                    this.sendDataToDestination(intg, rudderElement, methodName);
+                  } else {
+                    logger.error(
+                      `[DMT]::[Destination: ${intg.name}] :: Transformation request failed with status: ${status} ${errorMessage}. Dropping the event.`,
+                    );
+                  }
+                  break;
+                }
               }
+            } catch (e) {
+              if (e instanceof Error) {
+                e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+              }
+              handleError(e);
             }
           });
-
-          // destWithTransformation.forEach((intg) => {
-          //   try {
-          //     let transformedEvents = [];
-          //     if (transformationServerAccess && !retryExhausted) {
-          //       // filter the transformed event for that destination
-          //       const destTransformedResult = transformedPayload.find(
-          //         (e) => e.id === intg.destinationId,
-          //       );
-          //       if (!destTransformedResult) {
-          //         if (intg.propagateEventsUntransformedOnError === true) {
-          //           transformedEvents.push({ event: rudderElement.message });
-          //         } else {
-          //           logger.error(
-          //             `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
-          //           );
-          //           return;
-          //         }
-          //       }
-          //       destTransformedResult?.payload.forEach((tEvent) => {
-          //         if (tEvent.status === '200') {
-          //           transformedEvents.push(tEvent);
-          //         } else if (intg.propagateEventsUntransformedOnError === true) {
-          //           transformedEvents.push({ event: rudderElement.message });
-          //         } else {
-          //           logger.error(
-          //             `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
-          //           );
-          //         }
-          //       });
-          //     } else if (
-          //       retryExhausted === true &&
-          //       intg.propagateEventsUntransformedOnError === false
-          //     ) {
-          //       logger.error(
-          //         `[DMT]::Transformation failed with status ${status}. Dropping the event.`,
-          //       );
-          //       return;
-          //     } else {
-          //       transformedEvents = transformedPayload;
-          //     }
-          //     // send transformed event to destination
-          //     transformedEvents?.forEach((tEvent) => {
-          //       if (tEvent.event) {
-          //         this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
-          //       }
-          //     });
-          //   } catch (e) {
-          //     if (e instanceof Error) {
-          //       e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
-          //     }
-          //     handleError(e);
-          //   }
-          // });
         },
       );
     } catch (e) {
