@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
 import Logger from '../../utils/logger';
 import { formPurchaseEventPayload, existsInMapping } from './utils';
@@ -10,7 +9,7 @@ import {
   isNotEmpty,
 } from '../../utils/commonUtils';
 import { NAME } from './constants';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 
 const logger = new Logger(NAME);
 

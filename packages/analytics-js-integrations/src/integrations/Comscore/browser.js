@@ -1,12 +1,11 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '../../../../analytics-v1.1/src/utils/constants';
+} from '@rudderstack/common/utils/constants';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Comscore {
   constructor(config, analytics, destinationInfo) {

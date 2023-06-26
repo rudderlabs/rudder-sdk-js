@@ -7,7 +7,7 @@ import {
   isDestinationSDKEvaluated,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
-import { Destination, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { Destination, ILogger } from '@rudderstack/common/types/common';
 import { signal } from '@preact/signals-core';
 
 describe('deviceModeDestinations utils', () => {

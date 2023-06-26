@@ -1,7 +1,6 @@
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import {
   isDefinedAndNotNull,
   isNotEmpty,

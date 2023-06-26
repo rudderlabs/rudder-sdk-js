@@ -19,9 +19,9 @@ import {
   QueueOpts,
   RudderEvent,
   IHttpClient,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/utilities/common';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';

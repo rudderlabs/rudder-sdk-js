@@ -1,14 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
 
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { isObject } from '../../utils/utils';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class SnapEngage {
   constructor(config, analytics, destinationInfo) {

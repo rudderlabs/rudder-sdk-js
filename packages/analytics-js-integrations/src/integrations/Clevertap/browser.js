@@ -1,8 +1,7 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../utils/utils';
 import { NAME } from './constants';
 

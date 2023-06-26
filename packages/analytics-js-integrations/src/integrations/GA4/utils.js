@@ -1,5 +1,4 @@
 /* eslint-disable guard-for-in */
-/* eslint-disable import/no-relative-packages */
 import _difference from 'lodash.difference';
 import {
   eventNamesConfigArray,
@@ -10,7 +9,7 @@ import {
 
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/utils';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 /**
  * Check if event name is not one of the following reserved names

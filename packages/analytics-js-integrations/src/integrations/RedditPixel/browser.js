@@ -7,9 +7,8 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 

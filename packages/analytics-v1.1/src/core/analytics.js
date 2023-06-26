@@ -13,10 +13,9 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 /* eslint-disable sonarjs/cognitive-complexity */
-/* eslint-disable import/no-relative-packages */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '../../../analytics-js-integrations/src/utils/config_to_integration_names';
+import { configToIntNames } from '@rudderstack/common/utils/config_to_integration_names';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -34,10 +33,8 @@ import {
   parseQueryString,
 } from '../utils/utils';
 import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
-import { handleError } from '../utils/errorHandler';
+import { handleError } from '@rudderstack/common/utils/errorHandler';
 import {
-  MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
   INTG_SUFFIX,
   POLYFILL_URL,
@@ -46,12 +43,16 @@ import {
   DEFAULT_INTEGRATIONS_CONFIG,
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
 } from '../utils/constants';
+import {
+  MAX_WAIT_FOR_INTEGRATION_LOAD,
+  INTEGRATION_LOAD_CHECK_INTERVAL,
+} from '@rudderstack/common/utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
-import Storage from '../utils/storage';
+import Storage from '@rudderstack/common/utils/storage';
 import { EventRepository } from '../utils/EventRepository';
 import PreProcessQueue from '../utils/PreProcessQueue';
-import logger from '../utils/logUtil';
-import ScriptLoader from '../utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import parseLinker from '../utils/linker';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import { UserSession } from '../features/core/session';

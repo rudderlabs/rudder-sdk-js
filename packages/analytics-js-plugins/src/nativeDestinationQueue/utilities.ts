@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '../utilities/common';
+import { mergeDeepRight } from '@rudderstack/common/utilities/common';
 import {
   Destination,
   DestinationsQueueOpts,
   IErrorHandler,
   ILogger,
   RudderEvent,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { Nullable, RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
 

@@ -1,9 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { NAME, GTAG } from './constants';
 import {

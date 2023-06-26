@@ -1,7 +1,7 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN, ERROR_MESSAGES_TO_BE_FILTERED } from './constants';
 import { notifyError } from './notifyError';
 import { isInstanceOfEvent, stringifyWithoutCircular } from './ObjectUtils';
+import { ERROR_MESSAGES_TO_BE_FILTERED, LOAD_ORIGIN } from './constants';
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;

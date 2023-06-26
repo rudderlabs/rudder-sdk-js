@@ -1,8 +1,7 @@
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class QuoraPixel {
   constructor(config, analytics, destinationInfo) {

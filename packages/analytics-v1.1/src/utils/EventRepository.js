@@ -1,10 +1,10 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
-import logger from './logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
 import { getCurrentTimeFormatted, removeTrailingSlashes } from './utils';
-import { stringifyWithoutCircular } from './ObjectUtils';
+import { stringifyWithoutCircular } from '@rudderstack/common/utils/ObjectUtils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 

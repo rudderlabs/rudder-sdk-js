@@ -1,9 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 
 import { isObject } from '../../utils/utils';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
 
 class RollBar {

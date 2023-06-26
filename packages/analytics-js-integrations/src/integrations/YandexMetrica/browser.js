@@ -1,5 +1,4 @@
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
 import {
@@ -7,7 +6,7 @@ import {
   getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { getDefinedTraits } from '../../utils/utils';
 
 class YandexMetrica {

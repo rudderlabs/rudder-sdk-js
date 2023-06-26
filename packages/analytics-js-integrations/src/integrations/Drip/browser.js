@@ -1,14 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { getDestinationExternalID } from './utils';
 
 import { extractCustomFields } from '../../utils/utils';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Drip {
   constructor(config, analytics, destinationInfo) {

@@ -1,7 +1,6 @@
-/* eslint-disable import/no-relative-packages */
 import md5 from 'md5';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;

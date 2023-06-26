@@ -2,9 +2,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { NAME } from './constants';
 
 const logger = new Logger(NAME);

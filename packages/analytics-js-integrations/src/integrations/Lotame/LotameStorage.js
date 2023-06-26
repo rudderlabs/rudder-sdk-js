@@ -1,5 +1,4 @@
-/* eslint-disable import/no-relative-packages */
-import Storage from '../../../../analytics-v1.1/src/utils/storage';
+import Storage from '@rudderstack/common/utils/storage';
 
 const defaults = {
   lotame_synch_time_key: 'lt_synch_timestamp',

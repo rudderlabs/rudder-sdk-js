@@ -1,8 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 import { recordingLiveChatEvents } from './util';
 import { isObject } from '../../utils/utils';

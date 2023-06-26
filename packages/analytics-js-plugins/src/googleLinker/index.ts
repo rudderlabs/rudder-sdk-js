@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '../types/common';
+import { ApplicationState } from '@rudderstack/common/types/common';
 import { ExtensionPlugin, Nullable } from '../types/plugins';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import { parseLinker } from './utils';

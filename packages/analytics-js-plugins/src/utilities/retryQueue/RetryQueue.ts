@@ -1,4 +1,4 @@
-import { IStoreManager, StorageType, IStore } from '../../types/common';
+import { IStoreManager, StorageType, IStore } from '@rudderstack/common/types/common';
 import {
   IQueue,
   QueueItem,
@@ -7,7 +7,7 @@ import {
   DoneCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
-import { generateUUID } from '../common';
+import { generateUUID } from '@rudderstack/common/utilities/common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 

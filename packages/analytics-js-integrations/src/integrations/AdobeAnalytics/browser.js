@@ -2,14 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 
 import * as utils from './util';
 import * as ecommUtils from './eCommHandle';
 import * as heartbeatUtils from './heartbeatHandle';
 import { getHashFromArray } from '../../utils/commonUtils';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
 
 class AdobeAnalytics {

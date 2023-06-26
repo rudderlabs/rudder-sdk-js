@@ -1,5 +1,5 @@
+import logger from '@rudderstack/common/utils/logUtil';
 import { ErrorReportingService } from '../../../../../src/features/core/metrics/errorReporting/ErrorReportingService';
-import logger from '../../../../../src/utils/logUtil';
 
 const errorReportingService = new ErrorReportingService(logger);
 const DEFAULT_ERROR_REPORT_PROVIDER = 'rs-bugsnag';

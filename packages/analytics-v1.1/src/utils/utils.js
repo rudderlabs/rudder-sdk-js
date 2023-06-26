@@ -1,19 +1,18 @@
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '../../../analytics-js-integrations/src/utils/integration_cname';
-import { clientToServerNames } from '../../../analytics-js-integrations/src/utils/client_server_name';
-import logger from './logUtil';
+import { commonNames } from '@rudderstack/common/utils/integration_cname';
+import { clientToServerNames } from '@rudderstack/common/utils/client_server_name';
+import logger from '@rudderstack/common/utils/logUtil';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
-  FAILED_REQUEST_ERR_MSG_PREFIX,
 } from './constants';
-import { handleError } from './errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/common/utils/constants';
+import { handleError } from '@rudderstack/common/utils/errorHandler';
 
 /**
  * Utility method to remove '/' at the end of URL

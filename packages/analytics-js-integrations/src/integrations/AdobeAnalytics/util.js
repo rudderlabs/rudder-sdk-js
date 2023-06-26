@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
-/* eslint-disable import/no-relative-packages */
 import each from '@ndhoule/each';
 import get from 'lodash.get';
 import {
@@ -9,7 +8,7 @@ import {
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
 } from '../../utils/commonUtils';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 let dynamicKeys = [];
 

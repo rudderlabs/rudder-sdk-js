@@ -6,7 +6,7 @@ import {
   AnalyticsIdentifyMethod,
   AnalyticsPageMethod,
   AnalyticsTrackMethod,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { LogLevel, Nullable } from '../types/plugins';
 
 export type DeviceModeDestinationsAnalyticsInstance = {

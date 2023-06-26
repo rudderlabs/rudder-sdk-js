@@ -2,8 +2,7 @@
 /* eslint-disable class-methods-use-this */
 // Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
 
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 import { NAME } from './constants';
 import {
@@ -13,7 +12,7 @@ import {
   checkCustomDimensions,
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {

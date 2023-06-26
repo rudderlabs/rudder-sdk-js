@@ -1,10 +1,9 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import is from 'is';
 import each from 'component-each';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { rejectArr } from '../../utils/utils';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import { NAME } from './constants';
 
 export default class GA {

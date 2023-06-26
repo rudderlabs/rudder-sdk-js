@@ -1,11 +1,10 @@
 /* eslint-disable no-var */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 const logger = new Logger(NAME);
 class Satismeter {

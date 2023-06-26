@@ -1,10 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
 import updateSaleObject from './utils';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
 
 class PostAffiliatePro {

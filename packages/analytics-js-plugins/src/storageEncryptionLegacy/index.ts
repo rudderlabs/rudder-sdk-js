@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
-import { ApplicationState } from '../types/common';
+import { ApplicationState } from '@rudderstack/common/types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';
 

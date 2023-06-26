@@ -1,11 +1,9 @@
 /* eslint-disable no-use-before-define */
-// import logger from "../utils/logUtil";
-
-import { handleError } from "./errorHandler";
+import { handleError } from './errorHandler';
+import { LOAD_ORIGIN } from './constants';
 
 const defaultAsyncState = true;
 
-export const LOAD_ORIGIN = 'RS_JS_SDK';
 /**
  * Script loader
  * @param {String} id                               Id of the script

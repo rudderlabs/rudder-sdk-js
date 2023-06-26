@@ -1,5 +1,5 @@
-import { DestinationIntgConfig } from '../types/common';
-import { isUndefined } from './common';
+import { DestinationIntgConfig } from '@rudderstack/common/types/common';
+import { isUndefined } from '@rudderstack/common/utilities/common';
 
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
   !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;

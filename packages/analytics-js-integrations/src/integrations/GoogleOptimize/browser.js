@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
-import ScriptLoader, { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { NAME } from './constants';
 
 class GoogleOptimize {

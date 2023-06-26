@@ -1,4 +1,4 @@
-import { RudderEvent } from '../types/common';
+import { RudderEvent } from '@rudderstack/common/types/common';
 
 export type BeaconQueueItem = {
   event: RudderEvent;

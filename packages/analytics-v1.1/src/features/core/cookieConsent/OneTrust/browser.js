@@ -1,4 +1,4 @@
-import logger from '../../../../utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {

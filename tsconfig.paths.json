@@ -4,7 +4,8 @@
     { "path": "./packages/analytics-js/tsconfig.build.json" },
     { "path": "./packages/analytics-js-service-worker/tsconfig.build.json" },
     { "path": "./packages/analytics-js-plugins/tsconfig.build.json" },
-    { "path": "./packages/analytics-js-integrations/tsconfig.build.json" }
+    { "path": "./packages/analytics-js-integrations/tsconfig.build.json" },
+    { "path": "./packages/common/tsconfig.build.json" }
   ],
   "compilerOptions": {
     "baseUrl": "./",
@@ -15,7 +16,8 @@
         "./packages/analytics-js-service-worker/src/*"
       ],
       "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"],
-      "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"]
+      "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"],
+      "@rudderstack/common/*": ["./packages/common/src/*"]
     }
   }
 }

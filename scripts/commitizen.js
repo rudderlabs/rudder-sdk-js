@@ -12,7 +12,7 @@ module.exports = custom({
   scopes: [
     'release',
     'monorepo',
-    'integrations',
+    'common',
     'analytics-js',
     'analytics-js-plugins',
     'analytics-js-integrations',

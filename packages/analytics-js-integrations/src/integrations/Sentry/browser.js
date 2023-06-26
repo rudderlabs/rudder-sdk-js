@@ -2,10 +2,9 @@
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
-/* eslint-disable import/no-relative-packages */
 
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { getDefinedTraits, isObject } from '../../utils/utils';

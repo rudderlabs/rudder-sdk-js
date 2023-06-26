@@ -1,5 +1,4 @@
-/* eslint-disable import/no-relative-packages */
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 // START-NO-SONAR-SCAN
 /* eslint-disable */
 

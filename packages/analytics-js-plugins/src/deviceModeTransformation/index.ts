@@ -7,7 +7,7 @@ import {
   ILogger,
   IPluginsManager,
   RudderEvent,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { ExtensionPlugin } from '../types/plugins';
 
 const pluginName = 'DeviceModeTransformation';

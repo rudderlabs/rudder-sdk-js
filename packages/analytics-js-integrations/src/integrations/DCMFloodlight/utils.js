@@ -1,12 +1,8 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable consistent-return */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import {
-  GENERIC_FALSE_VALUES,
-  GENERIC_TRUE_VALUES,
-} from '../../../../analytics-v1.1/src/utils/constants';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
+import logger from '@rudderstack/common/utils/logUtil';
 import {
   isDefinedAndNotNull,
   isNotEmpty,

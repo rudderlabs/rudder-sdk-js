@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import {
   handleCommonFields,
   generateExtraData,

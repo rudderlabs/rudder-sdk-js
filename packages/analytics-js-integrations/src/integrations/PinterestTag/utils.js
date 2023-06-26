@@ -1,5 +1,4 @@
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { eventMapping } from './propertyMappingConfig';

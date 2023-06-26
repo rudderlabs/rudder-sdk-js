@@ -1,4 +1,4 @@
-import { ApplicationState, IStore, IStoreManager } from './common';
+import { ApplicationState, IStore, IStoreManager } from '@rudderstack/common/types/common';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
 

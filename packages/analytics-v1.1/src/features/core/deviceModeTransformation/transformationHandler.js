@@ -5,8 +5,8 @@
 /* eslint-disable consistent-return */
 import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
-import { handleError } from '../../../utils/errorHandler';
-import { stringifyWithoutCircular } from '../../../utils/ObjectUtils';
+import { handleError } from '@rudderstack/common/utils/errorHandler';
+import { stringifyWithoutCircular } from '@rudderstack/common/utils/ObjectUtils';
 
 const timeout = 10 * 1000;
 const EVENT_CHECK_INTERVAL = 100;
@@ -82,7 +82,7 @@ class TransformationsHandler {
                               "message": { ...}
                           }]
                       }]
-                    } 
+                    }
                 */
                 resolve({
                   transformedPayload: response.transformedBatch,

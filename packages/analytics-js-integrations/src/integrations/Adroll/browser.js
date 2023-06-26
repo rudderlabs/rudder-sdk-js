@@ -1,13 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 
 import { getHashFromArray } from '../../utils/commonUtils';
 
 import { NAME } from './constants';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
 
 class Adroll {

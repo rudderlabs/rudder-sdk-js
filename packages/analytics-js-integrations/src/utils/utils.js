@@ -2,7 +2,7 @@
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from './integration_cname';
+import { commonNames } from '@rudderstack/common/utils/integration_cname';
 
 /**
  * Utility method to remove '/' at the end of URL

@@ -4,7 +4,7 @@ import {
   getDeliveryUrl,
   validatePayloadSize,
 } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
-import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { RudderEvent, ILogger } from '@rudderstack/common/types/common';
 import * as xhrConstants from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
 
 class MockLogger implements ILogger {

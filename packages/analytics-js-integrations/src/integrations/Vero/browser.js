@@ -1,10 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import { NAME } from './constants';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 
 class Vero {
   constructor(config, analytics, destinationInfo) {

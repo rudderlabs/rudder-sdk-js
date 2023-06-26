@@ -1,8 +1,7 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import get from 'get-value';
-import Storage from '../../../../analytics-v1.1/src/utils/storage';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import Storage from '@rudderstack/common/utils/storage';
+import logger from '@rudderstack/common/utils/logUtil';
 
 import {
   getEventMappingFromConfig,
@@ -11,7 +10,7 @@ import {
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class SnapPixel {
   constructor(config, analytics, destinationInfo) {

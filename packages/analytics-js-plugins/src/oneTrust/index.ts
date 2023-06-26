@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig } from '../types/common';
+import { ApplicationState, ILogger, DestinationConfig } from '@rudderstack/common/types/common';
 import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 

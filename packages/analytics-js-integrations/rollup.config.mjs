@@ -7,8 +7,6 @@ import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import filesize from 'rollup-plugin-filesize';
-import livereload from 'rollup-plugin-livereload';
-import serve from 'rollup-plugin-serve';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
@@ -47,7 +45,6 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
   // TODO: was: const moduleType = process.env.NPM === 'true' ? 'npm' : 'cdn';
   const isNpmPackageBuild = moduleType === 'npm';
   const isCDNPackageBuild = moduleType === 'cdn';
-  const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
   const sourceMapType =
     process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 
@@ -116,17 +113,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           open: true,
           gzipSize: true,
           brotliSize: true,
-        }),
-      isLocalServerEnabled &&
-        serve({
-          contentBase: ['dist'],
-          host: 'localhost',
-          port: 3005,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-          },
-        }),
-      isLocalServerEnabled && livereload(),
+        })
     ],
   };
 }

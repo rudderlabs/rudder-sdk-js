@@ -1,6 +1,6 @@
-import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, IExternalSrcLoader, ILogger } from '@rudderstack/common/types/common';
 import { BugsnagLib } from '../types/plugins';
-import { stringifyWithoutCircular } from '../utilities/common';
+import { stringifyWithoutCircular } from '@rudderstack/common/utilities/common';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { ApplicationState, IExternalSrcLoader, ILogger } from '@rudderstack/common/types/common';
 import { BugsnagLib, ExtensionPlugin } from '../types/plugins';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';

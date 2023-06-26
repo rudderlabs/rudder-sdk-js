@@ -1,5 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, IPluginsManager, DestinationConfig } from '../types/common';
+import {
+  ApplicationState,
+  ILogger,
+  IPluginsManager,
+  DestinationConfig,
+} from '@rudderstack/common/types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { Batch } from './type';
 

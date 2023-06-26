@@ -1,10 +1,9 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
 import is from 'is';
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
 import { getEventId, getContentCategory } from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
 import { NAME, traitsMapper, reserveTraits } from './constants';

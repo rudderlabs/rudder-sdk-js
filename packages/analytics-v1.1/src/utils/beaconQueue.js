@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { Store } from './storage/store';
-import { handleError } from './errorHandler';
-import { stringifyWithoutCircular } from './ObjectUtils';
+import { Store } from '@rudderstack/common/utils/storage/store';
+import { handleError } from '@rudderstack/common/utils/errorHandler';
+import { stringifyWithoutCircular } from '@rudderstack/common/utils/ObjectUtils';
 
 const defaults = {
   queue: 'queue',

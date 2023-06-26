@@ -10,7 +10,7 @@ import {
   ILogger,
   Destination,
   IPluginsManager,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';

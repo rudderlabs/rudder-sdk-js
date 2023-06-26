@@ -8,9 +8,14 @@ import {
   filterDestinations,
   getCumulativeIntegrationsConfig,
 } from './utils';
-import { IExternalSrcLoader, ApplicationState, ILogger, IPluginsManager } from '../types/common';
+import {
+  IExternalSrcLoader,
+  ApplicationState,
+  ILogger,
+  IPluginsManager,
+} from '@rudderstack/common/types/common';
 import { ExtensionPlugin } from '../types/plugins';
-import { isHybridModeDestination } from '../utilities/common';
+import { isHybridModeDestination } from '@rudderstack/common/utilities/common';
 import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
 import { destDispNamesToFileNamesMap } from './destDispNamesToFileNames';
 

@@ -11,7 +11,7 @@ import {
   ILogger,
   IRudderAnalytics,
   IntegrationOpts,
-} from '../types/common';
+} from '@rudderstack/common/types/common';
 import { Nullable } from '../types/plugins';
 import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
 import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
@@ -25,7 +25,7 @@ import {
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '../utilities/common';
+} from '@rudderstack/common/utilities/common';
 
 /**
  * Determines if the destination SDK code is evaluated

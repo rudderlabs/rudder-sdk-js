@@ -7,9 +7,9 @@
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
 import { getCurrentTimeFormatted } from './utils';
-import { handleError } from './errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
-import { stringifyWithoutCircular } from './ObjectUtils';
+import { handleError } from '@rudderstack/common/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/common/utils/constants';
+import { stringifyWithoutCircular } from '@rudderstack/common/utils/ObjectUtils';
 
 const queueOptions = {
   maxRetryDelay: 360000,

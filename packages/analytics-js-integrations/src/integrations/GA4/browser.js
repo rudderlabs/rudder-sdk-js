@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-relative-packages */
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
-import ScriptLoader from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 
 import {
   isReservedName,
@@ -13,7 +12,7 @@ import {
   getDestinationItemProperties,
 } from './utils';
 import { NAME } from './constants';
-import { Cookie } from '../../../../analytics-v1.1/src/utils/storage/cookie';
+import { Cookie } from '@rudderstack/common/utils/storage/cookie';
 import { type, flattenJsonPayload } from '../../utils/utils';
 
 export default class GA4 {

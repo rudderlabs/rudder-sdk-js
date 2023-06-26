@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, StorageType, IStorage } from '../types/common';
+import { ApplicationState, StorageType, IStorage } from '@rudderstack/common/types/common';
 import { ExtensionPlugin, AnonymousIdOptions } from '../types/plugins';
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';

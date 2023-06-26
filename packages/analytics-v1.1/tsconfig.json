@@ -9,6 +9,6 @@
     "./src/**/*",
     "../../types/**/*",
     "../../types/**/*",
-    "../analytics-js-integrations/src/**/*"
+    "../common/src/**/*"
   ]
 }

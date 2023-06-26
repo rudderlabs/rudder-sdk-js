@@ -1,6 +1,6 @@
 import * as R from 'ramda';
-import logger from './logUtil';
-import { mergeDeepRight } from './ObjectUtils';
+import logger from '@rudderstack/common/utils/logUtil';
+import { mergeDeepRight } from '@rudderstack/common/utils/ObjectUtils';
 
 /**
  * Prepares the data for integrationsObj

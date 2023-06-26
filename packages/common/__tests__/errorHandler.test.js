@@ -1,5 +1,5 @@
-import { handleError, normalizeError } from '../../src/utils/errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../src/utils/constants';
+import { handleError, normalizeError } from '../src/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../src/utils/constants';
 
 window.rudderanalytics = {
   errorReporting: {

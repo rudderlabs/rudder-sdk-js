@@ -1,6 +1,5 @@
-/* eslint-disable import/no-relative-packages */
+import logger from '@rudderstack/common/utils/logUtil';
 import GA from './browser';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
 
 beforeAll(() => {});
 

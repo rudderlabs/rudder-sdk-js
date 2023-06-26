@@ -1,11 +1,10 @@
-/* eslint-disable import/no-relative-packages */
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
 import { getRevenue } from '../../utils/utils';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../../../analytics-v1.1/src/utils/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {

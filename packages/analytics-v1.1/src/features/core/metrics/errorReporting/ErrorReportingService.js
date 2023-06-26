@@ -1,16 +1,16 @@
 import { get } from '../../../../utils/utils';
 import { BugsnagProvider, ERROR_REPORT_PROVIDER_NAME_BUGSNAG } from './providers/Bugsnag';
-import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '../../../../utils/constants';
+import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '@rudderstack/common/utils/constants';
 
 const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
 const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNAG];
 const ERRORS_COLLECTION_ENABLED_CONFIG_KEY = 'statsCollection.errors.enabled';
 const ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errors.provider';
 
-const getErrorCollectionEnabledFromConfig = (sourceConfig) =>
+const getErrorCollectionEnabledFromConfig = sourceConfig =>
   get(sourceConfig, ERRORS_COLLECTION_ENABLED_CONFIG_KEY) || false;
 
-const getProviderNameFromConfig = (sourceConfig) =>
+const getProviderNameFromConfig = sourceConfig =>
   get(sourceConfig, ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY);
 
 class ErrorReportingService {

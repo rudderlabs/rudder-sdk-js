@@ -1,6 +1,5 @@
-/* eslint-disable import/no-relative-packages */
 import each from '@ndhoule/each';
-import logger from '../../../../analytics-v1.1/src/utils/logUtil';
+import logger from '@rudderstack/common/utils/logUtil';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { NAME } from './constants';
 

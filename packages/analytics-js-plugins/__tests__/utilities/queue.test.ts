@@ -2,7 +2,7 @@ import {
   getDeliveryPayload,
   validateEventPayloadSize,
 } from '@rudderstack/analytics-js-plugins/utilities/queue';
-import { RudderEvent, ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { RudderEvent, ILogger } from '@rudderstack/common/types/common';
 import * as utilConstants from '@rudderstack/analytics-js-plugins/utilities/constants';
 
 class MockLogger implements ILogger {
