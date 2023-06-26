@@ -1,5 +1,7 @@
+/* eslint-disable no-param-reassign */
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import get from 'get-value';
+import set from 'set-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import logger from './logUtil';
@@ -11,7 +13,7 @@ import {
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
-  FAILED_REQUEST_ERR_MSG_PREFIX
+  FAILED_REQUEST_ERR_MSG_PREFIX,
 } from './constants';
 import { handleError } from './errorHandler';
 
@@ -83,10 +85,10 @@ function getJSON(url, wrappers, isLoaded, callback) {
 
   xhr.open('GET', url, false);
   xhr.onload = function () {
-    const { status } = xhr;
-    if (status == 200) {
+    const { status, responseText } = xhr;
+    if (status === 200) {
       // logger.debug("status 200");
-      callback(null, xhr.responseText, wrappers, isLoaded);
+      callback(null, responseText, wrappers, isLoaded);
     } else {
       callback(status);
     }
@@ -103,6 +105,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
  */
 function getJSONTrimmed(context, url, writeKey, callback) {
   // server-side integration, XHR is node module
+  // eslint-disable-next-line no-underscore-dangle
   const cb_ = callback.bind(context);
 
   const xhr = new XMLHttpRequest();
@@ -114,11 +117,12 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
   );
 
+  // eslint-disable-next-line func-names
   xhr.onload = function () {
-    const { status } = xhr;
-    if (status == 200) {
+    const { status, responseText } = xhr;
+    if (status === 200) {
       // logger.debug("status 200 " + "calling callback");
-      cb_(200, xhr.responseText);
+      cb_(200, responseText);
     } else {
       handleError(new Error(`${FAILED_REQUEST_ERR_MSG_PREFIX} ${status} for url: ${url}`));
       cb_(status);
@@ -128,29 +132,33 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 }
 
 function getCurrency(val) {
-  if (!val) return;
+  if (!val) {
+    return null;
+  }
+
   if (typeof val === 'number') {
     return val;
   }
-  if (typeof val !== 'string') {
-    return;
+
+  if (typeof val === 'string') {
+    const parsedValue = parseFloat(val.replace(/\$/g, ''));
+
+    if (!Number.isNaN(parsedValue)) {
+      return parsedValue;
+    }
   }
 
-  val = val.replace(/\$/g, '');
-  val = parseFloat(val);
-
-  if (!isNaN(val)) {
-    return val;
-  }
+  return null;
 }
 
 function getRevenue(properties, eventName) {
   let { revenue } = properties;
+  const { total } = properties;
   const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
-    revenue = properties.total;
+    revenue = total;
   }
 
   return getCurrency(revenue);
@@ -158,15 +166,17 @@ function getRevenue(properties, eventName) {
 
 function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach((key) => {
+    // eslint-disable-next-line no-prototype-builtins
     if (integrationObject.hasOwnProperty(key)) {
       if (namesObj[key]) {
         integrationObject[namesObj[key]] = integrationObject[key];
       }
-      if (key != 'All') {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (namesObj[key] != undefined && namesObj[key] != key) {
-          delete integrationObject[key];
-        }
+      if (
+        key !== 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        namesObj[key] !== undefined &&
+        namesObj[key] !== key
+      ) {
+        delete integrationObject[key];
       }
     }
   });
@@ -220,8 +230,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == true
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        sdkSuppliedIntegrations[intgName] === true
       ) {
         enabledList.push(intObj);
       }
@@ -230,8 +240,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
       let intgValue = true;
       // check if intg false supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == false
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        sdkSuppliedIntegrations[intgName] === false
       ) {
         intgValue = false;
       }
@@ -242,53 +252,6 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
   });
 
   return enabledList;
-}
-
-/**
- * reject all null values from array/object
- * @param  {} obj
- * @param  {} fn
- */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
-
-/**
- * particular case when rejecting an array
- * @param  {} arr
- * @param  {} fn
- */
-var rejectarray = function (arr, fn) {
-  const ret = [];
-
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-  }
-
-  return ret;
-};
-
-/**
- * Rejecting null from any object other than arrays
- * @param  {} obj
- * @param  {} fn
- *
- */
-var rejectobject = function (obj, fn) {
-  const ret = {};
-
-  for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
-    }
-  }
-
-  return ret;
-};
-
-function compact(value) {
-  return value == null;
 }
 
 /**
@@ -307,6 +270,7 @@ function type(val) {
       return 'arguments';
     case '[object Array]':
       return 'array';
+    default:
   }
 
   if (val === null) return 'null';
@@ -314,6 +278,41 @@ function type(val) {
   if (val === Object(val)) return 'object';
 
   return typeof val;
+}
+
+function compact(value) {
+  return value == null;
+}
+
+/**
+ * particular case when rejecting an array
+ * @param  {} arr
+ * @param  {} fn
+ */
+const rejectArray = (arr, fn) => arr.filter((value, index) => !fn(value, index));
+
+/**
+ * Rejecting null from any object other than arrays
+ * @param  {} obj
+ * @param  {} fn
+ *
+ */
+const rejectObject = (obj, fn) =>
+  Object.entries(obj).reduce((acc, [key, value]) => {
+    if (!fn(value, key)) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
+function rejectArr(obj, fn) {
+  fn = fn || compact;
+  return type(obj) === 'array' ? rejectArray(obj, fn) : rejectObject(obj, fn);
 }
 
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
@@ -339,7 +338,7 @@ function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
  */
 function checkReservedKeywords(message, messageType) {
   //  properties, traits, contextualTraits are either undefined or object
-  const { properties, traits } = message;
+  const { properties, traits, context } = message;
   if (properties) {
     Object.keys(properties).forEach((property) => {
       if (RESERVED_KEYS.indexOf(property.toLowerCase()) >= 0) {
@@ -358,7 +357,8 @@ function checkReservedKeywords(message, messageType) {
       }
     });
   }
-  const contextualTraits = message.context.traits;
+
+  const contextualTraits = context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
       if (RESERVED_KEYS.indexOf(contextTrait.toLowerCase()) >= 0) {
@@ -429,29 +429,35 @@ function flattenJsonPayload(data, property = '') {
  *
  */
 
-function extractCustomFields(message, destination, keys, exclusionFields) {
-  keys.map((key) => {
-    const messageContext = get(message, key);
-    if (messageContext) {
-      const objKeys = [];
-      Object.keys(messageContext).map((k) => {
-        if (exclusionFields.indexOf(k) < 0) {
-          objKeys.push(k);
-        }
-      });
-      objKeys.map((k) => {
-        if (!(typeof messageContext[k] === 'undefined')) {
-          if (destination) {
-            destination[k] = get(messageContext, k);
-          } else {
-            destination = {
-              k: get(messageContext, k),
-            };
+function extractCustomFields(message, dest, keys, exclusionFields) {
+  const mappingKeys = [];
+  const destination = dest || {};
+  if (Array.isArray(keys)) {
+    keys.forEach((key) => {
+      const messageContext = get(message, key);
+      if (messageContext) {
+        Object.keys(messageContext).forEach((k) => {
+          if (!exclusionFields.includes(k)) mappingKeys.push(k);
+        });
+        mappingKeys.forEach((mappingKey) => {
+          if (!(typeof messageContext[mappingKey] === 'undefined')) {
+            set(destination, mappingKey, get(messageContext, mappingKey));
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
+  } else if (keys === 'root') {
+    Object.keys(message).forEach((k) => {
+      if (!exclusionFields.includes(k)) mappingKeys.push(k);
+    });
+    mappingKeys.forEach((mappingKey) => {
+      if (!(typeof message[mappingKey] === 'undefined')) {
+        set(destination, mappingKey, get(message, mappingKey));
+      }
+    });
+  } else {
+    logger.debug('unable to parse keys');
+  }
   return destination;
 }
 /**
@@ -507,16 +513,25 @@ function getDefinedTraits(message) {
 /**
  * To check if a variable is storing object or not
  */
-const isObject = (obj) => {
-  return type(obj) === 'object';
+const isObject = (obj) => type(obj) === 'object';
+
+/**
+ * Returns true for empty object {}
+ * @param {*} obj
+ * @returns
+ */
+const isEmptyObject = (obj) => {
+  if (!obj) {
+    logger.warn('input is undefined or null');
+    return true;
+  }
+  return Object.keys(obj).length === 0;
 };
 
 /**
  * To check if a variable is storing array or not
  */
-const isArray = (obj) => {
-  return type(obj) === 'array';
-};
+const isArray = (obj) => type(obj) === 'array';
 
 const isDefined = (x) => x !== undefined;
 const isNotNull = (x) => x !== null;
@@ -525,9 +540,10 @@ const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const element of src) {
+      if (properties[element]) {
+        data[dest] = properties[element];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -535,26 +551,27 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  } else if (typeof src === 'string') {
-    if (properties[src]) {
-      data[dest] = properties[src];
-    }
   }
+
+  if (typeof src === 'string' && properties[src]) {
+    data[dest] = properties[src];
+  }
+
   return data;
 };
 
-const getConfigUrl = (writeKey) => {
-  return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
+const getConfigUrl = (writeKey) =>
+  CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
     writeKey ? `writeKey=${writeKey}` : '',
   );
-};
 
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
-  for (let i = 0; i < scripts.length; i += 1) {
-    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
+  // eslint-disable-next-line no-restricted-syntax
+  for (const script of scripts) {
+    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
@@ -565,6 +582,188 @@ const getSDKUrlInfo = () => {
     }
   }
   return { sdkURL, isStaging };
+};
+
+/**
+ * This method handles the operations between two keys from the sourceKeys. One of the possible
+ * Use case is to calculate the value from the "price" and "quantity"
+ * Definition of the operation object is as follows
+ * {
+ *    "operation": "multiplication",
+ *    "args": [
+ *      {
+ *        "sourceKeys": "properties.price"
+ *      },
+ *      {
+ *        "sourceKeys": "properties.quantity",
+ *        "defaultVal": 1
+ *      }
+ *    ]
+ *  }
+ *  Supported operations are "addition", "multiplication"
+ * @param {*} param0
+ * @returns
+ */
+const handleSourceKeysOperation = ({ message, operationObject }) => {
+  const { operation, args } = operationObject;
+
+  // populate the values from the arguments
+  // in the same order it is populated
+  const argValues = args.map((arg) => {
+    const { sourceKeys, defaultVal } = arg;
+    const val = get(message, sourceKeys);
+    if (val || val === false || val === 0) {
+      return val;
+    }
+    return defaultVal;
+  });
+
+  // quick sanity check for the undefined values in the list.
+  // if there is any undefined values, return null
+  // without going further for operations
+  const isAllDefined = argValues.every((value) => isDefinedAndNotNull(value));
+  if (!isAllDefined) {
+    return null;
+  }
+
+  // start handling operations
+  let result = null;
+  switch (operation) {
+    case 'multiplication':
+      result = 1;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const v of argValues) {
+        if (typeof v === 'number') {
+          result *= v;
+        } else {
+          // if there is a non number argument simply return null
+          // non numbers can't be operated arithmatically
+          return null;
+        }
+      }
+      return result;
+    case 'addition':
+      result = 0;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const v of argValues) {
+        if (typeof v === 'number') {
+          result += v;
+        } else {
+          // if there is a non number argument simply return null
+          // non numbers can't be operated arithmatically
+          return null;
+        }
+      }
+      return result;
+    default:
+      return null;
+  }
+};
+
+/**
+ * Handle type and format
+ * @param {*} formattedVal
+ * @param {*} formattingType
+ * @returns
+ */
+const formatValues = (formattedVal, formattingType) => {
+  let curFormattedVal = formattedVal;
+
+  const formattingFunctions = {
+    toString: () => {
+      curFormattedVal = String(formattedVal);
+    },
+    toNumber: () => {
+      curFormattedVal = Number(formattedVal);
+    },
+    toFloat: () => {
+      curFormattedVal = parseFloat(formattedVal);
+    },
+    toInt: () => {
+      curFormattedVal = parseInt(formattedVal, 10);
+    },
+    toLower: () => {
+      curFormattedVal = formattedVal.toString().toLowerCase();
+    },
+  };
+
+  if (formattingType in formattingFunctions) {
+    const formattingFunction = formattingFunctions[formattingType];
+    formattingFunction();
+  }
+
+  return curFormattedVal;
+};
+
+/**
+ * format the value as per the metadata values
+ * Expected metadata keys are: (according to precedence)
+ * type, typeFormat: expected data type
+ * @param {*} value
+ * @param {*} metadata
+ * @returns
+ */
+const handleMetadataForValue = (value, metadata) => {
+  if (!metadata) {
+    return value;
+  }
+
+  const { type: valFormat, defaultValue } = metadata;
+
+  // if value is null and defaultValue is supplied - use that
+  if (!isDefinedAndNotNull(value)) {
+    return defaultValue || value;
+  }
+
+  // we've got a correct value. start processing
+  let formattedVal = value;
+  if (valFormat) {
+    if (Array.isArray(valFormat)) {
+      valFormat.forEach((eachType) => {
+        formattedVal = formatValues(formattedVal, eachType);
+      });
+    } else {
+      formattedVal = formatValues(formattedVal, valFormat);
+    }
+  }
+
+  return formattedVal;
+};
+
+/**
+ * Finds and returns the value of key from message
+ * @param {*} message
+ * @param {*} sourceKeys
+ * @returns
+ */
+const getValueFromMessage = (message, sourceKeys) => {
+  if (Array.isArray(sourceKeys) && sourceKeys.length > 0) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const sourceKey of sourceKeys) {
+      let val;
+      if (typeof sourceKey === 'object') {
+        val = handleSourceKeysOperation({
+          message,
+          operationObject: sourceKey,
+        });
+      } else {
+        val = get(message, sourceKey);
+      }
+      if (val || val === false || val === 0) {
+        // return only if the value is valid.
+        // else look for next possible source in precedence
+        return val;
+      }
+    }
+    return null;
+  }
+
+  if (typeof sourceKeys === 'object') {
+    // if the sourceKey is an object we expect it to be a operation
+    return handleSourceKeysOperation({ message, operationObject: sourceKeys });
+  }
+
+  return get(message, sourceKeys);
 };
 
 /**
@@ -593,38 +792,33 @@ const getSDKUrlInfo = () => {
  }
 
 */
-const constructPayload = (object, mapper) => {
+const constructPayload = (message, mapper) => {
   const payload = {};
-  if (object)
-    mapper.forEach((element) => {
-      if (!Array.isArray(element.sourceKeys)) {
-        payload[element.destKey] = get(object, element.sourceKeys);
-      } else {
-        for (let i = 0; i < element.sourceKeys.length; i += 1) {
-          if (get(object, element.sourceKeys[i])) {
-            payload[element.destKey] = get(object, element.sourceKeys[i]);
-            break;
-          }
-        }
+  // Mapping JSON should be an array
+  if (Array.isArray(mapper) && mapper.length > 0) {
+    mapper.forEach((mapping) => {
+      const { sourceKeys, destKey, required, metadata } = mapping;
+      const value = handleMetadataForValue(getValueFromMessage(message, sourceKeys), metadata);
+      if ((value || value === 0 || value === false) && destKey) {
+        // set the value only if correct
+        payload[destKey] = value;
+      } else if (required) {
+        throw Error(`Missing required value from ${JSON.stringify(sourceKeys)}`);
       }
     });
+  }
   return payload;
 };
 
-const countDigits = (number) => {
-  return number ? number.toString().length : 0;
-};
+const countDigits = (number) => (number ? number.toString().length : 0);
 
 /**
  * A function to convert non-string IDs to string format
  * @param {any} id
  * @returns
  */
-const getStringId = (id) => {
-  return typeof id === 'string' || typeof id === 'undefined' || id === null
-    ? id
-    : JSON.stringify(id);
-};
+const getStringId = (id) =>
+  typeof id === 'string' || typeof id === 'undefined' || id === null ? id : JSON.stringify(id);
 
 /**
  * A function to validate and return Residency server input
@@ -642,12 +836,8 @@ const getResidencyServer = (options) => {
   return undefined;
 };
 
-const isValidServerUrl = (serverUrl) => {
-  if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length === 0) {
-    return false;
-  }
-  return true;
-};
+const isValidServerUrl = (serverUrl) =>
+  typeof serverUrl === 'string' && serverUrl.trim().length > 0;
 
 /**
  * A function to get url from source config response
@@ -656,7 +846,7 @@ const isValidServerUrl = (serverUrl) => {
  */
 const getDefaultUrlofRegion = (urls) => {
   let url;
-  if (Array.isArray(urls) && urls.length) {
+  if (Array.isArray(urls) && urls.length > 0) {
     const obj = urls.find((elem) => elem.default === true);
     if (obj && isValidServerUrl(obj.url)) {
       return obj.url;
@@ -674,7 +864,7 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
   try {
     const dataPlanes = response.source.dataplanes || {};
     // Check if dataPlanes object is present in source config
-    if (Object.keys(dataPlanes).length) {
+    if (Object.keys(dataPlanes).length > 0) {
       const inputRegion = getResidencyServer(options);
       const regionUrlArr = dataPlanes[inputRegion] || dataPlanes[DEFAULT_REGION];
 
@@ -720,18 +910,18 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   return isEnabled;
 };
 
-const parseQueryString = (url)=>{
+const parseQueryString = (url) => {
   const result = {};
   try {
     const urlObj = new URL(url);
     urlObj.searchParams.forEach((value, qParam) => {
-        result[qParam] = value;
+      result[qParam] = value;
     });
-  } catch (error) {
+  } catch (err) {
     // Do nothing
   }
   return result;
-}
+};
 
 export {
   replacer,
@@ -754,15 +944,17 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  commonNames,
   removeTrailingSlashes,
   constructPayload,
   getConfigUrl,
   getSDKUrlInfo,
-  get,
   countDigits,
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
   parseQueryString,
+  isEmptyObject,
 };
+
+export { commonNames } from './integration_cname';
+export { default as get } from 'get-value';

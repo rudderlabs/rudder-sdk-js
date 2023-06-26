@@ -1,219 +1,277 @@
 /* eslint-disable guard-for-in */
-import _difference from 'lodash.difference';
-import {
-  eventNamesConfigArray,
-  itemParametersConfigArray,
-  ITEM_PROP_EXCLUSION_LIST,
-  EVENT_PROP_EXCLUSION_LIST,
-} from './ECommerceEventConfig';
-
-import { pageEventParametersConfigArray } from './PageEventConfig';
-import { type } from '../../utils/utils';
 import logger from '../../utils/logUtil';
+import {
+  eventsConfig,
+  itemsArrayParams,
+  customParametersExclusion,
+  rootLevelProductsSupportedEventsList,
+} from './config';
+import { isEmptyObject, constructPayload, extractCustomFields } from '../../utils/utils';
+import { flattenJson } from '../../utils/commonUtils';
 
 /**
- * Check if event name is not one of the following reserved names
- * @param {*} name
- */
-function isReservedName(name) {
-  const reservedEventNames = [
-    'ad_activeview',
-    'ad_click',
-    'ad_exposure',
-    'ad_impression',
-    'ad_query',
-    'adunit_exposure',
-    'app_clear_data',
-    'app_install',
-    'app_update',
-    'app_remove',
-    'error',
-    'first_open',
-    'first_visit',
-    'in_app_purchase',
-    'notification_dismiss',
-    'notification_foreground',
-    'notification_open',
-    'notification_receive',
-    'os_update',
-    'screen_view',
-    'session_start',
-    'user_engagement',
-  ];
-
-  return reservedEventNames.includes(name);
-}
-
-/**
- * map rudder event name to ga4 ecomm event name and return array
- * @param {*} event
- */
-function getDestinationEventName(event) {
-  return eventNamesConfigArray.filter((p) => p.src.includes(event.toLowerCase()));
-}
-
-/**
- * Create item array and add into destination parameters
- * If 'items' prop is present push new key value into it else create a new and push data
- * 'items' -> name of GA4 Ecommerce property name.
- * For now its hard coded, we can think of some better soln. later.
- * @param {*} dest
+ * Extracts last word after . from string
+ * properties.products -> products
  * @param {*} key
- * @param {*} value
- */
-function createItemProperty(dest, key, value) {
-  const destinationProperties = dest;
-  if (!destinationProperties.items) {
-    destinationProperties.items = [];
-    destinationProperties.items.push({ [key]: value });
-  } else {
-    destinationProperties.items[0][key] = value;
-  }
-  return destinationProperties;
-}
-
-/**
- * Check if your payload contains required parameters to map to ga4 ecomm
- * @param {*} includeRequiredParams this can be boolean or an array or required object
- * @param {*} key
- * @param {*} src
- */
-function hasRequiredParameters(props, eventMappingObj) {
-  const requiredParams = eventMappingObj.requiredParams || false;
-  if (!requiredParams) return true;
-  if (!Array.isArray(requiredParams)) {
-    return !!props[requiredParams];
-  }
-  // eslint-disable-next-line no-restricted-syntax
-  for (const i in props.items) {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const p in requiredParams) {
-      if (!props.items[i][requiredParams[p]]) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-/**
- * screens custom variables from rootObj by excluding exclusionFields and adds
- * those to destination object
- * @param {*} rootObj
- * @param {*} destination
- * @param {*} exclusionFields
  * @returns
  */
-function extractCustomVariables(rootObj, destination, exclusionFields) {
-  const properties = destination;
-  const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
-  mappingKeys.forEach((mappingKey) => {
-    if (typeof rootObj[mappingKey] !== 'undefined') {
-      properties[mappingKey] = rootObj[mappingKey];
-    }
-  });
-  return properties;
-}
-
-/**
- *
- * @param {*} destinationProperties
- * @param {*} props
- * @param {*} contextOp "properties" or "products"
- * @returns decides the exclusion criteria for adding custom variables
- * in properties or product type objects and returns the final output.
- */
-function addCustomVariables(destinationProperties, props, contextOp) {
-  logger.debug('within addCustomVariables');
-  if (contextOp === 'product') {
-    return extractCustomVariables(props, destinationProperties, ITEM_PROP_EXCLUSION_LIST);
-  }
-
-  if (contextOp === 'properties') {
-    return extractCustomVariables(props, destinationProperties, EVENT_PROP_EXCLUSION_LIST);
-  }
-  return destinationProperties;
-}
-
-/**
- * TO DO Future Improvement ::::
- * Here we only support mapping single level object mapping.
- * Implement using recursion to handle multi level prop mapping.
- * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
- * @param {*} destParameterConfig
- * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
- * @param {*} contextOp "properties" or "product"
- */
-function getDestinationEventProperties(props, destParameterConfig, contextOp, hasItem = true) {
-  let destinationProperties = {};
-  Object.keys(props).forEach((key) => {
-    destParameterConfig.forEach((param) => {
-      if (key === param.src) {
-        // handle case where the key needs to go inside items as well as top level params in GA4
-        if (param.inItems && hasItem) {
-          destinationProperties = createItemProperty(destinationProperties, param.dest, props[key]);
-        }
-        destinationProperties[param.dest] = props[key];
-      }
-    });
-  });
-  const propsWithCustomFields = addCustomVariables(destinationProperties, props, contextOp);
-  return propsWithCustomFields;
-}
-
-/**
- * Map rudder products arrays payload to ga4 ecomm items array
- * @param {*} products
- * @param {*} item
- */
-function getDestinationItemProperties(products, item) {
-  const items = [];
-  let obj = {};
-  const contextOp = type(products) !== 'array' ? 'properties' : 'product';
-  const finalProducts = type(products) !== 'array' ? [products] : products;
-  const finalItemObj = item && type(item) === 'array' && item[0] ? item[0] : {};
-  // get the dest keys from itemParameters config
-  // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
-  finalProducts.forEach((product) => {
-    obj = {
-      ...getDestinationEventProperties(product, itemParametersConfigArray, contextOp, true),
-      ...finalItemObj,
-    };
-    items.push(obj);
-  });
-  return items;
-}
-
-/**
- * Generate ga4 page_view events payload
- * @param {*} props
- */
-function getPageViewProperty(props) {
-  return getDestinationEventProperties(props, pageEventParametersConfigArray, 'properties');
-}
+const extractLastKey = (key) => key.split('.').pop();
 
 /**
  * Validates weather to send userId property to GA4 or not
  * @param {*} integrations
  */
-function sendUserIdToGA4(integrations) {
-  if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
-    const { GA4 } = integrations;
-    if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
-      return !!GA4.sendUserId;
-    }
-    return true;
-  }
-  return true;
-}
+const sendUserId = (integrations) => integrations?.GA4?.sendUserId ?? true;
 
-export {
-  isReservedName,
-  sendUserIdToGA4,
-  getPageViewProperty,
-  hasRequiredParameters,
-  getDestinationEventName,
-  getDestinationEventProperties,
-  getDestinationItemProperties,
+/**
+ * Reserved event names cannot be used
+ * Ref - https://support.google.com/analytics/answer/13316687?hl=en#zippy=%2Cweb
+ * @param {*} name
+ */
+const isReservedEventName = (event) => {
+  const reservedEventNames = [
+    'app_remove',
+    'app_store_refund',
+    'app_store_subscription_cancel',
+    'app_store_subscription_renew',
+    'click',
+    'error',
+    'file_download',
+    'first_open',
+    'first_visit',
+    'form_start',
+    'form_submit',
+    'in_app_purchase',
+    'scroll',
+    'session_start',
+    'user_engagement',
+    'view_complete',
+    'video_progress',
+    'video_start',
+  ];
+
+  return reservedEventNames.includes(event);
 };
+
+/**
+ * Validates and formats the event name
+ * @param {*} eventName
+ * @returns
+ */
+const formatAndValidateEventName = (eventName) => {
+  if (!eventName || typeof eventName !== 'string') {
+    logger.error('Event name is required and should be a string');
+    return null;
+  }
+
+  /**
+   * Trim and replace spaces with '_'
+   * product searched -> product_searched
+   */
+  const trimmedEvent = eventName.trim().replace(/\s+/g, '_');
+
+  // Reserved event names are not allowed
+  if (isReservedEventName(trimmedEvent)) {
+    logger.error('Reserved event names are not allowed');
+    return null;
+  }
+
+  return trimmedEvent;
+};
+
+/**
+ * Returns custom parameters for ga4 event payload
+ * @param {*} message
+ * @param {*} keys
+ * @param {*} exclusionFields
+ * @returns
+ */
+const getCustomParameters = (message, keys, exclusionFields) => {
+  let customParameters = {};
+  customParameters = extractCustomFields(message, customParameters, keys, exclusionFields);
+  // append in the params if any custom fields are passed after flattening the JSON
+  if (!isEmptyObject(customParameters)) {
+    customParameters = flattenJson(customParameters, '_', 'strict');
+  }
+  return customParameters;
+};
+
+/**
+ * Returns exclusion fields list
+ * @param {*} mapRootLevelPropertiesToGA4ItemsArray
+ * @param {*} mapping
+ * @param {*} event
+ * @returns
+ */
+const getExclusionFields = (mapRootLevelPropertiesToGA4ItemsArray, mapping, event) => {
+  // Exclude event properties which are already mapped
+  let exclusionFields = mapping.reduce((exclusionList, element) => {
+    const mappingSourceKeys = element.sourceKeys;
+
+    if (typeof mappingSourceKeys === 'string') {
+      exclusionList.push(extractLastKey(mappingSourceKeys));
+    } else if (Array.isArray(mappingSourceKeys)) {
+      mappingSourceKeys.forEach((item) => {
+        if (typeof item === 'string') {
+          exclusionList.push(extractLastKey(item));
+        }
+      });
+    }
+
+    return exclusionList;
+  }, []);
+
+  // We are mapping "products" to "items", so to remove redundancy we should not send products again
+  exclusionFields.push('products');
+
+  if (
+    mapRootLevelPropertiesToGA4ItemsArray &&
+    rootLevelProductsSupportedEventsList.includes(event)
+  ) {
+    // Exclude root-level properties (itemsArrayParams) which are already mapped
+    exclusionFields = exclusionFields.concat(customParametersExclusion);
+  }
+  return exclusionFields;
+};
+
+/**
+ * Creates and returns items array from products
+ * @param {*} message
+ * @param {*} isItemsRequired
+ * @returns
+ */
+const getItemList = (message) => {
+  const items = [];
+
+  const { properties } = message;
+  let products = properties?.products;
+  // Supporting products as an object
+  if (typeof products === 'object' && !Array.isArray(products)) {
+    products = [products];
+  }
+
+  if (Array.isArray(products)) {
+    products.forEach((product, index) => {
+      let item = constructPayload(product, itemsArrayParams);
+      // take additional parameters apart from mapped one
+      const itemCustomProperties = extractCustomFields(
+        message,
+        {},
+        [`properties.products.${index}`],
+        customParametersExclusion,
+      );
+      if (!isEmptyObject(itemCustomProperties)) {
+        item = { ...item, ...flattenJson(itemCustomProperties, '_', 'strict') };
+      }
+
+      if (!isEmptyObject(item)) {
+        items.push(item);
+      }
+    });
+  }
+  return items;
+};
+
+/**
+ * Creates and returns items array from properties
+ * @param {*} message
+ * @param {*} isItemsRequired
+ * @returns
+ */
+const getItem = (message) => {
+  const { properties } = message;
+  const items = [];
+
+  if (properties) {
+    const item = constructPayload(properties, itemsArrayParams);
+    if (!isEmptyObject(item)) {
+      items.push(item);
+    }
+  }
+
+  return items;
+};
+
+/**
+ * Returns items array for ga4 event payload
+ * @param {*} message
+ * @param {*} eventConfig
+ * @returns
+ */
+const getItemsArray = (message, eventConfig) => {
+  const { itemList, item } = eventConfig;
+  let items = [];
+  let mapRootLevelPropertiesToGA4ItemsArray = false;
+
+  if (itemList && item) {
+    items = getItemList(message);
+
+    if (!(items && items.length > 0)) {
+      mapRootLevelPropertiesToGA4ItemsArray = true;
+      items = getItem(message);
+    }
+  } else if (item) {
+    // item
+    mapRootLevelPropertiesToGA4ItemsArray = true;
+    items = getItem(message);
+  } else if (itemList) {
+    // itemList
+    items = getItemList(message);
+  }
+
+  return { items, mapRootLevelPropertiesToGA4ItemsArray };
+};
+
+/**
+ * Returns ga4 standard event payload
+ * @param {*} message
+ * @param {*} eventConfig
+ * @returns
+ */
+const prepareStandardEventParams = (message, eventConfig) => {
+  const { event, mapping } = eventConfig;
+  let payload = constructPayload(message, mapping);
+
+  const { items, mapRootLevelPropertiesToGA4ItemsArray } = getItemsArray(message, eventConfig);
+  const exclusionFields = getExclusionFields(mapRootLevelPropertiesToGA4ItemsArray, mapping, event);
+  const customParameters = getCustomParameters(message, ['properties'], exclusionFields);
+
+  if (items.length > 0) {
+    payload.items = items;
+  }
+
+  if (!isEmptyObject(customParameters)) {
+    payload = { ...payload, ...customParameters };
+  }
+
+  return payload;
+};
+
+/**
+ * Returns ga4 custom event payload
+ * @param {*} message
+ * @returns
+ */
+const prepareCustomEventParams = (message) => getCustomParameters(message, ['properties'], []);
+
+/**
+ * Returns ga4 track event name and transformed payload
+ * @param {*} message
+ * @param {*} eventName
+ * @returns
+ */
+const prepareParamsAndEventName = (message, eventName) => {
+  const eventConfig = eventsConfig[`${eventName.toUpperCase()}`];
+
+  // Part 1 : prepare params
+  const params = eventConfig
+    ? prepareStandardEventParams(message, eventConfig)
+    : prepareCustomEventParams(message);
+
+  // Part 2 : prepare event names
+  const event = eventConfig ? eventConfig.event : eventName;
+
+  return { params, event };
+};
+
+export { sendUserId, isReservedEventName, prepareParamsAndEventName, formatAndValidateEventName };
