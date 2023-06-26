@@ -14,6 +14,7 @@ class Drip {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId;
     this.campaignId = config.campaignId;
     this.name = NAME;
@@ -30,7 +31,8 @@ class Drip {
       'eu_consent_message',
       'euConsentMessage',
     ];
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

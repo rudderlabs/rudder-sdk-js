@@ -13,18 +13,25 @@ import {
 } from './constants';
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
-import { getHashFromArrayWithDuplicate, removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import {
+  getHashFromArrayWithDuplicate,
+  removeUndefinedAndNullValues,
+} from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
 import { payloadBuilder, payloadBuilderInList } from './utils';
 
 class Podsights {
   constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
+    this.analytics = analytics;
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
-    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

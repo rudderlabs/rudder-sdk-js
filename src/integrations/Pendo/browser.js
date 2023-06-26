@@ -12,7 +12,8 @@ class Pendo {
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? '' : config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
@@ -50,13 +51,13 @@ class Pendo {
 
   initializeMe() {
     const userId =
-      this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
 
     const accountObj = {
-      id: this.analytics.groupId,
-      ...this.analytics.groupTraits,
+      id: this.analytics.getGroupId(),
+      ...this.analytics.getGroupTraits(),
     };
-    const visitorObj = { id: userId, ...this.analytics.userTraits };
+    const visitorObj = { id: userId, ...this.analytics.getUserTraits() };
 
     window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
@@ -82,20 +83,21 @@ class Pendo {
   /* Pendo's identify call works intelligently, once u have identified a visitor/user,
    *or associated a visitor to a group/account then Pendo save this data in local storage and
    *any further upcoming calls are done taking user info from local.
-   * To track user perndo maps user to Visitor in Pendo.
+   * To track user pendo maps user to Visitor in Pendo.
    */
   identify(rudderElement) {
     let visitorObj = {};
     let accountObj = {};
     const { groupId } = this.analytics;
-    const id = this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+    const id =
+      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
     visitorObj = {
       id,
-      ...this.analytics.userTraits,
+      ...this.analytics.getUserTraits(),
     };
 
     if (groupId) {
-      accountObj = { id: groupId, ...this.analytics.groupTraits };
+      accountObj = { id: groupId, ...this.analytics.getGroupTraits() };
     }
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
@@ -107,8 +109,8 @@ class Pendo {
   group(rudderElement) {
     let accountObj = {};
     let visitorObj = {};
-    const { userId, traits } = rudderElement.message;
-    accountObj.id = this.analytics.groupId || this.analytics.anonymousId;
+    const { userId, traits, context } = rudderElement.message;
+    accountObj.id = this.analytics.getGroupId() || this.analytics.getAnonymousId();
     accountObj = {
       ...accountObj,
       ...traits,
@@ -117,7 +119,7 @@ class Pendo {
     if (userId) {
       visitorObj = {
         id: userId,
-        ...(rudderElement.message.context && rudderElement.message.context.traits),
+        ...(context && context.traits),
       };
     }
 
@@ -127,11 +129,11 @@ class Pendo {
   /* Once user is identified Pendo makes Track call to track user activity.
    */
   track(rudderElement) {
-    const { event } = rudderElement.message;
+    const { event, properties } = rudderElement.message;
     if (!event) {
       throw Error('Cannot call un-named track event');
     }
-    const props = rudderElement.message.properties;
+    const props = properties;
     window.pendo.track(event, props);
   }
 }

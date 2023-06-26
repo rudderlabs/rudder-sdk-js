@@ -20,7 +20,8 @@ class Comscore {
     this.comScoreParams = {};
     this.replayEvents = [];
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -97,7 +98,6 @@ class Comscore {
     return new Promise((resolve) => {
       if (this.isLoaded()) {
         this.failed = false;
-        instance.analytics.emit('ready');
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {

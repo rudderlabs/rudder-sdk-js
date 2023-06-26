@@ -1,0 +1,103 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.22.2"
+      },
+      "traits": {
+        "name": "John Snow",
+        "title": "CEO",
+        "email": "name.surname@domain.com",
+        "alternativeEmail": "name.surname2@domain.com",
+        "company": "Company123",
+        "phone": "123-456-7890",
+        "rating": "Hot",
+        "dob": "1990-01-12T00:00:00.000Z",
+        "address": [
+          {
+            "city": "Austin",
+            "postalCode": 12345,
+            "country": "US",
+            "street": "Sample Address",
+            "state": "TX",
+            "label": "Home",
+            "defaultAddress": true
+          },
+          {
+            "city": "Houston",
+            "postalCode": 345678,
+            "country": "US",
+            "street": "Sample Address 2",
+            "state": "TX",
+            "label": "Office",
+            "defaultAddress": false
+          },
+          {
+            "city": "Dallas",
+            "postalCode": 987654,
+            "country": "US",
+            "street": "Sample Address 3",
+            "state": "TX",
+            "label": "Toms place",
+            "defaultAddress": false
+          }
+        ]
+      },
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "2.22.2"
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+      "device": null,
+      "network": null,
+      "os": {
+        "name": "",
+        "version": ""
+      },
+      "locale": "en-US",
+      "screen": {
+        "density": 2,
+        "width": 1728,
+        "height": 1117,
+        "innerWidth": 1728,
+        "innerHeight": 969
+      },
+      "sessionId": 1673726912351,
+      "campaign": {},
+      "page": {
+        "path": "/index.html",
+        "referrer": "$direct",
+        "referring_domain": "",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:3001/index.html",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      },
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
+      }
+    },
+    "type": "identify",
+    "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
+    "originalTimestamp": "2023-01-18T14:29:20.234Z",
+    "anonymousId": "7effd250-16c8-454c-957b-f0f2b357d356",
+    "userId": "1234567890",
+    "event": null,
+    "properties": null,
+    "integrations": {
+      "All": true,
+      "Google Analytics 4": {
+        "clientId": "284269621.1683957866",
+        "sessionId": 1683957866,
+        "sessionNumber": 1
+      }
+    },
+    "user_properties": null,
+    "sentAt": "2023-01-14T20:26:36.001Z"
+  }
+}
