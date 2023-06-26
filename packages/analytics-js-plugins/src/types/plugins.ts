@@ -105,5 +105,4 @@ export interface IQueue<T = any> {
   stop(): void;
   enqueue(item: QueueItem<T>): void;
   addItem(item: T): void;
-  // dequeue(): Nullable<T> | undefined;
 }

@@ -150,6 +150,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
         batchItems && batchItems.length > 0 ? batchItems.slice(0, batchItems.length) : [];
 
       // TODO: add retry mechanism here
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const beaconSendCallback = (error?: any, response?: any) => {
         this.setQueue(this.name, []);
         this.stop();

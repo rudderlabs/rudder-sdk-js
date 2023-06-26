@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 import {
   ApiCallback,
   ApiObject,
@@ -12,10 +11,6 @@ import {
   IRudderAnalytics,
   IntegrationOpts,
 } from '@rudderstack/common/types/common';
-import { Nullable } from '../types/plugins';
-import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
-import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
-import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
@@ -26,6 +21,11 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/common/utilities/common';
+import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
+import { Nullable } from '../types/plugins';
+import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
+import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+import { DeviceModeDestinationsAnalyticsInstance } from './types';
 
 /**
  * Determines if the destination SDK code is evaluated

@@ -53,7 +53,6 @@ jobs:
           npm run setup:ci
           npm run build:browser
           npm run build:browser:modern
-          npm run build:integrations
 
       - name: Sync files to S3 beta folder
         run: |

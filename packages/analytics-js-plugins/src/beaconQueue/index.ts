@@ -1,8 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { DoneCallback, ExtensionPlugin, IQueue, QueueItem } from '../types/plugins';
 import { getCurrentTimeFormatted } from '@rudderstack/common/utilities/common';
-// TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
-import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
 import {
   ApplicationState,
   ILogger,
@@ -12,6 +9,9 @@ import {
   IStoreManager,
   BeaconQueueOpts,
 } from '@rudderstack/common/types/common';
+import { DoneCallback, ExtensionPlugin, IQueue, QueueItem } from '../types/plugins';
+// TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
+import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';

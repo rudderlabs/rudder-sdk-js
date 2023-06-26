@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import {
+  IStoreManager,
+  ApplicationState,
+  IErrorHandler,
+  ILogger,
+  QueueOpts,
+  RudderEvent,
+  IHttpClient,
+} from '@rudderstack/common/types/common';
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/utilities/common';
+import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
   validateEventPayloadSize,
@@ -11,17 +21,7 @@ import {
   isErrRetryable,
   logErrorOnFailure,
 } from './utilities';
-import {
-  IStoreManager,
-  ApplicationState,
-  IErrorHandler,
-  ILogger,
-  QueueOpts,
-  RudderEvent,
-  IHttpClient,
-} from '@rudderstack/common/types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/utilities/common';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';

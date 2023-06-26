@@ -5,13 +5,13 @@ import {
   IntegrationOpts,
   RudderEvent,
 } from '@rudderstack/common/types/common';
-import { Nullable } from '../types/plugins';
 import {
   getCurrentTimeFormatted,
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
 } from '@rudderstack/common/utilities/common';
+import { Nullable } from '../types/plugins';
 import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 
@@ -108,9 +108,7 @@ const getFinalEventForDeliveryMutator = (
   return finalEvent;
 };
 
-const removeDuplicateSlashes = (str: string): string => {
-  return str.replace(/\/{2,}/g, '/');
-};
+const removeDuplicateSlashes = (str: string): string => str.replace(/\/{2,}/g, '/');
 
 export {
   getDeliveryPayload,

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import {
   IStoreManager,
   ApplicationState,
@@ -11,6 +10,7 @@ import {
   Destination,
   IPluginsManager,
 } from '@rudderstack/common/types/common';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';

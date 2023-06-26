@@ -1,4 +1,5 @@
 import { IStoreManager, StorageType, IStore } from '@rudderstack/common/types/common';
+import { generateUUID } from '@rudderstack/common/utilities/common';
 import {
   IQueue,
   QueueItem,
@@ -7,7 +8,6 @@ import {
   DoneCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
-import { generateUUID } from '@rudderstack/common/utilities/common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -243,6 +243,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     const now = this.schedule.now();
     const toRun: InProgressQueueItem[] = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
       const inProgress =
         (this.getQueue(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
