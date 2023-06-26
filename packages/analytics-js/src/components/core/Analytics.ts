@@ -48,6 +48,11 @@ import { EventRepository } from '@rudderstack/analytics-js/components/eventRepos
 import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import { clone } from 'ramda';
 import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+} from '@rudderstack/analytics-js/constants/app';
+import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
@@ -452,15 +457,15 @@ class Analytics implements IAnalytics {
     // Send automatic ad blocked page event if adblockers are detected on the page
     if (
       state.capabilities.isAdBlocked.value === true &&
-      payload.category !== 'RudderJS-Initiated'
+      payload.category !== ADBLOCK_PAGE_CATEGORY
     ) {
       const pageCallArgs = {
-        category: 'RudderJS-Initiated',
-        name: 'ad-block page request',
+        category: ADBLOCK_PAGE_CATEGORY,
+        name: ADBLOCK_PAGE_NAME,
         properties: {
           // 'title' is intentionally omitted as it does not make sense
           // in v3 implementation
-          path: '/ad-blocked',
+          path: ADBLOCK_PAGE_PATH,
         },
         options: state.loadOptions.value.sendAdblockPageOptions,
       } as PageCallOptions;
