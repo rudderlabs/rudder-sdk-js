@@ -5,6 +5,7 @@ import identify4ExpectedData from '../../__fixtures__/identify4.json';
 import identify5ExpectedData from '../../__fixtures__/identify5.json';
 import identify6ExpectedData from '../../__fixtures__/identify6.json';
 import identify7ExpectedData from '../../__fixtures__/identify7.json';
+import identify8ExpectedData from '../../__fixtures__/identify8.json';
 
 const identifyMethodSuite = {
   id: 'identifyMethod',
@@ -390,6 +391,63 @@ const identifyMethodSuite = {
       ],
       expectedResult: identify7ExpectedData,
       triggerHandler: ['reset', 'setAnonymousId', 'identify'],
+    },
+    {
+      id: 'identify8',
+      description: 'Identify with string userId and then with number userId',
+      inputData: [
+        [
+          '1234567890',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            dob: new Date(Date.UTC(1990, 0, 12)),
+            address: [
+              {
+                city: 'Austin',
+                postalCode: 12345,
+                country: 'US',
+                street: 'Sample Address',
+                state: 'TX',
+                label: 'Home',
+                defaultAddress: true,
+              },
+              {
+                city: 'Houston',
+                postalCode: 345678,
+                country: 'US',
+                street: 'Sample Address 2',
+                state: 'TX',
+                label: 'Office',
+                defaultAddress: false,
+              },
+              {
+                city: 'Dallas',
+                postalCode: 987654,
+                country: 'US',
+                street: 'Sample Address 3',
+                state: 'TX',
+                label: 'Toms place',
+                defaultAddress: false,
+              },
+            ],
+          },
+          null,
+        ],
+        [
+          1234567890,
+          {
+            name: 'John Snow',
+            alternativeEmail: 'name.surname2@domain.com',
+          },
+        ],
+      ],
+      expectedResult: identify8ExpectedData,
+      triggerHandler: ['identify', 'identify'],
     },
   ],
 };
