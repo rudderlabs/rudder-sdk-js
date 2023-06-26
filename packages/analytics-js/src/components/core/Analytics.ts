@@ -53,7 +53,6 @@ import {
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-  pageArgumentsToCallOptions,
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 import { isObjectAndNotNull } from '../utilities/object';
@@ -455,18 +454,18 @@ class Analytics implements IAnalytics {
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== 'RudderJS-Initiated'
     ) {
-      this.page(
-        pageArgumentsToCallOptions(
-          'RudderJS-Initiated',
-          'ad-block page request',
+      const pageCallArgs = {
+        category: 'RudderJS-Initiated',
+        name: 'ad-block page request',
+        properties: {
           // 'title' is intentionally omitted as it does not make sense
           // in v3 implementation
-          {
-            path: '/ad-blocked',
-          },
-          state.loadOptions.value.sendAdblockPageOptions,
-        ),
-      );
+          path: '/ad-blocked',
+        },
+        options: state.loadOptions.value.sendAdblockPageOptions,
+      } as PageCallOptions;
+
+      this.page(pageCallArgs);
     }
   }
 
