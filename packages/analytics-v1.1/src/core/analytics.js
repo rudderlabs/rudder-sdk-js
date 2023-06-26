@@ -13,8 +13,10 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 /* eslint-disable sonarjs/cognitive-complexity */
+/* eslint-disable import/no-relative-packages */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
+import { configToIntNames } from '../../../analytics-js-integrations/src/utils/config_to_integration_names';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -51,7 +53,6 @@ import PreProcessQueue from '../utils/PreProcessQueue';
 import logger from '../utils/logUtil';
 import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
-import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import { UserSession } from '../features/core/session';
 import { mergeContext, mergeTopLevelElementsMutator } from '../utils/eventProcessorUtils';

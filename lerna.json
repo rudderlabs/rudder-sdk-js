@@ -4,7 +4,14 @@
   "useWorkspaces": true,
   "command": {
     "version": {
-      "allowBranch": ["v3-staging", "v3-release/*", "v3-hotfix-release/*", "v3-production"],
+      "allowBranch": [
+        "v3-staging",
+        "v3-release/*",
+        "v3-hotfix-release/*",
+        "v3-production",
+        "master",
+        "develop"
+      ],
       "message": "chore(release): bump up package versions [skip ci]",
       "conventionalCommits": true
     },

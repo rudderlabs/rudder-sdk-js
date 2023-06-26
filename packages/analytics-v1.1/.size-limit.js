@@ -4,16 +4,10 @@
  */
 module.exports = [
   {
-    name: 'Core - CDN - v1.1',
+    name: 'Core (legacy build) - CDN - v1.1',
     path: 'dist/legacy/rudder-analytics.min.js',
     gzip: true,
     limit: '36.93 kB',
-  },
-  {
-    name: 'All Integrations - CDN - v1.1',
-    path: 'dist/legacy/js-integrations/*.min.js',
-    gzip: true,
-    limit: '415.3 kB',
   },
   {
     name: 'Core - NPM - v1.1',
