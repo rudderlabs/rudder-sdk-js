@@ -27,7 +27,7 @@
   "dependencies": {
     "deep-equal": "2.2.1",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "2.35.0"
+    "rudder-sdk-js": "2.36.0"
   },
   "devDependencies": {
     "@babel/core": "7.21.8",
