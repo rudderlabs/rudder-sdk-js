@@ -83,7 +83,7 @@ class Ketch {
   }
 
   getConsent() {
-    const value = Cookie.get('_swb_consent_');
+    const value = Cookie.get('_ketch_consent_v1_');
     if (!value) {
       return undefined;
     }
@@ -94,17 +94,15 @@ class Ketch {
       logger.error(`Error occured while parsing consent cookie ${e}`);
       return undefined;
     }
-    if (!consentObj || !consentObj.purposes) {
+    if (!consentObj) {
       return undefined;
     }
     const consent = {};
-    Object.entries(consentObj.purposes).forEach((e) => {
+    Object.entries(consentObj).forEach((e) => {
       const purposeCode = e[0];
       const purposeValue = e[1];
-      if (typeof purposeValue === 'string') {
-        consent[purposeCode] = purposeValue === 'true';
-      } else if (purposeValue.allowed) {
-        consent[purposeCode] = purposeValue.allowed === 'true';
+      if (purposeValue && purposeValue.status) {
+        consent[purposeCode] = purposeValue.status === 'granted';
       }
     });
     return consent;
