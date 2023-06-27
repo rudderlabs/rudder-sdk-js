@@ -438,7 +438,7 @@ class Analytics {
                   destTransformedResult?.payload.forEach((tEvent) => {
                     // Transformation successful
                     // event level status is 200
-                    if (tEvent.status === '200') {
+                    if (tEvent.status === 200) {
                       // push transformed event to the queue
                       eventsToSent.push(tEvent);
                     }
@@ -446,7 +446,7 @@ class Analytics {
                     // but propagateEventsUntransformedOnError is set to true for that destination
                     else if (intg.propagateEventsUntransformedOnError === true) {
                       let warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Sending untransformed event.`;
-                      if (tEvent.status === '410') {
+                      if (tEvent.status === 410) {
                         warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Sending untransformed event.`;
                       }
                       logger.warn(warningMessage);
@@ -457,7 +457,7 @@ class Analytics {
                     // and propagateEventsUntransformedOnError is not true for that destination
                     else {
                       let errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Status: "${tEvent.status}". Dropping the event.`;
-                      if (tEvent.status === '410') {
+                      if (tEvent.status === 410) {
                         errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Status: "${tEvent.status}". Dropping the event.`;
                       }
                       logger.error(errMessage);
