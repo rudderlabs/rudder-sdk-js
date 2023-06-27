@@ -16,6 +16,35 @@ jest.mock('../../../src/utils/storage/index', () => ({
   setItem: jest.fn(),
 }));
 
+const mockBrazeSDK = () => {
+  window.braze = {
+    initialize: jest.fn(),
+    automaticallyShowInAppMessages: jest.fn(),
+    changeUser: jest.fn(),
+    openSession: jest.fn(),
+    getUser: jest.fn().mockReturnThis(),
+    setCountry: jest.fn(),
+    setHomeCity: jest.fn(),
+    setDateOfBirth: jest.fn(),
+    setEmail: jest.fn(),
+    setFirstName: jest.fn(),
+    setGender: jest.fn(),
+    setLastName: jest.fn(),
+    setPhoneNumber: jest.fn(),
+    setCustomUserAttribute: jest.fn(),
+    logCustomEvent: jest.fn(),
+    getCachedContentCards: jest.fn(),
+    getCachedFeed: jest.fn(),
+    User: {
+      Genders: {
+        OTHER: 'o',
+        MALE: 'm',
+        FEMALE: 'f',
+      },
+    },
+  };
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -81,32 +110,7 @@ describe('identify', () => {
     const braze = new Braze(config, analytics, destinationInfo);
     braze.init();
     // mock the window.braze
-    window.braze = {
-      initialize: jest.fn(),
-      automaticallyShowInAppMessages: jest.fn(),
-      changeUser: jest.fn(),
-      openSession: jest.fn(),
-      getUser: jest.fn().mockReturnThis(),
-      setCountry: jest.fn(),
-      setHomeCity: jest.fn(),
-      setDateOfBirth: jest.fn(),
-      setEmail: jest.fn(),
-      setFirstName: jest.fn(),
-      setGender: jest.fn(),
-      setLastName: jest.fn(),
-      setPhoneNumber: jest.fn(),
-      setCustomUserAttribute: jest.fn(),
-      logCustomEvent: jest.fn(),
-      getCachedContentCards: jest.fn(),
-      getCachedFeed: jest.fn(),
-      User: {
-        Genders: {
-          OTHER: 'o',
-          MALE: 'm',
-          FEMALE: 'f',
-        },
-      },
-    };
+    mockBrazeSDK();
 
     // Create a mock rudderElement with necessary properties
     const rudderElement = {
@@ -172,32 +176,7 @@ describe('identify', () => {
     const braze = new Braze(config, analytics, destinationInfo);
     braze.init();
     // mock the window.braze
-    window.braze = {
-      initialize: jest.fn(),
-      automaticallyShowInAppMessages: jest.fn(),
-      changeUser: jest.fn(),
-      openSession: jest.fn(),
-      getUser: jest.fn().mockReturnThis(),
-      setCountry: jest.fn(),
-      setHomeCity: jest.fn(),
-      setDateOfBirth: jest.fn(),
-      setEmail: jest.fn(),
-      setFirstName: jest.fn(),
-      setGender: jest.fn(),
-      setLastName: jest.fn(),
-      setPhoneNumber: jest.fn(),
-      setCustomUserAttribute: jest.fn(),
-      logCustomEvent: jest.fn(),
-      getCachedContentCards: jest.fn(),
-      getCachedFeed: jest.fn(),
-      User: {
-        Genders: {
-          OTHER: 'o',
-          MALE: 'm',
-          FEMALE: 'f',
-        },
-      },
-    };
+    mockBrazeSDK();
 
     // Create a mock rudderElement with necessary properties
     const rudderElement = {
@@ -299,32 +278,7 @@ describe('identify', () => {
     const braze = new Braze(config, analytics, destinationInfo);
     braze.init();
     // mock the window.braze
-    window.braze = {
-      initialize: jest.fn(),
-      automaticallyShowInAppMessages: jest.fn(),
-      changeUser: jest.fn(),
-      openSession: jest.fn(),
-      getUser: jest.fn().mockReturnThis(),
-      setCountry: jest.fn(),
-      setHomeCity: jest.fn(),
-      setDateOfBirth: jest.fn(),
-      setEmail: jest.fn(),
-      setFirstName: jest.fn(),
-      setGender: jest.fn(),
-      setLastName: jest.fn(),
-      setPhoneNumber: jest.fn(),
-      setCustomUserAttribute: jest.fn(),
-      logCustomEvent: jest.fn(),
-      getCachedContentCards: jest.fn(),
-      getCachedFeed: jest.fn(),
-      User: {
-        Genders: {
-          OTHER: 'o',
-          MALE: 'm',
-          FEMALE: 'f',
-        },
-      },
-    };
+    mockBrazeSDK();
 
     // Create a mock rudderElement with necessary properties
     const rudderElement = {
