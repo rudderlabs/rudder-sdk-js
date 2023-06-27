@@ -49,9 +49,9 @@ class Clevertap {
   init() {
     logger.debug('===in init Clevertap===');
     const sourceUrl =
-      document.location.protocol == 'https:'
-        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/a.js'
-        : 'http://static.clevertap.com/js/a.js';
+      document.location.protocol === 'https:'
+        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
+        : 'http://static.clevertap.com/js/clevertap.min.js';
 
     window.clevertap = {
       event: [],
@@ -61,6 +61,8 @@ class Clevertap {
       notifications: [],
     };
     window.clevertap.enablePersonalization = true;
+    window.clevertap.privacy.push({ optOut: false }); // set the flag to true, if the user of the device opts out of sharing their data
+    window.clevertap.privacy.push({ useIP: false }); // set the flag to true, if the user agrees to share their IP data
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
       window.clevertap.region.push(this.region);
@@ -102,13 +104,20 @@ class Clevertap {
       'Customer Type': get(message, 'context.traits.customerType'),
     };
 
+    // with the exception of one of Identity, Email, or FBID (in Identity)
+    // other fields are optional
+    if (!userId && !email) {
+      logger.error('Either out of userId or email is required');
+      return;
+    }
+
     // Extract other K-V property from traits about user custom properties
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
     }
-    Object.keys(payload).map((key) => {
+    Object.keys(payload).forEach((key) => {
       if (isObject(payload[key])) {
         logger.debug('cannot process, unsupported traits');
       }
@@ -141,7 +150,7 @@ class Clevertap {
         }
         window.clevertap.event.push('Charged', ecomProperties);
       } else {
-        Object.keys(properties).map((key) => {
+        Object.keys(properties).forEach((key) => {
           if (isObject(properties[key]) || isArray(properties[key])) {
             logger.debug('cannot process, unsupported event');
           }
@@ -167,7 +176,7 @@ class Clevertap {
       eventName = 'WebPage Viewed';
     }
     if (properties) {
-      Object.keys(properties).map((key) => {
+      Object.keys(properties).forEach((key) => {
         if (isObject(properties[key]) || isArray(properties[key])) {
           logger.debug('cannot process, unsupported event');
         }
