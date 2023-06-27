@@ -25,7 +25,7 @@ const getSDKUrl = (): string | undefined => {
   scriptList.some(script => {
     const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rudder-analytics?(\.min)?\.js$/);
+      const urlMatches = curScriptSrc.match(/^.*rsa?(\.min)?\.js$/);
       if (urlMatches) {
         sdkURL = curScriptSrc;
         return true;
