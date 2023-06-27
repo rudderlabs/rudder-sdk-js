@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-// import * as XMLHttpRequestNode from "Xmlhttprequest";
 import get from 'get-value';
 import set from 'set-value';
 import { v4 as uuid } from '@lukeed/uuid';
@@ -59,14 +58,6 @@ function generateUUID() {
  */
 function getCurrentTimeFormatted() {
   const curDateTime = new Date().toISOString();
-  // Keeping same as iso string
-  /* let curDate = curDateTime.split("T")[0];
-  let curTimeExceptMillis = curDateTime
-    .split("T")[1]
-    .split("Z")[0]
-    .split(".")[0];
-  let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
-  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis; */
   return curDateTime;
 }
 
@@ -641,7 +632,7 @@ const handleSourceKeysOperation = ({ message, operationObject }) => {
           return null;
         }
       }
-      return result;
+      return result.toFixed(2);
     case 'addition':
       result = 0;
       // eslint-disable-next-line no-restricted-syntax
@@ -654,7 +645,7 @@ const handleSourceKeysOperation = ({ message, operationObject }) => {
           return null;
         }
       }
-      return result;
+      return result.toFixed(2);
     default:
       return null;
   }
@@ -670,6 +661,14 @@ const formatValues = (formattedVal, formattingType) => {
   let curFormattedVal = formattedVal;
 
   const formattingFunctions = {
+    jsonStringify: () => {
+      curFormattedVal = JSON.stringify(formattedVal);
+    },
+    jsonStringifyOnObject: () => {
+      if (typeof formattedVal !== 'string') {
+        curFormattedVal = JSON.stringify(formattedVal);
+      }
+    },
     toString: () => {
       curFormattedVal = String(formattedVal);
     },
@@ -684,6 +683,18 @@ const formatValues = (formattedVal, formattingType) => {
     },
     toLower: () => {
       curFormattedVal = formattedVal.toString().toLowerCase();
+    },
+    trim: () => {
+      if (typeof formattedVal === 'string') {
+        curFormattedVal = formattedVal.trim();
+      }
+    },
+    IsBoolean: () => {
+      curFormattedVal = true;
+      if (!(typeof formattedVal === 'boolean')) {
+        logger.debug('Boolean value missing, so dropping it');
+        curFormattedVal = false;
+      }
     },
   };
 

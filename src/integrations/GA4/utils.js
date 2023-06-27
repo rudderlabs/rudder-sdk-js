@@ -145,8 +145,11 @@ const getItemList = (message) => {
 
   const { properties } = message;
   let products = properties?.products;
+  let isObject = false;
+
   // Supporting products as an object
   if (typeof products === 'object' && !Array.isArray(products)) {
+    isObject = true;
     products = [products];
   }
 
@@ -157,7 +160,7 @@ const getItemList = (message) => {
       const itemCustomProperties = extractCustomFields(
         message,
         {},
-        [`properties.products.${index}`],
+        isObject ? ['properties.products'] : [`properties.products.${index}`],
         customParametersExclusion,
       );
       if (!isEmptyObject(itemCustomProperties)) {
@@ -182,7 +185,8 @@ const getItem = (message) => {
   const { properties } = message;
   const items = [];
 
-  if (properties) {
+  // Only prepare items array if properties exists and it should have at least one key
+  if (properties && Object.keys(properties).length > 0) {
     const item = constructPayload(properties, itemsArrayParams);
     if (!isEmptyObject(item)) {
       items.push(item);
@@ -274,4 +278,15 @@ const prepareParamsAndEventName = (message, eventName) => {
   return { params, event };
 };
 
-export { sendUserId, isReservedEventName, prepareParamsAndEventName, formatAndValidateEventName };
+export {
+  getItem,
+  sendUserId,
+  getItemList,
+  getItemsArray,
+  extractLastKey,
+  getExclusionFields,
+  isReservedEventName,
+  getCustomParameters,
+  prepareParamsAndEventName,
+  formatAndValidateEventName,
+};

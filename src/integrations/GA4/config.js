@@ -49,7 +49,6 @@ const itemsArrayParams = [
   { sourceKeys: 'item_list_id', destKey: 'item_list_id' },
   { sourceKeys: 'item_list_name', destKey: 'item_list_name' },
   { sourceKeys: 'location_id', destKey: 'location_id' },
-  { sourceKeys: 'currency', destKey: 'currency', metadata: { defaultValue: 'USD' } },
 ];
 
 const eventParams = {
