@@ -21,6 +21,9 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
     options: {
       // We actually don't need the response from the request, so we are using HEAD
       method: 'HEAD',
+      headers: {
+        'Content-Type': undefined,
+      }
     },
     isRawResponse: true,
     callback: (result, details) => {
@@ -28,6 +31,7 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
         details?.error !== undefined || details?.xhr?.responseURL !== url;
+      logger?.debug(`Adblocker status: ${state.capabilities.isAdBlocked.value}`);
     },
   });
 };
