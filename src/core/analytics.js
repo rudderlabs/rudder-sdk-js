@@ -761,10 +761,11 @@ class Analytics {
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
 
-    if (userId && this.userId && userId !== this.userId) {
+    const normalisedUserId = getStringId(userId);
+    if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
       this.reset();
     }
-    this.userId = getStringId(userId);
+    this.userId = normalisedUserId;
     this.storage.setUserId(this.userId);
 
     const clonedTraits = R.clone(traits);
@@ -1058,8 +1059,7 @@ class Analytics {
   addCampaignInfo(rudderElement) {
     const msgContext = rudderElement.message.context;
     if (msgContext && typeof msgContext === 'object') {
-      const { url } = getDefaultPageProperties();
-      rudderElement.message.context.campaign = this.utm(url);
+      rudderElement.message.context.campaign = this.utm(window.location.href);
     }
   }
 
@@ -1521,7 +1521,7 @@ function processDataInAnalyticsArray(analytics) {
 
 /**
  * parse the given url into usable Rudder object
- * @param {*} query
+ * @param {*} url
  */
 function retrieveEventsFromQueryString(url) {
   const queryDefaults = {

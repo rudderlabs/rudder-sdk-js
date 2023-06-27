@@ -11,8 +11,9 @@ import {
   getDestinationEventProperties,
   getDestinationItemProperties,
 } from './utils';
-import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
+import { Cookie } from '../../utils/storage/cookie';
+import { type, flattenJsonPayload } from '../../utils/utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -23,8 +24,10 @@ export default class GA4 {
     this.clientId = '';
     this.sessionId = '';
     this.sessionNumber = '';
+    this.cookie = Cookie;
     this.analytics = analytics;
     this.measurementId = config.measurementId;
+    this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
@@ -55,13 +58,48 @@ export default class GA4 {
       gtagParameterObject.user_id = this.analytics.getUserId();
     }
 
-    gtagParameterObject.cookie_prefix = 'rs';
     if (this.isHybridModeEnabled && this.overrideClientAndSessionId) {
+      gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.getAnonymousId();
       gtagParameterObject.session_id = this.analytics.getSessionId();
+    } else {
+      // Cookie migration logic
+      const clientCookie = this.cookie.get('rs_ga');
+      const defaultGA4Cookie = this.cookie.get('_ga');
+      const measurementIdArray = this.measurementId.split('-');
+      const sessionCookie = this.cookie.get(`rs_ga_${measurementIdArray[1]}`);
+
+      // Only override when both cookie with rs prefix is available and default cookie is not available
+      if (!defaultGA4Cookie && clientCookie && sessionCookie) {
+        const clientCookieArray = clientCookie.split('.');
+
+        // client_id cookie : GA1.1.51545857.1686555747
+        // client_id cookie : GA1.1.48512441-5e44-4860-9900-a8f6e6bc4041
+        const clientId = clientCookieArray.length > 3
+          ? `${clientCookieArray[2]}.${clientCookieArray[3]}`
+          : clientCookieArray[2];
+
+        // session_id cookie : GS1.1.1686558743.1.1.1686558965.7.0.0
+        const sessionCookieArray = sessionCookie.split('.');
+        const sessionId = sessionCookieArray[2];
+
+        // Use existing client and session ids
+        if (clientId) {
+          gtagParameterObject.client_id = clientId;
+        }
+        if (sessionId) {
+          gtagParameterObject.session_id = sessionId;
+        }
+      }
+      
+      // Remove rs prefixed cookies so that it won't used again
+      this.cookie.remove('rs_ga');
+      this.cookie.remove(`rs_ga_${measurementIdArray[1]}`);
     }
 
-    gtagParameterObject.debug_mode = true;
+    if (this.debugView) {
+      gtagParameterObject.debug_mode = true;
+    }
 
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
@@ -70,8 +108,8 @@ export default class GA4 {
     }
 
     // If userTraits available, setting it as a part of global gtag object
-    if (this.analytics.userTraits) {
-      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
+    if (this.analytics.getUserTraits()) {
+      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
     }
 
     /**

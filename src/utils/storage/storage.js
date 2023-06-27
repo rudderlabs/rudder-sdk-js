@@ -59,7 +59,7 @@ function trim(value) {
  * @param {*} value
  */
 function decryptValue(value) {
-  if (!value || (typeof value === 'string' && trim(value) === '')) {
+  if (!value || typeof value !== 'string' || trim(value) === '') {
     return value;
   }
   if (value.substring(0, defaults.prefix.length) === defaults.prefix) {
