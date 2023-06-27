@@ -27,7 +27,7 @@ export type {
 } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 export type {
   IHttpClient,
-  RejectionDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
