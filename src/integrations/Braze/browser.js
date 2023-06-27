@@ -99,27 +99,14 @@ class Braze {
     logger.debug('in Braze identify');
     const { message } = rudderElement;
     const { userId } = message;
-    const {
-      context: {
-        traits: {
-          email,
-          firstName,
-          firstname,
-          lastname,
-          lastName,
-          gender,
-          phone,
-          address,
-          birthday,
-          dob,
-        },
-      },
-    } = message;
-
-    const calculatedBirthday = birthday || dob;
-    const calculatedFirstName = firstName || firstname;
-    const calculatedLastName = lastName || lastname;
-
+    const { context } = message;
+    const email = context?.traits?.email;
+    const firstName = context?.traits?.firstName || context?.traits?.firstname;
+    const lastName = context?.traits?.lastName || context?.traits?.lastname;
+    const gender = context?.traits?.gender;
+    const phone = context?.traits?.phone;
+    const address = context?.traits?.address;
+    const birthday = context?.traits?.birthday || context?.traits?.dob;
     const reserved = [
       'address',
       'birthday',
@@ -147,7 +134,7 @@ class Braze {
     // function set Birthday
     function setBirthday() {
       try {
-        const date = new Date(calculatedBirthday);
+        const date = new Date(birthday);
         if (date.toString() === 'Invalid Date') {
           logger.error('Invalid Date for birthday');
           return;
@@ -165,7 +152,7 @@ class Braze {
     }
     // function set firstName
     function setFirstName() {
-      window.braze.getUser().setFirstName(calculatedFirstName);
+      window.braze.getUser().setFirstName(firstName);
     }
     // function set gender
     function setGender(genderName) {
@@ -173,7 +160,7 @@ class Braze {
     }
     // function set lastName
     function setLastName() {
-      window.braze.getUser().setLastName(calculatedLastName);
+      window.braze.getUser().setLastName(lastName);
     }
     function setPhone() {
       window.braze.getUser().setPhoneNumber(phone);
@@ -199,9 +186,9 @@ class Braze {
 
       if (email && email !== prevEmail) setEmail();
       if (phone && phone !== prevPhone) setPhone();
-      if (calculatedBirthday && !isEqual(calculatedBirthday, prevBirthday)) setBirthday();
-      if (calculatedFirstName && calculatedFirstName !== prevFirstname) setFirstName();
-      if (calculatedLastName && calculatedLastName !== prevLastname) setLastName();
+      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
+      if (firstName && firstName !== prevFirstname) setFirstName();
+      if (lastName && lastName !== prevLastname) setLastName();
       if (gender && formatGender(gender) !== formatGender(prevGender))
         setGender(formatGender(gender));
       if (address && !isEqual(address, prevAddress)) setAddress();
@@ -217,12 +204,12 @@ class Braze {
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
       // window.braze.getUser().setAvatarImageUrl(avatar);
       if (email) setEmail();
-      if (calculatedFirstName) setFirstName();
-      if (calculatedLastName) setLastName();
+      if (firstName) setFirstName();
+      if (lastName) setLastName();
       if (gender) setGender(formatGender(gender));
       if (phone) setPhone();
       if (address) setAddress();
-      if (calculatedBirthday) setBirthday();
+      if (birthday) setBirthday();
       Object.keys(traits)
         .filter((key) => reserved.indexOf(key) === -1)
         .forEach((key) => {
