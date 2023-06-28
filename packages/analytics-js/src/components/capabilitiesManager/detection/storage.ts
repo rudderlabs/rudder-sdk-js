@@ -3,6 +3,7 @@ import {
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
 } from '@rudderstack/analytics-js/constants/storageKeyNames';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
@@ -16,7 +17,11 @@ const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
 
 // TODO: also check for SecurityErrors
 //  https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage#exceptions
-const isStorageAvailable = (type: StorageType = 'localStorage', storageInstance?: IStorage) => {
+const isStorageAvailable = (
+  type: StorageType = 'localStorage',
+  storageInstance?: IStorage,
+  logger?: ILogger,
+) => {
   let storage;
   let testData;
 
@@ -52,11 +57,10 @@ const isStorageAvailable = (type: StorageType = 'localStorage', storageInstance?
     return false;
   } catch (e: any) {
     if (isStorageQuotaExceeded(e)) {
-      console.error(`error: storage '${type}' is full`);
+      logger?.error(`Storage "${type}" is full.`);
     } else {
-      console.error(`error: storage '${type}' is not available`);
+      logger?.error(`Storage "${type}" is not available.`);
     }
-
     return false;
   }
 };

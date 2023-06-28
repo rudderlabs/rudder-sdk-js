@@ -54,7 +54,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         queueItems: QueueItem<BeaconQueueItem>[],
         done: DoneCallback,
       ) => {
-        logger?.debug(`Sending beacon events to data plane`);
+        logger?.debug(`Sending beacon events to data plane.`);
         const finalEvents = queueItems.map(queueItem =>
           getFinalEventForDeliveryMutator(queueItem.item.event, state),
         );
@@ -64,7 +64,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
           try {
             const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
             if (!isEnqueuedInBeacon) {
-              logger?.error("Unable to queue data to browser's beacon queue");
+              logger?.error("Unable to queue data to browser's beacon queue.");
             }
 
             done(null, isEnqueuedInBeacon);

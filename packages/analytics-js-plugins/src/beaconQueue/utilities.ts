@@ -22,9 +22,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(`Error while converting event batch object to string.`);
+    logger?.error(`An error occurred while converting event batch object to string.`);
   } catch (err) {
-    logger?.error(`Error while converting event batch object to Blob. Error: ${err}.`);
+    logger?.error(`An error occurred while converting event batch object to Blob.`, err);
   }
 
   return undefined;

@@ -51,7 +51,6 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
-          logger?.debug(`Forwarding ${item.type} event to destinations`);
           const destinationsToSend = filterDestinations(
             item.integrations,
             state.nativeDestinations.initializedDestinations.value,
@@ -60,8 +59,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           destinationsToSend.forEach((dest: Destination) => {
             const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
-              logger?.debug(
-                `"${item.event}" event is denylisted for destination: ${dest.userFriendlyId}`,
+              logger?.warn(
+                `"${item.event}" event is filtered for the destination: ${dest.userFriendlyId}.`,
               );
               return;
             }

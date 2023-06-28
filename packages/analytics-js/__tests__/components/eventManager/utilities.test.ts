@@ -396,15 +396,15 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `Reserved keyword used in ${defaultParentKeyPath} --> "anonymousId" for ${defaultEventType} event`,
+        `"anonymousId" is a reserved keyword. It is defined under "${defaultParentKeyPath}" for ${defaultEventType} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
+        `"originalTimestamp" is a reserved keyword. It is defined under "${defaultParentKeyPath}" for ${defaultEventType} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         3,
-        `Reserved keyword used in ${defaultParentKeyPath} --> "messageId" for ${defaultEventType} event`,
+        `"messageId" is a reserved keyword. It is defined under "${defaultParentKeyPath}" for ${defaultEventType} event.`,
       );
     });
 
@@ -453,11 +453,11 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `Reserved keyword used in ${defaultParentKeyPath} --> "EVENT" for ${defaultEventType} event`,
+        `"EVENT" is a reserved keyword. It is defined under "${defaultParentKeyPath}" for ${defaultEventType} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `Reserved keyword used in ${defaultParentKeyPath} --> "originalTimestamp" for ${defaultEventType} event`,
+        `"originalTimestamp" is a reserved keyword. It is defined under "${defaultParentKeyPath}" for ${defaultEventType} event.`,
       );
     });
   });
@@ -488,23 +488,23 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `Reserved keyword used in properties --> "anonymousId" for ${rudderEvent.type} event`,
+        `"anonymousId" is a reserved keyword. It is defined under "properties" for ${rudderEvent.type} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `Reserved keyword used in properties --> "originalTimestamp" for ${rudderEvent.type} event`,
+        `"originalTimestamp" is a reserved keyword. It is defined under "properties" for ${rudderEvent.type} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         3,
-        `Reserved keyword used in traits --> "originalTimestamp" for ${rudderEvent.type} event`,
+        `"originalTimestamp" is a reserved keyword. It is defined under "traits" for ${rudderEvent.type} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         4,
-        `Reserved keyword used in traits --> "event" for ${rudderEvent.type} event`,
+        `"event" is a reserved keyword. It is defined under "traits" for ${rudderEvent.type} event.`,
       );
       expect(mockLogger.warn).nthCalledWith(
         5,
-        `Reserved keyword used in context.traits --> "anonymousId" for ${rudderEvent.type} event`,
+        `"anonymousId" is a reserved keyword. It is defined under "context.traits" for ${rudderEvent.type} event.`,
       );
     });
   });
@@ -851,7 +851,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The "context" element passed in the options is not a valid object',
+        'The "context" element passed in the event options argument is not a valid object literal.',
       );
     });
 
@@ -891,7 +891,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The "context" element passed in the options is not a valid object',
+        'The "context" element passed in the event options argument is not a valid object literal.',
       );
     });
 
@@ -931,7 +931,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The "context" element passed in the options is not a valid object',
+        'The "context" element passed in the event options argument is not a valid object literal.',
       );
     });
   });

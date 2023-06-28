@@ -61,10 +61,18 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
         'cookieStorage',
         getStorageEngine('cookieStorage'),
+        this.logger,
       );
-      state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable('localStorage');
-      state.capabilities.storage.isSessionStorageAvailable.value =
-        isStorageAvailable('sessionStorage');
+      state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable(
+        'localStorage',
+        undefined,
+        this.logger,
+      );
+      state.capabilities.storage.isSessionStorageAvailable.value = isStorageAvailable(
+        'sessionStorage',
+        undefined,
+        this.logger,
+      );
 
       // Browser feature detection details
       state.capabilities.isBeaconAvailable.value = hasBeacon();
@@ -122,17 +130,13 @@ class CapabilitiesManager implements ICapabilitiesManager {
       // TODO: check if polyfill has been evaluated via polling or
       //  with the callback param in its url and an exposed function
       const onPolyfillLoad = (scriptId?: string) => Boolean(scriptId) && this.onReady();
-      this.externalSrcLoader
-        ?.loadJSFile({
-          url: state.loadOptions.value.polyfillURL ?? POLYFILL_URL,
-          id: 'rudderstackPolyfill',
-          async: true,
-          timeout: POLYFILL_LOAD_TIMEOUT,
-          callback: onPolyfillLoad,
-        })
-        .catch(e => {
-          this.onError(e);
-        });
+      this.externalSrcLoader?.loadJSFile({
+        url: state.loadOptions.value.polyfillURL ?? POLYFILL_URL,
+        id: 'rudderstackPolyfill',
+        async: true,
+        timeout: POLYFILL_LOAD_TIMEOUT,
+        callback: onPolyfillLoad,
+      });
     } else {
       this.onReady();
     }

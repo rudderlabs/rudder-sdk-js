@@ -33,7 +33,7 @@ class CookieStorage implements IStorage {
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
     this.options = mergeRight(this.options ?? {}, options);
-    this.isSupportAvailable = isStorageAvailable('cookieStorage', this);
+    this.isSupportAvailable = isStorageAvailable('cookieStorage', this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }

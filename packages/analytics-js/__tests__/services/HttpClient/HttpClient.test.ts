@@ -13,7 +13,7 @@ jest.mock('../../../src/services/Logger', () => {
     ...originalModule,
     defaultLogger: {
       error: jest.fn((): void => {}),
-      debug: jest.fn((): void => {}),
+      warn: jest.fn((): void => {}),
     },
   };
 });

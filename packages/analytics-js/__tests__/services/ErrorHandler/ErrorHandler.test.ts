@@ -171,7 +171,7 @@ describe('ErrorHandler', () => {
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      'Error while notifying error',
+      'An error occurred while notifying error.',
       new Error('dummy error'),
     );
   });

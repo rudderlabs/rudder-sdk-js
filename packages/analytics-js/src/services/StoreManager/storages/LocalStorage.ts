@@ -28,7 +28,7 @@ class LocalStorage implements IStorage {
 
   configure(options: Partial<ILocalStorageOptions>): ILocalStorageOptions {
     this.options = mergeRight(this.options, options);
-    this.isSupportAvailable = isStorageAvailable('localStorage', this);
+    this.isSupportAvailable = isStorageAvailable('localStorage', this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }

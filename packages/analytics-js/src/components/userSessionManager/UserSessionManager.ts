@@ -97,7 +97,7 @@ class UserSessionManager implements IUserSessionManager {
     let sessionTimeout: number;
     if (!isPositiveInteger(state.loadOptions.value.sessions.timeout)) {
       this.logger?.warn(
-        '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
+        'Default session timeout will be used as the provided input is not a number.',
       );
       sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     } else {
@@ -106,15 +106,15 @@ class UserSessionManager implements IUserSessionManager {
 
     if (sessionTimeout === 0) {
       this.logger?.warn(
-        '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
+        'The provided timeout value 0 will disable the automatic session tracking feature.',
       );
       finalAutoTrackingStatus = false;
     }
-    // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
+    // In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
     // and will proceed with it
     if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
       this.logger?.warn(
-        `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
+        `It is not recommended to set the timeout value < ${MIN_SESSION_TIMEOUT} ms`,
       );
     }
     state.session.sessionInfo.value = {

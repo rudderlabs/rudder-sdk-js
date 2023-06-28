@@ -30,7 +30,7 @@ class PluginEngine implements IPluginEngine {
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
-      const errorMessage = `Every plugin should have a name.`;
+      const errorMessage = `Plugin should have a name.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -107,8 +107,9 @@ class PluginEngine implements IPluginEngine {
         if (plugin.deps?.some(dependency => !this.byName[dependency])) {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
-          const errorMessage = `Plugin ${plugin.name} is not loaded because its dependencies do not exist: ${notExistDeps}.`;
-          this.logger?.error(errorMessage);
+          this.logger?.error(
+            `Plugin ${plugin.name} is not loaded because its dependencies do not exist: ${notExistDeps}.`,
+          );
           return false;
         }
         return lifeCycleName === '.' ? true : hasValueByPath(plugin, lifeCycleName);
@@ -161,12 +162,10 @@ class PluginEngine implements IPluginEngine {
         return method.apply(getValueByPath(plugin, pluginMethodPath), args);
       } catch (err) {
         // When a plugin failed, doesn't break the app
-        this.logger?.error(`Failed to invoke plugin: ${plugin.name}!${extensionPointName}`);
-
         if (throws) {
           throw err;
         } else {
-          this.logger?.error(err);
+          this.logger?.error(`Failed to invoke plugin: ${plugin.name}!${extensionPointName}`, err);
         }
       }
 

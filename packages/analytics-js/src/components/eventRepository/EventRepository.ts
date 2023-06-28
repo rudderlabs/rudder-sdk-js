@@ -85,8 +85,6 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.logger?.debug('Enqueuing event: ', event);
-
     // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations

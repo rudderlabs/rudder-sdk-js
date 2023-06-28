@@ -28,7 +28,7 @@ const validateResidencyServerRegionInput = (
     residencyServerRegion &&
     !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
   ) {
-    logger?.error(`Invalid residencyServer input: '${residencyServerRegion}'`);
+    logger?.error(`Invalid residencyServer: "${residencyServerRegion}"`);
     return undefined;
   }
   return residencyServerRegion;

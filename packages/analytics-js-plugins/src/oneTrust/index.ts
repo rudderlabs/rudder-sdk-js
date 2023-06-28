@@ -13,8 +13,6 @@ const OneTrust = (): ExtensionPlugin => ({
   },
   consentProvider: {
     getConsentInfo(logger?: ILogger): ConsentInfo {
-      logger?.debug('OneTrust initialization');
-
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
@@ -51,7 +49,7 @@ const OneTrust = (): ExtensionPlugin => ({
     isDestinationConsented(
       state: ApplicationState,
       destConfig: DestinationConfig,
-      logger: ILogger,
+      logger?: ILogger,
     ): boolean {
       const { consentProviderInitialized, allowedConsents } = state.consents;
       if (!consentProviderInitialized.value) {
@@ -101,8 +99,8 @@ const OneTrust = (): ExtensionPlugin => ({
         );
 
         return containsAllConsent;
-      } catch (e) {
-        logger?.error(`[OneTrust] :: ${e}`);
+      } catch (err) {
+        logger?.error(`Unable to determine destination consent status.`, err);
         return true;
       }
     },

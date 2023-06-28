@@ -18,8 +18,6 @@ const ConsentManager = (): ExtensionPlugin => ({
       batch: Batch,
       logger?: ILogger,
     ): void {
-      logger?.debug('ConsentManager initialization');
-
       // Initialize selected consent manager and get the consent info
       const { consentProviderInitialized, allowedConsents, deniedConsentIds } =
         pluginsManager.invokeSingle(`consentProvider.getConsentInfo`, logger);
@@ -39,7 +37,7 @@ const ConsentManager = (): ExtensionPlugin => ({
       state: ApplicationState,
       pluginsManager: IPluginsManager,
       destConfig: DestinationConfig,
-      logger: ILogger,
+      logger?: ILogger,
     ): boolean {
       return pluginsManager.invokeSingle(
         `consentProvider.isDestinationConsented`,

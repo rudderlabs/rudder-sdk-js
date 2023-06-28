@@ -32,7 +32,7 @@ const getCircularReplacer = (
     }
 
     if (ancestors.includes(value)) {
-      logger?.warn(`Circular Reference detected and dropped from property: ${key}`);
+      logger?.warn(`Circular reference was detected and dropped from property: ${key}`);
       return '[Circular Reference]';
     }
 
@@ -58,7 +58,7 @@ const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | str
   try {
     return JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
   } catch (err) {
-    logger?.debug(`Error occurred while converting to string: ${err}`);
+    logger?.warn(`An error occurred while converting the value to string.`, err);
     return null;
   }
 };

@@ -94,7 +94,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
         logger?.warn(
-          `Reserved keyword used in ${parentKeyPath} --> "${property}" for ${eventType} event`,
+          `"${property}" is a reserved keyword. It is defined under "${parentKeyPath}" for ${eventType} event.`,
         );
       }
     });
@@ -167,7 +167,9 @@ const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.warn('The "context" element passed in the options is not a valid object');
+        logger?.warn(
+          'The "context" element passed in the event options argument is not a valid object literal.',
+        );
       }
     }
   });

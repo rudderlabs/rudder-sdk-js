@@ -123,7 +123,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error('Error while notifying error', err);
+        this.logger?.error('An error occurred while notifying error.', err);
       }
     }
   }

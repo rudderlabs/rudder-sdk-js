@@ -26,21 +26,13 @@ const generateSessionId = (): number => Date.now();
  * @returns
  */
 const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
-  if (!sessionId) {
-    logger?.info(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as no input is provided`,
-    );
-    return false;
-  }
-  if (!isPositiveInteger(sessionId)) {
+  if (
+    !sessionId ||
+    !isPositiveInteger(sessionId) ||
+    !hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)
+  ) {
     logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the provided input is not a positive integer`,
-    );
-    return false;
-  }
-  if (!hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)) {
-    logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the input is not at least "${MIN_SESSION_ID_LENGTH}" digits long`,
+      `Session ID will be auto-generated as the provided value (${sessionId}) is either invalid, not a positive integer or not at least "${MIN_SESSION_ID_LENGTH}" digits long.`,
     );
     return false;
   }

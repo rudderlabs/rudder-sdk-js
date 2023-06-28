@@ -71,11 +71,10 @@ class StoreManager implements IStoreManager {
     }
     // TODO: fallback to in-memory storage if not other storage is available
 
-    // TODO: should we fallback to session storage instead so we retain values
-    //  on page refresh, navigation etc?
+    // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
     if (!storageType) {
       this.logger?.error(
-        'No storage is available for data store :: initializing the SDK without storage',
+        'No storage is available for data store. Initializing the SDK without storage.',
       );
       return;
     }

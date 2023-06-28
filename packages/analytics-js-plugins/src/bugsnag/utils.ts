@@ -141,17 +141,15 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
     return;
   }
 
-  externalSrcLoader
-    .loadJSFile({
-      url: BUGSNAG_CDN_URL,
-      id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
-      callback: () => {
-        logger?.debug('Bugsnag script loaded');
-      },
-    })
-    .catch(e => {
-      logger?.error(`Script load failed for Bugsnag. Error message: ${e.message}`);
-    });
+  externalSrcLoader.loadJSFile({
+    url: BUGSNAG_CDN_URL,
+    id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
+    callback: id => {
+      if (!id) {
+        logger?.error(`Bugsnag SDK script load failed.`);
+      }
+    },
+  });
 };
 
 const initBugsnagClient = (

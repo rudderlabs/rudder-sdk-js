@@ -44,7 +44,6 @@ class EventManager implements IEventManager {
   init() {
     this.eventRepository.init();
     state.lifecycle.status.value = LifecycleStatus.Initialized;
-    this.logger?.info('Event manager initialized');
   }
 
   /**

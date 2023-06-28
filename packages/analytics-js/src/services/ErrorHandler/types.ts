@@ -30,5 +30,5 @@ export interface IExternalSrcLoader {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   timeout: number;
-  loadJSFile(config: IExternalSourceLoadConfig): Promise<void>;
+  loadJSFile(config: IExternalSourceLoadConfig): void;
 }

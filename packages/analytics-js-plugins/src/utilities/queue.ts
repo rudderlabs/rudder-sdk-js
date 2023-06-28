@@ -21,7 +21,7 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   try {
     deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
-    logger?.error(`Error while converting event object to string. Error: ${err}.`);
+    logger?.error(`An error occurred while converting event object to string.`, err);
   }
   return deliveryPayloadStr;
 };
@@ -41,7 +41,7 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
       );
     }
   } else {
-    logger?.error(`Error while calculating event payload size.`);
+    logger?.warn(`An error occurred while validating event payload size.`);
   }
 };
 

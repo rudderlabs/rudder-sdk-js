@@ -48,8 +48,8 @@ const isDestinationSDKEvaluated = (
           'undefined',
     );
     return scriptIsEvaluated;
-  } catch (e) {
-    logger?.error(`Error while checking if destination SDK is evaluated: ${e}`);
+  } catch (err) {
+    logger?.error(`An error occurred while checking for destination SDK evaluation status.`, err);
     return false;
   }
 };
@@ -215,10 +215,10 @@ const getCumulativeIntegrationsConfig = (
         curDestIntgConfig,
         dest.instance?.getDataForIntegrationsObject(),
       );
-    } catch (e) {
+    } catch (err) {
       logger?.error(
-        e,
-        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`,
+        `An error occurred while getting data for integrations object for destination: ${dest.userFriendlyId}.`,
+        err,
       );
     }
   }

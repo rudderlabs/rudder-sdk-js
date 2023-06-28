@@ -12,7 +12,7 @@ import {
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ILogger } from '@rudderstack/analytics-js-plugins/types/common';
+import { ILogger, IErrorHandler } from '@rudderstack/analytics-js-plugins/types/common';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-plugins/utilities/common';
 
 describe('Bugsnag utilities', () => {
@@ -115,18 +115,18 @@ describe('Bugsnag utilities', () => {
 
   describe('isRudderSDKError', () => {
     const testCaseData = [
-      ['https://testdomain.com/rudder-analytics.min.js', true],
-      ['https://testdomain.com/rudderanalytics.min.js', false],
-      ['https://testdomain.com/rudder-analytics-plugins-Beacon.min.js', true],
-      ['https://testdomain.com/Amplitude.min.js', true],
-      ['https://testdomain.com/Qualaroo.min.js', true],
-      ['https://testdomain.com/test.js', false],
-      ['https://testdomain.com/rudder-analytics.css', false],
+      ['https://asdf.com/rudder-analytics.min.js', true],
+      ['https://asdf.com/rudderanalytics.min.js', false],
+      ['https://asdf.com/rudder-analytics-plugins-Beacon.min.js', true],
+      ['https://asdf.com/Amplitude.min.js', true],
+      ['https://asdf.com/Qualaroo.min.js', true],
+      ['https://asdf.com/test.js', false],
+      ['https://asdf.com/rudder-analytics.css', false],
       [undefined, false],
       [null, false],
       [1, false],
       ['', false],
-      ['testdomain.com', false],
+      ['asdf.com', false],
     ];
 
     it.each(testCaseData)(
@@ -152,7 +152,7 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://asdf.com/rudder-analytics.min.js',
           },
         ],
         updateMetaData: function (key, value) {
@@ -178,13 +178,13 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://asdf.com/rudder-analytics.min.js',
           },
         ],
         updateMetaData: function (key, value) {
           this.metadata[key] = value;
         },
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
       };
 
       enhanceErrorEventMutator(event, 'dummyMetadataVal');
@@ -272,8 +272,13 @@ describe('Bugsnag utilities', () => {
       logProvider = console;
     }
 
+    class MockErrorHandler implements IErrorHandler {
+      onError = jest.fn();
+    }
+
     const mockLogger = new MockLogger();
-    const extSrcLoader = new ExternalSrcLoader();
+    const mockErrorHandler = new MockErrorHandler();
+    const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
 
     const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
 
@@ -283,6 +288,9 @@ describe('Bugsnag utilities', () => {
 
     afterEach(() => {
       insertBeforeSpy.mockRestore();
+      if (document.head.firstChild) {
+        document.head.removeChild(document.head.firstChild as ChildNode);
+      }
       delete (window as any).Bugsnag;
       delete (window as any).bugsnag;
       bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
@@ -313,16 +321,20 @@ describe('Bugsnag utilities', () => {
       }, 500);
     });
 
-    it('should log error if Bugsnag SDK could not be loaded', done => {
-      bugsnagConstants.BUGSNAG_CDN_URL = 'https://testdomain.com/bugsnag.min.js';
+    it('should invoke error handler and log error if Bugsnag SDK could not be loaded', done => {
+      bugsnagConstants.BUGSNAG_CDN_URL = 'https://asdf.com/bugsnag.min.js';
       loadBugsnagSDK(extSrcLoader, mockLogger);
 
       setTimeout(() => {
-        expect(mockLogger.error).toHaveBeenCalledWith(
-          'Script load failed for Bugsnag. Error message: A script with the id "rs-bugsnag" is already loaded. Hence, skipping it.',
+        expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+          new Error(
+            `Couldn't load the script "https://asdf.com/bugsnag.min.js" with id rs-bugsnag.`,
+          ),
+          'ExternalSrcLoader',
         );
+        expect(mockLogger.error).toHaveBeenCalledWith(`Bugsnag SDK script load failed.`);
         done();
-      }, 500);
+      }, 2000);
     });
   });
 
@@ -341,7 +353,7 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/not-rudder-analytics.min.js',
+            file: 'https://asdf.com/not-rudder-analytics.min.js',
           },
         ],
       };
@@ -355,10 +367,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://asdf.com/rudder-analytics.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
         updateMetaData: jest.fn(),
       } as any;
 
@@ -377,10 +389,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://asdf.com/rudder-analytics.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
       } as any;
 
       const onErrorFn = onError(state);
