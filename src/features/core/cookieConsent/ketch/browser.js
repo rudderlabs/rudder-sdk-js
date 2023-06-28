@@ -60,7 +60,7 @@ class Ketch {
       const { ketchConsentPurposes } = destConfig; // mapping of the destination with the consent group name
 
       // If the destination do not have this mapping events will be sent.
-      if (ketchConsentPurposes.length === 0) {
+      if (ketchConsentPurposes && ketchConsentPurposes.length === 0) {
         return true;
       }
 
