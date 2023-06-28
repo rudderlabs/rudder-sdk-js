@@ -33,15 +33,17 @@ class Ketch {
   }
 
   updatePurposes = (consent) => {
-    Object.entries(consent).forEach((e) => {
-      const purposeCode = e[0];
-      const isConsented = e[1];
-      if (isConsented) {
-        this.userConsentedPurposes.push(purposeCode);
-      } else {
-        this.userDeniedPurposes.push(purposeCode);
-      }
-    });
+    if (consent) {
+      Object.entries(consent).forEach((e) => {
+        const purposeCode = e[0];
+        const isConsented = e[1];
+        if (isConsented) {
+          this.userConsentedPurposes.push(purposeCode);
+        } else {
+          this.userDeniedPurposes.push(purposeCode);
+        }
+      });
+    }
   };
 
   isEnabled(destConfig) {
