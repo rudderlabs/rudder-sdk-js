@@ -13,8 +13,8 @@ import {
 import {
   mapping,
   expectedItemsArray,
-  productsArrayInput,
-  productsArrayOutput,
+  inputProductsArray,
+  outputProductsArray,
 } from './__mocks__/data';
 
 import {
@@ -227,21 +227,21 @@ describe('Google Analytics 4 utilities tests', () => {
     test('Construct payload and return an array of items', () => {
       const message = {
         properties: {
-          products: productsArrayInput,
+          products: inputProductsArray,
         },
       };
       const items = getItemList(message, itemsArrayParams);
-      expect(items).toEqual(productsArrayOutput);
+      expect(items).toEqual(outputProductsArray);
     });
 
     test('Products is an object and return an array of items', () => {
       const message = {
         properties: {
-          products: productsArrayInput[0],
+          products: inputProductsArray[0],
         },
       };
       const items = getItemList(message, itemsArrayParams);
-      expect(items).toEqual([productsArrayOutput[0]]);
+      expect(items).toEqual([outputProductsArray[0]]);
     });
   });
 
@@ -262,7 +262,7 @@ describe('Google Analytics 4 utilities tests', () => {
 
     test('Return an array with a single item if properties is not empty', () => {
       const message = {
-        properties: productsArrayInput[0],
+        properties: inputProductsArray[0],
       };
 
       const item = getItem(message);
@@ -284,21 +284,21 @@ describe('Google Analytics 4 utilities tests', () => {
     test('Returns items array and mapRootLevelPropertiesToGA4ItemsArray as false when product parameter is supported', () => {
       const message = {
         properties: {
-          products: productsArrayInput,
+          products: inputProductsArray,
         },
       };
       const config = eventsConfig.PRODUCT_ADDED;
 
       const itemsArray = getItemsArray(message, config);
       expect(itemsArray).toEqual({
-        items: productsArrayOutput,
+        items: outputProductsArray,
         mapRootLevelPropertiesToGA4ItemsArray: false,
       });
     });
 
     test('Returns items array and mapRootLevelPropertiesToGA4ItemsArray as true when product parameter is not supported', () => {
       const message = {
-        properties: productsArrayInput[1],
+        properties: inputProductsArray[1],
       };
       const config = eventsConfig.PRODUCTS_CLICKED;
 

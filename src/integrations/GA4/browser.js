@@ -173,6 +173,7 @@ export default class GA4 {
 
     const eventName = formatAndValidateEventName(message?.event);
     if (!eventName) {
+      logger.error('Event name is required');
       return;
     }
 
