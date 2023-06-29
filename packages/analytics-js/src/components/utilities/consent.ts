@@ -1,4 +1,4 @@
-import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
+import { CookieConsentOptions } from '@rudderstack/common/types/Consent';
 import { isNonEmptyObject } from './object';
 
 /**

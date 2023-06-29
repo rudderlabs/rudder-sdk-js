@@ -1,9 +1,9 @@
 import { clone } from 'ramda';
-import { LoadOptions } from '@rudderstack/analytics-js/state/types';
 import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { LoadOptions } from '@rudderstack/common/types/LoadOptions';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,

@@ -1,6 +1,6 @@
 import { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
-import { LoadOptions } from '@rudderstack/analytics-js/state/types';
+import { LoadOptions } from '@rudderstack/common/types/LoadOptions';
 
 jest.mock('../../src/components/core/Analytics');
 

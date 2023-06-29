@@ -1,5 +1,5 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { ILogger } from '@rudderstack/common/types/Logger';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,

@@ -1,5 +1,5 @@
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
 
 export interface IRequestConfig {
   url: string;

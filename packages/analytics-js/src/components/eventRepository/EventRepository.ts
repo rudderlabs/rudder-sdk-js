@@ -1,20 +1,20 @@
-import { ApiCallback } from '@rudderstack/analytics-js/state/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IHttpClient } from '@rudderstack/common/types/HttpClient';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { RudderEvent } from '@rudderstack/common/types/Event';
+import { ApiCallback } from '@rudderstack/common/types/EventApi';
+import { isHybridModeDestination } from '../utilities/destinations';
 import { IEventRepository } from './types';
-import { IPluginsManager } from '../pluginsManager/types';
-import { RudderEvent } from '../eventManager/types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
-import { isHybridModeDestination } from '../utilities/destinations';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery

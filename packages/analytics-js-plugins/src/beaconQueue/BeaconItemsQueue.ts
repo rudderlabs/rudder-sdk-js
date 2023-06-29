@@ -1,10 +1,6 @@
-import {
-  IStoreManager,
-  StorageType,
-  IStore,
-  BeaconQueueOpts,
-} from '@rudderstack/common/types/common';
-import { generateUUID } from '@rudderstack/common/utilities/common';
+import { generateUUID } from '@rudderstack/common/v3/utilities/common';
+import { IStore, IStoreManager, StorageType } from '@rudderstack/common/types/Store';
+import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItem } from './types';
 import { getDeliveryPayload } from './utilities';

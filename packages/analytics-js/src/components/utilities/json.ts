@@ -1,6 +1,6 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { ILogger } from '@rudderstack/common/types/Logger';
 import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 
 const getCircularReplacer = (
   excludeNull?: boolean,

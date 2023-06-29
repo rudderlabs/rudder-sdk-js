@@ -1,5 +1,7 @@
-import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/common/utilities/common';
-import { BeaconQueueOpts, RudderEvent, ILogger } from '@rudderstack/common/types/common';
+import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/common/v3/utilities/common';
+import { RudderEvent } from '@rudderstack/common/types/Event';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';
 import { DATA_PLANE_API_VERSION, DEFAULT_BEACON_QUEUE_OPTIONS } from './constants';
 import { BeaconBatchData } from './types';
 import { removeDuplicateSlashes } from '../utilities/queue';

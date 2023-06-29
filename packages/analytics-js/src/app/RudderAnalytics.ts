@@ -1,13 +1,5 @@
 /* eslint-disable unicorn/prefer-export-from */
 import { isEmpty } from 'ramda';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  ApiOptions,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
@@ -18,9 +10,13 @@ import {
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
-import { Analytics } from '../components/core/Analytics';
+import { IRudderAnalytics } from '@rudderstack/common/types/IRudderAnalytics';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
+import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
 import { IAnalytics } from '../components/core/IAnalytics';
-import { IRudderAnalytics } from './IRudderAnalytics';
+import { Analytics } from '../components/core/Analytics';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -30,7 +26,7 @@ import { IRudderAnalytics } from './IRudderAnalytics';
  * handle multiple Analytics instances
  * consume SDK preload event buffer
  */
-class RudderAnalytics implements IRudderAnalytics {
+class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';

@@ -1,5 +1,5 @@
-import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { RegionDetails, ResidencyServerRegion } from '@rudderstack/common/types/DataResidency';
+import { ILogger } from '@rudderstack/common/types/Logger';
 import { isValidUrl } from '../../utilities/url';
 
 const DEFAULT_REGION = 'US';

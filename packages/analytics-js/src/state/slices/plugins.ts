@@ -1,13 +1,5 @@
-import { signal, Signal } from '@preact/signals-core';
-
-export type PluginsState = {
-  ready: Signal<boolean>;
-  loadedPlugins: Signal<string[]>;
-  failedPlugins: Signal<string[]>;
-  pluginsToLoadFromConfig: Signal<string[]>;
-  activePlugins: Signal<string[]>;
-  totalPluginsToLoad: Signal<number>;
-};
+import { signal } from '@preact/signals-core';
+import { PluginsState } from '@rudderstack/common/types/ApplicationState';
 
 const pluginsState: PluginsState = {
   ready: signal(false),

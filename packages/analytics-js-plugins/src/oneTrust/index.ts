@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig } from '@rudderstack/common/types/common';
-import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { DestinationConfig } from '@rudderstack/common/types/Destination';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
+import { ConsentInfo } from '../types/plugins';
 
 const pluginName = 'OneTrust';
 

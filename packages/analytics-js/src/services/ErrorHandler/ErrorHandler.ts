@@ -1,12 +1,13 @@
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
+import { IPluginEngine } from '@rudderstack/common/types/PluginEngine';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
 import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
+import { IErrorHandler, SDKError } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
 import { isAllowedToBeNotified, processError } from './processError';
-import { IErrorHandler, IExternalSrcLoader, SDKError } from './types';
 
 /**
  * A service to handle errors

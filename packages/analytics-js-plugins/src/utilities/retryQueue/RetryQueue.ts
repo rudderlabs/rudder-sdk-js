@@ -1,15 +1,15 @@
-import { IStoreManager, StorageType, IStore } from '@rudderstack/common/types/common';
-import { generateUUID } from '@rudderstack/common/utilities/common';
+import { generateUUID } from '@rudderstack/common/v3/utilities/common';
+import { QueueStatuses } from '@rudderstack/common/v3/QueueStatuses';
+import { IStore, IStoreManager, StorageType } from '@rudderstack/common/types/Store';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 import {
   IQueue,
   QueueItem,
-  Nullable,
   QueueItemData,
   DoneCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
-import { QueueStatuses } from './QueueStatuses';
 
 export interface QueueOptions {
   maxItems?: number;

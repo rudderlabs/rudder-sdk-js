@@ -1,11 +1,9 @@
 /* eslint-disable no-param-reassign */
-import {
-  ApplicationState,
-  ILogger,
-  IPluginsManager,
-  DestinationConfig,
-} from '@rudderstack/common/types/common';
-import { ExtensionPlugin } from '../types/plugins';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { DestinationConfig } from '@rudderstack/common/types/Destination';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
 import { Batch } from './type';
 
 const pluginName = 'ConsentManager';

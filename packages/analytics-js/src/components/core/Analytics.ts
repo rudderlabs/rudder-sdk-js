@@ -11,29 +11,10 @@ import { ConfigManager } from '@rudderstack/analytics-js/components/configManage
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import {
-  IEventManager,
-  RudderEventType,
-} from '@rudderstack/analytics-js/components/eventManager/types';
+import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  BufferedEvent,
-  LifecycleStatus,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import {
-  IErrorHandler,
-  IExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IHttpClient } from '@rudderstack/common/types/HttpClient';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
@@ -47,6 +28,19 @@ import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQue
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
 import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import { clone } from 'ramda';
+import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
+import { ApiCallback, RudderEventType } from '@rudderstack/common/types/EventApi';
+import { BufferedEvent } from '@rudderstack/common/types/Event';
+import { IAnalytics } from './IAnalytics';
+import { isObjectAndNotNull } from '../utilities/object';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -54,8 +48,6 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from './eventMethodOverloads';
-import { IAnalytics } from './IAnalytics';
-import { isObjectAndNotNull } from '../utilities/object';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -133,7 +125,11 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(writeKey: string, dataPlaneUrl?: string, loadOptions: Partial<LoadOptions> = {}) {
+  load(
+    writeKey: string,
+    dataPlaneUrl?: string | Partial<LoadOptions>,
+    loadOptions: Partial<LoadOptions> = {},
+  ) {
     if (state.lifecycle.status.value) {
       return;
     }
@@ -153,7 +149,7 @@ class Analytics implements IAnalytics {
     // Set initial state values
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
-      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl;
+      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
@@ -162,7 +158,6 @@ class Analytics implements IAnalytics {
     setExposedGlobal('state', state, writeKey);
 
     // Configure initial config of any services or components here
-    // TODO
 
     // State application lifecycle
     this.startLifecycle();

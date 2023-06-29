@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  IStoreManager,
-  ApplicationState,
-  IErrorHandler,
-  ILogger,
-  QueueOpts,
-  RudderEvent,
-  IHttpClient,
-} from '@rudderstack/common/types/common';
-import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/v3/utilities/common';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { IHttpClient } from '@rudderstack/common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { QueueOpts } from '@rudderstack/common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/common/types/Event';
 import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
@@ -21,7 +20,7 @@ import {
   isErrRetryable,
   logErrorOnFailure,
 } from './utilities';
-import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
+import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRQueueItem } from './types';

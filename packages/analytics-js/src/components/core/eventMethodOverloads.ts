@@ -3,14 +3,15 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js/components/utilities/object';
-import { ApiCallback, ApiObject, ApiOptions } from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   isFunction,
   isNull,
   isString,
   isUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 import { tryStringify } from '../utilities/string';
 
 export type PageCallOptions = {

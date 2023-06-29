@@ -1,12 +1,7 @@
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  ApiOptions,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { IAnalytics } from '../components/core/IAnalytics';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
+import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -81,8 +76,8 @@ export type AnalyticsAliasMethod = {
   (): void;
 };
 
-export interface IRudderAnalytics {
-  analyticsInstances: Record<string, IAnalytics>;
+export interface IRudderAnalytics<T = any> {
+  analyticsInstances: Record<string, T>;
   defaultAnalyticsKey: string;
 
   /**
@@ -93,7 +88,7 @@ export interface IRudderAnalytics {
   /**
    * Get the instance of Analytics that is set as default
    */
-  getAnalyticsInstance(writeKey?: string): IAnalytics;
+  getAnalyticsInstance(writeKey?: string): T;
 
   /**
    * Trigger load event in buffer queue if exists

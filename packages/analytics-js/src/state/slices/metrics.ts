@@ -1,13 +1,5 @@
-import { signal, Signal } from '@preact/signals-core';
-
-// TODO: define the metrics that we need to track
-export type MetricsState = {
-  retries: Signal<number>;
-  dropped: Signal<number>;
-  sent: Signal<number>;
-  queued: Signal<number>;
-  triggered: Signal<number>;
-};
+import { signal } from '@preact/signals-core';
+import { MetricsState } from '@rudderstack/common/types/ApplicationState';
 
 const metricsState: MetricsState = {
   retries: signal(0),

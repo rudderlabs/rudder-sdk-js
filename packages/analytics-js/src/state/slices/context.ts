@@ -1,28 +1,6 @@
-import { signal, Signal } from '@preact/signals-core';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
+import { signal } from '@preact/signals-core';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  Traits,
-  UTMParameters,
-} from '@rudderstack/analytics-js/state/types';
-
-export type ContextState = {
-  app: Signal<AppInfo>;
-  traits: Signal<Nullable<Traits>>;
-  library: Signal<LibraryInfo>;
-  userAgent: Signal<Nullable<string>>;
-  device: Signal<Nullable<any>>; // TODO: is this used at all?
-  network: Signal<Nullable<any>>; // TODO: is this used at all?
-  os: Signal<OSInfo>; // TODO: is this used at all?
-  locale: Signal<Nullable<string>>;
-  screen: Signal<ScreenInfo>;
-  'ua-ch': Signal<UADataValues | undefined>;
-  campaign: Signal<UTMParameters>;
-};
+import { ContextState } from '@rudderstack/common/types/ApplicationState';
 
 const contextState: ContextState = {
   app: signal({

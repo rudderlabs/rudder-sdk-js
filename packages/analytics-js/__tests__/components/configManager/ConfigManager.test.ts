@@ -7,8 +7,8 @@ import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/ut
 import { rest } from 'msw';
 import { DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
-import { LogLevel } from '@rudderstack/analytics-js/state/types';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
+import { LogLevel } from '@rudderstack/common/types/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 
@@ -52,7 +52,6 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
   const errorMsg = 'Unable to load the SDK due to invalid write key: " "';
-  const errorMsgSourceConfigResponse = 'Unable to fetch source config';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';

@@ -1,26 +1,7 @@
 import {
-  getDeliveryPayload,
   getNormalizedQueueOptions,
   getDeliveryUrl,
-  validatePayloadSize,
 } from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
-import { RudderEvent, ILogger } from '@rudderstack/common/types/common';
-import * as xhrConstants from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
-
-class MockLogger implements ILogger {
-  warn = jest.fn();
-  log = jest.fn();
-  error = jest.fn();
-  info = jest.fn();
-  debug = jest.fn();
-  minLogLevel = 0;
-  scope = 'test scope';
-  setMinLogLevel = jest.fn();
-  setScope = jest.fn();
-  logProvider = console;
-}
-
-const mockLogger = new MockLogger();
 
 describe('xhrQueue Plugin Utilities', () => {
   describe('getNormalizedQueueOptions', () => {

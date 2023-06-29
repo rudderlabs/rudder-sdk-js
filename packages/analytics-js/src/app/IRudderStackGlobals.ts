@@ -1,11 +1,11 @@
-import { IApplicationState } from '@rudderstack/analytics-js/state/IApplicationState';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 
 /**
  * Exposed values that can be accessed as global objects per analytics instance
  * // TODO: find all values that need to be exposed in globals if anything else
  */
 export type ExposedGlobals = {
-  state?: IApplicationState;
+  state?: ApplicationState;
 };
 
 /**

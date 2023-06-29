@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  ApplicationState,
-  ILogger,
-  IExternalSrcLoader,
-  IPluginEngine,
-} from '@rudderstack/common/types/common';
-import { ExtensionPlugin, Nullable } from '../types/plugins';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { ExtensionPlugin, IPluginEngine } from '@rudderstack/common/types/PluginEngine';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 
 const pluginName = 'ErrorReporting';
 

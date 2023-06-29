@@ -1,4 +1,4 @@
-import { PluginName } from '../pluginsManager/types';
+import { PluginName } from '@rudderstack/common/types/PluginsManager';
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 

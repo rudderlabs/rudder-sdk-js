@@ -1,20 +1,19 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/common/utilities/common';
-import {
-  ApplicationState,
-  ILogger,
-  IErrorHandler,
-  RudderEvent,
-  IHttpClient,
-  IStoreManager,
-  BeaconQueueOpts,
-} from '@rudderstack/common/types/common';
-import { DoneCallback, ExtensionPlugin, IQueue, QueueItem } from '../types/plugins';
+import { getCurrentTimeFormatted } from '@rudderstack/common/v3/utilities/common';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { IHttpClient } from '@rudderstack/common/types/HttpClient';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/common/types/Event';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 // TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
 import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
+import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
 import { QUEUE_NAME } from './constants';
-import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconQueueItem } from './types';
 
 const pluginName = 'BeaconQueue';

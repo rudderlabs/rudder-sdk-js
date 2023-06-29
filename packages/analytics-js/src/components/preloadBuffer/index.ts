@@ -1,4 +1,3 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import {
   QUERY_PARAM_ANONYMOUS_ID_KEY,
@@ -16,6 +15,7 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 
 /**
  * Parse query string params into object values for keys that start with a defined prefix

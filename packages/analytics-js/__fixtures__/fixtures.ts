@@ -1,5 +1,5 @@
 import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
-import { DestinationConnectionMode } from '@rudderstack/analytics-js/state/types';
+import { DestinationConnectionMode } from '@rudderstack/common/types/Destination';
 
 const identifyRequestPayload = {
   userId: '123456',

@@ -1,12 +1,12 @@
 import { CookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/CookieStorage';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
+  ICookieStorageOptions,
+  IInMemoryStorageOptions,
+  ILocalStorageOptions,
   IStorage,
   StorageType,
-  ICookieStorageOptions,
-  ILocalStorageOptions,
-  IInMemoryStorageOptions,
-} from '../types';
+} from '@rudderstack/common/types/Store';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 

@@ -1,17 +1,15 @@
 import { clone } from 'ramda';
 import {
-  ApplicationState,
-  ILogger,
-  IntegrationOpts,
-  RudderEvent,
-} from '@rudderstack/common/types/common';
-import {
   getCurrentTimeFormatted,
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
-} from '@rudderstack/common/utilities/common';
-import { Nullable } from '../types/plugins';
+} from '@rudderstack/common/v3/utilities/common';
+import { RudderEvent } from '@rudderstack/common/types/Event';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { IntegrationOpts } from '@rudderstack/common/types/Integration';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 

@@ -1,9 +1,9 @@
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/PluginsManager';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {

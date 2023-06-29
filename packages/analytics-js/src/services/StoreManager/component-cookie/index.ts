@@ -1,13 +1,6 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
-
-export type CookieOptions = {
-  maxage?: number;
-  expires?: Date;
-  path?: string;
-  domain?: string;
-  secure?: boolean;
-};
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { CookieOptions } from '@rudderstack/common/types/Store';
 
 /**
  * Encode.

@@ -1,7 +1,7 @@
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { RejectionDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { RejectionDetails } from '@rudderstack/common/types/HttpClient';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 

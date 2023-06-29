@@ -1,4 +1,4 @@
-import { Destination, DestinationConnectionMode } from '@rudderstack/analytics-js/state/types';
+import { Destination, DestinationConnectionMode } from '@rudderstack/common/types/Destination';
 import { ConfigResponseDestinationItem } from '../configManager/types';
 
 /**

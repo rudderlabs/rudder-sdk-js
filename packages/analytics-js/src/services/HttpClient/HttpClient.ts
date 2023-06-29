@@ -1,11 +1,16 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
+import {
+  IAsyncRequestConfig,
+  IHttpClient,
+  IRequestConfig,
+  RejectionDetails,
+} from '@rudderstack/common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
-import { IAsyncRequestConfig, IHttpClient, IRequestConfig, RejectionDetails } from './types';
+import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 
 // TODO: should we add any debug level loggers?
 

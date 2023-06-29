@@ -1,17 +1,17 @@
-import { ApiObject, ApiOptions, IntegrationOpts } from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { state } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { clone } from 'ramda';
 import {
   isString,
   isUndefined,
   isNullOrUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
-import { RudderContext, RudderEvent, RudderEventType } from './types';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { state } from '@rudderstack/analytics-js/state';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { ApiOptions, RudderEventType } from '@rudderstack/common/types/EventApi';
+import { RudderContext, RudderEvent } from '@rudderstack/common/types/Event';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IntegrationOpts } from '@rudderstack/common/types/Integration';
 import { isObjectLiteralAndNotNull, mergeDeepRight } from '../utilities/object';
-import { getCurrentTimeFormatted } from '../utilities/timestamp';
-import { generateUUID } from '../utilities/uuId';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,
@@ -19,6 +19,8 @@ import {
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
 } from './constants';
+import { generateUUID } from '../utilities/uuId';
+import { getCurrentTimeFormatted } from '../utilities/timestamp';
 
 /**
  * To get the page properties for context object

@@ -1,26 +1,21 @@
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  LifecycleStatus,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import {
-  IErrorHandler,
-  IExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { IHttpClient } from '@rudderstack/common/types/HttpClient';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
+import { ApiCallback } from '@rudderstack/common/types/EventApi';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -53,7 +48,11 @@ export interface IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void;
+  load(
+    writeKey: string,
+    dataPlaneUrl?: string | Partial<LoadOptions>,
+    loadOptions?: Partial<LoadOptions>,
+  ): void;
 
   /**
    * Orchestrate the lifecycle of the application phases/status

@@ -1,4 +1,4 @@
-import { SourceConfig } from '@rudderstack/analytics-js/state/types';
+import { SourceConfig } from '@rudderstack/common/types/Source';
 
 const isErrorReportingEnabled = (sourceConfig?: SourceConfig): boolean =>
   sourceConfig?.statsCollection?.errors?.enabled === true;

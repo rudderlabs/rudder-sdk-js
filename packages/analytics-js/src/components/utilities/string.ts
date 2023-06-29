@@ -1,7 +1,7 @@
-// TODO: see if bundle size is bumped up if we use ramda trim instead of custom
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 import { isNullOrUndefined, isString } from './checks';
 
+// TODO: see if bundle size is bumped up if we use ramda trim instead of custom
 const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
 
 const removeDoubleSpaces = (value: string): string => value.replace(/ {2,}/g, ' ');

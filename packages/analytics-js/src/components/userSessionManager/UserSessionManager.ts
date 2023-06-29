@@ -1,33 +1,35 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
-import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
-import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import {
   isNonEmptyObject,
   mergeDeepRight,
 } from '@rudderstack/analytics-js/components/utilities/object';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { IUserSessionManager } from './types';
-import { userSessionStorageKeys } from './userSessionStorageKeys';
-import { getReferrer } from '../utilities/page';
-import { getReferringDomain } from '../utilities/url';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { IStore } from '@rudderstack/common/types/Store';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { SessionInfo } from '@rudderstack/common/types/Session';
+import { Nullable } from '@rudderstack/common/types/Nullable';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { AnonymousIdOptions } from '@rudderstack/common/types/LoadOptions';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
 } from './utils';
+import { getReferringDomain } from '../utilities/url';
+import { getReferrer } from '../utilities/page';
+import { userSessionStorageKeys } from './userSessionStorageKeys';
+import { IUserSessionManager } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {

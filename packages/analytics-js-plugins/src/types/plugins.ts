@@ -1,35 +1,7 @@
-import { ApplicationState, IStore, IStoreManager } from '@rudderstack/common/types/common';
+import { IStore, IStoreManager } from '@rudderstack/common/types/Store';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
-
-export interface ExtensionPoint {
-  [lifeCycleName: string]: (...args: any[]) => unknown;
-}
-
-export interface ExtensionPlugin {
-  name: PluginName;
-  initialize: (state: ApplicationState) => void;
-  deps?: string[];
-  [key: string]:
-    | string
-    | (() => void)
-    | ExtensionPoint
-    | ((...args: any[]) => unknown)
-    | string[]
-    | undefined;
-}
-
-export type Nullable<T> = T | null;
-
-/**
- * Represents the options parameter for anonymousId
- */
-export type AnonymousIdOptions = {
-  autoCapture?: {
-    enabled?: boolean;
-    source?: string;
-  };
-};
 
 export type ConsentInfo = {
   consentProviderInitialized: boolean;

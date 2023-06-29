@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 import { exec } from 'child_process';
+import { cpus } from 'os';
 import { configToIntNames } from '@rudderstack/common/utils/config_to_integration_names';
 
 const intgNamesArr = Object.values(configToIntNames);
 const totalIntgCount = intgNamesArr.length;
 let passCount = 0;
 let curInt = 0;
-const numCPUs = require('os').cpus().length;
+const numCPUs = cpus().length;
 
 let numRunning = 0;
 let index = 0;

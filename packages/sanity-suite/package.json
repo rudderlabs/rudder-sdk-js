@@ -32,7 +32,7 @@
     "build:modern": "exit 0",
     "package": "exit 0",
     "release": "exit 0",
-    "start:integrations": "npm run build:v1.1 && cd .. && npm run build:integrations && cd .. && cd sanity-suite && npm run start:local",
+    "start:integrations": "npm run clean && mkdir dist && mkdir dist/local && npm run build:v1.1 && npm run build:integrations && rsync -r ../analytics-js-integrations/dist/cdn/legacy/js-integrations dist/local && npm run start:local",
     "start:local": "DEV_SERVER=true npm run build -- --watch",
     "start:cdn": "DEV_SERVER=true npm run build:cdn -- --watch",
     "start:cdn:v1.1": "DEV_SERVER=true npm run build:cdn:v1.1 -- --watch",

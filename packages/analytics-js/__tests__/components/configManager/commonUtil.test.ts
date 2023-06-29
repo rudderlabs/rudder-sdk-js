@@ -3,8 +3,8 @@ import {
   getSDKUrl,
   updateReportingState,
 } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { ILogger } from '@rudderstack/common/types/Logger';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');

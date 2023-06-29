@@ -1,12 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { clone } from 'ramda';
-import { isHybridModeDestination } from '@rudderstack/common/utilities/common';
-import {
-  IExternalSrcLoader,
-  ApplicationState,
-  ILogger,
-  IPluginsManager,
-} from '@rudderstack/common/types/common';
+import { isHybridModeDestination } from '@rudderstack/common/v3/utilities/common';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
 import {
   createDestinationInstance,
   isDestinationSDKEvaluated,
@@ -15,7 +14,6 @@ import {
   filterDestinations,
   getCumulativeIntegrationsConfig,
 } from './utils';
-import { ExtensionPlugin } from '../types/plugins';
 import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
 import { destDispNamesToFileNamesMap } from './destDispNamesToFileNames';
 

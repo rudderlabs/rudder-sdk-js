@@ -1,6 +1,6 @@
 import { mergeRight } from 'ramda';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IInMemoryStorageOptions, IStorage } from '../types';
+import { IInMemoryStorageOptions, IStorage } from '@rudderstack/common/types/Store';
+import { ILogger } from '@rudderstack/common/types/Logger';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
 /**

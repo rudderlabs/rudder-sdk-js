@@ -1,8 +1,6 @@
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import {
-  IErrorHandler,
-  IExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
 
 export interface ICapabilitiesManager {
   logger?: ILogger;

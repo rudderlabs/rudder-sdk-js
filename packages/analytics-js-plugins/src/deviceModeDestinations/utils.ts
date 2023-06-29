@@ -1,17 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
 import {
-  ApiCallback,
-  ApiObject,
-  ApiOptions,
-  ApplicationState,
-  Destination,
-  DeviceModeDestination,
-  ILogger,
-  IRudderAnalytics,
-  IntegrationOpts,
-} from '@rudderstack/common/types/common';
-import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
@@ -20,12 +9,19 @@ import {
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/common/utilities/common';
-import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
-import { Nullable } from '../types/plugins';
-import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
-import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+} from '@rudderstack/common/v3/utilities/common';
+import { Destination, DeviceModeDestination } from '@rudderstack/common/types/Destination';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { IRudderAnalytics } from '@rudderstack/common/types/IRudderAnalytics';
+import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
+import { IntegrationOpts } from '@rudderstack/common/types/Integration';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
+import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
+import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 
 /**
  * Determines if the destination SDK code is evaluated

@@ -1,12 +1,5 @@
-import { Signal, signal } from '@preact/signals-core';
-import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-
-export type ConsentsState = {
-  deniedConsentIds: Signal<string[]>;
-  allowedConsents: Signal<Record<string, string>>;
-  activeConsentProviderPluginName: Signal<PluginName | undefined>;
-  consentProviderInitialized: Signal<boolean>;
-};
+import { signal } from '@preact/signals-core';
+import { ConsentsState } from '@rudderstack/common/types/ApplicationState';
 
 const consentsState: ConsentsState = {
   deniedConsentIds: signal([]),

@@ -6,6 +6,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { batch } from '@preact/signals-core';
 
+// TODO: clean up dependencies, should be able to test with importing from @rudderstack/analytics-js
 describe('Plugin - ConsentManager', () => {
   const pluginManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
   beforeEach(() => {

@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import {
-  IStoreManager,
-  ApplicationState,
-  QueueOpts,
-  RudderEvent,
-  IErrorHandler,
-  ILogger,
-  Destination,
-  IPluginsManager,
-} from '@rudderstack/common/types/common';
+import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import { IStoreManager } from '@rudderstack/common/types/Store';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { QueueOpts } from '@rudderstack/common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/common/types/Event';
+import { Destination } from '@rudderstack/common/types/Destination';
+import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
+import { QUEUE_NAME } from './constants';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
 const pluginName = 'NativeDestinationQueue';

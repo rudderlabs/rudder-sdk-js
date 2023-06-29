@@ -1,21 +1,18 @@
 import { batch, effect } from '@preact/signals-core';
-import {
-  ExtensionPlugin,
-  IPluginEngine,
-} from '@rudderstack/analytics-js/services/PluginEngine/types';
+import { ExtensionPlugin, IPluginEngine } from '@rudderstack/common/types/PluginEngine';
 import { state } from '@rudderstack/analytics-js/state';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import {
   ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
 } from '@rudderstack/analytics-js/components/configManager/constants';
+import { IPluginsManager, PluginName } from '@rudderstack/common/types/PluginsManager';
+import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/common/types/Logger';
+import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
+import { Nullable } from '@rudderstack/common/types/Nullable';
 import { remotePluginNames } from './pluginNames';
-import { IPluginsManager, PluginName } from './types';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,

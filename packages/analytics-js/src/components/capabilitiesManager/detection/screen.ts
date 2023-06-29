@@ -1,10 +1,4 @@
-export type ScreenInfo = {
-  readonly density: number;
-  readonly width: number;
-  readonly height: number;
-  readonly innerWidth: number;
-  readonly innerHeight: number;
-};
+import { ScreenInfo } from '@rudderstack/common/types/EventContext';
 
 const getScreenDetails = (): ScreenInfo => {
   let screenDetails: ScreenInfo = {
