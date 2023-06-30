@@ -44,6 +44,8 @@ class Clevertap {
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.optOut = config.optOut || false;
+    this.useIP = config.useIP || false;
   }
 
   init() {
@@ -61,8 +63,8 @@ class Clevertap {
       notifications: [],
     };
     window.clevertap.enablePersonalization = true;
-    window.clevertap.privacy.push({ optOut: false }); // set the flag to true, if the user of the device opts out of sharing their data
-    window.clevertap.privacy.push({ useIP: false }); // set the flag to true, if the user agrees to share their IP data
+    window.clevertap.privacy.push({ optOut: this.optOut }); // set the flag to true, if the user of the device opts out of sharing their data
+    window.clevertap.privacy.push({ useIP: this.useIP }); // set the flag to true, if the user agrees to share their IP data
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
       window.clevertap.region.push(this.region);
