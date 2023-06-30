@@ -31,8 +31,8 @@ class Criteo {
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

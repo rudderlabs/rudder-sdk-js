@@ -19,8 +19,8 @@ class Qualaroo {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

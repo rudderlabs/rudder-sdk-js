@@ -265,8 +265,8 @@ class Analytics {
             name: destination.destinationDefinition.name,
             config: destination.config,
             destinationInfo: {
-              enableTransformationForDeviceMode:
-                destination.enableTransformationForDeviceMode || false,
+              shouldApplyDeviceModeTransformation:
+                destination.shouldApplyDeviceModeTransformation || false,
               propagateEventsUntransformedOnError:
                 destination.propagateEventsUntransformedOnError || false,
               destinationId: destination.id,
@@ -528,7 +528,7 @@ class Analytics {
 
       // Block the event if it is blacklisted for the device-mode destination
       if (sendEvent) {
-        if (intg.enableTransformationForDeviceMode) {
+        if (intg.shouldApplyDeviceModeTransformation) {
           destWithTransformation.push(intg);
         } else {
           destWithoutTransformation.push(intg);

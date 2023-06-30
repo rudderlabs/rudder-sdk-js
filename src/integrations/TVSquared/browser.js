@@ -15,8 +15,8 @@ class TVSquared {
     this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
     this.name = NAME;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

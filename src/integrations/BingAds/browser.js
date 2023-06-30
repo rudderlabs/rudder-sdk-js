@@ -13,7 +13,7 @@ class BingAds {
     this.analytics = analytics;
     this.tagID = config.tagID;
     this.name = NAME;
-    this.enableTransformationForDeviceMode = destinationInfo?.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation = destinationInfo?.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError = destinationInfo?.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo?.destinationId;
     this.uniqueId = `bing${this.tagID}`;

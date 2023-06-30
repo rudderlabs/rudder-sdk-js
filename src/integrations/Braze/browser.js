@@ -37,8 +37,8 @@ class Braze {
     this.name = NAME;
     this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError = destinationInfo?.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     logger.debug('Config ', config);

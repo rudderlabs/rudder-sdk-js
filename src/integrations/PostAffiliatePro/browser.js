@@ -27,8 +27,8 @@ class PostAffiliatePro {
     this.disableTrackingMethod = config.disableTrackingMethod;
     this.paramNameUserId = config.paramNameUserId;
     this.clickEvents = config.clickEvents;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

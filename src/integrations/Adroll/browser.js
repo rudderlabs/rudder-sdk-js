@@ -21,8 +21,8 @@ class Adroll {
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
     this.eventsMap = config.eventsMap || [];
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

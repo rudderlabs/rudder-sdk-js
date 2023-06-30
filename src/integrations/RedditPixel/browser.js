@@ -21,8 +21,8 @@ class RedditPixel {
     this.advertiserId = config.advertiserId;
     this.name = NAME;
     this.eventMappingFromConfig = config.eventMappingFromConfig;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

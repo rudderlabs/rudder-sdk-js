@@ -18,8 +18,8 @@ class Sendinblue {
     this.clientKey = config.clientKey;
     this.contactAttributeMapping = config.contactAttributeMapping;
     this.sendTraitsInTrack = config.sendTraitsInTrack;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;

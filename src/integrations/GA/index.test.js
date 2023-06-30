@@ -8,7 +8,7 @@ afterAll(() => {
 });
 
 const destinationInfo = {
-  enableTransformationForDeviceMode: false,
+  shouldApplyDeviceModeTransformation: false,
   propagateEventsUntransformedOnError: false,
   destinationId: 'sample-destination-id',
 };

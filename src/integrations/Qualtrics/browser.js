@@ -23,8 +23,8 @@ class Qualtrics {
     this.projectId = config.projectId;
     this.brandId = config.brandId;
     this.enableGenericPageTitle = config.enableGenericPageTitle;
-    this.enableTransformationForDeviceMode =
-      destinationInfo && destinationInfo.enableTransformationForDeviceMode;
+    this.shouldApplyDeviceModeTransformation =
+      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
     this.propagateEventsUntransformedOnError =
       destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
