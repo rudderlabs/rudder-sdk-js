@@ -1,4 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
+import * as R from 'ramda';
 import { Braze } from '../../../src/integrations/Braze/browser';
 import Storage from '../../../src/utils/storage/index';
 
@@ -20,7 +21,11 @@ const mockBrazeSDK = () => {
   window.braze = {
     initialize: jest.fn(),
     automaticallyShowInAppMessages: jest.fn(),
-    changeUser: jest.fn(),
+    changeUser: jest.fn((value) => {
+      if (R.isNil(value) || R.isEmpty(value)) {
+        throw new Error('Braze SDK Error: changeUser requires a non-empty userId. (v4.2.1)');
+      }
+    }),
     openSession: jest.fn(),
     getUser: jest.fn().mockReturnThis(),
     setCountry: jest.fn(),
@@ -305,6 +310,153 @@ describe('identify', () => {
     // Expect any other necessary Braze methods to be called
 
     // Expect Storage.setItem to be called with the updated payload
+    expect(Storage.setItem).not.toHaveBeenCalled();
+  });
+
+  it('should handle braze sdk error for empty userId', () => {
+    jest.clearAllMocks();
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      supportDedup: true, // Disable supportDedup by setting the value in the configuration
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement without userId
+    const rudderElement = {
+      message: {
+        context: {
+          traits: {
+            email: 'new@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+          },
+        },
+      },
+    };
+
+    // Call the identify method and mimic the try catch of core sdk
+    try {
+      braze.identify(rudderElement);
+    } catch (e) {
+      expect(e.message).toEqual(
+        'Braze SDK Error: changeUser requires a non-empty userId. (v4.2.1)',
+      );
+    }
+    // Expect Storage.setItem not been called with the updated payload
+    expect(Storage.setItem).not.toHaveBeenCalled();
+  });
+
+  it('should handle braze sdk error for empty context', () => {
+    jest.clearAllMocks();
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      supportDedup: false, // Disable supportDedup by setting the value in the configuration
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement without context
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+      },
+    };
+
+    // Call the identify method and mimic the try catch of core sdk
+    braze.identify(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the initial values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.getUser().setEmail).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setFirstName).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setLastName).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setGender).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setPhoneNumber).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setCountry).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setHomeCity).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setDateOfBirth).not.toHaveBeenCalled();
+
+    // Expect any other necessary Braze methods to be called
+
+    // Expect Storage.setItem not been called with the updated payload
+    expect(Storage.setItem).not.toHaveBeenCalled();
+  });
+
+  it('should handle invalid birthday', () => {
+    jest.clearAllMocks();
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      supportDedup: false, // Disable supportDedup by setting the value in the configuration
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement without userId
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'new@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            birthday: 'invalid date',
+          },
+        },
+      },
+    };
+
+    // Call the identify method and mimic the try catch of core sdk
+    braze.identify(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the initial values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.getUser().setEmail).toHaveBeenCalledWith('new@example.com');
+    expect(window.braze.getUser().setFirstName).toHaveBeenCalledWith('John');
+    expect(window.braze.getUser().setLastName).toHaveBeenCalledWith('Doe');
+    expect(window.braze.getUser().setGender).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setPhoneNumber).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setCountry).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setHomeCity).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setDateOfBirth).not.toHaveBeenCalled();
+
+    // Expect any other necessary Braze methods to be called
+
+    // Expect Storage.setItem not been called with the updated payload
     expect(Storage.setItem).not.toHaveBeenCalled();
   });
 });

@@ -166,14 +166,10 @@ class Braze {
       window.braze.getUser().setPhoneNumber(phone);
     }
 
-    // deep clone the traits object
-    const {
-      message: {
-        context: { traits },
-      },
-    } = rudderElement;
+    // eslint-disable-next-line unicorn/consistent-destructuring
+    const traits = message?.context?.traits;
 
-    const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || null;
+    const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || {};
     if (this.supportDedup && !R.isEmpty(previousPayload) && userId === previousPayload?.userId) {
       const prevTraits = previousPayload?.context?.traits;
       const prevAddress = prevTraits?.address;
@@ -192,13 +188,15 @@ class Braze {
       if (gender && formatGender(gender) !== formatGender(prevGender))
         setGender(formatGender(gender));
       if (address && !isEqual(address, prevAddress)) setAddress();
-      Object.keys(traits)
-        .filter((key) => reserved.indexOf(key) === -1)
-        .forEach((key) => {
-          if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
-            window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-          }
-        });
+      if (isObject(traits)) {
+        Object.keys(traits)
+          .filter((key) => reserved.indexOf(key) === -1)
+          .forEach((key) => {
+            if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
+              window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+            }
+          });
+      }
     } else {
       window.braze.changeUser(userId);
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
@@ -210,11 +208,13 @@ class Braze {
       if (phone) setPhone();
       if (address) setAddress();
       if (birthday) setBirthday();
-      Object.keys(traits)
-        .filter((key) => reserved.indexOf(key) === -1)
-        .forEach((key) => {
-          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-        });
+      if (isObject(traits)) {
+        Object.keys(traits)
+          .filter((key) => reserved.indexOf(key) === -1)
+          .forEach((key) => {
+            window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+          });
+      }
     }
     if (
       this.supportDedup &&
