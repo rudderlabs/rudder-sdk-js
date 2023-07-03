@@ -13,7 +13,7 @@ const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
 const removeNullValues = (obj) => _pickBy(obj, isNotNull);
 const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
 const removeUndefinedAndNullAndEmptyValues = (obj) => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
-const isBlank = (value) => _isEmpty(_toString(value));
+const isBlank = (value) => _isEmpty(_toString(value).trim());
 const pick = (argObj, argArr) => _pick(argObj, argArr);
 
 /**

@@ -5,6 +5,7 @@ import {
   getItemsArray,
   extractLastKey,
   getExclusionFields,
+  removeInvalidParams,
   isReservedEventName,
   getCustomParameters,
   formatAndValidateEventName,
@@ -307,6 +308,30 @@ describe('Google Analytics 4 utilities tests', () => {
         items: [expectedItemsArray[1]],
         mapRootLevelPropertiesToGA4ItemsArray: true,
       });
+    });
+  });
+
+  describe('removeInvalidValues function tests', () => {
+    it('Should remove empty values except for "items"', () => {
+      const params = {
+        name: 'John',
+        age: 30,
+        email: '',
+        city: null,
+        items: [],
+        address: {},
+        phone: '123456789',
+      };
+
+      const expected = {
+        name: 'John',
+        items: [],
+        age: 30,
+        phone: '123456789',
+      };
+
+      const result = removeInvalidParams(params);
+      expect(result).toEqual(expected);
     });
   });
 });

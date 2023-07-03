@@ -177,7 +177,12 @@ export default class GA4 {
       return;
     }
 
-    const { params, event } = prepareParamsAndEventName(message, eventName);
+    const data = prepareParamsAndEventName(message, eventName);
+    if (!data) {
+      return;
+    }
+
+    const { params, event } = data;
     const parameters = this.addSendToAndMeasurementIdToPayload(params, integrations);
 
     window.gtag('event', event, parameters);

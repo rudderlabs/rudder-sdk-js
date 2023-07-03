@@ -97,12 +97,15 @@ const events = [
         properties: {
           list_id: 'list1',
           category: "What's New",
+          users: {},
           products: [
             {
               product_id: '223344ffdds3ff3',
               sku: '12345',
               name: 'Just Another Game',
               price: 22,
+              rating: '',
+              categories: [],
               position: 2,
               category: 'Games and Entertainment',
               url: 'https://www.myecommercewebsite.com/product',
@@ -113,6 +116,8 @@ const events = [
               sku: '12346',
               name: 'Wrestling Trump Cards',
               price: 4,
+              rating: '',
+              categories: [],
               position: 21,
               category: 'Card Games',
             },
@@ -1283,6 +1288,7 @@ const events = [
           review_id: 'review12',
           review_body: 'Good product, delivered in excellent condition',
           rating: '5',
+          categories: {},
         },
       },
     },
@@ -1296,23 +1302,6 @@ const events = [
         send_to: 'G-123456',
         user_id: '1234',
       },
-    },
-  },
-  {
-    description: 'Checkout Step Completed event without required params',
-    input: {
-      message: {
-        event: 'Checkout Step Completed',
-        properties: {
-          checkout_id: '123',
-          step: 1,
-          shipping_method: 'DHL',
-          payment_method: 'Mastercard',
-        },
-      },
-    },
-    output: {
-      message: `Missing required value from ["properties.total","properties.value","properties.revenue","properties.price"]`,
     },
   },
   {
@@ -1331,11 +1320,13 @@ const events = [
           discount: 1.5,
           coupon: 'ImagePro',
           currency: 'USD',
+          users: [],
           products: {
             product_id: '123',
             sku: 'G-32',
             name: 'Monopoly',
             price: 14,
+            rating: '',
             quantity: 1,
             category: 'Games',
             url: 'https://www.website.com/product/path',

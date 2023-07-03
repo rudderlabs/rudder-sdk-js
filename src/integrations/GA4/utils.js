@@ -6,8 +6,8 @@ import {
   customParametersExclusion,
   rootLevelProductsSupportedEventsList,
 } from './config';
+import { isBlank, flattenJson } from '../../utils/commonUtils';
 import { isEmptyObject, constructPayload, extractCustomFields } from '../../utils/utils';
-import { flattenJson } from '../../utils/commonUtils';
 
 /**
  * Extracts last word after . from string
@@ -78,6 +78,18 @@ const formatAndValidateEventName = (eventName) => {
 
   return trimmedEvent;
 };
+
+/**
+ * Remove arrays and objects from transformed payload
+ * @param {*} params
+ * @returns
+ */
+const removeInvalidParams = (params) =>
+  Object.fromEntries(
+    Object.entries(params).filter(
+      ([key, value]) => key === 'items' || (typeof value !== 'object' && !isBlank(value)),
+    ),
+  );
 
 /**
  * Returns custom parameters for ga4 event payload
@@ -164,7 +176,10 @@ const getItemList = (message) => {
         customParametersExclusion,
       );
       if (!isEmptyObject(itemCustomProperties)) {
-        item = { ...item, ...flattenJson(itemCustomProperties, '_', 'strict') };
+        item = removeInvalidParams({
+          ...item,
+          ...flattenJson(itemCustomProperties, '_', 'strict'),
+        });
       }
 
       if (!isEmptyObject(item)) {
@@ -236,6 +251,17 @@ const prepareStandardEventParams = (message, eventConfig) => {
   const { event, mapping } = eventConfig;
   let payload = constructPayload(message, mapping);
 
+  // Validation for required params
+  if (Array.isArray(mapping) && mapping.length > 0) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const mappingItem of mapping) {
+      if (!payload[mappingItem.destKey] && mappingItem.required) {
+        logger.error(`Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`);
+        return null;
+      }
+    }
+  }
+
   const { items, mapRootLevelPropertiesToGA4ItemsArray } = getItemsArray(message, eventConfig);
   const exclusionFields = getExclusionFields(mapRootLevelPropertiesToGA4ItemsArray, mapping, event);
   const customParameters = getCustomParameters(message, ['properties'], exclusionFields);
@@ -267,15 +293,22 @@ const prepareCustomEventParams = (message) => getCustomParameters(message, ['pro
 const prepareParamsAndEventName = (message, eventName) => {
   const eventConfig = eventsConfig[`${eventName.toUpperCase()}`];
 
-  // Part 1 : prepare params
+  // Part 1: prepare params
   const params = eventConfig
     ? prepareStandardEventParams(message, eventConfig)
     : prepareCustomEventParams(message);
 
-  // Part 2 : prepare event names
+  // Handle the case where required params are not present in the payload
+  if (!params) {
+    return null;
+  }
+
+  const validatedParams = removeInvalidParams(params);
+
+  // Part 2: prepare event name
   const event = eventConfig ? eventConfig.event : eventName;
 
-  return { params, event };
+  return { params: validatedParams, event };
 };
 
 export {
@@ -287,6 +320,7 @@ export {
   getExclusionFields,
   isReservedEventName,
   getCustomParameters,
+  removeInvalidParams,
   prepareParamsAndEventName,
   formatAndValidateEventName,
 };

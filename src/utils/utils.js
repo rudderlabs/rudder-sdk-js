@@ -808,13 +808,11 @@ const constructPayload = (message, mapper) => {
   // Mapping JSON should be an array
   if (Array.isArray(mapper) && mapper.length > 0) {
     mapper.forEach((mapping) => {
-      const { sourceKeys, destKey, required, metadata } = mapping;
+      const { sourceKeys, destKey, metadata } = mapping;
       const value = handleMetadataForValue(getValueFromMessage(message, sourceKeys), metadata);
       if ((value || value === 0 || value === false) && destKey) {
         // set the value only if correct
         payload[destKey] = value;
-      } else if (required) {
-        throw Error(`Missing required value from ${JSON.stringify(sourceKeys)}`);
       }
     });
   }
