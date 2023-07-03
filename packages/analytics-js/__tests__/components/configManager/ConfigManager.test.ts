@@ -57,7 +57,7 @@ describe('ConfigManager', () => {
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
-  const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
+  const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
 
   const resetState = () => {
