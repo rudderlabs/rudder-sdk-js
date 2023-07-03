@@ -20,7 +20,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('CDN Paths: getIntegrationsCDNPath', () => {
   const dummyCustomURL = 'https://www.dummy.url/integrations';
-  const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
+  const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const dummyVersion = '3.x.x';
 
   beforeEach(() => {

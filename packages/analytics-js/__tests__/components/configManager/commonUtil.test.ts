@@ -26,7 +26,7 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should return SDK url that is being used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
+      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
       createScriptElement(dummySdkURL);
 
       const sdkURL = getSDKUrl();
@@ -41,7 +41,7 @@ describe('Config Manager Common Utilities', () => {
       expect(sdkURL).toBe(undefined);
     });
     it('should return sdkURL when development rudder SDK is used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.js';
+      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.js';
       createScriptElement(dummySdkURL);
 
       const sdkURL = getSDKUrl();
@@ -62,7 +62,7 @@ describe('Config Manager Common Utilities', () => {
       expect(sdkURL).toBe(undefined);
     });
     it('should return sdkURL as undefined when rudder SDK is used with incomplete name', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min';
+      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min';
       createScriptElement(dummySdkURL);
 
       const sdkURL = getSDKUrl();

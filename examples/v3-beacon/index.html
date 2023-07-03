@@ -1,32 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charSet="utf-8"/>
-    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>RudderStack JS SDK v3 Beacon Example</title>
     <script>
-      var sdkBaseUrl = "https://cdn.rudderlabs.com/beta/3.0.0-beta";
-      var sdkName = "rudder-analytics.min.js";
+      var sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/3.0.0-beta';
+      var sdkName = 'rsa.min.js';
       var asyncScript = true;
-      window.rudderAnalyticsBuildType = "legacy";
+      window.rudderAnalyticsBuildType = 'legacy';
       window.rudderanalytics = [];
-      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
+      var methods = [
+        'setDefaultInstanceKey',
+        'load',
+        'ready',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'reset',
+        'getAnonymousId',
+        'setAnonymousId',
+        'startSession',
+        'endSession',
+        'getSessionId',
+      ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
-        window.rudderanalytics[method] = function(methodName) {
-          return function() {
-            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+        window.rudderanalytics[method] = (function (methodName) {
+          return function () {
+            window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
           };
-        }(method);
+        })(method);
       }
       try {
         new Function('return import("")');
-        window.rudderAnalyticsBuildType = "modern";
+        window.rudderAnalyticsBuildType = 'modern';
       } catch (e) {}
-      window.rudderAnalyticsMount = function() {
-        var rudderAnalyticsScript = document.createElement("script");
-        rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+      window.rudderAnalyticsMount = function () {
+        var rudderAnalyticsScript = document.createElement('script');
+        rudderAnalyticsScript.src = ''
+          .concat(sdkBaseUrl, '/')
+          .concat(window.rudderAnalyticsBuildType, '/')
+          .concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
         if (document.head) {
           document.head.appendChild(rudderAnalyticsScript);
@@ -34,9 +52,10 @@
           document.body.appendChild(rudderAnalyticsScript);
         }
       };
-      if (typeof Promise === "undefined") {
-        var rudderAnalyticsPromisesScript = document.createElement("script");
-        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount";
+      if (typeof Promise === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement('script');
+        rudderAnalyticsPromisesScript.src =
+          'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
         rudderAnalyticsPromisesScript.async = asyncScript;
         if (document.head) {
           document.head.appendChild(rudderAnalyticsPromisesScript);
@@ -48,7 +67,7 @@
       }
       // New addition to load script ends
 
-      var loadOptions={
+      var loadOptions = {
         logLevel: 'DEBUG',
         configUrl: 'https://api.rudderlabs.com',
         destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
@@ -56,14 +75,10 @@
         useBeacon: true,
         beaconQueueOptions: {
           flushQueueInterval: 60 * 1000,
-        }
+        },
       };
 
-      rudderanalytics.load(
-        '__WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions
-      );
+      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
 
       rudderanalytics.identify(
         'customUserID',
@@ -80,9 +95,9 @@
           street: 'Sample Address',
           state: 'TX',
         },
-        function(message) {
+        function (message) {
           console.log('in identify call', message);
-        }
+        },
       );
 
       rudderanalytics.page(
@@ -95,9 +110,9 @@
           title: '',
           url: '',
         },
-        function(message) {
+        function (message) {
           console.log('in page call', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -107,9 +122,9 @@
           currency: 'USD',
           user_actual_id: 12345,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 1', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -119,9 +134,9 @@
           currency: 'INR',
           user_actual_id: 333,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 2', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -131,12 +146,12 @@
           currency: 'EUR',
           user_actual_id: 5678,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 3', message);
-        }
+        },
       );
 
-      rudderanalytics.ready(function() {
+      rudderanalytics.ready(function () {
         console.log('All ready!!!');
       });
 
@@ -168,11 +183,11 @@
             title: '',
             url: '',
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
@@ -193,11 +208,11 @@
             state: 'TX',
           },
           {},
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
@@ -209,23 +224,20 @@
             currency: 'USD',
             user_actual_id: 12345,
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
       function alias() {
-        rudderanalytics.alias(
-          'alias-user-id',
-          function(rudderElement) {
-            console.log('alias call');
-            document.getElementById('action').innerHTML = 'Alias called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
-        );
+        rudderanalytics.alias('alias-user-id', function (rudderElement) {
+          console.log('alias call');
+          document.getElementById('action').innerHTML = 'Alias called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
       }
 
       function group() {
@@ -235,11 +247,11 @@
             name: 'Apple Inc.',
             location: 'USA',
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
     </script>

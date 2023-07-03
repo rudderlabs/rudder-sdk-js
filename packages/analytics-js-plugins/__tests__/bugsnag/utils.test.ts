@@ -115,13 +115,13 @@ describe('Bugsnag utilities', () => {
 
   describe('isRudderSDKError', () => {
     const testCaseData = [
-      ['https://asdf.com/rudder-analytics.min.js', true],
-      ['https://asdf.com/rudderanalytics.min.js', false],
-      ['https://asdf.com/rudder-analytics-plugins-Beacon.min.js', true],
-      ['https://asdf.com/Amplitude.min.js', true],
-      ['https://asdf.com/Qualaroo.min.js', true],
-      ['https://asdf.com/test.js', false],
-      ['https://asdf.com/rudder-analytics.css', false],
+      ['https://invalid-domain.com/rsa.min.js', true],
+      ['https://invalid-domain.com/rss.min.js', false],
+      ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
+      ['https://invalid-domain.com/Amplitude.min.js', true],
+      ['https://invalid-domain.com/Qualaroo.min.js', true],
+      ['https://invalid-domain.com/test.js', false],
+      ['https://invalid-domain.com/rsa.css', false],
       [undefined, false],
       [null, false],
       [1, false],
@@ -152,7 +152,7 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://asdf.com/rudder-analytics.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
@@ -178,13 +178,13 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://asdf.com/rudder-analytics.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
           this.metadata[key] = value;
         },
-        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       };
 
       enhanceErrorEventMutator(event, 'dummyMetadataVal');
@@ -353,7 +353,7 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://asdf.com/not-rudder-analytics.min.js',
+            file: 'https://invalid-domain.com/not-rsa.min.js',
           },
         ],
       };
@@ -367,10 +367,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://asdf.com/rudder-analytics.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
         updateMetaData: jest.fn(),
       } as any;
 
@@ -389,10 +389,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://asdf.com/rudder-analytics.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://asdf.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       } as any;
 
       const onErrorFn = onError(state);
