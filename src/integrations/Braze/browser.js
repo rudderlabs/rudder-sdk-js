@@ -37,9 +37,11 @@ class Braze {
 
     this.name = NAME;
     this.supportDedup = config.supportDedup || false;
-    const { areTransformationsConnected, destinationId } = destinationInfo || {};
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    ({
+      areTransformationsConnected: this.areTransformationsConnected,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
+
     logger.debug('Config ', config);
   }
 
