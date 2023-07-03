@@ -411,7 +411,7 @@ class Analytics implements IAnalytics {
 
     if (!isFunction(callback)) {
       // TODO: handle error
-      this.logger.error('ready callback is not a function');
+      this.logger.error('ready-api:: The callback is not a function.');
       return;
     }
 
@@ -451,8 +451,7 @@ class Analytics implements IAnalytics {
       callback: payload.callback,
     });
 
-    // TODO: Maybe we should alter the behavior to send the ad-block page event
-    // even if the SDK is still loaded. It'll be pushed into the to be processed queue.
+    // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
     // Send automatic ad blocked page event if adblockers are detected on the page
     if (

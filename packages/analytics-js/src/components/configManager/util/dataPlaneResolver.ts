@@ -20,7 +20,7 @@ const getDefaultUrlOfRegion = (urls?: RegionDetails[]) => {
   return url;
 };
 
-const validateResidencyServerRegionInput = (
+const validateResidencyServerRegion = (
   residencyServerRegion?: ResidencyServerRegion,
   logger?: ILogger,
 ) => {
@@ -28,7 +28,11 @@ const validateResidencyServerRegionInput = (
     residencyServerRegion &&
     !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
   ) {
-    logger?.error(`Invalid residencyServer: "${residencyServerRegion}"`);
+    logger?.warn(
+      `ConfigManager:: The configured residency server region "${residencyServerRegion}" is invalid. The supported regions are: "${Object.values(
+        ResidencyServerRegion,
+      )}". Using default residency server region: "${DEFAULT_REGION}"`,
+    );
     return undefined;
   }
   return residencyServerRegion;
@@ -50,8 +54,7 @@ const resolveDataPlaneUrl = (
 ) => {
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
-    const region =
-      validateResidencyServerRegionInput(residencyServerRegion, logger) ?? DEFAULT_REGION;
+    const region = validateResidencyServerRegion(residencyServerRegion, logger) ?? DEFAULT_REGION;
     const regionUrlArr: RegionDetails[] = dataplanes[region] || dataplanes[DEFAULT_REGION];
 
     const defaultUrl = getDefaultUrlOfRegion(regionUrlArr);

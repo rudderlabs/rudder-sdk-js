@@ -16,7 +16,7 @@ const OneTrust = (): ExtensionPlugin => ({
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
-        logger?.error('OneTrust resources are not accessible.');
+        logger?.error('OneTrustPlugin:: Unable to access OneTrust SDK resources.');
         return { consentProviderInitialized: false };
       }
 
@@ -100,7 +100,7 @@ const OneTrust = (): ExtensionPlugin => ({
 
         return containsAllConsent;
       } catch (err) {
-        logger?.error(`Unable to determine destination consent status.`, err);
+        logger?.error(`OneTrustPlugin:: Unable to determine destination consent status.`, err);
         return true;
       }
     },

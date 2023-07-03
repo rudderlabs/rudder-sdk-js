@@ -247,7 +247,7 @@ describe('User session manager', () => {
     state.loadOptions.value.sessions.timeout = '100000';
     userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
-      'Default session timeout will be used as the provided input is not a number.',
+      'UserSessionManager:: The default timeout (1800000 ms) will be used as the provided value is not a number.',
     );
     expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT);
   });
@@ -255,7 +255,7 @@ describe('User session manager', () => {
     state.loadOptions.value.sessions.timeout = 0;
     userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
-      'The provided timeout value 0 will disable the automatic session tracking feature.',
+      'UserSessionManager:: The provided timeout value 0 will disable the automatic session tracking feature.',
     );
     expect(state.session.sessionInfo.value.autoTrack).toBe(false);
   });
@@ -263,7 +263,7 @@ describe('User session manager', () => {
     state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
     userSessionManager.initializeSessionTracking();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
-      `It is not recommended to set the timeout value < ${MIN_SESSION_TIMEOUT} ms`,
+      `UserSessionManager:: It is not recommended to set the timeout value < ${MIN_SESSION_TIMEOUT} ms`,
     );
   });
   it('refreshSession: should return empty object if any type of tracking is not enabled', () => {

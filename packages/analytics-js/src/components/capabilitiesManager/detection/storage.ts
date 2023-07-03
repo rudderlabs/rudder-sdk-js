@@ -9,8 +9,7 @@ import { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreM
 const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
   const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED']; // [everything except Firefox, Firefox]
   const matchingCodes = [22, 1014]; // [everything except Firefox, Firefox]
-  const isQuotaExceededError =
-    (e.name && matchingNames.includes(e.name)) || (e.code && matchingCodes.includes(e.code));
+  const isQuotaExceededError = matchingNames.includes(e.name) || matchingCodes.includes(e.code);
 
   return e instanceof DOMException && isQuotaExceededError;
 };
@@ -55,12 +54,13 @@ const isStorageAvailable = (
       return true;
     }
     return false;
-  } catch (e: any) {
-    if (isStorageQuotaExceeded(e)) {
-      logger?.error(`Storage "${type}" is full.`);
-    } else {
-      logger?.error(`Storage "${type}" is not available.`);
+  } catch (err) {
+    const msgPrefix = `CapabilitiesManager:: "${type}" storage type is `;
+    let reason = 'unavailable';
+    if (isStorageQuotaExceeded(err)) {
+      reason = 'full';
     }
+    logger?.error(`${msgPrefix}${reason}.`, err);
     return false;
   }
 };

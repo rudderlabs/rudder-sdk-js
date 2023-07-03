@@ -146,7 +146,7 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
     id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
     callback: id => {
       if (!id) {
-        logger?.error(`Bugsnag SDK script load failed.`);
+        logger?.error(`BugsnagPlugin:: Failed to load the Bugsnag SDK.`);
       }
     },
   });

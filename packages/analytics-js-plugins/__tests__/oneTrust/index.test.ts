@@ -41,7 +41,9 @@ describe('Plugin - OneTrust', () => {
       consentProviderInitialized: false,
     };
     const consentInfo = OneTrust().consentProvider.getConsentInfo(defaultLogger);
-    expect(defaultLogger.error).toHaveBeenCalledWith('OneTrust resources are not accessible.');
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'OneTrustPlugin:: Unable to access OneTrust SDK resources.',
+    );
     expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
   });
   it('should return true if destination specific category is consented', () => {

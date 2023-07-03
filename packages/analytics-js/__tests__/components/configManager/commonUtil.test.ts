@@ -154,7 +154,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The configured error reporting provider "random-provider" is not supported. Supported value(s) is/are "bugsnag". Using the default provider (bugsnag).',
+        'ConfigManager:: The supplied error reporting provider "random-provider" is not supported. Please provide one of the supported providers: "bugsnag". Using the default provider: "bugsnag".',
       );
     });
   });

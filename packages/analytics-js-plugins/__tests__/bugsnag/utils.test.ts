@@ -332,7 +332,9 @@ describe('Bugsnag utilities', () => {
           ),
           'ExternalSrcLoader',
         );
-        expect(mockLogger.error).toHaveBeenCalledWith(`Bugsnag SDK script load failed.`);
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          `BugsnagPlugin:: Failed to load the Bugsnag SDK.`,
+        );
         done();
       }, 2000);
     });

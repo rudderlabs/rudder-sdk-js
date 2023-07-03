@@ -28,26 +28,28 @@ class ErrorHandler implements IErrorHandler {
     }
 
     try {
+      const extPoint = 'errorReporting.init';
       const errReportingInitVal = this.pluginEngine.invokeSingle(
-        'errorReporting.init',
+        extPoint,
         state,
         this.pluginEngine,
         externalSrcLoader,
         this.logger,
       );
-      if (errReportingInitVal === null) {
-        this.logger?.error('Something went wrong during error reporting plugin invocation.');
-      } else if (errReportingInitVal instanceof Promise) {
+      if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
             this.errReportingClient = client;
           })
           .catch(err => {
-            this.logger?.error('Unable to initialize error reporting plugin.', err);
+            this.logger?.error(
+              'ErrorHandler:: Failed to initialize the error reporting plugin.',
+              err,
+            );
           });
       }
     } catch (err) {
-      this.onError(err, 'errorReporting.init');
+      this.onError(err, 'ErrorHandler');
     }
   }
 
@@ -123,7 +125,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error('An error occurred while notifying error.', err);
+        this.logger?.error('ErrorHandler:: An error occurred while notifying the error.', err);
       }
     }
   }

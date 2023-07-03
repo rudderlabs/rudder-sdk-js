@@ -39,7 +39,7 @@ const logErrorOnFailure = (
   }
 
   const isRetryableFailure = isErrRetryable(details);
-  let errMsg = `Unable to deliver event to ${item.url}.`;
+  let errMsg = `XhrQueuePlugin:: Unable to deliver event to ${item.url}.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
       errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;

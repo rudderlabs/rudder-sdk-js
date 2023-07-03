@@ -14,7 +14,7 @@ import {
 } from '../types/common';
 import { Nullable } from '../types/plugins';
 import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
-import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+import { destCNamesToDispNamesMap } from './destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   aliasArgumentsToCallOptions,
@@ -38,21 +38,14 @@ const isDestinationSDKEvaluated = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   logger?: ILogger,
-): boolean => {
-  try {
-    const scriptIsEvaluated = Boolean(
-      (globalThis as any)[destSDKIdentifier] &&
-        (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
-        (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
-        typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
-          'undefined',
-    );
-    return scriptIsEvaluated;
-  } catch (err) {
-    logger?.error(`An error occurred while checking for destination SDK evaluation status.`, err);
-    return false;
-  }
-};
+): boolean =>
+  Boolean(
+    (globalThis as any)[destSDKIdentifier] &&
+      (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
+      (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+      typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
+        'undefined',
+  );
 
 const wait = (time: number) =>
   new Promise(resolve => {
@@ -217,7 +210,7 @@ const getCumulativeIntegrationsConfig = (
       );
     } catch (err) {
       logger?.error(
-        `An error occurred while getting data for integrations object for destination: ${dest.userFriendlyId}.`,
+        `DeviceModeDestinationsPlugin:: An error occurred while getting data for integrations object for destination ${dest.userFriendlyId}.`,
         err,
       );
     }

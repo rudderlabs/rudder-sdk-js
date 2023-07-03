@@ -32,7 +32,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
     !hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)
   ) {
     logger?.warn(
-      `Session ID will be auto-generated as the provided value (${sessionId}) is either invalid, not a positive integer or not at least "${MIN_SESSION_ID_LENGTH}" digits long.`,
+      `UserSessionManager:: The session ID will be auto-generated as the provided value (${sessionId}) is either invalid, not a positive integer or not at least "${MIN_SESSION_ID_LENGTH}" digits long.`,
     );
     return false;
   }

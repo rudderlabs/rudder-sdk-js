@@ -147,7 +147,7 @@ describe('Common Utils - JSON', () => {
       const json = stringifyWithoutCircular(objWithBigInt, false, [], mockLogger);
       expect(json).toBe(null);
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'An error occurred while converting the value to string.',
+        'JSONStringify:: An error occurred while converting the value to string.',
         new TypeError('Do not know how to serialize a BigInt'),
       );
     });

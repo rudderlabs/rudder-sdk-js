@@ -108,7 +108,7 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(
-          'Storage is full or unavailable, switching to in-memory storage. Data will not be persisted.',
+          'StoreManager:: The storage is either full or unavailable. Switching to in-memory storage. Data will not be persisted.',
         );
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
@@ -117,7 +117,7 @@ class Store implements IStore {
       } else {
         this.onError(
           new Error(
-            `Value for '${validKey}' cannot be persisted to storage: ${(err as Error).message}`,
+            `Value for '${validKey}' cannot be saved to storage: ${(err as Error).message}`,
           ),
         );
       }

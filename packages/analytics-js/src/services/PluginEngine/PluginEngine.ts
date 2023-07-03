@@ -30,7 +30,7 @@ class PluginEngine implements IPluginEngine {
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
-      const errorMessage = `Plugin should have a name.`;
+      const errorMessage = `PluginEngine:: Plugin should have a name.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -39,7 +39,7 @@ class PluginEngine implements IPluginEngine {
     }
 
     if (this.byName[plugin.name]) {
-      const errorMessage = `Plugin "${plugin.name}" already exits.`;
+      const errorMessage = `PluginEngine:: Plugin "${plugin.name}" already exits.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -70,7 +70,7 @@ class PluginEngine implements IPluginEngine {
     const plugin = this.byName[name];
 
     if (!plugin) {
-      const errorMessage = `Plugin "${name}" doesn't exist.`;
+      const errorMessage = `PluginEngine:: Plugin "${name}" doesn't exist.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -81,7 +81,7 @@ class PluginEngine implements IPluginEngine {
     const index = this.plugins.indexOf(plugin);
 
     if (index === -1) {
-      const errorMessage = `Plugin "${name}" doesn't exist in plugins but exists in byName. This seems to be a bug of PluginEngine.`;
+      const errorMessage = `PluginEngine:: Plugin "${name}" doesn't exist in plugins but exists in byName. This seems to be a bug.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -108,7 +108,7 @@ class PluginEngine implements IPluginEngine {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
           this.logger?.error(
-            `Plugin ${plugin.name} is not loaded because its dependencies do not exist: ${notExistDeps}.`,
+            `PluginEngine:: Plugin "${plugin.name}" is not loaded because some of its dependencies "${notExistDeps}" do not exist.`,
           );
           return false;
         }
@@ -165,7 +165,10 @@ class PluginEngine implements IPluginEngine {
         if (throws) {
           throw err;
         } else {
-          this.logger?.error(`Failed to invoke plugin: ${plugin.name}!${extensionPointName}`, err);
+          this.logger?.error(
+            `PluginEngine:: Failed to invoke the plugin extension point ${plugin.name}!${extensionPointName}.`,
+            err,
+          );
         }
       }
 

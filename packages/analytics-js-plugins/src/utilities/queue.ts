@@ -21,7 +21,10 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   try {
     deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
-    logger?.error(`An error occurred while converting event object to string.`, err);
+    logger?.error(
+      `QueueUtilities:: An error occurred while converting event object to string.`,
+      err,
+    );
   }
   return deliveryPayloadStr;
 };
@@ -37,11 +40,11 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
     const payloadSize = payloadStr.length;
     if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {
       logger?.warn(
-        `The event payload size (${payloadSize}) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. The event might get dropped.`,
+        `QueueUtilities:: The event payload size (${payloadSize}) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. These kinds of events may be dropped in the future. Please review your instrumentation.`,
       );
     }
   } else {
-    logger?.warn(`An error occurred while validating event payload size.`);
+    logger?.warn(`QueueUtilities:: An error occurred while validating event payload size.`);
   }
 };
 
@@ -103,9 +106,7 @@ const getFinalEventForDeliveryMutator = (
   return finalEvent;
 };
 
-const removeDuplicateSlashes = (str: string): string => {
-  return str.replace(/\/{2,}/g, '/');
-};
+const removeDuplicateSlashes = (str: string): string => str.replace(/\/{2,}/g, '/');
 
 export {
   getDeliveryPayload,
