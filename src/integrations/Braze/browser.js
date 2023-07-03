@@ -1,11 +1,11 @@
 import isEqual from 'lodash.isequal';
 import * as R from 'ramda';
 import Logger from '../../utils/logger';
-
 import { NAME } from './constants';
 import Storage from '../../utils/storage/index';
 import { isObject } from '../../utils/utils';
-import { handlePurchase, formatGender, handleReservedProperties, loadBraze } from './utils';
+import { handlePurchase, formatGender, handleReservedProperties } from './utils';
+import { load } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -47,7 +47,7 @@ class Braze {
 
   init() {
     logger.debug('===in init Braze===');
-    loadBraze();
+    load();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
