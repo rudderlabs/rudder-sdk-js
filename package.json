@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.34.0",
+  "version": "2.36.0",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {

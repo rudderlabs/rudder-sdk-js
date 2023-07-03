@@ -11,6 +11,7 @@ class PostAffiliatePro {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.url = config.url;
     this.mergeProducts = config.mergeProducts;
@@ -26,7 +27,8 @@ class PostAffiliatePro {
     this.disableTrackingMethod = config.disableTrackingMethod;
     this.paramNameUserId = config.paramNameUserId;
     this.clickEvents = config.clickEvents;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 

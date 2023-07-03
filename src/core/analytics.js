@@ -14,7 +14,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
-import { parse } from 'component-querystring';
 import * as R from 'ramda';
 import {
   getJSONTrimmed,
@@ -30,6 +29,7 @@ import {
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
+  parseQueryString,
 } from '../utils/utils';
 import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
 import { handleError } from '../utils/errorHandler';
@@ -715,10 +715,11 @@ class Analytics {
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
 
-    if (userId && this.userId && userId !== this.userId) {
+    const normalisedUserId = getStringId(userId);
+    if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
       this.reset();
     }
-    this.userId = getStringId(userId);
+    this.userId = normalisedUserId;
     this.storage.setUserId(this.userId);
 
     const clonedTraits = R.clone(traits);
@@ -984,27 +985,25 @@ class Analytics {
     }
   }
 
-  utm(query) {
-    // Remove leading ? if present
-    if (query.charAt(0) === '?') {
-      query = query.substring(1);
+  utm(url) {
+    const result = {};
+    try {
+      const urlObj = new URL(url);
+      const UTM_PREFIX = 'utm_';
+      urlObj.searchParams.forEach((value, sParam) => {
+        if (sParam.startsWith(UTM_PREFIX)) {
+          let utmParam = sParam.substring(UTM_PREFIX.length);
+          // Not sure why we're doing this
+          if (utmParam === 'campaign') {
+            utmParam = 'name';
+          }
+          result[utmParam] = value;
+        }
+      });
+    } catch (error) {
+      // Do nothing
     }
-
-    query = query.replace(/\?/g, '&');
-
-    let param;
-    const params = parse(query);
-    const results = {};
-
-    for (const key in params) {
-      if (Object.prototype.hasOwnProperty.call(params, key) && key.substr(0, 4) === 'utm_') {
-        param = key.substr(4);
-        if (param === 'campaign') param = 'name';
-        results[param] = params[key];
-      }
-    }
-
-    return results;
+    return result;
   }
 
   /**
@@ -1014,8 +1013,7 @@ class Analytics {
   addCampaignInfo(rudderElement) {
     const msgContext = rudderElement.message.context;
     if (msgContext && typeof msgContext === 'object') {
-      const { search } = getDefaultPageProperties();
-      rudderElement.message.context.campaign = this.utm(search);
+      rudderElement.message.context.campaign = this.utm(window.location.href);
     }
   }
 
@@ -1476,10 +1474,10 @@ function processDataInAnalyticsArray(analytics) {
 }
 
 /**
- * parse the given query string into usable Rudder object
- * @param {*} query
+ * parse the given url into usable Rudder object
+ * @param {*} url
  */
-function parseQueryString(query) {
+function retrieveEventsFromQueryString(url) {
   const queryDefaults = {
     trait: 'ajs_trait_',
     prop: 'ajs_prop_',
@@ -1495,7 +1493,7 @@ function parseQueryString(query) {
     return data;
   }
 
-  const queryObject = parse(query);
+  const queryObject = parseQueryString(url);
   if (queryObject.ajs_aid) {
     instance.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
   }
@@ -1554,7 +1552,7 @@ if (isValidArgsArray) {
 }
 
 // parse querystring of the page url to send events
-parseQueryString(window.location.search);
+retrieveEventsFromQueryString(window.location.href);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 

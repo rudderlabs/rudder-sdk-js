@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.36.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.35.1...v2.36.0) (2023-06-23)
+
+
+### Features
+
+* **ga4:** enhance support for debug_view in device and hybrid connection modes ([#1121](https://github.com/rudderlabs/rudder-sdk-js/issues/1121)) ([b3c2c8f](https://github.com/rudderlabs/rudder-sdk-js/commit/b3c2c8f1536bf2c303ed7b06162e5a46a1d1f28f))
+* **ga4:** support of user_properties as a part of init call ([#1148](https://github.com/rudderlabs/rudder-sdk-js/issues/1148)) ([48f85c7](https://github.com/rudderlabs/rudder-sdk-js/commit/48f85c7dbcd35f43ce091d5e325442cae52f11da))
+
+
+### Bug Fixes
+
+* `decryptValue()` return early if value is not string ([#1155](https://github.com/rudderlabs/rudder-sdk-js/issues/1155)) ([c0d26c7](https://github.com/rudderlabs/rudder-sdk-js/commit/c0d26c73a867d30e01b78c9868386f95d29b7d0c))
+* **ga4:** use function to fetch user traits ([#1170](https://github.com/rudderlabs/rudder-sdk-js/issues/1170)) ([6b1393c](https://github.com/rudderlabs/rudder-sdk-js/commit/6b1393c4505c87753f007771b21a39adf0d6cc95))
+* transform to string any userId passed as number in identify calls ([#1174](https://github.com/rudderlabs/rudder-sdk-js/issues/1174)) ([26e0d68](https://github.com/rudderlabs/rudder-sdk-js/commit/26e0d68ae4a7a68ffd45cbbd8985b1b06ea43924))
+* window rudderanalytics usages ([#1139](https://github.com/rudderlabs/rudder-sdk-js/issues/1139)) ([85e2018](https://github.com/rudderlabs/rudder-sdk-js/commit/85e2018d17bcb037f9cfb724c69df64baf8d975a))
+
+### [2.35.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.35.0...v2.35.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* parse utm campaign values from locaton href instead of canonicalURL ([18a2a57](https://github.com/rudderlabs/rudder-sdk-js/commit/18a2a57caeaa03512e3b2fbce62aa8d0fe2963e7))
+
+## [2.35.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.34.0...v2.35.0) (2023-06-09)
+
+
+### Features
+
+* bing ads ecomm uet parameters ([#1108](https://github.com/rudderlabs/rudder-sdk-js/issues/1108)) ([d2aceda](https://github.com/rudderlabs/rudder-sdk-js/commit/d2aceda8f50ab406d413bef4010895d38b4b3d1e))
+* introduce flexible configuration for maximum buffering time of data plane events ([#1116](https://github.com/rudderlabs/rudder-sdk-js/issues/1116)) ([c6d775f](https://github.com/rudderlabs/rudder-sdk-js/commit/c6d775f143c3f082c124503500b532032838b4ba))
+* onboard tiktok device mode integration ([#1091](https://github.com/rudderlabs/rudder-sdk-js/issues/1091)) ([09d9ae2](https://github.com/rudderlabs/rudder-sdk-js/commit/09d9ae263743d65b51c52a02f1ac61b9145e49bc))
+
+
+### Bug Fixes
+
+* remove usage of .at() to ensure electron 7 works ([#1112](https://github.com/rudderlabs/rudder-sdk-js/issues/1112)) ([cbfe150](https://github.com/rudderlabs/rudder-sdk-js/commit/cbfe15083904b8f0794172f5c031f6dd268a33ad))
+* removed vulnerable package component-url ([#1138](https://github.com/rudderlabs/rudder-sdk-js/issues/1138)) ([3a0e547](https://github.com/rudderlabs/rudder-sdk-js/commit/3a0e547eed4925f36a2f09f5fd713032dff2ba6a))
+
 ## [2.34.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.33.1...v2.34.0) (2023-05-26)
 
 

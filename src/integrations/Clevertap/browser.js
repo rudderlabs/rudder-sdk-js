@@ -10,6 +10,7 @@ class Clevertap {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.passcode;
     this.name = NAME;
@@ -40,7 +41,8 @@ class Clevertap {
       'married',
       'customerType',
     ];
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
