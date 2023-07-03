@@ -1,8 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString } from './constants';
 
-// START-NO-SONAR-SCAN
-/* eslint-disable */
 const load = () => {
   // load braze
   +(function (a, p, P, b, y) {
@@ -33,7 +31,5 @@ const load = () => {
     (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
   })(window, document, 'script');
 };
-
-// END-NO-SONAR-SCAN
 
 export { load };
