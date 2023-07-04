@@ -442,25 +442,24 @@ class Analytics {
                       // push transformed event to the queue
                       eventsToSent.push(tEvent);
                     }
-                    // For any other status code that is not 200
-                    // but propagateEventsUntransformedOnError is set to true for that destination
-                    else if (intg.propagateEventsUntransformedOnError === true) {
-                      let warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Sending untransformed event.`;
-                      if (tEvent.status === 410) {
-                        warningMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Sending untransformed event.`;
-                      }
-                      logger.warn(warningMessage);
-                      // push untransformed event to the queue
-                      eventsToSent.push({ event: rudderElement.message });
-                    }
-                    // For any other status code that is not 200
-                    // and propagateEventsUntransformedOnError is not true for that destination
                     else {
-                      let errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Status: "${tEvent.status}". Dropping the event.`;
+                      const msgPrefix = `[DMT]:: Event transformation unsuccessful for destination "${intg.name}". Reason: `;
+                      
+                      let reason = 'Unknown';
                       if (tEvent.status === 410) {
-                        errMessage = `[DMT]::Event transformation unsuccessful for destination "${intg.name}" as the transformation is not available. Status: "${tEvent.status}". Dropping the event.`;
+                        reason = 'Transformation is not available';
                       }
-                      logger.error(errMessage);
+                      
+                      let action = 'Dropping the event';
+                      let logMethod = logger.error;
+                      if (intg.propagateEventsUntransformedOnError === true) {
+                        action = 'Sending untransformed event';
+                        logMethod = logger.warn;
+                        eventsToSent.push({ event: rudderElement.message });
+                      }
+                      
+                      const logMsg = `${msgPrefix} "${reason}. ${action}.`;
+                      logMethod(logMsg);
                     }
                   });
                   // send events to destination
