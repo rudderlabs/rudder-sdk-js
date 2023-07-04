@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Posthog/constants';
 import { removeTrailingSlashes } from '../../utils/utils';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { NAME } from './constants';
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {

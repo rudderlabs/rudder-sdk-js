@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/PostAffiliatePro/constants';
 import updateSaleObject from './utils';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
 
 class PostAffiliatePro {
   constructor(config, analytics, destinationInfo) {

@@ -1,8 +1,5 @@
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import {
-  getValueByPath,
-  hasValueByPath,
-} from '@rudderstack/analytics-js/components/utilities/object';
+import { isFunction } from '@rudderstack/common/utilities/checks';
+import { getValueByPath, hasValueByPath } from '@rudderstack/common/utilities/object';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
   ExtensionPlugin,

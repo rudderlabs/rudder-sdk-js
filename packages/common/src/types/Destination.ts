@@ -1,9 +1,5 @@
-import {
-  Conversion,
-  EventFilteringOption,
-  EventMapping,
-} from '@rudderstack/common/types/LoadOptions';
-import { OneTrustCookieCategory } from '@rudderstack/common/types/Consent';
+import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
+import { OneTrustCookieCategory } from './Consent';
 
 export enum DestinationConnectionMode {
   Hybrid = 'hybrid',

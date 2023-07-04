@@ -15,7 +15,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '@rudderstack/common/utils/config_to_integration_names';
+import { configToIntNames } from '@rudderstack/common/v1.1/utils/config_to_integration_names';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -33,7 +33,7 @@ import {
   parseQueryString,
 } from '../utils/utils';
 import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
-import { handleError } from '@rudderstack/common/utils/errorHandler';
+import { handleError } from '@rudderstack/common/v1.1/utils/errorHandler';
 import {
   DEST_SDK_BASE_URL,
   INTG_SUFFIX,
@@ -46,13 +46,13 @@ import {
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '@rudderstack/common/utils/constants';
+} from '@rudderstack/common/v1.1/utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
-import Storage from '@rudderstack/common/utils/storage';
+import Storage from '@rudderstack/common/v1.1/utils/storage';
 import { EventRepository } from '../utils/EventRepository';
 import PreProcessQueue from '../utils/PreProcessQueue';
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
 import parseLinker from '../utils/linker';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import { UserSession } from '../features/core/session';

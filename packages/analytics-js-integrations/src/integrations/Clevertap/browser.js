@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/Clevertap/constants';
 import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../utils/utils';
-import { NAME } from './constants';
 
 class Clevertap {
   constructor(config, analytics, destinationInfo) {

@@ -23,7 +23,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Mixpanel/constants';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
   parseConfigArray,
@@ -34,8 +36,6 @@ import {
   mapTraits,
   formatTraits,
 } from './util';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Mixpanel {
   constructor(config, analytics, destinationInfo) {

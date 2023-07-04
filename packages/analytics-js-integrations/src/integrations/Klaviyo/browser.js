@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/Klaviyo/constants';
 import { extractCustomFields, getDefinedTraits } from '../../utils/utils';
 import ecommEventPayload from './util';
 import { isNotEmpty } from '../../utils/commonUtils';
-import { NAME } from './constants';
 
 class Klaviyo {
   constructor(config, analytics, destinationInfo) {

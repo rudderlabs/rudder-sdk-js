@@ -1,4 +1,4 @@
-import { generateUUID } from '@rudderstack/common/v3/utilities/common';
+import { generateUUID } from '@rudderstack/common/index';
 import { IStore, IStoreManager, StorageType } from '@rudderstack/common/types/Store';
 import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';

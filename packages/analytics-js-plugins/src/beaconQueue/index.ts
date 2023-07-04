@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/common/v3/utilities/common';
+import { getCurrentTimeFormatted } from '@rudderstack/common/index';
 import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/common/types/Store';

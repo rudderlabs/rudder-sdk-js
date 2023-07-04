@@ -2,9 +2,12 @@
 import { del } from 'obj-case';
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import {
+  BrazeOperationString,
+  NAME,
+} from '@rudderstack/common/constants/integrations/Braze/constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { BrazeOperationString, NAME } from './constants';
 
 const logger = new Logger(NAME);
 

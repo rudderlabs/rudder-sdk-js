@@ -1,5 +1,5 @@
-import logger from '@rudderstack/common/utils/logUtil';
-import { mergeDeepRight } from '@rudderstack/common/utils/ObjectUtils';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { mergeDeepRight } from '@rudderstack/common/v1.1/utils/ObjectUtils';
 import { SYSTEM_KEYWORDS } from './constants';
 
 const defaultTopLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/GoogleTagManager/constants';
 
 class GoogleTagManager {
   constructor(config, analytics, destinationInfo) {

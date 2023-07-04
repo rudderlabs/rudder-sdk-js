@@ -1,4 +1,4 @@
-import { isString, isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isString, isUndefined } from '@rudderstack/common/utilities/checks';
 import { ILogger, LogLevel } from '@rudderstack/common/types/Logger';
 import { LoggerProvider } from './types';
 

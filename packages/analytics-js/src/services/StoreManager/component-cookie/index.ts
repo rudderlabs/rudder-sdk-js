@@ -1,4 +1,4 @@
-import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isNull } from '@rudderstack/common/utilities/checks';
 import { Nullable } from '@rudderstack/common/types/Nullable';
 import { CookieOptions } from '@rudderstack/common/types/Store';
 

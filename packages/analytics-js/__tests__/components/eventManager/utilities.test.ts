@@ -28,11 +28,11 @@ import {
 import { SessionInfo } from '@rudderstack/common/types/Session';
 import { RudderContext, RudderEvent } from '@rudderstack/common/types/Event';
 
-jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
+jest.mock('@rudderstack/common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

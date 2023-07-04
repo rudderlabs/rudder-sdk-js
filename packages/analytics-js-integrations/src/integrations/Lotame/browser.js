@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Lotame/constants';
 import { LotameStorage } from './LotameStorage';
-import { NAME } from './constants';
 
 class Lotame {
   constructor(config, analytics, destinationInfo) {

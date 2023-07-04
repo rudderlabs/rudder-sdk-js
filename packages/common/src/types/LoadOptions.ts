@@ -1,11 +1,11 @@
-import { LogLevel } from '@rudderstack/common/types/Logger';
-import { ResidencyServerRegion } from '@rudderstack/common/types/DataResidency';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { PluginName } from '@rudderstack/common/types/PluginsManager';
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { ApiOptions } from '@rudderstack/common/types/EventApi';
-import { CookieConsentOptions } from '@rudderstack/common/types/Consent';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { LogLevel } from './Logger';
+import { ResidencyServerRegion } from './DataResidency';
+import { Nullable } from './Nullable';
+import { PluginName } from './PluginsManager';
+import { IntegrationOpts } from './Integration';
+import { ApiOptions } from './EventApi';
+import { CookieConsentOptions } from './Consent';
+import { ApiObject } from './ApiObject';
 
 export enum UaChTrackLevel {
   None = 'none',

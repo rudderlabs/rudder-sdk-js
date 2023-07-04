@@ -2,11 +2,15 @@
 import is from 'is';
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
-import logger from '@rudderstack/common/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import {
+  NAME,
+  traitsMapper,
+  reserveTraits,
+} from '@rudderstack/common/constants/integrations/FacebookPixel/constants';
 import { getEventId, getContentCategory } from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
-import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
 
 class FacebookPixel {

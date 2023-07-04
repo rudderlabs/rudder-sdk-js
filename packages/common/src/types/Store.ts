@@ -1,8 +1,8 @@
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { CookieSameSite } from '@rudderstack/common/types/LoadOptions';
+import { IErrorHandler } from './ErrorHandler';
+import { ILogger } from './Logger';
+import { IPluginsManager } from './PluginsManager';
+import { Nullable } from './Nullable';
+import { CookieSameSite } from './LoadOptions';
 
 export type StoreId = 'clientData' | 'eventQueue' | string;
 

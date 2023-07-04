@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 import { ILogger } from '@rudderstack/common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
 import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
 import { BugsnagLib } from '../types/plugins';
 import { API_KEY } from './constants';

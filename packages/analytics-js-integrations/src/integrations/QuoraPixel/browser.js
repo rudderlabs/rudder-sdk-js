@@ -1,7 +1,7 @@
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/QuoraPixel/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class QuoraPixel {
   constructor(config, analytics, destinationInfo) {

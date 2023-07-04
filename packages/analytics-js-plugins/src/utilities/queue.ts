@@ -4,7 +4,7 @@ import {
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
-} from '@rudderstack/common/v3/utilities/common';
+} from '@rudderstack/common/index';
 import { RudderEvent } from '@rudderstack/common/types/Event';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { Nullable } from '@rudderstack/common/types/Nullable';

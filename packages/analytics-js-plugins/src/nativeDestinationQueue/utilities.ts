@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '@rudderstack/common/v3/utilities/common';
+import { mergeDeepRight } from '@rudderstack/common/index';
 import { DestinationsQueueOpts } from '@rudderstack/common/types/LoadOptions';
 import { Destination } from '@rudderstack/common/types/Destination';
 import { RudderEvent } from '@rudderstack/common/types/Event';

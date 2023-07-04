@@ -1,9 +1,8 @@
 /* eslint-disable class-methods-use-this */
-
+import { NAME } from '@rudderstack/common/constants/integrations/Heap/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import processHeapProperties from './util';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import logger from '@rudderstack/common/utils/logUtil';
 
 class Heap {
   constructor(config, analytics, destinationInfo) {

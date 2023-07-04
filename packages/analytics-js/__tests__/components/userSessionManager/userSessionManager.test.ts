@@ -12,7 +12,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

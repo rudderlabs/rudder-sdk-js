@@ -1,23 +1,17 @@
 import { Signal } from '@preact/signals-core';
-import { PluginName } from '@rudderstack/common/types/PluginsManager';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  ScreenInfo,
-  UTMParameters,
-} from '@rudderstack/common/types/EventContext';
-import { ApiCallback, ReadyCallback, Traits } from '@rudderstack/common/types/EventApi';
-import { BufferedEvent } from '@rudderstack/common/types/Event';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { LogLevel } from '@rudderstack/common/types/Logger';
-import { LoadOptions } from '@rudderstack/common/types/LoadOptions';
-import { Destination } from '@rudderstack/common/types/Destination';
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { SessionInfo } from '@rudderstack/common/types/Session';
-import { Source } from '@rudderstack/common/types/Source';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { PluginName } from './PluginsManager';
+import { Nullable } from './Nullable';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import { ApiCallback, ReadyCallback, Traits } from './EventApi';
+import { BufferedEvent } from './Event';
+import { LifecycleStatus } from './ApplicationLifecycle';
+import { LogLevel } from './Logger';
+import { LoadOptions } from './LoadOptions';
+import { Destination } from './Destination';
+import { IntegrationOpts } from './Integration';
+import { SessionInfo } from './Session';
+import { Source } from './Source';
+import { ApiObject } from './ApiObject';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -58,8 +52,6 @@ export type ContextState = {
 export type EventBufferState = {
   // TODO: make this a BufferQueue?
   toBeProcessedArray: Signal<BufferedEvent[]>;
-  // TODO: add proper types for array items instead of any
-  toBeProcessedByIntegrationArray: Signal<any[]>;
   // TODO: make this a BufferQueue?
   readyCallbacksArray: Signal<ApiCallback[]>;
 };

@@ -2,13 +2,12 @@
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
-
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Sentry/constants';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { getDefinedTraits, isObject } from '../../utils/utils';
-import { NAME } from './constants';
 
 class Sentry {
   constructor(config, analytics, destinationInfo) {

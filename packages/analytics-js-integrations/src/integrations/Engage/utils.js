@@ -1,4 +1,4 @@
-import { identifyExcludeFields } from './constants';
+import { identifyExcludeFields } from '@rudderstack/common/constants/integrations/Engage/constants';
 
 // External ID format
 // {

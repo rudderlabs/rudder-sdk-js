@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/v3/utilities/common';
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/index';
 import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
 import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/common/types/HttpClient';

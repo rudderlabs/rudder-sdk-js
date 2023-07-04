@@ -1,5 +1,9 @@
+import {
+  NAME,
+  excludeReservedTraits,
+  excludePageProperties,
+} from '@rudderstack/common/constants/integrations/Sendinblue/constants';
 import { getDefinedTraits } from '../../utils/utils';
-import { NAME, excludeReservedTraits, excludePageProperties } from './constants';
 import {
   getHashFromArray,
   removeUndefinedAndNullValues,

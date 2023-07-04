@@ -1,11 +1,10 @@
-import { IPluginEngine } from '@rudderstack/common/types/PluginEngine';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IPluginEngine } from './PluginEngine';
+import { ILogger } from './Logger';
+import { IExternalSrcLoader } from './ExternalSrcLoader';
 
 export interface IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
-  // TODO: fix this circular
   init(externalSrcLoader: IExternalSrcLoader): void;
   onError(
     error: SDKError,

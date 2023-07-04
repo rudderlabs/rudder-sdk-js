@@ -1,6 +1,6 @@
-import { stringifyWithoutCircular } from '@rudderstack/common/v3/utilities/common';
+import { stringifyWithoutCircular } from '@rudderstack/common/index';
 import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { BugsnagLib } from '../types/plugins';
 import {

@@ -1,10 +1,10 @@
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Kissmetrics/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import { getRevenue } from '../../utils/utils';
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {

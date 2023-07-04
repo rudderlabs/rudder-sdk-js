@@ -1,15 +1,9 @@
-import { RudderEventType, Traits } from '@rudderstack/common/types/EventApi';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ConsentManagement } from '@rudderstack/common/types/Consent';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  ScreenInfo,
-  UTMParameters,
-} from '@rudderstack/common/types/EventContext';
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { RudderEventType, Traits } from './EventApi';
+import { Nullable } from './Nullable';
+import { ConsentManagement } from './Consent';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import { IntegrationOpts } from './Integration';
+import { ApiObject } from './ApiObject';
 
 // TODO: fix type
 export type BufferedEvent = any[];

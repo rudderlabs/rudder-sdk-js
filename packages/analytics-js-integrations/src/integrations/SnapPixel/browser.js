@@ -1,16 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import Storage from '@rudderstack/common/utils/storage';
-import logger from '@rudderstack/common/utils/logUtil';
-
+import Storage from '@rudderstack/common/v1.1/utils/storage';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/SnapPixel/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import {
   getEventMappingFromConfig,
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class SnapPixel {
   constructor(config, analytics, destinationInfo) {

@@ -14,7 +14,7 @@ jest.mock('../../../src/components/utilities/globals', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

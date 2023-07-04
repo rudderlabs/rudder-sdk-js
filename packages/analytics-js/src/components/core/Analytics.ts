@@ -3,14 +3,14 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
+import { ExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction } from '@rudderstack/common/utilities/checks';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
@@ -31,7 +31,7 @@ import { clone } from 'ramda';
 import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
 import { IStoreManager } from '@rudderstack/common/types/Store';
 import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
 import { Nullable } from '@rudderstack/common/types/Nullable';
@@ -40,14 +40,14 @@ import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadO
 import { ApiCallback, RudderEventType } from '@rudderstack/common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/common/types/Event';
 import { IAnalytics } from './IAnalytics';
-import { isObjectAndNotNull } from '../utilities/object';
+import { isObjectAndNotNull } from '@rudderstack/common/utilities/object';
 import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-} from './eventMethodOverloads';
+} from '@rudderstack/common/utilities/eventMethodOverloads';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events

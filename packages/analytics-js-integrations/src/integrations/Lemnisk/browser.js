@@ -2,9 +2,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Lemnisk/constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { NAME } from './constants';
 
 const logger = new Logger(NAME);
 class Lemnisk {

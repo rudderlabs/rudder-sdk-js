@@ -1,6 +1,6 @@
 import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isUndefined } from '@rudderstack/common/utilities/checks';
 import { ICookieStorageOptions, IStorage } from '@rudderstack/common/types/Store';
 import { Nullable } from '@rudderstack/common/types/Nullable';
 import { ILogger } from '@rudderstack/common/types/Logger';

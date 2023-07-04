@@ -1,17 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
-import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
+import { generateUUID } from '@rudderstack/common/utilities/uuId';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { batch, effect } from '@preact/signals-core';
-import {
-  isNonEmptyObject,
-  mergeDeepRight,
-} from '@rudderstack/analytics-js/components/utilities/object';
+import { isNonEmptyObject, mergeDeepRight } from '@rudderstack/common/utilities/object';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
-import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isString } from '@rudderstack/common/utilities/checks';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
 import { IStore } from '@rudderstack/common/types/Store';

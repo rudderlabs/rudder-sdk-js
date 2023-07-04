@@ -9,7 +9,7 @@ import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preload
 import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
 import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
 import { ApiCallback } from '@rudderstack/common/types/EventApi';
 import { IStoreManager } from '@rudderstack/common/types/Store';
@@ -22,7 +22,7 @@ import {
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-} from './eventMethodOverloads';
+} from '@rudderstack/common/utilities/eventMethodOverloads';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;

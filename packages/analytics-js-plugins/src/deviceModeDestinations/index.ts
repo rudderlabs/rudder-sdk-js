@@ -1,11 +1,12 @@
 /* eslint-disable no-param-reassign */
 import { clone } from 'ramda';
-import { isHybridModeDestination } from '@rudderstack/common/v3/utilities/common';
+import { isHybridModeDestination } from '@rudderstack/common/index';
 import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
 import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { IExternalSrcLoader } from '@rudderstack/common/types/ExternalSrcLoader';
+import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { destDispNamesToFileNamesMap } from '@rudderstack/common/constants/destDispNamesToFileNames';
 import {
   createDestinationInstance,
   isDestinationSDKEvaluated,
@@ -15,7 +16,6 @@ import {
   getCumulativeIntegrationsConfig,
 } from './utils';
 import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
-import { destDispNamesToFileNamesMap } from './destDispNamesToFileNames';
 
 const pluginName = 'DeviceModeDestinations';
 

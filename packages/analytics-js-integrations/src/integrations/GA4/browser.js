@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
-
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/GA4/constants';
+import { Cookie } from '@rudderstack/common/v1.1/utils/storage/cookie';
 import {
   isReservedName,
   sendUserIdToGA4,
@@ -11,8 +12,6 @@ import {
   getDestinationEventProperties,
   getDestinationItemProperties,
 } from './utils';
-import { NAME } from './constants';
-import { Cookie } from '@rudderstack/common/utils/storage/cookie';
 import { type, flattenJsonPayload } from '../../utils/utils';
 
 export default class GA4 {

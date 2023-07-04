@@ -1,12 +1,11 @@
-import logger from '@rudderstack/common/utils/logUtil';
-
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/YandexMetrica/constants';
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
 import {
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { getDefinedTraits } from '../../utils/utils';
 
 class YandexMetrica {

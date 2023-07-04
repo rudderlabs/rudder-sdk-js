@@ -1,5 +1,5 @@
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from './ErrorHandler';
+import { ILogger } from './Logger';
 
 export interface IRequestConfig {
   url: string;

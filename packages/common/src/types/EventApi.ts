@@ -1,6 +1,6 @@
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { IntegrationOpts } from './Integration';
+import { Nullable } from './Nullable';
+import { ApiObject } from './ApiObject';
 
 // TODO: should we take the types from IdentifyTrait instead of any string key?
 //  https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits

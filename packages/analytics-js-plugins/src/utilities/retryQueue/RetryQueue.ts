@@ -1,5 +1,5 @@
-import { generateUUID } from '@rudderstack/common/v3/utilities/common';
-import { QueueStatuses } from '@rudderstack/common/v3/QueueStatuses';
+import { generateUUID } from '@rudderstack/common/index';
+import { QueueStatuses } from '@rudderstack/common/constants/QueueStatuses';
 import { IStore, IStoreManager, StorageType } from '@rudderstack/common/types/Store';
 import { Nullable } from '@rudderstack/common/types/Nullable';
 import {

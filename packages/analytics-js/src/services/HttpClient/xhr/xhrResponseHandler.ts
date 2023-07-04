@@ -1,4 +1,4 @@
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction } from '@rudderstack/common/utilities/checks';
 
 /**
  * Utility to parse XHR JSON response

@@ -1,5 +1,5 @@
 import { CookieConsentOptions } from '@rudderstack/common/types/Consent';
-import { isNonEmptyObject } from './object';
+import { isNonEmptyObject } from '@rudderstack/common/utilities/object';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options

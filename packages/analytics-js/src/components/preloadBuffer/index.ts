@@ -7,14 +7,14 @@ import {
   QUERY_PARAM_USER_ID_KEY,
 } from '@rudderstack/analytics-js/constants/queryParams';
 import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction } from '@rudderstack/common/utilities/checks';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
+} from '@rudderstack/common/utilities/eventMethodOverloads';
 import { Nullable } from '@rudderstack/common/types/Nullable';
 
 /**

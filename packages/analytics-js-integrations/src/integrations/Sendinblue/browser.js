@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Sendinblue/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import { prepareUserTraits, prepareTrackEventData, preparePagePayload } from './utils';
 import { validateEmail, validatePhoneWithCountryCode } from '../../utils/commonUtils';
 

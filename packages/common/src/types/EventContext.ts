@@ -22,5 +22,4 @@ export type ScreenInfo = {
   readonly innerHeight: number;
 };
 
-// TODO: fix type
 export type UTMParameters = Record<string, string>;

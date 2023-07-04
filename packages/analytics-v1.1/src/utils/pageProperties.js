@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable camelcase */
-import Storage from '@rudderstack/common/utils/storage';
+import Storage from '@rudderstack/common/v1.1/utils/storage';
 
 function getReferrer() {
   return document.referrer || '$direct';

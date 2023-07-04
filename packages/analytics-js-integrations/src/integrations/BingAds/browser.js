@@ -1,6 +1,6 @@
-import logger from '@rudderstack/common/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/BingAds/constants';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { extractCustomFields } from '../../utils/utils';

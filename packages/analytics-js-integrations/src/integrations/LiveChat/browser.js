@@ -1,12 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
-
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/LiveChat/constants';
 import { recordingLiveChatEvents } from './util';
 import { isObject } from '../../utils/utils';
 import { flattenJson } from '../../utils/commonUtils';
-import { NAME } from './constants';
 
 class LiveChat {
   constructor(config, analytics, destinationInfo) {

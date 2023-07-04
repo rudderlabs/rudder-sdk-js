@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME, supportedEvents } from '@rudderstack/common/constants/integrations/Criteo/constants';
 import {
   handleCommonFields,
   generateExtraData,
@@ -8,7 +9,6 @@ import {
   handlingEventDuo,
   handleListView,
 } from './utils';
-import { NAME, supportedEvents } from './constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 
 class Criteo {

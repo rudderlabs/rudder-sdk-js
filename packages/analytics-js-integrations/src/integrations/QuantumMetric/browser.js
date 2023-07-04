@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/QuantumMetric/constants';
 
 class QuantumMetric {
   constructor(config, analytics, destinationInfo) {

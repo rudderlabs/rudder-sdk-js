@@ -6,8 +6,8 @@ import {
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
-import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+} from '@rudderstack/common/utilities/eventMethodOverloads';
+import { isString } from '@rudderstack/common/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { IRudderAnalytics } from '@rudderstack/common/types/IRudderAnalytics';

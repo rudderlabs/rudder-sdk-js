@@ -7,7 +7,7 @@ import {
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse } from '../types';
-import { isUndefined } from '../../utilities/checks';
+import { isUndefined } from '@rudderstack/common/utilities/checks';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   ErrorReportingProvidersToPluginNameMap,

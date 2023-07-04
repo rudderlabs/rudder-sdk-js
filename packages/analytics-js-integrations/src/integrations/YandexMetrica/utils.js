@@ -1,5 +1,4 @@
-import logger from '@rudderstack/common/utils/logUtil';
-
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import {
   removeUndefinedAndNullAndEmptyValues,
   removeUndefinedAndNullValues,

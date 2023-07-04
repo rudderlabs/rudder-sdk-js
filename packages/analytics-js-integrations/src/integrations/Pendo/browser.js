@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
-import logger from '@rudderstack/common/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Pendo/constants';
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {

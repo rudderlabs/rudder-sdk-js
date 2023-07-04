@@ -37,7 +37,7 @@
     "directory": "dist/npm-lib"
   },
   "scripts": {
-    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
     "start": "rollup --config rollup-configs/rollup.sdk.browser.mjs --watch --environment DEV_SERVER,PROD_DEBUG:inline",
     "build": "npm run build:browser && npm run build:package",
     "build:browser:modern": "BROWSERSLIST_ENV=modern rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
@@ -78,7 +78,7 @@
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
-    "@rudderstack/common": "*",
+    "@rudderstack/common": "3.0.0",
     "@segment/localstorage-retry": "1.3.0",
     "@segment/loosely-validate-event": "2.0.0",
     "@vespaiach/axios-fetch-adapter": "0.3.1",

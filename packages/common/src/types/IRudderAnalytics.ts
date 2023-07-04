@@ -1,7 +1,7 @@
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
-import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { Nullable } from './Nullable';
+import { ApiCallback, ApiOptions } from './EventApi';
+import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
+import { ApiObject } from './ApiObject';
 
 export type AnalyticsIdentifyMethod = {
   (

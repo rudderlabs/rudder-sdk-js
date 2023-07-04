@@ -1,15 +1,14 @@
 /* eslint-disable guard-for-in */
 import _difference from 'lodash.difference';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
   ITEM_PROP_EXCLUSION_LIST,
   EVENT_PROP_EXCLUSION_LIST,
 } from './ECommerceEventConfig';
-
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/utils';
-import logger from '@rudderstack/common/utils/logUtil';
 
 /**
  * Check if event name is not one of the following reserved names

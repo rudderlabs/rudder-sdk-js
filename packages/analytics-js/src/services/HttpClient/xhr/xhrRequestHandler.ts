@@ -1,9 +1,9 @@
 /* eslint-disable prefer-promise-reject-errors */
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { mergeDeepRight } from '@rudderstack/common/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/common/utilities/json';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
-import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isNull } from '@rudderstack/common/utilities/checks';
 import { IXHRRequestOptions } from '@rudderstack/common/types/HttpClient';
 import { ILogger } from '@rudderstack/common/types/Logger';
 

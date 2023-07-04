@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
+    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
     "start": "npm run build && npm run serve",
     "build": "npm run build:browser",
     "build:browser:modern": "npm run build:integration:all:modern",
@@ -85,7 +85,7 @@
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/each": "2.0.1",
     "@ndhoule/extend": "2.0.0",
-    "@rudderstack/common": "*",
+    "@rudderstack/common": "3.0.0",
     "component-each": "0.2.6",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",

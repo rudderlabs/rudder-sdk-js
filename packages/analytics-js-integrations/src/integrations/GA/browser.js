@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import is from 'is';
 import each from 'component-each';
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/GA/constants';
 import { rejectArr } from '../../utils/utils';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
-import { NAME } from './constants';
 
 export default class GA {
   constructor(config, analytics, destinationInfo) {

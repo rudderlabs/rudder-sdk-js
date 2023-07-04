@@ -1,5 +1,5 @@
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Shynet/constants';
 import { generateUUID } from '../../utils/utils';
 
 class Shynet {

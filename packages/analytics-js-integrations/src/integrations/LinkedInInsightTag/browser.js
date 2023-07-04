@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/LinkedInInsightTag/constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { NAME } from './constants';
 
 class LinkedInInsightTag {
   constructor(config, analytics, destinationInfo) {

@@ -1,15 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/Iterable/constants';
 import Logger from '../../utils/logger';
 import { formPurchaseEventPayload, existsInMapping } from './utils';
-
 import {
   isDefinedAndNotNull,
   removeUndefinedAndNullValues,
   isNotEmpty,
 } from '../../utils/commonUtils';
-import { NAME } from './constants';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 
 const logger = new Logger(NAME);
 

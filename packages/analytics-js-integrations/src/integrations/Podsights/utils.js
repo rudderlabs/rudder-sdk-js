@@ -1,6 +1,6 @@
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
-import { LINE_ITEMS_CONFIG } from './constants';
+import { LINE_ITEMS_CONFIG } from '@rudderstack/common/constants/integrations/Podsights/constants';
 
 /**
  * This function is used to build payload with line_items, it will search from

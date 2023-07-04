@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from './constants';
-import logger from '@rudderstack/common/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Vero/constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
 
 class Vero {
   constructor(config, analytics, destinationInfo) {

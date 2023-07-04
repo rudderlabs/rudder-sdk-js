@@ -2,9 +2,16 @@
   "name": "@rudderstack/common",
   "version": "3.0.0",
   "description": "RudderStack Javascript SDK common code",
-  "module": "index.js",
+  "module": "./index.js",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {
-    "directory": "dist"
+    "directory": "dist/npm"
   },
   "keywords": [
     "analytics",
@@ -22,14 +29,16 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
+    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
     "start": "exit 0",
-    "build": "mkdir dist && rsync -r src/ dist",
+    "build": "npm run build:browser && npm run build:package",
+    "copy:src": "rsync -r src/ dist/npm",
+    "copy:assets": "cp package.json CHANGELOG.md README.md LICENSE dist/npm",
     "build:browser:modern": "exit 0",
     "build:browser": "exit 0",
-    "build:npm": "exit 0",
-    "build:npm:modern": "exit 0",
-    "build:package": "npm run clean && npm run build",
+    "build:npm": "tsc",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run clean && npm run build:npm:modern && npm run copy:assets",
     "test": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=50% --coverage",
     "test:ci": "jest --watchAll=false --detectOpenHandles --forceExit --maxWorkers=2 --coverage",
     "check:lint:dev": "eslint --ext .js,.ts src",
@@ -37,21 +46,22 @@
     "check:size:build": "npm run clean && npm run build",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
-    "check:circular": "madge --circular --extensions js,ts src || exit 0",
+    "check:circular": "madge --circular --extensions js,ts src --warning || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "exit 0",
-    "build:modern": "exit 0",
-    "package": "npm run clean && npm run build",
-    "release": "exit 0"
+    "build:modern": "npm run build:npm:modern",
+    "package": "cd dist/npm && npm pack --pack-destination ../../",
+    "release": "npm publish"
   },
   "engines": {
     "node": ">=v16"
   },
   "dependencies": {
     "@ndhoule/defaults": "2.0.1",
+    "@lukeed/uuid": "2.0.1",
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",
@@ -73,12 +83,6 @@
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@originjs/vite-plugin-federation": "1.2.2",
     "@preact/signals-core": "1.3.0",
-    "@rollup/plugin-babel": "6.0.3",
-    "@rollup/plugin-commonjs": "25.0.1",
-    "@rollup/plugin-json": "6.0.0",
-    "@rollup/plugin-node-resolve": "15.1.0",
-    "@rollup/plugin-replace": "5.0.2",
-    "@rollup/plugin-terser": "0.4.3",
     "@size-limit/file": "8.2.4",
     "@size-limit/webpack": "8.2.4",
     "@types/crypto-js": "4.1.1",
@@ -121,17 +125,6 @@
     "msw": "1.2.2",
     "patch-package": "7.0.0",
     "prettier": "2.8.8",
-    "rollup": "3.20.2",
-    "rollup-plugin-copy": "3.4.0",
-    "rollup-plugin-dts": "5.3.0",
-    "rollup-plugin-exclude-dependencies-from-bundle": "1.1.23",
-    "rollup-plugin-filesize": "10.0.0",
-    "rollup-plugin-generate-html-template": "1.7.0",
-    "rollup-plugin-livereload": "2.0.5",
-    "rollup-plugin-polyfill-node": "0.12.0",
-    "rollup-plugin-serve": "2.0.2",
-    "rollup-plugin-typescript2": "0.34.1",
-    "rollup-plugin-visualizer": "5.9.2",
     "size-limit": "8.2.4",
     "standard-version": "9.5.0",
     "ts-jest": "29.1.0",

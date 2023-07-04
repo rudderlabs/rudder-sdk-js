@@ -1,6 +1,6 @@
 import { get } from '../../../../utils/utils';
 import { BugsnagProvider, ERROR_REPORT_PROVIDER_NAME_BUGSNAG } from './providers/Bugsnag';
-import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '@rudderstack/common/utils/constants';
+import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '@rudderstack/common/v1.1/utils/constants';
 
 const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
 const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNAG];

@@ -9,7 +9,7 @@ import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { RudderEvent } from '@rudderstack/common/types/Event';
 import { ApiCallback } from '@rudderstack/common/types/EventApi';
-import { isHybridModeDestination } from '../utilities/destinations';
+import { isHybridModeDestination } from '@rudderstack/common/utilities/destinations';
 import { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,

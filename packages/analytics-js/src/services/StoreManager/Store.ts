@@ -1,9 +1,9 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { trim } from '@rudderstack/analytics-js/components/utilities/string';
+import { trim } from '@rudderstack/common/utilities/string';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { isNullOrUndefined } from '@rudderstack/common/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/common/utilities/json';
 import { IStorage, IStore, IStoreConfig } from '@rudderstack/common/types/Store';
 import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/common/types/Logger';

@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from './constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Olark/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { recordingLiveChatEvents } from './utils';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { getDefinedTraits } from '../../utils/utils';

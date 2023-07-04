@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import { NAME } from './constants';
+import { NAME } from '@rudderstack/common/constants/integrations/Mouseflow/constants';
 
 /*
  * Here, we are iterating each key-value pair of object 'Obj' and

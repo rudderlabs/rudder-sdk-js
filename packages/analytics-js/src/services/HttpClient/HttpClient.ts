@@ -1,6 +1,6 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction } from '@rudderstack/common/utilities/checks';
 import {
   IAsyncRequestConfig,
   IHttpClient,

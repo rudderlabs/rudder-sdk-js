@@ -1,4 +1,4 @@
-import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/common/v3/utilities/common';
+import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/common/index';
 import { RudderEvent } from '@rudderstack/common/types/Event';
 import { ILogger } from '@rudderstack/common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';

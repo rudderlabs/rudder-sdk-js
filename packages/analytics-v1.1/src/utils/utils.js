@@ -1,9 +1,9 @@
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '@rudderstack/common/utils/integration_cname';
-import { clientToServerNames } from '@rudderstack/common/utils/client_server_name';
-import logger from '@rudderstack/common/utils/logUtil';
+import { commonNames } from '@rudderstack/common/v1.1/utils/integration_cname';
+import { clientToServerNames } from '@rudderstack/common/v1.1/utils/client_server_name';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -11,8 +11,8 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/common/utils/constants';
-import { handleError } from '@rudderstack/common/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/common/v1.1/utils/constants';
+import { handleError } from '@rudderstack/common/v1.1/utils/errorHandler';
 
 /**
  * Utility method to remove '/' at the end of URL

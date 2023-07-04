@@ -1,14 +1,14 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "target": "es5",
-    "declarationDir": "./dist/dts"
+    "rootDir": "./src/",
+    "target": "es2018",
+    "declarationDir": "./dist/npm",
+    "outDir": "./dist/npm",
+    "emitDeclarationOnly": false,
+    "sourceMap": false,
+    "declarationMap": false
   },
-  "include": [
-    "./package.json",
-    "./src/**/*",
-    "../../types/**/*",
-    "../analytics-js-integrations/src/**/*",
-    "../analytics-js/src/**/*"
-  ]
+  "include": ["./src/**/*", "../../types/**/*"],
+  "references": []
 }

@@ -1,5 +1,8 @@
+import {
+  PARTNER_NAME,
+  trackMapping,
+} from '@rudderstack/common/constants/integrations/TiktokAds/constants';
 import { constructPayload } from '../../utils/utils';
-import { PARTNER_NAME, trackMapping } from './constants';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 const getContents = message => {

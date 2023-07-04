@@ -9,7 +9,7 @@ import { state } from '@rudderstack/analytics-js/state';
 import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction, isString } from '@rudderstack/common/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';

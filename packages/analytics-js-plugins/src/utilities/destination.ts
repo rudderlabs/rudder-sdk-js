@@ -1,4 +1,4 @@
-import { isUndefined } from '@rudderstack/common/v3/utilities/common';
+import { isUndefined } from '@rudderstack/common/index';
 import { DestinationIntgConfig } from '@rudderstack/common/types/Integration';
 
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>

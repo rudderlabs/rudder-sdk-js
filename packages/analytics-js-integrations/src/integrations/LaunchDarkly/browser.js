@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/common/constants/integrations/LaunchDarkly/constants';
 import createUser from './utils';
-import { NAME } from './constants';
 
 class LaunchDarkly {
   constructor(config, analytics, destinationInfo) {

@@ -1,4 +1,4 @@
-import { isUndefined, mergeDeepRight } from '@rudderstack/common/v3/utilities/common';
+import { isUndefined, mergeDeepRight } from '@rudderstack/common/index';
 import { QueueOpts } from '@rudderstack/common/types/LoadOptions';
 import { RejectionDetails } from '@rudderstack/common/types/HttpClient';
 import { ILogger } from '@rudderstack/common/types/Logger';

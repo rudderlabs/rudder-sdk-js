@@ -1,4 +1,4 @@
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import { ErrorReportingService } from '../../../../../src/features/core/metrics/errorReporting/ErrorReportingService';
 
 const errorReportingService = new ErrorReportingService(logger);

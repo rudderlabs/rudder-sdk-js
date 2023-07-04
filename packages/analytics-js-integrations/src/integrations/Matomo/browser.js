@@ -1,10 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 // Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
-
-import logger from '@rudderstack/common/utils/logUtil';
-
-import { NAME } from './constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Matomo/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 import {
   goalIdMapping,
   ecommerceEventsMapping,
@@ -12,7 +11,6 @@ import {
   checkCustomDimensions,
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {

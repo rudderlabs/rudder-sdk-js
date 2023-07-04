@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Qualaroo/constants';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
 import { recordQualarooEvents, transformUserTraits } from './utils';
 import { isNotEmpty } from '../../utils/commonUtils';
 

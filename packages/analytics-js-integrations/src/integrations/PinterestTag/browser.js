@@ -1,7 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/common/constants/integrations/PinterestTag/constants';
 import {
   searchPropertyMapping,
   productPropertyMapping,
@@ -14,8 +16,6 @@ import {
   getDataFromSource,
   getDefinedTraits,
 } from '../../utils/utils';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
 import { getDestinationEventName } from './utils';
 
 export default class PinterestTag {

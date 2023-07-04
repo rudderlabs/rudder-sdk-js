@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
-import ScriptLoader from '@rudderstack/common/utils/ScriptLoader';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/June/constants';
+import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
 import { getDestinationExternalID } from '../../utils/commonUtils';
 
 class June {

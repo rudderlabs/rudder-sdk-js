@@ -4,11 +4,5 @@
     "target": "es5",
     "declarationDir": "./dist/dts"
   },
-  "include": [
-    "./package.json",
-    "./src/**/*",
-    "../../types/**/*",
-    "../analytics-js-integrations/src/integrations/**/*",
-    "../common/src/**/*"
-  ]
+  "include": ["./package.json", "./src/**/*", "../../types/**/*", "../common/src/**/*"]
 }

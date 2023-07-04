@@ -2,9 +2,9 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/utils/logUtil';
-import { NAME } from './constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/utils/constants';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/common/constants/integrations/Woopra/constants';
+import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
 
 class Woopra {
   constructor(config, analytics, destinationInfo) {

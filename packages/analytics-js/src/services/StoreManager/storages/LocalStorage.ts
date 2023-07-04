@@ -3,7 +3,7 @@ import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { ILocalStorageOptions, IStorage } from '@rudderstack/common/types/Store';
 import { ILogger } from '@rudderstack/common/types/Logger';
-import { isUndefined } from '@rudderstack/common/v3/utilities/common';
+import { isUndefined } from '@rudderstack/common/index';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
 // TODO: can we remove the storejs dependency to save bundlesize?

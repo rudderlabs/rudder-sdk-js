@@ -1,7 +1,7 @@
 import { batch, effect } from '@preact/signals-core';
 import { ExtensionPlugin, IPluginEngine } from '@rudderstack/common/types/PluginEngine';
 import { state } from '@rudderstack/analytics-js/state';
-import { getNonCloudDestinations } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { getNonCloudDestinations } from '@rudderstack/common/utilities/destinations';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import {
   ErrorReportingProvidersToPluginNameMap,

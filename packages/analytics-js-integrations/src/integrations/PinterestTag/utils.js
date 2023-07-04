@@ -1,4 +1,4 @@
-import logger from '@rudderstack/common/utils/logUtil';
+import logger from '@rudderstack/common/v1.1/utils/logUtil';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { eventMapping } from './propertyMappingConfig';
