@@ -9,14 +9,15 @@ const logger = new Logger(NAME);
 
 class Axeptio {
   constructor(config, analytics, destinationInfo) {
-    this.analytics = analytics;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.clientId = config.clientId;
     this.toggleToActivateCallback = config.toggleToActivateCallback;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -51,14 +52,14 @@ class Axeptio {
     return !!window.__axeptioSDK;
   }
 
-  // this fucntion is used to record the triggered axeptio events through callback
+  // this function is used to record the triggered axeptio events through callback
   recordAxeptioEvents() {
     window._axcb = window._axcb || [];
     window._axcb.push(function () {
       window.__axeptioSDK.on(
         'cookies:*',
         function (payload, event) {
-          makeACall(event, payload);
+          makeACall(event, payload, this.analytics);
         },
         // set to true to record the past events too that have been dispatched before the event handler is set
         { replay: true },

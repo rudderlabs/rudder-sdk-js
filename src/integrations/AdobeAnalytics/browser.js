@@ -16,6 +16,7 @@ class AdobeAnalytics {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.trackingServerUrl = config.trackingServerUrl || '';
     this.reportSuiteIds = config.reportSuiteIds;
     this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || '';
@@ -30,7 +31,8 @@ class AdobeAnalytics {
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = '';
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
     utils.setConfig(config);
   }
