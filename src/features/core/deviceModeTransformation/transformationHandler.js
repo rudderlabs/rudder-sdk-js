@@ -120,7 +120,7 @@ class TransformationsHandler {
                     // is not successful, return the response with a flag retryExhausted
                     resolve({
                       status,
-                      errorMessage: 'Retry exhausted',
+                      errorMessage: 'Retries exhausted',
                     });
                     return;
                   }
