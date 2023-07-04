@@ -1,10 +1,11 @@
-/* eslint-disable class-methods-use-this */
-import { del } from 'obj-case';
-import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
+import * as R from 'ramda';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
-import { BrazeOperationString, NAME } from './constants';
+import { NAME } from './constants';
+import Storage from '../../utils/storage/index';
+import { isObject } from '../../utils/utils';
+import { handlePurchase, formatGender, handleReservedProperties } from './utils';
+import { load } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -35,65 +36,19 @@ class Braze {
     }
 
     this.name = NAME;
-    this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+
     logger.debug('Config ', config);
-  }
-
-  /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
-   */
-
-  formatGender(gender) {
-    if (!gender) return;
-    if (typeof gender !== 'string') return;
-
-    const femaleGenders = ['woman', 'female', 'w', 'f'];
-    const maleGenders = ['man', 'male', 'm'];
-    const otherGenders = ['other', 'o'];
-
-    if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.FEMALE;
-    if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.MALE;
-    if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.OTHER;
   }
 
   init() {
     logger.debug('===in init Braze===');
-
-    // load braze
-    // eslint-disable-next-line func-names
-    +(function (a, p, P, b, y) {
-      a.braze = {};
-      a.brazeQueue = [];
-      for (let s = BrazeOperationString.split(' '), i = 0; i < s.length; i++) {
-        for (var m = s[i], k = a.braze, l = m.split('.'), j = 0; j < l.length - 1; j++) k = k[l[j]];
-        k[l[j]] = new Function(
-          `return function ${m.replace(
-            /\./g,
-            '_',
-          )}(){window.brazeQueue.push(arguments); return true}`,
-        )();
-      }
-      window.braze.getCachedContentCards = function () {
-        return new window.braze.ContentCards();
-      };
-      window.braze.getCachedFeed = function () {
-        return new window.braze.Feed();
-      };
-      window.braze.getUser = function () {
-        return new window.braze.User();
-      };
-      (y = p.createElement(P)).type = 'text/javascript';
-      y.src = 'https://js.appboycdn.com/web-sdk/4.2/braze.min.js';
-      y.async = 1;
-      y.setAttribute('data-loader', LOAD_ORIGIN);
-      (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
-    })(window, document, 'script');
-
+    load();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
@@ -108,18 +63,6 @@ class Braze {
       window.braze.changeUser(userId);
     }
     window.braze.openSession();
-  }
-
-  handleReservedProperties(props) {
-    // remove reserved keys from custom event properties
-    // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-    const reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
-
-    reserved.forEach((element) => {
-      // eslint-disable-next-line no-param-reassign
-      delete props[element];
-    });
-    return props;
   }
 
   /**
@@ -153,54 +96,58 @@ class Braze {
    * or the updated fields.
    * @param {*} rudderElement
    */
+
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
     logger.debug('in Braze identify');
-    const { userId } = rudderElement.message;
-    const { address } = rudderElement.message.context.traits;
-    const birthday =
-      rudderElement.message.context.traits?.birthday || rudderElement.message.context.traits?.dob;
-    const { email } = rudderElement.message.context.traits;
-    const firstname =
-      rudderElement.message.context.traits?.firstname ||
-      rudderElement.message.context.traits?.firstName;
-    const { gender } = rudderElement.message.context.traits;
-    const lastname =
-      rudderElement.message.context.traits?.lastname ||
-      rudderElement.message.context.traits?.lastName;
-    const { phone } = rudderElement.message.context.traits;
-
-    // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+    const { message } = rudderElement;
+    const { userId } = message;
+    const { context } = message;
+    const email = context?.traits?.email;
+    const firstName = context?.traits?.firstName || context?.traits?.firstname;
+    const lastName = context?.traits?.lastName || context?.traits?.lastname;
+    const gender = context?.traits?.gender;
+    const phone = context?.traits?.phone;
+    const address = context?.traits?.address;
+    const birthday = context?.traits?.birthday || context?.traits?.dob;
     const reserved = [
       'address',
       'birthday',
       'email',
       'id',
       'firstname',
+      'firstName',
       'gender',
       'lastname',
+      'lastName',
       'phone',
       'dob',
+      'birthday',
       'external_id',
       'country',
       'home_city',
-      'bio',
       'email_subscribe',
       'push_subscribe',
     ];
     // function set Address
     function setAddress() {
-      window.braze.getUser().setCountry(address.country);
-      window.braze.getUser().setHomeCity(address.city);
+      window.braze.getUser().setCountry(address?.country);
+      window.braze.getUser().setHomeCity(address?.city);
     }
     // function set Birthday
     function setBirthday() {
-      window.braze
-        .getUser()
-        .setDateOfBirth(
-          birthday.getUTCFullYear(),
-          birthday.getUTCMonth() + 1,
-          birthday.getUTCDate(),
-        );
+      try {
+        const date = new Date(birthday);
+        if (date.toString() === 'Invalid Date') {
+          logger.error('Invalid Date for birthday');
+          return;
+        }
+        window.braze
+          .getUser()
+          .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+      } catch (error) {
+        logger.error('Error in setting birthday', error);
+      }
     }
     // function set Email
     function setEmail() {
@@ -208,7 +155,7 @@ class Braze {
     }
     // function set firstName
     function setFirstName() {
-      window.braze.getUser().setFirstName(firstname);
+      window.braze.getUser().setFirstName(firstName);
     }
     // function set gender
     function setGender(genderName) {
@@ -216,30 +163,18 @@ class Braze {
     }
     // function set lastName
     function setLastName() {
-      window.braze.getUser().setLastName(lastname);
+      window.braze.getUser().setLastName(lastName);
     }
     function setPhone() {
       window.braze.getUser().setPhoneNumber(phone);
     }
 
-    // deep clone the traits object
-    let traits = {};
-    if (rudderElement.message?.context?.traits) {
-      traits = cloneDeep(rudderElement.message.context.traits);
-    }
+    // eslint-disable-next-line unicorn/consistent-destructuring
+    const traits = message?.context?.traits;
 
-    reserved.forEach((element) => {
-      delete traits[element];
-    });
-
-    if (
-      this.supportDedup &&
-      this.previousPayload !== null &&
-      userId &&
-      userId === this.previousPayload.rudderElement?.message?.userId
-    ) {
-      const prevMessage = this.previousPayload.rudderElement?.message;
-      const prevTraits = prevMessage?.context?.traits;
+    const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || {};
+    if (this.supportDedup && !R.isEmpty(previousPayload) && userId === previousPayload?.userId) {
+      const prevTraits = previousPayload?.context?.traits;
       const prevAddress = prevTraits?.address;
       const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
       const prevEmail = prevTraits?.email;
@@ -248,58 +183,51 @@ class Braze {
       const prevLastname = prevTraits?.lastname || prevTraits?.lastName;
       const prevPhone = prevTraits?.phone;
 
-      if (address && !isEqual(address, prevAddress)) setAddress();
-      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
       if (email && email !== prevEmail) setEmail();
-      if (firstname && firstname !== prevFirstname) setFirstName();
-      if (gender && this.formatGender(gender) !== this.formatGender(prevGender))
-        setGender(this.formatGender(gender));
-      if (lastname && lastname !== prevLastname) setLastName();
       if (phone && phone !== prevPhone) setPhone();
-
-      Object.keys(traits).forEach((key) => {
-        if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
-          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-        }
-      });
+      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
+      if (firstName && firstName !== prevFirstname) setFirstName();
+      if (lastName && lastName !== prevLastname) setLastName();
+      if (gender && formatGender(gender) !== formatGender(prevGender))
+        setGender(formatGender(gender));
+      if (address && !isEqual(address, prevAddress)) setAddress();
+      if (isObject(traits)) {
+        Object.keys(traits)
+          .filter((key) => reserved.indexOf(key) === -1)
+          .forEach((key) => {
+            if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
+              window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+            }
+          });
+      }
     } else {
       window.braze.changeUser(userId);
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
       // window.braze.getUser().setAvatarImageUrl(avatar);
       if (email) setEmail();
-      if (firstname) setFirstName();
-      if (gender) setGender(this.formatGender(gender));
-      if (lastname) setLastName();
+      if (firstName) setFirstName();
+      if (lastName) setLastName();
+      if (gender) setGender(formatGender(gender));
       if (phone) setPhone();
       if (address) setAddress();
       if (birthday) setBirthday();
-
-      Object.keys(traits).forEach((key) => {
-        window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-      });
+      if (isObject(traits)) {
+        Object.keys(traits)
+          .filter((key) => reserved.indexOf(key) === -1)
+          .forEach((key) => {
+            window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+          });
+      }
     }
-    this.previousPayload = { ...this.previousPayload, rudderElement };
-  }
-
-  handlePurchase(properties, userId) {
-    const { products } = properties;
-    const currencyCode = properties.currency;
-
-    window.braze.changeUser(userId);
-
-    // del used properties
-    del(properties, 'products');
-    del(properties, 'currency');
-
-    // we have to make a separate call to appboy for each product
-    if (products && Array.isArray(products) && products.length > 0) {
-      products.forEach((product) => {
-        const productId = product.product_id;
-        const { price } = product;
-        const { quantity } = product;
-        if (quantity && price && productId)
-          window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
-      });
+    if (
+      this.supportDedup &&
+      isObject(previousPayload) &&
+      !R.isEmpty(previousPayload) &&
+      userId === previousPayload?.userId
+    ) {
+      Storage.setItem('rs_braze_dedup_attributes', { ...previousPayload, ...message });
+    } else if (this.supportDedup) {
+      Storage.setItem('rs_braze_dedup_attributes', message);
     }
   }
 
@@ -307,19 +235,20 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
+    const { anonymousId } = rudderElement.message;
     let canSendCustomEvent = false;
     if (userId) {
       window.braze.changeUser(userId);
       canSendCustomEvent = true;
     } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(rudderElement.message.anonymousId);
+      window.braze.changeUser(anonymousId);
       canSendCustomEvent = true;
     }
     if (eventName && canSendCustomEvent) {
       if (eventName.toLowerCase() === 'order completed') {
-        this.handlePurchase(properties, userId);
+        handlePurchase(properties, userId);
       } else {
-        properties = this.handleReservedProperties(properties);
+        properties = handleReservedProperties(properties);
         window.braze.logCustomEvent(eventName, properties);
       }
     }
@@ -329,12 +258,13 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
+    const { anonymousId } = rudderElement.message;
     if (userId) {
       window.braze.changeUser(userId);
     } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(rudderElement.message.anonymousId);
+      window.braze.changeUser(anonymousId);
     }
-    properties = this.handleReservedProperties(properties);
+    properties = handleReservedProperties(properties);
     if (eventName) {
       window.braze.logCustomEvent(eventName, properties);
     } else {
@@ -343,11 +273,11 @@ class Braze {
   }
 
   isLoaded() {
-    return window.brazeQueue === null;
+    return this.appKey && window.brazeQueue === null;
   }
 
   isReady() {
-    return window.brazeQueue === null;
+    return this.appKey && window.brazeQueue === null;
   }
 }
 
