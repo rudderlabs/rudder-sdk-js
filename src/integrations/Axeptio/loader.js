@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-/* eslint-enable */
+/* eslint-disable */
 // END-NO-SONAR-SCAN
 function loader(d, s, clientId) {
   window.axeptioSettings = {

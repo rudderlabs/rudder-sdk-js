@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-/* eslint-enable */
+/* eslint-disable */
 // END-NO-SONAR-SCAN
 function loader(w, d, t, r, u) {
   let f;
