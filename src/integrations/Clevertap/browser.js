@@ -62,6 +62,9 @@ class Clevertap {
       onUserLogin: [],
       notifications: [],
     };
+    const { CLEVERTAP } = this.analytics.loadOnlyIntegrations;
+    this.optOut = CLEVERTAP.optOut || false;
+    this.useIP = CLEVERTAP.useIP || false;
     window.clevertap.enablePersonalization = true;
     window.clevertap.privacy.push({ optOut: this.optOut }); // set the flag to true, if the user of the device opts out of sharing their data
     window.clevertap.privacy.push({ useIP: this.useIP }); // set the flag to true, if the user agrees to share their IP data
