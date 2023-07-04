@@ -472,6 +472,7 @@ class Analytics {
                 }
                 // Transformation server access denied
                 case 404: {
+                  logger.warn(`System failure`);
                   // send untransformed event to destination
                   this.sendDataToDestination(intg, rudderElement, methodName);
                   break;
