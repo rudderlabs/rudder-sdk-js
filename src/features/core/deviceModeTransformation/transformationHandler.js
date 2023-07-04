@@ -64,9 +64,7 @@ class TransformationsHandler {
 
               switch (status) {
                 case 200: {
-                  if (response && typeof response === 'string') {
-                    response = JSON.parse(response);
-                  }
+                  response = JSON.parse(response);
                   /**
                    * Sample Response format:
                    * {
@@ -168,7 +166,7 @@ class TransformationsHandler {
           handleError(err.message);
         }
         this.isTransformationProcessing = false;
-        // send null as response in case of error or retry fail
+        // send only status as response in case of unhandled error occurs
         firstElement.cb({ status: 0 });
         this.checkQueueLengthAndProcess();
       });

@@ -434,36 +434,35 @@ class Analytics {
                   const destTransformedResult = transformedPayload.find(
                     (e) => e.id === intg.destinationId,
                   );
-                  const eventsToSent = [];
+                  const eventsToSend = [];
                   destTransformedResult?.payload.forEach((tEvent) => {
                     // Transformation successful
                     // event level status is 200
                     if (tEvent.status === 200) {
                       // push transformed event to the queue
-                      eventsToSent.push(tEvent);
-                    }
-                    else {
+                      eventsToSend.push(tEvent);
+                    } else {
                       const msgPrefix = `[DMT]:: Event transformation unsuccessful for destination "${intg.name}". Reason: `;
-                      
+
                       let reason = 'Unknown';
                       if (tEvent.status === 410) {
                         reason = 'Transformation is not available';
                       }
-                      
+
                       let action = 'Dropping the event';
                       let logMethod = logger.error;
                       if (intg.propagateEventsUntransformedOnError === true) {
                         action = 'Sending untransformed event';
                         logMethod = logger.warn;
-                        eventsToSent.push({ event: rudderElement.message });
+                        eventsToSend.push({ event: rudderElement.message });
                       }
-                      
+
                       const logMsg = `${msgPrefix} "${reason}. ${action}.`;
                       logMethod(logMsg);
                     }
                   });
                   // send events to destination
-                  eventsToSent?.forEach((tEvent) => {
+                  eventsToSend?.forEach((tEvent) => {
                     // send only if the event is not null/undefined/empty object
                     if (isNonEmptyObject(tEvent.event)) {
                       this.sendDataToDestination(intg, { message: tEvent.event }, methodName);

@@ -90,7 +90,7 @@ describe('Test suite for device mode transformation feature', () => {
       .then((response) => {
         console.log(response);
         expect(counter).toEqual(retryCount + 1); // retryCount+ first attempt
-        expect(response.errorMessage).toBe('Retry exhausted');
+        expect(response.errorMessage).toBe('Retries exhausted');
         expect(response.status).toBe(500);
       })
       .catch((e) => {
