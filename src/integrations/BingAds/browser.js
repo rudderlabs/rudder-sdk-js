@@ -4,6 +4,7 @@ import { NAME } from './constants';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { extractCustomFields } from '../../utils/utils';
+import { loader } from './loader';
 
 class BingAds {
   constructor(config, analytics, destinationInfo) {
@@ -18,37 +19,8 @@ class BingAds {
     this.uniqueId = `bing${this.tagID}`;
   }
 
-  /* eslint-disable */
-  loadBingadsScript = () => {
-    ((w, d, t, r, u) => {
-      let f;
-      let n;
-      let i;
-      (w[u] = w[u] || []),
-        (f = () => {
-          const o = {
-            ti: this.tagID,
-          };
-          (o.q = w[u]), (w[u] = new UET(o));
-        }),
-        (n = d.createElement(t)),
-        (n.src = r),
-        (n.async = 1),
-        n.setAttribute('data-loader', LOAD_ORIGIN),
-        (n.onload = n.onreadystatechange =
-          function () {
-            const s = this.readyState;
-            (s && s !== 'loaded' && s !== 'complete' && typeof w['UET'] === 'function') ||
-              (f(), (n.onload = n.onreadystatechange = null));
-          }),
-        (i = d.getElementsByTagName(t)[0]),
-        i.parentNode.insertBefore(n, i);
-    })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
-  };
-  /* eslint-enable */
-
   init = () => {
-    this.loadBingadsScript();
+    loader(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
     logger.debug('===in init BingAds===');
   };
 
