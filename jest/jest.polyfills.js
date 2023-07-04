@@ -16,3 +16,7 @@ global.Math.random = () => 0.5;
 // Suppress Console output from tested code to terminal
 console.warn = jest.fn();
 console.error = jest.fn();
+
+import { TextEncoder, TextDecoder } from 'util';
+
+Object.assign(global, { TextDecoder, TextEncoder });

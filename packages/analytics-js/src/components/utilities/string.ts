@@ -23,6 +23,22 @@ const tryStringify = (val?: any): Nullable<string> | undefined => {
   return retVal;
 };
 
-const toBase64 = (value: string): string => btoa(`${value}`);
+// The following text encoding and decoding is done before base64 encoding to prevent
+// https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
 
-export { trim, removeDoubleSpaces, tryStringify, toBase64 };
+const base64ToBytes = (base64Str: string) => {
+  const binString = (globalThis as typeof window).atob(base64Str);
+  const bytes = binString.split('').map(char => char.charCodeAt(0));
+  return new Uint8Array(bytes);
+};
+
+const bytesToBase64 = (bytes: Uint8Array) => {
+  const binString = Array.from(bytes, x => String.fromCodePoint(x)).join('');
+  return (globalThis as typeof window).btoa(binString);
+};
+
+const toBase64 = (value: string): string => bytesToBase64(new TextEncoder().encode(value));
+
+const fromBase64 = (value: string): string => new TextDecoder().decode(base64ToBytes(value));
+
+export { trim, removeDoubleSpaces, tryStringify, toBase64, fromBase64 };

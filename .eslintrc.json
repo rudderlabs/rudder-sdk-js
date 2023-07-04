@@ -19,7 +19,10 @@
       "Object.entries",
       "Object.values",
       "Element.prototype.dataset",
-      "String.prototype.replaceAll"
+      "String.prototype.replaceAll",
+      "TextEncoder",
+      "TextDecoder",
+      "String.fromCodePoint"
     ]
   },
   "env": {

@@ -3,6 +3,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { toBase64 } from '@rudderstack/analytics-js/components/utilities/string';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { IAsyncRequestConfig, IHttpClient, IRequestConfig, ResponseDetails } from './types';
@@ -90,7 +91,7 @@ class HttpClient implements IHttpClient {
    * Set basic authentication header (eg writekey)
    */
   setAuthHeader(value: string, noBtoa = false) {
-    this.basicAuthHeader = `Basic ${noBtoa ? value : btoa(`${value}:`)}`;
+    this.basicAuthHeader = `Basic ${noBtoa ? value : toBase64(`${value}:`)}`;
   }
 
   /**
