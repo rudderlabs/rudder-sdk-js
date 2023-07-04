@@ -7,7 +7,7 @@
 
 /* Loading snippet start */
 const sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/v3';
-const sdkName = 'rudder-analytics.min.js';
+const sdkName = 'rsa.min.js';
 const asyncScript = true;
 window.rudderAnalyticsBuildType = 'legacy';
 

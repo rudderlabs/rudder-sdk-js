@@ -115,13 +115,13 @@ describe('Bugsnag utilities', () => {
 
   describe('isRudderSDKError', () => {
     const testCaseData = [
-      ['https://testdomain.com/rudder-analytics.min.js', true],
+      ['https://testdomain.com/rsa.min.js', true],
       ['https://testdomain.com/rudderanalytics.min.js', false],
-      ['https://testdomain.com/rudder-analytics-plugins-Beacon.min.js', true],
+      ['https://testdomain.com/rsa-plugins-Beacon.min.js', true],
       ['https://testdomain.com/Amplitude.min.js', true],
       ['https://testdomain.com/Qualaroo.min.js', true],
       ['https://testdomain.com/test.js', false],
-      ['https://testdomain.com/rudder-analytics.css', false],
+      ['https://testdomain.com/rsa.css', false],
       [undefined, false],
       [null, false],
       [1, false],
@@ -152,7 +152,7 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://testdomain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
@@ -178,13 +178,13 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://testdomain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
           this.metadata[key] = value;
         },
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
       };
 
       enhanceErrorEventMutator(event, 'dummyMetadataVal');
@@ -341,7 +341,7 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/not-rudder-analytics.min.js',
+            file: 'https://testdomain.com/not-rsa.min.js',
           },
         ],
       };
@@ -355,10 +355,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://testdomain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
         updateMetaData: jest.fn(),
       } as any;
 
@@ -377,10 +377,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rudder-analytics.min.js',
+            file: 'https://testdomain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rudder-analytics.min.js"',
+        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
       } as any;
 
       const onErrorFn = onError(state);

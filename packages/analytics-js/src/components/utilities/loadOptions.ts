@@ -1,7 +1,10 @@
 import { clone } from 'ramda';
 import { LoadOptions } from '@rudderstack/analytics-js/state/types';
 import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import {
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js/components/utilities/object';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 
@@ -19,6 +22,14 @@ const normalizeLoadOptions = (
 
   normalizedLoadOptions.bufferDataPlaneEventsUntilReady =
     normalizedLoadOptions.bufferDataPlaneEventsUntilReady === true;
+
+  normalizedLoadOptions.sendAdblockPage = normalizedLoadOptions.sendAdblockPage === true;
+
+  normalizedLoadOptions.sendAdblockPageOptions = isObjectLiteralAndNotNull(
+    normalizedLoadOptions.sendAdblockPageOptions,
+  )
+    ? normalizedLoadOptions.sendAdblockPageOptions
+    : {};
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(
     loadOptionsFromState,

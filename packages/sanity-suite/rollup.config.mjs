@@ -93,14 +93,14 @@ const getCopyTargets = () => {
       return isV3
         ? [
             {
-              src: '../analytics-js/dist/cdn/legacy/iife/rudder-analytics.min.js',
+              src: '../analytics-js/dist/cdn/legacy/iife/rsa.min.js',
               dest: getDistPath(),
-              rename: 'rudder-analytics.min.js',
+              rename: 'rsa.min.js',
             },
             {
-              src: '../analytics-js/dist/cdn/legacy/iife/rudder-analytics.min.js.map',
+              src: '../analytics-js/dist/cdn/legacy/iife/rsa.min.js.map',
               dest: getDistPath(),
-              rename: 'rudder-analytics.min.js.map',
+              rename: 'rsa.min.js.map',
             },
             {
               src: '../analytics-v1.1/dist/legacy/js-integrations/*',

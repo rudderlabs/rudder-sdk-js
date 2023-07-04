@@ -17,13 +17,13 @@ module.exports = [
   },
   {
     name: 'Core Legacy - CDN',
-    path: 'dist/cdn/legacy/iife/rudder-analytics.min.js',
+    path: 'dist/cdn/legacy/iife/rsa.min.js',
     gzip: true,
     limit: '47 kB',
   },
   {
     name: 'Core - CDN',
-    path: 'dist/cdn/modern/iife/rudder-analytics.min.js',
+    path: 'dist/cdn/modern/iife/rsa.min.js',
     gzip: true,
     limit: '23.5 kB',
   },
