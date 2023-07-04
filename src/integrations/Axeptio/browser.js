@@ -16,11 +16,11 @@ class Axeptio {
     this.name = NAME;
     this.clientId = config.clientId;
     this.toggleToActivateCallback = config.toggleToActivateCallback;
-    this.shouldApplyDeviceModeTransformation =
-      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
-    this.propagateEventsUntransformedOnError =
-      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {

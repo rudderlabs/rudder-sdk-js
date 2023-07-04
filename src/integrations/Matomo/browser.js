@@ -48,11 +48,11 @@ class Matomo {
       CLEAR_ECOMMERCE_CART: 'CLEAR_ECOMMERCE_CART',
       TRACK_ECOMMERCE_CART_UPDATE: 'TRACK_ECOMMERCE_CART_UPDATE',
     };
-    this.shouldApplyDeviceModeTransformation =
-      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
-    this.propagateEventsUntransformedOnError =
-      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {

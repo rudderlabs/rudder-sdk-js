@@ -20,11 +20,11 @@ class Olark {
     this.standardToEvent = config.standardToEvent;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
-    this.shouldApplyDeviceModeTransformation =
-      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
-    this.propagateEventsUntransformedOnError =
-      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {

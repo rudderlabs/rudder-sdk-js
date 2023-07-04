@@ -16,11 +16,11 @@ class Engage {
     this.api_secret = config.privateKey;
     this.name = NAME;
     this.listsIds = config.listsIds;
-    this.shouldApplyDeviceModeTransformation =
-      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
-    this.propagateEventsUntransformedOnError =
-      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {

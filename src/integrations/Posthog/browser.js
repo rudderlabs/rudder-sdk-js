@@ -22,11 +22,11 @@ class Posthog {
     this.propertyBlackList = [];
     this.xhrHeaders = {};
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
-    this.shouldApplyDeviceModeTransformation =
-      destinationInfo && destinationInfo.shouldApplyDeviceModeTransformation;
-    this.propagateEventsUntransformedOnError =
-      destinationInfo && destinationInfo.propagateEventsUntransformedOnError;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach((header) => {
