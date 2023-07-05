@@ -48,6 +48,8 @@ export type PluginName =
   | 'GoogleLinker'
   | 'NativeDestinationQueue'
   | 'StorageEncryption'
+  | 'StorageEncryptionLegacy'
+  | 'StorageMigrator'
   | 'XhrQueue'
   | 'OneTrust'
   | 'Bugsnag';

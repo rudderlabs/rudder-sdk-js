@@ -9,6 +9,7 @@ import {
   CookieSameSite,
   LoadOptions,
   LogLevel,
+  StorageEncryptionVersion,
   UaChTrackLevel,
 } from '@rudderstack/analytics-js/state/types';
 import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
@@ -36,6 +37,11 @@ const defaultLoadOptions: LoadOptions = {
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,
+  storage: {
+    encryption: {
+      version: StorageEncryptionVersion.V3,
+    },
+  },
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

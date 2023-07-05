@@ -9,6 +9,8 @@ import {
   GoogleLinker,
   NativeDestinationQueue,
   StorageEncryption,
+  StorageEncryptionLegacy,
+  StorageMigrator,
   XhrQueue,
   OneTrust,
   Bugsnag,
@@ -29,6 +31,8 @@ const legacyBuildPluginImports = (): PluginMap => ({
   GoogleLinker,
   NativeDestinationQueue,
   StorageEncryption,
+  StorageEncryptionLegacy,
+  StorageMigrator,
   XhrQueue,
   OneTrust,
 });

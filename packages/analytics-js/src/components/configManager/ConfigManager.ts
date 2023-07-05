@@ -19,7 +19,7 @@ import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
-import { updateReportingState } from './util/commonUtil';
+import { updateReportingState, updateStorageState } from './util/commonUtil';
 import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
@@ -80,6 +80,8 @@ class ConfigManager implements IConfigManager {
           );
         }
       }
+
+      updateStorageState(this.logger);
 
       // set application lifecycle state in global state
       batch(() => {

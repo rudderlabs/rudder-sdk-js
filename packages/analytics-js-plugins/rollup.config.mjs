@@ -43,6 +43,8 @@ const pluginsMap = {
   './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
   './OneTrust': './src/oneTrust/index.ts',
   './StorageEncryption': './src/storageEncryption/index.ts',
+  './StorageMigrator': './src/storageMigrator/index.ts',
+  './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 

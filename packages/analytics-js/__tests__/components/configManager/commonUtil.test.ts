@@ -100,7 +100,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -125,7 +125,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -151,7 +151,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(false);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'The configured error reporting provider "random-provider" is not supported. Supported provider(s) is/are "bugsnag". Using the default provider (bugsnag).',

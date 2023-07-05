@@ -56,6 +56,8 @@ class UserSessionManager implements IUserSessionManager {
   init(storage: IStore) {
     this.storage = storage;
 
+    this.migrateStorageIfNeeded();
+
     // get the values from storage and set it again
     this.setUserId(this.getUserId() ?? '');
     this.setUserTraits(this.getUserTraits() ?? {});
@@ -82,6 +84,18 @@ class UserSessionManager implements IUserSessionManager {
     this.initializeSessionTracking();
     // Register the effect to sync with storage
     this.registerEffects();
+  }
+
+  migrateStorageIfNeeded() {
+    if (!state.storage.migrate.value) {
+      return;
+    }
+
+    Object.values(userSessionStorageKeys).forEach(storageEntry => {
+      const storedVal = this.storage?.get(storageEntry);
+      const migratedVal = this.pluginManager?.invokeSingle('storage.migrate', storedVal);
+      this.syncValueToStorage(storageEntry, migratedVal);
+    });
   }
 
   /**

@@ -8,6 +8,8 @@ declare module 'rudderAnalyticsRemotePlugins/ExternalAnonymousId';
 declare module 'rudderAnalyticsRemotePlugins/GoogleLinker';
 declare module 'rudderAnalyticsRemotePlugins/NativeDestinationQueue';
 declare module 'rudderAnalyticsRemotePlugins/StorageEncryption';
+declare module 'rudderAnalyticsRemotePlugins/StorageEncryptionLegacy';
+declare module 'rudderAnalyticsRemotePlugins/StorageMigrator';
 declare module 'rudderAnalyticsRemotePlugins/XhrQueue';
 declare module 'rudderAnalyticsRemotePlugins/OneTrust';
 declare module 'rudderAnalyticsRemotePlugins/Bugsnag';
