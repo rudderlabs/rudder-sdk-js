@@ -472,7 +472,7 @@ class Analytics {
                 }
                 // Transformation server access denied
                 case 404: {
-                  logger.warn(`System failure`);
+                  logger.warn(`[DMT]:: Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`);
                   // send untransformed event to destination
                   this.sendDataToDestination(intg, rudderElement, methodName);
                   break;
