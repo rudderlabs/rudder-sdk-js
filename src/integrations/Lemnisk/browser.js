@@ -73,6 +73,7 @@ class Lemnisk {
     // disabling eslint as message will be there iinn any case
     // eslint-disable-next-line no-unsafe-optional-chaining
     const { traits } = rudderElement.message?.context;
+    traits['isRudderEvents'] = 1;
     if (traits) {
       window.lmSMTObj.identify(rudderElement.message.userId, traits);
     } else {
@@ -89,9 +90,10 @@ class Lemnisk {
       return;
     }
     if (properties) {
+      properties['isRudderEvents'] = 1;
       window.lmSMTObj.track(event, properties);
     } else {
-      window.lmSMTObj.track(event);
+      window.lmSMTObj.track(event,{'isRudderEvents': 1});
     }
   }
 
@@ -99,13 +101,15 @@ class Lemnisk {
     logger.debug('===In Lemnisk Marketing Automation page===');
     const { name, properties } = rudderElement.message;
     if (name && !properties) {
-      window.lmSMTObj.page(name);
+      window.lmSMTObj.page(name,{'isRudderEvents': 1});
     } else if (!name && properties) {
+      properties['isRudderEvents'] = 1;
       window.lmSMTObj.page(properties);
     } else if (name && properties) {
+      properties['isRudderEvents'] = 1;
       window.lmSMTObj.page(name, properties);
     } else {
-      window.lmSMTObj.page();
+      window.lmSMTObj.page({'isRudderEvents': 1});
     }
   }
 }
