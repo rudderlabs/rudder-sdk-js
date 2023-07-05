@@ -5,7 +5,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '../../utils/constants';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loader } from './loader';
 
 class Comscore {
   constructor(config, analytics, destinationInfo) {
@@ -70,16 +70,7 @@ class Comscore {
 
   initAfterPage() {
     logger.debug('=====in initAfterPage=====');
-    (function () {
-      const s = document.createElement('script');
-      const el = document.getElementsByTagName('script')[0];
-      s.async = true;
-      s.setAttribute('data-loader', LOAD_ORIGIN);
-      s.src = `${
-        document.location.protocol == 'https:' ? 'https://sb' : 'http://b'
-      }.scorecardresearch.com/beacon.js`;
-      el.parentNode.insertBefore(s, el);
-    })();
+    loader();
 
     this._isReady(this).then((instance) => {
       instance.replayEvents.forEach((event) => {
