@@ -64,12 +64,15 @@ class Clevertap {
       onUserLogin: [],
       notifications: [],
     };
+    /*
+      Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
+    */
     const { CLEVERTAP } = this.analytics.loadOnlyIntegrations;
     this.optOut = CLEVERTAP.optOut || false;
     this.useIP = CLEVERTAP.useIP || false;
     window.clevertap.enablePersonalization = true;
-    window.clevertap.privacy.push({ optOut: this.optOut }); // set the flag to true, if the user of the device opts out of sharing their data
-    window.clevertap.privacy.push({ useIP: this.useIP }); // set the flag to true, if the user agrees to share their IP data
+    window.clevertap.privacy.push({ optOut: this.optOut });
+    window.clevertap.privacy.push({ useIP: this.useIP });
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
       window.clevertap.region.push(this.region);
