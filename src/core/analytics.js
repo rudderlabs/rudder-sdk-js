@@ -452,7 +452,7 @@ class Analytics {
                       let action = 'Dropping the event';
                       let logMethod = logger.error;
                       if (intg.propagateEventsUntransformedOnError === true) {
-                        action = 'Sending untransformed event';
+                        action = 'Sending untransformed event to the destination';
                         logMethod = logger.warn;
                         eventsToSend.push({ event: rudderElement.message });
                       }
