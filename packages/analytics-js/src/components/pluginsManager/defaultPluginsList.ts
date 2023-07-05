@@ -12,7 +12,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.ExternalAnonymousId,
   PluginName.GoogleLinker,
   PluginName.NativeDestinationQueue,
-  PluginName.StorageEncryptionLegacy,
+  PluginName.StorageEncryption,
   PluginName.XhrQueue,
   PluginName.OneTrust,
   PluginName.BeaconQueue,

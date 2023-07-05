@@ -42,9 +42,7 @@ const pluginsMap = {
   './GoogleLinker': './src/googleLinker/index.ts',
   './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
   './OneTrust': './src/oneTrust/index.ts',
-  // TODO: Commented out until we implement the new lightweight encryption plugin
-  // './StorageEncryption': './src/storageEncryption/index.ts',
-  './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
+  './StorageEncryption': './src/storageEncryption/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 
@@ -103,41 +101,41 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         sourcemap: sourceMapType,
       }),
       !isLegacyBuild &&
-        federation({
-          name: modName,
-          filename: remotePluginsExportsFilename,
-          exposes: pluginsMap,
-        }),
+      federation({
+        name: modName,
+        filename: remotePluginsExportsFilename,
+        exposes: pluginsMap,
+      }),
       process.env.UGLIFY === 'true' &&
-        terser({
-          safari10: isLegacyBuild,
-          ecma: isLegacyBuild ? 2015 : 2017,
-          format: {
-            comments: false,
-          },
-        }),
+      terser({
+        safari10: isLegacyBuild,
+        ecma: isLegacyBuild ? 2015 : 2017,
+        format: {
+          comments: false,
+        },
+      }),
       filesize({
         showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
-        visualizer({
-          filename: `./stats/${distName}.html`,
-          title: `Rollup Visualizer - ${distName}`,
-          sourcemap: true,
-          open: true,
-          gzipSize: true,
-          brotliSize: true,
-        }),
+      visualizer({
+        filename: `./stats/${distName}.html`,
+        title: `Rollup Visualizer - ${distName}`,
+        sourcemap: true,
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
       isLocalServerEnabled &&
-        serve({
-          contentBase: ['dist'],
-          host: 'localhost',
-          port: 3002,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-          },
-        }),
+      serve({
+        contentBase: ['dist'],
+        host: 'localhost',
+        port: 3002,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }),
       isLocalServerEnabled && livereload(),
     ],
   };

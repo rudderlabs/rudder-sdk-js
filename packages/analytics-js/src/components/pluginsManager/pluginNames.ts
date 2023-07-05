@@ -18,7 +18,6 @@ const remotePluginNames: PluginName[] = [
   PluginName.GoogleLinker,
   PluginName.NativeDestinationQueue,
   PluginName.StorageEncryption,
-  PluginName.StorageEncryptionLegacy,
   PluginName.XhrQueue,
   PluginName.OneTrust,
   PluginName.Bugsnag,

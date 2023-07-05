@@ -1,13 +1,12 @@
 /* eslint-disable no-param-reassign */
-import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
 import { ApplicationState } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
-import { ENCRYPTION_KEY_V3, ENCRYPTION_PREFIX_V3 } from './constants';
+import { fromBase64, toBase64 } from '../utilities/common';
+import { ENCRYPTION_PREFIX_V1, ENCRYPTION_PREFIX_V3 } from './constants';
+import { legacyDecrypt } from './utils';
 
 const pluginName = 'StorageEncryption';
 
-// TODO: create the encryption with new npm package
 const StorageEncryption = (): ExtensionPlugin => ({
   name: pluginName,
   initialize: (state: ApplicationState) => {
@@ -15,14 +14,17 @@ const StorageEncryption = (): ExtensionPlugin => ({
   },
   storage: {
     encrypt(value: any): string {
-      return `${ENCRYPTION_PREFIX_V3}${AES.encrypt(value, ENCRYPTION_KEY_V3).toString()}`;
+      return `${ENCRYPTION_PREFIX_V3}${toBase64(value)}`;
     },
     decrypt(value: string): string {
       if (value.startsWith(ENCRYPTION_PREFIX_V3)) {
-        return AES.decrypt(
-          value.substring(ENCRYPTION_PREFIX_V3.length),
-          ENCRYPTION_KEY_V3,
-        ).toString(Utf8);
+        return fromBase64(value.substring(ENCRYPTION_PREFIX_V3.length)) ?? value;
+      }
+
+      // To remove this once all the persistent data is migrated to new encryption.
+      // We might need to collect metrics on how many users are still using the old encryption
+      if (value.startsWith(ENCRYPTION_PREFIX_V1)) {
+        return legacyDecrypt(value);
       }
 
       return value;

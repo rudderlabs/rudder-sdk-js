@@ -24,7 +24,6 @@ export enum PluginName {
   GoogleLinker = 'GoogleLinker',
   NativeDestinationQueue = 'NativeDestinationQueue',
   StorageEncryption = 'StorageEncryption',
-  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   XhrQueue = 'XhrQueue',
   OneTrust = 'OneTrust',
   Bugsnag = 'Bugsnag',
