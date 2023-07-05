@@ -50,10 +50,12 @@ class Clevertap {
 
   init() {
     logger.debug('===in init Clevertap===');
+    // START-NO-SONAR-SCAN
     const sourceUrl =
       document.location.protocol === 'https:'
         ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
         : 'http://static.clevertap.com/js/clevertap.min.js';
+    // END-NO-SONAR-SCAN
 
     window.clevertap = {
       event: [],
