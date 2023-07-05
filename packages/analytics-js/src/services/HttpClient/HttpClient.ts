@@ -91,7 +91,8 @@ class HttpClient implements IHttpClient {
    * Set basic authentication header (eg writekey)
    */
   setAuthHeader(value: string, noBtoa = false) {
-    this.basicAuthHeader = `Basic ${noBtoa ? value : toBase64(`${value}:`)}`;
+    const authVal = noBtoa ? value : toBase64(`${value}:`);
+    this.basicAuthHeader = `Basic ${authVal}`;
   }
 
   /**
