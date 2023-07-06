@@ -96,9 +96,18 @@ const updateStorageState = (logger?: ILogger): void => {
       StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
 
     // Allow migration only if the configured encryption version is the default encryption version
+    const configuredMigrationValue = state.loadOptions.value.storage?.migrate;
     state.storage.migrate.value =
-      (state.loadOptions.value.storage?.migrate as boolean) &&
+      (configuredMigrationValue as boolean) &&
       storageEncryptionVersion === DEFAUlT_STORAGE_ENCRYPTION_VERSION;
+    if (
+      configuredMigrationValue === true &&
+      state.storage.migrate.value !== configuredMigrationValue
+    ) {
+      logger?.warn(
+        `The storage data migration is disabled as the configured storage encryption version (${storageEncryptionVersion}) is not the latest.`,
+      );
+    }
   });
 };
 
