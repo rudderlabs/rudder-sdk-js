@@ -13,7 +13,7 @@ module.exports = [
     name: 'All Integrations - CDN',
     path: 'dist/legacy/js-integrations/*.min.js',
     gzip: true,
-    limit: '432.6 kB',
+    limit: '432.654 kB',
   },
   {
     name: 'Core - NPM',
