@@ -1,6 +1,9 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '../types/common';
-import { ExtensionPlugin } from '../types/plugins';
+import { ApplicationState, ILogger, IStorage } from '../types/common';
+import { ExtensionPlugin, Nullable } from '../types/plugins';
+import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
+import { isNullOrUndefined } from '../utilities/common';
+import { decrypt } from '../storageEncryption/encryptionUtils';
 
 const pluginName = 'StorageMigrator';
 
@@ -10,9 +13,33 @@ const StorageMigrator = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   storage: {
-    migrate(value: any): string {
-      // TODO: Add migration logic here
-      return value;
+    migrate(key: string, storageEngine: IStorage, logger?: ILogger): Nullable<string> {
+      try {
+        const storedVal = storageEngine.getItem(key);
+        if (isNullOrUndefined(storedVal)) {
+          return null;
+        }
+
+        let decryptedVal = decryptLegacy(storedVal as string);
+
+        // The value is not encrypted using legacy encryption
+        // Try latest
+        if (decryptedVal === storedVal) {
+          decryptedVal = decrypt(storedVal);
+        }
+
+        if (isNullOrUndefined(decryptedVal)) {
+          return null;
+        }
+
+        // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+        return JSON.parse(decryptedVal as string);
+      } catch (err) {
+        logger?.error(
+          `Value for '${key}' cannot be retrieved/parsed from storage, ${(err as Error).message}`,
+        );
+        return null;
+      }
     },
   },
 });

@@ -1,5 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
-export { isFunction, isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+export {
+  isFunction,
+  isUndefined,
+  isNullOrUndefined,
+} from '@rudderstack/analytics-js/components/utilities/checks';
 export { getCurrentTimeFormatted } from '@rudderstack/analytics-js/components/utilities/timestamp';
 export { toBase64, fromBase64 } from '@rudderstack/analytics-js/components/utilities/string';
 export { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';

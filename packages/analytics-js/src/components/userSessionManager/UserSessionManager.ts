@@ -92,8 +92,12 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     Object.values(userSessionStorageKeys).forEach(storageEntry => {
-      const storedVal = this.storage?.get(storageEntry);
-      const migratedVal = this.pluginManager?.invokeSingle('storage.migrate', storedVal);
+      const migratedVal = this.pluginManager?.invokeSingle(
+        'storage.migrate',
+        storageEntry,
+        this.storage?.engine,
+        this.logger,
+      );
       this.syncValueToStorage(storageEntry, migratedVal);
     });
   }

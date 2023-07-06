@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
-import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
 import { ApplicationState } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
-import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';
+import { decrypt, encrypt } from './legacyEncryptionUtils';
 
 const pluginName = 'StorageEncryptionLegacy';
 
@@ -14,17 +12,10 @@ const StorageEncryptionLegacy = (): ExtensionPlugin => ({
   },
   storage: {
     encrypt(value: any): string {
-      return `${ENCRYPTION_PREFIX_V1}${AES.encrypt(value, ENCRYPTION_KEY_V1).toString()}`;
+      return encrypt(value);
     },
     decrypt(value: string): string {
-      if (value.startsWith(ENCRYPTION_PREFIX_V1)) {
-        return AES.decrypt(
-          value.substring(ENCRYPTION_PREFIX_V1.length),
-          ENCRYPTION_KEY_V1,
-        ).toString(Utf8);
-      }
-
-      return value;
+      return decrypt(value);
     },
   },
 });
