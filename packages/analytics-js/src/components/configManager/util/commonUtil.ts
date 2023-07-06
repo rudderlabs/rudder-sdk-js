@@ -83,7 +83,7 @@ const updateStorageState = (logger?: ILogger): void => {
     logger?.warn(
       `The configured storage encryption version "${storageEncryptionVersion}" is not supported. Supported version(s) is/are "${Object.keys(
         StorageEncryptionVersionsToPluginNameMap,
-      )}". Using the default provider (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
+      )}". Using the default version (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
     );
     storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
   } else if (isUndefined(storageEncryptionVersion)) {
@@ -92,8 +92,7 @@ const updateStorageState = (logger?: ILogger): void => {
 
   batch(() => {
     state.storage.encryptionPluginName.value =
-      storageEncryptionVersion &&
-      StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
+      StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
 
     // Allow migration only if the configured encryption version is the default encryption version
     const configuredMigrationValue = state.loadOptions.value.storage?.migrate;
