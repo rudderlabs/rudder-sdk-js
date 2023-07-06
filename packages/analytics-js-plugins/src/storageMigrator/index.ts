@@ -33,7 +33,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         }
 
         // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-        return JSON.parse(decryptedVal as string);
+        return JSON.parse(decryptedVal);
       } catch (err) {
         logger?.error(
           `Value for '${key}' cannot be retrieved/parsed from storage, ${(err as Error).message}`,
