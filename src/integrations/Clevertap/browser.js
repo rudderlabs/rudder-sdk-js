@@ -44,8 +44,6 @@ class Clevertap {
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-    this.optOut = config.optOut || false;
-    this.useIP = config.useIP || false;
   }
 
   init() {
@@ -63,16 +61,19 @@ class Clevertap {
       account: [],
       onUserLogin: [],
       notifications: [],
+      privacy: [],
     };
     /*
       Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
     */
     const { CLEVERTAP } = this.analytics.loadOnlyIntegrations;
-    this.optOut = CLEVERTAP.optOut || false;
-    this.useIP = CLEVERTAP.useIP || false;
+    if (CLEVERTAP) {
+      this.optOut = CLEVERTAP.optOut;
+      this.useIP = CLEVERTAP.useIP;
+    }
     window.clevertap.enablePersonalization = true;
-    window.clevertap.privacy.push({ optOut: this.optOut });
-    window.clevertap.privacy.push({ useIP: this.useIP });
+    window.clevertap.privacy.push({ optOut: this.optOut || false });
+    window.clevertap.privacy.push({ useIP: this.useIP || false });
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
       window.clevertap.region.push(this.region);
