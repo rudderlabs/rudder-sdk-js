@@ -2,7 +2,7 @@ import { StorageEncryptionVersion } from '@rudderstack/analytics-js/state/types'
 import { PluginName } from '../pluginsManager/types';
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
-const DEFAUlT_STORAGE_ENCRYPTION_VERSION = StorageEncryptionVersion.V3;
+const DEFAULT_STORAGE_ENCRYPTION_VERSION = StorageEncryptionVersion.V3;
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: PluginName.OneTrust,
@@ -13,8 +13,8 @@ export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> 
 };
 
 export const StorageEncryptionVersionsToPluginNameMap: Record<string, PluginName> = {
-  [DEFAUlT_STORAGE_ENCRYPTION_VERSION]: PluginName.StorageEncryption,
+  [DEFAULT_STORAGE_ENCRYPTION_VERSION]: PluginName.StorageEncryption,
   [StorageEncryptionVersion.Legacy]: PluginName.StorageEncryptionLegacy,
 };
 
-export { DEFAULT_ERROR_REPORTING_PROVIDER, DEFAUlT_STORAGE_ENCRYPTION_VERSION };
+export { DEFAULT_ERROR_REPORTING_PROVIDER, DEFAULT_STORAGE_ENCRYPTION_VERSION };

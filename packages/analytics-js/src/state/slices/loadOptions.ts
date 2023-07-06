@@ -9,10 +9,10 @@ import {
   CookieSameSite,
   LoadOptions,
   LogLevel,
-  StorageEncryptionVersion,
   UaChTrackLevel,
 } from '@rudderstack/analytics-js/state/types';
 import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '@rudderstack/analytics-js/components/configManager/constants';
 
 export type LoadOptionsState = Signal<LoadOptions>;
 
@@ -39,8 +39,9 @@ const defaultLoadOptions: LoadOptions = {
   bufferDataPlaneEventsUntilReady: false,
   storage: {
     encryption: {
-      version: StorageEncryptionVersion.V3,
+      version: DEFAULT_STORAGE_ENCRYPTION_VERSION,
     },
+    migrate: false,
   },
 };
 
