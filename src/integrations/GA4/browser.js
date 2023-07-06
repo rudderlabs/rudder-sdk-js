@@ -207,7 +207,8 @@ export default class GA4 {
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj, integrations) {
     if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
-      throw Error('Payload must have required parameters..');
+      logger.error('Payload must have required parameters..');
+      return;
     }
     const params = { ...parameters };
     params.send_to = this.measurementId;
@@ -251,7 +252,8 @@ export default class GA4 {
     const { properties, integrations } = rudderElement.message;
     const { products } = properties;
     if (!event || isReservedName(event)) {
-      throw Error('Cannot call un-named/reserved named track event');
+      logger.error('Cannot call un-named/reserved named track event');
+      return;
     }
     // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);

@@ -603,10 +603,13 @@ class FacebookPixel {
   }
 
   formatRevenue(revenue) {
-    const formattedRevenue = parseFloat(parseFloat(revenue || 0).toFixed(2));
+    const parsedRevenue = parseFloat(revenue);
+    const formattedRevenue = Number.isNaN(parsedRevenue) ? 0 : parseFloat(parsedRevenue.toFixed(2));
+
     if (Number.isNaN(formattedRevenue)) {
-      logger.error('Revenue could not be converted to number');
+      logger.error('Revenue could not be converted to a number');
     }
+
     return formattedRevenue;
   }
 

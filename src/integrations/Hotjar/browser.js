@@ -1,3 +1,6 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable no-param-reassign */
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
@@ -60,6 +63,11 @@ class Hotjar {
 
     if (!event) {
       logger.error('Event name not present');
+      return;
+    }
+
+    if (typeof event !== 'string') {
+      logger.error('Event name should be string');
       return;
     }
 
