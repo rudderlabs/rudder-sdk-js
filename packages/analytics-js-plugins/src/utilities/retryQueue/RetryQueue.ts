@@ -1,4 +1,4 @@
-import { IStoreManager, StorageType, IStore } from '../../types/common';
+import { IStoreManager, StorageType, IStore, ILogger } from '../../types/common';
 import {
   IQueue,
   QueueItem,
@@ -64,6 +64,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   backoff: QueueBackoff;
   schedule: Schedule;
   processId: string;
+  logger?: ILogger;
 
   constructor(
     name: string,
@@ -71,6 +72,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
     storageType: StorageType = 'localStorage',
+    logger?: ILogger,
   ) {
     this.storeManager = storeManager;
     this.name = name;
@@ -78,6 +80,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems || Infinity;
     this.maxAttempts = options.maxAttempts || Infinity;
+    this.logger = logger;
 
     this.backoff = {
       MIN_RETRY_DELAY: options.minRetryDelay || 1000,
@@ -291,7 +294,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
-        console.error(`error: Process function threw error: ${err}`);
+        this.logger?.error(`RetryQueue:: Process function threw an error.`, err);
       }
     });
 

@@ -6,7 +6,7 @@ import { isUndefined } from '@rudderstack/analytics-js/components/utilities/chec
 import { ILocalStorageOptions, IStorage } from '../types';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
-// TODO: can we remove the storejs dependency to save bundlesize?
+// TODO: can we remove the storejs dependency to save bundle size?
 //  check if the get, set overloads and search methods are used at all
 //  if we do, ensure we provide types to support overloads as per storejs docs
 //  https://www.npmjs.com/package/storejs

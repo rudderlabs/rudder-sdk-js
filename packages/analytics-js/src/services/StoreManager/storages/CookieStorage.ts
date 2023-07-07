@@ -39,14 +39,9 @@ class CookieStorage implements IStorage {
   }
 
   setItem(key: string, value: Nullable<string>): boolean {
-    try {
-      cookie(key, value, this.options);
-      this.length = Object.keys(cookie()).length;
-      return true;
-    } catch (err) {
-      this.logger?.error(`CookieStorage:: Failed to store data for key "${key}".`, err);
-      return false;
-    }
+    cookie(key, value, this.options);
+    this.length = Object.keys(cookie()).length;
+    return true;
   }
 
   // eslint-disable-next-line class-methods-use-this
