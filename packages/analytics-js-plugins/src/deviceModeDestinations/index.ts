@@ -79,6 +79,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
+        let timeoutId: number;
+        let intervalId: number;
         if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
           const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader.loadJSFile({
@@ -88,6 +90,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               externalScriptOnLoad ??
               ((id?: string) => {
                 if (!id) {
+                  // Stop wasting time to check whether SDK is loaded
+                  (globalThis as typeof window).clearInterval(intervalId);
+                  (globalThis as typeof window).clearTimeout(timeoutId);
+
                   logger?.error(
                     `DeviceModeDestinationsPlugin:: Failed to load script for destination "${dest.userFriendlyId}".`,
                   );
@@ -100,8 +106,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           });
         }
 
-        let timeoutId: number;
-        const intervalId = (globalThis as typeof window).setInterval(() => {
+        intervalId = (globalThis as typeof window).setInterval(() => {
           const sdkTypeName = sdkName;
           if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
             (globalThis as typeof window).clearInterval(intervalId);
