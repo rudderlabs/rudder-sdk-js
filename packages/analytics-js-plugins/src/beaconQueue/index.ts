@@ -13,7 +13,7 @@ import {
   BeaconQueueOpts,
 } from '../types/common';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
-import { QUEUE_NAME } from './constants';
+import { BEACON_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconQueueItem } from './types';
 
@@ -54,7 +54,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         queueItems: QueueItem<BeaconQueueItem>[],
         done: DoneCallback,
       ) => {
-        logger?.debug(`BeaconQueuePlugin:: Sending events to data plane.`);
+        logger?.debug(`${BEACON_QUEUE_PLUGIN}:: Sending events to data plane.`);
         const finalEvents = queueItems.map(queueItem =>
           getFinalEventForDeliveryMutator(queueItem.item.event, state),
         );
@@ -65,7 +65,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
             if (!isEnqueuedInBeacon) {
               logger?.error(
-                "BeaconQueuePlugin:: Failed to send events batch data to the browser's beacon queue. The events will be dropped.",
+                `${BEACON_QUEUE_PLUGIN}:: Failed to send events batch data to the browser's beacon queue. The events will be dropped.`,
               );
             }
 
@@ -80,7 +80,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
           }
         } else {
           logger?.error(
-            `BeaconQueuePlugin:: Failed to prepare the events batch payload for delivery. The events will be dropped.`,
+            `${BEACON_QUEUE_PLUGIN}:: Failed to prepare the events batch payload for delivery. The events will be dropped.`,
           );
           // Mark the item as done so that it can be removed from the queue
           done(null);

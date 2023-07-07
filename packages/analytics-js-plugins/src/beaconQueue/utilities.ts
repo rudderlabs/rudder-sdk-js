@@ -1,4 +1,8 @@
-import { DATA_PLANE_API_VERSION, DEFAULT_BEACON_QUEUE_OPTIONS } from './constants';
+import {
+  BEACON_QUEUE_PLUGIN,
+  DATA_PLANE_API_VERSION,
+  DEFAULT_BEACON_QUEUE_OPTIONS,
+} from './constants';
 import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
 import { BeaconQueueOpts, RudderEvent, ILogger } from '../types/common';
 import { BeaconBatchData } from './types';
@@ -22,9 +26,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(`BeaconQueuePlugin:: Failed to convert events batch object to string.`);
+    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to string.`);
   } catch (err) {
-    logger?.error(`BeaconQueuePlugin:: Failed to convert events batch object to Blob.`, err);
+    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to Blob.`, err);
   }
 
   return undefined;

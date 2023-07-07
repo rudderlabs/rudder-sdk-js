@@ -23,7 +23,7 @@ import {
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';
 
 const pluginName = 'XhrQueue';
@@ -103,7 +103,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             });
           } else {
             logger?.error(
-              `XhrQueuePlugin:: Failed to prepare the event payload for delivery. The event will be dropped.`,
+              `${XHR_QUEUE_PLUGIN}:: Failed to prepare the event payload for delivery. The event will be dropped.`,
             );
             // Mark the item as done so that it can be removed from the queue
             done(null);

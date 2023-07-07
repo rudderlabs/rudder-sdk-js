@@ -2,6 +2,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
@@ -74,7 +75,7 @@ class StoreManager implements IStoreManager {
     // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
     if (!storageType) {
       this.logger?.error(
-        'StoreManager:: No storage is available. The SDK will be initialized without storage.',
+        `${STORE_MANAGER}:: No storage is available. The SDK will be initialized without storage.`,
       );
       return;
     }

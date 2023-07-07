@@ -11,7 +11,11 @@ import {
 import { IExternalSrcLoader, ApplicationState, ILogger, IPluginsManager } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { isHybridModeDestination } from '../utilities/common';
-import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  INITIALIZED_CHECK_POLL_INTERVAL,
+  LOAD_CHECK_TIMEOUT,
+} from './constants';
 import { destDisplayNamesToFileNamesMap } from './destDisplayNamesToFileNames';
 
 const pluginName = 'DeviceModeDestinations';
@@ -40,7 +44,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
 
           logger?.error(
-            `DeviceModeDestinationsPlugin:: Destination ${configDest.userFriendlyId} is not supported.`,
+            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Destination ${configDest.userFriendlyId} is not supported.`,
           );
           return false;
         });
@@ -95,7 +99,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   (globalThis as typeof window).clearTimeout(timeoutId);
 
                   logger?.error(
-                    `DeviceModeDestinationsPlugin:: Failed to load script for destination "${dest.userFriendlyId}".`,
+                    `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to load script for destination "${dest.userFriendlyId}".`,
                   );
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,
@@ -147,7 +151,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 });
             } catch (err) {
               logger?.error(
-                `DeviceModeDestinationsPlugin:: Failed to initialize destination "${dest.userFriendlyId}".`,
+                `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to initialize destination "${dest.userFriendlyId}".`,
                 err,
               );
 
@@ -163,7 +167,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           clearInterval(intervalId);
 
           logger?.error(
-            `DeviceModeDestinationsPlugin:: SDK script evaluation timed out for destination ${dest.userFriendlyId}.`,
+            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: SDK script evaluation timed out for destination ${dest.userFriendlyId}.`,
           );
           state.nativeDestinations.failedDestinations.value = [
             ...state.nativeDestinations.failedDestinations.value,

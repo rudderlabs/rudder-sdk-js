@@ -5,6 +5,7 @@ import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/t
 import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
 import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
+import { ERROR_HANDLER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { isAllowedToBeNotified, processError } from './processError';
 import { IErrorHandler, IExternalSrcLoader, SDKError } from './types';
 
@@ -43,13 +44,13 @@ class ErrorHandler implements IErrorHandler {
           })
           .catch(err => {
             this.logger?.error(
-              'ErrorHandler:: Failed to initialize the error reporting plugin.',
+              `${ERROR_HANDLER}:: Failed to initialize the error reporting plugin.`,
               err,
             );
           });
       }
     } catch (err) {
-      this.onError(err, 'ErrorHandler');
+      this.onError(err, ERROR_HANDLER);
     }
   }
 
@@ -125,7 +126,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error('ErrorHandler:: Failed to notify the error.', err);
+        this.logger?.error(`${ERROR_HANDLER}:: Failed to notify the error.`, err);
       }
     }
   }

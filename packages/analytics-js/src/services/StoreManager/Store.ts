@@ -8,6 +8,7 @@ import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/cap
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -108,7 +109,7 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(
-          'StoreManager:: The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.',
+          `${STORE_MANAGER}:: The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`,
         );
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();

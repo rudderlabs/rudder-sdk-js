@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState, ILogger, DestinationConfig } from '../types/common';
 import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
+import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
 const pluginName = 'OneTrust';
@@ -17,7 +18,7 @@ const OneTrust = (): ExtensionPlugin => ({
       // it will be treated as Consent manager is not initialized
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
         logger?.error(
-          "OneTrustPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.",
+          `${ONETRUST_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`,
         );
         return { consentProviderInitialized: false };
       }
@@ -103,7 +104,7 @@ const OneTrust = (): ExtensionPlugin => ({
         return containsAllConsent;
       } catch (err) {
         logger?.error(
-          `OneTrustPlugin:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
+          `${ONETRUST_PLUGIN}:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
           err,
         );
         return true;

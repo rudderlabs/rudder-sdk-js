@@ -14,6 +14,7 @@ import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/util
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -76,7 +77,7 @@ class ConfigManager implements IConfigManager {
         consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
         if (!consentProviderPluginName) {
           this.logger?.error(
-            `ConfigManager:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
+            `${CONFIG_MANAGER}:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
               ConsentManagersToPluginNameMap,
             )}".`,
           );

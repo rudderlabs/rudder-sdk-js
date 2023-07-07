@@ -1,5 +1,6 @@
 import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { isValidUrl } from '../../utilities/url';
 
 const DEFAULT_REGION = 'US';
@@ -29,7 +30,7 @@ const validateResidencyServerRegion = (
     !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
   ) {
     logger?.warn(
-      `ConfigManager:: The residency server region "${residencyServerRegion}" is not supported. Please choose one of the following supported regions: "${Object.values(
+      `${CONFIG_MANAGER}:: The residency server region "${residencyServerRegion}" is not supported. Please choose one of the following supported regions: "${Object.values(
         ResidencyServerRegion,
       )}". The default region "${DEFAULT_REGION}" will be used instead.`,
     );

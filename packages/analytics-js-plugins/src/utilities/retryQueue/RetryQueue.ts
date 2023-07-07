@@ -42,6 +42,8 @@ export type InProgressQueueItem = {
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
+const RETRY_QUEUE = 'RetryQueue';
+
 /**
  * Constructs a RetryQueue backed by localStorage
  *
@@ -294,7 +296,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
-        this.logger?.error(`RetryQueue:: Process function threw an error.`, err);
+        this.logger?.error(`${RETRY_QUEUE}:: Process function threw an error.`, err);
       }
     });
 

@@ -12,7 +12,7 @@ import {
   IPluginsManager,
 } from '../types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { QUEUE_NAME } from './constants';
+import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
@@ -60,7 +60,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
               logger?.warn(
-                `NativeDestinationQueuePlugin:: The "${item.event}" track event has been filtered for the "${dest.userFriendlyId}" destination.`,
+                `${NATIVE_DESTINATION_QUEUE_PLUGIN}:: The "${item.event}" track event has been filtered for the "${dest.userFriendlyId}" destination.`,
               );
               return;
             }

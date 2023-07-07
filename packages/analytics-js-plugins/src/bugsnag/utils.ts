@@ -6,6 +6,7 @@ import {
   APP_STATE_EXCLUDE_KEYS,
   BUGSNAG_CDN_URL,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
+  BUGSNAG_PLUGIN,
   BUGSNAG_VALID_MAJOR_VERSION,
   DEV_HOSTS,
   ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
@@ -146,7 +147,7 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
     id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
     callback: id => {
       if (!id) {
-        logger?.error(`BugsnagPlugin:: Failed to load the Bugsnag SDK.`);
+        logger?.error(`${BUGSNAG_PLUGIN}:: Failed to load the Bugsnag SDK.`);
       }
     },
   });

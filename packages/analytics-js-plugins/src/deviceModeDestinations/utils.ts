@@ -13,7 +13,11 @@ import {
   IntegrationOpts,
 } from '../types/common';
 import { Nullable } from '../types/plugins';
-import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  INITIALIZED_CHECK_TIMEOUT,
+  LOAD_CHECK_POLL_INTERVAL,
+} from './constants';
 import { destCNamesToDispNamesMap } from './destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
@@ -210,7 +214,7 @@ const getCumulativeIntegrationsConfig = (
       );
     } catch (err) {
       logger?.error(
-        `DeviceModeDestinationsPlugin:: Failed to retrieve data for integrations object of destination "${dest.userFriendlyId}".`,
+        `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to retrieve data for integrations object of destination "${dest.userFriendlyId}".`,
         err,
       );
     }

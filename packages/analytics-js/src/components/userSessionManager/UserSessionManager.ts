@@ -19,6 +19,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
+import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { IUserSessionManager } from './types';
 import { userSessionStorageKeys } from './userSessionStorageKeys';
 import { getReferrer } from '../utilities/page';
@@ -97,7 +98,7 @@ class UserSessionManager implements IUserSessionManager {
     let sessionTimeout: number;
     if (!isPositiveInteger(state.loadOptions.value.sessions.timeout)) {
       this.logger?.warn(
-        `UserSessionManager:: The session timeout value is not a number. The default timeout of ${DEFAULT_SESSION_TIMEOUT} ms will be used instead.`,
+        `${USER_SESSION_MANAGER}:: The session timeout value is not a number. The default timeout of ${DEFAULT_SESSION_TIMEOUT} ms will be used instead.`,
       );
       sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     } else {
@@ -106,7 +107,7 @@ class UserSessionManager implements IUserSessionManager {
 
     if (sessionTimeout === 0) {
       this.logger?.warn(
-        'UserSessionManager:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.',
+        `${USER_SESSION_MANAGER}:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.`,
       );
       finalAutoTrackingStatus = false;
     }
@@ -114,7 +115,7 @@ class UserSessionManager implements IUserSessionManager {
     // and will proceed with it
     if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
       this.logger?.warn(
-        `UserSessionManager:: The session timeout value is less than the recommended minimum of ${MIN_SESSION_TIMEOUT} ms. Please consider increasing the timeout value to ensure optimal performance and reliability.`,
+        `${USER_SESSION_MANAGER}:: The session timeout value is less than the recommended minimum of ${MIN_SESSION_TIMEOUT} ms. Please consider increasing the timeout value to ensure optimal performance and reliability.`,
       );
     }
     state.session.sessionInfo.value = {

@@ -1,3 +1,4 @@
+import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
@@ -55,7 +56,7 @@ const isStorageAvailable = (
     }
     return false;
   } catch (err) {
-    const msgPrefix = `CapabilitiesManager:: The "${type}" storage type is `;
+    const msgPrefix = `${CAPABILITIES_MANAGER}:: The "${type}" storage type is `;
     let reason = 'unavailable';
     if (isStorageQuotaExceeded(err)) {
       reason = 'full';

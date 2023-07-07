@@ -2,6 +2,8 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 
+const JSON_STRINGIFY = 'JSONStringify';
+
 const getCircularReplacer = (
   excludeNull?: boolean,
   excludeKeys?: string[],
@@ -33,7 +35,7 @@ const getCircularReplacer = (
 
     if (ancestors.includes(value)) {
       logger?.warn(
-        `JSONStringify:: A circular reference was detected in the object and the property "${key}" has been dropped from the output.`,
+        `${JSON_STRINGIFY}:: A circular reference was detected in the object and the property "${key}" has been dropped from the output.`,
       );
       return '[Circular Reference]';
     }

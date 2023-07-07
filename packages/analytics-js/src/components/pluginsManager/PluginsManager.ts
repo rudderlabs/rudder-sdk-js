@@ -14,6 +14,7 @@ import {
   ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
 } from '@rudderstack/analytics-js/components/configManager/constants';
+import { PLUGINS_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -118,7 +119,7 @@ class PluginsManager implements IPluginsManager {
     } else {
       if (state.loadOptions.value.useBeacon === true) {
         this.logger?.warn(
-          'PluginsManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
+          `${PLUGINS_MANAGER}:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.`,
         );
       }
 

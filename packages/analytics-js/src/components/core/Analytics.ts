@@ -52,6 +52,7 @@ import {
   ADBLOCK_PAGE_NAME,
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
+import { READY_API } from '@rudderstack/analytics-js/constants/loggerContexts';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -411,7 +412,7 @@ class Analytics implements IAnalytics {
 
     if (!isFunction(callback)) {
       // TODO: handle error
-      this.logger.error('ready-api:: The callback is not a function.');
+      this.logger.error(`${READY_API}:: The callback is not a function.`);
       return;
     }
 

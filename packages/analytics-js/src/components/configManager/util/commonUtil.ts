@@ -1,5 +1,6 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
@@ -57,7 +58,7 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
-        `ConfigManager:: The error reporting provider "${errReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
+        `${CONFIG_MANAGER}:: The error reporting provider "${errReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
           ErrorReportingProvidersToPluginNameMap,
         )}". The default provider "${DEFAULT_ERROR_REPORTING_PROVIDER}" will be used instead.`,
       );
