@@ -55,7 +55,7 @@ const isStorageAvailable = (
     }
     return false;
   } catch (err) {
-    const msgPrefix = `CapabilitiesManager:: "${type}" storage type is `;
+    const msgPrefix = `CapabilitiesManager:: The "${type}" storage type is `;
     let reason = 'unavailable';
     if (isStorageQuotaExceeded(err)) {
       reason = 'full';

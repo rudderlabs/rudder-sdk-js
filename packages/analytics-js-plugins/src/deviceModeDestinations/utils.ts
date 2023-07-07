@@ -210,7 +210,7 @@ const getCumulativeIntegrationsConfig = (
       );
     } catch (err) {
       logger?.error(
-        `DeviceModeDestinationsPlugin:: An error occurred while getting data for integrations object for destination ${dest.userFriendlyId}.`,
+        `DeviceModeDestinationsPlugin:: Failed to retrieve data for integrations object of destination "${dest.userFriendlyId}".`,
         err,
       );
     }

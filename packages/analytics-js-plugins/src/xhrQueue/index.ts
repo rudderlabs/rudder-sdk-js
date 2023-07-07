@@ -103,7 +103,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             });
           } else {
             logger?.error(
-              `XhrQueuePlugin:: Unable to prepare the event payload for delivery. It'll be dropped.`,
+              `XhrQueuePlugin:: Failed to prepare the event payload for delivery. The event will be dropped.`,
             );
             // Mark the item as done so that it can be removed from the queue
             done(null);

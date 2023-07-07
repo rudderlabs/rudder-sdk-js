@@ -30,7 +30,7 @@ class PluginEngine implements IPluginEngine {
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
-      const errorMessage = `PluginEngine:: Plugin should have a name.`;
+      const errorMessage = `PluginEngine:: Plugin name is missing.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -39,7 +39,7 @@ class PluginEngine implements IPluginEngine {
     }
 
     if (this.byName[plugin.name]) {
-      const errorMessage = `PluginEngine:: Plugin "${plugin.name}" already exits.`;
+      const errorMessage = `PluginEngine:: Plugin "${plugin.name}" already exists.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -70,7 +70,7 @@ class PluginEngine implements IPluginEngine {
     const plugin = this.byName[name];
 
     if (!plugin) {
-      const errorMessage = `PluginEngine:: Plugin "${name}" doesn't exist.`;
+      const errorMessage = `PluginEngine:: Plugin "${name}" not found.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -81,7 +81,7 @@ class PluginEngine implements IPluginEngine {
     const index = this.plugins.indexOf(plugin);
 
     if (index === -1) {
-      const errorMessage = `PluginEngine:: Plugin "${name}" doesn't exist in plugins but exists in byName. This seems to be a bug.`;
+      const errorMessage = `PluginEngine:: Plugin "${name}" not found in plugins but found in byName. This indicates a bug in the plugin engine. Please report this issue to the development team.`;
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -108,7 +108,7 @@ class PluginEngine implements IPluginEngine {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
           this.logger?.error(
-            `PluginEngine:: Plugin "${plugin.name}" is not loaded because some of its dependencies "${notExistDeps}" do not exist.`,
+            `PluginEngine:: Plugin "${plugin.name}" could not be loaded because some of its dependencies "${notExistDeps}" do not exist.`,
           );
           return false;
         }
@@ -166,7 +166,7 @@ class PluginEngine implements IPluginEngine {
           throw err;
         } else {
           this.logger?.error(
-            `PluginEngine:: Failed to invoke the plugin extension point ${plugin.name}!${extensionPointName}.`,
+            `PluginEngine:: Failed to invoke the "${extensionPointName}" extension point of plugin "${plugin.name}".`,
             err,
           );
         }

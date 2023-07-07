@@ -44,7 +44,7 @@ class CookieStorage implements IStorage {
       this.length = Object.keys(cookie()).length;
       return true;
     } catch (err) {
-      this.logger?.error(`CookieStorage:: Unable to store data for key ${key}.`, err);
+      this.logger?.error(`CookieStorage:: Failed to store data for key "${key}".`, err);
       return false;
     }
   }

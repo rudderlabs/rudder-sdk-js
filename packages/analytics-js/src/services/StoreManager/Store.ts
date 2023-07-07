@@ -108,7 +108,7 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(
-          'StoreManager:: The storage is either full or unavailable. Switching to in-memory storage. Data will not be persisted.',
+          'StoreManager:: The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.',
         );
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();

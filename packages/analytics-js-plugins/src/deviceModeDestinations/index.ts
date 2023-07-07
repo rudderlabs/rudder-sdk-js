@@ -89,7 +89,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               ((id?: string) => {
                 if (!id) {
                   logger?.error(
-                    `DeviceModeDestinationsPlugin:: Script load failed for destination: ${dest.userFriendlyId}.`,
+                    `DeviceModeDestinationsPlugin:: Failed to load script for destination "${dest.userFriendlyId}".`,
                   );
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,
@@ -142,7 +142,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 });
             } catch (err) {
               logger?.error(
-                `DeviceModeDestinationsPlugin:: Unable to initialize destination ${dest.userFriendlyId}.`,
+                `DeviceModeDestinationsPlugin:: Failed to initialize destination "${dest.userFriendlyId}".`,
                 err,
               );
 

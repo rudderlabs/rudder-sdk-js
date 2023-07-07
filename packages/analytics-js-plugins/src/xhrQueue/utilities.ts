@@ -39,15 +39,18 @@ const logErrorOnFailure = (
   }
 
   const isRetryableFailure = isErrRetryable(details);
-  let errMsg = `XhrQueuePlugin:: Unable to deliver event to ${item.url}.`;
+  let errMsg = `XhrQueuePlugin:: Failed to deliver event to ${item.url}.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
-      errMsg = `${errMsg} It'll be retried. Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+      errMsg = `${errMsg} It'll be retried.`;
+      if ((attemptNumber as number) > 0) {
+        errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+      }
     } else {
-      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). It'll be dropped.`;
+      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). The event will be dropped.`;
     }
   } else {
-    errMsg = `${errMsg} It'll be dropped.`;
+    errMsg = `${errMsg} The event will be dropped.`;
   }
   logger?.error(errMsg);
 };

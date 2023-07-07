@@ -125,7 +125,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error('ErrorHandler:: An error occurred while notifying the error.', err);
+        this.logger?.error('ErrorHandler:: Failed to notify the error.', err);
       }
     }
   }

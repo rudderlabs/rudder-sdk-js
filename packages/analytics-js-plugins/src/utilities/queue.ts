@@ -21,10 +21,7 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   try {
     deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
-    logger?.error(
-      `QueueUtilities:: An error occurred while converting event object to string.`,
-      err,
-    );
+    logger?.error(`QueueUtilities:: Failed to convert event object to string.`, err);
   }
   return deliveryPayloadStr;
 };
@@ -40,11 +37,13 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
     const payloadSize = payloadStr.length;
     if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {
       logger?.warn(
-        `QueueUtilities:: The event payload size (${payloadSize}) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. These kinds of events may be dropped in the future. Please review your instrumentation.`,
+        `QueueUtilities:: The size of the event payload (${payloadSize} bytes) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.`,
       );
     }
   } else {
-    logger?.warn(`QueueUtilities:: An error occurred while validating event payload size.`);
+    logger?.warn(
+      `QueueUtilities:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.`,
+    );
   }
 };
 

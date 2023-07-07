@@ -76,7 +76,7 @@ class ConfigManager implements IConfigManager {
         consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
         if (!consentProviderPluginName) {
           this.logger?.error(
-            `ConfigManager:: The provided consent manager "${selectedConsentManager}" is not supported. Please provide one of the supported consent managers: "${Object.keys(
+            `ConfigManager:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
               ConsentManagersToPluginNameMap,
             )}".`,
           );

@@ -65,7 +65,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
             if (!isEnqueuedInBeacon) {
               logger?.error(
-                "BeaconQueuePlugin:: Unable to send events batch data to browser's beacon queue. It'll be dropped.",
+                "BeaconQueuePlugin:: Failed to send events batch data to the browser's beacon queue. The events will be dropped.",
               );
             }
 
@@ -80,7 +80,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
           }
         } else {
           logger?.error(
-            `BeaconQueuePlugin:: Unable to prepare the event batch payload for delivery. It'll be dropped.`,
+            `BeaconQueuePlugin:: Failed to prepare the events batch payload for delivery. The events will be dropped.`,
           );
           // Mark the item as done so that it can be removed from the queue
           done(null);

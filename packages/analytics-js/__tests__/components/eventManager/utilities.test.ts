@@ -396,15 +396,15 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `EventManager:: The "anonymousId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "anonymousId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         3,
-        `EventManager:: The "messageId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "messageId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
     });
 
@@ -453,11 +453,11 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `EventManager:: The "EVENT" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "EVENT" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
     });
   });
@@ -488,23 +488,23 @@ describe('Event Manager - Utilities', () => {
 
       expect(mockLogger.warn).nthCalledWith(
         1,
-        `EventManager:: The "anonymousId" property defined under "properties" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "anonymousId" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "properties" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "originalTimestamp" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         3,
-        `EventManager:: The "originalTimestamp" property defined under "traits" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "originalTimestamp" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         4,
-        `EventManager:: The "event" property defined under "traits" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "event" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
       expect(mockLogger.warn).nthCalledWith(
         5,
-        `EventManager:: The "anonymousId" property defined under "context.traits" is a reserved keyword. Please avoid using reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel) as properties.`,
+        `EventManager:: The "anonymousId" property defined under "context.traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
       );
     });
   });
@@ -851,7 +851,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        `EventManager:: The "context" property in the event API's "options" argument is not a valid object literal.`,
+        `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });
 
@@ -891,7 +891,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        `EventManager:: The "context" property in the event API's "options" argument is not a valid object literal.`,
+        `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });
 
@@ -931,7 +931,7 @@ describe('Event Manager - Utilities', () => {
         userAgent: 'defaultUA',
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        `EventManager:: The "context" property in the event API's "options" argument is not a valid object literal.`,
+        `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });
   });

@@ -60,7 +60,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
               logger?.warn(
-                `NativeDestinationQueuePlugin:: "${item.event}" track event is filtered for destination ${dest.userFriendlyId}.`,
+                `NativeDestinationQueuePlugin:: The "${item.event}" track event has been filtered for the "${dest.userFriendlyId}" destination.`,
               );
               return;
             }

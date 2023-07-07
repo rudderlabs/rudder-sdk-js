@@ -29,9 +29,9 @@ const validateResidencyServerRegion = (
     !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
   ) {
     logger?.warn(
-      `ConfigManager:: The configured residency server region "${residencyServerRegion}" is invalid. The supported regions are: "${Object.values(
+      `ConfigManager:: The residency server region "${residencyServerRegion}" is not supported. Please choose one of the following supported regions: "${Object.values(
         ResidencyServerRegion,
-      )}". Using default residency server region: "${DEFAULT_REGION}"`,
+      )}". The default region "${DEFAULT_REGION}" will be used instead.`,
     );
     return undefined;
   }

@@ -22,14 +22,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(
-      `BeaconQueuePlugin:: An error occurred while converting events batch object to string.`,
-    );
+    logger?.error(`BeaconQueuePlugin:: Failed to convert events batch object to string.`);
   } catch (err) {
-    logger?.error(
-      `BeaconQueuePlugin:: An error occurred while converting events batch object to Blob.`,
-      err,
-    );
+    logger?.error(`BeaconQueuePlugin:: Failed to convert events batch object to Blob.`, err);
   }
 
   return undefined;

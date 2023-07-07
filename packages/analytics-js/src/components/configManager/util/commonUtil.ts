@@ -57,9 +57,9 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
-        `ConfigManager:: The supplied error reporting provider "${errReportingProvider}" is not supported. Please provide one of the supported providers: "${Object.keys(
+        `ConfigManager:: The error reporting provider "${errReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
           ErrorReportingProvidersToPluginNameMap,
-        )}". Using the default provider: "${DEFAULT_ERROR_REPORTING_PROVIDER}".`,
+        )}". The default provider "${DEFAULT_ERROR_REPORTING_PROVIDER}" will be used instead.`,
       );
     }
     state.reporting.errorReportingProviderPlugin.value =
