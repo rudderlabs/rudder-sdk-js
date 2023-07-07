@@ -171,14 +171,12 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update storage state with the data from load options', () => {
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, {
-        storage: {
-          encryption: {
-            version: 'v3',
-          },
-          migrate: true,
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'v3',
         },
-      });
+        migrate: true,
+      };
 
       updateStorageState();
 
@@ -187,9 +185,7 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update storage state with the data even if encryption version is not specified', () => {
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, {
-        storage: {},
-      });
+      state.loadOptions.value.storage = {};
 
       updateStorageState(mockLogger);
 
@@ -197,13 +193,11 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log a warning if the encryption version is not supported', () => {
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, {
-        storage: {
-          encryption: {
-            version: 'v2',
-          },
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'v2',
         },
-      });
+      };
 
       updateStorageState(mockLogger);
 
@@ -214,13 +208,11 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update the storage state from load options for legacy encryption version', () => {
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, {
-        storage: {
-          encryption: {
-            version: 'legacy',
-          },
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'legacy',
         },
-      });
+      };
 
       updateStorageState(mockLogger);
 
@@ -228,14 +220,12 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should set the migration to false if the encryption version is not latest even if migrate is set to true', () => {
-      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, {
-        storage: {
-          encryption: {
-            version: 'legacy',
-          },
-          migrate: true,
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'legacy',
         },
-      });
+        migrate: true,
+      };
 
       updateStorageState(mockLogger);
 
