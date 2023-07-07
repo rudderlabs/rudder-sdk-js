@@ -212,8 +212,8 @@ class ConfigManager implements IConfigManager {
       if (res instanceof Promise) {
         res
           .then(pRes => this.processConfig(pRes as SourceConfigResponse))
-          .catch(e => {
-            this.errorHandler?.onError(e, 'sourceConfig');
+          .catch(err => {
+            this.errorHandler?.onError(err, 'sourceConfig');
           });
       } else {
         this.processConfig(res as SourceConfigResponse);

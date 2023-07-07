@@ -127,9 +127,9 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
         .then(() =>
           isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
             .then(resolve)
-            .catch(e => reject(e)),
+            .catch(err => reject(err)),
         )
-        .catch(e => reject(e));
+        .catch(err => reject(err));
     }
   });
 

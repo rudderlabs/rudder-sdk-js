@@ -142,8 +142,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     initializedDestination,
                   ];
                 })
-                .catch(e => {
-                  throw e;
+                .catch(err => {
+                  throw err;
                 });
             } catch (err) {
               logger?.error(

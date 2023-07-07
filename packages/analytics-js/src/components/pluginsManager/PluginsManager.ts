@@ -232,17 +232,17 @@ class PluginsManager implements IPluginsManager {
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
-          .catch(e => {
+          .catch(err => {
             // TODO: add retry here if dynamic import fails
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(e, remotePluginKey);
+            this.onError(err, remotePluginKey);
           });
       }),
-    ).catch(e => {
-      this.onError(e);
+    ).catch(err => {
+      this.onError(err);
     });
   }
 
