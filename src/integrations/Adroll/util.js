@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-
 // here we map the properties which give information about a singleproduct
 const PRODUCT_EVENTS = ['product clicked', 'product viewed', 'product added'];
 const ORDER_EVENTS = [
@@ -11,38 +9,37 @@ const ORDER_EVENTS = [
 ];
 
 const productEvent = (properties) => {
-  if (properties.price) {
-    properties.adroll_conversion_value = properties.price;
-    delete properties.price;
+  const { price, ...props } = properties;
+
+  if (price) {
+    props.adroll_conversion_value = price;
   }
-  return properties;
+
+  return props;
 };
 
 // here we map the properties which give information about the order
 // like order_id or revenue
 
 const orderEvent = (properties) => {
-  if (properties.orderId) {
-    properties.order_id = properties.orderId;
-    delete properties.orderId;
+  const { orderId, revenue, products, currency, ...props } = properties;
+
+  if (orderId) {
+    props.order_id = orderId;
   }
-  if (properties.revenue) {
-    properties.adroll_conversion_value = properties.revenue;
-    delete properties.revenue;
-  } else {
-    let productRevenue = 0;
-    if (properties.products) {
-      properties.products.forEach((product) => {
-        productRevenue += product.price;
-      });
-    }
-    properties.adroll_conversion_value = productRevenue;
+
+  if (revenue) {
+    props.adroll_conversion_value = revenue;
+  } else if (products && products.length > 0) {
+    const productRevenue = products.reduce((total, product) => total + product.price, 0);
+    props.adroll_conversion_value = productRevenue;
   }
-  if (properties.currency) {
-    properties.adroll_currency = properties.currency;
-    delete properties.currency;
+
+  if (currency) {
+    props.adroll_currency = currency;
   }
-  return properties;
+
+  return props;
 };
 
 export { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent };

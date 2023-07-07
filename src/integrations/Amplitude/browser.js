@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
@@ -180,23 +178,24 @@ class Amplitude {
   }
 
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
+    const message = trackEventMessage;
     let { revenueType } = trackEventMessage.properties;
-    const { revenue, revenue_type } = trackEventMessage.properties;
-    revenueType = revenueType || revenue_type;
+    const { revenue, revenue_type: productRevenueType } = trackEventMessage.properties;
+    revenueType = revenueType || productRevenueType;
     products.forEach((product) => {
-      trackEventMessage.properties = product;
-      trackEventMessage.event = 'Product Purchased';
+      message.properties = product;
+      message.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
         if (revenueType) {
-          trackEventMessage.properties.revenueType = revenueType;
+          message.properties.revenueType = revenueType;
         }
         if (revenue) {
-          trackEventMessage.properties.revenue = revenue;
+          message.properties.revenue = revenue;
         }
-        this.trackRevenue(trackEventMessage);
+        this.trackRevenue(message);
       }
       if (shouldTrackEventPerProduct) {
-        this.logEventAndCorrespondingRevenue(trackEventMessage, true);
+        this.logEventAndCorrespondingRevenue(message, true);
       }
     });
   }
@@ -301,11 +300,11 @@ class Amplitude {
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity } = properties;
-    const { revenue, product_id, revenue_type } = properties;
+    const { revenue, product_id: id, revenue_type: productRevenueType } = properties;
     const revenueType =
-      properties.revenueType || revenue_type || mapRevenueType[event.toLowerCase()];
+      properties.revenueType || productRevenueType || mapRevenueType[event.toLowerCase()];
 
-    productId = productId || product_id;
+    productId = productId || id;
 
     // If neither revenue nor price is present, then return
     // else send price and quantity from properties to amplitude

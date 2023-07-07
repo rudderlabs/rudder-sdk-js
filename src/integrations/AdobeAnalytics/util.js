@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-undef */
 import each from '@ndhoule/each';
 import get from 'lodash.get';
 import {
@@ -16,18 +14,14 @@ const setDynamicKeys = (dk) => {
   dynamicKeys = dk;
 };
 
-const getDynamicKeys = () => {
-  return dynamicKeys;
-};
+const getDynamicKeys = () => dynamicKeys;
 
 let config;
 const setConfig = (c) => {
   config = c;
 };
 
-const getConfig = () => {
-  return config;
-};
+const getConfig = () => config;
 
 const topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
@@ -322,12 +316,15 @@ const handleLists = (rudderElement) => {
         }
         const delimiter = listDelimiterHashmap[key];
         const listValue = `list${listMappingHashmap[key]}`;
-        if (typeof value === 'string') {
-          value = value.replace(/\s*,+\s*/g, delimiter);
+
+        let modifiedValue;
+        if (typeof modifiedValue === 'string') {
+          modifiedValue = value.replace(/\s*,+\s*/g, delimiter);
         } else {
-          value = value.join(delimiter);
+          modifiedValue = value.join(delimiter);
         }
-        updateWindowSKeys(value.toString(), listValue);
+
+        updateWindowSKeys(modifiedValue.toString(), listValue);
       }
     }, properties);
   }
@@ -359,12 +356,14 @@ const handleCustomProps = (rudderElement) => {
         }
         const delimiter = propsDelimiterHashmap[key] ? propsDelimiterHashmap[key] : '|';
         const propValue = `prop${customPropsMappingHashmap[key]}`;
-        if (typeof value === 'string') {
-          value = value.replace(/\s*,+\s*/g, delimiter);
+
+        let modifiedValue;
+        if (typeof modifiedValue === 'string') {
+          modifiedValue = value.replace(/\s*,+\s*/g, delimiter);
         } else {
-          value = value.join(delimiter);
+          modifiedValue = value.join(delimiter);
         }
-        updateWindowSKeys(value.toString(), propValue);
+        updateWindowSKeys(modifiedValue.toString(), propValue);
       }
     }, properties);
   }
@@ -403,9 +402,7 @@ const setEventsString = (event, properties, adobeEventName) => {
   let adobeEventArray = adobeEventName ? adobeEventName.split(',') : [];
   const merchMap = mapMerchEvents(event, properties);
   adobeEventArray = adobeEventArray.concat(merchMap);
-  adobeEventArray = adobeEventArray.filter((item) => {
-    return !!item;
-  });
+  adobeEventArray = adobeEventArray.filter((item) => !!item);
 
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent,
@@ -440,7 +437,7 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
     config.productMerchEventToAdobeEvent,
   );
   // converting string to array if more than 1 event is there.
-  adobeEvent = adobeEvent.split(',');
+  const adobeEvents = adobeEvent.split(',');
   const merchMap = [];
   let eventString;
   if (
@@ -460,13 +457,13 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
         each((val) => {
           eventString = `${val}=${value}`;
           merchMap.push(eventString);
-        }, adobeEvent);
+        }, adobeEvents);
       }
     } else if (rudderProp.productMerchProperties in properties) {
       each((val) => {
         eventString = `${val}=${properties[rudderProp.productMerchProperties]}`;
         merchMap.push(eventString);
-      }, adobeEvent);
+      }, adobeEvents);
     }
   }, config.productMerchProperties);
   return merchMap;
@@ -490,9 +487,9 @@ const mapMerchProductEVars = (properties) => {
   each((value, key) => {
     // if property mapped with products. as starting handle differently
     if (key.startsWith('products.')) {
-      key = key.split('.');
+      const keys = key.split('.');
       // take the keys after products. and find the value in properties
-      const productValue = get(properties, key[1]);
+      const productValue = get(properties, keys[1]);
       if (isDefined(productValue)) {
         eVars.push(`eVar${value}=${productValue}`);
       }
