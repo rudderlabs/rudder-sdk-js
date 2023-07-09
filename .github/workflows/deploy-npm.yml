@@ -30,6 +30,8 @@ jobs:
       - name: Build files
         env:
           HUSKY: 0
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm ci
           npm run build:npm
