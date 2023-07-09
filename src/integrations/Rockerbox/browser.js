@@ -2,8 +2,8 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getHashFromArray } from '../../utils/commonUtils';
+import { loader } from './loader';
 
 class Rockerbox {
   constructor(config, analytics, destinationInfo) {
@@ -26,27 +26,7 @@ class Rockerbox {
     logger.debug('=== In init Rockerbox ===');
     const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
     const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-    (function (d, RB) {
-      if (!window.RB) {
-        window.RB = RB;
-        RB.queue = RB.queue || [];
-        RB.track =
-          RB.track ||
-          function () {
-            RB.queue.push(Array.prototype.slice.call(arguments));
-          };
-        RB.initialize = function (s) {
-          RB.source = s;
-        };
-        const a = d.createElement('script');
-        a.type = 'text/javascript';
-        a.async = !0;
-        a.src = `https://${host}/assets/${library}.js`;
-        a.dataset.loader = LOAD_ORIGIN;
-        const f = d.getElementsByTagName('script')[0];
-        f.parentNode.insertBefore(a, f);
-      }
-    })(document, window.RB || {});
+    loader(document, window.RB || {});
     window.RB.disablePushState = true;
     window.RB.queue = [];
     window.RB.initialize(this.clientAuthId);
