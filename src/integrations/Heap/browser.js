@@ -1,9 +1,8 @@
 /* eslint-disable class-methods-use-this */
-
 import processHeapProperties from './util';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
+import { loader } from './loader';
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
@@ -24,39 +23,7 @@ class Heap {
    */
 
   init() {
-    (window.heap = window.heap || []),
-      (heap.load = function (e, t) {
-        (window.heap.appid = e), (window.heap.config = t = t || {});
-        const r = document.createElement('script');
-        (r.type = 'text/javascript'),
-          (r.async = !0),
-          r.setAttribute('data-loader', LOAD_ORIGIN),
-          (r.src = `https://cdn.heapanalytics.com/js/heap-${e}.js`);
-        const a = document.getElementsByTagName('script')[0];
-        a.parentNode.insertBefore(r, a);
-        for (
-          let n = function (e) {
-              return function () {
-                heap.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-              };
-            },
-            p = [
-              'addEventProperties',
-              'addUserProperties',
-              'clearEventProperties',
-              'identify',
-              'resetIdentity',
-              'removeEventProperty',
-              'setEventProperties',
-              'track',
-              'unsetEventProperty',
-            ],
-            o = 0;
-          o < p.length;
-          o++
-        )
-          heap[p[o]] = n(p[o]);
-      });
+    (window.heap = window.heap || []), (heap.load = loader(e, t));
     window.heap.load(this.appId);
   }
 
