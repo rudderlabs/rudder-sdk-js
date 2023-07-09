@@ -4,7 +4,7 @@ import each from 'component-each';
 import { getRevenue } from '../../utils/utils';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loader } from './loader';
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {
@@ -25,20 +25,7 @@ class Kissmetrics {
     window._kmq = window._kmq || [];
 
     const _kmk = window._kmk || this.apiKey;
-    function _kms(u) {
-      setTimeout(function () {
-        const d = document;
-        const f = d.getElementsByTagName('script')[0];
-        const s = d.createElement('script');
-        s.type = 'text/javascript';
-        s.async = true;
-        s.setAttribute('data-loader', LOAD_ORIGIN);
-        s.src = u;
-        f.parentNode.insertBefore(s, f);
-      }, 1);
-    }
-    _kms('//i.kissmetrics.com/i.js');
-    _kms(`//scripts.kissmetrics.com/${_kmk}.2.js`);
+    loader(_kmk);
 
     if (this.isEnvMobile()) {
       window._kmq.push(['set', { 'Mobile Session': 'Yes' }]);
