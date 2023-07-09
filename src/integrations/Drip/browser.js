@@ -7,7 +7,7 @@ import { getDestinationExternalID } from './utils';
 
 import { extractCustomFields } from '../../utils/utils';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loader } from './loader';
 
 class Drip {
   constructor(config, analytics, destinationInfo) {
@@ -43,15 +43,7 @@ class Drip {
     window._dcs = window._dcs || {};
     window._dcs.account = this.accountId;
 
-    (function () {
-      const dc = document.createElement('script');
-      dc.type = 'text/javascript';
-      dc.setAttribute('data-loader', LOAD_ORIGIN);
-      dc.async = true;
-      dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
-      const s = document.getElementsByTagName('script')[0];
-      s.parentNode.insertBefore(dc, s);
-    })();
+    loader();
   }
 
   isLoaded() {
