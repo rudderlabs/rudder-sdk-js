@@ -4,7 +4,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME, eventNameMapping } from './constants';
-import { getHashFromArrayWithDuplicate, getDestinationExternalID, isDefinedAndNotNull } from '../../utils/commonUtils';
+import {
+  getHashFromArrayWithDuplicate,
+  getDestinationExternalID,
+  isDefinedAndNotNull,
+} from '../../utils/commonUtils';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getTrackResponse } from './util';
 
@@ -15,9 +19,11 @@ class TiktokAds {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
+    this.analytics = analytics;
     this.eventsToStandard = config.eventsToStandard;
     this.pixelCode = config.pixelCode;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -73,17 +79,17 @@ class TiktokAds {
 
   isLoaded() {
     logger.debug('===In isLoaded Tiktok Ads===');
-    return !!(window.ttq);
+    return !!window.ttq;
   }
 
   isReady() {
     logger.debug('===In isReady Tiktok Ads===');
-    return !!(window.ttq);
+    return !!window.ttq;
   }
 
   identify(rudderElement) {
     logger.debug('===In Tiktok Ads Identify===');
-    const { message } = rudderElement
+    const { message } = rudderElement;
     const { traits } = message.context;
     const { email, phone, number } = traits;
     const payload = {};
@@ -94,11 +100,11 @@ class TiktokAds {
       payload.phone = phone || number;
     }
     if (Object.keys(payload).length > 0) {
-      const externalId = getDestinationExternalID(message, "tiktokExternalId");
+      const externalId = getDestinationExternalID(message, 'tiktokExternalId');
       if (isDefinedAndNotNull(externalId)) {
         window.ttq.identify(externalId, payload);
       } else {
-        window.ttq.identify(payload)
+        window.ttq.identify(payload);
       }
     }
   }

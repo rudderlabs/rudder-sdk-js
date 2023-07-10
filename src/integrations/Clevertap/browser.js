@@ -10,6 +10,7 @@ class Clevertap {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.passcode;
     this.name = NAME;
@@ -40,16 +41,20 @@ class Clevertap {
       'married',
       'customerType',
     ];
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
     logger.debug('===in init Clevertap===');
+    // START-NO-SONAR-SCAN
+    // disabled sonar scan here as http endpoint is discouraged by sonar
     const sourceUrl =
-      document.location.protocol == 'https:'
-        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/a.js'
-        : 'http://static.clevertap.com/js/a.js';
+      document.location.protocol === 'https:'
+        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
+        : 'http://static.clevertap.com/js/clevertap.min.js';
+    // END-NO-SONAR-SCAN
 
     window.clevertap = {
       event: [],
@@ -57,8 +62,19 @@ class Clevertap {
       account: [],
       onUserLogin: [],
       notifications: [],
+      privacy: [],
     };
+    /*
+      Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
+    */
+    const { CLEVERTAP } = this.analytics.loadOnlyIntegrations;
+    if (CLEVERTAP) {
+      this.optOut = CLEVERTAP.optOut;
+      this.useIP = CLEVERTAP.useIP;
+    }
     window.clevertap.enablePersonalization = true;
+    window.clevertap.privacy.push({ optOut: this.optOut || false });
+    window.clevertap.privacy.push({ useIP: this.useIP || false });
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
       window.clevertap.region.push(this.region);
@@ -100,13 +116,20 @@ class Clevertap {
       'Customer Type': get(message, 'context.traits.customerType'),
     };
 
+    // with the exception of one of Identity, Email, or FBID (in Identity)
+    // other fields are optional
+    if (!userId && !email) {
+      logger.error('Either out of userId or email is required');
+      return;
+    }
+
     // Extract other K-V property from traits about user custom properties
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
     }
-    Object.keys(payload).map((key) => {
+    Object.keys(payload).forEach((key) => {
       if (isObject(payload[key])) {
         logger.debug('cannot process, unsupported traits');
       }
@@ -139,7 +162,7 @@ class Clevertap {
         }
         window.clevertap.event.push('Charged', ecomProperties);
       } else {
-        Object.keys(properties).map((key) => {
+        Object.keys(properties).forEach((key) => {
           if (isObject(properties[key]) || isArray(properties[key])) {
             logger.debug('cannot process, unsupported event');
           }
@@ -165,7 +188,7 @@ class Clevertap {
       eventName = 'WebPage Viewed';
     }
     if (properties) {
-      Object.keys(properties).map((key) => {
+      Object.keys(properties).forEach((key) => {
         if (isObject(properties[key]) || isArray(properties[key])) {
           logger.debug('cannot process, unsupported event');
         }

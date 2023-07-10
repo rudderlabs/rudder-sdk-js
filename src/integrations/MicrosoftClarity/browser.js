@@ -9,10 +9,12 @@ class MicrosoftClarity {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.analytics = analytics;
     this.name = NAME;
     this.projectId = config.projectId;
     this.cookieConsent = config.cookieConsent;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
