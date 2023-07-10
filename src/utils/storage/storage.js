@@ -246,6 +246,7 @@ class Storage {
     if (!Object.keys(anonymousIdKeyMap).includes(key)) {
       return anonId;
     }
+    // eslint-disable-next-line sonarjs/no-small-switch
     switch (key) {
       case 'segment':
         /**

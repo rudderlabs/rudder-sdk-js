@@ -1,7 +1,8 @@
 import { OneTrust } from './OneTrust';
+import { Ketch } from './ketch';
 
-class CookieConsentFactory {
-  static initialize(cookieConsentOptions) {
+const CookieConsentFactory = {
+  initialize(cookieConsentOptions) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
@@ -21,8 +22,11 @@ class CookieConsentFactory {
 
       // }
     }
+    if (cookieConsentOptions?.ketch?.enabled) {
+      return new Ketch();
+    }
     return null;
-  }
-}
+  },
+};
 
 export default CookieConsentFactory;

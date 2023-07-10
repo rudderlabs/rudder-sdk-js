@@ -12,3 +12,4 @@ prodsdk.js
 sanity-suite/
 examples/chrome-extension/background-script/rudderAnalytics.js
 examples/chrome-extension/content-script/foreground.js
+src/integrations/**/nativeSdkLoader.js
