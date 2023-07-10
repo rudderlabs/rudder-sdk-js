@@ -41,6 +41,12 @@ describe('User session manager', () => {
     });
   };
 
+  const setCustomValuesInStorageEngine = (data: any) => {
+    Object.entries(data).forEach(([key, value]) => {
+      clientDataStore.engine.setItem(key, value);
+    });
+  };
+
   const clearStorage = () => {
     Object.values(userSessionStorageKeys).forEach(key => {
       clientDataStore.remove(key);
@@ -50,7 +56,11 @@ describe('User session manager', () => {
   beforeEach(() => {
     clearStorage();
     resetState();
-    userSessionManager = new UserSessionManager(defaultErrorHandler, defaultLogger);
+    userSessionManager = new UserSessionManager(
+      defaultErrorHandler,
+      defaultLogger,
+      defaultPluginsManager,
+    );
   });
 
   it('should initialize user details from storage to state', () => {
@@ -421,5 +431,98 @@ describe('User session manager', () => {
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset(true, true);
     expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
+  });
+
+  it('should migrate legacy storage data is migration is enabled', () => {
+    const customData = {
+      rl_user_id:
+        'RudderEncrypt%3AU2FsdGVkX1%2FSIc%2F%2FsRy9t3CPVe54IHncEARgbMhX7xkKDtO%2BVtg%2BW1mjeAF1v%2Fp5', // '"1wefk7M3Y1D6EDX4ZpIE00LpKAE"'
+      rl_trait:
+        'RudderEncrypt%3AU2FsdGVkX19T0ItDzfT%2FZwWZ8wg4za9jcxyhSM4ZvWvkZCGeDekKc1%2B6l6i19bw8xv4YrtR8IBMp0SJBw76cbg%3D%3D', // '{email: 'saibattinoju@rudderstack.com'}'
+      rl_anonymous_id:
+        'RudderEncrypt%3AU2FsdGVkX19GLIcQTLgTdMu3NH14EwwTTK0ih%2BouACRQVDSrmYeVNe3vzF6W9oh0UzjgEf8N%2Fvxy%2BE%2F2BzIHuA%3D%3D', // '"bc9597ae-117e-4857-9d85-f02719b73239"'
+      // V3 encrypted
+      rl_page_init_referrer:
+        'RS_ENC_v3_Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMS9jZG4vbW9kZXJuL2lpZmUvaW5kZXguaHRtbCI%3D', // '"$direct"
+    };
+
+    setCustomValuesInStorageEngine(customData);
+
+    // Enable migration
+    state.storage.migrate.value = true;
+
+    defaultPluginsManager.init();
+
+    const invokeSpy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
+
+    userSessionManager.init(clientDataStore);
+
+    expect(invokeSpy).nthCalledWith(
+      1,
+      'storage.migrate',
+      'rl_user_id',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      2,
+      'storage.migrate',
+      'rl_trait',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      3,
+      'storage.migrate',
+      'rl_anonymous_id',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      4,
+      'storage.migrate',
+      'rl_group_id',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      5,
+      'storage.migrate',
+      'rl_group_trait',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      6,
+      'storage.migrate',
+      'rl_page_init_referrer',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      7,
+      'storage.migrate',
+      'rl_page_init_referring_domain',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+    expect(invokeSpy).nthCalledWith(
+      8,
+      'storage.migrate',
+      'rl_session',
+      clientDataStore.engine,
+      defaultLogger,
+    );
+
+    // All the values will be deleted from storage as plugin invocation fails
+    // Eventually, default values will be assigned during initialization
+    expect(state.session.userId.value).toBe('');
+    expect(state.session.userTraits.value).toStrictEqual({});
+    expect(state.session.anonymousUserId.value).toBe('test_uuid');
+    expect(state.session.groupId.value).toBe('');
+    expect(state.session.groupTraits.value).toStrictEqual({});
+    expect(state.session.initialReferrer.value).toBe('$direct');
+    expect(state.session.initialReferringDomain.value).toBe('');
+    expect(state.session.sessionInfo.value).not.toBeUndefined();
   });
 });

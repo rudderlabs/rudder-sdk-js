@@ -13,6 +13,7 @@ import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities
 import {
   ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
+  StorageEncryptionVersionsToPluginNameMap,
 } from '@rudderstack/analytics-js/components/configManager/constants';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { remotePluginNames } from './pluginNames';
@@ -90,15 +91,15 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Error reporting related plugins
-    const supportedErrorReportingProviderPlugins: string[] = Object.values(
+    const supportedErrReportingProviderPluginNames: string[] = Object.values(
       ErrorReportingProvidersToPluginNameMap,
     );
-    if (state.reporting.errorReportingProviderPlugin.value) {
+    if (state.reporting.errorReportingProviderPluginName.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName !== state.reporting.errorReportingProviderPlugin.value &&
-            supportedErrorReportingProviderPlugins.includes(pluginName)
+            pluginName !== state.reporting.errorReportingProviderPluginName.value &&
+            supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
     } else {
@@ -106,7 +107,7 @@ class PluginsManager implements IPluginsManager {
         pluginName =>
           !(
             pluginName === PluginName.ErrorReporting ||
-            supportedErrorReportingProviderPlugins.includes(pluginName)
+            supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
     }
@@ -168,7 +169,24 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    // TODO: add logic for all plugins as we develop them
+    // Storage encryption related plugins
+    const supportedStorageEncryptionPlugins: string[] = Object.values(
+      StorageEncryptionVersionsToPluginNameMap,
+    );
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+      pluginName =>
+        !(
+          pluginName !== state.storage.encryptionPluginName.value &&
+          supportedStorageEncryptionPlugins.includes(pluginName)
+        ),
+    );
+
+    // Storage migrator related plugins
+    if (!state.storage.migrate.value) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.StorageMigrator,
+      );
+    }
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }
