@@ -131,7 +131,7 @@ class PluginEngine implements IPluginEngine {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {
-      throw new Error('Invoke on plugin should have a extensionPointName');
+      throw new Error('Failed to invoke plugin because the extension point name is missing.');
     }
 
     const noCall = extensionPointName.startsWith('!');
@@ -141,7 +141,7 @@ class PluginEngine implements IPluginEngine {
     extensionPointName = extensionPointName.replace(/(^!|!$)/g, '');
 
     if (!extensionPointName) {
-      throw new Error('Invoke on plugin should have a valid extensionPointName');
+      throw new Error('Failed to invoke plugin because the extension point name is invalid.');
     }
 
     const extensionPointNameParts = extensionPointName.split('.');

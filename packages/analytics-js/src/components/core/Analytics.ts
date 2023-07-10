@@ -275,7 +275,10 @@ class Analytics implements IAnalytics {
    */
   loadConfig() {
     if (!state.lifecycle.writeKey.value) {
-      this.errorHandler.onError(new Error('No write key is provided'), 'Load configuration');
+      this.errorHandler.onError(
+        new Error('A write key is required to load the SDK. Please provide a valid write key.'),
+        'LoadConfiguration',
+      );
       return;
     }
 

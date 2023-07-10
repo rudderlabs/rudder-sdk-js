@@ -88,7 +88,11 @@ const jsFileLoader = (
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {
-      reject(new Error(`A script with the id "${id}" is already loaded. Hence, skipping it.`));
+      reject(
+        new Error(
+          `A script with the id "${id}" is already loaded. Skipping the loading of this script to prevent conflicts.`,
+        ),
+      );
     }
 
     try {
@@ -101,7 +105,7 @@ const jsFileLoader = (
 
       const onerror = () => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(`Couldn't load the script "${url}" with id ${id}.`));
+        reject(new Error(`Failed to load script with id "${id}" from URL "${url}".`));
       };
 
       // Create the DOM element to load the script and add it to the DOM
@@ -111,14 +115,14 @@ const jsFileLoader = (
       timeoutID = (globalThis as typeof window).setTimeout(() => {
         reject(
           new Error(
-            `Timeout (${timeout} ms) occurred. Couldn't load the script "${url}" with id ${id}.`,
+            `A timeout of ${timeout} ms occurred while trying to load the script with id "${id}" from URL "${url}".`,
           ),
         );
       }, timeout);
     } catch (err) {
       reject(
         new Error(
-          `Exception occurred while loading the script "${url}" with id ${id}. Original error: "${stringifyWithoutCircular(
+          `Failed to load the script from "${url}" with id ${id}: "${stringifyWithoutCircular(
             err as Record<string, any>,
           )}"`,
         ),

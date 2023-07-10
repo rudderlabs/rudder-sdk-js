@@ -125,7 +125,11 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
-      reject(new Error(`Destination "${dest.userFriendlyId}" ready check timed out`));
+      reject(
+        new Error(
+          `A timeout of ${INITIALIZED_CHECK_TIMEOUT} ms occurred while trying to check the ready status for "${dest.userFriendlyId}" destination.`,
+        ),
+      );
     } else {
       wait(LOAD_CHECK_POLL_INTERVAL)
         .then(() =>

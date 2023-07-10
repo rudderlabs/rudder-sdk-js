@@ -82,9 +82,9 @@ const updateStorageState = (logger?: ILogger): void => {
   if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
     // set the default encryption plugin
     logger?.warn(
-      `The configured storage encryption version "${storageEncryptionVersion}" is not supported. Supported version(s) is/are "${Object.keys(
+      `${CONFIG_MANAGER}:: The storage encryption version "${storageEncryptionVersion}" is not supported. Please choose one of the following supported versions: "${Object.keys(
         StorageEncryptionVersionsToPluginNameMap,
-      )}". Using the default version (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
+      )}". The default version ${DEFAULT_STORAGE_ENCRYPTION_VERSION} will be used instead.`,
     );
     storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
   } else if (isUndefined(storageEncryptionVersion)) {
@@ -105,7 +105,7 @@ const updateStorageState = (logger?: ILogger): void => {
       state.storage.migrate.value !== configuredMigrationValue
     ) {
       logger?.warn(
-        `The storage data migration is disabled as the configured storage encryption version (${storageEncryptionVersion}) is not the latest.`,
+        `${CONFIG_MANAGER}:: The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest. To enable storage data migration, please update the storage encryption version to the latest version (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
       );
     }
   });

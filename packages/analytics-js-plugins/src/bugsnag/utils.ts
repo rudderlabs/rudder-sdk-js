@@ -167,7 +167,11 @@ const initBugsnagClient = (
       promiseResolve(client);
     }
   } else if (time >= MAX_WAIT_FOR_SDK_LOAD_MS) {
-    promiseReject(new Error('The Bugsnag SDK load timed out.'));
+    promiseReject(
+      new Error(
+        `A timeout ${MAX_WAIT_FOR_SDK_LOAD_MS} ms occurred while trying to load the Bugsnag SDK.`,
+      ),
+    );
   } else {
     // Try to initialize the client after a delay
     setTimeout(

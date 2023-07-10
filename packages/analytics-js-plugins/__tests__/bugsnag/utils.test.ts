@@ -252,7 +252,9 @@ describe('Bugsnag utilities', () => {
         initBugsnagClient(state, resolve, reject);
       });
 
-      await expect(bsClientPromise).rejects.toThrow('Bugsnag SDK load timed out.');
+      await expect(bsClientPromise).rejects.toThrow(
+        'A timeout 1000 ms occurred while trying to load the Bugsnag SDK.',
+      );
     });
   });
 
@@ -328,7 +330,7 @@ describe('Bugsnag utilities', () => {
       setTimeout(() => {
         expect(mockErrorHandler.onError).toHaveBeenCalledWith(
           new Error(
-            `Couldn't load the script "https://asdf.com/bugsnag.min.js" with id rs-bugsnag.`,
+            `Failed to load script with id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js".`,
           ),
           'ExternalSrcLoader',
         );

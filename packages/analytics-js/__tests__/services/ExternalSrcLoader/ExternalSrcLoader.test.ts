@@ -79,7 +79,7 @@ describe('External Source Loader', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new Error(
-          'Couldn\'t load the script "https://dummy.dataplane.host.com/noConnectionSample" with id dummyScript.',
+          'Failed to load script with id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample".',
         ),
         'ExternalSrcLoader',
       );
@@ -101,7 +101,9 @@ describe('External Source Loader', () => {
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('A script with the id "dummyScript" is already loaded. Hence, skipping it.'),
+        new Error(
+          'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts.',
+        ),
         'ExternalSrcLoader',
       );
       document.getElementById('dummyScript')?.remove();

@@ -118,7 +118,7 @@ class Store implements IStore {
       } else {
         this.onError(
           new Error(
-            `Value for '${validKey}' cannot be saved to storage: ${(err as Error).message}`,
+            `Failed to save the value for "${validKey}" to storage: ${(err as Error).message}`,
           ),
         );
       }
@@ -147,9 +147,7 @@ class Store implements IStore {
     } catch (err) {
       this.onError(
         new Error(
-          `Value for '${validKey}' cannot be retrieved/parsed from storage, ${
-            (err as Error).message
-          }`,
+          `Failed to retrieve or parse data for "${key}" from storage: ${(err as Error).message}`,
         ),
       );
       return null;

@@ -36,7 +36,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         return JSON.parse(decryptedVal);
       } catch (err) {
         logger?.error(
-          `Value for "${key}" cannot be retrieved/parsed from storage, ${(err as Error).message}`,
+          `Failed to retrieve or parse data for ${key} from storage. ${(err as Error).message}`,
         );
         return null;
       }

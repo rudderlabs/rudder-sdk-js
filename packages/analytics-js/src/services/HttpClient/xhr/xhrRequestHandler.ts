@@ -71,7 +71,7 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          `${FAILED_REQUEST_ERR_MSG_PREFIX} with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}`,
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}.`,
         ),
         xhr,
         options,
@@ -80,9 +80,9 @@ const xhrRequest = (
     const xhrError = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout or no connection, ${
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout or no connection (${
             e ? e.type : ''
-          } for URL: ${options.url}`,
+          }) for URL: ${options.url}.`,
         ),
         xhr,
         options,
@@ -120,7 +120,7 @@ const xhrRequest = (
     } catch (err) {
       reject({
         error: new Error(
-          `${FAILED_REQUEST_ERR_MSG_PREFIX} for URL: ${options.url}, ${(err as Error).message}`,
+          `${FAILED_REQUEST_ERR_MSG_PREFIX} for URL: ${options.url}: ${(err as Error).message}`,
         ),
         xhr,
         options,

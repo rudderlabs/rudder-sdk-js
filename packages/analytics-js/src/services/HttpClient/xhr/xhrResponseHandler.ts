@@ -10,7 +10,7 @@ const responseTextToJson = <T = any>(
   try {
     return JSON.parse(responseText || '');
   } catch (err) {
-    const error = new Error(`Response data parsing failed, ${(err as Error).message}`);
+    const error = new Error(`Failed to parse response data: ${(err as Error).message}`);
     if (onError && isFunction(onError)) {
       onError(error);
     } else {

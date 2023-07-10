@@ -126,7 +126,7 @@ describe('HttpClient', () => {
   it('should handle 400 range errors in getAsyncData requests', done => {
     const callback = (response: any, reject: RejectionDetails) => {
       const errResult = new Error(
-        'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
+        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
       expect(reject.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -147,7 +147,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample',
+        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       ),
       'HttpClient',
     );
@@ -156,7 +156,7 @@ describe('HttpClient', () => {
   it('should handle 500 range errors in getAsyncData requests', done => {
     const callback = (response: any, reject: RejectionDetails) => {
       const errResult = new Error(
-        'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
+        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );
       expect(reject.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -177,7 +177,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample',
+        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       ),
       'HttpClient',
     );
@@ -191,7 +191,7 @@ describe('HttpClient', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error(
-        'Request failed due to timeout or no connection, error for URL: https://dummy.dataplane.host.com/noConnectionSample',
+        'The request failed due to timeout or no connection (error) for URL: https://dummy.dataplane.host.com/noConnectionSample.',
       ),
       'HttpClient',
     );
@@ -202,7 +202,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Response data parsing failed, Unexpected token r in JSON at position 1'),
+        new Error('Failed to parse response data: Unexpected token r in JSON at position 1'),
         'HttpClient',
       );
       done();
@@ -218,7 +218,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Response data parsing failed, Unexpected end of JSON input'),
+        new Error('Failed to parse response data: Unexpected end of JSON input'),
         'HttpClient',
       );
       done();

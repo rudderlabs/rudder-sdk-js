@@ -218,6 +218,7 @@ class PluginsManager implements IPluginsManager {
             ',',
           )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
         ),
+        PLUGINS_MANAGER,
       );
     }
 
