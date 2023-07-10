@@ -12,6 +12,7 @@ import {
   UaChTrackLevel,
 } from '@rudderstack/analytics-js/state/types';
 import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '@rudderstack/analytics-js/components/configManager/constants';
 
 export type LoadOptionsState = Signal<LoadOptions>;
 
@@ -36,6 +37,12 @@ const defaultLoadOptions: LoadOptions = {
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,
+  storage: {
+    encryption: {
+      version: DEFAULT_STORAGE_ENCRYPTION_VERSION,
+    },
+    migrate: false,
+  },
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

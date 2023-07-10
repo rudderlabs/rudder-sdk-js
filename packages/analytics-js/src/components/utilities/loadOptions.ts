@@ -1,5 +1,5 @@
 import { clone } from 'ramda';
-import { LoadOptions } from '@rudderstack/analytics-js/state/types';
+import { LoadOptions, StorageOpts } from '@rudderstack/analytics-js/state/types';
 import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
 import {
   isObjectLiteralAndNotNull,
@@ -14,27 +14,30 @@ const normalizeLoadOptions = (
 ): LoadOptions => {
   // TODO: add all the validations as per
   //  https://github.com/rudderlabs/rudder-sdk-js/blob/a620e11f98e1438be34114ad40b325201b1d7a6e/src/core/analytics.js#L1156
-  const normalizedLoadOptions = clone(loadOptions);
-  normalizedLoadOptions.plugins = normalizedLoadOptions.plugins ?? defaultOptionalPluginsList;
+  const normalizedLoadOpts = clone(loadOptions);
+  normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
-  normalizedLoadOptions.useGlobalIntegrationsConfigInEvents =
-    normalizedLoadOptions.useGlobalIntegrationsConfigInEvents === true;
+  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents =
+    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents === true;
 
-  normalizedLoadOptions.bufferDataPlaneEventsUntilReady =
-    normalizedLoadOptions.bufferDataPlaneEventsUntilReady === true;
+  normalizedLoadOpts.bufferDataPlaneEventsUntilReady =
+    normalizedLoadOpts.bufferDataPlaneEventsUntilReady === true;
 
-  normalizedLoadOptions.sendAdblockPage = normalizedLoadOptions.sendAdblockPage === true;
+  normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
 
-  normalizedLoadOptions.sendAdblockPageOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOptions.sendAdblockPageOptions,
+  normalizedLoadOpts.sendAdblockPageOptions = isObjectLiteralAndNotNull(
+    normalizedLoadOpts.sendAdblockPageOptions,
   )
-    ? normalizedLoadOptions.sendAdblockPageOptions
+    ? normalizedLoadOpts.sendAdblockPageOptions
     : {};
 
-  const mergedLoadOptions: LoadOptions = mergeDeepRight(
-    loadOptionsFromState,
-    normalizedLoadOptions,
-  );
+  normalizedLoadOpts.storage = isObjectLiteralAndNotNull(normalizedLoadOpts.storage)
+    ? normalizedLoadOpts.storage
+    : {};
+  (normalizedLoadOpts.storage as StorageOpts).migrate =
+    normalizedLoadOpts.storage?.migrate === true;
+
+  const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 
   return mergedLoadOptions;
 };

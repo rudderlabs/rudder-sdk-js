@@ -11,6 +11,7 @@ import { NativeDestinationsState } from './slices/nativeDestinations';
 import { EventBufferState } from './slices/eventBuffer';
 import { PluginsState } from './slices/plugins';
 import { PagePropertiesState } from './slices/page';
+import { StorageState } from './slices/storage';
 
 export interface IApplicationState {
   capabilities: CapabilitiesState;
@@ -26,4 +27,5 @@ export interface IApplicationState {
   eventBuffer: EventBufferState;
   plugins: PluginsState;
   page: PagePropertiesState;
+  storage: StorageState;
 }

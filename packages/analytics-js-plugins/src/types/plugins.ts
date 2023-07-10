@@ -49,6 +49,7 @@ export type PluginName =
   | 'NativeDestinationQueue'
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
+  | 'StorageMigrator'
   | 'XhrQueue'
   | 'OneTrust'
   | 'Bugsnag';
