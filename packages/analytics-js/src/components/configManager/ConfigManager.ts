@@ -22,6 +22,7 @@ import { getUserSelectedConsentManager } from '../utilities/consent';
 import { PluginName } from '../pluginsManager/types';
 import { updateReportingState, updateStorageState } from './util/commonUtil';
 import { ConsentManagersToPluginNameMap } from './constants';
+import { getMutatedError } from '../utilities/errors';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -106,8 +107,9 @@ class ConfigManager implements IConfigManager {
         // Set consent manager plugin name in state
         state.consents.activeConsentProviderPluginName.value = consentProviderPluginName;
       });
-    } catch (e) {
-      this.onError(e);
+    } catch (err) {
+      const issue = 'Failed to load the SDK';
+      this.onError(getMutatedError(err, issue));
       return;
     }
 
@@ -117,9 +119,9 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
+  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'ConfigManager', customMessage, shouldAlwaysThrow);
+      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
@@ -132,7 +134,7 @@ class ConfigManager implements IConfigManager {
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Unable to fetch source config ${details?.error}`);
+      this.onError(`Failed to fetch source config. Reason: ${details?.error}`);
       return;
     }
 
@@ -151,7 +153,7 @@ class ConfigManager implements IConfigManager {
     }
 
     if (!isValidSourceConfig(res)) {
-      this.onError(errMessage, undefined, true);
+      this.onError(new Error(errMessage), undefined, true);
       return;
     }
 
@@ -164,7 +166,13 @@ class ConfigManager implements IConfigManager {
     );
 
     if (!dataPlaneUrl) {
-      this.onError(`Unable to load the SDK as data plane URL could not be determined`);
+      this.onError(
+        new Error(
+          `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`,
+        ),
+        undefined,
+        true,
+      );
       return;
     }
     const nativeDestinations: Destination[] =
@@ -207,7 +215,9 @@ class ConfigManager implements IConfigManager {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
       if (!isFunction(sourceConfigFunc)) {
-        throw Error(`"getSourceConfig" must be a function`);
+        throw new Error(
+          `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`,
+        );
       }
       // fetch source config from the function
       const res = sourceConfigFunc();
@@ -216,7 +226,7 @@ class ConfigManager implements IConfigManager {
         res
           .then(pRes => this.processConfig(pRes as SourceConfigResponse))
           .catch(err => {
-            this.errorHandler?.onError(err, 'sourceConfig');
+            this.onError(err, 'SourceConfig');
           });
       } else {
         this.processConfig(res as SourceConfigResponse);

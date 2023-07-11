@@ -151,9 +151,9 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: Error | unknown): void {
+  onError(error: unknown): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'UserSessionManager');
+      this.errorHandler.onError(error, USER_SESSION_MANAGER);
     } else {
       throw error;
     }

@@ -3,6 +3,7 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js/constants/storages';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
@@ -64,10 +65,10 @@ class StoreManager implements IStoreManager {
     let storageType: StorageType | '' = '';
 
     // First try setting the storage to cookie else to localstorage
-    if (getStorageEngine('cookieStorage')?.isEnabled) {
-      storageType = 'cookieStorage';
-    } else if (getStorageEngine('localStorage')?.isEnabled) {
-      storageType = 'localStorage';
+    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+      storageType = COOKIE_STORAGE;
+    } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+      storageType = LOCAL_STORAGE;
     }
     // TODO: fallback to in-memory storage if not other storage is available
 
@@ -109,9 +110,9 @@ class StoreManager implements IStoreManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'StorageManager');
+      this.errorHandler?.onError(error, STORE_MANAGER);
     } else {
       throw error;
     }

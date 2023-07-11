@@ -105,7 +105,7 @@ const updateStorageState = (logger?: ILogger): void => {
       state.storage.migrate.value !== configuredMigrationValue
     ) {
       logger?.warn(
-        `${CONFIG_MANAGER}:: The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest. To enable storage data migration, please update the storage encryption version to the latest version (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
+        `${CONFIG_MANAGER}:: The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${DEFAULT_STORAGE_ENCRYPTION_VERSION}). To enable storage data migration, please update the storage encryption version to the latest version.`,
       );
     }
   });

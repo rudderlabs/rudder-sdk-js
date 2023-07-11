@@ -218,7 +218,6 @@ class PluginsManager implements IPluginsManager {
             ',',
           )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
         ),
-        PLUGINS_MANAGER,
       );
     }
 
@@ -318,9 +317,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown, context = 'PluginsManager') {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, context);
+      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
     } else {
       throw error;
     }

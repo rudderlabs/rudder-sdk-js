@@ -39,7 +39,7 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
   it('should throw error if invalid custom url is provided', () => {
     const integrationsCDNPath = () => getIntegrationsCDNPath(dummyVersion, false, '/');
     expect(integrationsCDNPath).toThrow(
-      'Failed to load RudderStack SDK: CDN base URL for integrations is not valid',
+      'Failed to load the SDK: CDN base URL for integrations is not valid.',
     );
   });
 

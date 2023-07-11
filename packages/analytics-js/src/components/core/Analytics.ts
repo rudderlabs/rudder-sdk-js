@@ -52,7 +52,7 @@ import {
   ADBLOCK_PAGE_NAME,
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
-import { READY_API } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { LOAD_CONFIGURATION, READY_API } from '@rudderstack/analytics-js/constants/loggerContexts';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -130,7 +130,7 @@ class Analytics implements IAnalytics {
     globalThis.addEventListener(
       'error',
       e => {
-        this.errorHandler.onError(e, 'Global Boundary', state.lifecycle.writeKey.value);
+        this.errorHandler.onError(e, 'GlobalBoundary', state.lifecycle.writeKey.value);
       },
       true,
     );
@@ -277,7 +277,7 @@ class Analytics implements IAnalytics {
     if (!state.lifecycle.writeKey.value) {
       this.errorHandler.onError(
         new Error('A write key is required to load the SDK. Please provide a valid write key.'),
-        'LoadConfiguration',
+        LOAD_CONFIGURATION,
       );
       return;
     }
@@ -411,7 +411,7 @@ class Analytics implements IAnalytics {
   // Start consumer exposed methods
   ready(callback: ApiCallback) {
     const type = 'ready';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
       // TODO: handle error
@@ -574,7 +574,9 @@ class Analytics implements IAnalytics {
 
   reset(resetAnonymousId?: boolean) {
     const type = 'reset';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event, resetAnonymousId: ${resetAnonymousId}`);
+    this.errorHandler.leaveBreadcrumb(
+      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
+    );
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);

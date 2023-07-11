@@ -20,3 +20,10 @@ export {
 export { isHybridModeDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 
 export { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/ExternalSrcLoader';
+
+export {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  SESSION_STORAGE,
+  MEMORY_STORAGE,
+} from '@rudderstack/analytics-js/constants/storages';

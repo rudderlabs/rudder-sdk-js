@@ -7,7 +7,7 @@ import {
   DoneCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
-import { generateUUID } from '../common';
+import { LOCAL_STORAGE, generateUUID } from '../common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -73,7 +73,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     options: QueueOptions,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
-    storageType: StorageType = 'localStorage',
+    storageType: StorageType = LOCAL_STORAGE,
     logger?: ILogger,
   ) {
     this.storeManager = storeManager;
@@ -327,7 +327,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       id,
       name: this.name,
       validKeys: QueueStatuses,
-      type: 'localStorage',
+      type: LOCAL_STORAGE,
     });
     const our = {
       queue: (this.getQueue(QueueStatuses.QUEUE) ?? []) as QueueItem[],
@@ -460,7 +460,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             id: parts[1],
             name,
             validKeys: QueueStatuses,
-            type: 'localStorage',
+            type: LOCAL_STORAGE,
           }),
         );
       }

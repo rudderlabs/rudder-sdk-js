@@ -35,7 +35,7 @@ const getCircularReplacer = (
 
     if (ancestors.includes(value)) {
       logger?.warn(
-        `${JSON_STRINGIFY}:: A circular reference was detected in the object and the property "${key}" has been dropped from the output.`,
+        `${JSON_STRINGIFY}:: A circular reference has been detected in the object and the property "${key}" has been dropped from the output.`,
       );
       return '[Circular Reference]';
     }

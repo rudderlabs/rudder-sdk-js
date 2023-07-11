@@ -231,7 +231,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.storage.migrate.value).toBe(false);
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest. To enable storage data migration, please update the storage encryption version to the latest version (v3).',
+        'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
       );
     });
   });

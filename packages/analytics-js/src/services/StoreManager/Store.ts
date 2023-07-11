@@ -10,6 +10,7 @@ import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilitie
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
+import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js/constants/storages';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -36,7 +37,7 @@ class Store implements IStore {
     this.name = config.name;
     this.isEncrypted = config.isEncrypted || false;
     this.validKeys = config.validKeys || {};
-    this.engine = engine || getStorageEngine('localStorage');
+    this.engine = engine || getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
@@ -73,7 +74,7 @@ class Store implements IStore {
    */
   swapQueueStoreToInMemoryEngine() {
     const { name, id, validKeys, noCompoundKey } = this;
-    const inMemoryStorage = getStorageEngine('memoryStorage');
+    const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
@@ -209,7 +210,7 @@ class Store implements IStore {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
       this.errorHandler?.onError(error, `Store ${this.id}`);
     } else {

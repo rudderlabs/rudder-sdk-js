@@ -15,6 +15,7 @@ import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
+import { MEMORY_STORAGE } from '../utilities/common';
 
 const pluginName = 'NativeDestinationQueue';
 
@@ -76,7 +77,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           done(null);
         },
         storeManager,
-        'memoryStorage',
+        MEMORY_STORAGE,
       );
 
       // TODO: This seems to not work as expected. Need to investigate

@@ -4,6 +4,12 @@ import {
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
 } from '@rudderstack/analytics-js/constants/storageKeyNames';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js/constants/storages';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 
@@ -18,7 +24,7 @@ const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
 // TODO: also check for SecurityErrors
 //  https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage#exceptions
 const isStorageAvailable = (
-  type: StorageType = 'localStorage',
+  type: StorageType = LOCAL_STORAGE,
   storageInstance?: IStorage,
   logger?: ILogger,
 ) => {
@@ -27,19 +33,19 @@ const isStorageAvailable = (
 
   try {
     switch (type) {
-      case 'memoryStorage':
+      case MEMORY_STORAGE:
         return true;
-      case 'cookieStorage':
+      case COOKIE_STORAGE:
         storage = storageInstance;
-        testData = `${STORAGE_TEST_COOKIE}`;
+        testData = STORAGE_TEST_COOKIE;
         break;
-      case 'localStorage':
+      case LOCAL_STORAGE:
         storage = storageInstance ?? globalThis.localStorage;
-        testData = `${STORAGE_TEST_LOCAL_STORAGE}`; // was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
+        testData = STORAGE_TEST_LOCAL_STORAGE; // was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
         break;
-      case 'sessionStorage':
+      case SESSION_STORAGE:
         storage = storageInstance ?? globalThis.sessionStorage;
-        testData = `${STORAGE_TEST_SESSION_STORAGE}`;
+        testData = STORAGE_TEST_SESSION_STORAGE;
         break;
       default:
         return false;
