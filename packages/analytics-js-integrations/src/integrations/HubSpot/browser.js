@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/HubSpot/constants';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
 
 class HubSpot {
   constructor(config, analytics, destinationInfo) {

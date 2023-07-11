@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { ENCRYPTION_KEY_V3, ENCRYPTION_PREFIX_V3 } from './constants';
 
 const pluginName = 'StorageEncryption';

@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import { parseLinker } from './utils';
 

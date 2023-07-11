@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { BugsnagLib } from '../types/plugins';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';

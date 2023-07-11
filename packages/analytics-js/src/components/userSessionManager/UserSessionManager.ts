@@ -1,23 +1,26 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
-import { generateUUID } from '@rudderstack/common/utilities/uuId';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { batch, effect } from '@preact/signals-core';
-import { isNonEmptyObject, mergeDeepRight } from '@rudderstack/common/utilities/object';
+import {
+  isNonEmptyObject,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js-common/utilities/object';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
-import { isString } from '@rudderstack/common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { IStore } from '@rudderstack/common/types/Store';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { SessionInfo } from '@rudderstack/common/types/Session';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
-import { AnonymousIdOptions } from '@rudderstack/common/types/LoadOptions';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IStore } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,

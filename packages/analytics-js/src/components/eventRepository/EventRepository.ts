@@ -2,14 +2,14 @@ import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
-import { IStoreManager } from '@rudderstack/common/types/Store';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { RudderEvent } from '@rudderstack/common/types/Event';
-import { ApiCallback } from '@rudderstack/common/types/EventApi';
-import { isHybridModeDestination } from '@rudderstack/common/utilities/destinations';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,

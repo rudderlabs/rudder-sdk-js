@@ -4,7 +4,7 @@ import {
   updateReportingState,
 } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');

@@ -6,7 +6,7 @@ import {
   mergeDeepRight,
   mergeDeepRightObjectArrays,
   stringifyWithoutCircular,
-} from '@rudderstack/common/v1.1/utils/ObjectUtils';
+} from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 
 class DummyObj {}
 

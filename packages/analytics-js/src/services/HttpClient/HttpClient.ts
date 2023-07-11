@@ -1,14 +1,14 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { isFunction } from '@rudderstack/common/utilities/checks';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   IAsyncRequestConfig,
   IHttpClient,
   IRequestConfig,
   RejectionDetails,
-} from '@rudderstack/common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
+} from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 

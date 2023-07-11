@@ -2,18 +2,18 @@ const sharedConfig = require('../../jest.config.js');
 
 module.exports = {
   ...sharedConfig,
-  coverageDirectory: 'packages/common/reports/coverage',
+  coverageDirectory: 'packages/analytics-js-common/reports/coverage',
   coverageReporters: [
-    ['lcov', { projectRoot: '/packages/common/' }],
+    ['lcov', { projectRoot: '/packages/analytics-js-common/' }],
     'text',
     'text-summary',
     'clover',
   ],
   rootDir: './../../',
   roots: ['<rootDir>'],
-  testMatch: ['<rootDir>/packages/common/__tests__/**/*.(j|t)s?(x)'],
+  testMatch: ['<rootDir>/packages/analytics-js-common/__tests__/**/*.(j|t)s?(x)'],
   collectCoverageFrom: [
-    '<rootDir>/packages/common/src/**/*.(j|t)s?(x)',
+    '<rootDir>/packages/analytics-js-common/src/**/*.(j|t)s?(x)',
     '!<rootDir>/node_modules/**/*',
     '!<rootDir>/**/dist/**/*',
     '!<rootDir>/**/jest.*',

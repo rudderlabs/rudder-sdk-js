@@ -7,15 +7,15 @@ import {
   QUERY_PARAM_USER_ID_KEY,
 } from '@rudderstack/analytics-js/constants/queryParams';
 import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-import { isFunction } from '@rudderstack/common/utilities/checks';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/common/utilities/eventMethodOverloads';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 /**
  * Parse query string params into object values for keys that start with a defined prefix

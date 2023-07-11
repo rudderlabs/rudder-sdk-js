@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/Lotame/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Lotame/constants';
 import { LotameStorage } from './LotameStorage';
 
 class Lotame {

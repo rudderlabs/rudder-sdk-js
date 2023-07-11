@@ -15,24 +15,24 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
-import { ApiOptions } from '@rudderstack/common/types/EventApi';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import {
   AppInfo,
   LibraryInfo,
   OSInfo,
   ScreenInfo,
   UTMParameters,
-} from '@rudderstack/common/types/EventContext';
-import { SessionInfo } from '@rudderstack/common/types/Session';
-import { RudderContext, RudderEvent } from '@rudderstack/common/types/Event';
+} from '@rudderstack/analytics-js-common/types/EventContext';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
-jest.mock('@rudderstack/common/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
-jest.mock('@rudderstack/common/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

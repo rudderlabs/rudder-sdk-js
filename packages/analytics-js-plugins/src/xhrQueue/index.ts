@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/common/index';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IStoreManager } from '@rudderstack/common/types/Store';
-import { QueueOpts } from '@rudderstack/common/types/LoadOptions';
-import { RudderEvent } from '@rudderstack/common/types/Event';
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/analytics-js-common/index';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,

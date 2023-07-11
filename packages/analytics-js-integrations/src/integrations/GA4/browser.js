@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/common/constants/integrations/GA4/constants';
-import { Cookie } from '@rudderstack/common/v1.1/utils/storage/cookie';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import {
   isReservedName,
   sendUserIdToGA4,

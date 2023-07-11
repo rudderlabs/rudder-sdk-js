@@ -1,4 +1,4 @@
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 /**
  * Exposed values that can be accessed as global objects per analytics instance

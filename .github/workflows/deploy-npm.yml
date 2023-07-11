@@ -1,4 +1,4 @@
-name: Deploy to NPM
+name: Deploy to NPM v1.1
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy to NPM
+    name: Deploy to NPM v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || github.event.pull_request.merged == true
     steps:
@@ -27,12 +27,25 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build files
+      - name: Install dependencies
         env:
           HUSKY: 0
         run: |
-          npm ci
-          npm run build:npm
+          npm ci --no-audit
+          npm run setup:ci
+
+      - name: Get new version number
+        run: |
+          current_version=$(jq -r .version packages/analytics-v1.1/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+      - name: Build files
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
+        run: |
+          npm run build:package -- --scope 'rudder-sdk-js'
 
       - name: Publish package to NPM
         env:
@@ -40,21 +53,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          cd dist/npm-lib
+          cd packages/analytics-v1.1/dist/npm
           npm publish
-
-      - name: Get new version number
-        run: |
-          current_version=$(jq -r .version package.json)
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK NPM Package'
+          PROJECT_NAME: 'JS SDK NPM Package v1.1'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

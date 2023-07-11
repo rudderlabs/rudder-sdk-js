@@ -42,15 +42,19 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build and sync files to S3
+      - name: Install dependencies
         env:
           HUSKY: 0
+        run: |
+          npm ci --no-audit
+          npm run setup:ci
+
+      - name: Build and sync files to S3
+        env:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: '${{ steps.extract_branch.outputs.branch_type }}'
         run: |
-          npm ci --no-audit
-          npm run setup:ci
           npm run build:browser
           npm run build:browser:modern
 
@@ -58,8 +62,7 @@ jobs:
         run: |
           aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/legacy/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/legacy/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/legacy/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/js-integrations/ --recursive --cache-control max-age=3600
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"

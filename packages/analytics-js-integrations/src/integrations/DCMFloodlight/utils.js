@@ -2,7 +2,7 @@
 /* eslint-disable consistent-return */
 import get from 'get-value';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   isDefinedAndNotNull,
   isNotEmpty,

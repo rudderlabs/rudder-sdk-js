@@ -1,4 +1,4 @@
-import { PluginName } from '@rudderstack/common/types/PluginsManager';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 /**
  * Plugins to be loaded in the plugins loadOption is not defined

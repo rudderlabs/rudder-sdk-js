@@ -1,7 +1,7 @@
-import { generateUUID } from '@rudderstack/common/index';
-import { QueueStatuses } from '@rudderstack/common/constants/QueueStatuses';
-import { IStore, IStoreManager, StorageType } from '@rudderstack/common/types/Store';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+import { IStore, IStoreManager, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
   IQueue,
   QueueItem,

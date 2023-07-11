@@ -1,7 +1,7 @@
-import { stringifyWithoutCircular } from '@rudderstack/common/index';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BugsnagLib } from '../types/plugins';
 import {
   API_KEY,

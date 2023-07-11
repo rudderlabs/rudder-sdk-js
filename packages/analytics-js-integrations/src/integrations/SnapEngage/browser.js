@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/SnapEngage/constants';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapEngage/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { isObject } from '../../utils/utils';

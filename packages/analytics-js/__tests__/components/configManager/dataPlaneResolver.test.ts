@@ -1,5 +1,8 @@
 import { resolveDataPlaneUrl } from '@rudderstack/analytics-js/components/configManager/util/dataPlaneResolver';
-import { RegionDetails, ResidencyServerRegion } from '@rudderstack/common/types/DataResidency';
+import {
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js-common/types/DataResidency';
 
 const usDataplaneUrl = 'https://sample.rudderlabs.com/us';
 const euDataplaneUrl = 'https://sample.rudderlabs.com/eu';

@@ -3,8 +3,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
 import get from 'get-value';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/Sentry/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { getDefinedTraits, isObject } from '../../utils/utils';

@@ -1,5 +1,5 @@
 import { clone } from 'ramda';
-import { stringifyWithoutCircular } from '@rudderstack/common/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 
 const identifyTraitsPayloadMock: Record<string, any> = {
   firstName: 'Dummy Name',

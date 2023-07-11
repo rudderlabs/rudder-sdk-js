@@ -1,6 +1,6 @@
-import { isNull } from '@rudderstack/common/utilities/checks';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { CookieOptions } from '@rudderstack/common/types/Store';
+import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
 
 /**
  * Encode.

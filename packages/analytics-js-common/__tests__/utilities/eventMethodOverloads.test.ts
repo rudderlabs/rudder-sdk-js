@@ -4,7 +4,7 @@ import {
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/common/utilities/eventMethodOverloads';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 
 describe('Core - Event Method Overloads', () => {
   const callbackMock = jest.fn();

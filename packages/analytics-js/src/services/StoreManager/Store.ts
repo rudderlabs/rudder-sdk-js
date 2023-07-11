@@ -1,14 +1,14 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { trim } from '@rudderstack/common/utilities/string';
+import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { isNullOrUndefined } from '@rudderstack/common/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/common/utilities/json';
-import { IStorage, IStore, IStoreConfig } from '@rudderstack/common/types/Store';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { getStorageEngine } from './storages/storageEngine';
 
 /**

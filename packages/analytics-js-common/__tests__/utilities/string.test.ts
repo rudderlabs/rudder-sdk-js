@@ -1,4 +1,8 @@
-import { removeDoubleSpaces, trim, tryStringify } from '@rudderstack/common/utilities/string';
+import {
+  removeDoubleSpaces,
+  trim,
+  tryStringify,
+} from '@rudderstack/analytics-js-common/utilities/string';
 
 describe('Common Utils - String', () => {
   it('should trim string', () => {

@@ -12,8 +12,8 @@ import {
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
 import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ExternalSrcLoader } from '@rudderstack/common/index';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/index';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {

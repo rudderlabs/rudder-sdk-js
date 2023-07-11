@@ -2,7 +2,7 @@ import {
   NAME,
   excludeReservedTraits,
   excludePageProperties,
-} from '@rudderstack/common/constants/integrations/Sendinblue/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
 import { getDefinedTraits } from '../../utils/utils';
 import {
   getHashFromArray,

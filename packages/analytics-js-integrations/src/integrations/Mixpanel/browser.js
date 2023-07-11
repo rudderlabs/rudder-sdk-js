@@ -23,9 +23,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/common/constants/integrations/Mixpanel/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
   parseConfigArray,

@@ -6,9 +6,13 @@ import {
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { DEFAULT_BEACON_QUEUE_MAX_SIZE } from '@rudderstack/analytics-js/constants/sizes';
 import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { CookieSameSite, LoadOptions, UaChTrackLevel } from '@rudderstack/common/types/LoadOptions';
-import { LogLevel } from '@rudderstack/common/types/Logger';
-import { LoadOptionsState } from '@rudderstack/common/types/ApplicationState';
+import {
+  CookieSameSite,
+  LoadOptions,
+  UaChTrackLevel,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const defaultLoadOptions: LoadOptions = {
   logLevel: LogLevel.Error,

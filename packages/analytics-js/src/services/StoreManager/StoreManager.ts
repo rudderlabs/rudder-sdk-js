@@ -1,8 +1,13 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { IStoreConfig, IStoreManager, StorageType, StoreId } from '@rudderstack/common/types/Store';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
+import {
+  IStoreConfig,
+  IStoreManager,
+  StorageType,
+  StoreId,
+} from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';

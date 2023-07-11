@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
 const keysToExtract = ['context.traits'];

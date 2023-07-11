@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, RejectionDetails } from '@rudderstack/common/types/HttpClient';
+import { IHttpClient, RejectionDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
@@ -9,13 +9,13 @@ import { state } from '@rudderstack/analytics-js/state';
 import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { isFunction, isString } from '@rudderstack/common/utilities/checks';
+import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { Destination } from '@rudderstack/common/types/Destination';
-import { PluginName } from '@rudderstack/common/types/PluginsManager';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';

@@ -1,7 +1,10 @@
 /* eslint-disable no-unused-expressions */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import { NAME, supportedEvents } from '@rudderstack/common/constants/integrations/Criteo/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import {
+  NAME,
+  supportedEvents,
+} from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
 import {
   handleCommonFields,
   generateExtraData,

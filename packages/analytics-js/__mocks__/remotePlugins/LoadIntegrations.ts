@@ -1,4 +1,4 @@
-import { ExternalSrcLoader } from 'packages/common/src/services/ExternalSrcLoader';
+import { ExternalSrcLoader } from 'packages/analytics-js-common/src/services/ExternalSrcLoader';
 
 const LoadIntegrations = () => ({
   name: 'loadIntegrationsTest',

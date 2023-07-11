@@ -1,4 +1,4 @@
-name: Build & Code Quality Checks
+name: Build & Code Quality Checks v1.1
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build & Code Quality Checks
+    name: Build & Code Quality Checks v1.1
     runs-on: ubuntu-latest
 
     steps:
@@ -24,12 +24,13 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci
+          npm ci --no-audit
+          npm run setup:ci
 
       - name: Execute quality checks
         run: |
-          npm run check:circular
-          npm run check:duplicates
+          npm run check:circular -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
+          npm run check:duplicates -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
 
       - name: Execute security checks
         run: |
@@ -41,4 +42,7 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: check:size:build
+          skip_step: install
+          build_script: check:size:build -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
+          script: npx lerna exec --loglevel=silent --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common' -- npx size-limit --json
+          is_monorepo: true

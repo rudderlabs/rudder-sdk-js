@@ -1,10 +1,9 @@
-name: Deploy to DEV
+name: Deploy to DEV v1.1
 
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - production-staging
+    branches: ['production-staging']
     types:
       - closed
 
@@ -14,7 +13,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy to DEV
+    name: Deploy to DEV v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix/') || github.event.pull_request.merged == true
     steps:
@@ -33,18 +32,22 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build files
+      - name: Install dependencies
         env:
           HUSKY: 0
+        run: |
+          npm ci --no-audit
+          npm run setup:ci
+
+      - name: Build files
+        env:
           BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'development'
         run: |
-          npm ci
-          npm run build:browser:dev
-          npm run build:integration:all
+          npm run build:browser:dev -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations'
 
       - name: Sync files to S3
         run: |
-          aws s3 cp dist/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
-          aws s3 cp dist/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/latest*"

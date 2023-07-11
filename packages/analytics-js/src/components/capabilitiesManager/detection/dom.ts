@@ -1,4 +1,4 @@
-import { isUndefined } from '@rudderstack/common/utilities/checks';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 
 const isDatasetAvailable = (): boolean => {
   const testElement = document.createElement('div');

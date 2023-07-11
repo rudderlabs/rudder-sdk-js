@@ -4,12 +4,12 @@ import {
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
-} from '@rudderstack/common/index';
-import { RudderEvent } from '@rudderstack/common/types/Event';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
+} from '@rudderstack/analytics-js-common/index';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 

@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals-core';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { ContextState } from '@rudderstack/common/types/ApplicationState';
+import { ContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const contextState: ContextState = {
   app: signal({

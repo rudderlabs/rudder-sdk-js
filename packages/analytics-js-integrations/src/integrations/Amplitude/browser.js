@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/common/constants/integrations/Amplitude/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
 

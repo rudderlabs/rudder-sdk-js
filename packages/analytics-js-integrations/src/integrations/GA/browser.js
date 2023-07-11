@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import is from 'is';
 import each from 'component-each';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/common/constants/integrations/GA/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA/constants';
 import { rejectArr } from '../../utils/utils';
 
 export default class GA {

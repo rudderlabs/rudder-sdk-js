@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/common/constants/integrations/VWO/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
 
 class VWO {
   constructor(config, analytics, destinationInfo) {

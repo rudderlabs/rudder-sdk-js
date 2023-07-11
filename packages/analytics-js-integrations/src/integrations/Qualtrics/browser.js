@@ -8,9 +8,9 @@
 /* eslint-disable no-unused-expressions */
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/common/constants/integrations/Qualtrics/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
 
 class Qualtrics {
   constructor(config, analytics, destinationInfo) {

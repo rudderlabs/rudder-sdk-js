@@ -2,17 +2,17 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   eventNameMapping,
-} from '@rudderstack/common/constants/integrations/TiktokAds/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
 import {
   getHashFromArrayWithDuplicate,
   getDestinationExternalID,
   isDefinedAndNotNull,
 } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { getTrackResponse } from './util';
 
 // Docs : https://ads.tiktok.com/gateway/docs/index

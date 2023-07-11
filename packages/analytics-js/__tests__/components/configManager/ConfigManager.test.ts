@@ -8,7 +8,7 @@ import { rest } from 'msw';
 import { DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { LogLevel } from '@rudderstack/common/types/Logger';
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 

@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/PostAffiliatePro/constants';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/PostAffiliatePro/constants';
 import updateSaleObject from './utils';
 
 class PostAffiliatePro {

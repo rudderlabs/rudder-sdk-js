@@ -1,4 +1,4 @@
-import { ScreenInfo } from '@rudderstack/common/types/EventContext';
+import { ScreenInfo } from '@rudderstack/analytics-js-common/types/EventContext';
 
 const getScreenDetails = (): ScreenInfo => {
   let screenDetails: ScreenInfo = {

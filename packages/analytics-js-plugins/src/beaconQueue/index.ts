@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/common/index';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
-import { IStoreManager } from '@rudderstack/common/types/Store';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { BeaconQueueOpts } from '@rudderstack/common/types/LoadOptions';
-import { RudderEvent } from '@rudderstack/common/types/Event';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/index';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 // TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
 import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';

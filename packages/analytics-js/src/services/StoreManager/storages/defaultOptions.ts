@@ -2,9 +2,9 @@ import {
   ICookieStorageOptions,
   IInMemoryStorageOptions,
   ILocalStorageOptions,
-} from '@rudderstack/common/types/Store';
+} from '@rudderstack/analytics-js-common/types/Store';
 import { DEFAULT_COOKIE_MAX_AGE } from '@rudderstack/analytics-js/constants/timeouts';
-import { CookieSameSite } from '@rudderstack/common/types/LoadOptions';
+import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { domain } from '../top-domain';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {

@@ -1,21 +1,21 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
 import { RudderEventFactory } from '@rudderstack/analytics-js/components/eventManager/RudderEventFactory';
-import { APIEvent, RudderEventType } from '@rudderstack/common/types/EventApi';
-import { SessionInfo } from '@rudderstack/common/types/Session';
+import { APIEvent, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import {
   AppInfo,
   LibraryInfo,
   OSInfo,
   ScreenInfo,
   UTMParameters,
-} from '@rudderstack/common/types/EventContext';
+} from '@rudderstack/analytics-js-common/types/EventContext';
 
-jest.mock('@rudderstack/common/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
-jest.mock('@rudderstack/common/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

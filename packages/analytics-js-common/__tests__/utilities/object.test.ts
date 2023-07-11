@@ -5,7 +5,7 @@ import {
   isNonEmptyObject,
   isObjectAndNotNull,
   isObjectLiteralAndNotNull,
-} from '@rudderstack/common/utilities/object';
+} from '@rudderstack/analytics-js-common/utilities/object';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',

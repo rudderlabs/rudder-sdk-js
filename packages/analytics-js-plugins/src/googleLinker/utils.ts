@@ -1,4 +1,4 @@
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { crc32 } from './crc32';
 import { USER_INTERFACE } from './userLib';
 import { decode } from './base64Decoder';

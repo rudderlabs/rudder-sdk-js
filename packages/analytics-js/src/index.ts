@@ -8,12 +8,12 @@ export {
   type DestinationsQueueOpts,
   CookieSameSite,
   UaChTrackLevel,
-} from '@rudderstack/common/types/LoadOptions';
-export { type ApiCallback, type ApiOptions } from '@rudderstack/common/types/EventApi';
-export { type ApiObject } from '@rudderstack/common/types/ApiObject';
-export { type IntegrationOpts } from '@rudderstack/common/types/Integration';
-export { ResidencyServerRegion } from '@rudderstack/common/types/DataResidency';
-export { LogLevel } from '@rudderstack/common/types/Logger';
-export { PluginName } from '@rudderstack/common/types/PluginsManager';
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+export { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
+export { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+export { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
 export { type IRudderStackGlobals } from '@rudderstack/analytics-js/app/IRudderStackGlobals';

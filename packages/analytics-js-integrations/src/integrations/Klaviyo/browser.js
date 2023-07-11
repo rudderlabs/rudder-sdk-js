@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/common/constants/integrations/Klaviyo/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Klaviyo/constants';
 import { extractCustomFields, getDefinedTraits } from '../../utils/utils';
 import ecommEventPayload from './util';
 import { isNotEmpty } from '../../utils/commonUtils';

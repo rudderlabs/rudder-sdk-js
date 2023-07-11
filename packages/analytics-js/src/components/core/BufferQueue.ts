@@ -1,4 +1,4 @@
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 /**
  * A buffer queue to serve as a store for any type of data

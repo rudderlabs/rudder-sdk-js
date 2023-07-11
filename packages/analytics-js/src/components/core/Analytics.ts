@@ -3,18 +3,18 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { ExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { isFunction } from '@rudderstack/common/utilities/checks';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
@@ -28,26 +28,29 @@ import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQue
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
 import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import { clone } from 'ramda';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
-import { IStoreManager } from '@rudderstack/common/types/Store';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
-import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
-import { ApiCallback, RudderEventType } from '@rudderstack/common/types/EventApi';
-import { BufferedEvent } from '@rudderstack/common/types/Event';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { IAnalytics } from './IAnalytics';
-import { isObjectAndNotNull } from '@rudderstack/common/utilities/object';
+import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-} from '@rudderstack/common/utilities/eventMethodOverloads';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events

@@ -1,7 +1,7 @@
 import {
   PARTNER_NAME,
   trackMapping,
-} from '@rudderstack/common/constants/integrations/TiktokAds/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 

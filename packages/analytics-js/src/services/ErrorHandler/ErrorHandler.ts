@@ -1,12 +1,12 @@
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { IPluginEngine } from '@rudderstack/common/types/PluginEngine';
-import { removeDoubleSpaces } from '@rudderstack/common/utilities/string';
+import { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
-import { isTypeOfError } from '@rudderstack/common/utilities/checks';
-import { IErrorHandler, SDKError } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
+import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { isAllowedToBeNotified, processError } from './processError';
 
 /**

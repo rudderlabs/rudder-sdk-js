@@ -1,10 +1,13 @@
-import { DestinationConfig } from '@rudderstack/common/types/Destination';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { StatsCollection } from '@rudderstack/common/types/Source';
-import { RegionDetails, ResidencyServerRegion } from '@rudderstack/common/types/DataResidency';
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
+import {
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js-common/types/DataResidency';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 export type DestinationDefinition = {
   name: string;

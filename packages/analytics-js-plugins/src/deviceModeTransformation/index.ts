@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { RudderEvent } from '@rudderstack/common/types/Event';
-import { Destination } from '@rudderstack/common/types/Destination';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 
 const pluginName = 'DeviceModeTransformation';
 

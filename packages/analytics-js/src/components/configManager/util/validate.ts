@@ -1,5 +1,5 @@
-import { isObjectLiteralAndNotNull } from '@rudderstack/common/utilities/object';
-import { isNullOrUndefined } from '@rudderstack/common/utilities/checks';
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {

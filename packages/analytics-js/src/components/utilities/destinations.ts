@@ -1,4 +1,4 @@
-import { Destination } from '@rudderstack/common/types/Destination';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ConfigResponseDestinationItem } from '../configManager/types';
 
 /**

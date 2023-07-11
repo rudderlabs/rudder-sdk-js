@@ -8,7 +8,7 @@ import {
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { signal } from '@preact/signals-core';
-import { Destination } from '@rudderstack/common/types/Destination';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 
 describe('deviceModeDestinations utils', () => {
   describe('filterDestinations', () => {

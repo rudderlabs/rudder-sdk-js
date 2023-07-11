@@ -3,16 +3,16 @@ import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 import { batch } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
-import { mergeDeepRight } from '@rudderstack/common/utilities/object';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { RudderEvent } from '@rudderstack/common/types/Event';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
-jest.mock('@rudderstack/common/utilities', () => ({
-  ...jest.requireActual('@rudderstack/common/utilities'),
+jest.mock('@rudderstack/analytics-js-common/utilities', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
 }));
 

@@ -6,8 +6,8 @@
  * underlying GA method will get called.
  */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/common/constants/integrations/GA360/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA360/constants';
 import { GA } from '../GA';
 
 class GA360 extends GA {

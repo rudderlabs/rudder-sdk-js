@@ -1,4 +1,4 @@
-import type { RudderAnalytics, IRudderStackGlobals } from '@rudderstack/common';
+import type { RudderAnalytics, IRudderStackGlobals } from '@rudderstack/analytics-js-common';
 
 declare global {
   interface Window {

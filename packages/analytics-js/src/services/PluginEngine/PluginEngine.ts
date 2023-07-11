@@ -1,13 +1,13 @@
-import { isFunction } from '@rudderstack/common/utilities/checks';
-import { getValueByPath, hasValueByPath } from '@rudderstack/common/utilities/object';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getValueByPath, hasValueByPath } from '@rudderstack/analytics-js-common/utilities/object';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
   ExtensionPlugin,
   IPluginEngine,
   PluginEngineConfig,
-} from '@rudderstack/common/types/PluginEngine';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+} from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per

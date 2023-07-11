@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { PagePropertiesState } from '@rudderstack/common/types/ApplicationState';
+import { PagePropertiesState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const pagePropertiesState: PagePropertiesState = {
   path: signal(''),

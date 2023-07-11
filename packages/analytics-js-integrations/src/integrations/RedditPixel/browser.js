@@ -7,9 +7,9 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/common/constants/integrations/RedditPixel/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 
 class RedditPixel {

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/common/constants/integrations/Bugsnag/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Bugsnag/constants';
 
 class Bugsnag {
   constructor(config, analytics, destinationInfo) {

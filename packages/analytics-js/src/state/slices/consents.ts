@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { ConsentsState } from '@rudderstack/common/types/ApplicationState';
+import { ConsentsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const consentsState: ConsentsState = {
   deniedConsentIds: signal([]),

@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign */
 import { clone } from 'ramda';
-import { isHybridModeDestination } from '@rudderstack/common/index';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
-import { destDispNamesToFileNamesMap } from '@rudderstack/common/constants/destDispNamesToFileNames';
+import { isHybridModeDestination } from '@rudderstack/analytics-js-common/index';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { destDispNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDispNamesToFileNames';
 import {
   createDestinationInstance,
   isDestinationSDKEvaluated,

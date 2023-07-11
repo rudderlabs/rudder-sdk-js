@@ -5,7 +5,7 @@ import {
   isUndefined,
   isNullOrUndefined,
   isTypeOfError,
-} from '@rudderstack/common/utilities/checks';
+} from '@rudderstack/analytics-js-common/utilities/checks';
 
 describe('Common Utils - Checks', () => {
   describe('isFunction', () => {

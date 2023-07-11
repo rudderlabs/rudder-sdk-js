@@ -1,5 +1,5 @@
 {
-  "name": "@rudderstack/common",
+  "name": "@rudderstack/analytics-js-common",
   "version": "3.0.0",
   "description": "RudderStack Javascript SDK common code",
   "module": "./index.js",
@@ -22,7 +22,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
-    "directory": "packages/common"
+    "directory": "packages/analytics-js-common"
   },
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"

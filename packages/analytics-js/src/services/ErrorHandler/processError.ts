@@ -1,10 +1,10 @@
-import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/common/constants/htmlAttributes';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js-common/constants/htmlAttributes';
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
-import { stringifyWithoutCircular } from '@rudderstack/common/utilities/json';
-import { isString } from '@rudderstack/common/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js/constants/errors';
-import { SDKError } from '@rudderstack/common/types/ErrorHandler';
+import { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 
 /**
  * Utility method to process errors that originate from script load

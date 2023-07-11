@@ -1,4 +1,4 @@
-import { IHttpClient } from '@rudderstack/common/types/HttpClient';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager';
@@ -6,23 +6,26 @@ import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSe
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/common/services/ExternalSrcLoader/types';
-import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
-import { ApiCallback } from '@rudderstack/common/types/EventApi';
-import { IStoreManager } from '@rudderstack/common/types/Store';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-} from '@rudderstack/common/utilities/eventMethodOverloads';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;

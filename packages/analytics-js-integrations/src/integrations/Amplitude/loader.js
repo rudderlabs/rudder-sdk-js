@@ -1,4 +1,4 @@
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 // START-NO-SONAR-SCAN
 /* eslint-disable */
 

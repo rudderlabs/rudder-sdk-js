@@ -9,16 +9,19 @@ import {
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/common/index';
-import { Destination, DeviceModeDestination } from '@rudderstack/common/types/Destination';
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IRudderAnalytics } from '@rudderstack/common/types/IRudderAnalytics';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
-import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
-import { IntegrationOpts } from '@rudderstack/common/types/Integration';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { destCNamesToDispNamesMap } from '@rudderstack/common/constants/destCNamesToDispNames';
+} from '@rudderstack/analytics-js-common/index';
+import {
+  Destination,
+  DeviceModeDestination,
+} from '@rudderstack/analytics-js-common/types/Destination';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { destCNamesToDispNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDispNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';

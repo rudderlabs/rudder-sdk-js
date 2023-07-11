@@ -7,9 +7,9 @@
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
 import { getCurrentTimeFormatted } from './utils';
-import { handleError } from '@rudderstack/common/v1.1/utils/errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/common/v1.1/utils/constants';
-import { stringifyWithoutCircular } from '@rudderstack/common/v1.1/utils/ObjectUtils';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 
 const queueOptions = {
   maxRetryDelay: 360000,

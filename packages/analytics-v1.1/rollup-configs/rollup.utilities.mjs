@@ -118,7 +118,7 @@ export function getDefaultConfig(distName) {
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/${
+          openPage: `/cdn/${
             process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
           }/index.html`,
           contentBase: ['dist'],

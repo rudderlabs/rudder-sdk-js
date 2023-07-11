@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/common/types/PluginsManager';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { DestinationConfig } from '@rudderstack/common/types/Destination';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { Batch } from './type';
 
 const pluginName = 'ConsentManager';

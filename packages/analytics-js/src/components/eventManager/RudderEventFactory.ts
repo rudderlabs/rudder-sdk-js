@@ -1,8 +1,12 @@
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
-import { APIEvent, ApiOptions, RudderEventType } from '@rudderstack/common/types/EventApi';
-import { RudderEvent } from '@rudderstack/common/types/Event';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import {
+  APIEvent,
+  ApiOptions,
+  RudderEventType,
+} from '@rudderstack/analytics-js-common/types/EventApi';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {

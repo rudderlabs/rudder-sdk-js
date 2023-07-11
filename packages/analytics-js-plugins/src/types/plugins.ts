@@ -1,5 +1,5 @@
-import { IStore, IStoreManager } from '@rudderstack/common/types/Store';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
 

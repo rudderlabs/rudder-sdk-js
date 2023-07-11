@@ -1,9 +1,9 @@
 import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { isUndefined } from '@rudderstack/common/utilities/checks';
-import { ICookieStorageOptions, IStorage } from '@rudderstack/common/types/Store';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { ICookieStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { cookie } from '../component-cookie';
 import { getDefaultCookieOptions } from './defaultOptions';
 

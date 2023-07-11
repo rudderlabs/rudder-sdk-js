@@ -1,7 +1,7 @@
 import each from '@ndhoule/each';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getHashFromArray } from '../../utils/commonUtils';
-import { NAME } from '@rudderstack/common/constants/integrations/Matomo/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
 
 /** If any event name matches with the goals list provided by the dashboard
  * we will call the trackGoal with the id provided in the mapping.

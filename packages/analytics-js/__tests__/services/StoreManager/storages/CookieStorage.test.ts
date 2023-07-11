@@ -1,5 +1,5 @@
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
-import { IStorage } from '@rudderstack/common/types/Store';
+import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 
 describe('CookieStorage', () => {
   let engine: IStorage;

@@ -1,11 +1,11 @@
 {
   "references": [
-    { "path": "./packages/analytics-v1.1/tsconfig.build.json" },
-    { "path": "./packages/analytics-js/tsconfig.build.json" },
-    { "path": "./packages/analytics-js-service-worker/tsconfig.build.json" },
-    { "path": "./packages/analytics-js-plugins/tsconfig.build.json" },
-    { "path": "./packages/analytics-js-integrations/tsconfig.build.json" },
-    { "path": "./packages/common/tsconfig.build.json" }
+    { "path": "./packages/analytics-v1.1/tsconfig.json" },
+    { "path": "./packages/analytics-js/tsconfig.json" },
+    { "path": "./packages/analytics-js-service-worker/tsconfig.json" },
+    { "path": "./packages/analytics-js-plugins/tsconfig.json" },
+    { "path": "./packages/analytics-js-integrations/tsconfig.json" },
+    { "path": "./packages/analytics-js-common/tsconfig.json" }
   ],
   "compilerOptions": {
     "baseUrl": "./",
@@ -17,7 +17,7 @@
       ],
       "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"],
       "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"],
-      "@rudderstack/common/*": ["./packages/common/src/*"]
+      "@rudderstack/analytics-js-common/*": ["./packages/analytics-js-common/src/*"]
     }
   }
 }

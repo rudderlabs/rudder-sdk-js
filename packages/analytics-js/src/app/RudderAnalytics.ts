@@ -6,15 +6,18 @@ import {
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/common/utilities/eventMethodOverloads';
-import { isString } from '@rudderstack/common/utilities/checks';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
-import { IRudderAnalytics } from '@rudderstack/common/types/IRudderAnalytics';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { AnonymousIdOptions, LoadOptions } from '@rudderstack/common/types/LoadOptions';
-import { ApiCallback, ApiOptions } from '@rudderstack/common/types/EventApi';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 

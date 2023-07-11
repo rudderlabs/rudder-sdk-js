@@ -1,8 +1,8 @@
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
 import { resetState, state } from '@rudderstack/analytics-js/state';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { LogLevel } from '@rudderstack/common/types/Logger';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -14,7 +14,7 @@ jest.mock('../../../src/components/utilities/globals', () => {
   };
 });
 
-jest.mock('@rudderstack/common/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

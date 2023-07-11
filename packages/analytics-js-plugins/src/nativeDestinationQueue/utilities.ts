@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '@rudderstack/common/index';
-import { DestinationsQueueOpts } from '@rudderstack/common/types/LoadOptions';
-import { Destination } from '@rudderstack/common/types/Destination';
-import { RudderEvent } from '@rudderstack/common/types/Event';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { Nullable } from '@rudderstack/common/types/Nullable';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { DestinationsQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
 

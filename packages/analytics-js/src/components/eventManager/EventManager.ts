@@ -1,8 +1,8 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { IErrorHandler } from '@rudderstack/common/types/ErrorHandler';
-import { LifecycleStatus } from '@rudderstack/common/types/ApplicationLifecycle';
-import { APIEvent } from '@rudderstack/common/types/EventApi';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';

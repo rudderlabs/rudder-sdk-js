@@ -1,7 +1,7 @@
-import { IStore } from '@rudderstack/common/types/Store';
-import { AnonymousIdOptions } from '@rudderstack/common/types/LoadOptions';
-import { Nullable } from '@rudderstack/common/types/Nullable';
-import { ApiObject } from '@rudderstack/common/types/ApiObject';
+import { IStore } from '@rudderstack/analytics-js-common/types/Store';
+import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 
 export interface IUserSessionManager {
   storage?: IStore;

@@ -6,7 +6,7 @@ import {
   ILocalStorageOptions,
   IStorage,
   StorageType,
-} from '@rudderstack/common/types/Store';
+} from '@rudderstack/analytics-js-common/types/Store';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 

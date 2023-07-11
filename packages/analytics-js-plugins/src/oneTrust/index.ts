@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/common/types/ApplicationState';
-import { DestinationConfig } from '@rudderstack/common/types/Destination';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 import { ConsentInfo } from '../types/plugins';
 

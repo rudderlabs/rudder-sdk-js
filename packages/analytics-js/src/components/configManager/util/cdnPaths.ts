@@ -5,7 +5,7 @@ import {
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
-import { isString } from '@rudderstack/common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 

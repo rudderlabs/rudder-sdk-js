@@ -34,7 +34,7 @@
     }
   },
   "publishConfig": {
-    "directory": "dist/npm-lib"
+    "directory": "dist/npm"
   },
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
@@ -45,8 +45,8 @@
     "build:npm": "rollup --config rollup-configs/rollup.sdk.npm.mjs --environment VERSION:$npm_package_version,UGLIFY,ENV:prod,NPM",
     "build:worker": "rollup --config rollup-configs/rollup.worker.config.mjs --environment VERSION:$npm_package_version,UGLIFY,ENV:prod,NPM",
     "build:package": "npm run build:npm && npm run build:worker",
-    "test": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js && jest --watchAll=false --maxWorkers=50% --coverage",
-    "test:ci": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js && jest --watchAll=false --maxWorkers=2 --coverage",
+    "test": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js && jest --watchAll=false --maxWorkers=50% --coverage",
+    "test:ci": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js && jest --watchAll=false --maxWorkers=2 --coverage",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:size:build": "npm run clean && npm run build:browser && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
@@ -78,7 +78,7 @@
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
-    "@rudderstack/common": "3.0.0",
+    "@rudderstack/analytics-js-common": "3.0.0",
     "@segment/localstorage-retry": "1.3.0",
     "@segment/loosely-validate-event": "2.0.0",
     "@vespaiach/axios-fetch-adapter": "0.3.1",

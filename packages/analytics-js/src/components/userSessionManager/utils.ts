@@ -1,6 +1,6 @@
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-import { ILogger } from '@rudderstack/common/types/Logger';
-import { SessionInfo } from '@rudderstack/common/types/Session';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;

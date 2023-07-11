@@ -10,9 +10,9 @@ import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
   standardEventsListMapping,
-} from '@rudderstack/common/constants/integrations/Podsights/constants';
-import ScriptLoader from '@rudderstack/common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
+} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,

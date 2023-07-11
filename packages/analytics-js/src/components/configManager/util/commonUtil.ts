@@ -1,5 +1,5 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
@@ -7,7 +7,7 @@ import {
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse } from '../types';
-import { isUndefined } from '@rudderstack/common/utilities/checks';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   ErrorReportingProvidersToPluginNameMap,

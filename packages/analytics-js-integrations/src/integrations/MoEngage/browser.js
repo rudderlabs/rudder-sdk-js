@@ -1,7 +1,7 @@
 import each from '@ndhoule/each';
-import logger from '@rudderstack/common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/common/constants/integrations/Mixpanel/constants';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {

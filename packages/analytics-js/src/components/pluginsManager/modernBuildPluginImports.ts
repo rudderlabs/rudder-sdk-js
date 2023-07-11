@@ -1,5 +1,5 @@
-import { ExtensionPlugin } from '@rudderstack/common/types/PluginEngine';
-import { PluginName } from '@rudderstack/common/types/PluginsManager';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { PluginMap } from './types';
 import { remotePluginNames } from './pluginNames';
 

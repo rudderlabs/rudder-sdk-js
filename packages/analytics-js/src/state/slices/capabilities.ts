@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { CapabilitiesState } from '@rudderstack/common/types/ApplicationState';
+import { CapabilitiesState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const capabilitiesState: CapabilitiesState = {
   isOnline: signal(true),

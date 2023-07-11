@@ -1,7 +1,7 @@
-import { isUndefined, mergeDeepRight } from '@rudderstack/common/index';
-import { QueueOpts } from '@rudderstack/common/types/LoadOptions';
-import { RejectionDetails } from '@rudderstack/common/types/HttpClient';
-import { ILogger } from '@rudderstack/common/types/Logger';
+import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RejectionDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { RudderEventType } from '../types/plugins';
 import { removeDuplicateSlashes } from '../utilities/queue';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS } from './constants';

@@ -1,5 +1,5 @@
-import { isString, isUndefined } from '@rudderstack/common/utilities/checks';
-import { ILogger, LogLevel } from '@rudderstack/common/types/Logger';
+import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { ILogger, LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { LoggerProvider } from './types';
 
 const LOG_LEVEL_MAP: Record<LogLevel, number> = {

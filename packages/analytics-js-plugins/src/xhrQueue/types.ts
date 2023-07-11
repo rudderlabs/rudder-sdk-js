@@ -1,4 +1,4 @@
-import { RudderEvent } from '@rudderstack/common/types/Event';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
 export type XHRQueueItem = {
   url: string;

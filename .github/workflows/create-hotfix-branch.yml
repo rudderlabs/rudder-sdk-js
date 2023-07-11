@@ -1,4 +1,4 @@
-name: Create new hotfix branch
+name: Create new hotfix branch v1.1
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   create-branch:
-    name: Create new branch
+    name: Create new hotfix branch v1.1
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/production'
     steps:
