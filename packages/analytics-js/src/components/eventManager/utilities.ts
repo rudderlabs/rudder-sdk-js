@@ -15,6 +15,9 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
+import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,
@@ -22,8 +25,6 @@ import {
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
 } from './constants';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 
 /**
  * To get the page properties for context object
@@ -99,7 +100,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
         logger?.warn(
-          `Reserved keyword used in ${parentKeyPath} --> "${property}" for ${eventType} event`,
+          `${EVENT_MANAGER}:: The "${property}" property defined under "${parentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${RESERVED_ELEMENTS}).`,
         );
       }
     });
@@ -172,7 +173,9 @@ const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.warn('The "context" element passed in the options is not a valid object');
+        logger?.warn(
+          `${EVENT_MANAGER}:: Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`,
+        );
       }
     }
   });

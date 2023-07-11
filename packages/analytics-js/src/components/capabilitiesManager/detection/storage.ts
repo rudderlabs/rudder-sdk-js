@@ -1,40 +1,51 @@
+import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
 } from '@rudderstack/analytics-js/constants/storageKeyNames';
 import { IStorage, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
   const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED']; // [everything except Firefox, Firefox]
   const matchingCodes = [22, 1014]; // [everything except Firefox, Firefox]
-  const isQuotaExceededError =
-    (e.name && matchingNames.includes(e.name)) || (e.code && matchingCodes.includes(e.code));
+  const isQuotaExceededError = matchingNames.includes(e.name) || matchingCodes.includes(e.code);
 
   return e instanceof DOMException && isQuotaExceededError;
 };
 
 // TODO: also check for SecurityErrors
 //  https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage#exceptions
-const isStorageAvailable = (type: StorageType = 'localStorage', storageInstance?: IStorage) => {
+const isStorageAvailable = (
+  type: StorageType = LOCAL_STORAGE,
+  storageInstance?: IStorage,
+  logger?: ILogger,
+) => {
   let storage;
   let testData;
 
   try {
     switch (type) {
-      case 'memoryStorage':
+      case MEMORY_STORAGE:
         return true;
-      case 'cookieStorage':
+      case COOKIE_STORAGE:
         storage = storageInstance;
-        testData = `${STORAGE_TEST_COOKIE}`;
+        testData = STORAGE_TEST_COOKIE;
         break;
-      case 'localStorage':
+      case LOCAL_STORAGE:
         storage = storageInstance ?? globalThis.localStorage;
-        testData = `${STORAGE_TEST_LOCAL_STORAGE}`; // was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
+        testData = STORAGE_TEST_LOCAL_STORAGE; // was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
         break;
-      case 'sessionStorage':
+      case SESSION_STORAGE:
         storage = storageInstance ?? globalThis.sessionStorage;
-        testData = `${STORAGE_TEST_SESSION_STORAGE}`;
+        testData = STORAGE_TEST_SESSION_STORAGE;
         break;
       default:
         return false;
@@ -50,13 +61,13 @@ const isStorageAvailable = (type: StorageType = 'localStorage', storageInstance?
       return true;
     }
     return false;
-  } catch (e: any) {
-    if (isStorageQuotaExceeded(e)) {
-      console.error(`error: storage '${type}' is full`);
-    } else {
-      console.error(`error: storage '${type}' is not available`);
+  } catch (err) {
+    const msgPrefix = `${CAPABILITIES_MANAGER}:: The "${type}" storage type is `;
+    let reason = 'unavailable';
+    if (isStorageQuotaExceeded(err)) {
+      reason = 'full';
     }
-
+    logger?.error(`${msgPrefix}${reason}.`, err);
     return false;
   }
 };

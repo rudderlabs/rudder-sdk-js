@@ -50,6 +50,10 @@ import {
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
 import {
+  LOAD_CONFIGURATION,
+  READY_API,
+} from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
@@ -124,7 +128,7 @@ class Analytics implements IAnalytics {
     globalThis.addEventListener(
       'error',
       e => {
-        this.errorHandler.onError(e, 'Global Boundary', state.lifecycle.writeKey.value);
+        this.errorHandler.onError(e, 'GlobalBoundary', state.lifecycle.writeKey.value);
       },
       true,
     );
@@ -272,7 +276,10 @@ class Analytics implements IAnalytics {
    */
   loadConfig() {
     if (!state.lifecycle.writeKey.value) {
-      this.errorHandler.onError(new Error('No write key is provided'), 'Load configuration');
+      this.errorHandler.onError(
+        new Error('A write key is required to load the SDK. Please provide a valid write key.'),
+        LOAD_CONFIGURATION,
+      );
       return;
     }
 
@@ -405,11 +412,11 @@ class Analytics implements IAnalytics {
   // Start consumer exposed methods
   ready(callback: ApiCallback) {
     const type = 'ready';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
       // TODO: handle error
-      this.logger.error('ready callback is not a function');
+      this.logger.error(`${READY_API}:: The callback is not a function.`);
       return;
     }
 
@@ -449,8 +456,7 @@ class Analytics implements IAnalytics {
       callback: payload.callback,
     });
 
-    // TODO: Maybe we should alter the behavior to send the ad-block page event
-    // even if the SDK is still loaded. It'll be pushed into the to be processed queue.
+    // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
     // Send automatic ad blocked page event if adblockers are detected on the page
     if (
@@ -569,7 +575,9 @@ class Analytics implements IAnalytics {
 
   reset(resetAnonymousId?: boolean) {
     const type = 'reset';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event, resetAnonymousId: ${resetAnonymousId}`);
+    this.errorHandler.leaveBreadcrumb(
+      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
+    );
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);

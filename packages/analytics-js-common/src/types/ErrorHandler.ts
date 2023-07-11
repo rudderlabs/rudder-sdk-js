@@ -1,6 +1,8 @@
 import { IPluginEngine } from './PluginEngine';
 import { ILogger } from './Logger';
-import { IExternalSrcLoader } from './ExternalSrcLoader';
+import { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
+
+export type SDKError = unknown;
 
 export interface IErrorHandler {
   logger?: ILogger;
@@ -15,5 +17,3 @@ export interface IErrorHandler {
   leaveBreadcrumb(breadcrumb: string): void;
   notifyError(error: Error): void;
 }
-
-export type SDKError = Error | Event | string | unknown;

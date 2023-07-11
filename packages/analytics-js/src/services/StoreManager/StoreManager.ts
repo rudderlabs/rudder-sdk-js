@@ -9,6 +9,8 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
 
@@ -69,18 +71,17 @@ class StoreManager implements IStoreManager {
     let storageType: StorageType | '' = '';
 
     // First try setting the storage to cookie else to localstorage
-    if (getStorageEngine('cookieStorage')?.isEnabled) {
-      storageType = 'cookieStorage';
-    } else if (getStorageEngine('localStorage')?.isEnabled) {
-      storageType = 'localStorage';
+    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+      storageType = COOKIE_STORAGE;
+    } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+      storageType = LOCAL_STORAGE;
     }
     // TODO: fallback to in-memory storage if not other storage is available
 
-    // TODO: should we fallback to session storage instead so we retain values
-    //  on page refresh, navigation etc?
+    // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
     if (!storageType) {
       this.logger?.error(
-        'No storage is available for data store :: initializing the SDK without storage',
+        `${STORE_MANAGER}:: No storage is available. The SDK will be initialized without storage.`,
       );
       return;
     }
@@ -115,9 +116,9 @@ class StoreManager implements IStoreManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'StorageManager');
+      this.errorHandler?.onError(error, STORE_MANAGER);
     } else {
       throw error;
     }

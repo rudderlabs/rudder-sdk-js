@@ -124,7 +124,7 @@ describe('PluginEngine', () => {
     try {
       pluginEngineTestInstance.register({ name: 'p1' });
     } catch (e: any) {
-      expect(e.message).toContain('Plugin "p1" already exits.');
+      expect(e.message).toContain('PluginEngine:: Plugin "p1" already exists.');
     }
   });
 
@@ -132,7 +132,7 @@ describe('PluginEngine', () => {
     try {
       pluginEngineTestInstance.unregister('p0');
     } catch (e: any) {
-      expect(e.message).toContain('Plugin "p0" doesn\'t exist.');
+      expect(e.message).toContain('PluginEngine:: Plugin "p0" not found.');
     }
   });
 

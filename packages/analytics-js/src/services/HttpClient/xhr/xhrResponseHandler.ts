@@ -1,4 +1,5 @@
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 
 /**
  * Utility to parse XHR JSON response
@@ -10,7 +11,7 @@ const responseTextToJson = <T = any>(
   try {
     return JSON.parse(responseText || '');
   } catch (err) {
-    const error = new Error(`Response data parsing failed, ${(err as Error).message}`);
+    const error = getMutatedError(err, 'Failed to parse response data');
     if (onError && isFunction(onError)) {
       onError(error);
     } else {

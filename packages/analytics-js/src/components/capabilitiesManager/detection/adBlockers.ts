@@ -31,7 +31,6 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
         details?.error !== undefined || details?.xhr?.responseURL !== url;
-      logger?.debug(`Adblocker status: ${state.capabilities.isAdBlocked.value}`);
     },
   });
 };

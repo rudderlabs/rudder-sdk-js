@@ -5,33 +5,17 @@ import { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
 /**
  * Encode.
  */
-const encode = (value: any): string | undefined => {
-  try {
-    return encodeURIComponent(value);
-  } catch (e) {
-    // TODO: should it throw error?
-    console.error('error `encode(%o)` - %o', value, e);
-    return undefined;
-  }
-};
+const encode = (value: any): string => encodeURIComponent(value);
 
 /**
  * Decode
  */
-const decode = (value: string): Nullable<string> => {
-  try {
-    return decodeURIComponent(value);
-  } catch (e) {
-    // TODO: should it throw error?
-    console.error('error `decode(%o)` - %o', value, e);
-    return null;
-  }
-};
+const decode = (value: string): string => decodeURIComponent(value);
 
 /**
  * Parse cookie `str`
  */
-const parse = (str: string): Record<string, Nullable<string>> => {
+const parse = (str: string): Record<string, string> => {
   const obj: Record<string, any> = {};
   const pairs = str.split(/\s*;\s*/);
   let pair;
@@ -42,7 +26,7 @@ const parse = (str: string): Record<string, Nullable<string>> => {
 
   pairs.forEach(pairItem => {
     pair = pairItem.split('=');
-    obj[decode(pair[0]) as string] = decode(pair[1]);
+    obj[decode(pair[0])] = decode(pair[1]);
   });
 
   return obj;
@@ -85,14 +69,14 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
 /**
  * Return all cookies
  */
-const all = (): Record<string, Nullable<string>> => {
+const all = (): Record<string, string> => {
   let cookieStringValue;
 
   try {
     cookieStringValue = globalThis.document.cookie;
   } catch (err) {
     console.error((err as Error).stack || err);
-    return {} as Record<string, Nullable<string>>;
+    return {} as Record<string, string>;
   }
 
   return parse(cookieStringValue);

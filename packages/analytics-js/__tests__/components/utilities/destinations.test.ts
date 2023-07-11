@@ -159,7 +159,7 @@ const expectedFilteredDestinations = [
       extendPageViewParams: false,
       oneTrustCookieCategories: [],
     },
-    userFriendlyId: 'Google_Analytics_4_(GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
+    userFriendlyId: 'Google-Analytics-4-(GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
   },
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',

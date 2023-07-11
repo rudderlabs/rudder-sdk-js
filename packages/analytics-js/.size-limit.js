@@ -13,7 +13,7 @@ module.exports = [
     name: 'Core CJS - NPM',
     path: 'dist/npm/modern/cjs/index.js',
     gzip: true,
-    limit: '23.5 kB',
+    limit: '24 kB',
   },
   {
     name: 'Core Legacy - CDN',
@@ -25,6 +25,6 @@ module.exports = [
     name: 'Core - CDN',
     path: 'dist/cdn/modern/iife/rsa.min.js',
     gzip: true,
-    limit: '23.5 kB',
+    limit: '24 kB',
   },
 ];

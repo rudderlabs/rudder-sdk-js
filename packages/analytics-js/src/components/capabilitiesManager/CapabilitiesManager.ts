@@ -13,8 +13,14 @@ import {
 } from '@rudderstack/analytics-js/components/utilities/page';
 import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
 import { getUserAgentClientHint } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/clientHint';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
+import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { ICapabilitiesManager } from './types';
-import { POLYFILL_LOAD_TIMEOUT, POLYFILL_URL } from './polyfill';
+import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {
   getScreenDetails,
   hasBeacon,
@@ -57,12 +63,20 @@ class CapabilitiesManager implements ICapabilitiesManager {
     batch(() => {
       // Storage related details
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
-        'cookieStorage',
-        getStorageEngine('cookieStorage'),
+        COOKIE_STORAGE,
+        getStorageEngine(COOKIE_STORAGE),
+        this.logger,
       );
-      state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable('localStorage');
-      state.capabilities.storage.isSessionStorageAvailable.value =
-        isStorageAvailable('sessionStorage');
+      state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable(
+        LOCAL_STORAGE,
+        undefined,
+        this.logger,
+      );
+      state.capabilities.storage.isSessionStorageAvailable.value = isStorageAvailable(
+        SESSION_STORAGE,
+        undefined,
+        this.logger,
+      );
 
       // Browser feature detection details
       state.capabilities.isBeaconAvailable.value = hasBeacon();
@@ -120,17 +134,13 @@ class CapabilitiesManager implements ICapabilitiesManager {
       // TODO: check if polyfill has been evaluated via polling or
       //  with the callback param in its url and an exposed function
       const onPolyfillLoad = (scriptId?: string) => Boolean(scriptId) && this.onReady();
-      this.externalSrcLoader
-        ?.loadJSFile({
-          url: state.loadOptions.value.polyfillURL ?? POLYFILL_URL,
-          id: 'rudderstackPolyfill',
-          async: true,
-          timeout: POLYFILL_LOAD_TIMEOUT,
-          callback: onPolyfillLoad,
-        })
-        .catch(e => {
-          this.onError(e);
-        });
+      this.externalSrcLoader?.loadJSFile({
+        url: state.loadOptions.value.polyfillURL ?? POLYFILL_URL,
+        id: POLYFILL_SCRIPT_ID,
+        async: true,
+        timeout: POLYFILL_LOAD_TIMEOUT,
+        callback: onPolyfillLoad,
+      });
     } else {
       this.onReady();
     }
@@ -165,9 +175,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: Error | unknown): void {
+  onError(error: unknown): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'CapabilitiesManager');
+      this.errorHandler.onError(error, CAPABILITIES_MANAGER);
     } else {
       throw error;
     }

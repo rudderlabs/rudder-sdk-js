@@ -29,8 +29,7 @@ const getIntegrationsCDNPath = (
 
     if (!integrationsCDNPath || (integrationsCDNPath && !isValidUrl(integrationsCDNPath))) {
       const errorMsg = 'CDN base URL for integrations is not valid';
-
-      throw Error(`Failed to load RudderStack SDK: ${errorMsg}`);
+      throw new Error(`Failed to load the SDK: ${errorMsg}.`);
     }
 
     return integrationsCDNPath;
@@ -66,7 +65,7 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
     if (!pluginsCDNPath || (pluginsCDNPath && !isValidUrl(pluginsCDNPath))) {
       const errorMsg = 'CDN base URL for plugins is not valid';
 
-      throw Error(`Failed to load RudderStack SDK: ${errorMsg}`);
+      throw new Error(`Failed to load SDK: ${errorMsg}.`);
     }
 
     return pluginsCDNPath;

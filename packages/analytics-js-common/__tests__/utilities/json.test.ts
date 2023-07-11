@@ -138,7 +138,7 @@ describe('Common Utils - JSON', () => {
 
     it('should return null for input containing BigInt values', () => {
       const mockLogger = {
-        debug: jest.fn(),
+        warn: jest.fn(),
       };
 
       const objWithBigInt = {
@@ -146,8 +146,9 @@ describe('Common Utils - JSON', () => {
       };
       const json = stringifyWithoutCircular(objWithBigInt, false, [], mockLogger);
       expect(json).toBe(null);
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Error occurred while converting to string: TypeError: Do not know how to serialize a BigInt',
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'Failed to convert the value to a JSON string.',
+        new TypeError('Do not know how to serialize a BigInt'),
       );
     });
   });

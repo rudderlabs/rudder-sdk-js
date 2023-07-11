@@ -3,6 +3,7 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 import { ConsentInfo } from '../types/plugins';
 
@@ -16,12 +17,12 @@ const OneTrust = (): ExtensionPlugin => ({
   },
   consentProvider: {
     getConsentInfo(logger?: ILogger): ConsentInfo {
-      logger?.debug('OneTrust initialization');
-
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
-        logger?.error('OneTrust resources are not accessible.');
+        logger?.error(
+          `${ONETRUST_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`,
+        );
         return { consentProviderInitialized: false };
       }
 
@@ -54,7 +55,7 @@ const OneTrust = (): ExtensionPlugin => ({
     isDestinationConsented(
       state: ApplicationState,
       destConfig: DestinationConfig,
-      logger: ILogger,
+      logger?: ILogger,
     ): boolean {
       const { consentProviderInitialized, allowedConsents } = state.consents;
       if (!consentProviderInitialized.value) {
@@ -104,8 +105,11 @@ const OneTrust = (): ExtensionPlugin => ({
         );
 
         return containsAllConsent;
-      } catch (e) {
-        logger?.error(`[OneTrust] :: ${e}`);
+      } catch (err) {
+        logger?.error(
+          `${ONETRUST_PLUGIN}:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
+          err,
+        );
         return true;
       }
     },

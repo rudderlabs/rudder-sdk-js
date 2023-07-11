@@ -51,7 +51,9 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
-  const errorMsg = 'Unable to load the SDK due to invalid write key: " "';
+  const errorMsg =
+    'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
+  const errorMsgSourceConfigResponse = 'Unable to fetch source config';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
@@ -104,7 +106,9 @@ describe('ConfigManager', () => {
     state.lifecycle.dataPlaneUrl.value = ' ';
     expect(() => {
       configManagerInstance.init();
-    }).toThrow('Unable to load the SDK due to invalid data plane URL: " "');
+    }).toThrow(
+      'The data plane URL " " is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
+    );
   });
 
   it('should update lifecycle state with proper values', () => {

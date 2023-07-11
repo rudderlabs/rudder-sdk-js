@@ -22,7 +22,7 @@ import {
 } from './utilities';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';
 
 const pluginName = 'XhrQueue';
@@ -69,8 +69,6 @@ const XhrQueue = (): ExtensionPlugin => ({
           willBeRetried?: boolean,
         ) => {
           const { url, event, headers } = item;
-          logger?.debug(`Sending ${event.type} event to data plane`);
-
           const finalEvent = getFinalEventForDeliveryMutator(event, state);
 
           const data = getDeliveryPayload(finalEvent);
@@ -103,7 +101,9 @@ const XhrQueue = (): ExtensionPlugin => ({
               },
             });
           } else {
-            logger?.error(`Unable to prepare the event payload for delivery. It'll be dropped.`);
+            logger?.error(
+              `${XHR_QUEUE_PLUGIN}:: Failed to prepare the event payload for delivery. The event will be dropped.`,
+            );
             // Mark the item as done so that it can be removed from the queue
             done(null);
           }

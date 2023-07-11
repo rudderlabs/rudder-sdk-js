@@ -21,6 +21,7 @@ import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
@@ -117,7 +118,7 @@ class UserSessionManager implements IUserSessionManager {
     let sessionTimeout: number;
     if (!isPositiveInteger(state.loadOptions.value.sessions.timeout)) {
       this.logger?.warn(
-        '[SessionTracking]:: Default session timeout will be used as the provided input is not a number',
+        `${USER_SESSION_MANAGER}:: The session timeout value is not a number. The default timeout of ${DEFAULT_SESSION_TIMEOUT} ms will be used instead.`,
       );
       sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     } else {
@@ -126,15 +127,15 @@ class UserSessionManager implements IUserSessionManager {
 
     if (sessionTimeout === 0) {
       this.logger?.warn(
-        '[SessionTracking]:: Provided timeout value 0 will disable the auto session tracking feature.',
+        `${USER_SESSION_MANAGER}:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.`,
       );
       finalAutoTrackingStatus = false;
     }
-    // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
+    // In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
     // and will proceed with it
     if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT) {
       this.logger?.warn(
-        `[SessionTracking]:: It is not advised to set "timeout" less than ${MIN_SESSION_TIMEOUT} milliseconds`,
+        `${USER_SESSION_MANAGER}:: The session timeout value is less than the recommended minimum of ${MIN_SESSION_TIMEOUT} ms. Please consider increasing the timeout value to ensure optimal performance and reliability.`,
       );
     }
     state.session.sessionInfo.value = {
@@ -152,9 +153,9 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: Error | unknown): void {
+  onError(error: unknown): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'UserSessionManager');
+      this.errorHandler.onError(error, USER_SESSION_MANAGER);
     } else {
       throw error;
     }

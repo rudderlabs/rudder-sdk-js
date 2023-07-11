@@ -2,7 +2,11 @@ import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/analytics
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { DATA_PLANE_API_VERSION, DEFAULT_BEACON_QUEUE_OPTIONS } from './constants';
+import {
+  BEACON_QUEUE_PLUGIN,
+  DATA_PLANE_API_VERSION,
+  DEFAULT_BEACON_QUEUE_OPTIONS,
+} from './constants';
 import { BeaconBatchData } from './types';
 import { removeDuplicateSlashes } from '../utilities/queue';
 
@@ -24,9 +28,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(`Error while converting event batch object to string.`);
+    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to string.`);
   } catch (err) {
-    logger?.error(`Error while converting event batch object to Blob. Error: ${err}.`);
+    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to Blob.`, err);
   }
 
   return undefined;

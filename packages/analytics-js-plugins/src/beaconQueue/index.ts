@@ -13,7 +13,7 @@ import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
-import { QUEUE_NAME } from './constants';
+import { BEACON_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { BeaconQueueItem } from './types';
 
 const pluginName = 'BeaconQueue';
@@ -53,7 +53,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         queueItems: QueueItem<BeaconQueueItem>[],
         done: DoneCallback,
       ) => {
-        logger?.debug(`Sending beacon events to data plane`);
+        logger?.debug(`${BEACON_QUEUE_PLUGIN}:: Sending events to data plane.`);
         const finalEvents = queueItems.map(queueItem =>
           getFinalEventForDeliveryMutator(queueItem.item.event, state),
         );
@@ -63,17 +63,23 @@ const BeaconQueue = (): ExtensionPlugin => ({
           try {
             const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
             if (!isEnqueuedInBeacon) {
-              logger?.error("Unable to queue data to browser's beacon queue");
+              logger?.error(
+                `${BEACON_QUEUE_PLUGIN}:: Failed to send events batch data to the browser's beacon queue. The events will be dropped.`,
+              );
             }
 
             done(null, isEnqueuedInBeacon);
           } catch (e) {
-            (e as Error).message = `${(e as Error).message} - While sending Beacon data to: ${url}`;
+            (
+              e as Error
+            ).message = `An error occurred while sending events batch data to beacon queue for ${url}: ${
+              (e as Error).message
+            }`;
             done(e);
           }
         } else {
           logger?.error(
-            `Unable to prepare the event batch payload for delivery. It'll be dropped.`,
+            `${BEACON_QUEUE_PLUGIN}:: Failed to prepare the events batch payload for delivery. The events will be dropped.`,
           );
           // Mark the item as done so that it can be removed from the queue
           done(null);

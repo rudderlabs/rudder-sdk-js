@@ -3,7 +3,8 @@ import { validateLoadArgs } from '@rudderstack/analytics-js/components/configMan
 describe('Config manager util - validate load arguments', () => {
   const sampleWriteKey = 'dummyWriteKey';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
-  const errorMsg = 'Unable to load the SDK due to invalid write key: " "';
+  const errorMsg =
+    'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
 
   it('should not throw error for valid write key', () => {
     expect(() => {
@@ -23,6 +24,8 @@ describe('Config manager util - validate load arguments', () => {
   it('should throw error for invalid data plane url', () => {
     expect(() => {
       validateLoadArgs(sampleWriteKey, ' ');
-    }).toThrow('Unable to load the SDK due to invalid data plane URL: " "');
+    }).toThrow(
+      'The data plane URL " " is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
+    );
   });
 });

@@ -16,6 +16,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { remotePluginNames } from './pluginNames';
 import {
   getMandatoryPluginsMap,
@@ -118,7 +119,9 @@ class PluginsManager implements IPluginsManager {
       );
     } else {
       if (state.loadOptions.value.useBeacon === true) {
-        this.logger?.error('Beacon API is not supported by browser. Falling back to XHR.');
+        this.logger?.warn(
+          `${PLUGINS_MANAGER}:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.`,
+        );
       }
 
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
@@ -248,17 +251,17 @@ class PluginsManager implements IPluginsManager {
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
-          .catch(e => {
+          .catch(err => {
             // TODO: add retry here if dynamic import fails
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(e, remotePluginKey);
+            this.onError(err, remotePluginKey);
           });
       }),
-    ).catch(e => {
-      this.onError(e);
+    ).catch(err => {
+      this.onError(err);
     });
   }
 
@@ -314,9 +317,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown, context = 'PluginsManager') {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, context);
+      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
     } else {
       throw error;
     }

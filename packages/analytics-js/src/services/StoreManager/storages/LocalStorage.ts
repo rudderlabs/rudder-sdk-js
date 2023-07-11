@@ -4,9 +4,10 @@ import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabil
 import { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isUndefined } from '@rudderstack/analytics-js-common/index';
+import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
-// TODO: can we remove the storejs dependency to save bundlesize?
+// TODO: can we remove the storejs dependency to save bundle size?
 //  check if the get, set overloads and search methods are used at all
 //  if we do, ensure we provide types to support overloads as per storejs docs
 //  https://www.npmjs.com/package/storejs
@@ -28,7 +29,7 @@ class LocalStorage implements IStorage {
 
   configure(options: Partial<ILocalStorageOptions>): ILocalStorageOptions {
     this.options = mergeRight(this.options, options);
-    this.isSupportAvailable = isStorageAvailable('localStorage', this);
+    this.isSupportAvailable = isStorageAvailable(LOCAL_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }

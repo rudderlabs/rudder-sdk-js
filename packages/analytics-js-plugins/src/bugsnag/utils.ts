@@ -8,6 +8,7 @@ import {
   APP_STATE_EXCLUDE_KEYS,
   BUGSNAG_CDN_URL,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
+  BUGSNAG_PLUGIN,
   BUGSNAG_VALID_MAJOR_VERSION,
   DEV_HOSTS,
   ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
@@ -143,17 +144,15 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
     return;
   }
 
-  externalSrcLoader
-    .loadJSFile({
-      url: BUGSNAG_CDN_URL,
-      id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
-      callback: () => {
-        logger?.debug('Bugsnag script loaded');
-      },
-    })
-    .catch(e => {
-      logger?.error(`Script load failed for Bugsnag. Error message: ${e.message}`);
-    });
+  externalSrcLoader.loadJSFile({
+    url: BUGSNAG_CDN_URL,
+    id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
+    callback: id => {
+      if (!id) {
+        logger?.error(`${BUGSNAG_PLUGIN}:: Failed to load the Bugsnag SDK.`);
+      }
+    },
+  });
 };
 
 const initBugsnagClient = (
@@ -170,7 +169,11 @@ const initBugsnagClient = (
       promiseResolve(client);
     }
   } else if (time >= MAX_WAIT_FOR_SDK_LOAD_MS) {
-    promiseReject(new Error('The Bugsnag SDK load timed out.'));
+    promiseReject(
+      new Error(
+        `A timeout ${MAX_WAIT_FOR_SDK_LOAD_MS} ms occurred while trying to load the Bugsnag SDK.`,
+      ),
+    );
   } else {
     // Try to initialize the client after a delay
     setTimeout(

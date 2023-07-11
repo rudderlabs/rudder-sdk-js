@@ -4,6 +4,7 @@ import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ICookieStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { cookie } from '../component-cookie';
 import { getDefaultCookieOptions } from './defaultOptions';
 
@@ -33,20 +34,15 @@ class CookieStorage implements IStorage {
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
     this.options = mergeRight(this.options ?? {}, options);
-    this.isSupportAvailable = isStorageAvailable('cookieStorage', this);
+    this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }
 
   setItem(key: string, value: Nullable<string>): boolean {
-    try {
-      cookie(key, value, this.options);
-      this.length = Object.keys(cookie()).length;
-      return true;
-    } catch (err) {
-      this.logger?.error(err, 'CookieStorage');
-      return false;
-    }
+    cookie(key, value, this.options);
+    this.length = Object.keys(cookie()).length;
+    return true;
   }
 
   // eslint-disable-next-line class-methods-use-this

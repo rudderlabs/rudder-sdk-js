@@ -72,7 +72,7 @@ const sendEventToDestination = (
     errorHandler?.onError(
       err,
       'NativeDestinationQueue',
-      `Error in forwarding event to destination: ${dest.userFriendlyId}`,
+      `Failed to forward event to destination "${dest.userFriendlyId}".`,
     );
   }
 };

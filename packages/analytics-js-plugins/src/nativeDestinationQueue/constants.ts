@@ -4,4 +4,6 @@ const DEFAULT_QUEUE_OPTIONS = {
 
 const QUEUE_NAME = 'rudder_destinations_events';
 
-export { DEFAULT_QUEUE_OPTIONS, QUEUE_NAME };
+const NATIVE_DESTINATION_QUEUE_PLUGIN = 'NativeDestinationQueuePlugin';
+
+export { DEFAULT_QUEUE_OPTIONS, QUEUE_NAME, NATIVE_DESTINATION_QUEUE_PLUGIN };

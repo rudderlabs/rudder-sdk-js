@@ -155,7 +155,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The configured error reporting provider "random-provider" is not supported. Supported provider(s) is/are "bugsnag". Using the default provider (bugsnag).',
+        'ConfigManager:: The error reporting provider "random-provider" is not supported. Please choose one of the following supported providers: "bugsnag". The default provider "bugsnag" will be used instead.',
       );
     });
   });
@@ -202,7 +202,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The configured storage encryption version "v2" is not supported. Supported version(s) is/are "v3,legacy". Using the default version (v3).',
+        'ConfigManager:: The storage encryption version "v2" is not supported. Please choose one of the following supported versions: "v3,legacy". The default version v3 will be used instead.',
       );
     });
 
@@ -230,7 +230,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.storage.migrate.value).toBe(false);
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The storage data migration is disabled as the configured storage encryption version (legacy) is not the latest.',
+        'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
       );
     });
   });

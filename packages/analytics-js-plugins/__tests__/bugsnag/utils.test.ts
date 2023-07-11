@@ -14,6 +14,7 @@ import { signal } from '@preact/signals-core';
 import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/index';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -115,18 +116,18 @@ describe('Bugsnag utilities', () => {
 
   describe('isRudderSDKError', () => {
     const testCaseData = [
-      ['https://testdomain.com/rsa.min.js', true],
-      ['https://testdomain.com/rudderanalytics.min.js', false],
-      ['https://testdomain.com/rsa-plugins-Beacon.min.js', true],
-      ['https://testdomain.com/Amplitude.min.js', true],
-      ['https://testdomain.com/Qualaroo.min.js', true],
-      ['https://testdomain.com/test.js', false],
-      ['https://testdomain.com/rsa.css', false],
+      ['https://invalid-domain.com/rsa.min.js', true],
+      ['https://invalid-domain.com/rss.min.js', false],
+      ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
+      ['https://invalid-domain.com/Amplitude.min.js', true],
+      ['https://invalid-domain.com/Qualaroo.min.js', true],
+      ['https://invalid-domain.com/test.js', false],
+      ['https://invalid-domain.com/rsa.css', false],
       [undefined, false],
       [null, false],
       [1, false],
       ['', false],
-      ['testdomain.com', false],
+      ['asdf.com', false],
     ];
 
     it.each(testCaseData)(
@@ -152,7 +153,7 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rsa.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
@@ -178,13 +179,13 @@ describe('Bugsnag utilities', () => {
         metadata: {},
         stacktrace: [
           {
-            file: 'https://testdomain.com/rsa.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
         updateMetaData: function (key, value) {
           this.metadata[key] = value;
         },
-        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       };
 
       enhanceErrorEventMutator(event, 'dummyMetadataVal');
@@ -252,7 +253,9 @@ describe('Bugsnag utilities', () => {
         initBugsnagClient(state, resolve, reject);
       });
 
-      await expect(bsClientPromise).rejects.toThrow('Bugsnag SDK load timed out.');
+      await expect(bsClientPromise).rejects.toThrow(
+        'A timeout 1000 ms occurred while trying to load the Bugsnag SDK.',
+      );
     });
   });
 
@@ -272,8 +275,13 @@ describe('Bugsnag utilities', () => {
       logProvider = console;
     }
 
+    class MockErrorHandler implements IErrorHandler {
+      onError = jest.fn();
+    }
+
     const mockLogger = new MockLogger();
-    const extSrcLoader = new ExternalSrcLoader();
+    const mockErrorHandler = new MockErrorHandler();
+    const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
 
     const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
 
@@ -283,6 +291,9 @@ describe('Bugsnag utilities', () => {
 
     afterEach(() => {
       insertBeforeSpy.mockRestore();
+      if (document.head.firstChild) {
+        document.head.removeChild(document.head.firstChild as ChildNode);
+      }
       delete (window as any).Bugsnag;
       delete (window as any).bugsnag;
       bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
@@ -313,16 +324,22 @@ describe('Bugsnag utilities', () => {
       }, 500);
     });
 
-    it('should log error if Bugsnag SDK could not be loaded', done => {
-      bugsnagConstants.BUGSNAG_CDN_URL = 'https://testdomain.com/bugsnag.min.js';
+    it('should invoke error handler and log error if Bugsnag SDK could not be loaded', done => {
+      bugsnagConstants.BUGSNAG_CDN_URL = 'https://asdf.com/bugsnag.min.js';
       loadBugsnagSDK(extSrcLoader, mockLogger);
 
       setTimeout(() => {
+        expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+          new Error(
+            `Failed to load script with id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js".`,
+          ),
+          'ExternalSrcLoader',
+        );
         expect(mockLogger.error).toHaveBeenCalledWith(
-          'Script load failed for Bugsnag. Error message: A script with the id "rs-bugsnag" is already loaded. Hence, skipping it.',
+          `BugsnagPlugin:: Failed to load the Bugsnag SDK.`,
         );
         done();
-      }, 500);
+      }, 2000);
     });
   });
 
@@ -341,7 +358,7 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/not-rsa.min.js',
+            file: 'https://invalid-domain.com/not-rsa.min.js',
           },
         ],
       };
@@ -355,10 +372,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rsa.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
         updateMetaData: jest.fn(),
       } as any;
 
@@ -377,10 +394,10 @@ describe('Bugsnag utilities', () => {
       const error = {
         stacktrace: [
           {
-            file: 'https://testdomain.com/rsa.min.js',
+            file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://testdomain.com/rsa.min.js"',
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       } as any;
 
       const onErrorFn = onError(state);

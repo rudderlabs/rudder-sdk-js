@@ -7,6 +7,12 @@ import {
   IStorage,
   StorageType,
 } from '@rudderstack/analytics-js-common/types/Store';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 
@@ -17,13 +23,13 @@ import { defaultLocalStorage } from './LocalStorage';
  */
 const getStorageEngine = (type?: StorageType): IStorage => {
   switch (type) {
-    case 'localStorage':
+    case LOCAL_STORAGE:
       return defaultLocalStorage;
-    case 'sessionStorage':
+    case SESSION_STORAGE:
       return globalThis.sessionStorage;
-    case 'memoryStorage':
+    case MEMORY_STORAGE:
       return defaultInMemoryStorage;
-    case 'cookieStorage':
+    case COOKIE_STORAGE:
       return new CookieStorage({}, defaultLogger);
     default:
       return defaultInMemoryStorage;

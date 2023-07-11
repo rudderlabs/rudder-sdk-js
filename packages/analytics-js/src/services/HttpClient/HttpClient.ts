@@ -10,6 +10,7 @@ import {
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
+import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 
@@ -84,9 +85,9 @@ class HttpClient implements IHttpClient {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'HttpClient');
+      this.errorHandler?.onError(error, HTTP_CLIENT);
     } else {
       throw error;
     }

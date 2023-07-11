@@ -19,7 +19,7 @@ const getUserAgentClientHint = (callback: (uaCH?: UADataValues) => void, level =
         'fullVersionList',
         'wow64',
       ])
-      .then(ua => {
+      .then((ua: any) => {
         callback(ua);
       })
       .catch(() => {

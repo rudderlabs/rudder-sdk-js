@@ -4,6 +4,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IEventManager } from './types';
+import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';
 import { IUserSessionManager } from '../userSessionManager/types';
@@ -45,7 +46,6 @@ class EventManager implements IEventManager {
   init() {
     this.eventRepository.init();
     state.lifecycle.status.value = LifecycleStatus.Initialized;
-    this.logger?.info('Event manager initialized');
   }
 
   /**
@@ -58,7 +58,7 @@ class EventManager implements IEventManager {
     if (rudderEvent) {
       this.eventRepository.enqueue(rudderEvent, event.callback);
     } else {
-      this.onError('Unable to generate RudderStack event object');
+      this.onError(new Error('Failed to generate RudderStack event object.'));
     }
   }
 
@@ -68,7 +68,7 @@ class EventManager implements IEventManager {
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'Event Manager', customMessage, shouldAlwaysThrow);
+      this.errorHandler.onError(error, EVENT_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }

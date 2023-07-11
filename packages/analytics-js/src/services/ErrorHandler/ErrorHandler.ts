@@ -7,6 +7,7 @@ import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks
 import { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isAllowedToBeNotified, processError } from './processError';
 
 /**
@@ -29,26 +30,28 @@ class ErrorHandler implements IErrorHandler {
     }
 
     try {
+      const extPoint = 'errorReporting.init';
       const errReportingInitVal = this.pluginEngine.invokeSingle(
-        'errorReporting.init',
+        extPoint,
         state,
         this.pluginEngine,
         externalSrcLoader,
         this.logger,
       );
-      if (errReportingInitVal === null) {
-        this.logger?.error('Something went wrong during error reporting plugin invocation.');
-      } else if (errReportingInitVal instanceof Promise) {
+      if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
             this.errReportingClient = client;
           })
           .catch(err => {
-            this.logger?.error('Unable to initialize error reporting plugin.', err);
+            this.logger?.error(
+              `${ERROR_HANDLER}:: Failed to initialize the error reporting plugin.`,
+              err,
+            );
           });
       }
     } catch (err) {
-      this.onError(err, 'errorReporting.init');
+      this.onError(err, ERROR_HANDLER);
     }
   }
 
@@ -124,7 +127,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error('Error while notifying error', err);
+        this.logger?.error(`${ERROR_HANDLER}:: Failed to notify the error.`, err);
       }
     }
   }

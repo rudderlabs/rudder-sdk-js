@@ -9,6 +9,9 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getStorageEngine } from './storages/storageEngine';
 
 /**
@@ -34,7 +37,7 @@ class Store implements IStore {
     this.name = config.name;
     this.isEncrypted = config.isEncrypted || false;
     this.validKeys = config.validKeys || {};
-    this.engine = engine || getStorageEngine('localStorage');
+    this.engine = engine || getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
@@ -71,7 +74,7 @@ class Store implements IStore {
    */
   swapQueueStoreToInMemoryEngine() {
     const { name, id, validKeys, noCompoundKey } = this;
-    const inMemoryStorage = getStorageEngine('memoryStorage');
+    const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
@@ -108,18 +111,14 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(
-          'Storage is full or unavailable, switching to in memory storage. Data will not be persisted.',
+          `${STORE_MANAGER}:: The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`,
         );
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(
-          new Error(
-            `Value for '${validKey}' cannot be persisted to storage, ${(err as Error).message}`,
-          ),
-        );
+        this.onError(getMutatedError(err, `Failed to save the value for "${validKey}" to storage`));
       }
     }
   }
@@ -146,9 +145,7 @@ class Store implements IStore {
     } catch (err) {
       this.onError(
         new Error(
-          `Value for '${validKey}' cannot be retrieved/parsed from storage, ${
-            (err as Error).message
-          }`,
+          `Failed to retrieve or parse data for "${key}" from storage: ${(err as Error).message}`,
         ),
       );
       return null;
@@ -213,7 +210,7 @@ class Store implements IStore {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
       this.errorHandler?.onError(error, `Store ${this.id}`);
     } else {
