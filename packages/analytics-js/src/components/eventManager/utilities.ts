@@ -9,6 +9,10 @@ import {
   isNullOrUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import {
+  INVALID_CONTEXT_OBJECT_WARNING,
+  RESERVED_KEYWORD_WARNING,
+} from '@rudderstack/analytics-js/constants/logMessages';
 import { RudderContext, RudderEvent, RudderEventType } from './types';
 import { isObjectLiteralAndNotNull, mergeDeepRight } from '../utilities/object';
 import { getCurrentTimeFormatted } from '../utilities/timestamp';
@@ -84,7 +88,6 @@ const getUpdatedPageProperties = (
  */
 const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
-  eventType: string,
   parentKeyPath: string,
   logger?: ILogger,
 ): void => {
@@ -95,7 +98,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
         logger?.warn(
-          `${EVENT_MANAGER}:: The "${property}" property defined under "${parentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${RESERVED_ELEMENTS}).`,
+          RESERVED_KEYWORD_WARNING(EVENT_MANAGER, property, parentKeyPath, RESERVED_ELEMENTS),
         );
       }
     });
@@ -112,9 +115,9 @@ const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): v
   const { properties, traits, context } = rudderEvent;
   const { traits: contextualTraits } = context;
 
-  checkForReservedElementsInObject(properties, rudderEvent.type, 'properties', logger);
-  checkForReservedElementsInObject(traits, rudderEvent.type, 'traits', logger);
-  checkForReservedElementsInObject(contextualTraits, rudderEvent.type, 'context.traits', logger);
+  checkForReservedElementsInObject(properties, 'properties', logger);
+  checkForReservedElementsInObject(traits, 'traits', logger);
+  checkForReservedElementsInObject(contextualTraits, 'context.traits', logger);
 };
 
 /**
@@ -168,9 +171,7 @@ const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.warn(
-          `${EVENT_MANAGER}:: Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`,
-        );
+        logger?.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
       }
     }
   });

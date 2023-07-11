@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
 import { BugsnagLib, ExtensionPlugin } from '../types/plugins';
+import { BUGSNAG_API_KEY_VALIDATION_ERROR } from '../utilities/logMessages';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';
 
@@ -22,7 +23,7 @@ const Bugsnag = (): ExtensionPlugin => ({
       new Promise((resolve, reject) => {
         // If API key token is not parsed or invalid, don't proceed to initialize the client
         if (!isApiKeyValid(API_KEY)) {
-          reject(new Error(`The Bugsnag API key (${API_KEY}) is invalid or not provided.`));
+          reject(new Error(BUGSNAG_API_KEY_VALIDATION_ERROR(API_KEY)));
           return;
         }
 

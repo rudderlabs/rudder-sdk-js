@@ -7,6 +7,7 @@ import { IEventManager, APIEvent } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';
 import { IUserSessionManager } from '../userSessionManager/types';
+import { EVENT_OBJECT_GENERATION_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 
 /**
  * A service to generate valid event payloads and queue them for processing
@@ -57,7 +58,7 @@ class EventManager implements IEventManager {
     if (rudderEvent) {
       this.eventRepository.enqueue(rudderEvent, event.callback);
     } else {
-      this.onError(new Error('Failed to generate RudderStack event object.'));
+      this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
     }
   }
 

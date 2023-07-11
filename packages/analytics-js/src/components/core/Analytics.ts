@@ -62,6 +62,7 @@ import {
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 import { isObjectAndNotNull } from '../utilities/object';
+import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -414,8 +415,7 @@ class Analytics implements IAnalytics {
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
-      // TODO: handle error
-      this.logger.error(`${READY_API}:: The callback is not a function.`);
+      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
       return;
     }
 

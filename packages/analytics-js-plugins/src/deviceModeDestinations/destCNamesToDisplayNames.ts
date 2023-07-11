@@ -160,7 +160,7 @@ const replaceValuesWithDisplayName = (
 
 // As the common names mapping in v1.1 is mapped to the definition name
 // we're converting the definition name to display names temporarily
-const destCNamesToDispNamesMap: Record<string, string> = {
+const destCNamesToDisplayNamesMap: Record<string, string> = {
   ...replaceValuesWithDisplayName(AdobeAnalyticsCNameMapping, AdobeAnalyticsDisplayName),
   ...replaceValuesWithDisplayName(AmplitudeCNameMapping, AmplitudeDisplayName),
   ...replaceValuesWithDisplayName(AppcuesCNameMapping, AppcuesDisplayName),
@@ -236,4 +236,4 @@ const destCNamesToDispNamesMap: Record<string, string> = {
   ...replaceValuesWithDisplayName(TiktokAdsCNameMapping, TiktokAdsDisplayName),
 };
 
-export { destCNamesToDispNamesMap };
+export { destCNamesToDisplayNamesMap };
