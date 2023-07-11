@@ -1,4 +1,4 @@
-import { Signal, signal } from "@preact/signals-core";
+import { Signal, signal } from '@preact/signals-core';
 import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type StorageState = {

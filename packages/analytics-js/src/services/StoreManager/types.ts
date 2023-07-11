@@ -82,5 +82,5 @@ export interface IStore {
   decrypt(value?: Nullable<string>): Nullable<string>;
   encrypt(value: any): string;
   crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
-  onError(error: Error | unknown): void;
+  onError(error: unknown): void;
 }

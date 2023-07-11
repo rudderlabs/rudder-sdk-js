@@ -1,4 +1,4 @@
-import { IStoreManager, StorageType, IStore } from '../../types/common';
+import { IStoreManager, StorageType, IStore, ILogger } from '../../types/common';
 import {
   IQueue,
   QueueItem,
@@ -7,7 +7,7 @@ import {
   DoneCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
-import { generateUUID } from '../common';
+import { LOCAL_STORAGE, generateUUID } from '../common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -42,6 +42,8 @@ export type InProgressQueueItem = {
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
+const RETRY_QUEUE = 'RetryQueue';
+
 /**
  * Constructs a RetryQueue backed by localStorage
  *
@@ -64,13 +66,15 @@ class RetryQueue implements IQueue<QueueItemData> {
   backoff: QueueBackoff;
   schedule: Schedule;
   processId: string;
+  logger?: ILogger;
 
   constructor(
     name: string,
     options: QueueOptions,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
-    storageType: StorageType = 'localStorage',
+    storageType: StorageType = LOCAL_STORAGE,
+    logger?: ILogger,
   ) {
     this.storeManager = storeManager;
     this.name = name;
@@ -78,6 +82,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems || Infinity;
     this.maxAttempts = options.maxAttempts || Infinity;
+    this.logger = logger;
 
     this.backoff = {
       MIN_RETRY_DELAY: options.minRetryDelay || 1000,
@@ -291,7 +296,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
-        console.error(`error: Process function threw error: ${err}`);
+        this.logger?.error(`${RETRY_QUEUE}:: Process function threw an error.`, err);
       }
     });
 
@@ -322,7 +327,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       id,
       name: this.name,
       validKeys: QueueStatuses,
-      type: 'localStorage',
+      type: LOCAL_STORAGE,
     });
     const our = {
       queue: (this.getQueue(QueueStatuses.QUEUE) ?? []) as QueueItem[],
@@ -455,7 +460,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             id: parts[1],
             name,
             validKeys: QueueStatuses,
-            type: 'localStorage',
+            type: LOCAL_STORAGE,
           }),
         );
       }

@@ -1,4 +1,4 @@
-import { destDispNamesToFileNamesMap } from '../deviceModeDestinations/destDispNamesToFileNames';
+import { destDisplayNamesToFileNamesMap } from '../deviceModeDestinations/destDisplayNamesToFileNames';
 
 const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and below
 const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';
@@ -17,7 +17,7 @@ const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 // Errors from the below scripts are NOT allowed to reach Bugsnag
 const SDK_FILE_NAME_PREFIXES = (): string[] => [
   'rsa', // Prefix for all the SDK scripts including plugins
-  ...Object.values(destDispNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
+  ...Object.values(destDisplayNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
 ];
 
 const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];
@@ -37,6 +37,8 @@ const APP_STATE_EXCLUDE_KEYS = [
   'traits',
 ];
 
+const BUGSNAG_PLUGIN = 'BugsnagPlugin';
+
 export {
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
@@ -50,4 +52,5 @@ export {
   SDK_LOAD_POLL_INTERVAL_MS,
   DEV_HOSTS,
   APP_STATE_EXCLUDE_KEYS,
+  BUGSNAG_PLUGIN,
 };

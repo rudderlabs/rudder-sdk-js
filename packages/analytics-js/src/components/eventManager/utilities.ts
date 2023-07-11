@@ -8,6 +8,7 @@ import {
   isUndefined,
   isNullOrUndefined,
 } from '@rudderstack/analytics-js/components/utilities/checks';
+import { EVENT_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { RudderContext, RudderEvent, RudderEventType } from './types';
 import { isObjectLiteralAndNotNull, mergeDeepRight } from '../utilities/object';
 import { getCurrentTimeFormatted } from '../utilities/timestamp';
@@ -94,7 +95,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
         logger?.warn(
-          `Reserved keyword used in ${parentKeyPath} --> "${property}" for ${eventType} event`,
+          `${EVENT_MANAGER}:: The "${property}" property defined under "${parentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${RESERVED_ELEMENTS}).`,
         );
       }
     });
@@ -167,7 +168,9 @@ const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.warn('The "context" element passed in the options is not a valid object');
+        logger?.warn(
+          `${EVENT_MANAGER}:: Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`,
+        );
       }
     }
   });

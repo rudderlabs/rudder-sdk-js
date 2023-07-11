@@ -12,9 +12,10 @@ import {
   IPluginsManager,
 } from '../types/common';
 import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { QUEUE_NAME } from './constants';
+import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
+import { MEMORY_STORAGE } from '../utilities/common';
 
 const pluginName = 'NativeDestinationQueue';
 
@@ -51,7 +52,6 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (item: RudderEvent, done: DoneCallback) => {
-          logger?.debug(`Forwarding ${item.type} event to destinations`);
           const destinationsToSend = filterDestinations(
             item.integrations,
             state.nativeDestinations.initializedDestinations.value,
@@ -60,8 +60,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           destinationsToSend.forEach((dest: Destination) => {
             const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
-              logger?.debug(
-                `"${item.event}" event is denylisted for destination: ${dest.userFriendlyId}`,
+              logger?.warn(
+                `${NATIVE_DESTINATION_QUEUE_PLUGIN}:: The "${item.event}" track event has been filtered for the "${dest.userFriendlyId}" destination.`,
               );
               return;
             }
@@ -77,7 +77,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           done(null);
         },
         storeManager,
-        'memoryStorage',
+        MEMORY_STORAGE,
       );
 
       // TODO: This seems to not work as expected. Need to investigate

@@ -13,8 +13,12 @@ import {
   IntegrationOpts,
 } from '../types/common';
 import { Nullable } from '../types/plugins';
-import { INITIALIZED_CHECK_TIMEOUT, LOAD_CHECK_POLL_INTERVAL } from './constants';
-import { destCNamesToDispNamesMap } from './destCNamesToDispNames';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  INITIALIZED_CHECK_TIMEOUT,
+  LOAD_CHECK_POLL_INTERVAL,
+} from './constants';
+import { destCNamesToDispNamesMap } from './destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   aliasArgumentsToCallOptions,
@@ -38,21 +42,14 @@ const isDestinationSDKEvaluated = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   logger?: ILogger,
-): boolean => {
-  try {
-    const scriptIsEvaluated = Boolean(
-      (globalThis as any)[destSDKIdentifier] &&
-        (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
-        (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
-        typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
-          'undefined',
-    );
-    return scriptIsEvaluated;
-  } catch (e) {
-    logger?.error(`Error while checking if destination SDK is evaluated: ${e}`);
-    return false;
-  }
-};
+): boolean =>
+  Boolean(
+    (globalThis as any)[destSDKIdentifier] &&
+      (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
+      (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+      typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
+        'undefined',
+  );
 
 const wait = (time: number) =>
   new Promise(resolve => {
@@ -128,15 +125,19 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
-      reject(new Error(`Destination "${dest.userFriendlyId}" ready check timed out`));
+      reject(
+        new Error(
+          `A timeout of ${INITIALIZED_CHECK_TIMEOUT} ms occurred while trying to check the ready status for "${dest.userFriendlyId}" destination.`,
+        ),
+      );
     } else {
       wait(LOAD_CHECK_POLL_INTERVAL)
         .then(() =>
           isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
             .then(resolve)
-            .catch(e => reject(e)),
+            .catch(err => reject(err)),
         )
-        .catch(e => reject(e));
+        .catch(err => reject(err));
     }
   });
 
@@ -215,10 +216,10 @@ const getCumulativeIntegrationsConfig = (
         curDestIntgConfig,
         dest.instance?.getDataForIntegrationsObject(),
       );
-    } catch (e) {
+    } catch (err) {
       logger?.error(
-        e,
-        `Error while getting data for integrations object for destination: ${dest.userFriendlyId}`,
+        `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to retrieve data for integrations object of destination "${dest.userFriendlyId}".`,
+        err,
       );
     }
   }

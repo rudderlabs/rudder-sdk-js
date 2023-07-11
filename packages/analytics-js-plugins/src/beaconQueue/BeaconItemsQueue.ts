@@ -1,5 +1,5 @@
 import { IStoreManager, StorageType, IStore, BeaconQueueOpts } from '../types/common';
-import { generateUUID } from '../utilities/common';
+import { MEMORY_STORAGE, generateUUID } from '../utilities/common';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItem } from './types';
 import { getDeliveryPayload } from './utilities';
@@ -29,7 +29,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
     options: BeaconQueueOpts,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
-    storageType: StorageType = 'memoryStorage',
+    storageType: StorageType = MEMORY_STORAGE,
   ) {
     this.storeManager = storeManager;
     this.name = name;

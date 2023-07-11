@@ -171,7 +171,7 @@ describe('ErrorHandler', () => {
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      'Error while notifying error',
+      'ErrorHandler:: Failed to notify the error.',
       new Error('dummy error'),
     );
   });
@@ -234,7 +234,7 @@ describe('ErrorHandler', () => {
         expect(errorHandlerInstance.errReportingClient).toBeUndefined();
         expect(defaultLogger.error).toHaveBeenCalledTimes(1);
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          'Unable to initialize error reporting plugin.',
+          'ErrorHandler:: Failed to initialize the error reporting plugin.',
           new Error('dummy error'),
         );
 
@@ -252,20 +252,8 @@ describe('ErrorHandler', () => {
       errorHandlerInstance.init(extSrcLoader);
 
       expect(onErrorSpy).toHaveBeenCalledTimes(1);
-      expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'errorReporting.init');
+      expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'ErrorHandler');
       onErrorSpy.mockRestore();
-    });
-
-    it('should log error if plugin engine return null', () => {
-      defaultPluginEngine.invokeSingle = jest.fn(() => null);
-
-      errorHandlerInstance.init(extSrcLoader);
-
-      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Something went wrong during error reporting plugin invocation.',
-      );
-      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
     });
   });
 });

@@ -61,7 +61,9 @@ describe('Plugin - Bugsnag', () => {
 
     const pluginInitPromise = Bugsnag().errorReportingProvider.init(state, mockExtSrcLoader);
 
-    await expect(pluginInitPromise).rejects.toThrow('The Bugsnag SDK load timed out.');
+    await expect(pluginInitPromise).rejects.toThrow(
+      'A timeout 1000 ms occurred while trying to load the Bugsnag SDK.',
+    );
   });
 
   it('should initialize the Bugsnag SDK and return the client instance', async () => {

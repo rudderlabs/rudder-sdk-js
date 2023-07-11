@@ -76,7 +76,7 @@ import {
 } from './destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
-const destDispNamesToFileNamesMap: Record<string, string> = {
+const destDisplayNamesToFileNamesMap: Record<string, string> = {
   ...HubSpotDisplayNameToDirNameMap,
   ...GADisplayNameToDirNameMap,
   ...HotjarDisplayNameToDirNameMap,
@@ -152,4 +152,4 @@ const destDispNamesToFileNamesMap: Record<string, string> = {
   ...TiktokAdsDisplayNameToDirNameMap,
 };
 
-export { destDispNamesToFileNamesMap };
+export { destDisplayNamesToFileNamesMap };

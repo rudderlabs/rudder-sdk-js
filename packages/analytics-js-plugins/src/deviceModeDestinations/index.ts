@@ -11,8 +11,12 @@ import {
 import { IExternalSrcLoader, ApplicationState, ILogger, IPluginsManager } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { isHybridModeDestination } from '../utilities/common';
-import { INITIALIZED_CHECK_POLL_INTERVAL, LOAD_CHECK_TIMEOUT } from './constants';
-import { destDispNamesToFileNamesMap } from './destDispNamesToFileNames';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  INITIALIZED_CHECK_POLL_INTERVAL,
+  LOAD_CHECK_TIMEOUT,
+} from './constants';
+import { destDisplayNamesToFileNamesMap } from './destDisplayNamesToFileNames';
 
 const pluginName = 'DeviceModeDestinations';
 
@@ -35,11 +39,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
         state.nativeDestinations.configuredDestinations.value.filter(configDest => {
-          if (destDispNamesToFileNamesMap[configDest.displayName]) {
+          if (destDisplayNamesToFileNamesMap[configDest.displayName]) {
             return true;
           }
 
-          logger?.error(`"${configDest.displayName}" destination is not supported`);
+          logger?.error(
+            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Destination ${configDest.userFriendlyId} is not supported.`,
+          );
           return false;
         });
 
@@ -72,50 +78,43 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     ) {
       const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
-      const onLoadCallback =
-        externalScriptOnLoad ??
-        ((id?: string) => {
-          if (!id) {
-            return;
-          }
-
-          logger?.debug(`Destination script with id: ${id} loaded successfully`);
-        });
 
       activeDestinations.forEach(dest => {
-        const sdkName = destDispNamesToFileNamesMap[dest.displayName];
+        const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
-        logger?.debug(`Loading destination: ${dest.userFriendlyId}`);
-
-        if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
-          const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
-          externalSrcLoader
-            .loadJSFile({
-              url: destSdkURL,
-              id: dest.userFriendlyId,
-              callback: onLoadCallback,
-            })
-            .catch(e => {
-              logger?.error(
-                `Script load failed for destination: ${dest.userFriendlyId}. Error message: ${e.message}`,
-              );
-              state.nativeDestinations.failedDestinations.value = [
-                ...state.nativeDestinations.failedDestinations.value,
-                dest,
-              ];
-            });
-        }
 
         let timeoutId: number;
-        const intervalId = (globalThis as typeof window).setInterval(() => {
+        let intervalId: number;
+        if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
+          const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
+          externalSrcLoader.loadJSFile({
+            url: destSdkURL,
+            id: dest.userFriendlyId,
+            callback:
+              externalScriptOnLoad ??
+              ((id?: string) => {
+                if (!id) {
+                  // Stop wasting time to check whether SDK is loaded
+                  (globalThis as typeof window).clearInterval(intervalId);
+                  (globalThis as typeof window).clearTimeout(timeoutId);
+
+                  logger?.error(
+                    `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to load script for destination "${dest.userFriendlyId}".`,
+                  );
+                  state.nativeDestinations.failedDestinations.value = [
+                    ...state.nativeDestinations.failedDestinations.value,
+                    dest,
+                  ];
+                }
+              }),
+          });
+        }
+
+        intervalId = (globalThis as typeof window).setInterval(() => {
           const sdkTypeName = sdkName;
           if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
             (globalThis as typeof window).clearInterval(intervalId);
             (globalThis as typeof window).clearTimeout(timeoutId);
-
-            logger?.debug(
-              `SDK script evaluation successful for destination: ${dest.userFriendlyId}`,
-            );
 
             try {
               const destInstance = createDestinationInstance(
@@ -125,7 +124,6 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 state,
                 logger,
               );
-              logger?.debug(`Initializing destination: ${dest.userFriendlyId}`);
               destInstance.init();
 
               const initializedDestination = clone(dest);
@@ -133,8 +131,6 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
               isDestinationReady(initializedDestination, logger)
                 .then(() => {
-                  logger?.debug(`Destination ${dest.userFriendlyId} is loaded and ready`);
-
                   // Collect the integrations data for the hybrid mode destinations
                   if (isHybridModeDestination(initializedDestination)) {
                     state.nativeDestinations.integrationsConfig.value =
@@ -150,12 +146,14 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     initializedDestination,
                   ];
                 })
-                .catch(e => {
-                  throw e;
+                .catch(err => {
+                  throw err;
                 });
-            } catch (e: any) {
-              const message = `Unable to initialize destination: ${dest.userFriendlyId}. Error message: ${e.message}`;
-              logger?.error(e, message);
+            } catch (err) {
+              logger?.error(
+                `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to initialize destination "${dest.userFriendlyId}".`,
+                err,
+              );
 
               state.nativeDestinations.failedDestinations.value = [
                 ...state.nativeDestinations.failedDestinations.value,
@@ -168,7 +166,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         timeoutId = (globalThis as typeof window).setTimeout(() => {
           clearInterval(intervalId);
 
-          logger?.debug(`SDK script evaluation timed out for destination: ${dest.userFriendlyId}`);
+          logger?.error(
+            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: SDK script evaluation timed out for destination ${dest.userFriendlyId}.`,
+          );
           state.nativeDestinations.failedDestinations.value = [
             ...state.nativeDestinations.failedDestinations.value,
             dest,

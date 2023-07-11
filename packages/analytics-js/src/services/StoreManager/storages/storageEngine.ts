@@ -1,6 +1,12 @@
 import { CookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/CookieStorage';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js/constants/storages';
+import {
   IStorage,
   StorageType,
   ICookieStorageOptions,
@@ -17,13 +23,13 @@ import { defaultLocalStorage } from './LocalStorage';
  */
 const getStorageEngine = (type?: StorageType): IStorage => {
   switch (type) {
-    case 'localStorage':
+    case LOCAL_STORAGE:
       return defaultLocalStorage;
-    case 'sessionStorage':
+    case SESSION_STORAGE:
       return globalThis.sessionStorage;
-    case 'memoryStorage':
+    case MEMORY_STORAGE:
       return defaultInMemoryStorage;
-    case 'cookieStorage':
+    case COOKIE_STORAGE:
       return new CookieStorage({}, defaultLogger);
     default:
       return defaultInMemoryStorage;

@@ -6,6 +6,7 @@ import {
   IExternalSrcLoader,
 } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { EXTERNAL_SRC_LOADER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { jsFileLoader } from './jsFileLoader';
 
 /**
@@ -34,11 +35,11 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   /**
    * Load external resource of type javascript
    */
-  async loadJSFile(config: IExternalSourceLoadConfig): Promise<void> {
+  loadJSFile(config: IExternalSourceLoadConfig) {
     const { url, id, timeout, async, callback, extraAttributes } = config;
     const isFireAndForget = !(callback && isFunction(callback));
 
-    await jsFileLoader(url, id, timeout || this.timeout, async, extraAttributes)
+    jsFileLoader(url, id, timeout || this.timeout, async, extraAttributes)
       .then((id?: string) => {
         if (!isFireAndForget) {
           callback(id);
@@ -55,9 +56,9 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown) {
+  onError(error: unknown) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'ExternalSrcLoader');
+      this.errorHandler?.onError(error, EXTERNAL_SRC_LOADER);
     } else {
       throw error;
     }

@@ -51,9 +51,11 @@ describe('cookie(name, null)', () => {
     expect('0').toEqual(obj.name);
   });
 
-  it('should ignore URIError and return null', () => {
+  it('should throw URIError for malformed cookie data', () => {
     window.document.cookie = 'bad=%';
-    expect(cookie('bad')).toBeNull();
+    expect(() => {
+      cookie('bad');
+    }).toThrowError(new URIError('URI malformed'));
     cookie('bad', null);
   });
 });
@@ -67,17 +69,5 @@ describe('cookie()', () => {
     expect(2).toEqual(Object.keys(obj).length);
     expect('loki').toEqual(obj.name);
     expect('ferret').toEqual(obj.species);
-  });
-
-  it('should return all cookies and ignore URIErrors', () => {
-    cookie('name', 'loki');
-    cookie('species', 'ferret');
-    window.document.cookie = 'bad=%';
-    const obj = cookie();
-
-    expect('loki').toEqual(obj.name);
-    expect('ferret').toEqual(obj.species);
-    expect(obj.bad).toBeNull();
-    cookie('bad', null);
   });
 });

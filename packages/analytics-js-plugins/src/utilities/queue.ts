@@ -10,6 +10,8 @@ import {
 import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 
+const QUEUE_UTILITIES = 'QueueUtilities';
+
 /**
  * Utility to get the stringified event payload
  * @param event RudderEvent object
@@ -21,7 +23,7 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   try {
     deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
   } catch (err) {
-    logger?.error(`Error while converting event object to string. Error: ${err}.`);
+    logger?.error(`${QUEUE_UTILITIES}:: Failed to convert event object to string.`, err);
   }
   return deliveryPayloadStr;
 };
@@ -37,11 +39,13 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
     const payloadSize = payloadStr.length;
     if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {
       logger?.warn(
-        `The event payload size (${payloadSize}) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. The event might get dropped.`,
+        `${QUEUE_UTILITIES}:: The size of the event payload (${payloadSize} bytes) exceeds the maximum limit of ${EVENT_PAYLOAD_SIZE_BYTES_LIMIT} bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.`,
       );
     }
   } else {
-    logger?.error(`Error while calculating event payload size.`);
+    logger?.warn(
+      `${QUEUE_UTILITIES}:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.`,
+    );
   }
 };
 
@@ -103,9 +107,7 @@ const getFinalEventForDeliveryMutator = (
   return finalEvent;
 };
 
-const removeDuplicateSlashes = (str: string): string => {
-  return str.replace(/\/{2,}/g, '/');
-};
+const removeDuplicateSlashes = (str: string): string => str.replace(/\/{2,}/g, '/');
 
 export {
   getDeliveryPayload,

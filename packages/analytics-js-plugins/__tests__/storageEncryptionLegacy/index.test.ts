@@ -28,7 +28,9 @@ describe('Plugin - Storage Encryption Legacy', () => {
   });
 
   it('should decrypt encrypted data', () => {
-    const decryptedData = storageEncryptionLegacy.storage?.decrypt('RudderEncrypt:U2FsdGVkX1+5q5jikppUASe8AdIH6O2iORyF41sYXgxzIGiX9whSeVxxww0OK5h/');
+    const decryptedData = storageEncryptionLegacy.storage?.decrypt(
+      'RudderEncrypt:U2FsdGVkX1+5q5jikppUASe8AdIH6O2iORyF41sYXgxzIGiX9whSeVxxww0OK5h/',
+    );
     expect(decryptedData).toBe('"1wefk7M3Y1D6EDX4ZpIE00LpKAE"');
   });
 
