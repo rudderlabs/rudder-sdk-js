@@ -1,5 +1,5 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
+import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated
@@ -120,13 +120,8 @@ const jsFileLoader = (
         );
       }, timeout);
     } catch (err) {
-      reject(
-        new Error(
-          `Failed to load the script from "${url}" with id ${id}: "${stringifyWithoutCircular(
-            err as Record<string, any>,
-          )}"`,
-        ),
-      );
+      const issue = `Failed to load the script from "${url}" with id ${id}`;
+      reject(getMutatedError(err, issue));
     }
   });
 

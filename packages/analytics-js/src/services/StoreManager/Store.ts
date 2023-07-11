@@ -9,6 +9,7 @@ import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsMan
 import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
 import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
 import { getStorageEngine } from './storages/storageEngine';
 import { IStorage, IStore, IStoreConfig } from './types';
 
@@ -116,11 +117,7 @@ class Store implements IStore {
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(
-          new Error(
-            `Failed to save the value for "${validKey}" to storage: ${(err as Error).message}`,
-          ),
-        );
+        this.onError(getMutatedError(err, `Failed to save the value for "${validKey}" to storage`));
       }
     }
   }
