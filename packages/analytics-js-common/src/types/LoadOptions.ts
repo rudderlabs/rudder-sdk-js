@@ -6,6 +6,7 @@ import { IntegrationOpts } from './Integration';
 import { ApiOptions } from './EventApi';
 import { CookieConsentOptions } from './Consent';
 import { ApiObject } from './ApiObject';
+import { StorageOpts } from './Storage';
 
 export enum UaChTrackLevel {
   None = 'none',
@@ -112,4 +113,5 @@ export type LoadOptions = {
   polyfillURL?: string;
   useGlobalIntegrationsConfigInEvents?: boolean;
   bufferDataPlaneEventsUntilReady?: boolean;
+  storage?: StorageOpts;
 };

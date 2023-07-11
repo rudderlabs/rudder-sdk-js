@@ -115,7 +115,7 @@ export type PluginsState = {
 export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
-  errorReportingProviderPlugin: Signal<PluginName | undefined>;
+  errorReportingProviderPluginName: Signal<PluginName | undefined>;
 };
 
 export type SessionState = {
@@ -131,6 +131,11 @@ export type SessionState = {
 
 export type SourceConfigState = Signal<Source | undefined>;
 
+export type StorageState = {
+  encryptionPluginName: Signal<PluginName | undefined>;
+  migrate: Signal<boolean>;
+};
+
 export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
@@ -145,4 +150,5 @@ export interface ApplicationState {
   reporting: ReportingState;
   session: SessionState;
   source: SourceConfigState;
+  storage: StorageState;
 }

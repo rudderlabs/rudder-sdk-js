@@ -4,7 +4,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
-import { batch } from '@preact/signals-core';
+import { batch, effect } from '@preact/signals-core';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import {
   getDefaultPageProperties,
@@ -24,12 +24,13 @@ import {
   isLegacyJSEngine,
   isStorageAvailable,
 } from './detection';
+import { detectAdBlockers } from './detection/adBlockers';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
   logger?: ILogger;
   errorHandler?: IErrorHandler;
-  externalSrcLoader?: IExternalSrcLoader;
+  externalSrcLoader: IExternalSrcLoader;
 
   constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
     this.logger = logger;
@@ -91,10 +92,16 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.page.title.value = pageProperties.title;
       state.page.url.value = pageProperties.url;
       state.page.tab_url.value = pageProperties.tab_url;
+    });
 
-      // Get ad-blocking related details
-      // TODO: implement this detection logic as part of relevant sprint task
-      state.capabilities.isAdBlocked.value = false;
+    // Ad blocker detection
+    effect(() => {
+      if (
+        state.loadOptions.value.sendAdblockPage === true &&
+        state.lifecycle.sourceConfigUrl.value !== undefined
+      ) {
+        detectAdBlockers(this.errorHandler, this.logger);
+      }
     });
   }
 

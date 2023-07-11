@@ -55,21 +55,6 @@ describe('ErrorHandler - process error', () => {
     expect(msg).toStrictEqual('');
   });
 
-  it('should ignore error Event from ad-blocked SDK script loading as argument value', () => {
-    const mockEvent = {
-      target: {
-        src: 'dummyUrl',
-        id: 'ad-block',
-        dataset: {
-          appendOrigin: EXTERNAL_SOURCE_LOAD_ORIGIN,
-        },
-        localName: 'script',
-      },
-    };
-    const msg = processError(mockEvent);
-    expect(msg).toStrictEqual('');
-  });
-
   it('should process any other type of argument value', () => {
     const msg = processError({ foo: 'bar' });
     expect(msg).toStrictEqual('{"foo":"bar"}');

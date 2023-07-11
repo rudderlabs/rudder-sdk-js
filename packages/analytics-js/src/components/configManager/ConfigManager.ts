@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, RejectionDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
@@ -20,7 +20,7 @@ import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
-import { updateReportingState } from './util/commonUtil';
+import { updateReportingState, updateStorageState } from './util/commonUtil';
 import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
@@ -82,6 +82,8 @@ class ConfigManager implements IConfigManager {
         }
       }
 
+      updateStorageState(this.logger);
+
       // set application lifecycle state in global state
       batch(() => {
         state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
@@ -125,10 +127,10 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string, rejectionDetails?: RejectionDetails) {
+  processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Unable to fetch source config ${rejectionDetails?.error}`);
+      this.onError(`Unable to fetch source config ${details?.error}`);
       return;
     }
 

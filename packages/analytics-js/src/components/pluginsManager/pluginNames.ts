@@ -19,6 +19,7 @@ const remotePluginNames: PluginName[] = [
   PluginName.NativeDestinationQueue,
   PluginName.StorageEncryption,
   PluginName.StorageEncryptionLegacy,
+  PluginName.StorageMigrator,
   PluginName.XhrQueue,
   PluginName.OneTrust,
   PluginName.Bugsnag,

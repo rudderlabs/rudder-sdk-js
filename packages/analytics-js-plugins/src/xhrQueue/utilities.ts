@@ -1,6 +1,6 @@
 import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/index';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { RejectionDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { RudderEventType } from '../types/plugins';
 import { removeDuplicateSlashes } from '../utilities/queue';
@@ -18,10 +18,10 @@ const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): strin
   ).href;
 };
 
-const isErrRetryable = (rejectionReason?: RejectionDetails) => {
+const isErrRetryable = (details?: ResponseDetails) => {
   let isRetryableNWFailure = false;
-  if (rejectionReason?.xhr) {
-    const xhrStatus = rejectionReason.xhr.status;
+  if (details?.error && details?.xhr) {
+    const xhrStatus = details.xhr.status;
     // same as in v1.1
     isRetryableNWFailure = xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
   }
@@ -29,18 +29,18 @@ const isErrRetryable = (rejectionReason?: RejectionDetails) => {
 };
 
 const logErrorOnFailure = (
-  rejectionReason: RejectionDetails | undefined,
+  details: ResponseDetails | undefined,
   item: XHRQueueItem,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (isUndefined(rejectionReason) || isUndefined(logger)) {
+  if (isUndefined(details?.error) || isUndefined(logger)) {
     return;
   }
 
-  const isRetryableFailure = isErrRetryable(rejectionReason);
+  const isRetryableFailure = isErrRetryable(details);
   let errMsg = `Unable to deliver event to ${item.url}.`;
   if (isRetryableFailure) {
     if (willBeRetried) {

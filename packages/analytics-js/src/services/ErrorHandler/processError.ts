@@ -1,5 +1,4 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js-common/constants/htmlAttributes';
-import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -24,13 +23,6 @@ const processScriptLoadError = (event: Event): string => {
     errorMessage = `Failed to load script from ${
       (targetElement as HTMLScriptElement).src
     } with id ${targetElement.id}`;
-
-    // TODO: adblocker detection record here?
-    //  better to decouple, if not we need to pass the analytics instance here somehow
-    //  or find another way to trigger the analytics track event from handleScriptLoadAdBlocked
-    //  maybe via setting value to state and a signals effect
-    // Discard Ad-block errors for third party native SDK loading, only track them in analytics
-    errorMessage = handleScriptLoadAdBlocked(errorMessage, targetElement as HTMLScriptElement);
   }
 
   return errorMessage;

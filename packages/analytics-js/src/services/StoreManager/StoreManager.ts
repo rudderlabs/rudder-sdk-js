@@ -59,7 +59,6 @@ class StoreManager implements IStoreManager {
     );
 
     this.initClientDataStore();
-    this.initQueueStore();
     this.isInitialized = true;
   }
 
@@ -97,13 +96,6 @@ class StoreManager implements IStoreManager {
     });
   }
 
-  /**
-   * Extension point to use with event queue plugins
-   */
-  initQueueStore() {
-    // TODO: use this as extension point to create storage for event queues
-    this.pluginManager?.invokeMultiple('queuestore.create', this.setStore);
-  }
   /**
    * Create a new store
    */

@@ -23,6 +23,9 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'Object.values': () => !Object.values,
   'Element.prototype.dataset': () => !isDatasetAvailable(),
   'String.prototype.replaceAll': () => !String.prototype.replaceAll,
+  TextEncoder: () => isUndefined(TextEncoder),
+  TextDecoder: () => isUndefined(TextDecoder),
+  'String.fromCodePoint': () => !String.fromCodePoint,
 };
 
 const isLegacyJSEngine = (): boolean => {

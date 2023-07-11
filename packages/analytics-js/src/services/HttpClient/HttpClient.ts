@@ -5,10 +5,11 @@ import {
   IAsyncRequestConfig,
   IHttpClient,
   IRequestConfig,
-  RejectionDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 
@@ -37,7 +38,7 @@ class HttpClient implements IHttpClient {
    */
   async getData<T = any>(
     config: IRequestConfig,
-  ): Promise<{ data: T | string | undefined; rejectionDetails?: RejectionDetails }> {
+  ): Promise<{ data: T | string | undefined; details?: ResponseDetails }> {
     const { url, options, timeout, isRawResponse } = config;
 
     try {
@@ -46,10 +47,13 @@ class HttpClient implements IHttpClient {
         timeout,
         this.logger,
       );
-      return { data: isRawResponse ? data : responseTextToJson<T>(data, this.onError) };
+      return {
+        data: isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
+        details: data,
+      };
     } catch (reason) {
-      this.onError((reason as RejectionDetails).error ?? reason);
-      return { data: undefined, rejectionDetails: reason as RejectionDetails };
+      this.onError((reason as ResponseDetails).error ?? reason);
+      return { data: undefined, details: reason as ResponseDetails };
     }
   }
 
@@ -61,15 +65,18 @@ class HttpClient implements IHttpClient {
     const isFireAndForget = !(callback && isFunction(callback));
 
     xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
-      .then((data?: string) => {
+      .then((data: ResponseDetails) => {
         if (!isFireAndForget) {
-          callback(isRawResponse ? data : responseTextToJson<T>(data, this.onError));
+          callback(
+            isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
+            data,
+          );
         }
       })
-      .catch((reason: RejectionDetails) => {
-        this.onError(reason.error ?? reason);
+      .catch((data: ResponseDetails) => {
+        this.onError(data.error ?? data);
         if (!isFireAndForget) {
-          callback(undefined, reason);
+          callback(undefined, data);
         }
       });
   }
@@ -89,7 +96,8 @@ class HttpClient implements IHttpClient {
    * Set basic authentication header (eg writekey)
    */
   setAuthHeader(value: string, noBtoa = false) {
-    this.basicAuthHeader = `Basic ${noBtoa ? value : btoa(`${value}:`)}`;
+    const authVal = noBtoa ? value : toBase64(`${value}:`);
+    this.basicAuthHeader = `Basic ${authVal}`;
   }
 
   /**

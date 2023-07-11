@@ -45,6 +45,11 @@ import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { IAnalytics } from './IAnalytics';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+} from '@rudderstack/analytics-js/constants/app';
+import {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
@@ -443,6 +448,28 @@ class Analytics implements IAnalytics {
       options: payload.options,
       callback: payload.callback,
     });
+
+    // TODO: Maybe we should alter the behavior to send the ad-block page event
+    // even if the SDK is still loaded. It'll be pushed into the to be processed queue.
+
+    // Send automatic ad blocked page event if adblockers are detected on the page
+    if (
+      state.capabilities.isAdBlocked.value === true &&
+      payload.category !== ADBLOCK_PAGE_CATEGORY
+    ) {
+      const pageCallArgs = {
+        category: ADBLOCK_PAGE_CATEGORY,
+        name: ADBLOCK_PAGE_NAME,
+        properties: {
+          // 'title' is intentionally omitted as it does not make sense
+          // in v3 implementation
+          path: ADBLOCK_PAGE_PATH,
+        },
+        options: state.loadOptions.value.sendAdblockPageOptions,
+      } as PageCallOptions;
+
+      this.page(pageCallArgs);
+    }
   }
 
   track(payload: TrackCallOptions) {

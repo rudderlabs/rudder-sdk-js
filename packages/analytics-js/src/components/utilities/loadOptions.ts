@@ -1,9 +1,13 @@
 import { clone } from 'ramda';
 import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import {
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js-common/utilities/object';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
@@ -11,19 +15,30 @@ const normalizeLoadOptions = (
 ): LoadOptions => {
   // TODO: add all the validations as per
   //  https://github.com/rudderlabs/rudder-sdk-js/blob/a620e11f98e1438be34114ad40b325201b1d7a6e/src/core/analytics.js#L1156
-  const normalizedLoadOptions = clone(loadOptions);
-  normalizedLoadOptions.plugins = normalizedLoadOptions.plugins ?? defaultOptionalPluginsList;
+  const normalizedLoadOpts = clone(loadOptions);
+  normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
-  normalizedLoadOptions.useGlobalIntegrationsConfigInEvents =
-    normalizedLoadOptions.useGlobalIntegrationsConfigInEvents === true;
+  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents =
+    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents === true;
 
-  normalizedLoadOptions.bufferDataPlaneEventsUntilReady =
-    normalizedLoadOptions.bufferDataPlaneEventsUntilReady === true;
+  normalizedLoadOpts.bufferDataPlaneEventsUntilReady =
+    normalizedLoadOpts.bufferDataPlaneEventsUntilReady === true;
 
-  const mergedLoadOptions: LoadOptions = mergeDeepRight(
-    loadOptionsFromState,
-    normalizedLoadOptions,
-  );
+  normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
+
+  normalizedLoadOpts.sendAdblockPageOptions = isObjectLiteralAndNotNull(
+    normalizedLoadOpts.sendAdblockPageOptions,
+  )
+    ? normalizedLoadOpts.sendAdblockPageOptions
+    : {};
+
+  normalizedLoadOpts.storage = isObjectLiteralAndNotNull(normalizedLoadOpts.storage)
+    ? normalizedLoadOpts.storage
+    : {};
+  (normalizedLoadOpts.storage as StorageOpts).migrate =
+    normalizedLoadOpts.storage?.migrate === true;
+
+  const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 
   return mergedLoadOptions;
 };

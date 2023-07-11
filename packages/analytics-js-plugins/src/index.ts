@@ -10,4 +10,5 @@ export { default as NativeDestinationQueue } from './nativeDestinationQueue';
 export { default as OneTrust } from './oneTrust';
 export { default as StorageEncryption } from './storageEncryption';
 export { default as StorageEncryptionLegacy } from './storageEncryptionLegacy';
+export { default as StorageMigrator } from './storageMigrator';
 export { default as XhrQueue } from './xhrQueue';

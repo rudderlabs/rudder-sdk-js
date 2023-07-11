@@ -13,6 +13,7 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '@rudderstack/analytics-js/components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
   logLevel: LogLevel.Error,
@@ -35,6 +36,12 @@ const defaultLoadOptions: LoadOptions = {
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,
+  storage: {
+    encryption: {
+      version: DEFAULT_STORAGE_ENCRYPTION_VERSION,
+    },
+    migrate: false,
+  },
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

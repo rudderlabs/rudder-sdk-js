@@ -26,7 +26,6 @@ export interface IStoreManager {
   logger?: ILogger;
   init(): void;
   initClientDataStore(): void;
-  initQueueStore(): void;
   setStore(storeConfig: IStoreConfig): IStore;
   getStore(id: StoreId): IStore | undefined;
 }

@@ -37,7 +37,7 @@
     "directory": "dist/npm"
   },
   "scripts": {
-    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "rollup --config rollup-configs/rollup.sdk.browser.mjs --watch --environment DEV_SERVER,PROD_DEBUG:inline",
     "build": "npm run build:browser && npm run build:package",
     "build:browser:modern": "BROWSERSLIST_ENV=modern rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",

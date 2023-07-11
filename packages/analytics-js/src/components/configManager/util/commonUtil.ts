@@ -1,5 +1,7 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { batch } from '@preact/signals-core';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
@@ -7,10 +9,11 @@ import {
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse } from '../types';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
+  DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
+  StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 
 /**
@@ -25,7 +28,7 @@ const getSDKUrl = (): string | undefined => {
   scriptList.some(script => {
     const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rudder-analytics?(\.min)?\.js$/);
+      const urlMatches = curScriptSrc.match(/^.*rsa?(\.min)?\.js$/);
       if (urlMatches) {
         sdkURL = curScriptSrc;
         return true;
@@ -54,6 +57,7 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     const errReportingProviderPlugin = errReportingProvider
       ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
       : undefined;
+
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
@@ -62,10 +66,48 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
         )}". Using the default provider (${DEFAULT_ERROR_REPORTING_PROVIDER}).`,
       );
     }
-    state.reporting.errorReportingProviderPlugin.value =
+
+    state.reporting.errorReportingProviderPluginName.value =
       errReportingProviderPlugin ??
       ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
   }
 };
 
-export { getSDKUrl, updateReportingState };
+const updateStorageState = (logger?: ILogger): void => {
+  let storageEncryptionVersion = state.loadOptions.value.storage?.encryption?.version;
+  const encryptionPluginName =
+    storageEncryptionVersion && StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
+
+  if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
+    // set the default encryption plugin
+    logger?.warn(
+      `The configured storage encryption version "${storageEncryptionVersion}" is not supported. Supported version(s) is/are "${Object.keys(
+        StorageEncryptionVersionsToPluginNameMap,
+      )}". Using the default version (${DEFAULT_STORAGE_ENCRYPTION_VERSION}).`,
+    );
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  } else if (isUndefined(storageEncryptionVersion)) {
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  }
+
+  batch(() => {
+    state.storage.encryptionPluginName.value =
+      StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
+
+    // Allow migration only if the configured encryption version is the default encryption version
+    const configuredMigrationValue = state.loadOptions.value.storage?.migrate;
+    state.storage.migrate.value =
+      (configuredMigrationValue as boolean) &&
+      storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
+    if (
+      configuredMigrationValue === true &&
+      state.storage.migrate.value !== configuredMigrationValue
+    ) {
+      logger?.warn(
+        `The storage data migration is disabled as the configured storage encryption version (${storageEncryptionVersion}) is not the latest.`,
+      );
+    }
+  });
+};
+
+export { getSDKUrl, updateReportingState, updateStorageState };

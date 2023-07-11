@@ -4,7 +4,10 @@ import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeout
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IXHRRequestOptions } from '@rudderstack/analytics-js-common/types/HttpClient';
+import {
+  IXHRRequestOptions,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
@@ -48,7 +51,7 @@ const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
   logger?: ILogger,
-): Promise<string | undefined> =>
+): Promise<ResponseDetails> =>
   new Promise((resolve, reject) => {
     let payload;
     if (options.sendRawData === true) {
@@ -94,7 +97,11 @@ const xhrRequest = (
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 400) {
-        resolve(xhr.responseText);
+        resolve({
+          response: xhr.responseText,
+          xhr,
+          options,
+        });
       } else {
         xhrReject();
       }
