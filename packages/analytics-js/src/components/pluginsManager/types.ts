@@ -28,6 +28,7 @@ export enum PluginName {
   StorageMigrator = 'StorageMigrator',
   XhrQueue = 'XhrQueue',
   OneTrustConsentManager = 'OneTrustConsentManager',
+  KetchConsentManager = 'KetchConsentManager',
   Bugsnag = 'Bugsnag',
 }
 

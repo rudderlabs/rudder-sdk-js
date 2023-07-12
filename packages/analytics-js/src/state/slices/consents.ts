@@ -3,7 +3,7 @@ import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/
 
 export type ConsentsState = {
   deniedConsentIds: Signal<string[]>;
-  allowedConsents: Signal<Record<string, string>>;
+  allowedConsents: Signal<Record<string, string> | string[]>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
   consentManagerInitialized: Signal<boolean>;
 };

@@ -1,7 +1,13 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, IPluginsManager, DestinationConfig } from '../types/common';
+import { batch } from '@preact/signals-core';
+import {
+  ApplicationState,
+  ILogger,
+  IPluginsManager,
+  DestinationConfig,
+  IStoreManager,
+} from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
-import { Batch } from './type';
 
 const pluginName = 'ConsentOrchestrator';
 
@@ -15,12 +21,12 @@ const ConsentOrchestrator = (): ExtensionPlugin => ({
     init(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
-      batch: Batch,
+      storeManager?: IStoreManager,
       logger?: ILogger,
     ): void {
       // Initialize selected consent manager and get the consent info
       const { consentManagerInitialized, allowedConsents, deniedConsentIds } =
-        pluginsManager.invokeSingle(`consentManager.getConsentInfo`, logger);
+        pluginsManager.invokeSingle(`consentManager.getConsentInfo`, storeManager, logger);
 
       // Only if the selected consent manager initialization is successful
       // set consent info in state

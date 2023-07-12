@@ -33,7 +33,7 @@ export type AnonymousIdOptions = {
 
 export type ConsentInfo = {
   consentManagerInitialized: boolean;
-  allowedConsents?: Record<string, string>;
+  allowedConsents?: Record<string, string> | string[];
   deniedConsentIds?: string[];
 };
 
@@ -52,6 +52,7 @@ export type PluginName =
   | 'StorageMigrator'
   | 'XhrQueue'
   | 'OneTrustConsentManager'
+  | 'KetchConsentManager'
   | 'Bugsnag';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';

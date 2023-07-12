@@ -38,8 +38,12 @@ export type Destination = {
   instance?: DeviceModeDestination;
 };
 
-export type OneTrustCookieCategory = {
+export type OneTrustCookieCategories = {
   oneTrustCookieCategory: string;
+};
+
+export type KetchConsentPurposes = {
+  purpose: string;
 };
 
 export type EventMapping = {
@@ -59,7 +63,8 @@ export type Conversion = {
 export type DestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
-  oneTrustCookieCategories: OneTrustCookieCategory[];
+  oneTrustCookieCategories: OneTrustCookieCategories[];
+  ketchConsentPurposes: KetchConsentPurposes[];
   eventFilteringOption: 'disable' | 'whitelistedEvents' | 'blacklistedEvents';
   clickEventConversions?: Conversion[];
   pageLoadConversions?: Conversion[];

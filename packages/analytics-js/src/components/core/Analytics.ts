@@ -303,7 +303,7 @@ class Analytics implements IAnalytics {
         `consentOrchestrator.init`,
         state,
         this.pluginsManager,
-        batch,
+        this.storeManager,
         this.logger,
       );
     }

@@ -12,4 +12,5 @@ declare module 'rudderAnalyticsRemotePlugins/StorageEncryptionLegacy';
 declare module 'rudderAnalyticsRemotePlugins/StorageMigrator';
 declare module 'rudderAnalyticsRemotePlugins/XhrQueue';
 declare module 'rudderAnalyticsRemotePlugins/OneTrustConsentManager';
+declare module 'rudderAnalyticsRemotePlugins/KetchConsentManager';
 declare module 'rudderAnalyticsRemotePlugins/Bugsnag';

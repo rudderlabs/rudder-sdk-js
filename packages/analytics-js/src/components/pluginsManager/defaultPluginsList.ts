@@ -17,6 +17,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.StorageMigrator,
   PluginName.XhrQueue,
   PluginName.OneTrustConsentManager,
+  PluginName.KetchConsentManager,
   PluginName.BeaconQueue,
 ];
 

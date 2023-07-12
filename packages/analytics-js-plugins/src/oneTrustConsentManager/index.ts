@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig } from '../types/common';
+import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
 import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
 import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
@@ -13,7 +13,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    getConsentInfo(logger?: ILogger): ConsentInfo {
+    getConsentInfo(storeManager?: IStoreManager, logger?: ILogger): ConsentInfo {
       // In case OneTrustConsentManager SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (
@@ -63,24 +63,6 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         return true;
       }
       try {
-        /**
-     * Structure of OneTrustConsentManager consent group destination config.
-     *
-     * "oneTrustCookieCategories":
-     * [
-        {
-            "oneTrustCookieCategory": "Performance Cookies"
-        },
-        {
-            "oneTrustCookieCategory": "Functional Cookies"
-        },
-        {
-            "oneTrustCookieCategory": ""
-        }
-    ]
-     *
-     */
-
         const { oneTrustCookieCategories } = destConfig; // mapping of the destination with the consent group name
 
         // If the destination do not have this mapping events will be sent.

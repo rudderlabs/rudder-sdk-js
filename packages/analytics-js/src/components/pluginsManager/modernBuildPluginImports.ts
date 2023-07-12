@@ -35,6 +35,8 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
     case PluginName.OneTrustConsentManager:
       return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
+    case PluginName.KetchConsentManager:
+      return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
     case PluginName.Bugsnag:
       return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     default:
