@@ -64,7 +64,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): boolean {
       const consentData = state.consents.data.value;
-      if (!consentData || !consentData.initialized) {
+      if (!consentData.initialized) {
         return true;
       }
       const allowedConsents = consentData.allowedConsents as Record<string, string>;
