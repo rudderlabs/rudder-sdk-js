@@ -30,27 +30,24 @@ describe('Plugin - OneTrustConsentManager', () => {
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     };
-    const consentInfo = OneTrustConsentManager().consentManager.getConsentInfo(
-      undefined,
-      defaultLogger,
+    OneTrustConsentManager().consentManager.init(state, undefined, defaultLogger);
+    expect(state.consents.consentManagerInitialized.value).toStrictEqual(true);
+    expect(state.consents.allowedConsents.value).toStrictEqual(
+      mockResponseFromOneTrust.allowedConsents,
     );
-    expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
+    expect(state.consents.deniedConsentIds.value).toStrictEqual(
+      mockResponseFromOneTrust.deniedConsentIds,
+    );
   });
   it('should not initialize the OneTrustConsentManager plugin and return consentManagerInitialized as false if OneTrustConsentManager native SDK is not loaded', () => {
     (window as any).OneTrustConsentManager = undefined;
     (window as any).OnetrustActiveGroups = undefined;
     defaultLogger.error = jest.fn();
-    const mockResponseFromOneTrust = {
-      consentManagerInitialized: false,
-    };
-    const consentInfo = OneTrustConsentManager().consentManager.getConsentInfo(
-      undefined,
-      defaultLogger,
-    );
+    OneTrustConsentManager().consentManager.init(state, undefined, defaultLogger);
     expect(defaultLogger.error).toHaveBeenCalledWith(
       `OneTrustPlugin:: Failed to access OneTrustConsentManager SDK resources. Please ensure that the OneTrustConsentManager SDK is loaded successfully before RudderStack's JS SDK.`,
     );
-    expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
+    expect(state.consents.consentManagerInitialized.value).toStrictEqual(false);
   });
   it('should return true if destination specific category is consented', () => {
     state.consents.consentManagerInitialized.value = true;

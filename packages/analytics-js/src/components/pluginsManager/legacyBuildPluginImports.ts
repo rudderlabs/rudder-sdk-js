@@ -1,7 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {
   BeaconQueue,
-  ConsentOrchestrator,
   DeviceModeTransformation,
   DeviceModeDestinations,
   ErrorReporting,
@@ -13,6 +12,7 @@ import {
   StorageMigrator,
   XhrQueue,
   OneTrustConsentManager,
+  KetchConsentManager,
   Bugsnag,
 } from '@rudderstack/analytics-js-plugins/index';
 import { PluginMap } from './types';
@@ -23,7 +23,6 @@ import { PluginMap } from './types';
 const legacyBuildPluginImports = (): PluginMap => ({
   Bugsnag,
   BeaconQueue,
-  ConsentOrchestrator,
   DeviceModeTransformation,
   DeviceModeDestinations,
   ErrorReporting,
@@ -35,6 +34,7 @@ const legacyBuildPluginImports = (): PluginMap => ({
   StorageMigrator,
   XhrQueue,
   OneTrustConsentManager,
+  KetchConsentManager,
 });
 
 export { legacyBuildPluginImports };

@@ -16,7 +16,6 @@ export interface IPluginsManager {
 
 export enum PluginName {
   BeaconQueue = 'BeaconQueue',
-  ConsentOrchestrator = 'ConsentOrchestrator',
   DeviceModeDestinations = 'DeviceModeDestinations',
   DeviceModeTransformation = 'DeviceModeTransformation',
   ErrorReporting = 'ErrorReporting',

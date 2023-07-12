@@ -1,5 +1,4 @@
 declare module 'rudderAnalyticsRemotePlugins/BeaconQueue';
-declare module 'rudderAnalyticsRemotePlugins/ConsentOrchestrator';
 declare module 'rudderAnalyticsRemotePlugins/DestinationsEventsQueue';
 declare module 'rudderAnalyticsRemotePlugins/DeviceModeTransformation';
 declare module 'rudderAnalyticsRemotePlugins/DeviceModeDestinations';

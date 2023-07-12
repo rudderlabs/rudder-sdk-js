@@ -34,7 +34,6 @@ const remotePluginsExportsFilename = `${distName}.js`;
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
   './Bugsnag': './src/bugsnag/index.ts',
-  './ConsentOrchestrator': './src/consentOrchestrator/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
   './ErrorReporting': './src/errorReporting/index.ts',

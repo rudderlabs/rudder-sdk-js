@@ -145,29 +145,14 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Consent Management related plugins
-    if (state.consents.activeConsentManagerPluginName.value) {
-      const supportedConsentManagerPlugins: string[] = Object.values(
-        ConsentManagersToPluginNameMap,
-      );
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName !== state.consents.activeConsentManagerPluginName.value &&
-            supportedConsentManagerPlugins.includes(pluginName)
-          ),
-      );
-    } else {
-      const supportedConsentManagerPlugins: string[] = Object.values(
-        ConsentManagersToPluginNameMap,
-      );
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName === PluginName.ConsentOrchestrator ||
-            supportedConsentManagerPlugins.includes(pluginName)
-          ),
-      );
-    }
+    const supportedConsentManagerPlugins: string[] = Object.values(ConsentManagersToPluginNameMap);
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+      pluginName =>
+        !(
+          pluginName !== state.consents.activeConsentManagerPluginName.value &&
+          supportedConsentManagerPlugins.includes(pluginName)
+        ),
+    );
 
     // Storage encryption related plugins
     const supportedStorageEncryptionPlugins: string[] = Object.values(

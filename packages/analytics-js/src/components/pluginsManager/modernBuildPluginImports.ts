@@ -11,8 +11,6 @@ const getFederatedModuleImport = (
   switch (pluginName) {
     case PluginName.BeaconQueue:
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
-    case PluginName.ConsentOrchestrator:
-      return () => import('rudderAnalyticsRemotePlugins/ConsentOrchestrator');
     case PluginName.DeviceModeTransformation:
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
     case PluginName.DeviceModeDestinations:

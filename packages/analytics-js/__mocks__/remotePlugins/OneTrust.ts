@@ -1,7 +1,7 @@
 const OneTrustConsentManager = () => ({
   name: 'OneTrustConsentManager',
   consentManager: {
-    getConsentInfo: jest.fn(() => {}),
+    init: jest.fn(() => {}),
     isDestinationConsented: jest.fn(() => {}),
   },
 });

@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
-import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
+import { ExtensionPlugin } from '../types/plugins';
 import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
+import { updateConsentState } from './utils';
 
 const pluginName = 'OneTrustConsentManager';
 
@@ -13,7 +14,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    getConsentInfo(storeManager?: IStoreManager, logger?: ILogger): ConsentInfo {
+    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
       // In case OneTrustConsentManager SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (
@@ -23,7 +24,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         logger?.error(
           `${ONETRUST_PLUGIN}:: Failed to access OneTrustConsentManager SDK resources. Please ensure that the OneTrustConsentManager SDK is loaded successfully before RudderStack's JS SDK.`,
         );
-        return { consentManagerInitialized: false };
+        updateConsentState(state, { initialized: false });
+        return;
       }
 
       // OneTrustConsentManager SDK populates a data layer object OnetrustActiveGroups with
@@ -50,7 +52,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         }
       });
 
-      return { consentManagerInitialized: true, allowedConsents, deniedConsentIds };
+      updateConsentState(state, { initialized: true, allowedConsents, deniedConsentIds });
     },
 
     isDestinationConsented(
@@ -62,11 +64,12 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       if (!consentManagerInitialized.value) {
         return true;
       }
+
       try {
-        const { oneTrustCookieCategories } = destConfig; // mapping of the destination with the consent group name
+        // mapping of the destination with the consent group name
+        const { oneTrustCookieCategories } = destConfig;
 
         // If the destination do not have this mapping events will be sent.
-
         if (!oneTrustCookieCategories) {
           return true;
         }
@@ -74,7 +77,6 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
         // Eg:
         // ["Performance Cookies", "Functional Cookies"]
-
         const validOneTrustCookieCategories = oneTrustCookieCategories
           .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory)
           .filter((n: string | undefined) => n);

@@ -1,15 +1,11 @@
-import { ConsentInfo } from '../types/plugins';
-
-export type KetchPurposeValue = {
+export type KetchPurpose = {
   status: string;
 };
 
-export type KetchConsentData = {
-  [purposeCode: string]: KetchPurposeValue | undefined;
+export type KetchConsentCookieData = {
+  [purposeCode: string]: KetchPurpose | undefined;
 };
 
-export type KetchConsentPurposes = {
+export type KetchConsentData = {
   [purposeCode: string]: boolean;
 };
-
-export type ConsentData = Pick<ConsentInfo, 'allowedConsents' | 'deniedConsentIds'>;

@@ -1,12 +1,14 @@
-import { ILogger, IStoreManager } from '../types/common';
+/* eslint-disable no-param-reassign */
+import { ApplicationState, ILogger, IStoreManager } from '../types/common';
+import { ConsentInfo } from '../types/plugins';
 import { COOKIE_STORAGE, fromBase64 } from '../utilities/common';
 import { KETCH_CONSENT_COOKIE_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
-import { ConsentData, KetchConsentData, KetchConsentPurposes } from './types';
+import { KetchConsentCookieData, KetchConsentData } from './types';
 
 const getKetchConsentData = (
   storeManager?: IStoreManager,
   logger?: ILogger,
-): KetchConsentPurposes | undefined => {
+): KetchConsentData | undefined => {
   const dataStore = storeManager?.setStore({
     id: KETCH_CONSENT_MANAGER_PLUGIN,
     name: KETCH_CONSENT_MANAGER_PLUGIN,
@@ -18,20 +20,20 @@ const getKetchConsentData = (
     return undefined;
   }
 
-  let consentObj: KetchConsentData;
+  let consentCookieData: KetchConsentCookieData;
   try {
-    consentObj = JSON.parse(fromBase64(consentData));
+    consentCookieData = JSON.parse(fromBase64(consentData));
   } catch (e) {
     logger?.error(`${KETCH_CONSENT_MANAGER_PLUGIN}:: Failed to parse the consent cookie.`, e);
     return undefined;
   }
 
-  if (!consentObj) {
+  if (!consentCookieData) {
     return undefined;
   }
 
-  const consentPurposes: KetchConsentPurposes = {};
-  Object.entries(consentObj).forEach(pEntry => {
+  const consentPurposes: KetchConsentData = {};
+  Object.entries(consentCookieData).forEach(pEntry => {
     const purposeCode = pEntry[0];
     const purposeValue = pEntry[1];
     consentPurposes[purposeCode] = purposeValue?.status === 'granted';
@@ -39,10 +41,10 @@ const getKetchConsentData = (
   return consentPurposes;
 };
 
-const getConsentData = (ketchConsentData?: KetchConsentPurposes): ConsentData => {
+const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
   const allowedConsents: string[] = [];
   const deniedConsentIds: string[] = [];
-
+  let initialized = false;
   if (ketchConsentData) {
     Object.entries(ketchConsentData).forEach(e => {
       const purposeCode = e[0];
@@ -53,9 +55,16 @@ const getConsentData = (ketchConsentData?: KetchConsentPurposes): ConsentData =>
         deniedConsentIds.push(purposeCode);
       }
     });
+    initialized = true;
   }
 
-  return { allowedConsents, deniedConsentIds };
+  return { initialized, allowedConsents, deniedConsentIds };
 };
 
-export { getKetchConsentData, getConsentData };
+const updateConsentState = (state: ApplicationState, consentData: ConsentInfo) => {
+  state.consents.consentManagerInitialized.value = true;
+  state.consents.allowedConsents.value = consentData.allowedConsents ?? [];
+  state.consents.deniedConsentIds.value = consentData.deniedConsentIds ?? [];
+};
+
+export { getKetchConsentData, getConsentData, updateConsentState };
