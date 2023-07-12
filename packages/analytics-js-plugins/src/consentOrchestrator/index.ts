@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { batch } from '@preact/signals-core';
 import {
   ApplicationState,
   ILogger,
@@ -31,11 +30,9 @@ const ConsentOrchestrator = (): ExtensionPlugin => ({
       // Only if the selected consent manager initialization is successful
       // set consent info in state
       if (consentManagerInitialized) {
-        batch(() => {
-          state.consents.consentManagerInitialized.value = true;
-          state.consents.allowedConsents.value = allowedConsents ?? {};
-          state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
-        });
+        state.consents.consentManagerInitialized.value = true;
+        state.consents.allowedConsents.value = allowedConsents ?? {};
+        state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
       }
     },
 
