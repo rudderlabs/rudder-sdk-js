@@ -1,4 +1,4 @@
-import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction, isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
 
 const isDatasetAvailable = (): boolean => {
   const testElement = document.createElement('div');
@@ -8,9 +8,9 @@ const isDatasetAvailable = (): boolean => {
 
 const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   URLSearchParams: () => !globalThis.URLSearchParams,
-  URL: () => typeof globalThis.URL !== 'function',
+  URL: () => !isFunction(globalThis.URL),
   MutationObserver: () => isUndefined(MutationObserver),
-  Promise: () => typeof Promise === 'undefined',
+  Promise: () => isUndefined(Promise),
   'Number.isNaN': () => !Number.isNaN,
   'Number.isInteger': () => !Number.isInteger,
   'Array.from': () => !Array.from,
@@ -23,6 +23,9 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'Object.values': () => !Object.values,
   'Element.prototype.dataset': () => !isDatasetAvailable(),
   'String.prototype.replaceAll': () => !String.prototype.replaceAll,
+  TextEncoder: () => isUndefined(TextEncoder),
+  TextDecoder: () => isUndefined(TextDecoder),
+  'String.fromCodePoint': () => !String.fromCodePoint,
 };
 
 const isLegacyJSEngine = (): boolean => {

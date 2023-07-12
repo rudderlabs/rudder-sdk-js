@@ -13,7 +13,9 @@ import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities
 import {
   ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
+  StorageEncryptionVersionsToPluginNameMap,
 } from '@rudderstack/analytics-js/components/configManager/constants';
+import { PLUGINS_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { remotePluginNames } from './pluginNames';
 import { IPluginsManager, PluginName } from './types';
 import {
@@ -89,15 +91,15 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Error reporting related plugins
-    const supportedErrorReportingProviderPlugins: string[] = Object.values(
+    const supportedErrReportingProviderPluginNames: string[] = Object.values(
       ErrorReportingProvidersToPluginNameMap,
     );
-    if (state.reporting.errorReportingProviderPlugin.value) {
+    if (state.reporting.errorReportingProviderPluginName.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName !== state.reporting.errorReportingProviderPlugin.value &&
-            supportedErrorReportingProviderPlugins.includes(pluginName)
+            pluginName !== state.reporting.errorReportingProviderPluginName.value &&
+            supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
     } else {
@@ -105,7 +107,7 @@ class PluginsManager implements IPluginsManager {
         pluginName =>
           !(
             pluginName === PluginName.ErrorReporting ||
-            supportedErrorReportingProviderPlugins.includes(pluginName)
+            supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
     }
@@ -117,7 +119,9 @@ class PluginsManager implements IPluginsManager {
       );
     } else {
       if (state.loadOptions.value.useBeacon === true) {
-        this.logger?.error('Beacon API is not supported by browser. Falling back to XHR.');
+        this.logger?.warn(
+          `${PLUGINS_MANAGER}:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.`,
+        );
       }
 
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
@@ -165,7 +169,24 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    // TODO: add logic for all plugins as we develop them
+    // Storage encryption related plugins
+    const supportedStorageEncryptionPlugins: string[] = Object.values(
+      StorageEncryptionVersionsToPluginNameMap,
+    );
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+      pluginName =>
+        !(
+          pluginName !== state.storage.encryptionPluginName.value &&
+          supportedStorageEncryptionPlugins.includes(pluginName)
+        ),
+    );
+
+    // Storage migrator related plugins
+    if (!state.storage.migrate.value) {
+      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+        pluginName => pluginName !== PluginName.StorageMigrator,
+      );
+    }
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }
@@ -230,17 +251,17 @@ class PluginsManager implements IPluginsManager {
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
-          .catch(e => {
+          .catch(err => {
             // TODO: add retry here if dynamic import fails
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(e, remotePluginKey);
+            this.onError(err, remotePluginKey);
           });
       }),
-    ).catch(e => {
-      this.onError(e);
+    ).catch(err => {
+      this.onError(err);
     });
   }
 
@@ -296,9 +317,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: Error | unknown, context = 'PluginsManager') {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, context);
+      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
     } else {
       throw error;
     }

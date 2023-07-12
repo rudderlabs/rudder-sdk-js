@@ -1,7 +1,7 @@
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
 
-export type SDKError = Error | Event | string | unknown;
+export type SDKError = unknown;
 
 export interface IErrorHandler {
   logger?: ILogger;
@@ -30,5 +30,5 @@ export interface IExternalSrcLoader {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   timeout: number;
-  loadJSFile(config: IExternalSourceLoadConfig): Promise<void>;
+  loadJSFile(config: IExternalSourceLoadConfig): void;
 }

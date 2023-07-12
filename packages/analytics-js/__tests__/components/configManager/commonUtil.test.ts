@@ -2,9 +2,11 @@ import { SourceConfigResponse } from '@rudderstack/analytics-js/components/confi
 import {
   getSDKUrl,
   updateReportingState,
+  updateStorageState,
 } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');
@@ -100,7 +102,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -125,7 +127,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -151,10 +153,85 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(false);
-      expect(state.reporting.errorReportingProviderPlugin.value).toBe('Bugsnag');
+      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The configured error reporting provider "random-provider" is not supported. Supported provider(s) is/are "bugsnag". Using the default provider (bugsnag).',
+        'ConfigManager:: The error reporting provider "random-provider" is not supported. Please choose one of the following supported providers: "bugsnag". The default provider "bugsnag" will be used instead.',
+      );
+    });
+  });
+
+  describe('updateStorageState', () => {
+    const mockLogger = {
+      warn: jest.fn(),
+    } as unknown as ILogger;
+
+    beforeEach(() => {
+      resetState();
+    });
+
+    it('should update storage state with the data from load options', () => {
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'v3',
+        },
+        migrate: true,
+      };
+
+      updateStorageState();
+
+      expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
+      expect(state.storage.migrate.value).toBe(true);
+    });
+
+    it('should update storage state with the data even if encryption version is not specified', () => {
+      state.loadOptions.value.storage = {};
+
+      updateStorageState(mockLogger);
+
+      expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
+    });
+
+    it('should log a warning if the encryption version is not supported', () => {
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'v2',
+        },
+      };
+
+      updateStorageState(mockLogger);
+
+      expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The storage encryption version "v2" is not supported. Please choose one of the following supported versions: "v3,legacy". The default version v3 will be used instead.',
+      );
+    });
+
+    it('should update the storage state from load options for legacy encryption version', () => {
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'legacy',
+        },
+      };
+
+      updateStorageState(mockLogger);
+
+      expect(state.storage.encryptionPluginName.value).toBe('StorageEncryptionLegacy');
+    });
+
+    it('should set the migration to false if the encryption version is not latest even if migrate is set to true', () => {
+      state.loadOptions.value.storage = {
+        encryption: {
+          version: 'legacy',
+        },
+        migrate: true,
+      };
+
+      updateStorageState(mockLogger);
+
+      expect(state.storage.migrate.value).toBe(false);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
       );
     });
   });

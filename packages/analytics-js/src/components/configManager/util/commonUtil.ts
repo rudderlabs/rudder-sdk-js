@@ -1,5 +1,7 @@
 import { state } from '@rudderstack/analytics-js/state';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { batch } from '@preact/signals-core';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
@@ -10,7 +12,9 @@ import { SourceConfigResponse } from '../types';
 import { isUndefined } from '../../utilities/checks';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
+  DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
+  StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 
 /**
@@ -54,18 +58,57 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     const errReportingProviderPlugin = errReportingProvider
       ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
       : undefined;
+
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
-        `The configured error reporting provider "${errReportingProvider}" is not supported. Supported provider(s) is/are "${Object.keys(
+        `${CONFIG_MANAGER}:: The error reporting provider "${errReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
           ErrorReportingProvidersToPluginNameMap,
-        )}". Using the default provider (${DEFAULT_ERROR_REPORTING_PROVIDER}).`,
+        )}". The default provider "${DEFAULT_ERROR_REPORTING_PROVIDER}" will be used instead.`,
       );
     }
-    state.reporting.errorReportingProviderPlugin.value =
+
+    state.reporting.errorReportingProviderPluginName.value =
       errReportingProviderPlugin ??
       ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
   }
 };
 
-export { getSDKUrl, updateReportingState };
+const updateStorageState = (logger?: ILogger): void => {
+  let storageEncryptionVersion = state.loadOptions.value.storage?.encryption?.version;
+  const encryptionPluginName =
+    storageEncryptionVersion && StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
+
+  if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
+    // set the default encryption plugin
+    logger?.warn(
+      `${CONFIG_MANAGER}:: The storage encryption version "${storageEncryptionVersion}" is not supported. Please choose one of the following supported versions: "${Object.keys(
+        StorageEncryptionVersionsToPluginNameMap,
+      )}". The default version ${DEFAULT_STORAGE_ENCRYPTION_VERSION} will be used instead.`,
+    );
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  } else if (isUndefined(storageEncryptionVersion)) {
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  }
+
+  batch(() => {
+    state.storage.encryptionPluginName.value =
+      StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
+
+    // Allow migration only if the configured encryption version is the default encryption version
+    const configuredMigrationValue = state.loadOptions.value.storage?.migrate;
+    state.storage.migrate.value =
+      (configuredMigrationValue as boolean) &&
+      storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
+    if (
+      configuredMigrationValue === true &&
+      state.storage.migrate.value !== configuredMigrationValue
+    ) {
+      logger?.warn(
+        `${CONFIG_MANAGER}:: The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${DEFAULT_STORAGE_ENCRYPTION_VERSION}). To enable storage data migration, please update the storage encryption version to the latest version.`,
+      );
+    }
+  });
+};
+
+export { getSDKUrl, updateReportingState, updateStorageState };

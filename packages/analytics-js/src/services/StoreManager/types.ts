@@ -57,7 +57,6 @@ export interface IStoreManager {
   logger?: ILogger;
   init(): void;
   initClientDataStore(): void;
-  initQueueStore(): void;
   setStore(storeConfig: IStoreConfig): IStore;
   getStore(id: StoreId): IStore | undefined;
 }
@@ -83,5 +82,5 @@ export interface IStore {
   decrypt(value?: Nullable<string>): Nullable<string>;
   encrypt(value: any): string;
   crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
-  onError(error: Error | unknown): void;
+  onError(error: unknown): void;
 }

@@ -1,6 +1,7 @@
 import { SessionInfo } from '@rudderstack/analytics-js/state/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
@@ -26,21 +27,13 @@ const generateSessionId = (): number => Date.now();
  * @returns
  */
 const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
-  if (!sessionId) {
-    logger?.info(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as no input is provided`,
-    );
-    return false;
-  }
-  if (!isPositiveInteger(sessionId)) {
+  if (
+    !sessionId ||
+    !isPositiveInteger(sessionId) ||
+    !hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)
+  ) {
     logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the provided input is not a positive integer`,
-    );
-    return false;
-  }
-  if (!hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)) {
-    logger?.warn(
-      `[SessionTracking]:: SDK will auto-generate the "sessionId" as the input is not at least "${MIN_SESSION_ID_LENGTH}" digits long`,
+      `${USER_SESSION_MANAGER}:: The provided session ID (${sessionId}) is either invalid, not a positive integer, or not at least "${MIN_SESSION_ID_LENGTH}" digits long. A new session ID will be auto-generated instead.`,
     );
     return false;
   }

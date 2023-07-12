@@ -2,6 +2,8 @@ import {
   removeDoubleSpaces,
   trim,
   tryStringify,
+  toBase64,
+  fromBase64,
 } from '@rudderstack/analytics-js/components/utilities/string';
 
 describe('Common Utils - String', () => {
@@ -54,5 +56,49 @@ describe('Common Utils - String', () => {
   it('should return null if for BigInt values', () => {
     // JSON.stringify fails for BigInt values
     expect(tryStringify(BigInt(9007199254740991))).toBe(null);
+  });
+
+  describe('toBase64', () => {
+    it('should convert string to base64', () => {
+      expect(toBase64('abc')).toBe('YWJj');
+    });
+
+    it('should convert string with special characters to base64', () => {
+      expect(toBase64('abc!@#$%^&*()_+')).toBe('YWJjIUAjJCVeJiooKV8r');
+    });
+
+    it('should convert string with unicode characters to base64', () => {
+      expect(toBase64('你好')).toBe('5L2g5aW9');
+    });
+
+    it('should convert string with unicode characters and special characters to base64', () => {
+      expect(toBase64('你好!@#$%^&*()_+310')).toBe('5L2g5aW9IUAjJCVeJiooKV8rMzEw');
+    });
+
+    it('should convert string with emoji to base64', () => {
+      expect(toBase64('👋')).toBe('8J+Riw==');
+    });
+  });
+
+  describe('fromBase64', () => {
+    it('should convert base64 to string', () => {
+      expect(fromBase64('YWJj')).toBe('abc');
+    });
+
+    it('should convert base64 with special characters to string', () => {
+      expect(fromBase64('YWJjIUAjJCVeJiooKV8r')).toBe('abc!@#$%^&*()_+');
+    });
+
+    it('should convert base64 with unicode characters to string', () => {
+      expect(fromBase64('5L2g5aW9')).toBe('你好');
+    });
+
+    it('should convert base64 with unicode characters and special characters to string', () => {
+      expect(fromBase64('5L2g5aW9IUAjJCVeJiooKV8rMzEw')).toBe('你好!@#$%^&*()_+310');
+    });
+
+    it('should convert base64 with emoji to string', () => {
+      expect(fromBase64('8J+Riw==')).toBe('👋');
+    });
   });
 });

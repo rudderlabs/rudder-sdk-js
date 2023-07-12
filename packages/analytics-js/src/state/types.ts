@@ -239,7 +239,7 @@ export type LoadOptions = {
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
-  polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+  polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: (analytics: any) => void;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
@@ -251,6 +251,7 @@ export type LoadOptions = {
   polyfillURL?: string;
   useGlobalIntegrationsConfigInEvents?: boolean;
   bufferDataPlaneEventsUntilReady?: boolean;
+  storage?: StorageOpts;
 };
 
 export type ApiCallback = (data?: any) => void;
@@ -306,6 +307,20 @@ export enum ResidencyServerRegion {
   US = 'US',
   EU = 'EU',
 }
+
+export enum StorageEncryptionVersion {
+  Legacy = 'legacy',
+  V3 = 'v3', // default
+}
+
+export type StorageEncryption = {
+  version: StorageEncryptionVersion;
+};
+
+export type StorageOpts = {
+  encryption?: StorageEncryption;
+  migrate?: boolean;
+};
 
 export type RegionDetails = {
   url: string;

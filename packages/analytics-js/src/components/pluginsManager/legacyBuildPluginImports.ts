@@ -10,6 +10,7 @@ import {
   NativeDestinationQueue,
   StorageEncryption,
   StorageEncryptionLegacy,
+  StorageMigrator,
   XhrQueue,
   OneTrust,
   Bugsnag,
@@ -31,6 +32,7 @@ const legacyBuildPluginImports = (): PluginMap => ({
   NativeDestinationQueue,
   StorageEncryption,
   StorageEncryptionLegacy,
+  StorageMigrator,
   XhrQueue,
   OneTrust,
 });

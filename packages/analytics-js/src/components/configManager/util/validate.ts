@@ -4,13 +4,17 @@ import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
   if (!writeKey || writeKey.trim().length === 0) {
-    throw Error(`Unable to load the SDK due to invalid write key: "${writeKey}"`);
+    throw new Error(
+      `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`,
+    );
   }
 };
 
 const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
   if (dataPlaneUrl && !isValidUrl(dataPlaneUrl)) {
-    throw Error(`Unable to load the SDK due to invalid data plane URL: "${dataPlaneUrl}"`);
+    throw new Error(
+      `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`,
+    );
   }
 };
 

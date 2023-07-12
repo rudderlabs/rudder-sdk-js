@@ -298,7 +298,9 @@ describe('deviceModeDestinations utils', () => {
       const isReadyPromise = isDestinationReady(destination as Destination);
 
       await expect(isReadyPromise).rejects.toThrow(
-        new Error(`Destination "${destination.userFriendlyId}" ready check timed out`),
+        new Error(
+          `A timeout of 200 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
+        ),
       );
     });
   });

@@ -272,7 +272,7 @@ describe('Queue Plugins Utilities', () => {
       validateEventPayloadSize(event, mockLogger);
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'The event payload size (129) exceeds the maximum limit of 50 bytes. The event might get dropped.',
+        'QueueUtilities:: The size of the event payload (129 bytes) exceeds the maximum limit of 50 bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.',
       );
     });
 

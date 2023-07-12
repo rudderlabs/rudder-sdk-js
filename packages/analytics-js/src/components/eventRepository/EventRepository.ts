@@ -7,6 +7,7 @@ import { effect } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { EVENT_REPOSITORY } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { IEventRepository } from './types';
 import { IPluginsManager } from '../pluginsManager/types';
 import { RudderEvent } from '../eventManager/types';
@@ -85,8 +86,6 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    this.logger?.debug('Enqueuing event: ', event);
-
     // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations
@@ -146,7 +145,7 @@ class EventRepository implements IEventRepository {
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, 'Event Repository', customMessage, shouldAlwaysThrow);
+      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
