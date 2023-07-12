@@ -145,14 +145,14 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Consent Management related plugins
-    if (state.consents.activeConsentProviderPluginName.value) {
+    if (state.consents.activeConsentManagerPluginName.value) {
       const supportedConsentManagerPlugins: string[] = Object.values(
         ConsentManagersToPluginNameMap,
       );
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName !== state.consents.activeConsentProviderPluginName.value &&
+            pluginName !== state.consents.activeConsentManagerPluginName.value &&
             supportedConsentManagerPlugins.includes(pluginName)
           ),
       );
@@ -163,7 +163,7 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName === PluginName.ConsentManager ||
+            pluginName === PluginName.ConsentOrchestrator ||
             supportedConsentManagerPlugins.includes(pluginName)
           ),
       );

@@ -4,26 +4,29 @@ import { ExtensionPlugin, ConsentInfo } from '../types/plugins';
 import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 
-const pluginName = 'OneTrust';
+const pluginName = 'OneTrustConsentManager';
 
-const OneTrust = (): ExtensionPlugin => ({
+const OneTrustConsentManager = (): ExtensionPlugin => ({
   name: pluginName,
   deps: [],
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  consentProvider: {
+  consentManager: {
     getConsentInfo(logger?: ILogger): ConsentInfo {
-      // In case OneTrust SDK is not loaded before RudderStack's JS SDK
+      // In case OneTrustConsentManager SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
-      if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
+      if (
+        !(globalThis as any).OneTrustConsentManager ||
+        !(globalThis as any).OnetrustActiveGroups
+      ) {
         logger?.error(
-          `${ONETRUST_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`,
+          `${ONETRUST_PLUGIN}:: Failed to access OneTrustConsentManager SDK resources. Please ensure that the OneTrustConsentManager SDK is loaded successfully before RudderStack's JS SDK.`,
         );
-        return { consentProviderInitialized: false };
+        return { consentManagerInitialized: false };
       }
 
-      // OneTrust SDK populates a data layer object OnetrustActiveGroups with
+      // OneTrustConsentManager SDK populates a data layer object OnetrustActiveGroups with
       // the cookie categories Ids that the user has consented to.
       // Eg: ',C0001,C0003,'
       // We split it and save it as an array.
@@ -34,8 +37,9 @@ const OneTrust = (): ExtensionPlugin => ({
       const deniedConsentIds: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
-      const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
-        .Groups;
+      const oneTrustAllGroupsInfo: OneTrustGroup[] = (
+        globalThis as any
+      ).OneTrustConsentManager.GetDomainData().Groups;
 
       oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
         const { CustomGroupId, GroupName } = group;
@@ -46,7 +50,7 @@ const OneTrust = (): ExtensionPlugin => ({
         }
       });
 
-      return { consentProviderInitialized: true, allowedConsents, deniedConsentIds };
+      return { consentManagerInitialized: true, allowedConsents, deniedConsentIds };
     },
 
     isDestinationConsented(
@@ -54,13 +58,13 @@ const OneTrust = (): ExtensionPlugin => ({
       destConfig: DestinationConfig,
       logger?: ILogger,
     ): boolean {
-      const { consentProviderInitialized, allowedConsents } = state.consents;
-      if (!consentProviderInitialized.value) {
+      const { consentManagerInitialized, allowedConsents } = state.consents;
+      if (!consentManagerInitialized.value) {
         return true;
       }
       try {
         /**
-     * Structure of OneTrust consent group destination config.
+     * Structure of OneTrustConsentManager consent group destination config.
      *
      * "oneTrustCookieCategories":
      * [
@@ -113,6 +117,6 @@ const OneTrust = (): ExtensionPlugin => ({
   },
 });
 
-export { OneTrust };
+export { OneTrustConsentManager };
 
-export default OneTrust;
+export default OneTrustConsentManager;

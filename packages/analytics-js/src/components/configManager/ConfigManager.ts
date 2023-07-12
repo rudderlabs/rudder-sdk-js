@@ -53,7 +53,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    let consentProviderPluginName: PluginName | undefined;
+    let consentManagerPluginName: PluginName | undefined;
     this.attachEffects();
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
@@ -75,8 +75,8 @@ class ConfigManager implements IConfigManager {
 
       if (selectedConsentManager) {
         // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-        consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
-        if (!consentProviderPluginName) {
+        consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
+        if (!consentManagerPluginName) {
           this.logger?.error(
             `${CONFIG_MANAGER}:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
               ConsentManagersToPluginNameMap,
@@ -105,7 +105,7 @@ class ConfigManager implements IConfigManager {
         }
 
         // Set consent manager plugin name in state
-        state.consents.activeConsentProviderPluginName.value = consentProviderPluginName;
+        state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
       });
     } catch (err) {
       const issue = 'Failed to load the SDK';

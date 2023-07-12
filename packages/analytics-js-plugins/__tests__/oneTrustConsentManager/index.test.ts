@@ -1,18 +1,18 @@
-import { OneTrust } from '@rudderstack/analytics-js-plugins/oneTrust';
+import { OneTrustConsentManager } from '@rudderstack/analytics-js-plugins/oneTrustConsentManager';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 
-describe('Plugin - OneTrust', () => {
+describe('Plugin - OneTrustConsentManager', () => {
   beforeEach(() => {
     resetState();
   });
-  it('should add OneTrust plugin in the loaded plugin list', () => {
-    OneTrust().initialize(state);
-    expect(state.plugins.loadedPlugins.value.includes('OneTrust')).toBe(true);
+  it('should add OneTrustConsentManager plugin in the loaded plugin list', () => {
+    OneTrustConsentManager().initialize(state);
+    expect(state.plugins.loadedPlugins.value.includes('OneTrustConsentManager')).toBe(true);
   });
 
-  it('should initialize the OneTrust and compute consentInfo if OneTrust native SDK is loaded', () => {
-    (window as any).OneTrust = {
+  it('should initialize the OneTrustConsentManager and compute consentInfo if OneTrustConsentManager native SDK is loaded', () => {
+    (window as any).OneTrustConsentManager = {
       GetDomainData: jest.fn(() => ({
         Groups: [
           { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
@@ -26,28 +26,28 @@ describe('Plugin - OneTrust', () => {
     };
     (window as any).OnetrustActiveGroups = ',C0001,C0003,';
     const mockResponseFromOneTrust = {
-      consentProviderInitialized: true,
+      consentManagerInitialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     };
-    const consentInfo = OneTrust().consentProvider.getConsentInfo(defaultLogger);
+    const consentInfo = OneTrustConsentManager().consentManager.getConsentInfo(defaultLogger);
     expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
   });
-  it('should not initialize the OneTrust plugin and return consentProviderInitialized as false if OneTrust native SDK is not loaded', () => {
-    (window as any).OneTrust = undefined;
+  it('should not initialize the OneTrustConsentManager plugin and return consentManagerInitialized as false if OneTrustConsentManager native SDK is not loaded', () => {
+    (window as any).OneTrustConsentManager = undefined;
     (window as any).OnetrustActiveGroups = undefined;
     defaultLogger.error = jest.fn();
     const mockResponseFromOneTrust = {
-      consentProviderInitialized: false,
+      consentManagerInitialized: false,
     };
-    const consentInfo = OneTrust().consentProvider.getConsentInfo(defaultLogger);
+    const consentInfo = OneTrustConsentManager().consentManager.getConsentInfo(defaultLogger);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      `OneTrustPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`,
+      `OneTrustPlugin:: Failed to access OneTrustConsentManager SDK resources. Please ensure that the OneTrustConsentManager SDK is loaded successfully before RudderStack's JS SDK.`,
     );
     expect(consentInfo).toStrictEqual(mockResponseFromOneTrust);
   });
   it('should return true if destination specific category is consented', () => {
-    state.consents.consentProviderInitialized.value = true;
+    state.consents.consentManagerInitialized.value = true;
     state.consents.allowedConsents.value = {
       C0001: 'Functional Cookies',
       C0003: 'Analytical Cookies',
@@ -70,15 +70,15 @@ describe('Plugin - OneTrust', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrust().consentProvider.isDestinationConsented(
+    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
       defaultLogger,
     );
     expect(isDestinationConsented).toBeTruthy();
   });
-  it('should return true if consentProvider is not initialized', () => {
-    state.consents.consentProviderInitialized.value = false;
+  it('should return true if consentManager is not initialized', () => {
+    state.consents.consentManagerInitialized.value = false;
 
     const destConfig = {
       blacklistedEvents: [],
@@ -95,7 +95,7 @@ describe('Plugin - OneTrust', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrust().consentProvider.isDestinationConsented(
+    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
       defaultLogger,
@@ -103,7 +103,7 @@ describe('Plugin - OneTrust', () => {
     expect(isDestinationConsented).toBeTruthy();
   });
   it('should return true if destination config does not have any mapping', () => {
-    state.consents.consentProviderInitialized.value = true;
+    state.consents.consentManagerInitialized.value = true;
     state.consents.allowedConsents.value = {
       C0001: 'Functional Cookies',
       C0003: 'Analytical Cookies',
@@ -115,7 +115,7 @@ describe('Plugin - OneTrust', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrust().consentProvider.isDestinationConsented(
+    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
       defaultLogger,
@@ -123,7 +123,7 @@ describe('Plugin - OneTrust', () => {
     expect(isDestinationConsented).toBeTruthy();
   });
   it('should return false if destination categories are not consented', () => {
-    state.consents.consentProviderInitialized.value = true;
+    state.consents.consentManagerInitialized.value = true;
     state.consents.allowedConsents.value = {
       C0001: 'Functional Cookies',
       C0003: 'Analytical Cookies',
@@ -142,7 +142,7 @@ describe('Plugin - OneTrust', () => {
       ],
       key: 'value',
     };
-    const isDestinationConsented = OneTrust().consentProvider.isDestinationConsented(
+    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
       defaultLogger,

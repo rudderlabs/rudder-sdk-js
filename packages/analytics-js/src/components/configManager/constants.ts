@@ -5,7 +5,7 @@ const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = StorageEncryptionVersion.V3;
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
-  oneTrust: PluginName.OneTrust,
+  oneTrust: PluginName.OneTrustConsentManager,
 };
 
 export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {

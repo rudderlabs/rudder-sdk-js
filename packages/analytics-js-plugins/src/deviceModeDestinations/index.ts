@@ -59,7 +59,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         dest =>
           // if consent manager is not configured, then default to load the destination
           pluginsManager.invokeSingle(
-            `consentManager.isDestinationConsented`,
+            `consentOrchestrator.isDestinationConsented`,
             state,
             pluginsManager,
             dest.config,

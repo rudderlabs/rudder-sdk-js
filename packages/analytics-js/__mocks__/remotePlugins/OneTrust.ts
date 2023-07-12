@@ -1,9 +1,9 @@
-const OneTrust = () => ({
-  name: 'OneTrust',
-  consentProvider: {
+const OneTrustConsentManager = () => ({
+  name: 'OneTrustConsentManager',
+  consentManager: {
     getConsentInfo: jest.fn(() => {}),
     isDestinationConsented: jest.fn(() => {}),
   },
 });
 
-export default OneTrust;
+export default OneTrustConsentManager;

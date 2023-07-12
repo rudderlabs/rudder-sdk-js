@@ -298,9 +298,9 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.init(this.clientDataStore);
 
     // Initialize consent manager
-    if (state.consents.activeConsentProviderPluginName.value) {
+    if (state.consents.activeConsentManagerPluginName.value) {
       this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
+        `consentOrchestrator.init`,
         state,
         this.pluginsManager,
         batch,

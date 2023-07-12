@@ -1,4 +1,4 @@
-import { ConsentManager } from '@rudderstack/analytics-js-plugins/consentManager';
+import { ConsentOrchestrator } from '@rudderstack/analytics-js-plugins/consentOrchestrator';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
@@ -6,26 +6,26 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { batch } from '@preact/signals-core';
 
-describe('Plugin - ConsentManager', () => {
+describe('Plugin - ConsentOrchestrator', () => {
   const pluginManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
   beforeEach(() => {
     resetState();
   });
-  it('should add ConsentManager plugin in the loaded plugin list', () => {
-    ConsentManager().initialize(state);
-    expect(state.plugins.loadedPlugins.value.includes('ConsentManager')).toBe(true);
+  it('should add ConsentOrchestrator plugin in the loaded plugin list', () => {
+    ConsentOrchestrator().initialize(state);
+    expect(state.plugins.loadedPlugins.value.includes('ConsentOrchestrator')).toBe(true);
   });
 
-  it('should initialize the ConsentManager and add values in state when selected consent manager is initialized', () => {
+  it('should initialize the ConsentOrchestrator and add values in state when selected consent manager is initialized', () => {
     const mockResponseFromSelectedConsentManager = {
-      consentProviderInitialized: true,
+      consentManagerInitialized: true,
       allowedConsents: { C0001: 'Performance Cookies', C0003: 'Functional Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005'],
     };
 
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, pluginManager, batch, defaultLogger);
-    expect(state.consents.consentProviderInitialized.value).toBeTruthy();
+    ConsentOrchestrator().consentOrchestrator.init(state, pluginManager, batch, defaultLogger);
+    expect(state.consents.consentManagerInitialized.value).toBeTruthy();
     expect(state.consents.allowedConsents.value).toStrictEqual(
       mockResponseFromSelectedConsentManager.allowedConsents,
     );
@@ -33,13 +33,13 @@ describe('Plugin - ConsentManager', () => {
       mockResponseFromSelectedConsentManager.deniedConsentIds,
     );
   });
-  it('should initialize the ConsentManager and state values will not set when selected consent manager is not initialized', () => {
+  it('should initialize the ConsentOrchestrator and state values will not set when selected consent manager is not initialized', () => {
     const mockResponseFromSelectedConsentManager = {
-      consentProviderInitialized: false,
+      consentManagerInitialized: false,
     };
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    ConsentManager().consentManager.init(state, pluginManager, batch, defaultLogger);
-    expect(state.consents.consentProviderInitialized.value).toBe(false);
+    ConsentOrchestrator().consentOrchestrator.init(state, pluginManager, batch, defaultLogger);
+    expect(state.consents.consentManagerInitialized.value).toBe(false);
     expect(state.consents.allowedConsents.value).toStrictEqual({});
     expect(state.consents.deniedConsentIds.value).toStrictEqual([]);
   });
@@ -47,7 +47,7 @@ describe('Plugin - ConsentManager', () => {
   it('should return true if destination category is consented', () => {
     const mockResponseFromSelectedConsentManager = true;
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    const output = ConsentManager().consentManager.isDestinationConsented(
+    const output = ConsentOrchestrator().consentOrchestrator.isDestinationConsented(
       state,
       pluginManager,
       {},
@@ -58,7 +58,7 @@ describe('Plugin - ConsentManager', () => {
   it('should return false if destination category is not consented', () => {
     const mockResponseFromSelectedConsentManager = false;
     pluginManager.invokeSingle = jest.fn(() => mockResponseFromSelectedConsentManager);
-    const output = ConsentManager().consentManager.isDestinationConsented(
+    const output = ConsentOrchestrator().consentOrchestrator.isDestinationConsented(
       state,
       pluginManager,
       {},

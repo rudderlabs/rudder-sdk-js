@@ -3,15 +3,15 @@ import { ApplicationState, ILogger, IPluginsManager, DestinationConfig } from '.
 import { ExtensionPlugin } from '../types/plugins';
 import { Batch } from './type';
 
-const pluginName = 'ConsentManager';
+const pluginName = 'ConsentOrchestrator';
 
-const ConsentManager = (): ExtensionPlugin => ({
+const ConsentOrchestrator = (): ExtensionPlugin => ({
   name: pluginName,
   deps: [],
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
-  consentManager: {
+  consentOrchestrator: {
     init(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
@@ -19,14 +19,14 @@ const ConsentManager = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): void {
       // Initialize selected consent manager and get the consent info
-      const { consentProviderInitialized, allowedConsents, deniedConsentIds } =
-        pluginsManager.invokeSingle(`consentProvider.getConsentInfo`, logger);
+      const { consentManagerInitialized, allowedConsents, deniedConsentIds } =
+        pluginsManager.invokeSingle(`consentManager.getConsentInfo`, logger);
 
       // Only if the selected consent manager initialization is successful
       // set consent info in state
-      if (consentProviderInitialized) {
+      if (consentManagerInitialized) {
         batch(() => {
-          state.consents.consentProviderInitialized.value = true;
+          state.consents.consentManagerInitialized.value = true;
           state.consents.allowedConsents.value = allowedConsents ?? {};
           state.consents.deniedConsentIds.value = deniedConsentIds ?? [];
         });
@@ -40,7 +40,7 @@ const ConsentManager = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): boolean {
       return pluginsManager.invokeSingle(
-        `consentProvider.isDestinationConsented`,
+        `consentManager.isDestinationConsented`,
         state,
         destConfig,
         logger,
@@ -49,6 +49,6 @@ const ConsentManager = (): ExtensionPlugin => ({
   },
 });
 
-export { ConsentManager };
+export { ConsentOrchestrator };
 
-export default ConsentManager;
+export default ConsentOrchestrator;
