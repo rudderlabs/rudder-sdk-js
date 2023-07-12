@@ -43,7 +43,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): IQueue {
       const finalQOpts = getNormalizedQueueOptions(
-        state.loadOptions.value.queueOptions as QueueOpts,
+        state.loadOptions.value.destinationsQueueOptions as QueueOpts,
       );
 
       const writeKey = state.lifecycle.writeKey.value as string;
