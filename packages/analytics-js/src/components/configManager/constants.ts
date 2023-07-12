@@ -6,6 +6,7 @@ const DEFAULT_STORAGE_ENCRYPTION_VERSION = StorageEncryptionVersion.V3;
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: PluginName.OneTrustConsentManager,
+  ketch: PluginName.KetchConsentManager,
 };
 
 export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {
