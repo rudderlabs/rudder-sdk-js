@@ -31,12 +31,6 @@ export type AnonymousIdOptions = {
   };
 };
 
-export type ConsentInfo = {
-  initialized: boolean;
-  allowedConsents?: Record<string, string> | string[];
-  deniedConsentIds?: string[];
-};
-
 // Not using the analytics-js package enums to avoid generation of another shared bundle
 export type PluginName =
   | 'BeaconQueue'

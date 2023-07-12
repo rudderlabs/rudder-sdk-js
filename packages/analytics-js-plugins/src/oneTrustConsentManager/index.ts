@@ -1,9 +1,14 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
+import {
+  ApplicationState,
+  ILogger,
+  DestinationConfig,
+  IStoreManager,
+  OneTrustCookieCategory,
+} from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
-import { OneTrustCookieCategory, OneTrustGroup } from './types';
-import { updateConsentState } from './utils';
+import { OneTrustGroup } from './types';
 
 const pluginName = 'OneTrustConsentManager';
 
@@ -15,16 +20,14 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
   },
   consentManager: {
     init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
-      // In case OneTrustConsentManager SDK is not loaded before RudderStack's JS SDK
-      // it will be treated as Consent manager is not initialized
       if (
         !(globalThis as any).OneTrustConsentManager ||
         !(globalThis as any).OnetrustActiveGroups
       ) {
         logger?.error(
-          `${ONETRUST_CONSENT_MANAGER_PLUGIN}:: Failed to access OneTrustConsentManager SDK resources. Please ensure that the OneTrustConsentManager SDK is loaded successfully before RudderStack's JS SDK.`,
+          `${ONETRUST_CONSENT_MANAGER_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,
         );
-        updateConsentState(state, { initialized: false });
+        state.consents.data.value = { initialized: false };
         return;
       }
 
@@ -48,11 +51,11 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         if (allowedConsentIds.includes(CustomGroupId)) {
           allowedConsents[CustomGroupId] = GroupName;
         } else {
-          deniedConsentIds.push(CustomGroupId); // Populate denied consent Ids
+          deniedConsentIds.push(CustomGroupId);
         }
       });
 
-      updateConsentState(state, { initialized: true, allowedConsents, deniedConsentIds });
+      state.consents.data.value = { initialized: true, allowedConsents, deniedConsentIds };
     },
 
     isDestinationConsented(
@@ -60,10 +63,11 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       destConfig: DestinationConfig,
       logger?: ILogger,
     ): boolean {
-      const { consentManagerInitialized, allowedConsents } = state.consents;
-      if (!consentManagerInitialized.value) {
+      const consentData = state.consents.data.value;
+      if (!consentData || !consentData.initialized) {
         return true;
       }
+      const allowedConsents = consentData.allowedConsents as Record<string, string>;
 
       try {
         // mapping of the destination with the consent group name
@@ -85,8 +89,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = validOneTrustCookieCategories.every(
           (element: string) =>
-            Object.keys(allowedConsents.value).includes(element.trim()) ||
-            Object.values(allowedConsents.value).includes(element.trim()),
+            Object.keys(allowedConsents).includes(element.trim()) ||
+            Object.values(allowedConsents).includes(element.trim()),
         );
 
         return containsAllConsent;

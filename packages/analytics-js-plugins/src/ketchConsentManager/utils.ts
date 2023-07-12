@@ -1,30 +1,37 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, IStoreManager } from '../types/common';
-import { ConsentInfo } from '../types/plugins';
+import { ConsentInfo, ILogger, IStoreManager } from '../types/common';
 import { COOKIE_STORAGE, fromBase64 } from '../utilities/common';
-import { KETCH_CONSENT_COOKIE_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
+import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
 
+/**
+ * Gets the consent data from the Ketch's consent cookie
+ * @param storeManager Store manager instance
+ * @param logger Logger instance
+ * @returns Consent data from the consent cookie
+ */
 const getKetchConsentData = (
   storeManager?: IStoreManager,
   logger?: ILogger,
 ): KetchConsentData | undefined => {
+  // Create a data store instance to read the consent cookie
   const dataStore = storeManager?.setStore({
     id: KETCH_CONSENT_MANAGER_PLUGIN,
     name: KETCH_CONSENT_MANAGER_PLUGIN,
     type: COOKIE_STORAGE,
   });
 
-  const consentData = dataStore?.get(KETCH_CONSENT_COOKIE_V1);
+  const consentData = dataStore?.get(KETCH_CONSENT_COOKIE_NAME_V1);
   if (!consentData) {
     return undefined;
   }
 
+  // Decode and parse the cookie data to JSON
   let consentCookieData: KetchConsentCookieData;
   try {
     consentCookieData = JSON.parse(fromBase64(consentData));
-  } catch (e) {
-    logger?.error(`${KETCH_CONSENT_MANAGER_PLUGIN}:: Failed to parse the consent cookie.`, e);
+  } catch (err) {
+    logger?.error(`${KETCH_CONSENT_MANAGER_PLUGIN}:: Failed to parse the consent cookie.`, err);
     return undefined;
   }
 
@@ -32,6 +39,7 @@ const getKetchConsentData = (
     return undefined;
   }
 
+  // Convert the cookie data to consent data
   const consentPurposes: KetchConsentData = {};
   Object.entries(consentCookieData).forEach(pEntry => {
     const purposeCode = pEntry[0];
@@ -41,6 +49,11 @@ const getKetchConsentData = (
   return consentPurposes;
 };
 
+/**
+ * Gets the consent data in the format expected by the application state
+ * @param ketchConsentData Consent data derived from the consent cookie
+ * @returns Consent data
+ */
 const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
   const allowedConsents: string[] = [];
   const deniedConsentIds: string[] = [];
@@ -61,10 +74,4 @@ const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
   return { initialized, allowedConsents, deniedConsentIds };
 };
 
-const updateConsentState = (state: ApplicationState, consentData: ConsentInfo) => {
-  state.consents.consentManagerInitialized.value = true;
-  state.consents.allowedConsents.value = consentData.allowedConsents ?? [];
-  state.consents.deniedConsentIds.value = consentData.deniedConsentIds ?? [];
-};
-
-export { getKetchConsentData, getConsentData, updateConsentState };
+export { getKetchConsentData, getConsentData };
