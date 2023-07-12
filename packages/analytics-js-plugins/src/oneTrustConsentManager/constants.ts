@@ -1,3 +1,3 @@
-const ONETRUST_PLUGIN = 'OneTrustPlugin';
+const ONETRUST_CONSENT_MANAGER_PLUGIN = 'OneTrustConsentManagerPlugin';
 
-export { ONETRUST_PLUGIN };
+export { ONETRUST_CONSENT_MANAGER_PLUGIN };
