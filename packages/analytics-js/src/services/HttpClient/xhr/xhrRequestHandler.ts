@@ -6,13 +6,13 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { isNull } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
-import { IXHRRequestOptions, ResponseDetails } from '../types';
 import {
   XHR_PAYLOAD_PREP_ERROR,
   XHR_DELIVERY_ERROR,
   XHR_REQUEST_ERROR,
   XHR_SEND_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
+import { IXHRRequestOptions, ResponseDetails } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   headers: {

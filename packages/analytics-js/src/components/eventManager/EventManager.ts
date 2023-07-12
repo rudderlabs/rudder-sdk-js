@@ -3,11 +3,11 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { EVENT_OBJECT_GENERATION_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { IEventManager, APIEvent } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';
 import { IUserSessionManager } from '../userSessionManager/types';
-import { EVENT_OBJECT_GENERATION_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 
 /**
  * A service to generate valid event payloads and queue them for processing

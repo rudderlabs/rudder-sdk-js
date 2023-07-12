@@ -53,6 +53,7 @@ import {
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
 import { LOAD_CONFIGURATION, READY_API } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -62,7 +63,6 @@ import {
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 import { isObjectAndNotNull } from '../utilities/object';
-import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
