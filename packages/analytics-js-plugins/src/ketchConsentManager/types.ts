@@ -5,7 +5,7 @@ export type KetchPurposeValue = {
 };
 
 export type KetchConsentData = {
-  [purposeCode: string]: KetchPurposeValue;
+  [purposeCode: string]: KetchPurposeValue | undefined;
 };
 
 export type KetchConsentPurposes = {

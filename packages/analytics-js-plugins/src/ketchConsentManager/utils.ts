@@ -31,12 +31,10 @@ const getKetchConsentData = (
   }
 
   const consentPurposes: KetchConsentPurposes = {};
-  Object.entries(consentObj).forEach(e => {
-    const purposeCode = e[0];
-    const purposeValue = e[1];
-    if (purposeValue && purposeValue.status) {
-      consentPurposes[purposeCode] = purposeValue.status === 'granted';
-    }
+  Object.entries(consentObj).forEach(pEntry => {
+    const purposeCode = pEntry[0];
+    const purposeValue = pEntry[1];
+    consentPurposes[purposeCode] = purposeValue?.status === 'granted';
   });
   return consentPurposes;
 };
