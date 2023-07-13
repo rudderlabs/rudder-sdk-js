@@ -17,6 +17,12 @@ import {
   LOAD_CHECK_TIMEOUT,
 } from './constants';
 import { destDisplayNamesToFileNamesMap } from './destDisplayNamesToFileNames';
+import {
+  DESTINATION_INIT_ERROR,
+  DESTINATION_NOT_SUPPORTED_ERROR,
+  DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR,
+  DESTINATION_SDK_LOAD_ERROR,
+} from '../utilities/logMessages';
 
 const pluginName = 'DeviceModeDestinations';
 
@@ -44,7 +50,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
 
           logger?.error(
-            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Destination ${configDest.userFriendlyId} is not supported.`,
+            DESTINATION_NOT_SUPPORTED_ERROR(
+              DEVICE_MODE_DESTINATIONS_PLUGIN,
+              configDest.userFriendlyId,
+            ),
           );
           return false;
         });
@@ -99,7 +108,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   (globalThis as typeof window).clearTimeout(timeoutId);
 
                   logger?.error(
-                    `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to load script for destination "${dest.userFriendlyId}".`,
+                    DESTINATION_SDK_LOAD_ERROR(
+                      DEVICE_MODE_DESTINATIONS_PLUGIN,
+                      dest.userFriendlyId,
+                    ),
                   );
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,
@@ -151,7 +163,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                 });
             } catch (err) {
               logger?.error(
-                `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to initialize destination "${dest.userFriendlyId}".`,
+                DESTINATION_INIT_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
                 err,
               );
 
@@ -167,7 +179,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           clearInterval(intervalId);
 
           logger?.error(
-            `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: SDK script evaluation timed out for destination ${dest.userFriendlyId}.`,
+            DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR(
+              DEVICE_MODE_DESTINATIONS_PLUGIN,
+              dest.userFriendlyId,
+            ),
           );
           state.nativeDestinations.failedDestinations.value = [
             ...state.nativeDestinations.failedDestinations.value,

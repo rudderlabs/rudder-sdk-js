@@ -10,6 +10,7 @@ import {
 import { LOCAL_STORAGE, generateUUID } from '../common';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
+import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
 
 export interface QueueOptions {
   maxItems?: number;
@@ -296,7 +297,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
-        this.logger?.error(`${RETRY_QUEUE}:: Process function threw an error.`, err);
+        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }
     });
 

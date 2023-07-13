@@ -4,6 +4,8 @@ import { ExtensionPlugin, Nullable } from '../types/plugins';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { isNullOrUndefined } from '../utilities/common';
 import { decrypt } from '../storageEncryption/encryptionUtils';
+import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
+import { STORAGE_MIGRATOR_PLUGIN } from './constants';
 
 const pluginName = 'StorageMigrator';
 
@@ -35,9 +37,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // storejs that is used in localstorage engine already deserializes json strings but swallows errors
         return JSON.parse(decryptedVal);
       } catch (err) {
-        logger?.error(
-          `Failed to retrieve or parse data for ${key} from storage: ${(err as Error).message}`,
-        );
+        logger?.error(STORAGE_MIGRATION_ERROR(STORAGE_MIGRATOR_PLUGIN, key), err);
         return null;
       }
     },

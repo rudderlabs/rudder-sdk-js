@@ -87,7 +87,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate('someKey', storageEngine, mockLogger);
     expect(migratedVal).toBe(null);
     expect(mockLogger.error).toHaveBeenCalledWith(
-      'Failed to retrieve or parse data for someKey from storage: Unexpected token h in JSON at position 0',
+      'StorageMigrator:: Failed to retrieve or parse data for someKey from storage.',
+      new SyntaxError('Unexpected token h in JSON at position 0'),
     );
   });
 });
