@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
+import { ApplicationState, ILogger, DestinationConfig } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { isUndefined } from '../utilities/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from '../utilities/logMessages';
@@ -16,7 +16,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
+    init(state: ApplicationState, logger?: ILogger): void {
       // getKetchUserConsentedPurposes returns current ketch opted-in purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserConsentedPurposes = () =>
@@ -38,7 +38,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       if (!isUndefined((globalThis as any).ketchConsent)) {
         ketchConsentData = (globalThis as any).ketchConsent;
       } else {
-        ketchConsentData = getKetchConsentData(storeManager, logger);
+        ketchConsentData = getKetchConsentData(logger);
       }
 
       updateConsentStateFromData(state, ketchConsentData);

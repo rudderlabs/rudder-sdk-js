@@ -48,7 +48,10 @@ const DESTINATION_EVENT_FILTERING_WARNING = (
 const ONETRUST_ACCESS_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`;
 
-const KETCH_CONSENT_COOKIE_ERROR = (context: string): string =>
+const KETCH_CONSENT_COOKIE_READ_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to read the consent cookie.`;
+
+const KETCH_CONSENT_COOKIE_PARSE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to parse the consent cookie.`;
 
 const DESTINATION_CONSENT_STATUS_ERROR = (context: string): string =>
@@ -123,5 +126,6 @@ export {
   DESTINATION_EVENT_FORWARDING_ERROR,
   BUGSNAG_SDK_LOAD_TIMEOUT_ERROR,
   INVALID_SOURCE_CONFIG_ERROR,
-  KETCH_CONSENT_COOKIE_ERROR,
+  KETCH_CONSENT_COOKIE_PARSE_ERROR,
+  KETCH_CONSENT_COOKIE_READ_ERROR,
 };

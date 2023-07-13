@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ConsentInfo, ILogger, IStoreManager } from '../types/common';
-import { COOKIE_STORAGE, fromBase64 } from '../utilities/common';
-import { KETCH_CONSENT_COOKIE_ERROR } from '../utilities/logMessages';
+import { ApplicationState, ConsentInfo, ILogger } from '../types/common';
+import { CookieStorage, fromBase64, isNullOrUndefined } from '../utilities/common';
+import {
+  KETCH_CONSENT_COOKIE_PARSE_ERROR,
+  KETCH_CONSENT_COOKIE_READ_ERROR,
+} from '../utilities/logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
 
@@ -11,28 +14,28 @@ import { KetchConsentCookieData, KetchConsentData } from './types';
  * @param logger Logger instance
  * @returns Consent data from the consent cookie
  */
-const getKetchConsentData = (
-  storeManager?: IStoreManager,
-  logger?: ILogger,
-): KetchConsentData | undefined => {
+const getKetchConsentData = (logger?: ILogger): KetchConsentData | undefined => {
   // Create a data store instance to read the consent cookie
-  const dataStore = storeManager?.setStore({
-    id: KETCH_CONSENT_MANAGER_PLUGIN,
-    name: KETCH_CONSENT_MANAGER_PLUGIN,
-    type: COOKIE_STORAGE,
-  });
 
-  const consentData = dataStore?.get(KETCH_CONSENT_COOKIE_NAME_V1);
-  if (!consentData) {
+  let rawConsentCookieData = null;
+  try {
+    const cookieStorage = new CookieStorage({}, logger);
+    rawConsentCookieData = cookieStorage.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
+  } catch (err) {
+    logger?.error(KETCH_CONSENT_COOKIE_READ_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
+    return undefined;
+  }
+
+  if (isNullOrUndefined(rawConsentCookieData)) {
     return undefined;
   }
 
   // Decode and parse the cookie data to JSON
   let consentCookieData: KetchConsentCookieData;
   try {
-    consentCookieData = JSON.parse(fromBase64(consentData));
+    consentCookieData = JSON.parse(fromBase64(rawConsentCookieData as string));
   } catch (err) {
-    logger?.error(KETCH_CONSENT_COOKIE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
+    logger?.error(KETCH_CONSENT_COOKIE_PARSE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
     return undefined;
   }
 

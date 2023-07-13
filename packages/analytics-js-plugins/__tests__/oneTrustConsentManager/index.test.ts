@@ -30,7 +30,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     };
-    OneTrustConsentManager().consentManager.init(state, undefined, defaultLogger);
+    OneTrustConsentManager().consentManager.init(state, defaultLogger);
     expect(state.consents.data.value.initialized).toStrictEqual(true);
     expect(state.consents.data.value.allowedConsents).toStrictEqual(
       mockResponseFromOneTrust.allowedConsents,
@@ -43,7 +43,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     (window as any).OneTrustConsentManager = undefined;
     (window as any).OnetrustActiveGroups = undefined;
     defaultLogger.error = jest.fn();
-    OneTrustConsentManager().consentManager.init(state, undefined, defaultLogger);
+    OneTrustConsentManager().consentManager.init(state, defaultLogger);
     expect(defaultLogger.error).toHaveBeenCalledWith(
       `OneTrustConsentManagerPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,
     );

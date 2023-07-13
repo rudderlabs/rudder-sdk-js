@@ -300,12 +300,7 @@ class Analytics implements IAnalytics {
 
     // Initialize consent manager
     if (state.consents.activeConsentManagerPluginName.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
+      this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
     }
 
     // Initialize event manager

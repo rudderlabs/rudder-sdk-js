@@ -2,7 +2,6 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type CookieConsentOptions = {
-  // OneTrustConsentManager
   [key: string]: {
     enabled: boolean;
   };

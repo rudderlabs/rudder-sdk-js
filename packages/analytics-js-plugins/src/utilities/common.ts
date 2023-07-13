@@ -29,3 +29,5 @@ export {
 } from '@rudderstack/analytics-js/constants/storages';
 
 export { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js/constants/logMessages';
+
+export { CookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages';
