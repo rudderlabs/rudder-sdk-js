@@ -1,4 +1,5 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import logger from '../../utils/logUtil';
 
 function loader(id, src, document) {
   logger.debug(`in script loader=== ${id}`);
