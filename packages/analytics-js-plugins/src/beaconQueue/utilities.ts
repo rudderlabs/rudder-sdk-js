@@ -7,6 +7,10 @@ import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
 import { BeaconQueueOpts, RudderEvent, ILogger } from '../types/common';
 import { BeaconBatchData } from './types';
 import { removeDuplicateSlashes } from '../utilities/queue';
+import {
+  BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
+  BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
+} from '../utilities/logMessages';
 
 /**
  * Utility to get the stringified event payload as Blob
@@ -26,9 +30,9 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
     if (blobPayload) {
       return new Blob([blobPayload], blobOptions);
     }
-    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to string.`);
+    logger?.error(BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN));
   } catch (err) {
-    logger?.error(`${BEACON_QUEUE_PLUGIN}:: Failed to convert events batch object to Blob.`, err);
+    logger?.error(BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN), err);
   }
 
   return undefined;

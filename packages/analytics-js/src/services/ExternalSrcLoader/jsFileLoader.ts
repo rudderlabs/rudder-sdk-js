@@ -1,5 +1,10 @@
 import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
+import {
+  SCRIPT_ALREADY_EXISTS_ERROR,
+  SCRIPT_LOAD_ERROR,
+  SCRIPT_LOAD_TIMEOUT_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated
@@ -88,11 +93,7 @@ const jsFileLoader = (
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {
-      reject(
-        new Error(
-          `A script with the id "${id}" is already loaded. Skipping the loading of this script to prevent conflicts.`,
-        ),
-      );
+      reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id)));
     }
 
     try {
@@ -105,7 +106,7 @@ const jsFileLoader = (
 
       const onerror = () => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(`Failed to load script with id "${id}" from URL "${url}".`));
+        reject(new Error(SCRIPT_LOAD_ERROR(id, url)));
       };
 
       // Create the DOM element to load the script and add it to the DOM
@@ -113,15 +114,10 @@ const jsFileLoader = (
 
       // Reject on timeout
       timeoutID = (globalThis as typeof window).setTimeout(() => {
-        reject(
-          new Error(
-            `A timeout of ${timeout} ms occurred while trying to load the script with id "${id}" from URL "${url}".`,
-          ),
-        );
+        reject(new Error(SCRIPT_LOAD_TIMEOUT_ERROR(id, url, timeout)));
       }, timeout);
     } catch (err) {
-      const issue = `Failed to load the script from "${url}" with id ${id}`;
-      reject(getMutatedError(err, issue));
+      reject(getMutatedError(err, SCRIPT_LOAD_ERROR(id, url)));
     }
   });
 

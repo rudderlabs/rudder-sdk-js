@@ -15,6 +15,12 @@ import { filterEnabledDestination } from '@rudderstack/analytics-js/components/u
 import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import {
+  DATA_PLANE_URL_ERROR,
+  SOURCE_CONFIG_FETCH_ERROR,
+  SOURCE_CONFIG_OPTION_ERROR,
+  UNSUPPORTED_CONSENT_MANAGER_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -78,9 +84,11 @@ class ConfigManager implements IConfigManager {
         consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
         if (!consentManagerPluginName) {
           this.logger?.error(
-            `${CONFIG_MANAGER}:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
+            UNSUPPORTED_CONSENT_MANAGER_ERROR(
+              CONFIG_MANAGER,
+              selectedConsentManager,
               ConsentManagersToPluginNameMap,
-            )}".`,
+            ),
           );
         }
       }
@@ -134,7 +142,7 @@ class ConfigManager implements IConfigManager {
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Failed to fetch source config. Reason: ${details?.error}`);
+      this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;
     }
 
@@ -166,13 +174,7 @@ class ConfigManager implements IConfigManager {
     );
 
     if (!dataPlaneUrl) {
-      this.onError(
-        new Error(
-          `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`,
-        ),
-        undefined,
-        true,
-      );
+      this.onError(new Error(DATA_PLANE_URL_ERROR), undefined, true);
       return;
     }
     const nativeDestinations: Destination[] =
@@ -215,9 +217,7 @@ class ConfigManager implements IConfigManager {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
       if (!isFunction(sourceConfigFunc)) {
-        throw new Error(
-          `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`,
-        );
+        throw new Error(SOURCE_CONFIG_OPTION_ERROR);
       }
       // fetch source config from the function
       const res = sourceConfigFunc();

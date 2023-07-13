@@ -8,6 +8,7 @@ import {
 } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
+import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from '../utilities/logMessages';
 import { OneTrustGroup } from './types';
 
 const pluginName = 'OneTrustConsentManager';
@@ -24,9 +25,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         !(globalThis as any).OneTrustConsentManager ||
         !(globalThis as any).OnetrustActiveGroups
       ) {
-        logger?.error(
-          `${ONETRUST_CONSENT_MANAGER_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,
-        );
+        logger?.error(ONETRUST_ACCESS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN));
         state.consents.data.value = { initialized: false };
         return;
       }
@@ -95,10 +94,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
 
         return containsAllConsent;
       } catch (err) {
-        logger?.error(
-          `${ONETRUST_CONSENT_MANAGER_PLUGIN}:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
-          err,
-        );
+        logger?.error(DESTINATION_CONSENT_STATUS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN), err);
         return true;
       }
     },
