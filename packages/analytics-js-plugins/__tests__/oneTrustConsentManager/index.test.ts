@@ -50,10 +50,9 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(state.consents.data.value.initialized).toStrictEqual(false);
   });
   it('should return true if destination specific category is consented', () => {
-    state.consents.data.value.initialized = true;
-    state.consents.data.value.allowedConsents = {
-      C0001: 'Functional Cookies',
-      C0003: 'Analytical Cookies',
+    state.consents.data.value = {
+      initialized: true,
+      allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -81,7 +80,9 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(isDestinationConsented).toBeTruthy();
   });
   it('should return true if consentManager is not initialized', () => {
-    state.consents.data.value.initialized = false;
+    state.consents.data.value = {
+      initialized: false,
+    };
 
     const destConfig = {
       blacklistedEvents: [],
@@ -106,10 +107,9 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(isDestinationConsented).toBeTruthy();
   });
   it('should return true if destination config does not have any mapping', () => {
-    state.consents.data.value.initialized = true;
-    state.consents.data.value.allowedConsents = {
-      C0001: 'Functional Cookies',
-      C0003: 'Analytical Cookies',
+    state.consents.data.value = {
+      initialized: true,
+      allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -126,10 +126,9 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(isDestinationConsented).toBeTruthy();
   });
   it('should return false if destination categories are not consented', () => {
-    state.consents.data.value.initialized = true;
-    state.consents.data.value.allowedConsents = {
-      C0001: 'Functional Cookies',
-      C0003: 'Analytical Cookies',
+    state.consents.data.value = {
+      initialized: true,
+      allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {
       blacklistedEvents: [],
