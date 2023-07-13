@@ -380,7 +380,30 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.setQueue(QueueStatuses.QUEUE, our.queue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
-    const localStorageBackoff = 10;
+    try {
+      this.clearOtherQueue(other, 1);
+    } catch (e) {
+      const isLocalStorageBusy =
+        (e as any).name === 'NS_ERROR_STORAGE_BUSY' ||
+        (e as any).code === 'NS_ERROR_STORAGE_BUSY' ||
+        (e as any).code === 0x80630001;
+      if (isLocalStorageBusy) {
+        try {
+          this.clearOtherQueue(other, 40);
+        } catch (retryError) {
+          console.error(retryError);
+        }
+      } else {
+        console.error(e);
+      }
+    }
+
+    // process the new items we claimed
+    this.processHead();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  clearOtherQueue(other: IStore, localStorageBackoff: number) {
     (globalThis as typeof window).setTimeout(() => {
       other.remove(QueueStatuses.IN_PROGRESS);
       (globalThis as typeof window).setTimeout(() => {
@@ -396,9 +419,6 @@ class RetryQueue implements IQueue<QueueItemData> {
         }, localStorageBackoff);
       }, localStorageBackoff);
     }, localStorageBackoff);
-
-    // process the new items we claimed
-    this.processHead();
   }
 
   checkReclaim() {
