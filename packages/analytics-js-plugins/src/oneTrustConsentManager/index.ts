@@ -4,6 +4,7 @@ import {
   ILogger,
   DestinationConfig,
   OneTrustCookieCategory,
+  IStoreManager,
 } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
@@ -19,7 +20,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, logger?: ILogger): void {
+    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
       if (
         !(globalThis as any).OneTrustConsentManager ||
         !(globalThis as any).OnetrustActiveGroups

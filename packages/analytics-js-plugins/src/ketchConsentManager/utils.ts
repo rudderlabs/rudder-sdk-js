@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ConsentInfo, ILogger } from '../types/common';
-import { CookieStorage, fromBase64, isNullOrUndefined } from '../utilities/common';
+import { ApplicationState, ConsentInfo, ILogger, IStoreManager } from '../types/common';
+import { COOKIE_STORAGE, fromBase64, isNullOrUndefined } from '../utilities/common';
 import {
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,
@@ -14,13 +14,19 @@ import { KetchConsentCookieData, KetchConsentData } from './types';
  * @param logger Logger instance
  * @returns Consent data from the consent cookie
  */
-const getKetchConsentData = (logger?: ILogger): KetchConsentData | undefined => {
-  // Create a data store instance to read the consent cookie
-
+const getKetchConsentData = (
+  storeManager?: IStoreManager,
+  logger?: ILogger,
+): KetchConsentData | undefined => {
   let rawConsentCookieData = null;
   try {
-    const cookieStorage = new CookieStorage({}, logger);
-    rawConsentCookieData = cookieStorage.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
+    // Create a data store instance to read the consent cookie
+    const dataStore = storeManager?.setStore({
+      id: KETCH_CONSENT_MANAGER_PLUGIN,
+      name: KETCH_CONSENT_MANAGER_PLUGIN,
+      type: COOKIE_STORAGE,
+    });
+    rawConsentCookieData = dataStore?.engine.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
   } catch (err) {
     logger?.error(KETCH_CONSENT_COOKIE_READ_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
     return undefined;
