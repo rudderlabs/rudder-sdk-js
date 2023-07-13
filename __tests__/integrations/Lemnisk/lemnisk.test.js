@@ -33,7 +33,8 @@ describe("lemnisk page", () => {
                     url: "http://localhost",
                     referrer: "",
                     title: "test page",
-                    testDimension: "abc"
+                    testDimension: "abc",
+                    isRudderEvents: 1
                 },
             },
         });
@@ -43,7 +44,8 @@ describe("lemnisk page", () => {
             "url": "http://localhost",
             "referrer": "",
             "title": "test page",
-            "testDimension": "abc"
+            "testDimension": "abc",
+            "isRudderEvents": 1
         });
     });
 });
@@ -86,7 +88,8 @@ describe("Lemnisk Track event", () => {
                             url: 'https://www.example.com/product/bacon-jam',
                             image_url: 'https://www.example.com/product/bacon-jam.jpg'
                         }
-                    ]
+                    ],
+                    isRudderEvents: 1
                 },
             }
         });
@@ -117,7 +120,8 @@ describe("Lemnisk Track event", () => {
                     url: 'https://www.example.com/product/bacon-jam',
                     image_url: 'https://www.example.com/product/bacon-jam.jpg'
                 }
-            ]
+            ],
+            isRudderEvents: 1
         });
     });
 });
@@ -135,7 +139,8 @@ describe("Lemnisk Identify event", () => {
                 "userId": "rudder01",
                 context: {
                     traits: {
-                        email: "abc@ruddertack.com"
+                        email: "abc@ruddertack.com",
+                        isRudderEvents: 1
                     }
                 },
 
@@ -143,7 +148,8 @@ describe("Lemnisk Identify event", () => {
         });
         expect(window.lmSMTObj.identify.mock.calls[0][0]).toEqual("rudder01");
         expect(window.lmSMTObj.identify.mock.calls[0][1]).toEqual({
-            email: "abc@ruddertack.com"
+            email: "abc@ruddertack.com",
+            isRudderEvents: 1
         });
 
     });
