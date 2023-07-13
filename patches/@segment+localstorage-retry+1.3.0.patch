@@ -12,7 +12,7 @@ index 5e3fffe..656a774 100644
  var inMemoryStore = {
    _data: {},
 diff --git a/node_modules/@segment/localstorage-retry/lib/index.js b/node_modules/@segment/localstorage-retry/lib/index.js
-index 34220e8..1fecf90 100644
+index 34220e8..f946ede 100644
 --- a/node_modules/@segment/localstorage-retry/lib/index.js
 +++ b/node_modules/@segment/localstorage-retry/lib/index.js
 @@ -283,6 +283,7 @@ Queue.prototype._checkReclaim = function() {
@@ -23,34 +23,51 @@ index 34220e8..1fecf90 100644
        var parts = k.split('.');
        if (parts.length !== 3) continue;
        if (parts[0] !== name) continue;
-@@ -344,13 +345,23 @@ Queue.prototype._reclaim = function(id) {
-   });
+@@ -345,15 +346,41 @@ Queue.prototype._reclaim = function(id) {
  
    this._store.set(this.keys.QUEUE, our.queue);
--
+ 
 -  // remove all keys
 -  other.remove(this.keys.IN_PROGRESS);
 -  other.remove(this.keys.QUEUE);
 -  other.remove(this.keys.RECLAIM_START);
 -  other.remove(this.keys.RECLAIM_END);
 -  other.remove(this.keys.ACK);
-+  // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
-+  const localStorageBackoff = 10;
-+  setTimeout(() => {
-+    other.remove(this.keys.IN_PROGRESS);
++  // remove all keys one by one, on next tick to avoid NS_ERROR_STORAGE_BUSY error
++  try {
++    this._clearOtherQueue(other, 1);
++  } catch(e) {
++    if(e.code === "NS_ERROR_STORAGE_BUSY" || e.code === 0x80630001) {
++      try {
++        this._clearOtherQueue(other, 40);
++      } catch(retryError) {
++        console.error(retryError);
++      }
++    } else {
++      console.error(e);
++    }
++  }
+ 
+   // process the new items we claimed
+   this._processHead();
+ };
+ 
++Queue.prototype._clearOtherQueue = function(other, localStorageBackoff) {
 +    setTimeout(() => {
-+      other.remove(this.keys.QUEUE);
++      other.remove(this.keys.IN_PROGRESS);
 +      setTimeout(() => {
-+        other.remove(this.keys.RECLAIM_START);
++        other.remove(this.keys.QUEUE);
 +        setTimeout(() => {
-+          other.remove(this.keys.RECLAIM_END);
++          other.remove(this.keys.RECLAIM_START);
 +          setTimeout(() => {
-+            other.remove(this.keys.ACK);
++            other.remove(this.keys.RECLAIM_END);
++            setTimeout(() => {
++              other.remove(this.keys.ACK);
++            }, localStorageBackoff);
 +          }, localStorageBackoff);
 +        }, localStorageBackoff);
 +      }, localStorageBackoff);
 +    }, localStorageBackoff);
-+  }, localStorageBackoff);
- 
-   // process the new items we claimed
-   this._processHead();
++}
++
+ module.exports = Queue;
