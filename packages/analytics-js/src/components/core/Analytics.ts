@@ -42,7 +42,6 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { IAnalytics } from './IAnalytics';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ADBLOCK_PAGE_CATEGORY,
@@ -53,6 +52,7 @@ import {
   LOAD_CONFIGURATION,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -60,6 +60,7 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { IAnalytics } from './IAnalytics';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -415,8 +416,7 @@ class Analytics implements IAnalytics {
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
-      // TODO: handle error
-      this.logger.error(`${READY_API}:: The callback is not a function.`);
+      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
       return;
     }
 

@@ -2,6 +2,7 @@ import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/tim
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { INVALID_SESSION_ID_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
@@ -33,7 +34,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
     !hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)
   ) {
     logger?.warn(
-      `${USER_SESSION_MANAGER}:: The provided session ID (${sessionId}) is either invalid, not a positive integer, or not at least "${MIN_SESSION_ID_LENGTH}" digits long. A new session ID will be auto-generated instead.`,
+      INVALID_SESSION_ID_WARNING(USER_SESSION_MANAGER, sessionId, MIN_SESSION_ID_LENGTH),
     );
     return false;
   }

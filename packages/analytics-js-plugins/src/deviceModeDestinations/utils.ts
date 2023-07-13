@@ -8,7 +8,7 @@ import {
   isUndefined,
   mergeDeepRight,
   pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions,
+  trackArgumentsToCallOptions
 } from '@rudderstack/analytics-js-common/index';
 import {
   Destination,
@@ -21,7 +21,7 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { destCNamesToDispNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
+import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -29,6 +29,10 @@ import {
   LOAD_CHECK_POLL_INTERVAL,
 } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
+import {
+  DESTINATION_INTEGRATIONS_DATA_ERROR,
+  DESTINATION_READY_TIMEOUT_ERROR,
+} from '../utilities/logMessages';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -125,9 +129,7 @@ const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
       resolve(true);
     } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
       reject(
-        new Error(
-          `A timeout of ${INITIALIZED_CHECK_TIMEOUT} ms occurred while trying to check the ready status for "${dest.userFriendlyId}" destination.`,
-        ),
+        new Error(DESTINATION_READY_TIMEOUT_ERROR(INITIALIZED_CHECK_TIMEOUT, dest.userFriendlyId)),
       );
     } else {
       wait(LOAD_CHECK_POLL_INTERVAL)
@@ -152,7 +154,7 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
       if (key === 'All') {
         normalizedIntegrationOptions[key] = Boolean(destOpts);
       } else {
-        const displayName = destCNamesToDispNamesMap[key];
+        const displayName = destCNamesToDisplayNamesMap[key];
         if (displayName) {
           normalizedIntegrationOptions[displayName] = destOpts;
         } else {
@@ -217,7 +219,7 @@ const getCumulativeIntegrationsConfig = (
       );
     } catch (err) {
       logger?.error(
-        `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Failed to retrieve data for integrations object of destination "${dest.userFriendlyId}".`,
+        DESTINATION_INTEGRATIONS_DATA_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
         err,
       );
     }

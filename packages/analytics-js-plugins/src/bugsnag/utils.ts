@@ -3,6 +3,7 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BugsnagLib } from '../types/plugins';
+import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -149,7 +150,7 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
     id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
     callback: id => {
       if (!id) {
-        logger?.error(`${BUGSNAG_PLUGIN}:: Failed to load the Bugsnag SDK.`);
+        logger?.error(BUGSNAG_SDK_LOAD_ERROR(BUGSNAG_PLUGIN));
       }
     },
   });
@@ -169,11 +170,7 @@ const initBugsnagClient = (
       promiseResolve(client);
     }
   } else if (time >= MAX_WAIT_FOR_SDK_LOAD_MS) {
-    promiseReject(
-      new Error(
-        `A timeout ${MAX_WAIT_FOR_SDK_LOAD_MS} ms occurred while trying to load the Bugsnag SDK.`,
-      ),
-    );
+    promiseReject(new Error(BUGSNAG_SDK_LOAD_TIMEOUT_ERROR(MAX_WAIT_FOR_SDK_LOAD_MS)));
   } else {
     // Try to initialize the client after a delay
     setTimeout(

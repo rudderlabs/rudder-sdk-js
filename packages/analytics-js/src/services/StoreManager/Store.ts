@@ -12,6 +12,11 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import {
+  STORAGE_QUOTA_EXCEEDED_WARNING,
+  STORE_DATA_FETCH_ERROR,
+  STORE_DATA_SAVE_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 import { getStorageEngine } from './storages/storageEngine';
 
 /**
@@ -110,15 +115,13 @@ class Store implements IStore {
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
-        this.logger?.warn(
-          `${STORE_MANAGER}:: The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`,
-        );
+        this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(STORE_MANAGER));
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(getMutatedError(err, `Failed to save the value for "${validKey}" to storage`));
+        this.onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
       }
     }
   }
@@ -143,11 +146,7 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(str as string);
     } catch (err) {
-      this.onError(
-        new Error(
-          `Failed to retrieve or parse data for "${key}" from storage: ${(err as Error).message}`,
-        ),
-      );
+      this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
       return null;
     }
   }

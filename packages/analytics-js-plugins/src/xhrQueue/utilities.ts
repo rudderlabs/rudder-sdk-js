@@ -6,6 +6,7 @@ import { RudderEventType } from '../types/plugins';
 import { removeDuplicateSlashes } from '../utilities/queue';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';
+import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from '../utilities/logMessages';
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
@@ -41,7 +42,8 @@ const logErrorOnFailure = (
   }
 
   const isRetryableFailure = isErrRetryable(details);
-  let errMsg = `${XHR_QUEUE_PLUGIN}:: Failed to deliver event to ${item.url}.`;
+  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, item.url);
+  const eventDropMsg = `The event will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
       errMsg = `${errMsg} It'll be retried.`;
@@ -49,10 +51,10 @@ const logErrorOnFailure = (
         errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
       }
     } else {
-      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). The event will be dropped.`;
+      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). ${eventDropMsg}`;
     }
   } else {
-    errMsg = `${errMsg} The event will be dropped.`;
+    errMsg = `${errMsg} ${eventDropMsg}`;
   }
   logger?.error(errMsg);
 };

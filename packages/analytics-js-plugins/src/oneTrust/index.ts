@@ -6,6 +6,7 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEn
 import { ONETRUST_PLUGIN } from './constants';
 import { OneTrustCookieCategory, OneTrustGroup } from './types';
 import { ConsentInfo } from '../types/plugins';
+import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'OneTrust';
 
@@ -20,9 +21,7 @@ const OneTrust = (): ExtensionPlugin => ({
       // In case OneTrust SDK is not loaded before RudderStack's JS SDK
       // it will be treated as Consent manager is not initialized
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
-        logger?.error(
-          `${ONETRUST_PLUGIN}:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`,
-        );
+        logger?.error(ONETRUST_ACCESS_ERROR(ONETRUST_PLUGIN));
         return { consentProviderInitialized: false };
       }
 
@@ -106,10 +105,7 @@ const OneTrust = (): ExtensionPlugin => ({
 
         return containsAllConsent;
       } catch (err) {
-        logger?.error(
-          `${ONETRUST_PLUGIN}:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
-          err,
-        );
+        logger?.error(DESTINATION_CONSENT_STATUS_ERROR(ONETRUST_PLUGIN), err);
         return true;
       }
     },

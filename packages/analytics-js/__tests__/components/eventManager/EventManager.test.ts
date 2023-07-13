@@ -30,7 +30,7 @@ describe('EventManager', () => {
     });
 
     expect(mockErrorHandler.onError).toBeCalledWith(
-      new Error('Failed to generate RudderStack event object.'),
+      new Error('Failed to generate the event object.'),
       'EventManager',
       undefined,
       undefined,
@@ -48,6 +48,6 @@ describe('EventManager', () => {
           test: 'test',
         },
       });
-    }).toThrowError('Failed to generate RudderStack event object.');
+    }).toThrowError('Failed to generate the event object.');
   });
 });

@@ -8,6 +8,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS } from './constants';
+import { DESTINATION_EVENT_FORWARDING_ERROR } from '../utilities/logMessages';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
@@ -72,7 +73,7 @@ const sendEventToDestination = (
     errorHandler?.onError(
       err,
       'NativeDestinationQueue',
-      `Failed to forward event to destination "${dest.userFriendlyId}".`,
+      DESTINATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
     );
   }
 };

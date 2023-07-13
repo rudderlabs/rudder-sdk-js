@@ -202,7 +202,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The storage encryption version "v2" is not supported. Please choose one of the following supported versions: "v3,legacy". The default version v3 will be used instead.',
+        'ConfigManager:: The storage encryption version "v2" is not supported. Please choose one of the following supported versions: "v3,legacy". The default version "v3" will be used instead.',
       );
     });
 

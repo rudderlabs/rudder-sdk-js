@@ -8,6 +8,7 @@ import {
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { INVALID_SOURCE_CONFIG_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'ErrorReporting';
 
@@ -25,7 +26,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): Nullable<Promise<any>> => {
       if (!state.source.value?.config || !state.source.value?.id) {
-        return Promise.reject(new Error('Invalid source configuration or source id.'));
+        return Promise.reject(new Error(INVALID_SOURCE_CONFIG_ERROR));
       }
 
       return pluginEngine.invokeSingle(

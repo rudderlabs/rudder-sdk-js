@@ -1,6 +1,10 @@
 import { ILogger } from '../types/Logger';
 import { Nullable } from '../types/Nullable';
 import { isNull, isNullOrUndefined } from './checks';
+import {
+  CIRCULAR_REFERENCE_WARNING,
+  JSON_STRINGIFY_WARNING,
+} from '../constants/logMessages';
 
 const JSON_STRINGIFY = 'JSONStringify';
 
@@ -34,9 +38,7 @@ const getCircularReplacer = (
     }
 
     if (ancestors.includes(value)) {
-      logger?.warn(
-        `${JSON_STRINGIFY}:: A circular reference has been detected in the object and the property "${key}" has been dropped from the output.`,
-      );
+      logger?.warn(CIRCULAR_REFERENCE_WARNING(JSON_STRINGIFY, key));
       return '[Circular Reference]';
     }
 
@@ -62,7 +64,7 @@ const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | str
   try {
     return JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
   } catch (err) {
-    logger?.warn(`Failed to convert the value to a JSON string.`, err);
+    logger?.warn(JSON_STRINGIFY_WARNING, err);
     return null;
   }
 };

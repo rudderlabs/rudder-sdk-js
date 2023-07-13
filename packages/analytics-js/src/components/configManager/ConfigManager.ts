@@ -17,13 +17,19 @@ import { Destination } from '@rudderstack/analytics-js-common/types/Destination'
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  DATA_PLANE_URL_ERROR,
+  SOURCE_CONFIG_FETCH_ERROR,
+  SOURCE_CONFIG_OPTION_ERROR,
+  UNSUPPORTED_CONSENT_MANAGER_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
 import { updateReportingState, updateStorageState } from './util/commonUtil';
 import { ConsentManagersToPluginNameMap } from './constants';
-import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -79,9 +85,11 @@ class ConfigManager implements IConfigManager {
         consentProviderPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
         if (!consentProviderPluginName) {
           this.logger?.error(
-            `${CONFIG_MANAGER}:: The consent manager "${selectedConsentManager}" is not supported. Please choose one of the following supported consent managers: "${Object.keys(
+            UNSUPPORTED_CONSENT_MANAGER_ERROR(
+              CONFIG_MANAGER,
+              selectedConsentManager,
               ConsentManagersToPluginNameMap,
-            )}".`,
+            ),
           );
         }
       }
@@ -135,7 +143,7 @@ class ConfigManager implements IConfigManager {
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
     if (!response) {
-      this.onError(`Failed to fetch source config. Reason: ${details?.error}`);
+      this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;
     }
 
@@ -167,13 +175,7 @@ class ConfigManager implements IConfigManager {
     );
 
     if (!dataPlaneUrl) {
-      this.onError(
-        new Error(
-          `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`,
-        ),
-        undefined,
-        true,
-      );
+      this.onError(new Error(DATA_PLANE_URL_ERROR), undefined, true);
       return;
     }
     const nativeDestinations: Destination[] =
@@ -216,9 +218,7 @@ class ConfigManager implements IConfigManager {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
       if (!isFunction(sourceConfigFunc)) {
-        throw new Error(
-          `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`,
-        );
+        throw new Error(SOURCE_CONFIG_OPTION_ERROR);
       }
       // fetch source config from the function
       const res = sourceConfigFunc();

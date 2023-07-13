@@ -389,7 +389,7 @@ describe('Event Manager - Utilities', () => {
         messageId: 'myMsgId',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).nthCalledWith(
         1,
@@ -411,7 +411,7 @@ describe('Event Manager - Utilities', () => {
         nonReservedKey2: 'sample',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -423,18 +423,13 @@ describe('Event Manager - Utilities', () => {
         nonReservedKey: 123,
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warn message if the object is not provided', () => {
-      checkForReservedElementsInObject(
-        undefined,
-        defaultEventType,
-        defaultParentKeyPath,
-        mockLogger,
-      );
+      checkForReservedElementsInObject(undefined, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -446,7 +441,7 @@ describe('Event Manager - Utilities', () => {
         originalTimestamp: sampleOriginalTimestamp,
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).nthCalledWith(
         1,

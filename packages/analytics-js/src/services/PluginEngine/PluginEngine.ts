@@ -9,6 +9,16 @@ import {
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGIN_ENGINE } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  PLUGIN_ALREADY_EXISTS_ERROR,
+  PLUGIN_DEPS_ERROR,
+  PLUGIN_ENGINE_BUG_ERROR,
+  PLUGIN_EXT_POINT_INVALID_ERROR,
+  PLUGIN_EXT_POINT_MISSING_ERROR,
+  PLUGIN_INVOCATION_ERROR,
+  PLUGIN_NAME_MISSING_ERROR,
+  PLUGIN_NOT_FOUND_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
@@ -32,7 +42,7 @@ class PluginEngine implements IPluginEngine {
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
-      const errorMessage = `${PLUGIN_ENGINE}:: Plugin name is missing.`;
+      const errorMessage = PLUGIN_NAME_MISSING_ERROR(PLUGIN_ENGINE);
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -41,7 +51,7 @@ class PluginEngine implements IPluginEngine {
     }
 
     if (this.byName[plugin.name]) {
-      const errorMessage = `${PLUGIN_ENGINE}:: Plugin "${plugin.name}" already exists.`;
+      const errorMessage = PLUGIN_ALREADY_EXISTS_ERROR(PLUGIN_ENGINE, plugin.name);
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -72,7 +82,7 @@ class PluginEngine implements IPluginEngine {
     const plugin = this.byName[name];
 
     if (!plugin) {
-      const errorMessage = `${PLUGIN_ENGINE}:: Plugin "${name}" not found.`;
+      const errorMessage = PLUGIN_NOT_FOUND_ERROR(PLUGIN_ENGINE, name);
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -83,7 +93,7 @@ class PluginEngine implements IPluginEngine {
     const index = this.plugins.indexOf(plugin);
 
     if (index === -1) {
-      const errorMessage = `${PLUGIN_ENGINE}:: Plugin "${name}" not found in plugins but found in byName. This indicates a bug in the plugin engine. Please report this issue to the development team.`;
+      const errorMessage = PLUGIN_ENGINE_BUG_ERROR(PLUGIN_ENGINE, name);
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
@@ -109,9 +119,7 @@ class PluginEngine implements IPluginEngine {
         if (plugin.deps?.some(dependency => !this.byName[dependency])) {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
-          this.logger?.error(
-            `${PLUGIN_ENGINE}:: Plugin "${plugin.name}" could not be loaded because some of its dependencies "${notExistDeps}" do not exist.`,
-          );
+          this.logger?.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE, plugin.name, notExistDeps));
           return false;
         }
         return lifeCycleName === '.' ? true : hasValueByPath(plugin, lifeCycleName);
@@ -132,7 +140,7 @@ class PluginEngine implements IPluginEngine {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {
-      throw new Error('Failed to invoke plugin because the extension point name is missing.');
+      throw new Error(PLUGIN_EXT_POINT_MISSING_ERROR);
     }
 
     const noCall = extensionPointName.startsWith('!');
@@ -142,7 +150,7 @@ class PluginEngine implements IPluginEngine {
     extensionPointName = extensionPointName.replace(/(^!|!$)/g, '');
 
     if (!extensionPointName) {
-      throw new Error('Failed to invoke plugin because the extension point name is invalid.');
+      throw new Error(PLUGIN_EXT_POINT_INVALID_ERROR);
     }
 
     const extensionPointNameParts = extensionPointName.split('.');
@@ -168,7 +176,7 @@ class PluginEngine implements IPluginEngine {
           throw err;
         } else {
           this.logger?.error(
-            `${PLUGIN_ENGINE}:: Failed to invoke the "${extensionPointName}" extension point of plugin "${plugin.name}".`,
+            PLUGIN_INVOCATION_ERROR(PLUGIN_ENGINE, extensionPointName, plugin.name),
             err,
           );
         }

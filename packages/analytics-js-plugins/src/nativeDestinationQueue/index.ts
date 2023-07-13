@@ -15,6 +15,7 @@ import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
+import { DESTINATION_EVENT_FILTERING_WARNING } from '../utilities/logMessages';
 
 const pluginName = 'NativeDestinationQueue';
 
@@ -42,7 +43,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): IQueue {
       const finalQOpts = getNormalizedQueueOptions(
-        state.loadOptions.value.queueOptions as QueueOpts,
+        state.loadOptions.value.destinationsQueueOptions as QueueOpts,
       );
 
       const writeKey = state.lifecycle.writeKey.value as string;
@@ -60,7 +61,11 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             const sendEvent = !isEventDenyListed(item.type, item.event, dest);
             if (!sendEvent) {
               logger?.warn(
-                `${NATIVE_DESTINATION_QUEUE_PLUGIN}:: The "${item.event}" track event has been filtered for the "${dest.userFriendlyId}" destination.`,
+                DESTINATION_EVENT_FILTERING_WARNING(
+                  NATIVE_DESTINATION_QUEUE_PLUGIN,
+                  item.event,
+                  dest.userFriendlyId,
+                ),
               );
               return;
             }

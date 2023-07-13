@@ -24,6 +24,7 @@ import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';
+import { EVENT_PAYLOAD_PREPARATION_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'XhrQueue';
 
@@ -101,9 +102,7 @@ const XhrQueue = (): ExtensionPlugin => ({
               },
             });
           } else {
-            logger?.error(
-              `${XHR_QUEUE_PLUGIN}:: Failed to prepare the event payload for delivery. The event will be dropped.`,
-            );
+            logger?.error(EVENT_PAYLOAD_PREPARATION_ERROR(XHR_QUEUE_PLUGIN));
             // Mark the item as done so that it can be removed from the queue
             done(null);
           }

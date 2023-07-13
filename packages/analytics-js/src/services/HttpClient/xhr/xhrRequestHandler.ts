@@ -10,6 +10,12 @@ import {
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import {
+  XHR_PAYLOAD_PREP_ERROR,
+  XHR_DELIVERY_ERROR,
+  XHR_REQUEST_ERROR,
+  XHR_SEND_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   headers: {
@@ -61,7 +67,7 @@ const xhrRequest = (
       payload = stringifyWithoutCircular(options.data, false, [], logger);
       if (isNull(payload)) {
         reject({
-          error: new Error(`Failed to prepare data for the request.`),
+          error: new Error(XHR_PAYLOAD_PREP_ERROR),
           undefined,
           options,
         });
@@ -75,7 +81,12 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          `${FAILED_REQUEST_ERR_MSG_PREFIX} with status: ${xhr.status}, ${xhr.statusText} for URL: ${options.url}.`,
+          XHR_DELIVERY_ERROR(
+            FAILED_REQUEST_ERR_MSG_PREFIX,
+            xhr.status,
+            xhr.statusText,
+            options.url,
+          ),
         ),
         xhr,
         options,
@@ -83,11 +94,7 @@ const xhrRequest = (
     };
     const xhrError = (e?: ProgressEvent) => {
       reject({
-        error: new Error(
-          `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout or no connection (${
-            e ? e.type : ''
-          }) for URL: ${options.url}.`,
-        ),
+        error: new Error(XHR_REQUEST_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, e, options.url)),
         xhr,
         options,
       });
@@ -122,9 +129,8 @@ const xhrRequest = (
     try {
       xhr.send(payload);
     } catch (err) {
-      const issue = `${FAILED_REQUEST_ERR_MSG_PREFIX} for URL: ${options.url}`;
       reject({
-        error: getMutatedError(err, issue),
+        error: getMutatedError(err, XHR_SEND_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, options.url)),
         xhr,
         options,
       });

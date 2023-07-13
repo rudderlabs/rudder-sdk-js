@@ -8,6 +8,11 @@ import { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  NOTIFY_FAILURE_ERROR,
+  REPORTING_PLUGIN_INIT_FAILURE_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
+import { LOG_CONTEXT_SEPARATOR } from "@rudderstack/analytics-js-common/constants/logMessages";
 import { isAllowedToBeNotified, processError } from './processError';
 
 /**
@@ -44,10 +49,7 @@ class ErrorHandler implements IErrorHandler {
             this.errReportingClient = client;
           })
           .catch(err => {
-            this.logger?.error(
-              `${ERROR_HANDLER}:: Failed to initialize the error reporting plugin.`,
-              err,
-            );
+            this.logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
           });
       }
     } catch (err) {
@@ -64,7 +66,9 @@ class ErrorHandler implements IErrorHandler {
       return;
     }
 
-    errorMessage = removeDoubleSpaces(`${context}:: ${customMessage} ${errorMessage}`);
+    errorMessage = removeDoubleSpaces(
+      `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
+    );
 
     let normalizedError = error;
     // Enhance error message
@@ -127,7 +131,7 @@ class ErrorHandler implements IErrorHandler {
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error(`${ERROR_HANDLER}:: Failed to notify the error.`, err);
+        this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), err);
       }
     }
   }

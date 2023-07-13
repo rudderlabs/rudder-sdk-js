@@ -1,20 +1,20 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  WRITE_KEY_VALIDATION_ERROR,
+  DATA_PLANE_URL_VALIDATION_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
   if (!writeKey || writeKey.trim().length === 0) {
-    throw new Error(
-      `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`,
-    );
+    throw new Error(WRITE_KEY_VALIDATION_ERROR(writeKey));
   }
 };
 
 const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
   if (dataPlaneUrl && !isValidUrl(dataPlaneUrl)) {
-    throw new Error(
-      `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`,
-    );
+    throw new Error(DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl));
   }
 };
 

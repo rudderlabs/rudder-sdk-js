@@ -1,4 +1,5 @@
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '@rudderstack/analytics-js/constants/logMessages';
 import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
@@ -62,7 +63,7 @@ const isStorageAvailable = (
     }
     return false;
   } catch (err) {
-    const msgPrefix = `${CAPABILITIES_MANAGER}:: The "${type}" storage type is `;
+    const msgPrefix = STORAGE_UNAVAILABILITY_ERROR_PREFIX(CAPABILITIES_MANAGER, type);
     let reason = 'unavailable';
     if (isStorageQuotaExceeded(err)) {
       reason = 'full';

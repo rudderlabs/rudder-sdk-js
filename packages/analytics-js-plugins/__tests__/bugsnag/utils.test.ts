@@ -331,7 +331,7 @@ describe('Bugsnag utilities', () => {
       setTimeout(() => {
         expect(mockErrorHandler.onError).toHaveBeenCalledWith(
           new Error(
-            `Failed to load script with id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js".`,
+            `Failed to load the script with the id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js".`,
           ),
           'ExternalSrcLoader',
         );

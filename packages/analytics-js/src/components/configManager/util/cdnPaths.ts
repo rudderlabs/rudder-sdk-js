@@ -6,6 +6,10 @@ import {
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  INTG_CDN_BASE_URL_ERROR,
+  PLUGINS_CDN_BASE_URL_ERROR,
+} from '@rudderstack/analytics-js/constants/logMessages';
 import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 
@@ -28,8 +32,7 @@ const getIntegrationsCDNPath = (
     integrationsCDNPath = removeTrailingSlashes(customIntegrationsCDNPath) as string;
 
     if (!integrationsCDNPath || (integrationsCDNPath && !isValidUrl(integrationsCDNPath))) {
-      const errorMsg = 'CDN base URL for integrations is not valid';
-      throw new Error(`Failed to load the SDK: ${errorMsg}.`);
+      throw new Error(INTG_CDN_BASE_URL_ERROR);
     }
 
     return integrationsCDNPath;
@@ -63,9 +66,7 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
     pluginsCDNPath = removeTrailingSlashes(customPluginsCDNPath) as string;
 
     if (!pluginsCDNPath || (pluginsCDNPath && !isValidUrl(pluginsCDNPath))) {
-      const errorMsg = 'CDN base URL for plugins is not valid';
-
-      throw new Error(`Failed to load SDK: ${errorMsg}.`);
+      throw new Error(PLUGINS_CDN_BASE_URL_ERROR);
     }
 
     return pluginsCDNPath;
