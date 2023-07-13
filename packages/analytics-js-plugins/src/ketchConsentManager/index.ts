@@ -4,7 +4,7 @@ import { ExtensionPlugin } from '../types/plugins';
 import { isUndefined } from '../utilities/common';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';
-import { getConsentData, getKetchConsentData } from './utils';
+import { getKetchConsentData, updateConsentStateFromData } from './utils';
 
 const pluginName = 'KetchConsentManager';
 
@@ -16,11 +16,6 @@ const KetchConsentManager = (): ExtensionPlugin => ({
   },
   consentManager: {
     init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
-      const updateConsentStateFromData = (ketchConsentData: KetchConsentData) => {
-        const consentData = getConsentData(ketchConsentData);
-        state.consents.data.value = consentData;
-      };
-
       // getKetchUserConsentedPurposes returns current ketch opted-in purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserConsentedPurposes = () =>
@@ -33,7 +28,9 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
       // updateKetchConsent callback function to update current consent purpose state
       // this will be called from ketch rudderstack plugin
-      (globalThis as any).updateKetchConsent = updateConsentStateFromData;
+      (globalThis as any).updateKetchConsent = (ketchConsentData: KetchConsentData) => {
+        updateConsentStateFromData(state, ketchConsentData);
+      };
 
       // retrieve consent data and update the state
       let ketchConsentData;
@@ -43,7 +40,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
         ketchConsentData = getKetchConsentData(storeManager, logger);
       }
 
-      updateConsentStateFromData(ketchConsentData);
+      updateConsentStateFromData(state, ketchConsentData);
     },
 
     isDestinationConsented(

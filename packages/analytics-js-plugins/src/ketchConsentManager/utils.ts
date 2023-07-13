@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { ConsentInfo, ILogger, IStoreManager } from '../types/common';
+import { ApplicationState, ConsentInfo, ILogger, IStoreManager } from '../types/common';
 import { COOKIE_STORAGE, fromBase64 } from '../utilities/common';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
@@ -74,4 +74,12 @@ const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
   return { initialized, allowedConsents, deniedConsentIds };
 };
 
-export { getKetchConsentData, getConsentData };
+const updateConsentStateFromData = (
+  state: ApplicationState,
+  ketchConsentData: KetchConsentData,
+) => {
+  const consentData = getConsentData(ketchConsentData);
+  state.consents.data.value = consentData;
+};
+
+export { getKetchConsentData, getConsentData, updateConsentStateFromData };
