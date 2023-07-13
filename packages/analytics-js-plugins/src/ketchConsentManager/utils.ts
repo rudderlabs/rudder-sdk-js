@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState, ConsentInfo, ILogger, IStoreManager } from '../types/common';
 import { COOKIE_STORAGE, fromBase64 } from '../utilities/common';
+import { KETCH_CONSENT_COOKIE_ERROR } from '../utilities/logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
 
@@ -31,7 +32,7 @@ const getKetchConsentData = (
   try {
     consentCookieData = JSON.parse(fromBase64(consentData));
   } catch (err) {
-    logger?.error(`${KETCH_CONSENT_MANAGER_PLUGIN}:: Failed to parse the consent cookie.`, err);
+    logger?.error(KETCH_CONSENT_COOKIE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
     return undefined;
   }
 

@@ -2,6 +2,7 @@
 import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
 import { ExtensionPlugin } from '../types/plugins';
 import { isUndefined } from '../utilities/common';
+import { DESTINATION_CONSENT_STATUS_ERROR } from '../utilities/logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';
 import { getKetchConsentData, updateConsentStateFromData } from './utils';
@@ -70,10 +71,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
         );
         return containsAnyOfConsent;
       } catch (err) {
-        logger?.error(
-          `${KETCH_CONSENT_MANAGER_PLUGIN}:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.`,
-          err,
-        );
+        logger?.error(DESTINATION_CONSENT_STATUS_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
         return true;
       }
     },
