@@ -4,7 +4,7 @@ import { state, resetState } from '@rudderstack/analytics-js/state';
 describe('Plugin - OneTrustConsentManager', () => {
   beforeEach(() => {
     resetState();
-    delete (window as any).OneTrustConsentManager;
+    delete (window as any).OneTrust;
     delete (window as any).OnetrustActiveGroups;
   });
 
@@ -21,7 +21,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should initialize the plugin and compute consentInfo if OneTrust SDK is already loaded', () => {
     // Mock the OneTrust data on the window object
-    (window as any).OneTrustConsentManager = {
+    (window as any).OneTrust = {
       GetDomainData: jest.fn(() => ({
         Groups: [
           { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },

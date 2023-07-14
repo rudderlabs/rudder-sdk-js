@@ -21,10 +21,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
   },
   consentManager: {
     init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
-      if (
-        !(globalThis as any).OneTrustConsentManager ||
-        !(globalThis as any).OnetrustActiveGroups
-      ) {
+      if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
         logger?.error(ONETRUST_ACCESS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN));
         state.consents.data.value = { initialized: false };
         return;
@@ -41,9 +38,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       const deniedConsentIds: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
-      const oneTrustAllGroupsInfo: OneTrustGroup[] = (
-        globalThis as any
-      ).OneTrustConsentManager.GetDomainData().Groups;
+      const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
+        .Groups;
 
       oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
         const { CustomGroupId, GroupName } = group;
