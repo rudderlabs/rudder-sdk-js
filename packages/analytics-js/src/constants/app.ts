@@ -6,6 +6,7 @@ const IS_LEGACY_BUILD = __BUNDLE_ALL_PLUGINS__;
 const ADBLOCK_PAGE_CATEGORY = 'RudderJS-Initiated';
 const ADBLOCK_PAGE_NAME = 'ad-block page request';
 const ADBLOCK_PAGE_PATH = '/ad-blocked';
+const GLOBAL_PRELOAD_BUFFER = 'preloadedEventsBuffer';
 
 export {
   APP_NAME,
@@ -16,4 +17,5 @@ export {
   ADBLOCK_PAGE_CATEGORY,
   ADBLOCK_PAGE_NAME,
   ADBLOCK_PAGE_PATH,
+  GLOBAL_PRELOAD_BUFFER,
 };

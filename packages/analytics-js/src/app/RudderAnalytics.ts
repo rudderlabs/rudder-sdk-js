@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prefer-export-from */
-import { isEmpty } from 'ramda';
+import { clone, isEmpty } from 'ramda';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
@@ -18,6 +18,8 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 
@@ -45,6 +47,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
     this.load = this.load.bind(this);
     this.ready = this.ready.bind(this);
+    this.getPreloadBuffer = this.getPreloadBuffer.bind(this);
     this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -63,6 +66,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.getSessionId = this.getSessionId.bind(this);
 
     RudderAnalytics.globalSingleton = this;
+
+    // get the preloaded events before replacing global object
+    this.getPreloadBuffer();
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
@@ -109,6 +115,21 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.setDefaultInstanceKey(writeKey);
     this.analyticsInstances[writeKey] = new Analytics();
     this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
+  }
+
+  /**
+   * Get preloaded events in buffer queue if exists
+   */
+  // eslint-disable-next-line class-methods-use-this
+  getPreloadBuffer() {
+    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
+      (globalThis as typeof window).rudderanalytics,
+    )
+      ? (globalThis as typeof window).rudderanalytics
+      : [];
+
+    // Expose buffer to global objects
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
   }
 
   /**

@@ -232,7 +232,7 @@ class Analytics implements IAnalytics {
    */
   enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]) {
     if (Array.isArray(bufferedEvents)) {
-      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(bufferedEvent));
+      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(clone(bufferedEvent)));
     }
   }
 

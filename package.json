@@ -1,6 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "private": true,
   "description": "",
   "workspaces": [
     "packages/*"

@@ -16,6 +16,11 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import {
+  getExposedGlobal,
+  setExposedGlobal,
+} from '@rudderstack/analytics-js/components/utilities/globals';
+import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
 
 /**
  * Parse query string params into object values for keys that start with a defined prefix
@@ -101,21 +106,18 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
  * Retrieve any existing events that were triggered before SDK load and enqueue in buffer
  */
 const retrievePreloadBufferEvents = (instance: IAnalytics) => {
-  const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-    (globalThis as typeof window).rudderanalytics,
-  )
-    ? (globalThis as typeof window).rudderanalytics
-    : [];
+  const preloadedEventsArray = getExposedGlobal(GLOBAL_PRELOAD_BUFFER) || [];
 
   // Get events that are pre-populated via query string params
-  retrieveEventsFromQueryString(preloadedEventsArray);
-  const sanitizedPreloadedEventsArray = preloadedEventsArray.filter(
+  retrieveEventsFromQueryString(preloadedEventsArray as PreloadedEventCall[]);
+  const sanitizedPreloadedEventsArray = (preloadedEventsArray as PreloadedEventCall[]).filter(
     bufferedEvent => bufferedEvent[0] !== 'load',
   );
 
   // Enqueue the non load events in the buffer of the global rudder analytics singleton
   if (sanitizedPreloadedEventsArray.length > 0) {
     instance.enqueuePreloadBufferEvents(sanitizedPreloadedEventsArray);
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, []);
   }
 };
 

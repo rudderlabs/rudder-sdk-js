@@ -1,6 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
   "version": "3.0.0",
+  "private": true,
   "description": "RudderStack Javascript SDK device mode integrations",
   "main": "modern/cjs/index.js",
   "module": "modern/esm/index.js",

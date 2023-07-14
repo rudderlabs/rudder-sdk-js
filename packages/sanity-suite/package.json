@@ -1,9 +1,9 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
   "version": "2.36.0",
+  "private": true,
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/testBook.js",
-  "private": true,
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "npm run build:v1.1 && npm run build:v3 && npm run start:local",

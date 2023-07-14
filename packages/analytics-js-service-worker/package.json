@@ -16,7 +16,7 @@
     }
   },
   "publishConfig": {
-    "directory": "dist/"
+    "directory": "dist/npm"
   },
   "keywords": [
     "analytics",
