@@ -9,7 +9,7 @@ on:
 
 jobs:
   create-branch:
-    name: Create new hotfix branch v1.1
+    name: Create new branch v1.1
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/production'
     steps:
@@ -19,3 +19,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           branch: 'hotfix/${{ github.event.inputs.hotfix_name }}'
+

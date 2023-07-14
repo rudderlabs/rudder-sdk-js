@@ -15,7 +15,7 @@ jobs:
   deploy-tag:
     name: Deploy to DEV v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v3-staging') || startsWith(github.ref, 'refs/heads/hotfix-v3/') || startsWith(github.ref, 'refs/heads/develop/') || github.event.pull_request.merged == true
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v3-staging') || startsWith(github.ref, 'refs/heads/v3-hotfix/') || startsWith(github.ref, 'refs/heads/develop/') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -41,18 +41,21 @@ jobs:
 
       - name: Build files
         env:
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/dev/v3/latest/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/dev/latest/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'development'
         run: |
           npm run build:browser
+          npm run build:browser:modern
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/legacy/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/modern/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/legacy/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/legacy/plugins/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/plugins/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/legacy/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/v3/latest/modern/js-integrations/ --recursive --cache-control max-age=3600
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/v3/latest/*"
+          aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/modern/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-plugins/dist/cdn/legacy/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/plugins/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/plugins/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/latest*"

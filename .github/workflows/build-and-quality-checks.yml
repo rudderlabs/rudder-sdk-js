@@ -24,13 +24,12 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
-          npm run setup:ci
+          npm ci
 
       - name: Execute quality checks
         run: |
-          npm run check:circular -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
-          npm run check:duplicates -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
+          npm run check:circular
+          npm run check:duplicates
 
       - name: Execute security checks
         run: |
@@ -42,7 +41,4 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
-          build_script: check:size:build -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common'
-          script: npx lerna exec --loglevel=silent --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-common' -- npx size-limit --json
-          is_monorepo: true
+          build_script: check:size:build

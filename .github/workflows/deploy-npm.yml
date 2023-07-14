@@ -27,25 +27,14 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-        run: |
-          npm ci --no-audit
-          npm run setup:ci
-
-      - name: Get new version number
-        run: |
-          current_version=$(jq -r .version packages/analytics-v1.1/package.json)
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
-
       - name: Build files
         env:
+          HUSKY: 0
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
-          npm run build:package -- --scope 'rudder-sdk-js'
+          npm ci
+          npm run build:npm
 
       - name: Publish package to NPM
         env:
@@ -53,15 +42,21 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          cd packages/analytics-v1.1/dist/npm
+          cd dist/npm-lib
           npm publish
+
+      - name: Get new version number
+        run: |
+          current_version=$(jq -r .version package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK NPM Package v1.1'
+          PROJECT_NAME: 'JS SDK NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
@@ -87,3 +82,4 @@ jobs:
                 }
               ]
             }
+

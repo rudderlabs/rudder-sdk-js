@@ -3,9 +3,9 @@ name: 'Unit Tests, Coverage & Sonar v3'
 on:
   workflow_dispatch:
   push:
-    branches: ['v3-production', 'v3-staging']
+    branches: ['master', 'develop', 'v3-staging']
   pull_request:
-    branches: ['v3-production', 'v3-staging']
+    branches: ['master', 'develop', 'v3-staging']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -30,26 +30,32 @@ jobs:
           HUSKY: 0
         run: |
           npm ci --no-audit
-          npm run setup
+          npm run setup:ci
 
       - name: Execute unit tests
         run: |
-          npm run test:ci -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run test:ci
 
       - name: Execute linting check
         run: |
-          npm run check:lint -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run check:lint
 
       - name: Fix filesystem paths in generated reports
         run: |
           sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js/reports/coverage/lcov.info
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js/reports/eslint.json
+          sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js-common+/github/workspace+g' packages/analytics-js-common/reports/coverage/lcov.info
+          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js-common+/github/workspace+g' packages/analytics-js-common/reports/eslint.json
+          sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js-integrations+/github/workspace+g' packages/analytics-js-integrations/reports/coverage/lcov.info
+          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js-integrations+/github/workspace+g' packages/analytics-js-integrations/reports/eslint.json
           sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-plugins/reports/coverage/lcov.info
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-plugins/reports/eslint.json
-          # sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
-          # sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
-          # sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/coverage/lcov.info
-          # sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/eslint.json
+          sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/coverage/lcov.info
+          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-js-service-worker/reports/eslint.json
+          sed -i 's+../../home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
+          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
+          sed -i 's+/home/runner/work/rudder-sdk-js/loading-scripts+/github/workspace+g' packages/loading-scripts/reports/eslint.json
+          sed -i 's+/home/runner/work/rudder-sdk-js/sanity-suite+/github/workspace+g' packages/sanity-suite/reports/eslint.json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

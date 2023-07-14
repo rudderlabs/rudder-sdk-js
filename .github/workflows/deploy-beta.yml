@@ -1,4 +1,4 @@
-name: Deploy BETA Feature v1.1
+name: Deploy BETA/BugBash Feature v1.1
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy BETA Feature v1.1
+    name: Deploy BETA/BugBash Feature v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash')
     steps:
@@ -22,6 +22,7 @@ jobs:
           FEATURE_NAME=${source_branch_name#bugbash/}
           FEATURE_NAME=${FEATURE_NAME#beta/}
           FEATURE_NAME=${FEATURE_NAME#refs/heads/}
+          FEATURE_NAME=${FEATURE_NAME#refs/tags/}
 
           echo "branch_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
           echo "branch_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
@@ -42,23 +43,19 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-        run: |
-          npm ci --no-audit
-          npm run setup:ci
-
       - name: Build and sync files to S3
         env:
+          HUSKY: 0
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: '${{ steps.extract_branch.outputs.branch_type }}'
+          BUGSNAG_RELEASE_STAGE: 'beta'
         run: |
-          npm run build:browser -- --scope 'rudder-sdk-js' --scope '@rudderstack/analytics-js-integrations'
+          npm ci
+          npm run build:browser
+          npm run build:integration:all
 
       - name: Sync files to S3 beta folder
         run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"

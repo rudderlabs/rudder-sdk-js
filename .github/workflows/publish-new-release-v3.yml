@@ -1,4 +1,4 @@
-name: Publish new github release v1.1
+name: Publish new github release v3
 
 on:
   pull_request:
@@ -7,17 +7,19 @@ on:
     types:
       - closed
 
+# TODO: npm run release:github how to do it like RN
 jobs:
   release:
-    name: Publish new release v1.1
+    name: Publish new release v3
     runs-on: ubuntu-latest
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
+    if: (startsWith(github.event.pull_request.head.ref, 'v3-release/') || startsWith(github.event.pull_request.head.ref, 'v3-hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
     steps:
       - name: Extract version from branch name (for release branches)
         id: extract-version
         run: |
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-          VERSION=${BRANCH_NAME#hotfix-}
+          VERSION=${BRANCH_NAME#v3-}
+          VERSION=${VERSION#hotfix-}
           VERSION=${VERSION#release/}
 
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
@@ -52,29 +54,29 @@ jobs:
           npm run release:github
           echo "DATE=$(date)" >> $GITHUB_ENV
 
-      - name: Create pull request into staging
+      - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: 'production'
-          destination_branch: 'production-staging'
+          source_branch: 'master'
+          destination_branch: 'develop'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pulling production into production-staging post release v${{ steps.extract-version.outputs.release_version }}'
+          pr_title: 'chore(release): pulling master into develop post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        if: startsWith(github.event.pull_request.head.ref, 'v3-hotfix-release/')
         with:
-          branches: 'hotfix-release/*'
+          branches: 'v3-hotfix-release/*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete release branch
         uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'release/')
+        if: startsWith(github.event.pull_request.head.ref, 'v3-release/')
         with:
-          branches: 'release/*'
+          branches: 'v3-release/*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -83,7 +85,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK (v1.1)'
+          PROJECT_NAME: 'JS SDK (v3)'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/v'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

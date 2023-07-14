@@ -1,13 +1,13 @@
-name: Draft new release v1.1
+name: Draft new release v3
 
 on:
   workflow_dispatch:
 
 jobs:
   draft-new-release:
-    name: Draft a new release v1.1
+    name: Draft a new release v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix/')
+    if: startsWith(github.ref, 'refs/heads/v3-staging') || startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
     steps:
       - name: Checkout source branch
         uses: actions/checkout@v3
@@ -27,6 +27,9 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
+      # TODO: use lerna version also see RN
+      #   https://www.npmjs.com/package/@lerna/version
+      #   https://www.npmjs.com/package/@lerna/version#lifecycle-scripts
       # Calculate the next release version based on conventional semantic release
       - name: Create release branch
         id: create-release
@@ -34,11 +37,11 @@ jobs:
           HUSKY: 0
         run: |
           source_branch_name=${GITHUB_REF##*/}
-          release_type=release
-          grep -q "hotfix/" <<< "${GITHUB_REF}" && release_type=hotfix-release
-          git fetch origin production
+          release_type=v3-release
+          grep -q "v3-hotfix/" <<< "${GITHUB_REF}" && release_type=v3-hotfix-release
+          git fetch origin master
           git fetch --tags origin
-          git merge origin/production
+          git merge origin/master
           current_version=$(jq -r .version package.json)
 
           npx standard-version --skip.commit --skip.tag --skip.changelog
@@ -83,5 +86,5 @@ jobs:
           destination_branch: 'production'
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into production'
-          pr_body: ":crown: *An automated PR*"
+          pr_body: ':crown: *An automated PR*'
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

@@ -35,7 +35,11 @@ jobs:
 
       - name: Get new version number
         run: |
-          current_version=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version_sw=$(jq -r .version packages/analytics-js-service-worker/package.json)
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_SW_VALUE=$current_version_sw" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
@@ -45,9 +49,7 @@ jobs:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
-          npm run build:package -- --scope '@rudderstack/analytics-js'
-
-# TODO: what about the common and plugins packages?
+          npm run build:package
 
       - name: Publish package to NPM
         env:
@@ -55,16 +57,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          cd packages/analytics-js/dist/npm
-          npm publish
+          lerna publish from-package --no-private --contents dist/npm
 
-      - name: Send message to Slack channel
+      - name: Send message to Slack channel for v3
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v3 NPM Package'
-          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
+          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
@@ -85,6 +86,71 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}"
+                  }
+                }
+              ]
+            }
+
+      - name: Send message to Slack channel for v1.1
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK 1.1 NPM Package'
+          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}"
+                  }
+                }
+              ]
+            }
+
+
+      - name: Send message to Slack channel for Service Worker
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK Service Worker NPM Package'
+          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}"
                   }
                 }
               ]
