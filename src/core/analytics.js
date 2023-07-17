@@ -449,7 +449,7 @@ class Analytics {
                         eventsToSend.push({ event: rudderElement.message });
                       }
 
-                      const logMsg = `${msgPrefix} "${reason}. ${action}.`;
+                      const logMsg = `${msgPrefix} ${reason}. ${action}.`;
                       logMethod(logMsg);
                     }
                   });
@@ -464,7 +464,9 @@ class Analytics {
                 }
                 // Transformation server access denied
                 case 404: {
-                  logger.warn(`[DMT]:: Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`);
+                  logger.warn(
+                    `[DMT]:: Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`,
+                  );
                   // send untransformed event to destination
                   this.sendDataToDestination(intg, rudderElement, methodName);
                   break;
