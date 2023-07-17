@@ -31,11 +31,6 @@ class YandexMetrica {
 
   loadScript() {
     loadNativeSdk(
-      window,
-      document,
-      'script',
-      'https://mc.yandex.ru/metrika/tag.js',
-      'ym',
       this.tagId,
       this.clickMap,
       this.trackLinks,
