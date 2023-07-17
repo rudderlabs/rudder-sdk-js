@@ -1,6 +1,7 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 function loadNativeSdk(serverUrl, siteId) {
+  window._paq = window._paq || [];
   let u = serverUrl;
   window._paq.push(['setTrackerUrl', `${u}matomo.php`]);
   window._paq.push(['setSiteId', siteId]);

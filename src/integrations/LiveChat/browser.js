@@ -28,9 +28,6 @@ class LiveChat {
 
   init() {
     logger.debug('===in init Livechat===');
-    window.__lc = window.__lc || {};
-    window.__lc.license = this.licenseId;
-
     loadNativeSdk(window, document, [].slice);
   }
 

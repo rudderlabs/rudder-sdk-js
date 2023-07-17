@@ -54,7 +54,6 @@ class Matomo {
   }
 
   loadScript() {
-    window._paq = window._paq || [];
     loadNativeSdk(this.serverUrl, this.siteId);
   }
 

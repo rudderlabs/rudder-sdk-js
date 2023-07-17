@@ -1,4 +1,6 @@
 function loadNativeSdk(n, t, c) {
+  window.__lc = window.__lc || {};
+  window.__lc.license = this.licenseId;
   function i(n) {
     return e._h ? e._h.apply(null, n) : e._q.push(n);
   }
