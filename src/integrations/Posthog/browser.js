@@ -4,6 +4,7 @@ import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { removeTrailingSlashes } from '../../utils/utils';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {
@@ -53,7 +54,7 @@ class Posthog {
       logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
       return;
     }
-    loader(document, window.posthog || []);
+    loadNativeSdk(document, window.posthog || []);
 
     const configObject = {
       api_host: this.yourInstance,

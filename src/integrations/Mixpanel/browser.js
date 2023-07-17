@@ -36,7 +36,7 @@ import {
   formatTraits,
 } from './util';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Mixpanel {
   constructor(config, analytics, destinationInfo) {
@@ -85,7 +85,7 @@ class Mixpanel {
   init() {
     logger.debug('===in init Mixpanel===');
     // eslint-disable-next-line no-var
-    loader(document, window.mixpanel || []);
+    loadNativeSdk(document, window.mixpanel || []);
     const options = {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,

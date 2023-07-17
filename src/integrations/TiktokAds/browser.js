@@ -9,8 +9,8 @@ import {
   getDestinationExternalID,
   isDefinedAndNotNull,
 } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getTrackResponse } from './util';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 // Docs : https://ads.tiktok.com/gateway/docs/index
 class TiktokAds {
@@ -29,7 +29,7 @@ class TiktokAds {
 
   init() {
     logger.debug('===In init Tiktok Ads===');
-    loader(window, document, 'ttq');
+    loadNativeSdk(window, document, 'ttq');
     ttq.load(this.pixelCode);
   }
 

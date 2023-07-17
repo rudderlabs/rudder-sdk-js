@@ -4,7 +4,7 @@
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class Lemnisk {
@@ -23,7 +23,7 @@ class Lemnisk {
 
   init() {
     logger.debug('===in init Lemnisk Marketing Automation===');
-    loader(
+    loadNativeSdk(
       window,
       document.location.protocol === 'https:'
         ? `https://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`

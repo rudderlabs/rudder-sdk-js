@@ -3,7 +3,7 @@
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import makeACall from './utils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -23,7 +23,7 @@ class Axeptio {
 
   init() {
     logger.debug('===In init Axeptio===');
-    loader(document, 'script', this.clientId);
+    loadNativeSdk(document, 'script', this.clientId);
   }
 
   isLoaded() {

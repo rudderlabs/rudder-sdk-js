@@ -6,7 +6,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '../../utils/constants';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Chartbeat {
   constructor(config, analytics, destinationInfo) {
@@ -108,7 +108,7 @@ class Chartbeat {
   initAfterPage() {
     onBody(() => {
       const script = this.isVideo ? 'chartbeat_video.js' : 'chartbeat.js';
-      loader(script);
+      loadNativeSdk(script);
     });
 
     this._isReady(this).then((instance) => {

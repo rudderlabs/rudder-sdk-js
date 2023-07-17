@@ -2,7 +2,7 @@
 /* eslint-disable lines-between-class-members */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {
@@ -19,7 +19,7 @@ class Pendo {
   }
 
   init() {
-    loader(this.apiKey, window, document, 'script', 'pendo');
+    loadNativeSdk(this.apiKey, window, document, 'script', 'pendo');
     this.initializeMe();
     logger.debug('===in init Pendo===');
   }

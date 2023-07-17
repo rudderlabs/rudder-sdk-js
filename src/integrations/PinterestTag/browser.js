@@ -16,7 +16,7 @@ import {
 } from '../../utils/utils';
 import { NAME } from './constants';
 import { getDestinationEventName } from './utils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 export default class PinterestTag {
   constructor(config, analytics, destinationInfo) {
@@ -37,7 +37,7 @@ export default class PinterestTag {
   }
 
   loadScript() {
-    !loader('https://s.pinimg.com/ct/core.js');
+    loadNativeSdk('https://s.pinimg.com/ct/core.js');
   }
 
   handleEnhancedMatch() {

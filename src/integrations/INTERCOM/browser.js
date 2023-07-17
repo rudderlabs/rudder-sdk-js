@@ -3,7 +3,7 @@ import md5 from 'md5';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { flattenJsonPayload } from '../../utils/utils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -24,7 +24,7 @@ class INTERCOM {
     window.intercomSettings = {
       app_id: this.APP_ID,
     };
-    loader();
+    loadNativeSdk();
   }
 
   page() {

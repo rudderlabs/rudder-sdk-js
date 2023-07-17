@@ -1,7 +1,7 @@
 /* eslint-disable */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
 
 class Refiner {
@@ -24,7 +24,7 @@ class Refiner {
     this._refiner = function () {
       window._refinerQueue.push(arguments);
     };
-    loader();
+    loadNativeSdk();
     this._refiner('setProject', this.apiKey);
   }
 

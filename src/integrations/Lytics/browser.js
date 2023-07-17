@@ -20,7 +20,7 @@
 /* eslint-disable strict */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Lytics {
   constructor(config, analytics, destinationInfo) {
@@ -40,7 +40,7 @@ class Lytics {
   }
 
   loadLyticsScript() {
-    loader();
+    loadNativeSdk();
     // Define config and initialize Lytics tracking tag.
     window.jstag.init({
       loadid: this.loadid,

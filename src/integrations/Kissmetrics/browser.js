@@ -4,7 +4,7 @@ import each from 'component-each';
 import { getRevenue } from '../../utils/utils';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadeNativeSdk } from './nativeSdkLoader';
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {
@@ -25,7 +25,7 @@ class Kissmetrics {
     window._kmq = window._kmq || [];
 
     const _kmk = window._kmk || this.apiKey;
-    loader(_kmk);
+    loadeNativeSdk(_kmk);
 
     if (this.isEnvMobile()) {
       window._kmq.push(['set', { 'Mobile Session': 'Yes' }]);

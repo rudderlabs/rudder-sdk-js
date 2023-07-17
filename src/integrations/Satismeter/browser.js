@@ -4,7 +4,7 @@
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class Satismeter {
@@ -27,7 +27,7 @@ class Satismeter {
 
   init() {
     logger.debug('===In init Satismeter===');
-    loader();
+    loadNativeSdk();
 
     window.satismeter({
       writeKey: this.writeKey,

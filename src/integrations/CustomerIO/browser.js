@@ -1,8 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class CustomerIO {
   constructor(config, analytics, destinationInfo) {
@@ -22,7 +21,7 @@ class CustomerIO {
     logger.debug('===in init Customer IO init===');
     window._cio = window._cio || [];
     const { siteID } = this;
-    loader(siteID);
+    loadNativeSdk(siteID);
   }
 
   identify(rudderElement) {

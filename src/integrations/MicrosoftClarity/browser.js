@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class MicrosoftClarity {
@@ -19,7 +19,7 @@ class MicrosoftClarity {
   }
 
   loadScript() {
-    loader(window, document, 'clarity', 'script', this.projectId);
+    loadNativeSdk(window, document, 'clarity', 'script', this.projectId);
     if (this.cookieConsent) {
       window.clarity('consent');
     }

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class GoogleTagManager {
   constructor(config, analytics, destinationInfo) {
@@ -26,7 +26,7 @@ class GoogleTagManager {
 
     window.finalUrl = this.serverUrl ? this.serverUrl : defaultUrl;
 
-    loader(window, document, 'script', 'dataLayer', this.containerID);
+    loadNativeSdk(window, document, 'script', 'dataLayer', this.containerID);
   }
 
   identify(rudderElement) {

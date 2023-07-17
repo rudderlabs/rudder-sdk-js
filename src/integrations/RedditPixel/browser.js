@@ -10,7 +10,7 @@
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -29,7 +29,7 @@ class RedditPixel {
   init() {
     logger.debug('===In init RedditPixel===');
 
-    loader(window, document);
+    loadNativeSdk(window, document);
 
     window.rdt('init', this.advertiserId);
   }

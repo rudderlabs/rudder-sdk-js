@@ -7,7 +7,7 @@ import { recordingLiveChatEvents } from './util';
 import { isObject } from '../../utils/utils';
 import { flattenJson } from '../../utils/commonUtils';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class LiveChat {
   constructor(config, analytics, destinationInfo) {
@@ -31,7 +31,7 @@ class LiveChat {
     window.__lc = window.__lc || {};
     window.__lc.license = this.licenseId;
 
-    loader(window, document, [].slice);
+    loadNativeSdk(window, document, [].slice);
   }
 
   isLoaded() {

@@ -2,7 +2,7 @@
 import processHeapProperties from './util';
 import { NAME } from './constants';
 import logger from '../../utils/logUtil';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
@@ -23,7 +23,7 @@ class Heap {
    */
 
   init() {
-    (window.heap = window.heap || []), (heap.load = loader(e, t));
+    (window.heap = window.heap || []), (heap.load = loadNativeSdk(e, t));
     window.heap.load(this.appId);
   }
 

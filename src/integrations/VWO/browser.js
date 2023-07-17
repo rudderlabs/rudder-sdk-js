@@ -3,7 +3,7 @@
 /* eslint-disable camelcase */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class VWO {
   constructor(config, analytics, destinationInfo) {
@@ -33,7 +33,7 @@ class VWO {
       const library_tolerance = this.libraryTolerance;
       const use_existing_jquery = this.useExistingJquery;
       const { isSPA } = this;
-      window._vwo_code = loader(
+      window._vwo_code = loadNativeSdk(
         account_id,
         settings_tolerance,
         library_tolerance,

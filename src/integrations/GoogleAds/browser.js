@@ -11,7 +11,7 @@ import {
   getConversionData,
 } from './utils';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class GoogleAds {
   constructor(config, analytics, destinationInfo) {
@@ -46,7 +46,7 @@ class GoogleAds {
 
   init() {
     const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=${this.conversionId}`;
-    loader('googleAds-integration', sourceUrl, document);
+    loadNativeSdk('googleAds-integration', sourceUrl, document);
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () {

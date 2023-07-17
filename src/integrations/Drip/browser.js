@@ -7,7 +7,7 @@ import { getDestinationExternalID } from './utils';
 
 import { extractCustomFields } from '../../utils/utils';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Drip {
   constructor(config, analytics, destinationInfo) {
@@ -43,7 +43,7 @@ class Drip {
     window._dcs = window._dcs || {};
     window._dcs.account = this.accountId;
 
-    loader();
+    loadNativeSdk();
   }
 
   isLoaded() {

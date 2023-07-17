@@ -1,7 +1,7 @@
 import each from '@ndhoule/each';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -38,7 +38,7 @@ class MoEngage {
     logger.debug('===in init MoEngage===');
     // loading the script for moengage web sdk
     /* eslint-disable */
-    loader(
+    loadNativeSdk(
       window,
       document,
       'script',

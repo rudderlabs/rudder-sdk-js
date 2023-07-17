@@ -3,7 +3,7 @@
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArray } from '../../utils/commonUtils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Rockerbox {
   constructor(config, analytics, destinationInfo) {
@@ -26,7 +26,7 @@ class Rockerbox {
     logger.debug('=== In init Rockerbox ===');
     const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
     const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-    loader(document, window.RB || {});
+    loadNativeSdk(document, window.RB || {});
     window.RB.disablePushState = true;
     window.RB.queue = [];
     window.RB.initialize(this.clientAuthId);

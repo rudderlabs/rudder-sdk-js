@@ -12,7 +12,7 @@ import {
   checkCustomDimensions,
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {
@@ -55,7 +55,7 @@ class Matomo {
 
   loadScript() {
     window._paq = window._paq || [];
-    loader(this.serverUrl, this.siteId);
+    loadNativeSdk(this.serverUrl, this.siteId);
   }
 
   init() {

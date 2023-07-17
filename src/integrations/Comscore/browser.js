@@ -5,7 +5,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '../../utils/constants';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Comscore {
   constructor(config, analytics, destinationInfo) {
@@ -70,7 +70,7 @@ class Comscore {
 
   initAfterPage() {
     logger.debug('=====in initAfterPage=====');
-    loader();
+    loadNativeSdk();
 
     this._isReady(this).then((instance) => {
       instance.replayEvents.forEach((event) => {

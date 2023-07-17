@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Hotjar {
   constructor(config, analytics, destinationInfo) {
@@ -22,7 +22,7 @@ class Hotjar {
     logger.debug('===In init Hotjar===');
 
     window.hotjarSiteId = this.siteId;
-    loader(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    loadNativeSdk(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
     this._ready = true;
   }
 

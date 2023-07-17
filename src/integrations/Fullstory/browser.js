@@ -3,7 +3,7 @@
 import camelcase from '../../utils/camelcase';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -62,7 +62,7 @@ class Fullstory {
     window._fs_org = this.fs_org;
     window._fs_namespace = 'FS';
 
-    loader(window, document, window._fs_namespace, 'script', 'user');
+    loadNativeSdk(window, document, window._fs_namespace, 'script', 'user');
     const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
     // Checking if crossDomainSupport is their or not.
     if (FULLSTORY?.crossDomainSupport === true) {

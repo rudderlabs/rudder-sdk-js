@@ -3,7 +3,7 @@ import { NAME } from './constants';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { extractCustomFields } from '../../utils/utils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class BingAds {
   constructor(config, analytics, destinationInfo) {
@@ -19,7 +19,7 @@ class BingAds {
   }
 
   init = () => {
-    loader(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
+    loadNativeSdk(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
     logger.debug('===in init BingAds===');
   };
 

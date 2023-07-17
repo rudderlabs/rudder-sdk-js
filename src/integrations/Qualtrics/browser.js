@@ -11,7 +11,7 @@
 
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Qualtrics {
   constructor(config, analytics, destinationInfo) {
@@ -44,7 +44,7 @@ class Qualtrics {
     const requestUrlFormatted = `https://${projectIdFormatted}-${this.brandId}.siteintercept.qualtrics.com/SIE/?Q_ZID=${this.projectId}`;
     const requestIdFormatted = `QSI_S_${this.projectId}`;
 
-    loader(requestIdFormatted, requestUrlFormatted);
+    loadNativeSdk(requestIdFormatted, requestUrlFormatted);
 
     const div = document.createElement('div');
     div.setAttribute('id', String(this.projectId));

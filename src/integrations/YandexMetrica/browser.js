@@ -7,7 +7,7 @@ import {
 } from '../../utils/commonUtils';
 import { NAME } from './constants';
 import { getDefinedTraits } from '../../utils/utils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class YandexMetrica {
   constructor(config, analytics, destinationInfo) {
@@ -30,7 +30,7 @@ class YandexMetrica {
   }
 
   loadScript() {
-    loader(
+    loadNativeSdk(
       window,
       document,
       'script',

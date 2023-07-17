@@ -1,10 +1,10 @@
 /* eslint-disable*/
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { refinePayload, getDestinationExternalID } from './utils.js';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Engage {
   constructor(config, analytics, destinationInfo) {
@@ -24,7 +24,7 @@ class Engage {
   init() {
     logger.debug('===In init Engage===');
 
-    !loader('engage');
+    loadNativeSdk('engage');
 
     window.Engage.init({
       key: this.api_key,

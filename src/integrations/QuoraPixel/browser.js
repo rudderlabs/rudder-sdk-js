@@ -2,7 +2,7 @@
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class QuoraPixel {
   constructor(config, analytics, destinationInfo) {
@@ -19,7 +19,7 @@ class QuoraPixel {
   }
 
   loadScript() {
-    loader(window, 'script', 'https://a.quora.com/qevents.js');
+    loadNativeSdk(window, 'script', 'https://a.quora.com/qevents.js');
     window.qp('init', this.pixelId);
     window.qp('track', 'ViewContent');
   }

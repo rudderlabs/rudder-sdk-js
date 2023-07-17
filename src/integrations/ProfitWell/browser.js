@@ -2,7 +2,7 @@
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class ProfitWell {
   constructor(config, analytics, destinationInfo) {
@@ -33,7 +33,7 @@ class ProfitWell {
     scriptTag.setAttribute('data-pw-auth', window.publicApiKey);
     document.body.appendChild(scriptTag);
 
-    loader(
+    loadNativeSdk(
       window,
       document,
       'profitwell',
