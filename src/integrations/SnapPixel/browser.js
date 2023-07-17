@@ -10,7 +10,7 @@ import {
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class SnapPixel {
   constructor(config, analytics, destinationInfo) {
@@ -68,20 +68,7 @@ class SnapPixel {
   init() {
     logger.debug('===In init SnapPixel===');
 
-    (function (e, t, n) {
-      if (e.snaptr) return;
-      var a = (e.snaptr = function () {
-        a.handleRequest ? a.handleRequest.apply(a, arguments) : a.queue.push(arguments);
-      });
-      a.queue = [];
-      const s = 'script';
-      const r = t.createElement(s);
-      r.async = !0;
-      r.src = n;
-      r.setAttribute('data-loader', LOAD_ORIGIN);
-      const u = t.getElementsByTagName(s)[0];
-      u.parentNode.insertBefore(r, u);
-    })(window, document, 'https://sc-static.net/scevent.min.js');
+    loadNativeSdk(window, document, 'https://sc-static.net/scevent.min.js');
 
     const userTraits = Storage.getUserTraits();
 
