@@ -430,14 +430,14 @@ class Analytics {
                   destTransformedResult?.payload.forEach((tEvent) => {
                     // Transformation successful
                     // event level status is 200
-                    if (tEvent.status === 200) {
+                    if (tEvent.status === '200') {
                       // push transformed event to the queue
                       eventsToSend.push(tEvent);
                     } else {
                       const msgPrefix = `[DMT]:: Event transformation unsuccessful for destination "${intg.name}". Reason: `;
 
                       let reason = 'Unknown';
-                      if (tEvent.status === 410) {
+                      if (tEvent.status === '410') {
                         reason = 'Transformation is not available';
                       }
 
