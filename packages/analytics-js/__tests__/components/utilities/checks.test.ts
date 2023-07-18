@@ -5,6 +5,8 @@ import {
   isUndefined,
   isNullOrUndefined,
   isTypeOfError,
+  isDefined,
+  isDefinedAndNotNull,
 } from '@rudderstack/analytics-js/components/utilities/checks';
 
 describe('Common Utils - Checks', () => {
@@ -66,6 +68,28 @@ describe('Common Utils - Checks', () => {
       expect(isTypeOfError([])).toBeFalsy();
       expect(isTypeOfError(null)).toBeFalsy();
       expect(isTypeOfError(undefined)).toBeFalsy();
+    });
+  });
+
+  describe('isDefined', () => {
+    it('should check if value is defined', () => {
+      expect(isDefined('')).toBeTruthy();
+      expect(isDefined({})).toBeTruthy();
+      expect(isDefined(0)).toBeTruthy();
+      expect(isDefined([])).toBeTruthy();
+      expect(isDefined(null)).toBeTruthy();
+      expect(isDefined(undefined)).toBeFalsy();
+    });
+  });
+
+  describe('isDefinedAndNotNull', () => {
+    it('should check if value is defined and not null', () => {
+      expect(isDefinedAndNotNull('')).toBeTruthy();
+      expect(isDefinedAndNotNull({})).toBeTruthy();
+      expect(isDefinedAndNotNull(0)).toBeTruthy();
+      expect(isDefinedAndNotNull([])).toBeTruthy();
+      expect(isDefinedAndNotNull(null)).toBeFalsy();
+      expect(isDefinedAndNotNull(undefined)).toBeFalsy();
     });
   });
 });

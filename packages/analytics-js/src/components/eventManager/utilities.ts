@@ -53,11 +53,7 @@ const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
-  if (isUndefined(options?.page) || !isObjectLiteralAndNotNull((options as ApiOptions).page)) {
-    return mergeDeepRight(getContextPageProperties(), properties);
-  }
-
-  const optionsPageProps = (options as ApiOptions).page as ApiObject;
+  const optionsPageProps = ((options as ApiOptions)?.page as ApiObject) || {};
   const pageProps = properties;
 
   Object.keys(state.page).forEach((key: string) => {
