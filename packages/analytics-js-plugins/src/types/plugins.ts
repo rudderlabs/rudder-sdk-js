@@ -31,16 +31,9 @@ export type AnonymousIdOptions = {
   };
 };
 
-export type ConsentInfo = {
-  consentProviderInitialized: boolean;
-  allowedConsents?: Record<string, string>;
-  deniedConsentIds?: string[];
-};
-
 // Not using the analytics-js package enums to avoid generation of another shared bundle
 export type PluginName =
   | 'BeaconQueue'
-  | 'ConsentManager'
   | 'DeviceModeDestinations'
   | 'DeviceModeTransformation'
   | 'ErrorReporting'
@@ -51,7 +44,8 @@ export type PluginName =
   | 'StorageEncryptionLegacy'
   | 'StorageMigrator'
   | 'XhrQueue'
-  | 'OneTrust'
+  | 'OneTrustConsentManager'
+  | 'KetchConsentManager'
   | 'Bugsnag';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';

@@ -6,7 +6,6 @@ import { PluginName } from './types';
 // TODO: remove from this list the ones that should be loaded only if specific load options exist
 const defaultOptionalPluginsList: PluginName[] = [
   PluginName.Bugsnag,
-  PluginName.ConsentManager,
   PluginName.DeviceModeDestinations,
   PluginName.ErrorReporting,
   PluginName.ExternalAnonymousId,
@@ -16,7 +15,8 @@ const defaultOptionalPluginsList: PluginName[] = [
   PluginName.StorageEncryptionLegacy,
   PluginName.StorageMigrator,
   PluginName.XhrQueue,
-  PluginName.OneTrust,
+  PluginName.OneTrustConsentManager,
+  PluginName.KetchConsentManager,
   PluginName.BeaconQueue,
 ];
 

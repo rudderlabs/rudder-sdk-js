@@ -33,7 +33,7 @@ describe('RudderEventFactory', () => {
       state.session.initialReferrer.value = 'https://test.com/page';
       state.session.initialReferringDomain.value = 'https://test.com';
 
-      state.consents.deniedConsentIds.value = ['id1', 'id2'];
+      state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
 
       state.context['ua-ch'].value = { mobile: true } as UADataValues;
       state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
