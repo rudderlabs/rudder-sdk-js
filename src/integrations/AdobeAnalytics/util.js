@@ -16,18 +16,14 @@ const setDynamicKeys = (dk) => {
   dynamicKeys = dk;
 };
 
-const getDynamicKeys = () => {
-  return dynamicKeys;
-};
+const getDynamicKeys = () => dynamicKeys;
 
 let config;
 const setConfig = (c) => {
   config = c;
 };
 
-const getConfig = () => {
-  return config;
-};
+const getConfig = () => config;
 
 const topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
@@ -311,17 +307,16 @@ const handleHier = (rudderElement) => {
 
 const handleLists = (rudderElement) => {
   const { properties } = rudderElement.message;
-  const listMappingHashmap = getHashFromArray(config.listMapping, 'from', 'to', false);
-  const listDelimiterHashmap = getHashFromArray(config.listDelimiter, 'from', 'to', false);
   if (properties) {
     each((value, key) => {
-      if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
+      const mappingObj = config.listMapping?.find((mapping) => mapping.from === key);
+      if (mappingObj && mappingObj.to && mappingObj.delimiter) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
           logger.error('list variable is neither a string nor an array');
           return;
         }
-        const delimiter = listDelimiterHashmap[key];
-        const listValue = `list${listMappingHashmap[key]}`;
+        const { delimiter, to } = mappingObj;
+        const listValue = `list${to}`;
         if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
@@ -343,22 +338,16 @@ const handleLists = (rudderElement) => {
 
 const handleCustomProps = (rudderElement) => {
   const { properties } = rudderElement.message;
-  const customPropsMappingHashmap = getHashFromArray(
-    config.customPropsMapping,
-    'from',
-    'to',
-    false,
-  );
-  const propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
   if (properties) {
     each((value, key) => {
-      if (customPropsMappingHashmap[key]) {
+      const mappingObj = config.customPropsMapping?.find((mapping) => mapping.from === key);
+      if (mappingObj && mappingObj.to) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
           logger.error('prop variable is neither a string nor an array');
           return;
         }
-        const delimiter = propsDelimiterHashmap[key] ? propsDelimiterHashmap[key] : '|';
-        const propValue = `prop${customPropsMappingHashmap[key]}`;
+        const delimiter = mappingObj.delimiter ? mappingObj.delimiter : '|';
+        const propValue = `prop${mappingObj.to}`;
         if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
@@ -403,9 +392,7 @@ const setEventsString = (event, properties, adobeEventName) => {
   let adobeEventArray = adobeEventName ? adobeEventName.split(',') : [];
   const merchMap = mapMerchEvents(event, properties);
   adobeEventArray = adobeEventArray.concat(merchMap);
-  adobeEventArray = adobeEventArray.filter((item) => {
-    return !!item;
-  });
+  adobeEventArray = adobeEventArray.filter((item) => !!item);
 
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent,
