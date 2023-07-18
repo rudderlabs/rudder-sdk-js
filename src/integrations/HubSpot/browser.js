@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
@@ -17,92 +18,75 @@ class HubSpot {
   }
 
   init() {
-    const hubspotJs = `https://js.hs-scripts.com/${this.hubId}.js`;
-    ScriptLoader('hubspot-integration', hubspotJs);
-
+    const hubSpotJs = `https://js.hs-scripts.com/${this.hubId}.js`;
+    ScriptLoader('hubspot-integration', hubSpotJs);
     logger.debug('===in init HS===');
   }
 
-  identify(rudderElement) {
-    logger.debug('in HubspotAnalyticsManager identify');
-
-    const { traits } = rudderElement.message.context;
-    const traitsValue = {};
-
-    for (const k in traits) {
-      if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-        const hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
-        if (Object.prototype.toString.call(traits[k]) == '[object Date]') {
-          traitsValue[hubspotkey] = traits[k].getTime();
-        } else {
-          traitsValue[hubspotkey] = traits[k];
-        }
-      }
-    }
-    /* if (traitsValue["address"]) {
-      let address = traitsValue["address"];
-      //traitsValue.delete(address)
-      delete traitsValue["address"];
-      for (let k in address) {
-        if (!!Object.getOwnPropertyDescriptor(address, k) && address[k]) {
-          let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
-          hubspotkey = hubspotkey == "street" ? "address" : hubspotkey;
-          traitsValue[hubspotkey] = address[k];
-        }
-      }
-    } */
-    const userProperties = rudderElement.message.context.user_properties;
-    for (const k in userProperties) {
-      if (!!Object.getOwnPropertyDescriptor(userProperties, k) && userProperties[k]) {
-        const hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
-        traitsValue[hubspotkey] = userProperties[k];
-      }
-    }
-
-    logger.debug(traitsValue);
-
-    if (typeof window !== undefined) {
-      const _hsq = (window._hsq = window._hsq || []);
-      _hsq.push(['identify', traitsValue]);
-    }
-  }
-
-  track(rudderElement) {
-    logger.debug('in HubspotAnalyticsManager track');
-    const _hsq = (window._hsq = window._hsq || []);
-    const eventValue = {};
-    eventValue.id = rudderElement.message.event;
-    if (
-      rudderElement.message.properties &&
-      (rudderElement.message.properties.revenue || rudderElement.message.properties.value)
-    ) {
-      eventValue.value =
-        rudderElement.message.properties.revenue || rudderElement.message.properties.value;
-    }
-    _hsq.push(['trackEvent', eventValue]);
-  }
-
-  page(rudderElement) {
-    logger.debug('in HubspotAnalyticsManager page');
-    const _hsq = (window._hsq = window._hsq || []);
-    // logger.debug("path: " + rudderElement.message.properties.path);
-    // _hsq.push(["setPath", rudderElement.message.properties.path]);
-    /* _hsq.push(["identify",{
-        email: "testtrackpage@email.com"
-    }]); */
-    if (rudderElement.message.properties && rudderElement.message.properties.path) {
-      _hsq.push(['setPath', rudderElement.message.properties.path]);
-    }
-    _hsq.push(['trackPageView']);
-  }
-
   isLoaded() {
-    logger.debug('in hubspot isLoaded');
+    logger.debug('in HubSpotAnalyticsManager isLoaded');
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 
   isReady() {
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+  }
+
+  identify(rudderElement) {
+    logger.debug('in HubSpotAnalyticsManager identify');
+
+    const { traits, user_properties: userProperties } = rudderElement.message.context;
+    const traitsValue = {};
+
+    Object.keys(traits).forEach((key) => {
+      if (traits[key]) {
+        const value = traits[key];
+        traitsValue[key] = value instanceof Date ? value.getTime() : value;
+      }
+    });
+
+    Object.keys(userProperties).forEach((key) => {
+      if (userProperties[key]) {
+        const value = userProperties[key];
+        traitsValue[key] = value;
+      }
+    });
+
+    logger.debug(traitsValue);
+
+    if (typeof window !== 'undefined') {
+      const _hsq = Object.assign((window._hsq = window._hsq || []));
+      _hsq.push(['identify', traitsValue]);
+    }
+  }
+
+  track(rudderElement) {
+    logger.debug('in HubSpotAnalyticsManager track');
+
+    const { properties } = rudderElement.message;
+    const { revenue, value } = properties;
+    const _hsq = Object.assign((window._hsq = window._hsq || []));
+
+    const eventValue = {
+      id: rudderElement.message.event,
+    };
+    if (revenue || value) {
+      eventValue.value = revenue || value;
+    }
+
+    _hsq.push(['trackEvent', eventValue]);
+  }
+
+  page(rudderElement) {
+    logger.debug('in HubSpotAnalyticsManager page');
+
+    const { properties } = rudderElement.message;
+    const { path } = properties;
+    const _hsq = Object.assign((window._hsq = window._hsq || []));
+    if (path) {
+      _hsq.push(['setPath', path]);
+    }
+    _hsq.push(['trackPageView']);
   }
 }
 
