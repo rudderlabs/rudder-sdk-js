@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.37.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.36.0...v2.37.0) (2023-07-07)
+
+
+### Features
+
+* attach beacon flush on visibility change event hidden value ([#1192](https://github.com/rudderlabs/rudder-sdk-js/issues/1192)) ([d77f5e1](https://github.com/rudderlabs/rudder-sdk-js/commit/d77f5e1129744ebe858f263fe10706cc19da53b0))
+* enhance dedup support using persistence ([#1089](https://github.com/rudderlabs/rudder-sdk-js/issues/1089)) ([caa2d34](https://github.com/rudderlabs/rudder-sdk-js/commit/caa2d34fbf4f6619c2cfdc09b267b928d5a1c7f9))
+* ketch consent manager ([#1095](https://github.com/rudderlabs/rudder-sdk-js/issues/1095)) ([6f83ffa](https://github.com/rudderlabs/rudder-sdk-js/commit/6f83ffaf487cfc431f3c037007819ed76152fdc9))
+
+
+### Bug Fixes
+
+* clevertap sdk version to latest, check mandatory traits for identify ([#1189](https://github.com/rudderlabs/rudder-sdk-js/issues/1189)) ([2afb6b3](https://github.com/rudderlabs/rudder-sdk-js/commit/2afb6b39addf402bc6a8748aba092007ee1faed3))
+* update crypto-js to latest version to ensure crypto random values ([#1193](https://github.com/rudderlabs/rudder-sdk-js/issues/1193)) ([7a50d15](https://github.com/rudderlabs/rudder-sdk-js/commit/7a50d15fa70d512440c52e45021ccee199047b1f))
+
 ## [2.36.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.35.1...v2.36.0) (2023-06-23)
 
 
