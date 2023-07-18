@@ -19,7 +19,7 @@ module.exports = [
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
     gzip: true,
-    limit: '48 kB',
+    limit: '50 kB',
   },
   {
     name: 'Core - CDN',

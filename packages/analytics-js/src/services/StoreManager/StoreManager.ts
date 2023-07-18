@@ -5,6 +5,7 @@ import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsMan
 import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js/constants/storages';
 import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { removeUndefinedValues } from '@rudderstack/analytics-js/components/utilities/object';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
@@ -50,9 +51,9 @@ class StoreManager implements IStoreManager {
     };
 
     configureStorageEngines(
-      config.cookieOptions,
-      config.localStorageOptions,
-      config.inMemoryStorageOptions,
+      removeUndefinedValues(config.cookieOptions),
+      removeUndefinedValues(config.localStorageOptions),
+      removeUndefinedValues(config.inMemoryStorageOptions),
     );
 
     this.initClientDataStore();
