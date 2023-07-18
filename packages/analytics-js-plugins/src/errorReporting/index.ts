@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState, ILogger, IExternalSrcLoader, IPluginEngine } from '../types/common';
 import { ExtensionPlugin, Nullable } from '../types/plugins';
+import { INVALID_SOURCE_CONFIG_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'ErrorReporting';
 
@@ -19,7 +20,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): Nullable<Promise<any>> => {
       if (!state.source.value?.config || !state.source.value?.id) {
-        return Promise.reject(new Error('Invalid source configuration or source id.'));
+        return Promise.reject(new Error(INVALID_SOURCE_CONFIG_ERROR));
       }
 
       return pluginEngine.invokeSingle(

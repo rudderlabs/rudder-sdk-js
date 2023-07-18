@@ -27,3 +27,5 @@ export {
   SESSION_STORAGE,
   MEMORY_STORAGE,
 } from '@rudderstack/analytics-js/constants/storages';
+
+export { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js/constants/logMessages';

@@ -2,7 +2,6 @@ import { Nullable } from '@rudderstack/analytics-js/types';
 import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 export type CookieConsentOptions = {
-  // OneTrust
   [key: string]: {
     enabled: boolean;
   };
@@ -42,6 +41,10 @@ export type OneTrustCookieCategory = {
   oneTrustCookieCategory: string;
 };
 
+export type KetchConsentPurpose = {
+  purpose: string;
+};
+
 export type EventMapping = {
   from: string;
   to: string;
@@ -56,10 +59,17 @@ export type Conversion = {
   name: string;
 };
 
+export type ConsentInfo = {
+  initialized: boolean;
+  allowedConsents?: Record<string, string> | string[];
+  deniedConsentIds?: string[];
+};
+
 export type DestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
   oneTrustCookieCategories: OneTrustCookieCategory[];
+  ketchConsentPurposes: KetchConsentPurpose[];
   eventFilteringOption: 'disable' | 'whitelistedEvents' | 'blacklistedEvents';
   clickEventConversions?: Conversion[];
   pageLoadConversions?: Conversion[];

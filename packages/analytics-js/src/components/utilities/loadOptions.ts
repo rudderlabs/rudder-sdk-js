@@ -4,6 +4,7 @@ import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components
 import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
+  removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js/components/utilities/object';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
@@ -32,10 +33,26 @@ const normalizeLoadOptions = (
     : {};
 
   normalizedLoadOpts.storage = isObjectLiteralAndNotNull(normalizedLoadOpts.storage)
-    ? normalizedLoadOpts.storage
+    ? removeUndefinedAndNullValues(normalizedLoadOpts.storage)
     : {};
   (normalizedLoadOpts.storage as StorageOpts).migrate =
     normalizedLoadOpts.storage?.migrate === true;
+
+  normalizedLoadOpts.beaconQueueOptions = isObjectLiteralAndNotNull(
+    normalizedLoadOpts.beaconQueueOptions,
+  )
+    ? removeUndefinedAndNullValues(normalizedLoadOpts.beaconQueueOptions)
+    : {};
+
+  normalizedLoadOpts.destinationsQueueOptions = isObjectLiteralAndNotNull(
+    normalizedLoadOpts.destinationsQueueOptions,
+  )
+    ? removeUndefinedAndNullValues(normalizedLoadOpts.destinationsQueueOptions)
+    : {};
+
+  normalizedLoadOpts.queueOptions = isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)
+    ? removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions)
+    : {};
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 

@@ -3,6 +3,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/t
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { EVENT_OBJECT_GENERATION_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { IEventManager, APIEvent } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';
@@ -57,7 +58,7 @@ class EventManager implements IEventManager {
     if (rudderEvent) {
       this.eventRepository.enqueue(rudderEvent, event.callback);
     } else {
-      this.onError(new Error('Failed to generate RudderStack event object.'));
+      this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
     }
   }
 

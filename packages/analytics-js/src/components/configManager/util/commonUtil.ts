@@ -3,6 +3,11 @@ import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import {
+  STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
+  UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
+  UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
+} from '@rudderstack/analytics-js/constants/logMessages';
+import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
   getErrorReportingProviderNameFromConfig,
@@ -62,9 +67,12 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
     if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
       // set the default error reporting provider
       logger?.warn(
-        `${CONFIG_MANAGER}:: The error reporting provider "${errReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
+        UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(
+          CONFIG_MANAGER,
+          errReportingProvider,
           ErrorReportingProvidersToPluginNameMap,
-        )}". The default provider "${DEFAULT_ERROR_REPORTING_PROVIDER}" will be used instead.`,
+          DEFAULT_ERROR_REPORTING_PROVIDER,
+        ),
       );
     }
 
@@ -82,9 +90,12 @@ const updateStorageState = (logger?: ILogger): void => {
   if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
     // set the default encryption plugin
     logger?.warn(
-      `${CONFIG_MANAGER}:: The storage encryption version "${storageEncryptionVersion}" is not supported. Please choose one of the following supported versions: "${Object.keys(
+      UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(
+        CONFIG_MANAGER,
+        storageEncryptionVersion,
         StorageEncryptionVersionsToPluginNameMap,
-      )}". The default version ${DEFAULT_STORAGE_ENCRYPTION_VERSION} will be used instead.`,
+        DEFAULT_STORAGE_ENCRYPTION_VERSION,
+      ),
     );
     storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
   } else if (isUndefined(storageEncryptionVersion)) {
@@ -105,7 +116,11 @@ const updateStorageState = (logger?: ILogger): void => {
       state.storage.migrate.value !== configuredMigrationValue
     ) {
       logger?.warn(
-        `${CONFIG_MANAGER}:: The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${DEFAULT_STORAGE_ENCRYPTION_VERSION}). To enable storage data migration, please update the storage encryption version to the latest version.`,
+        STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
+          CONFIG_MANAGER,
+          storageEncryptionVersion,
+          DEFAULT_STORAGE_ENCRYPTION_VERSION,
+        ),
       );
     }
   });

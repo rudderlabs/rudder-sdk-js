@@ -262,7 +262,7 @@ describe('Event Manager - Utilities', () => {
         state.session.initialReferrer.value = 'https://test.com/page';
         state.session.initialReferringDomain.value = 'https://test.com';
 
-        state.consents.deniedConsentIds.value = ['id1', 'id2'];
+        state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
@@ -392,7 +392,7 @@ describe('Event Manager - Utilities', () => {
         messageId: 'myMsgId',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).nthCalledWith(
         1,
@@ -414,7 +414,7 @@ describe('Event Manager - Utilities', () => {
         nonReservedKey2: 'sample',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -426,18 +426,13 @@ describe('Event Manager - Utilities', () => {
         nonReservedKey: 123,
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warn message if the object is not provided', () => {
-      checkForReservedElementsInObject(
-        undefined,
-        defaultEventType,
-        defaultParentKeyPath,
-        mockLogger,
-      );
+      checkForReservedElementsInObject(undefined, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
@@ -449,7 +444,7 @@ describe('Event Manager - Utilities', () => {
         originalTimestamp: sampleOriginalTimestamp,
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultEventType, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
       expect(mockLogger.warn).nthCalledWith(
         1,
@@ -1010,7 +1005,7 @@ describe('Event Manager - Utilities', () => {
         state.session.initialReferrer.value = 'initial_referrer';
         state.session.initialReferringDomain.value = 'initial_referring_domain';
 
-        state.consents.deniedConsentIds.value = ['id1', 'id2'];
+        state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;

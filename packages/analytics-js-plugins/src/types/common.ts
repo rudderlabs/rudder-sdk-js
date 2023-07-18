@@ -31,7 +31,12 @@ export type {
 } from '@rudderstack/analytics-js/services/HttpClient/types';
 export type { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
 export type { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
-export type { DeviceModeDestination, Destination } from '@rudderstack/analytics-js/state/types';
+export type {
+  DeviceModeDestination,
+  Destination,
+  OneTrustCookieCategory,
+  ConsentInfo,
+} from '@rudderstack/analytics-js/state/types';
 export type { NativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
 export type {
   IRudderAnalytics,
