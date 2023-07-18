@@ -157,7 +157,7 @@ export {
   CNameMapping as MoEngageCNameMapping,
   DISPLAY_NAME as MoEngageDisplayName,
   DISPLAY_NAME_TO_DIR_NAME_MAP as MoEngageDisplayNameToDirNameMap,
-} from './integrations/Mixpanel/constants';
+} from './integrations/MoEngage/constants';
 export {
   CNameMapping as OptimizelyCNameMapping,
   DISPLAY_NAME as OptimizelyDisplayName,

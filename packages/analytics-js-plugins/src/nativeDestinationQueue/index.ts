@@ -70,7 +70,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               return;
             }
 
-            if (dest.enableTransformationForDeviceMode) {
+            if (dest.shouldApplyDeviceModeTransformation) {
               pluginsManager.invokeSingle('transformEvent.enqueue', state, item, dest, logger);
             } else {
               sendEventToDestination(item, dest, errorHandler, logger);

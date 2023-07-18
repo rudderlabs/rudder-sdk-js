@@ -92,7 +92,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK Browser Package'
+          PROJECT_NAME: 'JS SDK v1.1 Browser Package'
           CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

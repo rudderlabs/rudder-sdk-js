@@ -20,6 +20,13 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm ci --no-audit
+          npm run setup:ci
+
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
       - name: Initialize mandatory git config
@@ -27,9 +34,6 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
-      # TODO: use lerna version also see RN
-      #   https://www.npmjs.com/package/@lerna/version
-      #   https://www.npmjs.com/package/@lerna/version#lifecycle-scripts
       # Calculate the next release version based on conventional semantic release
       - name: Create release branch
         id: create-release
@@ -39,12 +43,12 @@ jobs:
           source_branch_name=${GITHUB_REF##*/}
           release_type=v3-release
           grep -q "v3-hotfix/" <<< "${GITHUB_REF}" && release_type=v3-hotfix-release
-          git fetch origin master
+          git fetch origin main
           git fetch --tags origin
-          git merge origin/master
+          git merge origin/main
           current_version=$(jq -r .version package.json)
 
-          npx standard-version --skip.commit --skip.tag --skip.changelog
+          npm run bump-version:monorepo
           new_version=$(jq -r .version package.json)
           git reset --hard
 
@@ -71,20 +75,23 @@ jobs:
         run: |
           echo "Current version: $CURRENT_VERSION_VALUE"
           echo "New version: $NEW_VERSION_VALUE"
+          git fetch --no-tags --prune --depth=100 origin main
+          npm run lerna:version
+          npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           git add sonar-project.properties
-          npx standard-version -a --skip.tag
+          git commit -m "chore: sync versions and generate release logs" -n
 
       - name: Push new version in release branch
         run: |
-          git push
+          git push --follow-tags
 
       - name: Create pull request into production
         uses: repo-sync/pull-request@v2
         with:
           source_branch: ${{ steps.create-release.outputs.branch_name }}
-          destination_branch: 'production'
+          destination_branch: 'main'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into production'
+          pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into main'
           pr_body: ':crown: *An automated PR*'
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

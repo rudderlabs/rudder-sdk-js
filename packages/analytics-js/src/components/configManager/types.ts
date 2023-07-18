@@ -16,7 +16,7 @@ export type DestinationDefinition = {
 };
 
 export type ConfigResponseDestinationItem = {
-  enableTransformationForDeviceMode: boolean;
+  shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   updatedAt: string;

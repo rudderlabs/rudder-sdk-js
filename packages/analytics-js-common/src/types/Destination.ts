@@ -14,7 +14,7 @@ export type DestinationEvent = {
 export type DeviceModeDestination = {
   name: string; // this is same as the definition name
   destinationId: string;
-  enableTransformationForDeviceMode: boolean;
+  shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   analytics: any;
   [index: string]: any;
@@ -66,7 +66,7 @@ export type Destination = {
   id: string;
   displayName: string;
   userFriendlyId: string;
-  enableTransformationForDeviceMode: boolean;
+  shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   instance?: DeviceModeDestination;

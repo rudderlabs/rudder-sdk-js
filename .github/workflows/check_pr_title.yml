@@ -2,7 +2,7 @@ name: Check PR title
 
 on:
   pull_request:
-    branches: [ 'master', 'develop', 'v3-production', 'v3-staging', 'production', 'production-staging']
+    branches: [ 'main', 'develop', 'v3-production', 'v3-staging', 'production', 'production-staging']
     types: ['opened', 'reopened', 'edited', 'synchronize']
 
 jobs:

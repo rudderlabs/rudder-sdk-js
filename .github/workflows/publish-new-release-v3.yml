@@ -3,11 +3,10 @@ name: Publish new github release v3
 on:
   pull_request:
     branches:
-      - production
+      - main
     types:
       - closed
 
-# TODO: npm run release:github how to do it like RN
 jobs:
   release:
     name: Publish new release v3
@@ -35,6 +34,13 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm ci --no-audit
+          npm run setup:ci
+
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
       - name: Initialize mandatory git config
@@ -42,25 +48,40 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
-      - name: Create GitHub Release & Tag
+      - name: Create Monorepo Release Tag
+        id: create_monorepo_release
+        run: |
+          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore: release v${{ steps.extract-version.outputs.release_version }}"
+          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
+
+      - name: Get the two latest versions
+        run: |
+          CURRENT_VERSION=$(git tag -l "v*" --sort=-version:refname | head -n 1)
+          LAST_VERSION=$(git tag -l "v*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $LAST_VERSION"
+
+          echo "current_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
+          echo "last_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+      - name: Create GitHub Releases
         id: create_release
         env:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore: release v${{ steps.extract-version.outputs.release_version }}"
-          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
-          npm run release:github
-          echo "DATE=$(date)" >> $GITHUB_ENV
+          npm run release:github -- --base=$last_version --head=$current_version
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: 'master'
+          source_branch: 'main'
           destination_branch: 'develop'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pulling master into develop post release v${{ steps.extract-version.outputs.release_version }}'
+          pr_title: 'chore(release): pulling main into develop post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'
 
@@ -85,8 +106,8 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK (v3)'
-          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/v'
+          PROJECT_NAME: 'JS SDK (v3) monorepo'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-react-native/compare/'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
@@ -106,7 +127,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{env.RELEASES_URL}}${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
+                    "text": "*Release: <${{env.RELEASES_URL}}${{ steps.extract-previous-version.outputs.previous_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
                   }
                 }
               ]

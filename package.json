@@ -7,6 +7,9 @@
     "packages/*"
   ],
   "scripts": {
+    "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
+    "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
+    "bump-version:monorepo": "npm version minor --git-tag-version false",
     "setup": "npx lerna bootstrap && lerna run build:package && lerna link",
     "setup:ci": "lerna bootstrap && lerna run build:package && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",

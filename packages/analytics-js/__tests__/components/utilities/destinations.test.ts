@@ -31,7 +31,7 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
   },
   {
@@ -63,7 +63,7 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
   },
 ];
@@ -98,7 +98,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
   },
   {
@@ -130,7 +130,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
   },
 ];
@@ -139,7 +139,7 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7DamldfkgO',
     displayName: 'Google Analytics 4 (GA4)',
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -164,7 +164,7 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
     displayName: 'Braze',
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',

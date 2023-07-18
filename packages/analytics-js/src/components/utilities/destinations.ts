@@ -15,7 +15,8 @@ const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[])
         id: destination.id,
         displayName: destination.destinationDefinition.displayName,
         config: destination.config,
-        enableTransformationForDeviceMode: destination.enableTransformationForDeviceMode || false,
+        shouldApplyDeviceModeTransformation:
+          destination.shouldApplyDeviceModeTransformation || false,
         propagateEventsUntransformedOnError:
           destination.propagateEventsUntransformedOnError || false,
         userFriendlyId: `${destination.destinationDefinition.displayName.replaceAll(' ', '-')}___${

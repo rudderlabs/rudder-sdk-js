@@ -3,9 +3,9 @@ name: 'Unit Tests, Coverage & Sonar v3'
 on:
   workflow_dispatch:
   push:
-    branches: ['master', 'develop', 'v3-staging']
+    branches: ['main', 'develop', 'v3-staging']
   pull_request:
-    branches: ['master', 'develop', 'v3-staging']
+    branches: ['main', 'develop', 'v3-staging']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:

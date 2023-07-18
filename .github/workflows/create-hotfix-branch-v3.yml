@@ -11,7 +11,7 @@ jobs:
   create-branch:
     name: Create new hotfix branch v3
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v2.4.0

@@ -122,7 +122,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
           displayName: 'Google Analytics 4 (GA4)',
           updatedAt: '2023-03-14T11:21:29.656Z',
         },
-        enableTransformationForDeviceMode: false,
+        shouldApplyDeviceModeTransformation: false,
         propagateEventsUntransformedOnError: false,
       },
       {
@@ -155,7 +155,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
           displayName: 'Google Analytics 4 (GA4)',
           updatedAt: '2023-03-14T11:21:29.656Z',
         },
-        enableTransformationForDeviceMode: false,
+        shouldApplyDeviceModeTransformation: false,
         propagateEventsUntransformedOnError: false,
       },
       {
@@ -188,7 +188,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
           displayName: 'Google Analytics 4 (GA4)',
           updatedAt: '2023-03-14T11:21:29.656Z',
         },
-        enableTransformationForDeviceMode: false,
+        shouldApplyDeviceModeTransformation: false,
         propagateEventsUntransformedOnError: false,
       },
       {
@@ -220,7 +220,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
           displayName: 'Google Analytics 4 (GA4)',
           updatedAt: '2023-03-14T11:21:29.656Z',
         },
-        enableTransformationForDeviceMode: false,
+        shouldApplyDeviceModeTransformation: false,
         propagateEventsUntransformedOnError: false,
       },
     ],

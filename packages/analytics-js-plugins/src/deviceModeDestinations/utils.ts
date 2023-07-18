@@ -8,7 +8,7 @@ import {
   isUndefined,
   mergeDeepRight,
   pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions
+  trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/index';
 import {
   Destination,
@@ -115,7 +115,7 @@ const createDestinationInstance = (
       getSessionId: () => analytics.getSessionId(),
     } as DeviceModeDestinationsAnalyticsInstance,
     {
-      enableTransformationForDeviceMode: dest.enableTransformationForDeviceMode,
+      shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: dest.propagateEventsUntransformedOnError,
       destinationId: dest.id,
     },
