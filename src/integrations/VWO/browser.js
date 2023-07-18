@@ -122,6 +122,8 @@ class VWO {
               this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
+                CampaignName: _vwo_exp[expId].name,
+                VariationId: variationId,
               });
             }
           } catch (error) {
