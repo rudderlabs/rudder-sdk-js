@@ -22,6 +22,7 @@ jobs:
           FEATURE_NAME=${source_branch_name#bugbash/}
           FEATURE_NAME=${FEATURE_NAME#beta/}
           FEATURE_NAME=${FEATURE_NAME#refs/heads/}
+          FEATURE_NAME=${FEATURE_NAME#refs/tags/}
 
           echo "branch_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
           echo "branch_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT

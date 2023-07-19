@@ -1,3 +1,1 @@
-import { Braze } from './browser';
-
-export { Braze };
+export { Braze } from './browser';
