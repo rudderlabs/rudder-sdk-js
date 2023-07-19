@@ -4,15 +4,15 @@ index 5e3fffe..656a774 100644
 +++ b/node_modules/@segment/localstorage-retry/lib/engine.js
 @@ -1,7 +1,7 @@
  'use strict';
-
+ 
  var keys = require('@ndhoule/keys');
 -var uuid = require('uuid').v4;
 +var uuid = require('@lukeed/uuid').v4;
-
+ 
  var inMemoryStore = {
    _data: {},
 diff --git a/node_modules/@segment/localstorage-retry/lib/index.js b/node_modules/@segment/localstorage-retry/lib/index.js
-index 34220e8..f946ede 100644
+index 34220e8..b494ed0 100644
 --- a/node_modules/@segment/localstorage-retry/lib/index.js
 +++ b/node_modules/@segment/localstorage-retry/lib/index.js
 @@ -283,6 +283,7 @@ Queue.prototype._checkReclaim = function() {
@@ -24,9 +24,9 @@ index 34220e8..f946ede 100644
        if (parts.length !== 3) continue;
        if (parts[0] !== name) continue;
 @@ -345,15 +346,41 @@ Queue.prototype._reclaim = function(id) {
-
+ 
    this._store.set(this.keys.QUEUE, our.queue);
-
+ 
 -  // remove all keys
 -  other.remove(this.keys.IN_PROGRESS);
 -  other.remove(this.keys.QUEUE);
@@ -47,11 +47,11 @@ index 34220e8..f946ede 100644
 +      console.error(e);
 +    }
 +  }
-
+ 
    // process the new items we claimed
    this._processHead();
  };
-
+ 
 +Queue.prototype._clearOtherQueue = function(other, localStorageBackoff) {
 +    setTimeout(() => {
 +      other.remove(this.keys.IN_PROGRESS);

@@ -96,7 +96,6 @@ class Braze {
    * or the updated fields.
    * @param {*} rudderElement
    */
-
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
     logger.debug('in Braze identify');
@@ -115,6 +114,7 @@ class Braze {
       'birthday',
       'email',
       'id',
+      'firstname',
       'firstName',
       'gender',
       'lastname',
