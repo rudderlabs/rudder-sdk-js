@@ -99,12 +99,12 @@ describe('buildPayLoad_function', () => {
                     customPiiPropertyWhiteHashFalse: 1234,
                     BlacklistPiiPropertyHashTrueNonString: 1234,
                     BlacklistPiiPropertyHashFalseNonString: 1234,
-                    "customPiiPropertyWhiteHashFalse": 1234,
+                    customPiiPropertyWhiteHashFalse: 1234,
                 }
             }
         };
         const expectedPayload = {
-            "customPiiPropertyWhiteHashFalse": 1234,
+            customPiiPropertyWhiteHashFalse: 1234,
         };
         expect(buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock)).toEqual(expectedPayload);
     });
