@@ -1,4 +1,6 @@
+import is from 'is';
 import get from 'get-value';
+import sha256 from 'crypto-js/sha256';
 import logger from '../../utils/logUtil';
 
 function getEventId(message) {
@@ -41,4 +43,74 @@ const getContentCategory = (category) => {
   return contentCategory;
 };
 
-export { getEventId, getContentCategory };
+const buildPayLoad = (rudderElement, configWhilistedProperties, configBlacklistedProperties) =>{
+  const dateFields = [
+    'checkinDate',
+    'checkoutDate',
+    'departingArrivalDate',
+    'departingDepartureDate',
+    'returningArrivalDate',
+    'returningDepartureDate',
+    'travelEnd',
+    'travelStart',
+  ];
+  const defaultPiiProperties = [
+    'email',
+    'firstName',
+    'lastName',
+    'gender',
+    'city',
+    'country',
+    'phone',
+    'state',
+    'zip',
+    'birthday',
+  ];
+  const whitelistPiiProperties = configWhilistedProperties || [];
+  const blacklistPiiProperties = configBlacklistedProperties || [];
+
+  /**
+   * shouldPropBeHashedMap = {
+   * <blacklisted_property_name>: <hash_required_boolean>,
+   * }
+   */
+
+  const shouldPropBeHashedMap = blacklistPiiProperties.reduce((acc, currProp) => {
+    acc[currProp.blacklistPiiProperties] = currProp.blacklistPiiHash;
+    return acc;
+  }, {});
+  const whitelistPiiPropertiesNames = whitelistPiiProperties.map(
+    (propObject) => propObject.whitelistPiiProperties)
+
+  const { properties } = rudderElement.message;
+
+  const payload = Object.entries(properties).reduce((acc, [currPropName, currPropValue]) => {
+    const isPropertyPii =
+      defaultPiiProperties.includes(currPropName) || 
+      Object.prototype.hasOwnProperty.call(shouldPropBeHashedMap, currPropName);
+
+    const isProperyWhiteListed = whitelistPiiPropertiesNames.includes(currPropName);
+
+    const isDateProp = dateFields.includes(currPropName) && is.date(currPropValue);
+
+    if (isDateProp) {
+      [acc[currPropName]] = currPropValue.toISOString().split('T');
+    }
+
+    if (shouldPropBeHashedMap[currPropName] && typeof currPropValue === 'string') {
+      acc[currPropName] = sha256(currPropValue).toString();
+    } else if ((!isPropertyPii || isProperyWhiteListed) && !isDateProp) {
+      acc[currPropName] = currPropValue;
+    } else {
+      logger.debug(
+        `[Facebook Pixel] PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
+      );
+      
+    }
+
+    return acc;
+  }, {});
+  return payload;
+};
+
+export { getEventId, getContentCategory, buildPayLoad };
