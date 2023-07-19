@@ -1,4 +1,3 @@
-// TODO: build plugins as package and import from package
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {
   BeaconQueue,

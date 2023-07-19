@@ -16,7 +16,8 @@
     }
   },
   "publishConfig": {
-    "directory": "dist/npm"
+    "directory": "dist/npm",
+    "access": "public"
   },
   "keywords": [
     "analytics",
