@@ -1,3 +1,11 @@
+/* eslint-disable camelcase */
+/* eslint-disable prefer-rest-params */
+/* eslint-disable unicorn/explicit-length-check */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-multi-assign */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
 import camelcase from '../../utils/camelcase';
@@ -21,13 +29,12 @@ class Fullstory {
   }
 
   static getFSProperties(properties) {
-    const FS_properties = {};
-    Object.keys(properties).map(function (key, index) {
-      FS_properties[
-        key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)
-      ] = properties[key];
+    const fsProperties = {};
+    Object.keys(properties).forEach((key) => {
+      fsProperties[key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)] =
+        properties[key];
     });
-    return FS_properties;
+    return fsProperties;
   }
 
   static camelCaseField(fieldName) {
@@ -54,6 +61,7 @@ class Fullstory {
     return camelcase(fieldName);
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   init() {
     logger.debug('===in init FULLSTORY===');
     window._fs_debug = this.fs_debug_mode;
@@ -125,11 +133,11 @@ class Fullstory {
       // This function will check if the customer hash is available or not in localStorage
       window._fs_identity = function () {
         if (window.localStorage) {
-          const { tata_customer_hash } = window.localStorage;
-          if (tata_customer_hash) {
+          const { tata_customer_hash: tataCustomerHash } = window.localStorage;
+          if (tataCustomerHash) {
             return {
-              uid: tata_customer_hash,
-              displayName: tata_customer_hash,
+              uid: tataCustomerHash,
+              displayName: tataCustomerHash,
             };
           }
         } else {
@@ -156,10 +164,8 @@ class Fullstory {
               return;
             }
             delay = Math.min(delay * 2, 1024);
-            if (totalTime > timeout) {
-              if (timeoutFn) {
-                timeoutFn();
-              }
+            if (totalTime > timeout && timeoutFn) {
+              timeoutFn();
             }
             totalTime += delay;
             setTimeout(resultFn, delay);
@@ -188,6 +194,11 @@ class Fullstory {
     }
   }
 
+  isLoaded() {
+    logger.debug('in FULLSTORY isLoaded');
+    return !!window.FS;
+  }
+
   page(rudderElement) {
     logger.debug('in FULLSORY page');
     const rudderMessage = rudderElement.message;
@@ -202,10 +213,12 @@ class Fullstory {
 
   identify(rudderElement) {
     logger.debug('in FULLSORY identify');
-    let { userId } = rudderElement.message;
-    const { traits } = rudderElement.message.context;
-    if (!userId) userId = rudderElement.message.anonymousId;
 
+    let { userId } = rudderElement.message;
+    const { context, anonymousId } = rudderElement.message;
+    const { traits } = context;
+
+    if (!userId) userId = anonymousId;
     if (Object.keys(traits).length === 0 && traits.constructor === Object)
       window.FS.identify(userId);
     else window.FS.identify(userId, Fullstory.getFSProperties(traits));
@@ -217,11 +230,6 @@ class Fullstory {
       rudderElement.message.event,
       Fullstory.getFSProperties(rudderElement.message.properties),
     );
-  }
-
-  isLoaded() {
-    logger.debug('in FULLSTORY isLoaded');
-    return !!window.FS;
   }
 }
 
