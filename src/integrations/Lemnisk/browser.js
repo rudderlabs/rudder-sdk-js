@@ -1,6 +1,12 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-loop-func */
+/* eslint-disable no-undef */
+/* eslint-disable vars-on-top */
+/* eslint-disable unicorn/no-for-loop */
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-var */
 /* eslint-disable no-param-reassign */
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
@@ -70,10 +76,9 @@ class Lemnisk {
       logger.debug('[Lemnisk] identify:: user id is required');
       return;
     }
-    // disabling eslint as message will be there iinn any case
-    // eslint-disable-next-line no-unsafe-optional-chaining
-    const { traits } = rudderElement.message?.context;
-    if (traits) {
+
+    if (rudderElement.message.context.traits) {
+      const { traits } = rudderElement.message.context;
       window.lmSMTObj.identify(rudderElement.message.userId, traits);
     } else {
       window.lmSMTObj.identify(rudderElement.message.userId);
