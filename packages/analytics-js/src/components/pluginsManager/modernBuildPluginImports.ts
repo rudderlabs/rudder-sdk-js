@@ -12,8 +12,6 @@ const getFederatedModuleImport = (
   switch (pluginName) {
     case PluginName.BeaconQueue:
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
-    case PluginName.ConsentManager:
-      return () => import('rudderAnalyticsRemotePlugins/ConsentManager');
     case PluginName.DeviceModeTransformation:
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
     case PluginName.DeviceModeDestinations:
@@ -34,8 +32,10 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
     case PluginName.XhrQueue:
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
-    case PluginName.OneTrust:
-      return () => import('rudderAnalyticsRemotePlugins/OneTrust');
+    case PluginName.OneTrustConsentManager:
+      return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
+    case PluginName.KetchConsentManager:
+      return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
     case PluginName.Bugsnag:
       return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     default:

@@ -13,7 +13,6 @@ export interface IPluginsManager {
 
 export enum PluginName {
   BeaconQueue = 'BeaconQueue',
-  ConsentManager = 'ConsentManager',
   DeviceModeDestinations = 'DeviceModeDestinations',
   DeviceModeTransformation = 'DeviceModeTransformation',
   ErrorReporting = 'ErrorReporting',
@@ -24,6 +23,7 @@ export enum PluginName {
   StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   StorageMigrator = 'StorageMigrator',
   XhrQueue = 'XhrQueue',
-  OneTrust = 'OneTrust',
+  OneTrustConsentManager = 'OneTrustConsentManager',
+  KetchConsentManager = 'KetchConsentManager',
   Bugsnag = 'Bugsnag',
 }

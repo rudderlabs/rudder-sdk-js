@@ -10,7 +10,6 @@ const localPluginNames: PluginName[] = [];
  */
 const remotePluginNames: PluginName[] = [
   PluginName.BeaconQueue,
-  PluginName.ConsentManager,
   PluginName.DeviceModeTransformation,
   PluginName.DeviceModeDestinations,
   PluginName.ErrorReporting,
@@ -21,7 +20,8 @@ const remotePluginNames: PluginName[] = [
   PluginName.StorageEncryptionLegacy,
   PluginName.StorageMigrator,
   PluginName.XhrQueue,
-  PluginName.OneTrust,
+  PluginName.OneTrustConsentManager,
+  PluginName.KetchConsentManager,
   PluginName.Bugsnag,
 ];
 

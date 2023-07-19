@@ -62,6 +62,7 @@
   "dependencies": {
     "@ndhoule/defaults": "2.0.1",
     "@lukeed/uuid": "2.0.1",
+    "@preact/signals-core": "1.3.0",
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",
@@ -82,7 +83,6 @@
     "@commitlint/config-lerna-scopes": "17.6.3",
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@originjs/vite-plugin-federation": "1.2.2",
-    "@preact/signals-core": "1.3.0",
     "@size-limit/file": "8.2.4",
     "@size-limit/webpack": "8.2.4",
     "@types/crypto-js": "4.1.1",

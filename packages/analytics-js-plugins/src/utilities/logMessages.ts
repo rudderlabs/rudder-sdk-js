@@ -1,5 +1,5 @@
-import { LOG_CONTEXT_SEPARATOR } from "@rudderstack/analytics-js-common/constants/logMessages";
-import { Nullable } from "@rudderstack/analytics-js-common/types/Nullable";
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
 const INVALID_SOURCE_CONFIG_ERROR = `Invalid source configuration or source id.`;
@@ -46,7 +46,13 @@ const DESTINATION_EVENT_FILTERING_WARNING = (
   `${context}${LOG_CONTEXT_SEPARATOR}The "${eventName}" track event has been filtered for the "${destUserFriendlyId}" destination.`;
 
 const ONETRUST_ACCESS_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack's JS SDK.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`;
+
+const KETCH_CONSENT_COOKIE_READ_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to read the consent cookie.`;
+
+const KETCH_CONSENT_COOKIE_PARSE_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to parse the consent cookie.`;
 
 const DESTINATION_CONSENT_STATUS_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to determine the consent status for the destination. Please check the destination configuration and try again.`;
@@ -120,4 +126,6 @@ export {
   DESTINATION_EVENT_FORWARDING_ERROR,
   BUGSNAG_SDK_LOAD_TIMEOUT_ERROR,
   INVALID_SOURCE_CONFIG_ERROR,
+  KETCH_CONSENT_COOKIE_PARSE_ERROR,
+  KETCH_CONSENT_COOKIE_READ_ERROR,
 };

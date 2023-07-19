@@ -2,7 +2,7 @@ import { clone } from 'ramda';
 import {
   isString,
   isUndefined,
-  isNullOrUndefined
+  isNullOrUndefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { state } from '@rudderstack/analytics-js/state';
@@ -58,11 +58,7 @@ const getUpdatedPageProperties = (
   properties: ApiObject,
   options?: Nullable<ApiOptions>,
 ): ApiObject => {
-  if (isUndefined(options?.page) || !isObjectLiteralAndNotNull((options as ApiOptions).page)) {
-    return mergeDeepRight(getContextPageProperties(), properties);
-  }
-
-  const optionsPageProps = (options as ApiOptions).page as ApiObject;
+  const optionsPageProps = ((options as ApiOptions)?.page as ApiObject) || {};
   const pageProps = properties;
 
   Object.keys(state.page).forEach((key: string) => {
@@ -245,7 +241,7 @@ const getEnrichedEvent = (
       sessionId: state.session.sessionInfo.value.id,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
-        deniedConsentIds: clone(state.consents.deniedConsentIds.value),
+        deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
       },
       'ua-ch': state.context['ua-ch'].value,
       app: state.context.app.value,

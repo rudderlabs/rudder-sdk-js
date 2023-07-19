@@ -1,6 +1,6 @@
-import { mergeRight } from 'ramda';
 import { IInMemoryStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
 /**
@@ -20,7 +20,7 @@ class InMemoryStorage implements IStorage {
   }
 
   configure(options: Partial<IInMemoryStorageOptions>): IInMemoryStorageOptions {
-    this.options = mergeRight(this.options, options);
+    this.options = mergeDeepRight(this.options, options);
     this.isEnabled = Boolean(this.options.enabled);
     return this.options;
   }

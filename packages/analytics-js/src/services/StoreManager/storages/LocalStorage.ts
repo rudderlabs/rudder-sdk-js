@@ -1,9 +1,8 @@
 import store from 'storejs';
-import { mergeRight } from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { isUndefined } from '@rudderstack/analytics-js-common/index';
+import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
@@ -28,7 +27,7 @@ class LocalStorage implements IStorage {
   }
 
   configure(options: Partial<ILocalStorageOptions>): ILocalStorageOptions {
-    this.options = mergeRight(this.options, options);
+    this.options = mergeDeepRight(this.options, options);
     this.isSupportAvailable = isStorageAvailable(LOCAL_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;

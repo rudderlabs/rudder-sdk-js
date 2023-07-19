@@ -12,3 +12,13 @@ export type CookieConsentOptions = {
     enabled: boolean;
   };
 };
+
+export type ConsentInfo = {
+  initialized: boolean;
+  allowedConsents?: Record<string, string> | string[];
+  deniedConsentIds?: string[];
+};
+
+export type KetchConsentPurpose = {
+  purpose: string;
+};

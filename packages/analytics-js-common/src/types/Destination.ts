@@ -1,5 +1,5 @@
 import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
-import { OneTrustCookieCategory } from './Consent';
+import { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
 
 export enum DestinationConnectionMode {
   Hybrid = 'hybrid',
@@ -26,6 +26,7 @@ export type DestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
   oneTrustCookieCategories: OneTrustCookieCategory[];
+  ketchConsentPurposes: KetchConsentPurpose[];
   eventFilteringOption: EventFilteringOption;
   clickEventConversions?: Conversion[];
   pageLoadConversions?: Conversion[];

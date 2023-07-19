@@ -5,6 +5,8 @@ import {
   isNonEmptyObject,
   isObjectAndNotNull,
   isObjectLiteralAndNotNull,
+  removeUndefinedValues,
+  removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -216,6 +218,70 @@ describe('Common Utils - Object', () => {
       expect(outcome1).toEqual(false);
       expect(outcome2).toEqual(false);
       expect(outcome3).toEqual(false);
+    });
+  });
+
+  describe('removeUndefinedValues', () => {
+    it('should remove undefined values from deeply nested object', () => {
+      const nestedObj = {
+        key1: 'value',
+        key2: undefined,
+        key3: {
+          key4: 'value',
+          key5: undefined,
+          key6: {
+            key7: 'value',
+            key8: undefined,
+          },
+        },
+        key9: {
+          key10: undefined,
+        },
+      };
+      const outcome = removeUndefinedValues(nestedObj);
+      expect(outcome).toStrictEqual({
+        key1: 'value',
+        key3: {
+          key4: 'value',
+          key6: {
+            key7: 'value',
+          },
+        },
+        key9: {},
+      });
+    });
+  });
+
+  describe('removeUndefinedAndNullValues', () => {
+    it('should remove undefined and null values from deeply nested object', () => {
+      const nestedObj = {
+        key1: 'value',
+        key2: undefined,
+        key3: {
+          key4: 'value',
+          key5: undefined,
+          key6: {
+            key7: 'value',
+            key8: undefined,
+          },
+          key11: null,
+        },
+        key9: null,
+        key10: {
+          key11: null,
+        },
+      };
+      const outcome = removeUndefinedAndNullValues(nestedObj);
+      expect(outcome).toStrictEqual({
+        key1: 'value',
+        key3: {
+          key4: 'value',
+          key6: {
+            key7: 'value',
+          },
+        },
+        key10: {},
+      });
     });
   });
 });

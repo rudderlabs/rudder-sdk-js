@@ -1,5 +1,5 @@
-import { clone, mergeDeepWith, path } from 'ramda';
-import { isNull } from './checks';
+import { clone, mergeDeepWith, path, pickBy } from 'ramda';
+import { isDefined, isDefinedAndNotNull, isNull } from './checks';
 
 const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   const pathParts = keyPath.split('.');
@@ -57,6 +57,38 @@ const mergeDeepRight = <T = Record<string, any>>(
 const isNonEmptyObject = (value?: any) =>
   isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
 
+/**
+ * A utility to recursively remove undefined values from an object
+ * @param obj input object
+ * @returns a new object
+ */
+const removeUndefinedValues = <T = Record<string, any>>(obj: T): T => {
+  const result = pickBy(isDefined, obj) as Record<string, any>;
+  Object.entries(result).forEach(([key, value]) => {
+    if (isObjectLiteralAndNotNull(value)) {
+      result[key] = removeUndefinedValues(value);
+    }
+  });
+
+  return result as T;
+};
+
+/**
+ * A utility to recursively remove undefined and null values from an object
+ * @param obj input object
+ * @returns a new object
+ */
+const removeUndefinedAndNullValues = <T = Record<string, any>>(obj: T): T => {
+  const result = pickBy(isDefinedAndNotNull, obj) as Record<string, any>;
+  Object.entries(result).forEach(([key, value]) => {
+    if (isObjectLiteralAndNotNull(value)) {
+      result[key] = removeUndefinedAndNullValues(value);
+    }
+  });
+
+  return result as T;
+};
+
 export {
   getValueByPath,
   hasValueByPath,
@@ -65,4 +97,6 @@ export {
   isObjectAndNotNull,
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
+  removeUndefinedValues,
+  removeUndefinedAndNullValues,
 };

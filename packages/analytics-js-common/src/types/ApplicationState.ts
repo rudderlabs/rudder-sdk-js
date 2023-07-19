@@ -12,6 +12,7 @@ import { IntegrationOpts } from './Integration';
 import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
+import { ConsentInfo } from './Consent';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -29,10 +30,8 @@ export type CapabilitiesState = {
 };
 
 export type ConsentsState = {
-  deniedConsentIds: Signal<string[]>;
-  allowedConsents: Signal<Record<string, string>>;
-  activeConsentProviderPluginName: Signal<PluginName | undefined>;
-  consentProviderInitialized: Signal<boolean>;
+  data: Signal<ConsentInfo>;
+  activeConsentManagerPluginName: Signal<PluginName | undefined>;
 };
 
 export type ContextState = {

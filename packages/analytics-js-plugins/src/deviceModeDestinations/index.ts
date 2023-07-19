@@ -73,7 +73,6 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           pluginsManager.invokeSingle(
             `consentManager.isDestinationConsented`,
             state,
-            pluginsManager,
             dest.config,
             logger,
           ) ?? true,
