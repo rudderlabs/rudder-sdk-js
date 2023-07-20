@@ -355,7 +355,7 @@ const handleCustomProps = (rudderElement) => {
     'delimiter',
     false,
   );
-  // Keeping listDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
+  // Keeping propsDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
   if (config.customPropsMapping?.length > 0 && !get(config, 'customPropsMapping.0.delimiter')) {
     propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
   }
