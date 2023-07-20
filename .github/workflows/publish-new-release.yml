@@ -1,4 +1,4 @@
-name: Publish new github release
+name: Publish new github release v1.1
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   release:
-    name: Publish new release
+    name: Publish new release v1.1
     runs-on: ubuntu-latest
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
     steps:

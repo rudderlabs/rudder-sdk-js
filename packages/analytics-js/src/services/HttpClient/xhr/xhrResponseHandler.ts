@@ -1,5 +1,5 @@
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 
 /**
  * Utility to parse XHR JSON response

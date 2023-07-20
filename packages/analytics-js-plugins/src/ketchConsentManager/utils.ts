@@ -1,6 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ConsentInfo, ILogger, IStoreManager } from '../types/common';
-import { COOKIE_STORAGE, fromBase64, isNullOrUndefined } from '../utilities/common';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { fromBase64, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
 import {
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,

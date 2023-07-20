@@ -1,11 +1,11 @@
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
-import { COOKIE_STORAGE } from '@rudderstack/analytics-js/constants/storages';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { ICookieStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
 import { cookie } from '../component-cookie';
-import { ICookieStorageOptions, IStorage } from '../types';
 import { getDefaultCookieOptions } from './defaultOptions';
 
 /**

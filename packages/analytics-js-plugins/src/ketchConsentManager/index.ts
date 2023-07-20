@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, DestinationConfig, IStoreManager } from '../types/common';
-import { ExtensionPlugin } from '../types/plugins';
-import { isUndefined } from '../utilities/common';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { DESTINATION_CONSENT_STATUS_ERROR } from '../utilities/logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';

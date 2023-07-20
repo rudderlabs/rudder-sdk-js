@@ -1,5 +1,7 @@
-import { IStoreManager, StorageType, IStore, BeaconQueueOpts } from '../types/common';
-import { MEMORY_STORAGE, generateUUID } from '../utilities/common';
+import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import { IStore, IStoreManager, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItem } from './types';
 import { getDeliveryPayload } from './utilities';
@@ -145,6 +147,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
         batchItems && batchItems.length > 0 ? batchItems.slice(0, batchItems.length) : [];
 
       // TODO: add retry mechanism here
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const beaconSendCallback = (error?: any, response?: any) => {
         this.setQueue(this.name, []);
         this.stop();

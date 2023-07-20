@@ -1,4 +1,4 @@
-import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate.ts';
+import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
 
 describe('Config manager util - validate load arguments', () => {
   const sampleWriteKey = 'dummyWriteKey';

@@ -15,6 +15,8 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
+dotenv.config();
+
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
@@ -34,7 +36,6 @@ export function getDefaultConfig(distName) {
   const isLocalServerEnabled = moduleType === 'cdn' && process.env.DEV_SERVER;
   const sourceMapType =
     process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-  dotenv.config();
 
   return {
     watch: {
@@ -63,7 +64,7 @@ export function getDefaultConfig(distName) {
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: ['.js', '.ts'],
+        extensions: ['.js', '.ts', '.mjs'],
       }),
       commonjs({
         include: /node_modules/,
@@ -117,7 +118,7 @@ export function getDefaultConfig(distName) {
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/${
+          openPage: `/cdn/${
             process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
           }/index.html`,
           contentBase: ['dist'],

@@ -36,5 +36,5 @@ jobs:
           date: '2 months ago'
           dry_run: false
           delete_tags: false
-          extra_protected_branch_regex: ^(main|master|develop|production|production-staging|v1-staging|v1-production)$
+          extra_protected_branch_regex: ^(main|master|develop|production|production-staging|v1-staging|v1-production|v3-staging)$
           exclude_open_pr_branches: true

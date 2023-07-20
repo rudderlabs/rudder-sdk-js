@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-import ScriptLoader from '../../../../../utils/ScriptLoader';
-import { configToIntNames } from '../../../../../utils/config_to_integration_names';
+import { configToIntNames } from '@rudderstack/analytics-js-common/v1.1/utils/config_to_integration_names';
+import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-} from '../../../../../utils/constants';
+} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { get } from '../../../../../utils/utils';
 
 // Using the Bugsnag integration version to avoid version issues
@@ -26,11 +26,9 @@ const SDK_FILE_NAMES = [
   'rudder-analytics.min.js',
   'rudder-analytics-staging.min.js',
   'rudder-analytics.js',
-  ...Object.keys(configToIntNames).map((intgName) => `${configToIntNames[intgName]}.min.js`),
-  ...Object.keys(configToIntNames).map(
-    (intgName) => `${configToIntNames[intgName]}-staging.min.js`,
-  ),
-  ...Object.keys(configToIntNames).map((intgName) => `${configToIntNames[intgName]}.js`),
+  ...Object.keys(configToIntNames).map(intgName => `${configToIntNames[intgName]}.min.js`),
+  ...Object.keys(configToIntNames).map(intgName => `${configToIntNames[intgName]}-staging.min.js`),
+  ...Object.keys(configToIntNames).map(intgName => `${configToIntNames[intgName]}.js`),
 ];
 const BUGSNAG_ERROR_FILE_ORIGIN_KEY = 'stacktrace.0.file';
 
@@ -41,7 +39,7 @@ const getReleaseStage = () => {
   return host && devHosts.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
 };
 
-const isValidVersion = (globalLibInstance) => {
+const isValidVersion = globalLibInstance => {
   // For version 7
   let version =
     globalLibInstance &&
@@ -66,7 +64,7 @@ const isValidVersion = (globalLibInstance) => {
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
 };
 
-const isRudderSDKError = (event) => {
+const isRudderSDKError = event => {
   const errorOrigin = get(event, BUGSNAG_ERROR_FILE_ORIGIN_KEY);
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
@@ -97,9 +95,9 @@ const enhanceErrorEventMutator = (event, metadataSource) => {
   event.severity = 'error';
 };
 
-const loadBugsnagSDKScript = (name) => {
+const loadBugsnagSDKScript = name => {
   const isNotLoaded = GLOBAL_LIBRARY_OBJECT_NAMES.every(
-    (globalKeyName) => !Object.hasOwn(window, globalKeyName),
+    globalKeyName => !Object.hasOwn(window, globalKeyName),
   );
 
   if (isNotLoaded) {
@@ -205,7 +203,7 @@ class BugsnagProvider {
   onError() {
     const metadataSource = this.sourceId;
 
-    return (event) => {
+    return event => {
       try {
         // Discard the event if it's not originated at the SDK
         if (!isRudderSDKError(event)) {

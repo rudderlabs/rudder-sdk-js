@@ -1,5 +1,5 @@
-import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js/components/utilities/object';
-import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,

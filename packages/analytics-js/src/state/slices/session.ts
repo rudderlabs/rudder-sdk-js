@@ -1,20 +1,9 @@
-import { signal, Signal } from '@preact/signals-core';
+import { signal } from '@preact/signals-core';
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-import { ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 
-export type SessionState = {
-  readonly userId: Signal<Nullable<string> | undefined>;
-  readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
-  readonly anonymousUserId: Signal<string | undefined>;
-  readonly groupId: Signal<Nullable<string> | undefined>;
-  readonly groupTraits: Signal<Nullable<ApiObject> | undefined>;
-  readonly initialReferrer: Signal<string | undefined>;
-  readonly initialReferringDomain: Signal<string | undefined>;
-  readonly sessionInfo: Signal<SessionInfo>;
-};
-
-const defaultSessionInfo = {
+const defaultSessionInfo: SessionInfo = {
   autoTrack: true,
   timeout: DEFAULT_SESSION_TIMEOUT,
 };

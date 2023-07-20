@@ -28,6 +28,7 @@ describe('Preload Buffer', () => {
       enumerable: true,
       value: originalWindowLocation,
     });
+    (window as any).RudderStackGlobals = undefined;
   });
 
   it('should get event data from query string with allowed keys', () => {
@@ -75,7 +76,11 @@ describe('Preload Buffer', () => {
   it('should retrieve all preloaded events from both array and query params', () => {
     const testUrlParams = `${originalWindowLocation.href}?ajs_aid=asdfghjkl&ajs_uid=qzxcvbnm&ajs_event=dummyName&ajs_trait_dummy1=true&ajs_prop_dummy=true`;
     window.location.href = testUrlParams;
-    (window as any).rudderanalytics = [['track'], ['load', { option1: true }], ['track']];
+    (window as any).RudderStackGlobals = {
+      app: {
+        preloadedEventsBuffer: [['track'], ['load', { option1: true }], ['track']],
+      },
+    };
 
     retrievePreloadBufferEvents(analytics as any);
 
@@ -93,7 +98,11 @@ describe('Preload Buffer', () => {
 
   it('should not buffer any events if no preload array or query params exist', () => {
     window.location.href = originalWindowLocation.href;
-    (window as any).rudderanalytics = [];
+    (window as any).RudderStackGlobals = {
+      app: {
+        preloadedEventsBuffer: [],
+      },
+    };
 
     expect(analytics.enqueuePreloadBufferEvents).toHaveBeenCalledTimes(0);
     expect(analytics.load).toHaveBeenCalledTimes(0);

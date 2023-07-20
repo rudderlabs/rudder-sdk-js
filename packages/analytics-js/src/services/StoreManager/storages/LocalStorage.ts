@@ -1,10 +1,9 @@
 import store from 'storejs';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js/constants/storages';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { ILocalStorageOptions, IStorage } from '../types';
+import { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
+import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
 // TODO: can we remove the storejs dependency to save bundle size?

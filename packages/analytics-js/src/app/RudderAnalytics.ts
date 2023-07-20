@@ -1,26 +1,27 @@
 /* eslint-disable unicorn/prefer-export-from */
-import { isEmpty } from 'ramda';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  ApiOptions,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
+import { clone, isEmpty } from 'ramda';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
-import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
-import { Analytics } from '../components/core/Analytics';
+import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
 import { IAnalytics } from '../components/core/IAnalytics';
-import { IRudderAnalytics } from './IRudderAnalytics';
+import { Analytics } from '../components/core/Analytics';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -30,7 +31,7 @@ import { IRudderAnalytics } from './IRudderAnalytics';
  * handle multiple Analytics instances
  * consume SDK preload event buffer
  */
-class RudderAnalytics implements IRudderAnalytics {
+class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
@@ -46,6 +47,7 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
     this.load = this.load.bind(this);
     this.ready = this.ready.bind(this);
+    this.getPreloadBuffer = this.getPreloadBuffer.bind(this);
     this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -64,6 +66,9 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getSessionId = this.getSessionId.bind(this);
 
     RudderAnalytics.globalSingleton = this;
+
+    // get the preloaded events before replacing global object
+    this.getPreloadBuffer();
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
@@ -110,6 +115,21 @@ class RudderAnalytics implements IRudderAnalytics {
     this.setDefaultInstanceKey(writeKey);
     this.analyticsInstances[writeKey] = new Analytics();
     this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
+  }
+
+  /**
+   * Get preloaded events in buffer queue if exists
+   */
+  // eslint-disable-next-line class-methods-use-this
+  getPreloadBuffer() {
+    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
+      (globalThis as typeof window).rudderanalytics,
+    )
+      ? (globalThis as typeof window).rudderanalytics
+      : [];
+
+    // Expose buffer to global objects
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
   }
 
   /**

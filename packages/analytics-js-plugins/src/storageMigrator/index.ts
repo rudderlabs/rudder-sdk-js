@@ -1,8 +1,11 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState, ILogger, IStorage } from '../types/common';
-import { ExtensionPlugin, Nullable } from '../types/plugins';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
-import { isNullOrUndefined } from '../utilities/common';
 import { decrypt } from '../storageEncryption/encryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';

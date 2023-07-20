@@ -1,5 +1,5 @@
-import logger from '../../../../utils/logUtil';
-import { Cookie } from '../../../../utils/storage/cookie';
+import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 
 /* eslint-disable class-methods-use-this */
 class Ketch {
@@ -93,7 +93,7 @@ class Ketch {
     try {
       consentObj = JSON.parse(atob(value));
     } catch (e) {
-      logger.error(`Error occured while parsing consent cookie ${e}`);
+      logger.error(`Error occurred while parsing consent cookie ${e}`);
       return undefined;
     }
     if (!consentObj) {

@@ -1,7 +1,7 @@
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient/HttpClient';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void => {
   // Apparently, '?view=ad' is a query param that is blocked by majority of adblockers

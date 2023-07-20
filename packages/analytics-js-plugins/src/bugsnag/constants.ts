@@ -1,4 +1,4 @@
-import { destDisplayNamesToFileNamesMap } from '../deviceModeDestinations/destDisplayNamesToFileNames';
+import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 
 const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and below
 const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';

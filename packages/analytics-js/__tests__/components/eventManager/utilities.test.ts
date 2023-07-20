@@ -1,19 +1,6 @@
-import {
-  ApiObject,
-  ApiOptions,
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  SessionInfo,
-  UTMParameters,
-} from '@rudderstack/analytics-js/state/types';
+import * as R from 'ramda';
 import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import {
-  RudderEvent,
-  RudderContext,
-} from '@rudderstack/analytics-js/components/eventManager/types';
-import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
 import {
   checkForReservedElements,
   checkForReservedElementsInObject,
@@ -24,18 +11,28 @@ import {
   getUpdatedPageProperties,
   getEnrichedEvent,
 } from '@rudderstack/analytics-js/components/eventManager/utilities';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import * as R from 'ramda';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import {
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  ScreenInfo,
+  UTMParameters,
+} from '@rudderstack/analytics-js-common/types/EventContext';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
-jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 

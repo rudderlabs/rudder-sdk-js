@@ -1,10 +1,12 @@
+import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   BEACON_QUEUE_PLUGIN,
   DATA_PLANE_API_VERSION,
   DEFAULT_BEACON_QUEUE_OPTIONS,
 } from './constants';
-import { mergeDeepRight, stringifyWithoutCircular } from '../utilities/common';
-import { BeaconQueueOpts, RudderEvent, ILogger } from '../types/common';
 import { BeaconBatchData } from './types';
 import { removeDuplicateSlashes } from '../utilities/queue';
 import {

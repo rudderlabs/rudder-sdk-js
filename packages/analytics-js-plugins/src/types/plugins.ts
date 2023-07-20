@@ -1,35 +1,7 @@
-import { ApplicationState, IStore, IStoreManager } from './common';
+import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
-
-export interface ExtensionPoint {
-  [lifeCycleName: string]: (...args: any[]) => unknown;
-}
-
-export interface ExtensionPlugin {
-  name: PluginName;
-  initialize: (state: ApplicationState) => void;
-  deps?: string[];
-  [key: string]:
-    | string
-    | (() => void)
-    | ExtensionPoint
-    | ((...args: any[]) => unknown)
-    | string[]
-    | undefined;
-}
-
-export type Nullable<T> = T | null;
-
-/**
- * Represents the options parameter for anonymousId
- */
-export type AnonymousIdOptions = {
-  autoCapture?: {
-    enabled?: boolean;
-    source?: string;
-  };
-};
 
 // Not using the analytics-js package enums to avoid generation of another shared bundle
 export type PluginName =
@@ -100,5 +72,4 @@ export interface IQueue<T = any> {
   stop(): void;
   enqueue(item: QueueItem<T>): void;
   addItem(item: T): void;
-  // dequeue(): Nullable<T> | undefined;
 }

@@ -1,11 +1,15 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "private": true,
   "description": "",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
+    "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
+    "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
+    "bump-version:monorepo": "npm version minor --git-tag-version false",
     "setup": "npx lerna bootstrap && lerna run build:package && lerna link",
     "setup:ci": "lerna bootstrap && lerna run build:package && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
@@ -15,11 +19,13 @@
     "build": "lerna run build",
     "build:browser": "lerna run build:browser",
     "build:browser:modern": "lerna run build:browser:modern",
+    "build:browser:dev": "lerna run build:browser:dev",
     "build:npm": "lerna run build:npm",
     "build:npm:modern": "lerna run build:npm:modern",
     "build:worker": "lerna run build:worker",
     "build:package": "lerna run build:package",
-    "build:integrations": "cd packages/analytics-v1.1 && npm run build:integration:all:modern && npm run build:integration:all",
+    "package": "lerna run package",
+    "build:integrations": "cd packages/analytics-js-integrations && npm run build:modern && npm run build",
     "test": "lerna run --concurrency 1 test",
     "test:ci": "lerna run --concurrency 1 test:ci",
     "check:lint": "lerna run check:lint",

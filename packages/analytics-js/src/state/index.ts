@@ -1,4 +1,5 @@
 import { clone } from 'ramda';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { loadOptionsState } from './slices/loadOptions';
 import { sessionState } from './slices/session';
 import { capabilitiesState } from './slices/capabilities';
@@ -12,10 +13,9 @@ import { nativeDestinationsState } from './slices/nativeDestinations';
 import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
 import { pagePropertiesState } from './slices/page';
-import { IApplicationState } from './IApplicationState';
 import { storageState } from './slices/storage';
 
-const defaultStateValues: IApplicationState = {
+const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
   consents: consentsState,
   context: contextState,
@@ -32,7 +32,7 @@ const defaultStateValues: IApplicationState = {
   storage: storageState,
 };
 
-const state: IApplicationState = {
+const state: ApplicationState = {
   ...clone(defaultStateValues),
 };
 

@@ -1,5 +1,5 @@
+import { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { ENCRYPTION_PREFIX_V3 } from './constants';
-import { toBase64, fromBase64 } from '../utilities/common';
 
 const encrypt = (value: string): string => `${ENCRYPTION_PREFIX_V3}${toBase64(value)}`;
 

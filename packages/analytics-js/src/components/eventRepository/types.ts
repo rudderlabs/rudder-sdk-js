@@ -1,5 +1,5 @@
-import { ApiCallback } from '@rudderstack/analytics-js/state/types';
-import { RudderEvent } from '../eventManager/types';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 
 interface IEventRepository {
   init(): void;

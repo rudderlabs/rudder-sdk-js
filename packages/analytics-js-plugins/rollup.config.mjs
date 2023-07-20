@@ -13,11 +13,13 @@ import serve from 'rollup-plugin-serve';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
+import copy from "rollup-plugin-copy";
 
 dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
@@ -26,11 +28,14 @@ const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDirNpmRoot = `dist/npm`;
 const outDirCDNRoot = `dist/cdn`;
-const outDirNpm = `${outDirNpmRoot}${variantSubfolder}/plugins`;
+const outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}/plugins`;
 const distName = 'rsa-plugins';
 const modName = 'rudderAnalyticsRemotePlugins';
 const remotePluginsExportsFilename = `${distName}.js`;
+const moduleType = process.env.MODULE_TYPE || 'cdn';
+const isNpmPackageBuild = moduleType === 'npm';
+const isCDNPackageBuild = moduleType === 'cdn';
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
   './Bugsnag': './src/bugsnag/index.ts',
@@ -48,10 +53,8 @@ const pluginsMap = {
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 
-export function getDefaultConfig(distName, moduleType = 'cdn') {
+export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isNpmPackageBuild = moduleType === 'npm';
-  const isCDNPackageBuild = moduleType === 'cdn';
   const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
 
   return {
@@ -74,7 +77,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
         __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
-        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{RS_BUGSNAG_API_KEY}}',
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
       resolve({
@@ -102,11 +105,20 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      !isLegacyBuild &&
+      !isLegacyBuild && isCDNPackageBuild &&
       federation({
         name: modName,
         filename: remotePluginsExportsFilename,
         exposes: pluginsMap,
+      }),
+      !isLegacyBuild && isNpmPackageBuild &&
+      copy({
+        targets: [
+          { src: 'package.json', dest: outDirNpmRoot },
+          { src: 'README.md', dest: outDirNpmRoot },
+          { src: 'CHANGELOG.md', dest: outDirNpmRoot },
+          { src: 'LICENSE', dest: outDirNpmRoot },
+        ],
       }),
       process.env.UGLIFY === 'true' &&
       terser({
@@ -143,7 +155,30 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
   };
 }
 
-const outputFiles = [
+const outputFilesNpm = [
+  {
+    entryFileNames: `index.js`,
+    dir: outDirNpm + '/esm/',
+    format: 'esm',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: isLegacyBuild ? 'es5' : 'es2015',
+    },
+  },
+  {
+    entryFileNames: `index.js`,
+    dir: outDirNpm + '/cjs',
+    format: 'cjs',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: isLegacyBuild ? 'es5' : 'es2015',
+    },
+  },
+];
+
+const outputFilesCdn = [
   {
     chunkFileNames: `${distName}-[name]${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
     dir: outDirCDN,
@@ -156,36 +191,49 @@ const outputFiles = [
   },
 ];
 
-const buildConfig = {
-  ...getDefaultConfig(distName),
+const buildConfig = () => {
+  return {
+    ...getDefaultConfig(distName),
+  };
 };
 
-export default [
-  {
-    ...buildConfig,
-    input: 'src/index.ts',
-    output: outputFiles,
-  },
-  {
-    input: `dist/dts/packages/analytics-js-plugins/src/index.d.ts`,
-    plugins: [
-      alias({
-        entries: [
-          {
-            find: '@rudderstack/analytics-js',
-            replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-plugins',
-            replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
-          }
-        ]
-      }),
-      dts()
-    ],
-    output: {
-      file: `${outDirNpmRoot}/index.d.ts`,
-      format: 'es',
+const buildEntries = () => {
+  const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
+
+  if(isCDNPackageBuild) {
+    return[{
+      ...buildConfig(),
+      input: 'src/index.ts',
+      output: outputFiles,
+    }];
+  }
+
+  return [
+    {
+      ...buildConfig(),
+      input: 'src/index.ts',
+      output: outputFiles,
     },
-  },
-];
+    {
+      input: `dist/dts/packages/analytics-js-plugins/src/index.d.ts`,
+      plugins: [
+        alias({
+          entries: [
+            {
+              find: '@rudderstack/analytics-js-plugins',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+            }
+          ]
+        }),
+        dts(),
+        del({ hook: "buildEnd", targets: "./dist/dts" }),
+      ],
+      output: {
+        file: `${outDirNpmRoot}/index.d.ts`,
+        format: 'es',
+      },
+    }
+  ];
+}
+
+export default buildEntries();

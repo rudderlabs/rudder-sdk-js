@@ -1,5 +1,5 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { isUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { getReferringDomain, getUrlWithoutHash } from './url';
 
 /**

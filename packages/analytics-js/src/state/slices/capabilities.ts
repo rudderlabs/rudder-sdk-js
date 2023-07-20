@@ -1,19 +1,5 @@
-import { Signal, signal } from '@preact/signals-core';
-
-export type CapabilitiesState = {
-  isOnline: Signal<boolean>;
-  storage: {
-    isLocalStorageAvailable: Signal<boolean>;
-    isCookieStorageAvailable: Signal<boolean>;
-    isSessionStorageAvailable: Signal<boolean>;
-  };
-  isBeaconAvailable: Signal<boolean>;
-  isLegacyDOM: Signal<boolean>;
-  isUaCHAvailable: Signal<boolean>;
-  isCryptoAvailable: Signal<boolean>;
-  isIE11: Signal<boolean>;
-  isAdBlocked: Signal<boolean>;
-};
+import { signal } from '@preact/signals-core';
+import { CapabilitiesState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const capabilitiesState: CapabilitiesState = {
   isOnline: signal(true),

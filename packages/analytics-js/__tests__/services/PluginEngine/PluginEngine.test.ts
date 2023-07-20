@@ -1,5 +1,5 @@
 import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
-import { ExtensionPlugin } from '@rudderstack/analytics-js/services/PluginEngine/types';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 
 const mockPlugin1: ExtensionPlugin = {
   name: 'p1',

@@ -1,5 +1,5 @@
 import { processError } from '@rudderstack/analytics-js/services/ErrorHandler/processError';
-import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js-common/constants/htmlAttributes';
 
 jest.mock('../../../src/components/utilities/event', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/event');

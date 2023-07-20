@@ -1,7 +1,11 @@
+import {
+  ICookieStorageOptions,
+  IInMemoryStorageOptions,
+  ILocalStorageOptions,
+} from '@rudderstack/analytics-js-common/types/Store';
 import { DEFAULT_COOKIE_MAX_AGE } from '@rudderstack/analytics-js/constants/timeouts';
-import { CookieSameSite } from '@rudderstack/analytics-js/state/types';
+import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { domain } from '../top-domain';
-import { ICookieStorageOptions, IInMemoryStorageOptions, ILocalStorageOptions } from '../types';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
   const topDomain = domain(globalThis.location?.href);

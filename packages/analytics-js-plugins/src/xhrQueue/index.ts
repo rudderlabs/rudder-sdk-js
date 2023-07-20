@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
+import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/analytics-js-common/index';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
@@ -11,17 +20,7 @@ import {
   isErrRetryable,
   logErrorOnFailure,
 } from './utilities';
-import {
-  IStoreManager,
-  ApplicationState,
-  IErrorHandler,
-  ILogger,
-  QueueOpts,
-  RudderEvent,
-  IHttpClient,
-} from '../types/common';
-import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { getCurrentTimeFormatted, toBase64 } from '../utilities/common';
+import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';

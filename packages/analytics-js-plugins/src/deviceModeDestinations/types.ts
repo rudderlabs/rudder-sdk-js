@@ -1,13 +1,14 @@
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
-  ApiObject,
-  IntegrationOpts,
   AnalyticsAliasMethod,
   AnalyticsGroupMethod,
   AnalyticsIdentifyMethod,
   AnalyticsPageMethod,
   AnalyticsTrackMethod,
-} from '../types/common';
-import { LogLevel, Nullable } from '../types/plugins';
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { LogLevel } from '../types/plugins';
 
 export type DeviceModeDestinationsAnalyticsInstance = {
   loadIntegration: boolean;

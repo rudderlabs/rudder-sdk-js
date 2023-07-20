@@ -3,37 +3,18 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import {
-  IEventManager,
-  RudderEventType,
-} from '@rudderstack/analytics-js/components/eventManager/types';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
-import { Nullable } from '@rudderstack/analytics-js/types';
-import {
-  AnonymousIdOptions,
-  ApiCallback,
-  ApiObject,
-  BufferedEvent,
-  LifecycleStatus,
-  LoadOptions,
-} from '@rudderstack/analytics-js/state/types';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import {
-  IErrorHandler,
-  IExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
@@ -47,12 +28,30 @@ import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQue
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
 import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import { clone } from 'ramda';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ADBLOCK_PAGE_CATEGORY,
   ADBLOCK_PAGE_NAME,
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
-import { LOAD_CONFIGURATION, READY_API } from '@rudderstack/analytics-js/constants/loggerContexts';
+import {
+  LOAD_CONFIGURATION,
+  READY_API,
+} from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import {
   AliasCallOptions,
@@ -60,9 +59,8 @@ import {
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
-} from './eventMethodOverloads';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
-import { isObjectAndNotNull } from '../utilities/object';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -140,7 +138,11 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(writeKey: string, dataPlaneUrl?: string, loadOptions: Partial<LoadOptions> = {}) {
+  load(
+    writeKey: string,
+    dataPlaneUrl?: string | Partial<LoadOptions>,
+    loadOptions: Partial<LoadOptions> = {},
+  ) {
     if (state.lifecycle.status.value) {
       return;
     }
@@ -160,7 +162,7 @@ class Analytics implements IAnalytics {
     // Set initial state values
     batch(() => {
       state.lifecycle.writeKey.value = writeKey;
-      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl;
+      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
       state.lifecycle.status.value = LifecycleStatus.Mounted;
     });
@@ -169,7 +171,6 @@ class Analytics implements IAnalytics {
     setExposedGlobal('state', state, writeKey);
 
     // Configure initial config of any services or components here
-    // TODO
 
     // State application lifecycle
     this.startLifecycle();
@@ -231,7 +232,7 @@ class Analytics implements IAnalytics {
    */
   enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]) {
     if (Array.isArray(bufferedEvents)) {
-      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(bufferedEvent));
+      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(clone(bufferedEvent)));
     }
   }
 

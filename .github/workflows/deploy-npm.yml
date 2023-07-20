@@ -1,4 +1,4 @@
-name: Deploy to NPM
+name: Deploy to NPM v1.1
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy to NPM
+    name: Deploy to NPM v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || github.event.pull_request.merged == true
     steps:
@@ -82,3 +82,4 @@ jobs:
                 }
               ]
             }
+

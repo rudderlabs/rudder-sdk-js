@@ -1,21 +1,21 @@
-import { RudderEventFactory } from '../../../src/components/eventManager/RudderEventFactory';
-import { APIEvent, RudderEventType } from '../../../src/components/eventManager/types';
 import { state } from '@rudderstack/analytics-js/state';
+import { batch } from '@preact/signals-core';
+import { RudderEventFactory } from '@rudderstack/analytics-js/components/eventManager/RudderEventFactory';
+import { APIEvent, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import {
   AppInfo,
   LibraryInfo,
   OSInfo,
-  SessionInfo,
+  ScreenInfo,
   UTMParameters,
-} from '@rudderstack/analytics-js/state/types';
-import { ScreenInfo } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
-import { batch } from '@preact/signals-core';
+} from '@rudderstack/analytics-js-common/types/EventContext';
 
-jest.mock('@rudderstack/analytics-js/components/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 
@@ -541,10 +541,9 @@ describe('RudderEventFactory', () => {
   });
 
   it('should not generate any event if the event type is not supported', () => {
-    // @ts-ignore
     const apiEvent = {
       type: 'test',
-    } as APIEvent;
+    } as unknown as APIEvent;
 
     const testEvent = rudderEventFactory.create(apiEvent);
 

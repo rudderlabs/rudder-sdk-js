@@ -1,6 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-loading-script",
   "version": "3.0.0",
+  "private": true,
   "description": "Loading script for RudderStack Javascript SDK",
   "main": "./src/index.js",
   "keywords": [
@@ -19,7 +20,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo && rimraf -rf ./reports",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "rollup -c --watch",
     "build": "npm run build:browser",
     "build:browser:modern": "exit 0",
@@ -58,7 +59,7 @@
     "@rollup/plugin-babel": "6.0.3",
     "@rollup/plugin-replace": "5.0.2",
     "@rollup/plugin-terser": "0.4.3",
-    "@types/jest": "29.5.2",
+    "@types/jest": "29.5.3",
     "@typescript-eslint/eslint-plugin": "5.59.11",
     "@typescript-eslint/parser": "5.59.11",
     "babel-eslint": "10.1.0",
@@ -84,7 +85,7 @@
     "jest-sonar": "0.2.16",
     "jest-watch-typeahead": "2.2.2",
     "jscpd": "3.5.9",
-    "lint-staged": "13.2.2",
+    "lint-staged": "13.2.3",
     "madge": "6.1.0",
     "prettier": "2.8.8",
     "rollup": "3.20.2",

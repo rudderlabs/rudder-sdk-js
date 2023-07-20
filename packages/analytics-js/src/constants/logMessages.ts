@@ -1,10 +1,9 @@
-import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { ResidencyServerRegion } from '../state/types';
+import { PluginName } from "@rudderstack/analytics-js-common/types/PluginsManager";
+import { StorageType } from "@rudderstack/analytics-js-common/types/Store";
+import { ResidencyServerRegion } from "@rudderstack/analytics-js-common/types/DataResidency";
+import { LOG_CONTEXT_SEPARATOR } from "@rudderstack/analytics-js-common/constants/logMessages";
 
 // CONSTANT
-const LOG_CONTEXT_SEPARATOR = ':: ';
-const JSON_STRINGIFY_WARNING = `Failed to convert the value to a JSON string.`;
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for integrations is not valid.`;
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
@@ -66,15 +65,6 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string): string =>
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}:: The callback is not a function.`;
-
-const SCRIPT_ALREADY_EXISTS_ERROR = (id: string): string =>
-  `A script with the id "${id}" is already loaded. Skipping the loading of this script to prevent conflicts.`;
-
-const SCRIPT_LOAD_ERROR = (id: string, url: string): string =>
-  `Failed to load the script with the id "${id}" from URL "${url}".`;
-
-const SCRIPT_LOAD_TIMEOUT_ERROR = (id: string, url: string, timeout: number): string =>
-  `A timeout of ${timeout} ms occurred while trying to load the script with id "${id}" from URL "${url}".`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,
@@ -169,9 +159,6 @@ const INVALID_SESSION_ID_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided session ID (${sessionId}) is either invalid, not a positive integer, or not at least "${minSessionIdLength}" digits long. A new session ID will be auto-generated instead.`;
 
-const CIRCULAR_REFERENCE_WARNING = (context: string, key: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}A circular reference has been detected in the object and the property "${key}" has been dropped from the output.`;
-
 const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`;
 
@@ -193,8 +180,6 @@ export {
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
-  CIRCULAR_REFERENCE_WARNING,
-  JSON_STRINGIFY_WARNING,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
   NOTIFY_FAILURE_ERROR,
   PLUGIN_NAME_MISSING_ERROR,
@@ -205,7 +190,6 @@ export {
   PLUGIN_INVOCATION_ERROR,
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORAGE_UNAVAILABLE_ERROR,
-  LOG_CONTEXT_SEPARATOR,
   STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
@@ -215,9 +199,6 @@ export {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   READY_API_CALLBACK_ERROR,
-  SCRIPT_ALREADY_EXISTS_ERROR,
-  SCRIPT_LOAD_ERROR,
-  SCRIPT_LOAD_TIMEOUT_ERROR,
   XHR_DELIVERY_ERROR,
   XHR_REQUEST_ERROR,
   XHR_SEND_ERROR,

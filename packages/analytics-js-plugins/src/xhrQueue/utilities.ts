@@ -1,6 +1,8 @@
+import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { RudderEventType } from '../types/plugins';
-import { isUndefined, mergeDeepRight } from '../utilities/common';
-import { QueueOpts, ILogger, ResponseDetails } from '../types/common';
 import { removeDuplicateSlashes } from '../utilities/queue';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRQueueItem } from './types';

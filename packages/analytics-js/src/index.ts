@@ -1,20 +1,19 @@
 // TODO: export all types that we need for public interface consumption
 export {
   type AnonymousIdOptions,
-  type ApiCallback,
-  type ApiObject,
-  type ApiOptions,
-  type DestinationsQueueOpts,
+  type LoadOptions,
   type SessionOpts,
-  type IntegrationOpts,
   type QueueOpts,
   type BeaconQueueOpts,
-  type LoadOptions,
+  type DestinationsQueueOpts,
   CookieSameSite,
-  ResidencyServerRegion,
   UaChTrackLevel,
-  LogLevel,
-} from '@rudderstack/analytics-js/state/types';
-export { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+export { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
+export { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+export { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
 export { type IRudderStackGlobals } from '@rudderstack/analytics-js/app/IRudderStackGlobals';

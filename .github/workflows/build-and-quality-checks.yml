@@ -1,4 +1,4 @@
-name: Build & Code Quality Checks
+name: Build & Code Quality Checks v1.1
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build & Code Quality Checks
+    name: Build & Code Quality Checks v1.1
     runs-on: ubuntu-latest
 
     steps:

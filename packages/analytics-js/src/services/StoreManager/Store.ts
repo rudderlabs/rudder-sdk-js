@@ -1,23 +1,23 @@
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { trim } from '@rudderstack/analytics-js/components/utilities/string';
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { isNullOrUndefined } from '@rudderstack/analytics-js/components/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js/components/utilities/json';
-import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
-import { getMutatedError } from '@rudderstack/analytics-js/components/utilities/errors';
-import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js/constants/storages';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import {
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,
   STORE_DATA_SAVE_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
 import { getStorageEngine } from './storages/storageEngine';
-import { IStorage, IStore, IStoreConfig } from './types';
 
 /**
  * Store Implementation with dedicated storage

@@ -1,11 +1,11 @@
-name: Draft new release
+name: Draft new release v1.1
 
 on:
   workflow_dispatch:
 
 jobs:
   draft-new-release:
-    name: Draft a new release
+    name: Draft a new release v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix/')
     steps:
@@ -83,5 +83,5 @@ jobs:
           destination_branch: 'production'
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into production'
-          pr_body: ':crown: *An automated PR*'
+          pr_body: ":crown: *An automated PR*"
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

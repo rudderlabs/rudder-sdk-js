@@ -3,7 +3,7 @@ import { getOutputFilePath, getDefaultConfig } from './rollup.utilities.mjs';
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist${variantSubfolder}`;
+const outDir = `dist/cdn${variantSubfolder}`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
 
