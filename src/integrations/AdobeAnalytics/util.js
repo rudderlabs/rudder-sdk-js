@@ -307,16 +307,21 @@ const handleHier = (rudderElement) => {
 
 const handleLists = (rudderElement) => {
   const { properties } = rudderElement.message;
+  const listMappingHashmap = getHashFromArray(config.listMapping, 'from', 'to', false);
+  let listDelimiterHashmap = getHashFromArray(config.listMapping, 'from', 'delimiter', false);
+  // Keeping listDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
+  if (config.listMapping?.length > 0 && !get(config, 'listMapping.0.delimiter')) {
+    listDelimiterHashmap = getHashFromArray(config.listDelimiter, 'from', 'to', false);
+  }
   if (properties) {
     each((value, key) => {
-      const mappingObj = config.listMapping?.find((mapping) => mapping.from === key);
-      if (mappingObj && mappingObj.to && mappingObj.delimiter) {
+      if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
           logger.error('list variable is neither a string nor an array');
           return;
         }
-        const { delimiter, to } = mappingObj;
-        const listValue = `list${to}`;
+        const delimiter = listDelimiterHashmap[key];
+        const listValue = `list${listMappingHashmap[key]}`;
         if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
@@ -338,16 +343,31 @@ const handleLists = (rudderElement) => {
 
 const handleCustomProps = (rudderElement) => {
   const { properties } = rudderElement.message;
+  const customPropsMappingHashmap = getHashFromArray(
+    config.customPropsMapping,
+    'from',
+    'to',
+    false,
+  );
+  let propsDelimiterHashmap = getHashFromArray(
+    config.customPropsMapping,
+    'from',
+    'delimiter',
+    false,
+  );
+  // Keeping listDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
+  if (config.customPropsMapping?.length > 0 && !get(config, 'customPropsMapping.0.delimiter')) {
+    propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
+  }
   if (properties) {
     each((value, key) => {
-      const mappingObj = config.customPropsMapping?.find((mapping) => mapping.from === key);
-      if (mappingObj && mappingObj.to) {
+      if (customPropsMappingHashmap[key]) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
           logger.error('prop variable is neither a string nor an array');
           return;
         }
-        const delimiter = mappingObj.delimiter ? mappingObj.delimiter : '|';
-        const propValue = `prop${mappingObj.to}`;
+        const delimiter = propsDelimiterHashmap[key] ? propsDelimiterHashmap[key] : '|';
+        const propValue = `prop${customPropsMappingHashmap[key]}`;
         if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
