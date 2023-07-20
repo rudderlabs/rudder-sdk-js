@@ -3,7 +3,7 @@ name: Deploy to PROD v3
 on:
   workflow_dispatch:
   pull_request:
-    branches: ['master']
+    branches: ['main']
     types:
       - closed
 
@@ -15,7 +15,7 @@ jobs:
   deploy-tag:
     name: Deploy to PROD v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/master') || github.event.pull_request.merged == true
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
