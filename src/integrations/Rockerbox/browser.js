@@ -24,12 +24,7 @@ class Rockerbox {
 
   init() {
     logger.debug('=== In init Rockerbox ===');
-    const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
-    const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-    loadNativeSdk(document, window.RB || {});
-    window.RB.disablePushState = true;
-    window.RB.queue = [];
-    window.RB.initialize(this.clientAuthId);
+    loadNativeSdk(this.customDomain, this.enableCookieSync, this.clientAuthId);
   }
 
   isLoaded() {

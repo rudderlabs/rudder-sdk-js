@@ -20,12 +20,7 @@ class Refiner {
   }
 
   loadScript() {
-    window._refinerQueue = window._refinerQueue || [];
-    this._refiner = function () {
-      window._refinerQueue.push(arguments);
-    };
-    loadNativeSdk();
-    this._refiner('setProject', this.apiKey);
+    loadNativeSdk(this.apiKey);
   }
 
   init() {

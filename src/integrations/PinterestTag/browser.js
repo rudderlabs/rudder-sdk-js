@@ -37,7 +37,7 @@ export default class PinterestTag {
   }
 
   loadScript() {
-    loadNativeSdk('https://s.pinimg.com/ct/core.js');
+    loadNativeSdk();
   }
 
   handleEnhancedMatch() {

@@ -1,7 +1,7 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 function loadNativeSdk() {
-  (function () {
+  !(function () {
     var t,
       o,
       c,

@@ -25,21 +25,7 @@ class ProfitWell {
       logger.debug('===[ProfitWell]: Public API Key not found===');
       return;
     }
-
-    window.publicApiKey = this.publicApiKey;
-
-    const scriptTag = document.createElement('script');
-    scriptTag.setAttribute('id', 'profitwell-js');
-    scriptTag.setAttribute('data-pw-auth', window.publicApiKey);
-    document.body.appendChild(scriptTag);
-
-    loadNativeSdk(
-      window,
-      document,
-      'profitwell',
-      'script',
-      'https://public.profitwell.com/js/profitwell.js',
-    );
+    loadNativeSdk(this.publicApiKey);
   }
 
   isLoaded() {

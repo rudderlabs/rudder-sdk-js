@@ -1,6 +1,6 @@
 const loadNativeSdk = (_rollbarConfig) => {
-  // load braze
-  (function (r) {
+  // Rollbar Snippet
+  !(function (r) {
     var e = {};
     function o(n) {
       if (e[n]) return e[n].exports;
@@ -377,6 +377,7 @@ const loadNativeSdk = (_rollbarConfig) => {
       };
     },
   ]);
+  // End Rollbar Snippet
 };
 
 export { loadNativeSdk };

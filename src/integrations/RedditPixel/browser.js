@@ -29,9 +29,7 @@ class RedditPixel {
   init() {
     logger.debug('===In init RedditPixel===');
 
-    loadNativeSdk(window, document);
-
-    window.rdt('init', this.advertiserId);
+    loadNativeSdk(this.advertiserId);
   }
 
   isLoaded() {

@@ -4,7 +4,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Woopra {
   constructor(config, analytics, destinationInfo) {
@@ -31,6 +31,7 @@ class Woopra {
 
   init() {
     logger.debug('===In init Woopra===');
+    loadNativeSdk();
     window.Woopra.config({
       domain: this.projectName,
       cookie_name: this.cookieName,

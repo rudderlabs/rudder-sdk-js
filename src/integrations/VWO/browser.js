@@ -33,14 +33,7 @@ class VWO {
       const library_tolerance = this.libraryTolerance;
       const use_existing_jquery = this.useExistingJquery;
       const { isSPA } = this;
-      window._vwo_code = loadNativeSdk(
-        account_id,
-        settings_tolerance,
-        library_tolerance,
-        use_existing_jquery,
-        isSPA,
-      );
-      window._vwo_settings_timer = window._vwo_code.init();
+      loadNativeSdk(account_id, settings_tolerance, library_tolerance, use_existing_jquery, isSPA);
     } else {
       logger.debug('===[VWO]loadIntegration flag is disabled===');
     }

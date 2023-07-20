@@ -40,16 +40,7 @@ class Qualtrics {
       return;
     }
 
-    const projectIdFormatted = this.projectId.replace(/_/g, '').toLowerCase().trim();
-    const requestUrlFormatted = `https://${projectIdFormatted}-${this.brandId}.siteintercept.qualtrics.com/SIE/?Q_ZID=${this.projectId}`;
-    const requestIdFormatted = `QSI_S_${this.projectId}`;
-
-    loadNativeSdk(requestIdFormatted, requestUrlFormatted);
-
-    const div = document.createElement('div');
-    div.setAttribute('id', String(this.projectId));
-    window._qsie = window._qsie || [];
-    document.getElementsByTagName('head')[0].appendChild(div);
+    loadNativeSdk(this.projectId, this.brandId);
   }
 
   isLoaded() {

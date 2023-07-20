@@ -27,11 +27,7 @@ class Satismeter {
 
   init() {
     logger.debug('===In init Satismeter===');
-    loadNativeSdk();
-
-    window.satismeter({
-      writeKey: this.writeKey,
-    });
+    loadNativeSdk(this.writeKey);
   }
 
   isLoaded() {

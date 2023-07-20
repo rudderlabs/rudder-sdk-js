@@ -26,7 +26,7 @@ class Olark {
   }
 
   loadScript() {
-    loadNativeSdk(window, document, 'static.olark.com/jsclient/loader.js');
+    loadNativeSdk();
     /* custom configuration goes here (www.olark.com/documentation) */
     window.olark.identify(this.siteId);
 

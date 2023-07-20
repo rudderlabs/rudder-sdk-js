@@ -19,9 +19,7 @@ class QuoraPixel {
   }
 
   loadScript() {
-    loadNativeSdk(window, 'script', 'https://a.quora.com/qevents.js');
-    window.qp('init', this.pixelId);
-    window.qp('track', 'ViewContent');
+    loadNativeSdk(this.pixelId);
   }
 
   init() {

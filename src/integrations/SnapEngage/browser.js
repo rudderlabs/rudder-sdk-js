@@ -7,7 +7,6 @@ import { NAME } from './constants';
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { isObject } from '../../utils/utils';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 class SnapEngage {

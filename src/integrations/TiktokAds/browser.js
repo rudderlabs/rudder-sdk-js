@@ -29,8 +29,7 @@ class TiktokAds {
 
   init() {
     logger.debug('===In init Tiktok Ads===');
-    loadNativeSdk(window, document, 'ttq');
-    ttq.load(this.pixelCode);
+    loadNativeSdk(this.pixelCode);
   }
 
   isLoaded() {

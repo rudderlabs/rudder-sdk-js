@@ -19,10 +19,7 @@ class MicrosoftClarity {
   }
 
   loadScript() {
-    loadNativeSdk(window, document, 'clarity', 'script', this.projectId);
-    if (this.cookieConsent) {
-      window.clarity('consent');
-    }
+    loadNativeSdk(this.cookieConsent, this.projectId);
   }
 
   init() {

@@ -38,15 +38,7 @@ class MoEngage {
     logger.debug('===in init MoEngage===');
     // loading the script for moengage web sdk
     /* eslint-disable */
-    loadNativeSdk(
-      window,
-      document,
-      'script',
-      document.location.protocol === 'https:'
-        ? 'https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js'
-        : 'http://cdn.moengage.com/webpush/moe_webSdk.min.latest.js',
-      'Moengage',
-    );
+    loadNativeSdk();
     /* eslint-enable */
 
     // setting the region if us then not needed.

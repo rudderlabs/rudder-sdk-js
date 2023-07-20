@@ -23,13 +23,7 @@ class Lemnisk {
 
   init() {
     logger.debug('===in init Lemnisk Marketing Automation===');
-    loadNativeSdk(
-      window,
-      document.location.protocol === 'https:'
-        ? `https://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`
-        : `http://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`,
-      document,
-    );
+    loadNativeSdk(this.accountId, this.sdkWriteKey);
   }
 
   isLoaded() {

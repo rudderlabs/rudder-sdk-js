@@ -40,23 +40,7 @@ class Lytics {
   }
 
   loadLyticsScript() {
-    loadNativeSdk();
-    // Define config and initialize Lytics tracking tag.
-    window.jstag.init({
-      loadid: this.loadid,
-      blocked: this.blockload,
-      stream: this.stream,
-      sessecs: 1800,
-      src:
-        document.location.protocol === 'https:'
-          ? `https://c.lytics.io/api/tag/${this.accountId}/latest.min.js`
-          : `http://c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
-      pageAnalysis: {
-        dataLayerPull: {
-          disabled: true,
-        },
-      },
-    });
+    loadNativeSdk(this.loadid, this.blockload, this.stream, this.accountId);
   }
 
   init() {

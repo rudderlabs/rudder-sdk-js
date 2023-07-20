@@ -68,7 +68,7 @@ class SnapPixel {
   init() {
     logger.debug('===In init SnapPixel===');
 
-    loadNativeSdk(window, document, 'https://sc-static.net/scevent.min.js');
+    loadNativeSdk();
 
     const userTraits = Storage.getUserTraits();
 

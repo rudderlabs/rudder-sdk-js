@@ -85,7 +85,7 @@ class Mixpanel {
   init() {
     logger.debug('===in init Mixpanel===');
     // eslint-disable-next-line no-var
-    loadNativeSdk(document, window.mixpanel || []);
+    loadNativeSdk();
     const options = {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,

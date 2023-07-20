@@ -54,7 +54,7 @@ class Posthog {
       logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
       return;
     }
-    loadNativeSdk(document, window.posthog || []);
+    loadNativeSdk();
 
     const configObject = {
       api_host: this.yourInstance,

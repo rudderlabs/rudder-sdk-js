@@ -19,7 +19,7 @@ class Pendo {
   }
 
   init() {
-    loadNativeSdk(this.apiKey, window, document, 'script', 'pendo');
+    loadNativeSdk(this.apiKey);
     this.initializeMe();
     logger.debug('===in init Pendo===');
   }
