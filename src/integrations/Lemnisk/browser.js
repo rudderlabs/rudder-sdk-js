@@ -109,7 +109,7 @@ class Lemnisk {
     } else if (name && properties) {
       window.lmSMTObj.page(name, {...properties, ...rudderEventIdentifier});
     } else {
-      window.lmSMTObj.page();
+      window.lmSMTObj.page(rudderEventIdentifier);
     }
   }
 }
