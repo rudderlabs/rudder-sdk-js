@@ -1,3 +1,6 @@
+/* eslint-disable unicorn/no-for-loop */
+/* eslint-disable sonarjs/no-redundant-boolean */
+/* eslint-disable eqeqeq */
 /* eslint-disable no-param-reassign */
 import get from 'get-value';
 import set from 'set-value';
@@ -221,8 +224,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
-        sdkSuppliedIntegrations[intgName] !== undefined &&
-        sdkSuppliedIntegrations[intgName] === true
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == true
       ) {
         enabledList.push(intObj);
       }
@@ -231,8 +234,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
       let intgValue = true;
       // check if intg false supplied
       if (
-        sdkSuppliedIntegrations[intgName] !== undefined &&
-        sdkSuppliedIntegrations[intgName] === false
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == false
       ) {
         intgValue = false;
       }
@@ -531,10 +534,9 @@ const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const element of src) {
-      if (properties[element]) {
-        data[dest] = properties[element];
+    for (let index = 0; index < src.length; index += 1) {
+      if (properties[src[index]]) {
+        data[dest] = properties[src[index]];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -542,12 +544,9 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  }
-
-  if (typeof src === 'string' && properties[src]) {
+  } else if (typeof src === 'string' && properties[src]) {
     data[dest] = properties[src];
   }
-
   return data;
 };
 
@@ -560,9 +559,8 @@ const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
-  // eslint-disable-next-line no-restricted-syntax
-  for (const script of scripts) {
-    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
+  for (let i = 0; i < scripts.length; i += 1) {
+    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
