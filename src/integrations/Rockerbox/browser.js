@@ -15,7 +15,6 @@ class Rockerbox {
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
-    this.useNativeSDKToSend = config.useNativeSDKToSend;
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.connectionMode = config.connectionMode;
@@ -79,15 +78,9 @@ class Rockerbox {
   }
 
   track(rudderElement) {
-    if (this.connectionMode !== 'device') {
+    if (this.connectionMode === 'hybrid') {
       logger.info(
-        'The connectionMode is not set to device. Track call will not be sent via device mode.',
-      );
-      return;
-    }
-    if (!this.connectionMode && !this.useNativeSDKToSend) {
-      logger.info(
-        'The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode.',
+        'The connectionMode is set to hybrid. Track call will not be sent via device mode.',
       );
       return;
     }
