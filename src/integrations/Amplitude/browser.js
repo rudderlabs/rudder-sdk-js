@@ -21,24 +21,19 @@ class Amplitude {
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.trackCategorizedPages = config.trackCategorizedPages || false;
-    this.trackUtmProperties = config.trackUtmProperties || false;
-    this.trackReferrer = config.trackReferrer || false;
-    this.batchEvents = config.batchEvents || false;
-    this.eventUploadThreshold = +config.eventUploadThreshold || 30;
-    this.eventUploadPeriodMillis = +config.eventUploadPeriodMillis || 30000;
-    this.forceHttps = config.forceHttps || false;
-    this.trackGclid = config.trackGclid || false;
-    this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
-    this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false;
-    // this.mapQueryParams = config.mapQueryParams;
+    this.attribution = config.attribution || false;
+    this.flushQueueSize = config.flushQueueSize || 30;
+    this.flushIntervalMillis = +config.flushIntervalMillis || 30000;
+    this.trackNewCampaigns = config.trackNewCampaigns || false;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
     this.traitsToSetOnce = [];
     this.traitsToIncrement = [];
-    this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
-    this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
@@ -65,23 +60,14 @@ class Amplitude {
     }
 
     const initOptions = {
-      includeUtm: this.trackUtmProperties,
-      batchEvents: this.batchEvents,
-      eventUploadThreshold: this.eventUploadThreshold,
-      eventUploadPeriodMillis: this.eventUploadPeriodMillis,
-      forceHttps: this.forceHttps,
-      includeGclid: this.trackGclid,
-      includeReferrer: this.trackReferrer,
-      saveParamsReferrerOncePerSession: this.saveParamsReferrerOncePerSession,
-      deviceIdFromUrlParam: this.deviceIdFromUrlParam,
-      unsetParamsReferrerOnNewSession: this.unsetParamsReferrerOnNewSession,
-      deviceId:
-        this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId(),
+      attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
+      flushQueueSize: this.flushQueueSize,
+      flushIntervalMillis: this.flushIntervalMillis,
+      appVersion: this.versionName,
     };
-    window.amplitude.getInstance().init(this.apiKey, null, initOptions);
-    if (this.versionName) {
-      window.amplitude.getInstance().setVersionName(this.versionName);
-    }
+    if (this.preferAnonymousIdForDeviceId && this.analytics)
+      initOptions.deviceId = this.analytics.getAnonymousId();
+    window.amplitude.init(this.apiKey, null, initOptions);
   }
 
   identify(rudderElement) {
@@ -94,7 +80,7 @@ class Amplitude {
     const { userId } = rudderElement.message;
 
     if (userId) {
-      window.amplitude.getInstance().setUserId(userId);
+      window.amplitude.setUserId(userId);
     }
 
     if (traits) {
@@ -102,7 +88,6 @@ class Amplitude {
       Object.keys(traits).forEach((trait) => {
         const shouldIncrement = this.traitsToIncrement.includes(trait);
         const shouldSetOnce = this.traitsToSetOnce.includes(trait);
-
         if (shouldIncrement) {
           amplitudeIdentify.add(trait, traits[trait]);
         }
@@ -133,7 +118,7 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
-      if (products && type(products) === 'array') {
+      if (products && Array.isArray(products)) {
         // track all the products in a single event.
         const allProducts = [];
 
@@ -161,7 +146,7 @@ class Amplitude {
       return;
     }
 
-    if (products && type(products) === 'array') {
+    if (products && Array.isArray(products)) {
       // track events iterating over product array individually.
 
       // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
@@ -206,7 +191,7 @@ class Amplitude {
   logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue) {
     const { properties, event } = rudderMessage;
 
-    window.amplitude.getInstance().logEvent(event, properties);
+    window.amplitude.logEvent(event, properties);
     if (properties.revenue && !dontTrackRevenue) {
       this.trackRevenue(rudderMessage);
     }
@@ -228,7 +213,7 @@ class Amplitude {
     // all pages
     if (this.trackAllPages) {
       const event = 'Loaded a page';
-      window.amplitude.getInstance().logEvent(event, properties);
+      window.amplitude.logEvent(event, properties);
     }
 
     // categorized pages
@@ -236,7 +221,7 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
       else event = `Viewed ${category} Page`;
-      window.amplitude.getInstance().logEvent(event, properties);
+      window.amplitude.logEvent(event, properties);
     }
 
     // named pages
@@ -244,7 +229,7 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
       else event = `Viewed ${name} Page`;
-      window.amplitude.getInstance().logEvent(event, properties);
+      window.amplitude.logEvent(event, properties);
     }
   }
 
@@ -266,10 +251,10 @@ class Amplitude {
     }
 
     if (groupType && groupValue) {
-      window.amplitude.getInstance().setGroup(groupTypeTrait, groupValueTrait);
+      window.amplitude.setGroup(groupTypeTrait, groupValueTrait);
     } else if (groupId) {
       // Similar as segment but not sure whether we need it as our cloud mode supports only the above if block
-      window.amplitude.getInstance().setGroup('[Rudderstack] Group', groupId);
+      window.amplitude.setGroup('[Rudderstack] Group', groupId);
     }
 
     // https://developers.amplitude.com/docs/setting-user-properties#setting-group-properties
@@ -279,7 +264,7 @@ class Amplitude {
   setDeviceId(rudderElement) {
     const { anonymousId } = rudderElement.message;
     if (this.preferAnonymousIdForDeviceId && anonymousId) {
-      window.amplitude.getInstance().setDeviceId(anonymousId);
+      window.amplitude.setDeviceId(anonymousId);
     }
   }
 
@@ -339,7 +324,7 @@ class Amplitude {
       delete amplitudeRevenue._properties.productId;
       delete amplitudeRevenue._properties.quantity;
     }
-    window.amplitude.getInstance().logRevenueV2(amplitudeRevenue);
+    window.amplitude.revenue(amplitudeRevenue);
   }
 
   getProductAttributes(product) {
@@ -355,11 +340,11 @@ class Amplitude {
 
   isLoaded() {
     logger.debug('in Amplitude isLoaded');
-    return !!(window.amplitude && window.amplitude.getInstance().options);
+    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 
   isReady() {
-    return !!(window.amplitude && window.amplitude.getInstance().options);
+    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 }
 
