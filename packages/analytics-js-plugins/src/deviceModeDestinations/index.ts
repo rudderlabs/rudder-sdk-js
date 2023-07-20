@@ -158,7 +158,13 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                   ];
                 })
                 .catch(err => {
-                  throw err;
+                  // The error message is already formatted in the isDestinationReady function
+                  logger?.error(err);
+
+                  state.nativeDestinations.failedDestinations.value = [
+                    ...state.nativeDestinations.failedDestinations.value,
+                    dest,
+                  ];
                 });
             } catch (err) {
               logger?.error(
@@ -175,7 +181,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         }, INITIALIZED_CHECK_POLL_INTERVAL);
 
         timeoutId = (globalThis as typeof window).setTimeout(() => {
-          clearInterval(intervalId);
+          (globalThis as typeof window).clearInterval(intervalId);
 
           logger?.error(
             DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR(
