@@ -23,8 +23,7 @@ class Heap {
    */
 
   init() {
-    (window.heap = window.heap || []), (heap.load = loadNativeSdk(e, t));
-    window.heap.load(this.appId);
+    loadNativeSdk(this.appId);
   }
 
   /**

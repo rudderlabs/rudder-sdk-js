@@ -20,13 +20,7 @@ class GoogleTagManager {
   init() {
     logger.debug('===in init GoogleTagManager===');
 
-    const defaultUrl = `https://www.googletagmanager.com`;
-
-    // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
-
-    window.finalUrl = this.serverUrl ? this.serverUrl : defaultUrl;
-
-    loadNativeSdk(window, document, 'script', 'dataLayer', this.containerID);
+    loadNativeSdk(this.containerID, this.serverUrl);
   }
 
   identify(rudderElement) {

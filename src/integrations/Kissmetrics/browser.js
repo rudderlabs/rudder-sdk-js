@@ -22,10 +22,7 @@ class Kissmetrics {
 
   init() {
     logger.debug('===in init Kissmetrics===');
-    window._kmq = window._kmq || [];
-
-    const _kmk = window._kmk || this.apiKey;
-    loadeNativeSdk(_kmk);
+    loadeNativeSdk(this.apiKey);
 
     if (this.isEnvMobile()) {
       window._kmq.push(['set', { 'Mobile Session': 'Yes' }]);

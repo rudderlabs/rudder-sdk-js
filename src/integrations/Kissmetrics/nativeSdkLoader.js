@@ -1,6 +1,9 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-function loadeNativeSdk(_kmk) {
+function loadeNativeSdk(apiKey) {
+  window._kmq = window._kmq || [];
+
+  const _kmk = window._kmk || apiKey;
   function _kms(u) {
     setTimeout(function () {
       const d = document;

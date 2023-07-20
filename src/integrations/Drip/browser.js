@@ -39,11 +39,7 @@ class Drip {
   init() {
     logger.debug('===In init Drip===');
 
-    window._dcq = window._dcq || [];
-    window._dcs = window._dcs || {};
-    window._dcs.account = this.accountId;
-
-    loadNativeSdk();
+    loadNativeSdk(this.accountId);
   }
 
   isLoaded() {

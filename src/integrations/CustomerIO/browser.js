@@ -19,7 +19,6 @@ class CustomerIO {
 
   init() {
     logger.debug('===in init Customer IO init===');
-    window._cio = window._cio || [];
     const { siteID } = this;
     loadNativeSdk(siteID);
   }

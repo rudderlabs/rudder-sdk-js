@@ -20,9 +20,7 @@ class Hotjar {
 
   init() {
     logger.debug('===In init Hotjar===');
-
-    window.hotjarSiteId = this.siteId;
-    loadNativeSdk(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    loadNativeSdk(this.siteId);
     this._ready = true;
   }
 

@@ -56,13 +56,7 @@ class Fullstory {
 
   init() {
     logger.debug('===in init FULLSTORY===');
-    window._fs_debug = this.fs_debug_mode;
-    window._fs_host = this.fs_host;
-    window._fs_script = 'edge.fullstory.com/s/fs.js';
-    window._fs_org = this.fs_org;
-    window._fs_namespace = 'FS';
-
-    loadNativeSdk(window, document, window._fs_namespace, 'script', 'user');
+    loadNativeSdk(this.fs_debug_mode, this.fs_host, this.fs_org);
     const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
     // Checking if crossDomainSupport is their or not.
     if (FULLSTORY?.crossDomainSupport === true) {

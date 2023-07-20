@@ -21,10 +21,7 @@ class INTERCOM {
   }
 
   init() {
-    window.intercomSettings = {
-      app_id: this.APP_ID,
-    };
-    loadNativeSdk();
+    loadNativeSdk(this.APP_ID);
   }
 
   page() {

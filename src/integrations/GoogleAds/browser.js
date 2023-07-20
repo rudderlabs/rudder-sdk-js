@@ -46,14 +46,7 @@ class GoogleAds {
 
   init() {
     const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=${this.conversionId}`;
-    loadNativeSdk('googleAds-integration', sourceUrl, document);
-
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () {
-      // eslint-disable-next-line prefer-rest-params
-      window.dataLayer.push(arguments);
-    };
-    window.gtag('js', new Date());
+    loadNativeSdk(sourceUrl);
 
     // Additional Settings
 

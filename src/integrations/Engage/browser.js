@@ -24,7 +24,7 @@ class Engage {
   init() {
     logger.debug('===In init Engage===');
 
-    loadNativeSdk('engage');
+    loadNativeSdk();
 
     window.Engage.init({
       key: this.api_key,

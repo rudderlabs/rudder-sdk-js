@@ -19,7 +19,7 @@ class BingAds {
   }
 
   init = () => {
-    loadNativeSdk(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
+    loadNativeSdk(this.uniqueId);
     logger.debug('===in init BingAds===');
   };
 
