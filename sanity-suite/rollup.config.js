@@ -8,6 +8,7 @@ import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
 import replace from '@rollup/plugin-replace';
 import copy from 'rollup-plugin-copy';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -97,15 +98,25 @@ const getBuildConfig = (featureName) => ({
   watch: {
     include: ['src/**', 'public/**', '__mocks__/**'],
   },
+  external: [],
+  onwarn(warning, warn) {
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return;
+    }
+
+    warn(warning);
+  },
   plugins: [
     replace({
       preventAssignment: true,
+      __PACKAGE_VERSION__: process.env.CDN_VERSION_PATH || defaultVersion,
+      __MODULE_TYPE__: process.env.TEST_PACKAGE,
       WRITE_KEY: process.env.WRITE_KEY,
       FEATURE_PRELOAD_BUFFER_WRITE_KEY: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
       FEATURE_EVENT_FILTERING_WRITE_KEY: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
-      DEST_SDK_BASE_URL: getDestinationsURL(),
+      DESTINATIONS_SDK_BASE_URL: getDestinationsURL(),
       CDN_VERSION_PATH:
         `${process.env.CDN_VERSION_PATH}/${process.env.STAGING ? 'staging/' : ''}` || '',
       STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
@@ -117,10 +128,13 @@ const getBuildConfig = (featureName) => ({
       preferBuiltins: false,
     }),
     commonjs({
-      include: 'node_modules/**',
+      include: ['node_modules/**', '../node_modules/**'],
     }),
+    json(),
+    nodePolyfills({ include: null }),
     babel({
       inputSourceMap: true,
+      compact: true,
       babelHelpers: 'bundled',
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
     }),
@@ -128,7 +142,6 @@ const getBuildConfig = (featureName) => ({
       copy({
         targets: getCopyTargets(),
       }),
-    json(),
     htmlTemplate({
       template: getHTMLSource(featureName),
       target: 'index.html',
