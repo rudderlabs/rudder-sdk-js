@@ -43,7 +43,17 @@ const getContentCategory = (category) => {
   return contentCategory;
 };
 
-const buildPayLoad = (rudderElement, configWhilistedProperties, configBlacklistedProperties) =>{
+const getHashedStatus = (message, integrationName) => {
+  const val = get(message, `integrations.${integrationName}.hashed`);
+  return val;
+}
+
+const buildPayLoad = (
+  rudderElement, 
+  configWhilistedProperties, 
+  configBlacklistedProperties,
+  hashedPii
+  ) =>{
   const dateFields = [
     'checkinDate',
     'checkoutDate',
@@ -98,7 +108,7 @@ const buildPayLoad = (rudderElement, configWhilistedProperties, configBlackliste
     }
 
     if (shouldPropBeHashedMap[currPropName] && typeof currPropValue === 'string') {
-      acc[currPropName] = sha256(currPropValue).toString();
+      acc[currPropName] = hashedPii ? currPropValue.toString():sha256(currPropValue).toString();
     } else if ((!isPropertyPii || isProperyWhiteListed) && !isDateProp) {
       acc[currPropName] = currPropValue;
     } else {
@@ -113,4 +123,4 @@ const buildPayLoad = (rudderElement, configWhilistedProperties, configBlackliste
   return payload;
 };
 
-export { getEventId, getContentCategory, buildPayLoad };
+export { getEventId, getContentCategory, buildPayLoad, getHashedStatus };

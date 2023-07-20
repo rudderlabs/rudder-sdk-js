@@ -1,5 +1,5 @@
 import {
-    buildPayLoad
+    buildPayLoad, getHashedStatus
 } from '../../../src/integrations/FacebookPixel/utils';
 
 const blacklistPiiPropertiesMock = [
@@ -189,14 +189,14 @@ describe('buildPayLoad_function', () => {
         let rudderElement = {
             message: {
                 properties: {
-                    checkinDate: new Date(),
-                    checkoutDate: new Date(),
-                    departingArrivalDate: new Date(),
-                    departingDepartureDate: new Date(),
-                    returningArrivalDate: new Date(),
-                    returningDepartureDate: new Date(),
-                    travelEnd: new Date(),
-                    travelStart: new Date()
+                    checkinDate: "2023-07-19",
+                    checkoutDate: "2023-07-19",
+                    departingArrivalDate: "2023-07-19",
+                    departingDepartureDate: "2023-07-19",
+                    returningArrivalDate: "2023-07-19",
+                    returningDepartureDate: "2023-07-19",
+                    travelEnd: "2023-07-19",
+                    travelStart: "2023-07-19"
                 }
             }
         };
@@ -412,6 +412,232 @@ describe('buildPayLoad_function', () => {
             "customPiiPropertyWhiteHashFalse": "should not be hashed",
         });
     });
+
+    it('if_integrationobj_contains_hash_true_for_pii_blacklist', () => {
+        let blacklistPiiPropertiesMock = [
+            {
+                "blacklistPiiProperties": "lastName",
+                "blacklistPiiHash": true
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": "true"
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "lastName": "Doe"
+        });
+    })
+
+    it('if_integrationobj_contains_hash_true_for_non_pii_blacklist', () => {
+        let blacklistPiiPropertiesMock = [
+            {
+                "blacklistPiiProperties": "BlacklistPiiPropertyHashTrue",
+                "blacklistPiiHash": true
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                    BlacklistPiiPropertyHashTrue: 'should not be hashed',
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": "true"
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "BlacklistPiiPropertyHashTrue": "should not be hashed",
+        });
+    })
+
+    it('if_integrationobj_contains_hash_true_for_non_pii_whitelist', () => {
+        let whitelistPiiPropertiesMock = [
+            {
+                "whitelistPiiProperties": "whitelistNonDefaultPiiProperties",
+
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                    whitelistNonDefaultPiiProperties: 'should not be hashed',
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": "true"
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "whitelistNonDefaultPiiProperties": "should not be hashed",
+        });
+    })
+
+    it('if_integrationobj_contains_hash_true_for_pii_whitelist', () => {
+        let whitelistPiiPropertiesMock = [
+            {
+                "whitelistPiiProperties": "email",
+
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    email: 'acb@gmail.com',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": "true"
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            email: 'acb@gmail.com',
+        });
+    })
+
+    it('if_integrationobj_contains_hash_false_for_pii_blacklist', () => {
+        let blacklistPiiPropertiesMock = [
+            {
+                "blacklistPiiProperties": "lastName",
+                "blacklistPiiHash": true
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": false
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "lastName": "fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7"
+        });
+    })
+
+    it('if_integrationobj_contains_hash_false_for_non_pii_blacklist', () => {
+        let blacklistPiiPropertiesMock = [
+            {
+                "blacklistPiiProperties": "BlacklistPiiPropertyHashTrue",
+                "blacklistPiiHash": true
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                    BlacklistPiiPropertyHashTrue: 'should not be hashed',
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": false
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "BlacklistPiiPropertyHashTrue": "735dd9dca6186f03c27694a4e65d4cadc4330cea27b6e46bc53d36f7fc3ae9a9",
+        });
+    })
+
+    it('if_integrationobj_contains_hash_false_for_non_pii_whitelist', () => {
+        let whitelistPiiPropertiesMock = [
+            {
+                "whitelistPiiProperties": "whitelistNonDefaultPiiProperties",
+
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                    whitelistNonDefaultPiiProperties: 'should not be hashed',
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": false
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            "whitelistNonDefaultPiiProperties": "should not be hashed",
+        });
+    })
+
+    it('if_integrationobj_contains_hash_false_for_pii_whitelist', () => {
+        let whitelistPiiPropertiesMock = [
+            {
+                "whitelistPiiProperties": "email",
+
+            }
+        ]
+        let rudderElement = {
+            message: {
+                "properties": {
+                    email: 'acb@gmail.com',
+                    lastName: 'Doe',
+                    ...piiPropertiesObject,
+                },
+                "integrations": {
+                    "All": true,
+                    "fbpixel": {
+                        "hashed": false
+                    }
+                }
+            },
+        };
+        const payload = buildPayLoad(rudderElement, whitelistPiiPropertiesMock, blacklistPiiPropertiesMock, getHashedStatus(rudderElement.message, "fbpixel"));
+        expect(payload).toEqual({
+            email: 'acb@gmail.com',
+        });
+    })
 });
 
 

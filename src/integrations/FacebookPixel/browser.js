@@ -3,7 +3,12 @@ import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
-import { getEventId, getContentCategory, buildPayLoad } from './utils';
+import {
+  getEventId,
+  getContentCategory,
+  buildPayLoad,
+  getHashedStatus
+} from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
 import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
@@ -139,7 +144,7 @@ class FacebookPixel {
       }
       currVal = currency || 'USD';
     }
-    const payload = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties);;
+    const payload = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));
 
     if (this.categoryToContent === undefined) {
       this.categoryToContent = [];
@@ -182,7 +187,7 @@ class FacebookPixel {
       return;
     }
     category = getContentCategory(category);
-    const customProperties = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties);;
+    const customProperties = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));;
     const derivedEventID = getEventId(rudderElement.message);
     if (event === 'Product List Viewed') {
       let contentType;
@@ -510,7 +515,7 @@ class FacebookPixel {
       logger.debug('inside custom');
       if (!standardTo[event?.toLowerCase()] && !legacyTo[event?.toLowerCase()]) {
         logger.debug('inside custom not mapped');
-        const payloadVal = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties);
+        const payloadVal = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));
         payloadVal.value = revValue;
         window.fbq('trackSingleCustom', self.pixelId, event, payloadVal, {
           eventID: derivedEventID,
