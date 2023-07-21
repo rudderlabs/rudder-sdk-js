@@ -95,6 +95,8 @@ class VWO {
   }
 
   experimentViewed() {
+    // START-NO-SONAR-SCAN
+    // disabled sonar scan here as http endpoint is discouraged by sonar
     window.VWO = window.VWO || [];
     const self = this;
     window.VWO.push([
@@ -142,6 +144,7 @@ class VWO {
         }
       },
     ]);
+    // END-NO-SONAR-SCAN
   }
 
   identify() {
