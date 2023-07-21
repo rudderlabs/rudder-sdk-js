@@ -83,5 +83,6 @@ export type CookieOptions = {
   expires?: Date;
   path?: string;
   domain?: string;
+  samesite?: string;
   secure?: boolean;
 };

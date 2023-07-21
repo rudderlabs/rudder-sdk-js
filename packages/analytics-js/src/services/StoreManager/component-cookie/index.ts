@@ -59,6 +59,10 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
     cookieString += `; expires=${options.expires.toUTCString()}`;
   }
 
+  if (options.samesite) {
+    cookieString += `; samesite=${options.samesite}`;
+  }
+
   if (options.secure) {
     cookieString += `; secure`;
   }
