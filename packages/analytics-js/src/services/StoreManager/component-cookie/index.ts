@@ -59,6 +59,10 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
     cookieString += `; expires=${options.expires.toUTCString()}`;
   }
 
+  if (options.samesite) {
+    cookieString += `; samesite=${options.samesite}`;
+  }
+
   if (options.secure) {
     cookieString += `; secure`;
   }
@@ -70,15 +74,7 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
  * Return all cookies
  */
 const all = (): Record<string, string> => {
-  let cookieStringValue;
-
-  try {
-    cookieStringValue = globalThis.document.cookie;
-  } catch (err) {
-    console.error((err as Error).stack || err);
-    return {} as Record<string, string>;
-  }
-
+  const cookieStringValue = globalThis.document.cookie;
   return parse(cookieStringValue);
 };
 
