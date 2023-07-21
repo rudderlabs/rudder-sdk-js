@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.37.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.37.0...v2.37.1) (2023-07-21)
+
+
+### Bug Fixes
+
+* **mixpanel:** alias id ordering ([#1234](https://github.com/rudderlabs/rudder-sdk-js/issues/1234)) ([959c5d6](https://github.com/rudderlabs/rudder-sdk-js/commit/959c5d6910144487b9cb74a2c1a3cb6b9e5b43d0))
+
 ## [2.37.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.36.0...v2.37.0) (2023-07-07)
 
 
