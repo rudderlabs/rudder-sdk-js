@@ -53,9 +53,10 @@ jobs:
           aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/modern/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-plugins/dist/cdn/legacy/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/plugins/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/plugins/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/modern/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/latest*"
