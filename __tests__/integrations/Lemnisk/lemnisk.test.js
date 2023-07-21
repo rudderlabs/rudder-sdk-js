@@ -44,7 +44,7 @@ describe("lemnisk page", () => {
             "referrer": "",
             "title": "test page",
             "testDimension": "abc",
-            "isRudderEvents": 1,
+            "isRudderEvents": true,
         });
     });
 });
@@ -100,7 +100,7 @@ describe("Lemnisk Track event", () => {
             value: 35.00,
             shipping: 4.00,
             coupon: 'APPARELSALE',
-            "isRudderEvents": 1,
+            "isRudderEvents": true,
             currency: 'GBP',
             products: [
                 {
@@ -146,7 +146,7 @@ describe("Lemnisk Identify event", () => {
         expect(window.lmSMTObj.identify.mock.calls[0][0]).toEqual("rudder01");
         expect(window.lmSMTObj.identify.mock.calls[0][1]).toEqual({
             email: "abc@ruddertack.com",
-            "isRudderEvents": 1,
+            "isRudderEvents": true,
         });
 
     });
