@@ -34,10 +34,9 @@ class Store implements IStore {
   errorHandler?: IErrorHandler;
   hasErrorHandler = false;
   logger?: ILogger;
-  pluginManager?: IPluginsManager;
-  hasLogger = false;
+  pluginsManager?: IPluginsManager;
 
-  constructor(config: IStoreConfig, engine?: IStorage, pluginManager?: IPluginsManager) {
+  constructor(config: IStoreConfig, engine?: IStorage, pluginsManager?: IPluginsManager) {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted || false;
@@ -49,8 +48,7 @@ class Store implements IStore {
     this.errorHandler = config.errorHandler || defaultErrorHandler;
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.logger = config.logger || defaultLogger;
-    this.hasLogger = Boolean(this.logger);
-    this.pluginManager = pluginManager;
+    this.pluginsManager = pluginsManager;
   }
 
   /**
@@ -199,8 +197,8 @@ class Store implements IStore {
     }
 
     const extensionPointName = `storage.${mode}`;
-    const formattedValue = this.pluginManager
-      ? this.pluginManager.invokeSingle<string>(extensionPointName, value)
+    const formattedValue = this.pluginsManager
+      ? this.pluginsManager.invokeSingle<string>(extensionPointName, value)
       : value;
 
     return typeof formattedValue === 'undefined' ? value : formattedValue ?? '';

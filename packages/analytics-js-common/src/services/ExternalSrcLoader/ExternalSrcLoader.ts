@@ -13,7 +13,6 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   hasErrorHandler = false;
-  hasLogger = false;
   timeout: number;
 
   constructor(
@@ -25,7 +24,6 @@ class ExternalSrcLoader implements IExternalSrcLoader {
     this.logger = logger;
     this.timeout = timeout;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
     this.onError = this.onError.bind(this);
   }
 

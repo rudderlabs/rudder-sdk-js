@@ -4,7 +4,7 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 
 export interface IUserSessionManager {
-  storage?: IStore;
+  store?: IStore;
   init(storage: IStore): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;

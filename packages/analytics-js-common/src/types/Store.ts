@@ -41,7 +41,7 @@ export interface IStore {
   noCompoundKey?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  pluginManager?: IPluginsManager;
+  pluginsManager?: IPluginsManager;
   createValidKey(key: string): string | undefined;
   swapQueueStoreToInMemoryEngine(): void;
   set(key: string, value: any): void;

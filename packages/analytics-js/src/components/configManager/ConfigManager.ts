@@ -36,14 +36,12 @@ class ConfigManager implements IConfigManager {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   hasErrorHandler = false;
-  hasLogger = false;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.httpClient = httpClient;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
 
     this.onError = this.onError.bind(this);
     this.processConfig = this.processConfig.bind(this);
