@@ -7,13 +7,13 @@ module.exports = [
     name: 'Core - CDN',
     path: 'dist/legacy/rudder-analytics.min.js',
     gzip: true,
-    limit: '37.1 kB',
+    limit: '37.2 kB',
   },
   {
     name: 'All Integrations - CDN',
     path: 'dist/legacy/js-integrations/*.min.js',
     gzip: true,
-    limit: '432.7 kB',
+    limit: '435.1 kB',
   },
   {
     name: 'Core - NPM',

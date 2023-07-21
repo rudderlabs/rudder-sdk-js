@@ -50,6 +50,9 @@
         })(method);
       }
 
+      window.userWriteKey = '__FEATURE_PRELOAD_BUFFER_WRITE_KEY__';
+      window.userConfigUrl = '__CONFIG_SERVER_HOST__';
+
       rudderanalytics.load('__FEATURE_PRELOAD_BUFFER_WRITE_KEY__', '__DATAPLANE_URL__', {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
