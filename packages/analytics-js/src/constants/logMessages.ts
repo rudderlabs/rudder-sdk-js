@@ -1,7 +1,7 @@
-import { PluginName } from "@rudderstack/analytics-js-common/types/PluginsManager";
-import { StorageType } from "@rudderstack/analytics-js-common/types/Store";
-import { ResidencyServerRegion } from "@rudderstack/analytics-js-common/types/DataResidency";
-import { LOG_CONTEXT_SEPARATOR } from "@rudderstack/analytics-js-common/constants/logMessages";
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
@@ -64,7 +64,7 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string): string =>
   `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
-  `${context}:: The callback is not a function.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,

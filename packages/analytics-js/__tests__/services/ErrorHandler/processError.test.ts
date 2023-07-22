@@ -27,34 +27,6 @@ describe('ErrorHandler - process error', () => {
     expect(msg).toStrictEqual('dummy error');
   });
 
-  it('should process error Event from SDK script loading as argument value', () => {
-    const mockEvent = {
-      target: {
-        src: 'dummyUrl',
-        id: 'dummyId',
-        dataset: {
-          appendOrigin: EXTERNAL_SOURCE_LOAD_ORIGIN,
-        },
-        localName: 'script',
-      },
-    };
-    const msg = processError(mockEvent);
-    expect(msg).toStrictEqual('Failed to load script from dummyUrl with id dummyId');
-  });
-
-  it('should ignore error Event from non SDK script loading as argument value', () => {
-    const mockEvent = {
-      target: {
-        src: 'dummyUrl',
-        id: 'dummyId',
-        dataset: {},
-        localName: 'script',
-      },
-    };
-    const msg = processError(mockEvent);
-    expect(msg).toStrictEqual('');
-  });
-
   it('should process any other type of argument value', () => {
     const msg = processError({ foo: 'bar' });
     expect(msg).toStrictEqual('{"foo":"bar"}');

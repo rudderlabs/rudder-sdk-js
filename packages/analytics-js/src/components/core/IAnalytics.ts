@@ -44,11 +44,6 @@ export interface IAnalytics {
   clientDataStore?: Store;
 
   /**
-   * Attach error handler on the window onerror
-   */
-  attachGlobalErrorHandler(): void;
-
-  /**
    * Start application lifecycle if not already started
    */
   load(
