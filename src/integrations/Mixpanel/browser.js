@@ -21,7 +21,6 @@
 /* eslint-disable vars-on-top */
 /* eslint-disable one-var */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable prettier/prettier */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import logger from '../../utils/logUtil';
@@ -299,7 +298,7 @@ class Mixpanel {
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
     const identifierTraitsList = parseConfigArray(this.groupKeySettings, 'groupKey');
-    if (traits && Object.keys(traits).length) {
+    if (traits && Object.keys(traits).length > 0) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
       });
@@ -326,7 +325,7 @@ class Mixpanel {
       logger.debug('===Mixpanel: userId is same as previousId. Skipping alias ===');
       return;
     }
-    window.mixpanel.alias(userId, previousId);
+    window.mixpanel.alias(previousId, userId);
   }
 }
 export default Mixpanel;
