@@ -7,7 +7,6 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
@@ -20,8 +19,13 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
+import { validateWriteKey } from '../components/configManager/util/validate';
+import { defaultErrorHandler } from '../services/ErrorHandler/ErrorHandler';
+import { defaultLogger } from '../services/Logger/Logger';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -35,6 +39,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
+  errorHandler = defaultErrorHandler;
+  logger = defaultLogger;
 
   // Singleton with constructor bind methods
   constructor() {
@@ -107,8 +113,15 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
-    const shouldSkipLoad = !isString(writeKey) || Boolean(this.analyticsInstances[writeKey]);
-    if (shouldSkipLoad) {
+    try {
+      validateWriteKey(writeKey);
+    } catch (err) {
+      const issue = 'Failed to load the SDK';
+      this.errorHandler.onError(getMutatedError(err, issue), RS_APP);
+      return;
+    }
+
+    if (this.analyticsInstances[writeKey]) {
       return;
     }
 

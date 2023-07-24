@@ -94,13 +94,6 @@ describe('ConfigManager', () => {
     server.close();
   });
 
-  it('should throw an error for invalid writeKey', () => {
-    state.lifecycle.writeKey.value = ' ';
-    expect(() => {
-      configManagerInstance.init();
-    }).toThrow(errorMsg);
-  });
-
   it('should throw error for invalid data plane url', () => {
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = ' ';

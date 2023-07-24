@@ -16,11 +16,6 @@ describe('Config manager util - validate load arguments', () => {
       validateLoadArgs(sampleWriteKey, sampleDataPlaneUrl);
     }).not.toThrow('Unable to load the SDK due to invalid data plane URL: " "');
   });
-  it('should throw error for invalid write key', () => {
-    expect(() => {
-      validateLoadArgs(' ');
-    }).toThrow(errorMsg);
-  });
   it('should throw error for invalid data plane url', () => {
     expect(() => {
       validateLoadArgs(sampleWriteKey, ' ');

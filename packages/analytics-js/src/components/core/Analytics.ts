@@ -39,6 +39,7 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AnonymousIdOptions,
   LoadOptions,
+  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -49,6 +50,7 @@ import {
   ADBLOCK_PAGE_PATH,
 } from '@rudderstack/analytics-js/constants/app';
 import {
+  ANALYTICS_CORE,
   LOAD_CONFIGURATION,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
@@ -61,6 +63,7 @@ import {
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -103,10 +106,10 @@ class Analytics implements IAnalytics {
     this.loadConfig = this.loadConfig.bind(this);
     this.init = this.init.bind(this);
     this.loadPlugins = this.loadPlugins.bind(this);
-    this.onLoaded = this.onLoaded.bind(this);
+    this.onInitialized = this.onInitialized.bind(this);
     this.processBufferedEvents = this.processBufferedEvents.bind(this);
-    this.loadIntegrations = this.loadIntegrations.bind(this);
-    this.onReady = this.onReady.bind(this);
+    this.loadDestinations = this.loadDestinations.bind(this);
+    this.onDestinationsReady = this.onDestinationsReady.bind(this);
     this.ready = this.ready.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -182,40 +185,45 @@ class Analytics implements IAnalytics {
    */
   startLifecycle() {
     effect(() => {
-      switch (state.lifecycle.status.value) {
-        case LifecycleStatus.Mounted:
-          this.prepareBrowserCapabilities();
-          break;
-        case LifecycleStatus.BrowserCapabilitiesReady:
-          // initialize the preloaded events enqueuing
-          retrievePreloadBufferEvents(this);
-          this.prepareInternalServices();
-          this.loadConfig();
-          break;
-        case LifecycleStatus.Configured:
-          this.loadPlugins();
-          break;
-        case LifecycleStatus.PluginsLoading:
-          break;
-        case LifecycleStatus.PluginsReady:
-          this.init();
-          break;
-        case LifecycleStatus.Initialized:
-          this.onLoaded();
-          break;
-        case LifecycleStatus.Loaded:
-          this.loadIntegrations();
-          this.processBufferedEvents();
-          break;
-        case LifecycleStatus.DestinationsLoading:
-          break;
-        case LifecycleStatus.DestinationsReady:
-          this.onReady();
-          break;
-        case LifecycleStatus.Ready:
-          break;
-        default:
-          break;
+      try {
+        switch (state.lifecycle.status.value) {
+          case LifecycleStatus.Mounted:
+            this.prepareBrowserCapabilities();
+            break;
+          case LifecycleStatus.BrowserCapabilitiesReady:
+            // initialize the preloaded events enqueuing
+            retrievePreloadBufferEvents(this);
+            this.prepareInternalServices();
+            this.loadConfig();
+            break;
+          case LifecycleStatus.Configured:
+            this.loadPlugins();
+            break;
+          case LifecycleStatus.PluginsLoading:
+            break;
+          case LifecycleStatus.PluginsReady:
+            this.init();
+            break;
+          case LifecycleStatus.Initialized:
+            this.onInitialized();
+            break;
+          case LifecycleStatus.Loaded:
+            this.loadDestinations();
+            this.processBufferedEvents();
+            break;
+          case LifecycleStatus.DestinationsLoading:
+            break;
+          case LifecycleStatus.DestinationsReady:
+            this.onDestinationsReady();
+            break;
+          case LifecycleStatus.Ready:
+            break;
+          default:
+            break;
+        }
+      } catch (err) {
+        const issue = 'Failed to load the SDK';
+        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
   }
@@ -311,6 +319,9 @@ class Analytics implements IAnalytics {
 
     // Initialize event manager
     this.eventManager?.init();
+
+    // Mark the SDK as initialized
+    state.lifecycle.status.value = LifecycleStatus.Initialized;
   }
 
   /**
@@ -325,20 +336,20 @@ class Analytics implements IAnalytics {
   /**
    * Trigger onLoaded callback if any is provided in config
    */
-  onLoaded() {
+  onInitialized() {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
+
+    // Execute onLoaded callback if provided in load options
+    if (isFunction(state.loadOptions.value.onLoaded)) {
+      (state.loadOptions.value.onLoaded as OnLoadedCallback)((globalThis as any).rudderanalytics);
+    }
 
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
       state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
-
-    // Execute onLoaded callback if provided in load options
-    if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
-      state.loadOptions.value.onLoaded(this);
-    }
   }
 
   /**
@@ -356,10 +367,10 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Load device mode integrations
+   * Load device mode destinations
    */
-  loadIntegrations() {
-    // Set in state the desired activeIntegrations to inject in DOM
+  loadDestinations() {
+    // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
       state,
@@ -382,7 +393,7 @@ class Analytics implements IAnalytics {
       this.logger,
     );
 
-    // Progress to next lifecycle phase if all native integrations are initialized or failed
+    // Progress to next lifecycle phase if all native destinations are initialized or failed
     effect(() => {
       const areAllDestinationsReady =
         totalDestinationsToLoad === 0 ||
@@ -403,7 +414,7 @@ class Analytics implements IAnalytics {
    * Invoke the ready callbacks if any exist
    */
   // eslint-disable-next-line class-methods-use-this
-  onReady() {
+  onDestinationsReady() {
     state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
     state.lifecycle.status.value = LifecycleStatus.Ready;
   }
@@ -414,18 +425,18 @@ class Analytics implements IAnalytics {
     const type = 'ready';
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
-    if (!isFunction(callback)) {
-      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
-      return;
-    }
-
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
       return;
     }
 
+    if (!isFunction(callback)) {
+      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
+      return;
+    }
+
     /**
-     * If integrations are loaded or no integration is available for loading
+     * If destinations are loaded or no integration is available for loading
      * execute the callback immediately else push the callbacks to a queue that
      * will be executed after loading completes
      */
@@ -590,7 +601,14 @@ class Analytics implements IAnalytics {
     return this.userSessionManager?.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void {
+    const type = 'setAnonymousId';
+    // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type, anonymousId, rudderAmpLinkerParam]);
+      return;
+    }
+
     this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
@@ -614,11 +632,27 @@ class Analytics implements IAnalytics {
     return state.session.groupTraits.value;
   }
 
-  startSession(sessionId?: number) {
+  startSession(sessionId?: number): void {
+    const type = 'startSession';
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      return;
+    }
+
     this.userSessionManager?.start(sessionId);
   }
 
-  endSession() {
+  endSession(): void {
+    const type = 'endSession';
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      return;
+    }
+
     this.userSessionManager?.end();
   }
 

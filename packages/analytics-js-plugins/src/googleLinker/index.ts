@@ -7,7 +7,7 @@ import { parseLinker } from './utils';
 
 const pluginName = 'GoogleLinker';
 
-// TODO: refactor this plugin and all related sourcecode to be typesafe
+// TODO: refactor this plugin and all related source code to be type-safe
 const GoogleLinker = (): ExtensionPlugin => ({
   name: pluginName,
   initialize: (state: ApplicationState) => {

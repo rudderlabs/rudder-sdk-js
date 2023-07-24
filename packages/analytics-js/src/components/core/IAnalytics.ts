@@ -100,7 +100,7 @@ export interface IAnalytics {
   /**
    * Trigger onLoaded callback if any is provided in config
    */
-  onLoaded(): void;
+  onInitialized(): void;
 
   /**
    * Consume preloaded events buffer
@@ -108,14 +108,14 @@ export interface IAnalytics {
   processBufferedEvents(): void;
 
   /**
-   * Load device mode integrations
+   * Load device mode destinations
    */
-  loadIntegrations(): void;
+  loadDestinations(): void;
 
   /**
    * Invoke the ready callbacks if any exist
    */
-  onReady(): void;
+  onDestinationsReady(): void;
 
   /**
    * To register a callback for SDK ready state

@@ -2,6 +2,8 @@ import { Nullable } from './Nullable';
 import { ApiCallback, ApiOptions } from './EventApi';
 import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import { ApiObject } from './ApiObject';
+import { IErrorHandler } from './ErrorHandler';
+import { ILogger } from './Logger';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -79,6 +81,8 @@ export type AnalyticsAliasMethod = {
 export interface IRudderAnalytics<T = any> {
   analyticsInstances: Record<string, T>;
   defaultAnalyticsKey: string;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
 
   /**
    * Set the writeKey of the analytics instance that should be default
