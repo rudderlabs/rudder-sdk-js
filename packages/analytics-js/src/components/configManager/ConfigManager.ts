@@ -139,7 +139,7 @@ class ConfigManager implements IConfigManager {
    * Use to construct and store information that are dependent on the sourceConfig.
    */
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
-    // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
+    // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     if (!response) {
       this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;

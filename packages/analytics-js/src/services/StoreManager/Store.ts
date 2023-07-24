@@ -39,15 +39,15 @@ class Store implements IStore {
   constructor(config: IStoreConfig, engine?: IStorage, pluginsManager?: IPluginsManager) {
     this.id = config.id;
     this.name = config.name;
-    this.isEncrypted = config.isEncrypted || false;
-    this.validKeys = config.validKeys || {};
+    this.isEncrypted = config.isEncrypted ?? false;
+    this.validKeys = config.validKeys ?? {};
     this.engine = engine || getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
-    this.errorHandler = config.errorHandler || defaultErrorHandler;
+    this.errorHandler = config.errorHandler ?? defaultErrorHandler;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.logger = config.logger || defaultLogger;
+    this.logger = config.logger ?? defaultLogger;
     this.pluginsManager = pluginsManager;
   }
 

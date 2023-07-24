@@ -114,7 +114,7 @@ class UserSessionManager implements IUserSessionManager {
    * A function to initialize sessionTracking
    */
   initializeSessionTracking() {
-    const sessionInfo: SessionInfo = this.getSessionFromStorage() || defaultSessionInfo;
+    const sessionInfo: SessionInfo = this.getSessionFromStorage() ?? defaultSessionInfo;
 
     let finalAutoTrackingStatus = !(
       state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
