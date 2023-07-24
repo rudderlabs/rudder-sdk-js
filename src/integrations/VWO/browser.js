@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
@@ -124,6 +125,8 @@ class VWO {
               this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
+                CampaignName: _vwo_exp[expId].name,
+                VariationId: variationId,
               });
             }
           } catch (error) {

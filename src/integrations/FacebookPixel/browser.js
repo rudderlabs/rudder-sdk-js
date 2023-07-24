@@ -1,10 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import is from 'is';
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
-import { getEventId, getContentCategory } from './utils';
+import {
+  getEventId,
+  getContentCategory,
+  buildPayLoad,
+  getHashedStatus
+} from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
 import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
@@ -142,7 +146,7 @@ class FacebookPixel {
       }
       currVal = currency || 'USD';
     }
-    const payload = this.buildPayLoad(rudderElement);
+    const payload = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));
 
     if (this.categoryToContent === undefined) {
       this.categoryToContent = [];
@@ -185,7 +189,7 @@ class FacebookPixel {
       return;
     }
     category = getContentCategory(category);
-    const customProperties = this.buildPayLoad(rudderElement);
+    const customProperties = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));;
     const derivedEventID = getEventId(rudderElement.message);
     if (event === 'Product List Viewed') {
       let contentType;
@@ -513,7 +517,7 @@ class FacebookPixel {
       logger.debug('inside custom');
       if (!standardTo[event?.toLowerCase()] && !legacyTo[event?.toLowerCase()]) {
         logger.debug('inside custom not mapped');
-        const payloadVal = this.buildPayLoad(rudderElement);
+        const payloadVal = buildPayLoad(rudderElement, this.whitelistPiiProperties, this.blacklistPiiProperties, getHashedStatus(rudderElement.message, this.name));
         payloadVal.value = revValue;
         window.fbq('trackSingleCustom', self.pixelId, event, payloadVal, {
           eventID: derivedEventID,
@@ -612,65 +616,6 @@ class FacebookPixel {
     return formattedRevenue;
   }
 
-  buildPayLoad(rudderElement) {
-    const dateFields = [
-      'checkinDate',
-      'checkoutDate',
-      'departingArrivalDate',
-      'departingDepartureDate',
-      'returningArrivalDate',
-      'returningDepartureDate',
-      'travelEnd',
-      'travelStart',
-    ];
-    const defaultPiiProperties = [
-      'email',
-      'firstName',
-      'lastName',
-      'gender',
-      'city',
-      'country',
-      'phone',
-      'state',
-      'zip',
-      'birthday',
-    ];
-    const whitelistPiiProperties = this.whitelistPiiProperties || [];
-    const blacklistPiiProperties = this.blacklistPiiProperties || [];
-    const customPiiProperties = {};
-    for (let i = 0; i < blacklistPiiProperties[i]; i += 1) {
-      const configuration = blacklistPiiProperties[i];
-      customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
-    }
-    const payload = {};
-    const { properties } = rudderElement.message;
-    for (const property in properties) {
-      if (!properties.hasOwnProperty(property)) {
-        continue;
-      }
-
-      const value = properties[property];
-
-      if (dateFields.includes(properties) && is.date(value)) {
-        const [dateValue] = value.toISOString().split('T');
-        payload[property] = dateValue;
-        continue;
-      }
-      if (
-        customPiiProperties.hasOwnProperty(property) &&
-        customPiiProperties[property] &&
-        typeof value === 'string'
-      ) {
-        payload[property] = sha256(value).toString();
-      }
-      const isPropertyPii = defaultPiiProperties.includes(property);
-      const isProperyWhiteListed = whitelistPiiProperties.includes(property);
-      if (!isPropertyPii || isProperyWhiteListed) {
-        payload[property] = value;
-      }
-    }
-    return payload;
-  }
 }
 
 export default FacebookPixel;
