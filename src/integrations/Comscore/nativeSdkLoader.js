@@ -1,16 +1,11 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 function loadNativeSdk() {
-  (function () {
-    const s = document.createElement('script');
-    const el = document.getElementsByTagName('script')[0];
-    s.async = true;
-    s.setAttribute('data-loader', LOAD_ORIGIN);
-    s.src = `${
-      document.location.protocol == 'https:' ? 'https://sb' : 'http://b'
-    }.scorecardresearch.com/beacon.js`;
-    el.parentNode.insertBefore(s, el);
-  })();
+  if (document.location.protocol == 'https:') {
+    ScriptLoader('comscore', 'https://sb.scorecardresearch.com/beacon.js');
+  } else {
+    ScriptLoader('comscore', 'http://b.scorecardresearch.com/beacon.js');
+  }
 }
 
 export { loadNativeSdk };

@@ -23,7 +23,7 @@ class Axeptio {
 
   init() {
     logger.debug('===In init Axeptio===');
-    loadNativeSdk(document, 'script', this.clientId);
+    loadNativeSdk(this.clientId);
   }
 
   isLoaded() {
