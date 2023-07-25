@@ -9,17 +9,13 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
   validateEventPayloadSize,
 } from '../utilities/queue';
-import {
-  getNormalizedQueueOptions,
-  getDeliveryUrl,
-  isErrRetryable,
-  logErrorOnFailure,
-} from './utilities';
+import { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure } from './utilities';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
