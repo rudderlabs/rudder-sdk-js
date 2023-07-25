@@ -22,7 +22,8 @@ class Optimizely {
       ? config.customExperimentProperties
       : [];
     this.name = NAME;
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
@@ -44,7 +45,7 @@ class Optimizely {
     const { experiment } = campaignState;
     const { variation } = campaignState;
     const context = { integrations: { All: true } };
-    const { audiences } = campaignState;
+    const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
 
     // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
     const audiencesMap = {};
@@ -52,20 +53,24 @@ class Optimizely {
       audiencesMap[audience.id] = audience.name;
     });
 
-    const audienceIds = Object.keys(audiencesMap).sort().join();
-    const audienceNames = Object.values(audiencesMap).sort().join(', ');
+    const audienceIds = Object.keys(audiencesMap)
+      .sort((a, b) => a.localeCompare(b))
+      .join();
+    const audienceNames = Object.values(audiencesMap)
+      .sort((a, b) => a.localeCompare(b))
+      .join(', ');
 
     if (this.sendExperimentTrack) {
       const props = {
-        campaignName: campaignState.campaignName,
-        campaignId: campaignState.id,
+        campaignName,
+        campaignId: id,
         experimentId: experiment.id,
         experimentName: experiment.name,
         variationName: variation.name,
         variationId: variation.id,
         audienceId: audienceIds, // eg. '7527562222,7527111138'
         audienceName: audienceNames, // eg. 'Peaky Blinders, Trust Tree'
-        isInCampaignHoldback: campaignState.isInCampaignHoldback,
+        isInCampaignHoldback,
       };
 
       // If this was a redirect experiment and the effective referrer is different from document.referrer,
