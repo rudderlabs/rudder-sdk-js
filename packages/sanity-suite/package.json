@@ -54,7 +54,7 @@
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
-    "@rudderstack/analytics-js": "3.0.0",
+    "@rudderstack/analytics-js": "3.0.0-beta.0",
     "deep-equal": "2.2.1",
     "object-path": "0.11.8",
     "rudder-sdk-js": "2.37.0"
