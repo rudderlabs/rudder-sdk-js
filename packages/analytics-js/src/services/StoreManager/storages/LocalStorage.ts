@@ -4,6 +4,7 @@ import { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger/Logger';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
 // TODO: can we remove the storejs dependency to save bundle size?
@@ -33,7 +34,6 @@ class LocalStorage implements IStorage {
     return this.options;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   setItem(key: string, value: any) {
     store.set(key, value);
     this.length = store.keys().length;
@@ -45,13 +45,11 @@ class LocalStorage implements IStorage {
     return isUndefined(value) ? null : value;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   removeItem(key: string) {
     store.remove(key);
     this.length = store.keys().length;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   clear() {
     store.clear();
     this.length = 0;
@@ -63,6 +61,6 @@ class LocalStorage implements IStorage {
   }
 }
 
-const defaultLocalStorage = new LocalStorage();
+const defaultLocalStorage = new LocalStorage({}, defaultLogger);
 
 export { LocalStorage, defaultLocalStorage };

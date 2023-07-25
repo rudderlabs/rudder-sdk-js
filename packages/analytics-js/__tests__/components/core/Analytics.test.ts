@@ -41,15 +41,6 @@ describe('Core - Analytics', () => {
     });
   });
 
-  describe('attachGlobalErrorHandler', () => {
-    it('should attach an error event listener to the window', () => {
-      const mockAddEventListener = jest.spyOn(window, 'addEventListener');
-      analytics.attachGlobalErrorHandler();
-      expect(mockAddEventListener).toHaveBeenCalledTimes(1);
-      expect(mockAddEventListener).toHaveBeenCalledWith('error', expect.any(Function), true);
-    });
-  });
-
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
       analytics.startLifecycle();
@@ -98,19 +89,15 @@ describe('Core - Analytics', () => {
   describe('load', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
-      const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: LogLevel.Error });
-      expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
     it('should load the analytics script without dataPlaneUrl with the given options', () => {
-      const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       analytics.load(dummyWriteKey, { logLevel: LogLevel.Error });
-      expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);

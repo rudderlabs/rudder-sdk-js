@@ -7,8 +7,9 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { CookieSameSite, LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
@@ -16,7 +17,22 @@ const normalizeLoadOptions = (
 ): LoadOptions => {
   // TODO: add all the validations as per
   //  https://github.com/rudderlabs/rudder-sdk-js/blob/a620e11f98e1438be34114ad40b325201b1d7a6e/src/core/analytics.js#L1156
+  // TODO: Maybe add warnings for invalid values
   const normalizedLoadOpts = clone(loadOptions);
+
+  normalizedLoadOpts.setCookieDomain =
+    isDefined(normalizedLoadOpts.setCookieDomain) && isString(normalizedLoadOpts.setCookieDomain)
+      ? normalizedLoadOpts.setCookieDomain
+      : undefined;
+
+  normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
+
+  normalizedLoadOpts.sameSiteCookie =
+    isDefined(normalizedLoadOpts.sameSiteCookie) &&
+    Object.values(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
+      ? normalizedLoadOpts.sameSiteCookie
+      : undefined;
+
   normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
   normalizedLoadOpts.useGlobalIntegrationsConfigInEvents =

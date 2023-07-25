@@ -24,16 +24,14 @@ class StoreManager implements IStoreManager {
   isInitialized = false;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  pluginManager?: IPluginsManager;
+  pluginsManager?: IPluginsManager;
   hasErrorHandler = false;
-  hasLogger = false;
 
-  constructor(pluginManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
-    this.pluginManager = pluginManager;
+    this.pluginsManager = pluginsManager;
     this.onError = this.onError.bind(this);
   }
 
@@ -102,7 +100,7 @@ class StoreManager implements IStoreManager {
    */
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
-    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginManager);
+    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
     return this.stores[storeConfig.id];
   }
 

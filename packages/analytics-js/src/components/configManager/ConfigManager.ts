@@ -35,14 +35,12 @@ class ConfigManager implements IConfigManager {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   hasErrorHandler = false;
-  hasLogger = false;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.httpClient = httpClient;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
 
     this.onError = this.onError.bind(this);
     this.processConfig = this.processConfig.bind(this);
@@ -135,7 +133,7 @@ class ConfigManager implements IConfigManager {
    * Use to construct and store information that are dependent on the sourceConfig.
    */
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
-    // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
+    // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     if (!response) {
       this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;
