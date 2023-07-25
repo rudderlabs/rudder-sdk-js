@@ -184,10 +184,6 @@ class ConfigManager implements IConfigManager {
       // set device mode destination related information in state
       state.nativeDestinations.configuredDestinations.value = nativeDestinations;
 
-      // set application lifecycle state
-      // Cast to string as we are sure that the value is not undefined
-      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
-
       // set the values in state for reporting slice
       updateReportingState(res, this.logger);
 
@@ -195,7 +191,8 @@ class ConfigManager implements IConfigManager {
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
       // set application lifecycle state
-      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      // Cast to string as we are sure that the value is not undefined
+      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
       state.lifecycle.status.value = LifecycleStatus.Configured;
     });
   }

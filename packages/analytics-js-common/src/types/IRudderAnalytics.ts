@@ -81,7 +81,6 @@ export type AnalyticsAliasMethod = {
 export interface IRudderAnalytics<T = any> {
   analyticsInstances: Record<string, T>;
   defaultAnalyticsKey: string;
-  errorHandler: IErrorHandler;
   logger: ILogger;
 
   /**

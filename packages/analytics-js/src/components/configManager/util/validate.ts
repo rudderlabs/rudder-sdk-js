@@ -7,7 +7,7 @@ import {
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
-  if (!writeKey || !isString(writeKey) || writeKey.trim().length === 0) {
+  if (!isString(writeKey) || (writeKey as string).trim().length === 0) {
     throw new Error(WRITE_KEY_VALIDATION_ERROR(writeKey));
   }
 };
@@ -19,6 +19,7 @@ const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
 };
 
 const validateLoadArgs = (writeKey?: string, dataPlaneUrl?: string) => {
+  validateWriteKey(writeKey);
   validateDataPlaneUrl(dataPlaneUrl);
 };
 

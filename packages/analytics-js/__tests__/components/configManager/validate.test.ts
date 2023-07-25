@@ -11,6 +11,11 @@ describe('Config manager util - validate load arguments', () => {
       validateLoadArgs(sampleWriteKey);
     }).not.toThrow(errorMsg);
   });
+  it('should throw error for invalid write key', () => {
+    expect(() => {
+      validateLoadArgs(' ');
+    }).toThrow(errorMsg);
+  });
   it('should not throw error for valid data plane url', () => {
     expect(() => {
       validateLoadArgs(sampleWriteKey, sampleDataPlaneUrl);

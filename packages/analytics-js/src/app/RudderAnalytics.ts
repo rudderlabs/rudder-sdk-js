@@ -19,13 +19,12 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
-import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
-import { validateWriteKey } from '../components/configManager/util/validate';
-import { defaultErrorHandler } from '../services/ErrorHandler/ErrorHandler';
 import { defaultLogger } from '../services/Logger/Logger';
+import { WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -39,7 +38,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
-  errorHandler = defaultErrorHandler;
   logger = defaultLogger;
 
   // Singleton with constructor bind methods
@@ -113,11 +111,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
-    try {
-      validateWriteKey(writeKey);
-    } catch (err) {
-      const issue = 'Failed to load the SDK';
-      this.errorHandler.onError(getMutatedError(err, issue), RS_APP);
+    if (!isString(writeKey)) {
+      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
       return;
     }
 
