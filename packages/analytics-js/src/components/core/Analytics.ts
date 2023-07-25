@@ -93,7 +93,6 @@ class Analytics implements IAnalytics {
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
 
-    this.attachGlobalErrorHandler = this.attachGlobalErrorHandler.bind(this);
     this.load = this.load.bind(this);
     this.startLifecycle = this.startLifecycle.bind(this);
     this.prepareBrowserCapabilities = this.prepareBrowserCapabilities.bind(this);
@@ -125,16 +124,6 @@ class Analytics implements IAnalytics {
     this.getSessionId = this.getSessionId.bind(this);
   }
 
-  attachGlobalErrorHandler() {
-    globalThis.addEventListener(
-      'error',
-      e => {
-        this.errorHandler.onError(e, 'GlobalBoundary', state.lifecycle.writeKey.value);
-      },
-      true,
-    );
-  }
-
   /**
    * Start application lifecycle if not already started
    */
@@ -146,9 +135,6 @@ class Analytics implements IAnalytics {
     if (state.lifecycle.status.value) {
       return;
     }
-
-    // Attach global error boundary handler
-    this.attachGlobalErrorHandler();
 
     let clonedDataPlaneUrl = clone(dataPlaneUrl);
     let clonedLoadOptions = clone(loadOptions);

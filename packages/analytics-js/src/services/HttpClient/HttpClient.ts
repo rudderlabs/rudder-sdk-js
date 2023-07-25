@@ -24,13 +24,11 @@ class HttpClient implements IHttpClient {
   logger?: ILogger;
   basicAuthHeader?: string;
   hasErrorHandler = false;
-  hasLogger = false;
 
   constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
     this.onError = this.onError.bind(this);
   }
 

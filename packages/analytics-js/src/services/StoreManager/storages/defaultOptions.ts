@@ -8,7 +8,7 @@ import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptio
 import { domain } from '../top-domain';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
-  const topDomain = domain(globalThis.location?.href);
+  const topDomain = domain(globalThis.location.href);
 
   return {
     maxage: DEFAULT_COOKIE_MAX_AGE,
