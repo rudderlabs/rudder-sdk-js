@@ -2,7 +2,6 @@ import { Nullable } from './Nullable';
 import { ApiCallback, ApiOptions } from './EventApi';
 import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import { ApiObject } from './ApiObject';
-import { IErrorHandler } from './ErrorHandler';
 import { ILogger } from './Logger';
 
 export type AnalyticsIdentifyMethod = {
