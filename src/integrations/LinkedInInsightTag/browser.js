@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
