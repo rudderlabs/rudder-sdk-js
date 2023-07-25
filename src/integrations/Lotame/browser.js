@@ -21,13 +21,23 @@ class Lotame {
       const { value } = mapping;
       this.mappings[key] = value;
     });
-    this.areTransformationsConnected = destinationInfo && destinationInfo.areTransformationsConnected;
+    this.areTransformationsConnected =
+      destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
   }
 
   init() {
     logger.debug('===in init Lotame===');
     window.LOTAME_SYNCH_CALLBACK = () => {};
+  }
+
+  isLoaded() {
+    logger.debug('in Lotame isLoaded');
+    return true;
+  }
+
+  isReady() {
+    return true;
   }
 
   addPixel(source, width, height) {
@@ -95,24 +105,21 @@ class Lotame {
   }
 
   compileUrl(map, url) {
+    let compiledUrl = url;
     Object.keys(map).forEach((key) => {
-      if (map.hasOwnProperty(key)) {
+      if (map[key]) {
         const replaceKey = `{{${key}}}`;
         const regex = new RegExp(replaceKey, 'gi');
-        url = url.replace(regex, map[key]);
+        compiledUrl = compiledUrl.replace(regex, map[key]);
       }
     });
-    return url;
+    return compiledUrl;
   }
 
   identify(rudderElement) {
     logger.debug('in Lotame identify');
     const { userId } = rudderElement.message;
     this.syncPixel(userId);
-  }
-
-  track(rudderElement) {
-    logger.debug('track not supported for lotame');
   }
 
   page(rudderElement) {
@@ -156,15 +163,6 @@ class Lotame {
 
     const difference = Math.floor((currentTime - lastSynchedTime) / (1000 * 3600 * 24));
     return difference >= 7;
-  }
-
-  isLoaded() {
-    logger.debug('in Lotame isLoaded');
-    return true;
-  }
-
-  isReady() {
-    return true;
   }
 }
 
