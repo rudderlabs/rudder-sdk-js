@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import onBody from 'on-body';
 import logger from '../../utils/logUtil';
@@ -14,7 +15,9 @@ class Chartbeat {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
-    this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
+    this._sf_async_config = Object.assign(
+      (window._sf_async_config = window._sf_async_config || {}),
+    );
     window._sf_async_config.useCanonical = true;
     window._sf_async_config.uid = config.uid;
     window._sf_async_config.domain = config.domain;
@@ -34,12 +37,20 @@ class Chartbeat {
     logger.debug('===in init Chartbeat===');
   }
 
-  identify(rudderElement) {
-    logger.debug('in Chartbeat identify');
+  isLoaded() {
+    logger.debug('in Chartbeat isLoaded');
+    if (!this.isFirstPageCallMade) {
+      return true;
+    }
+    return !!window.pSUPERFLY;
   }
 
-  track(rudderElement) {
-    logger.debug('in Chartbeat track');
+  isFailed() {
+    return this.failed;
+  }
+
+  isReady() {
+    return !!window.pSUPERFLY;
   }
 
   page(rudderElement) {
@@ -66,22 +77,6 @@ class Chartbeat {
     }
   }
 
-  isLoaded() {
-    logger.debug('in Chartbeat isLoaded');
-    if (!this.isFirstPageCallMade) {
-      return true;
-    }
-    return !!window.pSUPERFLY;
-  }
-
-  isFailed() {
-    return this.failed;
-  }
-
-  isReady() {
-    return !!window.pSUPERFLY;
-  }
-
   loadConfig(rudderElement) {
     const { properties } = rudderElement.message;
     const category = properties ? properties.category : undefined;
@@ -95,14 +90,13 @@ class Chartbeat {
     if (author) window._sf_async_config.authors = author;
     if (title) window._sf_async_config.title = title;
 
-    const _cbq = (window._cbq = window._cbq || []);
+    const _cbq = Object.assign((window._cbq = window._cbq || []));
 
-    for (const key in properties) {
-      if (!properties.hasOwnProperty(key)) continue;
-      if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+    Object.keys(properties)
+      .filter((key) => this.subscriberEngagementKeys.includes(key))
+      .forEach((key) => {
         _cbq.push([key, properties[key]]);
-      }
-    }
+      });
   }
 
   initAfterPage() {
@@ -130,16 +124,16 @@ class Chartbeat {
       if (this.isLoaded()) {
         this.failed = false;
         logger.debug('===chartbeat loaded successfully===');
-        return resolve(instance);
+        resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
         logger.debug('===chartbeat failed===');
-        return resolve(instance);
+        resolve(instance);
       }
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>
+        this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve),
+      );
     });
   }
 }
