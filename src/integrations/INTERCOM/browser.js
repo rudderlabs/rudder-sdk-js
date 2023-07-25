@@ -1,6 +1,3 @@
-/* eslint-disable prefer-rest-params */
-/* eslint-disable no-var */
-/* eslint-disable vars-on-top */
 /* eslint-disable class-methods-use-this */
 import md5 from 'md5';
 import logger from '../../utils/logUtil';

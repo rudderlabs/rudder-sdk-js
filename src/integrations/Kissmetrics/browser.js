@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import is from 'is';

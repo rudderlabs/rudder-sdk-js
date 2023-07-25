@@ -1,18 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import Logger from '../../utils/logger';
-import { formPurchaseEventPayload, existsInMapping } from './utils';
-
 import {
-  isDefinedAndNotNull,
-  removeUndefinedAndNullValues,
-  isNotEmpty,
-} from '../../utils/commonUtils';
+  formPurchaseEventPayload,
+  existsInMapping,
+  extractJWT,
+  prepareInAppMessagesPayload,
+} from './utils';
+import { isNotEmpty, removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { NAME } from './constants';
 import ScriptLoader from '../../utils/ScriptLoader';
 
 const logger = new Logger(NAME);
-
+const iterableWebSdk = '@iterable/web-sdk';
 class Iterable {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -58,50 +58,39 @@ class Iterable {
 
   isLoaded() {
     logger.debug('===In isLoaded Iterable===');
-    return !!window['@iterable/web-sdk'];
+    return !!window[iterableWebSdk];
   }
 
   isReady() {
     logger.debug('===In isReady Iterable===');
-    return !!window['@iterable/web-sdk'];
+    return !!window[iterableWebSdk];
   }
 
   identify(rudderElement) {
     logger.debug('===In identify Iterable');
 
     const { message } = rudderElement;
-    const { integrations } = message;
-    const userEmail = message.traits?.email || message.context?.traits?.email;
-    const userId = message.userId;
+    const { integrations, traits, context, userId } = message;
+    const userEmail = traits?.email || context?.traits?.email;
 
-    async function extractJWT(message) {
-      if (integrations && integrations.ITERABLE) {
-        const { jwt_token } = integrations.ITERABLE;
-        if (isDefinedAndNotNull(jwt_token)) return jwt_token;
-      } else {
-        logger.error('The JWT token was not passed, The SDK could not be initialised.');
-        return;
-      }
+    const jwtToken = extractJWT(integrations);
+
+    if (!jwtToken) {
+      logger.error('The JWT token was not passed, The SDK could not be initialised');
+      return;
     }
 
     // Initialize the iterable SDK with the proper apiKey and the passed JWT
-    let wd = window['@iterable/web-sdk'].initialize(this.apiKey, extractJWT);
-    switch (this.initialisationIdentifier) {
-      case 'email':
-        wd.setEmail(userEmail).then(() => {
-          logger.debug('userEmail set');
-        });
-        break;
-      case 'userId':
-        wd.setUserID(userId).then(() => {
-          logger.debug('userId set');
-        });
-        break;
-      default:
-        wd.setEmail(userEmail).then(() => {
-          logger.debug('userEmail set');
-        });
-        break;
+    const wd = window[iterableWebSdk].initialize(this.apiKey, extractJWT);
+
+    if (this.initialisationIdentifier === 'userId') {
+      wd.setUserID(userId).then(() => {
+        logger.debug('userId set');
+      });
+    } else {
+      wd.setEmail(userEmail).then(() => {
+        logger.debug('userEmail set');
+      });
     }
     /* Available pop-up push notification settings configurable from UI
         this.animationDuration,
@@ -122,30 +111,9 @@ class Iterable {
         this.closeButtonPosition,
     */
     // Reference : https://github.com/iterable/iterable-web-sdk
-    let getInAppMessagesPayload = {
-      count: 20,
-      animationDuration: Number(this.animationDuration) || 400,
-      displayInterval: Number(this.displayInterval) || 30000,
-      onOpenScreenReaderMessage: this.onOpenScreenReaderMessage || undefined,
-      onOpenNodeToTakeFocus: this.onOpenNodeToTakeFocus || undefined,
-      packageName: this.packageName || undefined,
-      rightOffset: this.rightOffset || undefined,
-      topOffset: this.topOffset || undefined,
-      bottomOffset: this.bottomOffset || undefined,
-      handleLinks: this.handleLinks || undefined,
-      closeButton: {
-        color: this.closeButtonColor || 'red',
-        size: this.closeButtonSize || '16px',
-        topOffset: this.closeButtonColorTopOffset || '4%',
-        sideOffset: this.closeButtonColorSideOffset || '4%',
-        iconPath: this.iconPath || undefined,
-        isRequiredToDismissMessage: this.isRequiredToDismissMessage || undefined,
-        position: this.closeButtonPosition || 'top-right',
-      },
-    };
-    getInAppMessagesPayload = removeUndefinedAndNullValues(getInAppMessagesPayload);
+    const getInAppMessagesPayload = removeUndefinedAndNullValues(prepareInAppMessagesPayload(this));
 
-    const { request } = window['@iterable/web-sdk'].getInAppMessages(getInAppMessagesPayload, {
+    const { request } = window[iterableWebSdk].getInAppMessages(getInAppMessagesPayload, {
       display: 'immediate',
     });
     // fetchAppEvents is a class function now available throughout
@@ -157,8 +125,8 @@ class Iterable {
     logger.debug('===In track Iterable===');
 
     const { message } = rudderElement;
-    const { event } = message;
-    const eventPayload = removeUndefinedAndNullValues(message.properties);
+    const { event, properties } = message;
+    const eventPayload = removeUndefinedAndNullValues(properties);
     const userEmail = get(message, 'context.traits.email');
     const userId = get(message, 'userId');
     if (!event) {
@@ -172,7 +140,7 @@ class Iterable {
       this.fetchAppEvents();
       // send a track call for getinappMessages if option enabled in config
       if (this.sendTrackForInapp) {
-        window['@iterable/web-sdk']
+        window[iterableWebSdk]
           .track({
             email: userEmail,
             userId,
@@ -187,7 +155,7 @@ class Iterable {
     ) {
       // purchase events
       const purchaseEventPayload = formPurchaseEventPayload(message);
-      window['@iterable/web-sdk'].trackPurchase(purchaseEventPayload);
+      window[iterableWebSdk].trackPurchase(purchaseEventPayload);
     } else {
       // custom events if event is not mapped
       /* fields available for custom track event
@@ -205,7 +173,7 @@ class Iterable {
       // Either email or userId must be passed in to identify the user.
       // If both are passed in, email takes precedence.
       logger.debug(`The event ${event} is not mapped in the dashboard, firing a custom event`);
-      window['@iterable/web-sdk']
+      window[iterableWebSdk]
         .track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
         .then(logger.debug('Track a custom event.'));
     }
