@@ -1,11 +1,9 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { LifecycleStatus } from '@rudderstack/analytics-js/state/types';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import {
-  IErrorHandler,
-  IExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import {
@@ -19,8 +17,8 @@ import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   SESSION_STORAGE,
-} from '@rudderstack/analytics-js/constants/storages';
-import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+} from '@rudderstack/analytics-js-common/constants/storages';
+import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {

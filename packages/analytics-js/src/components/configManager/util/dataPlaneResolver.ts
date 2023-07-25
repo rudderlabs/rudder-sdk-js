@@ -1,6 +1,9 @@
-import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import {
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js-common/types/DataResidency';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 

@@ -1,55 +1,57 @@
 /* eslint-disable class-methods-use-this */
 import { state } from '@rudderstack/analytics-js/state';
-import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
-import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { batch, effect } from '@preact/signals-core';
-import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 import {
   isNonEmptyObject,
   mergeDeepRight,
-} from '@rudderstack/analytics-js/components/utilities/object';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+} from '@rudderstack/analytics-js-common/utilities/object';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
 } from '@rudderstack/analytics-js/constants/timeouts';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IStore } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
 } from '@rudderstack/analytics-js/constants/logMessages';
-import { IUserSessionManager } from './types';
-import { userSessionStorageKeys } from './userSessionStorageKeys';
-import { getReferrer } from '../utilities/page';
-import { getReferringDomain } from '../utilities/url';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
 } from './utils';
+import { getReferringDomain } from '../utilities/url';
+import { getReferrer } from '../utilities/page';
+import { userSessionStorageKeys } from './userSessionStorageKeys';
+import { IUserSessionManager } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
-  storage?: IStore;
-  pluginManager?: IPluginsManager;
+  store?: IStore;
+  pluginsManager?: IPluginsManager;
   logger?: ILogger;
   errorHandler?: IErrorHandler;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
-    pluginManager?: IPluginsManager,
-    storage?: IStore,
+    pluginsManager?: IPluginsManager,
+    store?: IStore,
   ) {
-    this.storage = storage;
-    this.pluginManager = pluginManager;
+    this.store = store;
+    this.pluginsManager = pluginsManager;
     this.logger = logger;
     this.errorHandler = errorHandler;
     this.onError = this.onError.bind(this);
@@ -57,10 +59,10 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Initialize User session with values from storage
-   * @param storage Selected storage
+   * @param store Selected store
    */
-  init(storage: IStore) {
-    this.storage = storage;
+  init(store: IStore) {
+    this.store = store;
 
     this.migrateStorageIfNeeded();
 
@@ -98,10 +100,10 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     Object.values(userSessionStorageKeys).forEach(storageEntry => {
-      const migratedVal = this.pluginManager?.invokeSingle(
+      const migratedVal = this.pluginsManager?.invokeSingle(
         'storage.migrate',
         storageEntry,
-        this.storage?.engine,
+        this.store?.engine,
         this.logger,
       );
       this.syncValueToStorage(storageEntry, migratedVal);
@@ -112,7 +114,7 @@ class UserSessionManager implements IUserSessionManager {
    * A function to initialize sessionTracking
    */
   initializeSessionTracking() {
-    const sessionInfo: SessionInfo = this.getSessionFromStorage() || defaultSessionInfo;
+    const sessionInfo: SessionInfo = this.getSessionFromStorage() ?? defaultSessionInfo;
 
     let finalAutoTrackingStatus = !(
       state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
@@ -174,9 +176,9 @@ class UserSessionManager implements IUserSessionManager {
    */
   syncValueToStorage(key: string, value: Nullable<ApiObject> | Nullable<string> | undefined) {
     if ((value && isString(value)) || isNonEmptyObject(value)) {
-      this.storage?.set(key, value);
+      this.store?.set(key, value);
     } else {
-      this.storage?.remove(key);
+      this.store?.remove(key);
     }
   }
 
@@ -254,7 +256,7 @@ class UserSessionManager implements IUserSessionManager {
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
     if (!finalAnonymousId && rudderAmpLinkerParam) {
-      const linkerPluginsResult = this.pluginManager?.invokeMultiple<Nullable<string>>(
+      const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
         'userSession.anonymousIdGoogleLinker',
         rudderAmpLinkerParam,
       );
@@ -278,11 +280,11 @@ class UserSessionManager implements IUserSessionManager {
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
     // fetch the anonymousUserId from storage
-    let persistedAnonymousId = this.storage?.get(userSessionStorageKeys.anonymousUserId);
+    let persistedAnonymousId = this.store?.get(userSessionStorageKeys.anonymousUserId);
 
     if (!persistedAnonymousId && options) {
       // fetch anonymousId from external source
-      const autoCapturedAnonymousId = this.pluginManager?.invokeSingle<string | undefined>(
+      const autoCapturedAnonymousId = this.pluginsManager?.invokeSingle<string | undefined>(
         'storage.getAnonymousId',
         getStorageEngine,
         options,
@@ -298,7 +300,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.storage?.get(userSessionStorageKeys.userId) || null;
+    return this.store?.get(userSessionStorageKeys.userId) ?? null;
   }
 
   /**
@@ -306,7 +308,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.storage?.get(userSessionStorageKeys.userTraits) || null;
+    return this.store?.get(userSessionStorageKeys.userTraits) ?? null;
   }
 
   /**
@@ -314,7 +316,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.storage?.get(userSessionStorageKeys.groupId) || null;
+    return this.store?.get(userSessionStorageKeys.groupId) ?? null;
   }
 
   /**
@@ -322,7 +324,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.storage?.get(userSessionStorageKeys.groupTraits) || null;
+    return this.store?.get(userSessionStorageKeys.groupTraits) ?? null;
   }
 
   /**
@@ -330,7 +332,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.storage?.get(userSessionStorageKeys.initialReferrer) || null;
+    return this.store?.get(userSessionStorageKeys.initialReferrer) ?? null;
   }
 
   /**
@@ -338,7 +340,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.storage?.get(userSessionStorageKeys.initialReferringDomain) || null;
+    return this.store?.get(userSessionStorageKeys.initialReferringDomain) ?? null;
   }
 
   /**
@@ -346,7 +348,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionFromStorage(): Nullable<SessionInfo> {
-    return this.storage?.get(userSessionStorageKeys.sessionInfo) || null;
+    return this.store?.get(userSessionStorageKeys.sessionInfo) ?? null;
   }
 
   /**
@@ -503,13 +505,13 @@ class UserSessionManager implements IUserSessionManager {
    * @param resetAnonymousId
    */
   clearUserSessionStorage(resetAnonymousId?: boolean) {
-    this.storage?.remove(userSessionStorageKeys.userId);
-    this.storage?.remove(userSessionStorageKeys.userTraits);
-    this.storage?.remove(userSessionStorageKeys.groupId);
-    this.storage?.remove(userSessionStorageKeys.groupTraits);
+    this.store?.remove(userSessionStorageKeys.userId);
+    this.store?.remove(userSessionStorageKeys.userTraits);
+    this.store?.remove(userSessionStorageKeys.groupId);
+    this.store?.remove(userSessionStorageKeys.groupTraits);
 
     if (resetAnonymousId) {
-      this.storage?.remove(userSessionStorageKeys.anonymousUserId);
+      this.store?.remove(userSessionStorageKeys.anonymousUserId);
     }
   }
 }

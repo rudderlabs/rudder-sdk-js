@@ -1,6 +1,7 @@
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { IInMemoryStorageOptions, IStorage } from '../types';
+import { IInMemoryStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
 /**
@@ -56,6 +57,6 @@ class InMemoryStorage implements IStorage {
   }
 }
 
-const defaultInMemoryStorage = new InMemoryStorage();
+const defaultInMemoryStorage = new InMemoryStorage({}, defaultLogger);
 
 export { InMemoryStorage, defaultInMemoryStorage };

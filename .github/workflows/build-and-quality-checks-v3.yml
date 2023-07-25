@@ -2,7 +2,7 @@ name: Build & Code Quality Checks v3
 
 on:
   pull_request:
-    branches: ['v3-production', 'v3-staging']
+    branches: ['v3-staging', 'develop', 'main']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -29,8 +29,8 @@ jobs:
 
       - name: Execute quality checks
         run: |
-          npm run check:circular -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
-          npm run check:duplicates -- --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins'
+          npm run check:circular
+          npm run check:duplicates
 
       - name: Execute security checks
         run: |
@@ -44,5 +44,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: install
           build_script: check:size:build
-          script: npx lerna exec --loglevel=silent --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-plugins' -- npx size-limit --json
+          script: npx lerna exec --loglevel=silent -- npx size-limit --json
           is_monorepo: true

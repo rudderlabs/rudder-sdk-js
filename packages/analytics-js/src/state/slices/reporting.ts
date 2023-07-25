@@ -1,11 +1,5 @@
-import { signal, Signal } from '@preact/signals-core';
-import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-
-export type ReportingState = {
-  isErrorReportingEnabled: Signal<boolean>;
-  isMetricsReportingEnabled: Signal<boolean>;
-  errorReportingProviderPluginName: Signal<PluginName | undefined>;
-};
+import { signal } from '@preact/signals-core';
+import { ReportingState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const reportingState: ReportingState = {
   isErrorReportingEnabled: signal(false),

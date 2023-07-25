@@ -5,7 +5,7 @@ import {
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
-import { isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   INTG_CDN_BASE_URL_ERROR,
   PLUGINS_CDN_BASE_URL_ERROR,

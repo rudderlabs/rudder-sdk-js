@@ -1,6 +1,8 @@
-import { ApplicationState, IExternalSrcLoader, ILogger } from '../types/common';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BugsnagLib } from '../types/plugins';
-import { stringifyWithoutCircular } from '../utilities/common';
 import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
 import {
   API_KEY,

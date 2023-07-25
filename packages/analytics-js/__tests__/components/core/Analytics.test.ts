@@ -1,7 +1,8 @@
 import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
 import { resetState, state } from '@rudderstack/analytics-js/state';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { LifecycleStatus, LogLevel } from '@rudderstack/analytics-js/state/types';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -13,7 +14,7 @@ jest.mock('../../../src/components/utilities/globals', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/components/utilities/uuId', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 
@@ -37,15 +38,6 @@ describe('Core - Analytics', () => {
       expect(analytics.externalSrcLoader).toBeDefined();
       expect(analytics.capabilitiesManager).toBeDefined();
       expect(analytics.httpClient).toBeDefined();
-    });
-  });
-
-  describe('attachGlobalErrorHandler', () => {
-    it('should attach an error event listener to the window', () => {
-      const mockAddEventListener = jest.spyOn(window, 'addEventListener');
-      analytics.attachGlobalErrorHandler();
-      expect(mockAddEventListener).toHaveBeenCalledTimes(1);
-      expect(mockAddEventListener).toHaveBeenCalledWith('error', expect.any(Function), true);
     });
   });
 
@@ -98,19 +90,15 @@ describe('Core - Analytics', () => {
   describe('load', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
-      const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: LogLevel.Error });
-      expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
-    it('should load the analytics script without dataPlaneUrl the given options', () => {
-      const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
+    it('should load the analytics script without dataPlaneUrl with the given options', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       analytics.load(dummyWriteKey, { logLevel: LogLevel.Error });
-      expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);

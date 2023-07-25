@@ -1,13 +1,13 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
 import {
-  DestinationConfig,
   RegionDetails,
   ResidencyServerRegion,
-  StatsCollection,
-} from '@rudderstack/analytics-js/state/types';
-import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+} from '@rudderstack/analytics-js-common/types/DataResidency';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 export type DestinationDefinition = {
   name: string;
@@ -16,7 +16,7 @@ export type DestinationDefinition = {
 };
 
 export type ConfigResponseDestinationItem = {
-  enableTransformationForDeviceMode: boolean;
+  shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   updatedAt: string;

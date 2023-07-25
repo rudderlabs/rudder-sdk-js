@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { Store } from './storage/store';
-import { handleError } from './errorHandler';
-import { stringifyWithoutCircular } from './ObjectUtils';
+import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 
 const defaults = {
   queue: 'queue',
@@ -30,8 +30,18 @@ class BeaconQueue {
     this.writekey = writekey;
     if (options.maxItems) this.maxItems = options.maxItems;
     if (options.flushQueueInterval) this.flushQueueTimeOutInterval = options.flushQueueInterval;
-    const sendQueueData = this.sendQueueDataForBeacon.bind(this);
-    window.addEventListener('unload', sendQueueData);
+
+    this.sendQueueDataForBeacon = this.sendQueueDataForBeacon.bind(this);
+
+    this.attachListeners();
+  }
+
+  attachListeners() {
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.sendQueueDataForBeacon();
+      }
+    });
   }
 
   getQueue() {

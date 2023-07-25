@@ -1,18 +1,19 @@
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { IPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/types';
-import { removeDoubleSpaces } from '@rudderstack/analytics-js/components/utilities/string';
+import { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { state } from '@rudderstack/analytics-js/state';
-import { isTypeOfError } from '@rudderstack/analytics-js/components/utilities/checks';
-import { ERROR_HANDLER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
-  LOG_CONTEXT_SEPARATOR,
   NOTIFY_FAILURE_ERROR,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
+import { LOG_CONTEXT_SEPARATOR } from "@rudderstack/analytics-js-common/constants/logMessages";
 import { isAllowedToBeNotified, processError } from './processError';
-import { IErrorHandler, IExternalSrcLoader, SDKError } from './types';
 
 /**
  * A service to handle errors

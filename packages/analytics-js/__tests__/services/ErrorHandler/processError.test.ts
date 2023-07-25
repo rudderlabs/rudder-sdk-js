@@ -1,5 +1,5 @@
 import { processError } from '@rudderstack/analytics-js/services/ErrorHandler/processError';
-import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js-common/constants/htmlAttributes';
 
 jest.mock('../../../src/components/utilities/event', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/event');
@@ -25,34 +25,6 @@ describe('ErrorHandler - process error', () => {
   it('should process Error argument value', () => {
     const msg = processError(new Error('dummy error'));
     expect(msg).toStrictEqual('dummy error');
-  });
-
-  it('should process error Event from SDK script loading as argument value', () => {
-    const mockEvent = {
-      target: {
-        src: 'dummyUrl',
-        id: 'dummyId',
-        dataset: {
-          appendOrigin: EXTERNAL_SOURCE_LOAD_ORIGIN,
-        },
-        localName: 'script',
-      },
-    };
-    const msg = processError(mockEvent);
-    expect(msg).toStrictEqual('Failed to load script from dummyUrl with id dummyId');
-  });
-
-  it('should ignore error Event from non SDK script loading as argument value', () => {
-    const mockEvent = {
-      target: {
-        src: 'dummyUrl',
-        id: 'dummyId',
-        dataset: {},
-        localName: 'script',
-      },
-    };
-    const msg = processError(mockEvent);
-    expect(msg).toStrictEqual('');
   });
 
   it('should process any other type of argument value', () => {

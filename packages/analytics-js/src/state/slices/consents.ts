@@ -1,11 +1,5 @@
-import { Signal, signal } from '@preact/signals-core';
-import { PluginName } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { ConsentInfo } from '../types';
-
-export type ConsentsState = {
-  data: Signal<ConsentInfo>;
-  activeConsentManagerPluginName: Signal<PluginName | undefined>;
-};
+import { signal } from '@preact/signals-core';
+import { ConsentsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const consentsState: ConsentsState = {
   data: signal({ initialized: false }),

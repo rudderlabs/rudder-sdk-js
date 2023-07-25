@@ -1,0 +1,17 @@
+{
+  "threshold": 5,
+  "reporters": ["html", "console"],
+  "pattern": "**/*",
+  "ignore": [
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/__fixtures__/**",
+    "**/node_modules/**",
+    "*.test.*"
+  ],
+  "absolute": true,
+  "gitignore": true,
+  "output": "./reports/",
+  "mode": "strict",
+  "format": ["typescript", "tsx"]
+}

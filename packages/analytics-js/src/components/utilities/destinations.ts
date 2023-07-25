@@ -1,4 +1,4 @@
-import { Destination, DestinationConnectionMode } from '@rudderstack/analytics-js/state/types';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ConfigResponseDestinationItem } from '../configManager/types';
 
 /**
@@ -15,7 +15,8 @@ const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[])
         id: destination.id,
         displayName: destination.destinationDefinition.displayName,
         config: destination.config,
-        enableTransformationForDeviceMode: destination.enableTransformationForDeviceMode || false,
+        shouldApplyDeviceModeTransformation:
+          destination.shouldApplyDeviceModeTransformation || false,
         propagateEventsUntransformedOnError:
           destination.propagateEventsUntransformedOnError || false,
         userFriendlyId: `${destination.destinationDefinition.displayName.replaceAll(' ', '-')}___${
@@ -27,37 +28,4 @@ const filterEnabledDestination = (destinations: ConfigResponseDestinationItem[])
   return nativeDestinations;
 };
 
-/**
- * A function to filter and return non cloud mode destinations
- * @param destination
- *
- * @returns boolean
- */
-const isNonCloudDestination = (destination: Destination): boolean =>
-  Boolean(
-    destination.config.connectionMode !== DestinationConnectionMode.Cloud ||
-      destination.config.useNativeSDKToSend === true || // this is the older flag for hybrid mode destinations
-      destination.config.useNativeSDK === true,
-  );
-
-const isHybridModeDestination = (destination: Destination): boolean =>
-  Boolean(
-    destination.config.connectionMode === DestinationConnectionMode.Hybrid ||
-      destination.config.useNativeSDKToSend === true,
-  );
-
-/**
- * A function to filter and return non cloud mode destinations
- * @param destinations
- *
- * @returns destinations
- */
-const getNonCloudDestinations = (destinations: Destination[]): Destination[] | [] =>
-  destinations.filter(isNonCloudDestination);
-
-export {
-  filterEnabledDestination,
-  isNonCloudDestination,
-  getNonCloudDestinations,
-  isHybridModeDestination,
-};
+export { filterEnabledDestination };

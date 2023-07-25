@@ -1,4 +1,4 @@
-import { PluginName } from './types';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 /**
  * List of plugin names that are loaded as direct imports in all builds

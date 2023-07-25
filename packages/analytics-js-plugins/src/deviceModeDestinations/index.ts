@@ -1,5 +1,12 @@
 /* eslint-disable no-param-reassign */
 import { clone } from 'ramda';
+import { isHybridModeDestination } from '@rudderstack/analytics-js-common/index';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 import {
   createDestinationInstance,
   isDestinationSDKEvaluated,
@@ -8,15 +15,11 @@ import {
   filterDestinations,
   getCumulativeIntegrationsConfig,
 } from './utils';
-import { IExternalSrcLoader, ApplicationState, ILogger, IPluginsManager } from '../types/common';
-import { ExtensionPlugin } from '../types/plugins';
-import { isHybridModeDestination } from '../utilities/common';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   INITIALIZED_CHECK_POLL_INTERVAL,
   LOAD_CHECK_TIMEOUT,
 } from './constants';
-import { destDisplayNamesToFileNamesMap } from './destDisplayNamesToFileNames';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_NOT_SUPPORTED_ERROR,

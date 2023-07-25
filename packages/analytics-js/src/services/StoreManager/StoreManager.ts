@@ -1,13 +1,20 @@
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { state } from '@rudderstack/analytics-js/state';
-import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { STORE_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
-import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js/constants/storages';
+import {
+  IStoreConfig,
+  IStoreManager,
+  StorageType,
+  StoreId,
+} from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
-import { removeUndefinedValues } from '@rudderstack/analytics-js/components/utilities/object';
+import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
+import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
-import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
 
 /**
@@ -18,16 +25,14 @@ class StoreManager implements IStoreManager {
   isInitialized = false;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  pluginManager?: IPluginsManager;
+  pluginsManager?: IPluginsManager;
   hasErrorHandler = false;
-  hasLogger = false;
 
-  constructor(pluginManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
-    this.pluginManager = pluginManager;
+    this.pluginsManager = pluginsManager;
     this.onError = this.onError.bind(this);
   }
 
@@ -83,8 +88,8 @@ class StoreManager implements IStoreManager {
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
     this.setStore({
-      id: 'clientData',
-      name: 'clientData',
+      id: CLIENT_DATA_STORE_NAME,
+      name: CLIENT_DATA_STORE_NAME,
       isEncrypted: true,
       noCompoundKey: true,
       type: storageType,
@@ -96,7 +101,7 @@ class StoreManager implements IStoreManager {
    */
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
-    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginManager);
+    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
     return this.stores[storeConfig.id];
   }
 

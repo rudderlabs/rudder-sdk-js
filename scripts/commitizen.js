@@ -12,9 +12,10 @@ module.exports = custom({
   scopes: [
     'release',
     'monorepo',
-    'integrations',
     'analytics-js',
+    'analytics-js-common',
     'analytics-js-plugins',
+    'analytics-js-integrations',
     'analytics-js-service-worker',
     'rudder-sdk-js',
     'analytics-js-sanity-suite',

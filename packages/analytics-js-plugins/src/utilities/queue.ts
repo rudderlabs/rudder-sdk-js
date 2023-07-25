@@ -1,12 +1,15 @@
 import { clone } from 'ramda';
-import { ApplicationState, ILogger, IntegrationOpts, RudderEvent } from '../types/common';
-import { Nullable } from '../types/plugins';
 import {
   getCurrentTimeFormatted,
   isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
-} from './common';
+} from '@rudderstack/analytics-js-common/index';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {

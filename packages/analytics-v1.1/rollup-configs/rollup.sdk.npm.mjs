@@ -3,7 +3,7 @@ import copy from 'rollup-plugin-copy';
 import { getDefaultConfig } from './rollup.utilities.mjs';
 
 const outDir = `dist`;
-const npmPackageOutDir = `${outDir}/npm-lib`;
+const npmPackageOutDir = `${outDir}/npm`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
 

@@ -17,3 +17,5 @@ examples/chrome-extension/background-script-websockets/rudderAnalytics.js
 examples/chrome-extension/content-script/foreground.js
 testBookSuites/
 tsconfig.build.tsbuildinfo
+nativeSdkLoader.js
+nativeSdkLoader.ts

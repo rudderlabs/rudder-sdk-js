@@ -3,7 +3,7 @@ import {
   isNull,
   isNullOrUndefined,
   isFunction,
-} from '@rudderstack/analytics-js/components/utilities/checks';
+} from '@rudderstack/analytics-js-common/utilities/checks';
 
 const isBrowser = (): boolean => !isUndefined(globalThis) && !isUndefined(globalThis.document);
 

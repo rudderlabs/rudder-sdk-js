@@ -5,7 +5,7 @@ import { getDefaultConfig } from './rollup.utilities.mjs';
 const outDir = 'dist';
 const distName = 'index';
 const modName = 'rudderServiceWorker';
-const npmPackageOutDir = `${outDir}/npm-lib/service-worker`;
+const npmPackageOutDir = `${outDir}/npm/service-worker`;
 
 const outputFiles = [
   {
@@ -26,7 +26,7 @@ const buildConfig = {
 
 buildConfig.plugins.push(
   copy({
-    targets: [{ src: 'types/service-worker/index.d.ts', dest: `${outDir}/npm-lib/service-worker` }],
+    targets: [{ src: 'types/service-worker/index.d.ts', dest: `${outDir}/npm/service-worker` }],
   }),
 );
 

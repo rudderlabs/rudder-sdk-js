@@ -5,7 +5,7 @@ import {
   LOG_LEVEL_MAP,
   Logger,
 } from '@rudderstack/analytics-js/services/Logger/Logger';
-import { LogLevel } from '@rudderstack/analytics-js/state/types';
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 
 import SpyInstance = jest.SpyInstance;
 

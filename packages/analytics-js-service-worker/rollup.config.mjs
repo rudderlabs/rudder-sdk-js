@@ -17,7 +17,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist`;
+const outDir = `dist/npm`;
 const distName = 'index';
 const modName = 'rudderServiceWorker';
 

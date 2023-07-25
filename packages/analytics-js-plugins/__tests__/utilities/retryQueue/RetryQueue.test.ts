@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
 import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
-import { QueueStatuses } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/QueueStatuses';
+import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';

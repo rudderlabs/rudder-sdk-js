@@ -1,25 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
-import {
-  ApiCallback,
-  ApiObject,
-  ApiOptions,
-  ApplicationState,
-  Destination,
-  DeviceModeDestination,
-  ILogger,
-  IRudderAnalytics,
-  IntegrationOpts,
-} from '../types/common';
-import { Nullable } from '../types/plugins';
-import {
-  DEVICE_MODE_DESTINATIONS_PLUGIN,
-  INITIALIZED_CHECK_TIMEOUT,
-  LOAD_CHECK_POLL_INTERVAL,
-} from './constants';
-import { destCNamesToDisplayNamesMap } from './destCNamesToDisplayNames';
-import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
@@ -29,7 +9,26 @@ import {
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '../utilities/common';
+} from '@rudderstack/analytics-js-common/index';
+import {
+  Destination,
+  DeviceModeDestination,
+} from '@rudderstack/analytics-js-common/types/Destination';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
+import { DeviceModeDestinationsAnalyticsInstance } from './types';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  INITIALIZED_CHECK_TIMEOUT,
+  LOAD_CHECK_POLL_INTERVAL,
+} from './constants';
+import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 import {
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
@@ -116,7 +115,7 @@ const createDestinationInstance = (
       getSessionId: () => analytics.getSessionId(),
     } as DeviceModeDestinationsAnalyticsInstance,
     {
-      enableTransformationForDeviceMode: dest.enableTransformationForDeviceMode,
+      shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: dest.propagateEventsUntransformedOnError,
       destinationId: dest.id,
     },

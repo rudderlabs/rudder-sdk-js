@@ -1,7 +1,8 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
-import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -14,7 +15,6 @@ import {
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse } from '../types';
-import { isUndefined } from '../../utilities/checks';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,

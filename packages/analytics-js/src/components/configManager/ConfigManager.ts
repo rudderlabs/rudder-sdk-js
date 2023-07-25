@@ -1,48 +1,47 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js/services/HttpClient/types';
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
   validateLoadArgs,
 } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
-import { Destination, LifecycleStatus } from '@rudderstack/analytics-js/state/types';
 import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
 import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { isFunction, isString } from '@rudderstack/analytics-js/components/utilities/checks';
+import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { CONFIG_MANAGER } from '@rudderstack/analytics-js/constants/loggerContexts';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
 import { getUserSelectedConsentManager } from '../utilities/consent';
-import { PluginName } from '../pluginsManager/types';
 import { updateReportingState, updateStorageState } from './util/commonUtil';
 import { ConsentManagersToPluginNameMap } from './constants';
-import { getMutatedError } from '../utilities/errors';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   hasErrorHandler = false;
-  hasLogger = false;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.httpClient = httpClient;
     this.hasErrorHandler = Boolean(this.errorHandler);
-    this.hasLogger = Boolean(this.logger);
 
     this.onError = this.onError.bind(this);
     this.processConfig = this.processConfig.bind(this);
@@ -140,7 +139,8 @@ class ConfigManager implements IConfigManager {
    * Use to construct and store information that are dependent on the sourceConfig.
    */
   processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
-    // TODO: add retry logic with backoff based on rejectionDetails.hxr.status
+    // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
+    // We can use isErrRetryable utility method
     if (!response) {
       this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;

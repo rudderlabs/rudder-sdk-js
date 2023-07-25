@@ -1,5 +1,5 @@
-import { StorageEncryptionVersion } from '@rudderstack/analytics-js/state/types';
-import { PluginName } from '../pluginsManager/types';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { StorageEncryptionVersion } from '@rudderstack/analytics-js-common/types/Storage';
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = StorageEncryptionVersion.V3;

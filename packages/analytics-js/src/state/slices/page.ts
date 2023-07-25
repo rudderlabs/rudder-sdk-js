@@ -1,15 +1,5 @@
-import { Signal, signal } from '@preact/signals-core';
-
-export type PagePropertiesState = {
-  readonly path: Signal<string>;
-  readonly referrer: Signal<string>;
-  readonly referring_domain: Signal<string>;
-  readonly search: Signal<string>;
-  readonly title: Signal<string>;
-  readonly url: Signal<string>;
-  readonly tab_url: Signal<string>;
-  readonly [index: string]: Signal<string | undefined>;
-};
+import { signal } from '@preact/signals-core';
+import { PagePropertiesState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const pagePropertiesState: PagePropertiesState = {
   path: signal(''),

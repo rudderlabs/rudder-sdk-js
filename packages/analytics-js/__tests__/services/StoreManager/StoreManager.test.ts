@@ -1,5 +1,3 @@
-import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
-import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import {
   configureStorageEngines,
   getStorageEngine,
@@ -10,6 +8,8 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
   __esModule: true,

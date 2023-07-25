@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import {
-  IStoreManager,
-  ApplicationState,
-  QueueOpts,
-  RudderEvent,
-  IErrorHandler,
-  ILogger,
-  Destination,
-  IPluginsManager,
-} from '../types/common';
-import { DoneCallback, ExtensionPlugin, IQueue } from '../types/plugins';
-import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
+import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
-import { MEMORY_STORAGE } from '../utilities/common';
 import { DESTINATION_EVENT_FILTERING_WARNING } from '../utilities/logMessages';
 
 const pluginName = 'NativeDestinationQueue';
@@ -71,7 +70,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               return;
             }
 
-            if (dest.enableTransformationForDeviceMode) {
+            if (dest.shouldApplyDeviceModeTransformation) {
               pluginsManager.invokeSingle('transformEvent.enqueue', state, item, dest, logger);
             } else {
               sendEventToDestination(item, dest, errorHandler, logger);

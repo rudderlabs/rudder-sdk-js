@@ -8,6 +8,7 @@
     "./package.json",
     "./src/**/*",
     "../../types/**/*",
-    "../analytics-js-plugins/src/**/*"
+    "../analytics-js-plugins/src/**/*",
+    "../analytics-js-common/src/**/*"
   ]
 }

@@ -1,11 +1,5 @@
 import { ConfigResponseDestinationItem } from '@rudderstack/analytics-js/components/configManager/types';
-import {
-  filterEnabledDestination,
-  getNonCloudDestinations,
-  isNonCloudDestination,
-  isHybridModeDestination,
-} from '@rudderstack/analytics-js/components/utilities/destinations';
-import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
+import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
   {
@@ -37,7 +31,7 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
   },
   {
@@ -69,7 +63,7 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
   },
 ];
@@ -104,7 +98,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Google Analytics 4 (GA4)',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
   },
   {
@@ -136,7 +130,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
       displayName: 'Braze',
       updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
   },
 ];
@@ -145,7 +139,7 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7DamldfkgO',
     displayName: 'Google Analytics 4 (GA4)',
-    enableTransformationForDeviceMode: true,
+    shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -170,7 +164,7 @@ const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
     displayName: 'Braze',
-    enableTransformationForDeviceMode: false,
+    shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -203,41 +197,5 @@ describe('Config manager util - filterEnabledDestination', () => {
   it('should not return deleted destinations', () => {
     const actualOutcome = filterEnabledDestination(sampleDestinationResponse2);
     expect(actualOutcome).toStrictEqual([]);
-  });
-
-  it('should get non-cloud destinations', () => {
-    const actualOutcome = getNonCloudDestinations(dummySourceConfigResponse.source.destinations);
-    expect(actualOutcome.length).toBe(3);
-  });
-
-  it('should detect if destination is non-cloud', () => {
-    const hybridDestination = isNonCloudDestination(
-      dummySourceConfigResponse.source.destinations[0],
-    );
-    expect(hybridDestination).toBeTruthy();
-
-    const nativeDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[1]);
-    expect(nativeDest).toBeTruthy();
-
-    const cloudDest = isNonCloudDestination(dummySourceConfigResponse.source.destinations[2]);
-    expect(cloudDest).toBeFalsy();
-  });
-
-  it('should detect if a destination is hybrid', () => {
-    const hybridDestination = isHybridModeDestination(
-      dummySourceConfigResponse.source.destinations[0],
-    );
-    expect(hybridDestination).toBeTruthy();
-
-    const nativeDest = isHybridModeDestination(dummySourceConfigResponse.source.destinations[1]);
-    expect(nativeDest).toBeFalsy();
-
-    const cloudDest = isHybridModeDestination(dummySourceConfigResponse.source.destinations[2]);
-    expect(cloudDest).toBeFalsy();
-
-    const hybridDestination2 = isHybridModeDestination(
-      dummySourceConfigResponse.source.destinations[3],
-    );
-    expect(hybridDestination2).toBeTruthy();
   });
 });

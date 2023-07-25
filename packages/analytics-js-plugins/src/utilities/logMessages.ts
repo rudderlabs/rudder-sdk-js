@@ -1,5 +1,5 @@
-import { Nullable } from '../types/plugins';
-import { LOG_CONTEXT_SEPARATOR } from './common';
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
 const INVALID_SOURCE_CONFIG_ERROR = `Invalid source configuration or source id.`;

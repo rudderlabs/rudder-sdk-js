@@ -1,5 +1,5 @@
-import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
-import { isNonEmptyObject } from './object';
+import { CookieConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
