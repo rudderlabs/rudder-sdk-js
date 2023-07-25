@@ -162,6 +162,21 @@ const mapTraits = (arr) => {
   return ret;
 };
 
+/**
+ * Validates weather to send alias call while loading the script or not
+ * @param {*} integrations
+ */
+function sendAliasOnLoad(integrations) {
+  if (Object.prototype.hasOwnProperty.call(integrations, 'MP')) {
+    const { MP } = integrations;
+    if (Object.prototype.hasOwnProperty.call(MP, 'sendAliasOnLoad')) {
+      return !!MP.sendAliasOnLoad;
+    }
+    return true;
+  }
+  return true;
+}
+
 export {
   parseConfigArray,
   inverseObjectArrays,
@@ -170,4 +185,5 @@ export {
   extendTraits,
   mapTraits,
   formatTraits,
+  sendAliasOnLoad,
 };

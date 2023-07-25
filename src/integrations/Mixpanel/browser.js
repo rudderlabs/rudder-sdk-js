@@ -33,6 +33,7 @@ import {
   extendTraits,
   mapTraits,
   formatTraits,
+  sendAliasOnLoad,
 } from './util';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
@@ -172,7 +173,12 @@ class Mixpanel {
 
   isReady() {
     logger.debug('in Mixpanel isReady');
-    return !!(window.mixpanel && window.mixpanel.config);
+    const isReady = !!(window.mixpanel && window.mixpanel.config);
+    if (isReady && sendAliasOnLoad(this.analytics.loadOnlyIntegrations)) {
+      // calling alias as a part of configuration
+      window.mixpanel.alias(this.analytics.getAnonymousId(), window.mixpanel.get_distinct_id());
+    }
+    return isReady;
   }
 
   /**
