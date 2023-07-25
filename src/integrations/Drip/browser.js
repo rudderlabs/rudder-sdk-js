@@ -68,7 +68,8 @@ class Drip {
     logger.debug('===In Drip identify===');
 
     const { message } = rudderElement;
-    if (!message.context || !message.context.traits) {
+    const { context } = message;
+    if (!context || !context.traits) {
       logger.error('user context or traits not present');
       return;
     }
@@ -140,7 +141,7 @@ class Drip {
     logger.debug('===In Drip track===');
 
     const { message } = rudderElement;
-    const { event } = rudderElement.message;
+    const { event } = message;
 
     if (!event) {
       logger.error('Event name not present');

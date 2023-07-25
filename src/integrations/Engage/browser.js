@@ -74,7 +74,7 @@ class Engage {
     let { originalTimestamp } = message;
 
     const { traits } = message.context;
-    let payload = refinePayload(traits, (this.identifyFlag = true));
+    let payload = refinePayload(traits, true);
 
     payload.number = phone;
     payload.last_name = lastName;
