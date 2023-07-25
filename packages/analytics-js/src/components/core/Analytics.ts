@@ -63,6 +63,7 @@ import {
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
 import { IAnalytics } from './IAnalytics';
 
 /*
@@ -290,7 +291,7 @@ class Analytics implements IAnalytics {
 
     // Initialize storage
     this.storeManager?.init();
-    this.clientDataStore = this.storeManager?.getStore('clientData') as Store;
+    this.clientDataStore = this.storeManager?.getStore(CLIENT_DATA_STORE_NAME) as Store;
     this.userSessionManager?.init(this.clientDataStore);
 
     // Initialize consent manager

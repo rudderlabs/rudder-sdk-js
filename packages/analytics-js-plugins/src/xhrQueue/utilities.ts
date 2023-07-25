@@ -2,6 +2,7 @@ import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/in
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import { RudderEventType } from '../types/plugins';
 import { removeDuplicateSlashes } from '../utilities/queue';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
@@ -17,16 +18,6 @@ const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): strin
     removeDuplicateSlashes([dpUrl.pathname, DATA_PLANE_API_VERSION, '/', eventType].join('')),
     dpUrl,
   ).href;
-};
-
-const isErrRetryable = (details?: ResponseDetails) => {
-  let isRetryableNWFailure = false;
-  if (details?.error && details?.xhr) {
-    const xhrStatus = details.xhr.status;
-    // same as in v1.1
-    isRetryableNWFailure = xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
-  }
-  return isRetryableNWFailure;
 };
 
 const logErrorOnFailure = (
@@ -59,4 +50,4 @@ const logErrorOnFailure = (
   logger?.error(errMsg);
 };
 
-export { getNormalizedQueueOptions, getDeliveryUrl, isErrRetryable, logErrorOnFailure };
+export { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure };

@@ -13,6 +13,7 @@ import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/logger
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
+import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
 
@@ -87,8 +88,8 @@ class StoreManager implements IStoreManager {
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
     this.setStore({
-      id: 'clientData',
-      name: 'clientData',
+      id: CLIENT_DATA_STORE_NAME,
+      name: CLIENT_DATA_STORE_NAME,
       isEncrypted: true,
       noCompoundKey: true,
       type: storageType,

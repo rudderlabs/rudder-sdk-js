@@ -4,7 +4,7 @@ import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
-} from '@rudderstack/analytics-js/constants/storageKeyNames';
+} from '@rudderstack/analytics-js/constants/storage';
 import { IStorage, StorageType } from '@rudderstack/analytics-js-common/types/Store';
 import {
   COOKIE_STORAGE,
