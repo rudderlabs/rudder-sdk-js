@@ -1,7 +1,7 @@
-/* eslint-disable*/
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { refinePayload, getDestinationExternalID } from './utils.js';
+import { refinePayload, getDestinationExternalID } from './utils';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -53,10 +53,10 @@ class Engage {
       logger.error('externalId or userId is required for Identify call.');
       return;
     }
-    let { originalTimestamp } = message;
+    const { originalTimestamp, context } = message;
 
-    const { traits } = message.context;
-    let payload = refinePayload(traits, (this.identifyFlag = true));
+    const { traits } = context;
+    let payload = refinePayload(traits, true);
 
     payload.number = phone;
     payload.last_name = lastName;
@@ -87,7 +87,7 @@ class Engage {
     let payload = refinePayload(properties);
     payload = removeUndefinedAndNullValues(payload);
     window.Engage.track(engageId, {
-      event: event,
+      event,
       timestamp: originalTimestamp,
       properties: payload,
     });

@@ -1,5 +1,9 @@
 const rudderanalytics = [];
 
+const url = 'https://www.website.com/product/path';
+const imageUrl = 'https://www.website.com/product/path.png';
+const imageUrl1 = 'https://www.website.com/product/path.jpg';
+
 rudderanalytics.track('Products Searched', {
   query: 'HDMI cable',
 });
@@ -94,8 +98,8 @@ rudderanalytics.track('Product Clicked', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Viewed', {
@@ -110,8 +114,8 @@ rudderanalytics.track('Product Viewed', {
   coupon: 'DISC21',
   currency: 'USD',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Added', {
@@ -125,8 +129,8 @@ rudderanalytics.track('Product Added', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Removed', {
@@ -140,8 +144,8 @@ rudderanalytics.track('Product Removed', {
   quantity: 11,
   coupon: 'DISC21',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Cart Viewed', {
@@ -154,8 +158,8 @@ rudderanalytics.track('Cart Viewed', {
       price: 14.99,
       position: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',
@@ -186,8 +190,8 @@ rudderanalytics.track('Checkout Started', {
       price: 14,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',
@@ -225,8 +229,8 @@ rudderanalytics.track('Order Completed', {
       price: 14,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',
@@ -251,8 +255,8 @@ rudderanalytics.track('Order Refunded', {
       price: 17,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',

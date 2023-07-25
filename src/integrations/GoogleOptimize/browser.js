@@ -1,3 +1,5 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable no-inner-declarations */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 
@@ -42,7 +44,7 @@ class GoogleOptimize {
       );
       window.dataLayer = window.dataLayer || [];
       function gtag() {
-        dataLayer.push(arguments);
+        window.dataLayer.push(arguments);
       }
       gtag('js', new Date());
       gtag('config', `${this.trackingId}`);

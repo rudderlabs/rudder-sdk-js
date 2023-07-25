@@ -111,12 +111,6 @@ class FacebookPixel {
     return !!(window.fbq && window.fbq.callMethod);
   }
 
-  // eslint-disable-next-line no-unused-vars
-  identify(rudderElement) {
-    logger.error('Identify is deprecated for Facebook Pixel');
-    return;
-  }
-
   page(rudderElement) {
     const { properties } = rudderElement.message;
     window.fbq('track', 'PageView', properties, {
