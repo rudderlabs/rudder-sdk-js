@@ -41,7 +41,7 @@ class Store implements IStore {
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
     this.validKeys = config.validKeys ?? {};
-    this.engine = engine || getStorageEngine(LOCAL_STORAGE);
+    this.engine = engine ?? getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
