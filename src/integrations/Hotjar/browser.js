@@ -24,6 +24,16 @@ class Hotjar {
     this._ready = true;
   }
 
+  isLoaded() {
+    logger.debug('===In isLoaded Hotjar===');
+    return this._ready;
+  }
+
+  isReady() {
+    logger.debug('===In isReady Hotjar===');
+    return this._ready;
+  }
+
   identify(rudderElement) {
     logger.debug('===In Hotjar identify===');
 
@@ -48,6 +58,11 @@ class Hotjar {
       return;
     }
 
+    if (typeof event !== 'string') {
+      logger.error('Event name should be string');
+      return;
+    }
+
     // event name must not exceed 750 characters and can only contain alphanumeric, underscores, and dashes.
     // Ref - https://help.hotjar.com/hc/en-us/articles/4405109971095#the-events-api-call
     window.hj('event', event.replace(/\s\s+/g, ' ').substring(0, 750).replaceAll(' ', '_'));
@@ -56,16 +71,6 @@ class Hotjar {
   page() {
     logger.debug('===In Hotjar page===');
     logger.debug('[Hotjar] page:: method not supported');
-  }
-
-  isLoaded() {
-    logger.debug('===In isLoaded Hotjar===');
-    return this._ready;
-  }
-
-  isReady() {
-    logger.debug('===In isReady Hotjar===');
-    return this._ready;
   }
 }
 
