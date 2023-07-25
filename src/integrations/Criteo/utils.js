@@ -1,4 +1,5 @@
 import md5 from 'md5';
+import sha256 from 'crypto-js/sha256';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 import logger from '../../utils/logUtil';
 
@@ -10,8 +11,8 @@ const handleCommonFields = (rudderElement, hashMethod) => {
   const setZipcode = {};
 
   const finalRequest = [
-    { event: 'setCustomerId', id: md5(userId) },
-    { event: 'setRetailerVisitorId', id: md5(anonymousId) },
+    { event: 'setCustomerId', id: sha256(userId).toString() },
+    { event: 'setRetailerVisitorId', id: sha256(anonymousId).toString() },
   ];
 
   if (properties?.email) {
