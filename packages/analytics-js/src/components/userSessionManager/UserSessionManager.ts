@@ -300,7 +300,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.store?.get(userSessionStorageKeys.userId) || null;
+    return this.store?.get(userSessionStorageKeys.userId) ?? null;
   }
 
   /**
@@ -308,7 +308,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.store?.get(userSessionStorageKeys.userTraits) || null;
+    return this.store?.get(userSessionStorageKeys.userTraits) ?? null;
   }
 
   /**
@@ -316,7 +316,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.store?.get(userSessionStorageKeys.groupId) || null;
+    return this.store?.get(userSessionStorageKeys.groupId) ?? null;
   }
 
   /**
@@ -324,7 +324,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.store?.get(userSessionStorageKeys.groupTraits) || null;
+    return this.store?.get(userSessionStorageKeys.groupTraits) ?? null;
   }
 
   /**
@@ -332,7 +332,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.store?.get(userSessionStorageKeys.initialReferrer) || null;
+    return this.store?.get(userSessionStorageKeys.initialReferrer) ?? null;
   }
 
   /**
@@ -340,7 +340,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.store?.get(userSessionStorageKeys.initialReferringDomain) || null;
+    return this.store?.get(userSessionStorageKeys.initialReferringDomain) ?? null;
   }
 
   /**
@@ -348,7 +348,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionFromStorage(): Nullable<SessionInfo> {
-    return this.store?.get(userSessionStorageKeys.sessionInfo) || null;
+    return this.store?.get(userSessionStorageKeys.sessionInfo) ?? null;
   }
 
   /**

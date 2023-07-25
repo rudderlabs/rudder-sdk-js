@@ -4,7 +4,7 @@ import { IPluginsManager } from './PluginsManager';
 import { Nullable } from './Nullable';
 import { CookieSameSite } from './LoadOptions';
 
-export type StoreId = 'clientData' | 'eventQueue' | string;
+export type StoreId = string;
 
 export type StorageType = 'localStorage' | 'sessionStorage' | 'memoryStorage' | 'cookieStorage';
 
