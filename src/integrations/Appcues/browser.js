@@ -15,7 +15,6 @@ class Appcues {
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-    // this.sendToAllDestinations = config.sendToAll;
   }
 
   init() {

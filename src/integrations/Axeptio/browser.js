@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from './constants';
@@ -42,7 +43,7 @@ class Axeptio {
   // this function is used to record the triggered axeptio events through callback
   recordAxeptioEvents() {
     window._axcb = window._axcb || [];
-    window._axcb.push(function () {
+    window._axcb.push(() => {
       window.__axeptioSDK.on(
         'cookies:*',
         function (payload, event) {
