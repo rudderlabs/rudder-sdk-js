@@ -624,7 +624,7 @@ class Analytics implements IAnalytics {
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
       return;
     }
 
