@@ -1,1 +1,3 @@
-export { default as Axeptio } from './browser';
+import Axeptio from './browser';
+
+export { Axeptio };

@@ -1,1 +1,3 @@
-export { default as AdobeAnalytics } from './browser';
+import AdobeAnalytics from './browser';
+
+export { AdobeAnalytics };
