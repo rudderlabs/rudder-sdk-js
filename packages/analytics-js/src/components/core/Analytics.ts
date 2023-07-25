@@ -62,8 +62,8 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { IAnalytics } from './IAnalytics';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { IAnalytics } from './IAnalytics';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events

@@ -43,8 +43,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   // Singleton with constructor bind methods
   constructor() {
     if (RudderAnalytics.globalSingleton) {
+      // START-NO-SONAR-SCAN
       // eslint-disable-next-line no-constructor-return
       return RudderAnalytics.globalSingleton;
+      // END-NO-SONAR-SCAN
     }
 
     this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
@@ -76,9 +78,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
-
-    // eslint-disable-next-line no-constructor-return
-    return this;
   }
 
   /**
@@ -96,7 +95,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Retrieve an existing analytics instance
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
-    const instanceId = writeKey || this.defaultAnalyticsKey;
+    const instanceId = writeKey ?? this.defaultAnalyticsKey;
 
     const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
