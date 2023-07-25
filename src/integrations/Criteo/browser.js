@@ -3,11 +3,12 @@
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
 import {
-  handleCommonFields,
-  generateExtraData,
-  handleProductView,
-  handlingEventDuo,
+  getDeviceType,
   handleListView,
+  handlingEventDuo,
+  handleProductView,
+  generateExtraData,
+  handleCommonFields,
 } from './utils';
 import { NAME, supportedEvents } from './constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
@@ -22,12 +23,7 @@ class Criteo {
     this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;
     this.url = config.homePageUrl;
-    // eslint-disable-next-line no-nested-ternary
-    this.deviceType = /iPad/.test(navigator.userAgent)
-      ? 't'
-      : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent)
-      ? 'm'
-      : 'd';
+    this.deviceType = getDeviceType(navigator.userAgent);
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
@@ -82,7 +78,7 @@ class Criteo {
     }
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
+    if (Object.keys(extraDataObject).length > 0) {
       finalPayload.push({ event: 'setData', ...extraDataObject });
     }
 
@@ -151,7 +147,7 @@ class Criteo {
     });
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
+    if (Object.keys(extraDataObject).length > 0) {
       finalPayload.push({ event: 'setData', ...extraDataObject });
     }
     window.criteo_q.push(finalPayload);
