@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-var */
+/* eslint-disable one-var */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from './constants';
@@ -30,7 +33,8 @@ class Axeptio {
         e = d.createElement(s);
       e.async = true;
       e.src = '//static.axept.io/sdk.js';
-      e.setAttribute('data-loader', LOAD_ORIGIN), t.parentNode.insertBefore(e, t);
+      e.setAttribute('data-loader', LOAD_ORIGIN);
+      t.parentNode.insertBefore(e, t);
     })(document, 'script');
   }
 
@@ -55,7 +59,7 @@ class Axeptio {
   // this function is used to record the triggered axeptio events through callback
   recordAxeptioEvents() {
     window._axcb = window._axcb || [];
-    window._axcb.push(function () {
+    window._axcb.push(() => {
       window.__axeptioSDK.on(
         'cookies:*',
         function (payload, event) {

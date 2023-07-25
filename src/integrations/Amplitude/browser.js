@@ -6,6 +6,8 @@ import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
 import { NAME } from './constants';
 
+import { getTraitsToSetOnce, getTraitsToIncrement } from './utils';
+
 import { loader } from './loader';
 
 const logger = new Logger(NAME);
@@ -30,11 +32,10 @@ class Amplitude {
     this.trackGclid = config.trackGclid || false;
     this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
     this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false;
-    // this.mapQueryParams = config.mapQueryParams;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
-    this.traitsToSetOnce = [];
-    this.traitsToIncrement = [];
+    this.traitsToSetOnce = getTraitsToSetOnce(config);
+    this.traitsToIncrement = getTraitsToIncrement(config);
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
     this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
@@ -42,21 +43,6 @@ class Amplitude {
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-
-    if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
-      config.traitsToSetOnce.forEach((element) => {
-        if (element && element.traits && element.traits !== '') {
-          this.traitsToSetOnce.push(element.traits);
-        }
-      });
-    }
-    if (config.traitsToIncrement && config.traitsToIncrement.length > 0) {
-      config.traitsToIncrement.forEach((element) => {
-        if (element && element.traits && element.traits !== '') {
-          this.traitsToIncrement.push(element.traits);
-        }
-      });
-    }
   }
 
   init() {
@@ -82,6 +68,15 @@ class Amplitude {
     if (this.versionName) {
       window.amplitude.getInstance().setVersionName(this.versionName);
     }
+  }
+
+  isLoaded() {
+    logger.debug('in Amplitude isLoaded');
+    return !!window?.amplitude?.getInstance()?.options;
+  }
+
+  isReady() {
+    return !!window?.amplitude?.getInstance()?.options;
   }
 
   identify(rudderElement) {
@@ -351,15 +346,6 @@ class Amplitude {
       quantity: product.quantity,
       category: product.category,
     };
-  }
-
-  isLoaded() {
-    logger.debug('in Amplitude isLoaded');
-    return !!(window.amplitude && window.amplitude.getInstance().options);
-  }
-
-  isReady() {
-    return !!(window.amplitude && window.amplitude.getInstance().options);
   }
 }
 
