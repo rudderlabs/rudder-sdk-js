@@ -42,7 +42,6 @@ class ConvertFlow {
     return !!window.convertflow;
   }
 
-  // identify call to Convertflow
   identify(rudderElement) {
     logger.debug('===In convertflow Identify===');
     const { message } = rudderElement;

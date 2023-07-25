@@ -46,6 +46,7 @@ class DCMFloodlight {
 
       window.dataLayer = window.dataLayer || [];
       window.gtag = function gtag() {
+        // eslint-disable-next-line prefer-rest-params
         window.dataLayer.push(arguments);
       };
 
@@ -107,7 +108,7 @@ class DCMFloodlight {
     logger.debug('===In DCMFloodlight track===');
 
     const { message } = rudderElement;
-    const { event } = rudderElement.message;
+    const { event } = message;
     let customFloodlightVariable;
 
     if (!event) {
@@ -126,10 +127,7 @@ class DCMFloodlight {
     // find conversion event
     // knowing cat (activityTag), type (groupTag), (counter or sales), customVariable from config
     const conversionEvent = this.conversionEvents.find(
-      (cnEvent) =>
-        cnEvent &&
-        cnEvent.eventName &&
-        cnEvent.eventName.trim().toLowerCase() === event.toLowerCase(),
+      (cnEvent) => cnEvent?.eventName?.trim().toLowerCase() === event.toLowerCase(),
     );
 
     if (!conversionEvent) {
@@ -142,7 +140,7 @@ class DCMFloodlight {
       this.groupTag = conversionEvent.floodlightGroupTag.trim();
     }
 
-    const { salesTag } = conversionEvent;
+    const { salesTag, customVariables } = conversionEvent;
 
     if (!isValidCountingMethod(salesTag, countingMethod)) {
       logger.error(
@@ -151,7 +149,7 @@ class DCMFloodlight {
       return;
     }
 
-    customFloodlightVariable = conversionEvent.customVariables || [];
+    customFloodlightVariable = customVariables || [];
     customFloodlightVariable = transformCustomVariable(customFloodlightVariable, message);
 
     customFloodlightVariable = removeUndefinedAndNullValues(customFloodlightVariable);
