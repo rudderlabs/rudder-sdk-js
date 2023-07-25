@@ -126,7 +126,10 @@ class BugsnagProvider {
    */
   init() {
     // Return if RS Bugsnag instance is already initialized
-    if (window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
+    if (
+      window.RudderStackGlobals &&
+      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]
+    ) {
       return;
     }
 
