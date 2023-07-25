@@ -1,3 +1,1 @@
-import YandexMetrica from './browser';
-
-export { YandexMetrica };
+export { default as YandexMetrica } from './browser';
