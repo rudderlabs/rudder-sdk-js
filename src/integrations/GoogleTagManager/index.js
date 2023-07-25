@@ -1,3 +1,1 @@
-import { GoogleTagManager } from './browser';
-
-export { GoogleTagManager };
+export { GoogleTagManager } from './browser';
