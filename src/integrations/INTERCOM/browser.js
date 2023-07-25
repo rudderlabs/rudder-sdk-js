@@ -1,3 +1,6 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable no-var */
+/* eslint-disable vars-on-top */
 /* eslint-disable class-methods-use-this */
 import md5 from 'md5';
 import logger from '../../utils/logUtil';
@@ -24,30 +27,32 @@ class INTERCOM {
     loadNativeSdk(this.APP_ID);
   }
 
-  page() {
-    // Get new messages of the current user
-    window.Intercom('update');
+  isLoaded() {
+    return !!window.intercom_code;
+  }
+
+  isReady() {
+    return !!window.intercom_code;
   }
 
   identify(rudderElement) {
     const rawPayload = {};
-    const { context } = rudderElement.message;
+    const { context, userId } = rudderElement.message;
 
-    const identityVerificationProps = context.Intercom ? context.Intercom : null;
-    if (identityVerificationProps != null) {
+    const identityVerificationProps = context.Intercom || null;
+
+    if (identityVerificationProps) {
       // user hash
-      const userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
+      const userHash = context.Intercom.user_hash || null;
 
-      if (userHash != null) {
+      if (userHash) {
         rawPayload.user_hash = userHash;
       }
 
       // hide default launcher
-      const hideDefaultLauncher = context.Intercom.hideDefaultLauncher
-        ? context.Intercom.hideDefaultLauncher
-        : null;
+      const hideDefaultLauncher = context.Intercom.hideDefaultLauncher || null;
 
-      if (hideDefaultLauncher != null) {
+      if (hideDefaultLauncher) {
         rawPayload.hide_default_launcher = hideDefaultLauncher;
       }
     }
@@ -61,7 +66,7 @@ class INTERCOM {
 
     // map rudderPayload to desired
     Object.keys(context.traits).forEach((field) => {
-      if (context.traits.hasOwnProperty(field)) {
+      if (context.traits[field]) {
         const value = context.traits[field];
         switch (field) {
           case 'createdAt':
@@ -85,7 +90,7 @@ class INTERCOM {
                 [];
               companyFields.forEach((key) => {
                 if (companyFields.includes(key)) {
-                  if (key != 'id') {
+                  if (key !== 'id') {
                     company[key] = context.traits[field][key];
                   } else {
                     company.company_id = context.traits[field][key];
@@ -102,11 +107,9 @@ class INTERCOM {
             }
             break;
           case 'avatar':
-            {
-              rawPayload.avatar = {};
-              rawPayload.avatar.type = 'avatar';
-              rawPayload.avatar.image_url = value;
-            }
+            rawPayload.avatar = {};
+            rawPayload.avatar.type = 'avatar';
+            rawPayload.avatar.image_url = value;
             break;
           default:
             rawPayload[field] = context.traits[field];
@@ -114,17 +117,22 @@ class INTERCOM {
         }
       }
     });
-    rawPayload.user_id = rudderElement.message.userId;
+    rawPayload.user_id = userId;
     window.Intercom('update', rawPayload);
   }
 
   track(rudderElement) {
     const rawPayload = {};
-    const { message } = rudderElement;
+    const { event, userId, anonymousId, properties, originalTimestamp } = rudderElement.message;
 
-    const properties = message.properties ? Object.keys(message.properties) : null;
-    properties.forEach((property) => {
-      const value = message.properties[property];
+    if (event) {
+      rawPayload.event_name = event;
+    }
+
+    rawPayload.user_id = userId || anonymousId;
+
+    Object.keys(properties).forEach((property) => {
+      const value = properties[property];
       if (value && typeof value !== 'object' && !Array.isArray(value)) {
         rawPayload[property] = value;
       } else if (value && typeof value === 'object') {
@@ -132,20 +140,14 @@ class INTERCOM {
       }
     });
 
-    if (message.event) {
-      rawPayload.event_name = message.event;
-    }
-    rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
-    rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+    rawPayload.created_at = Math.floor(new Date(originalTimestamp).getTime() / 1000);
+
     window.Intercom('trackEvent', rawPayload.event_name, rawPayload);
   }
 
-  isLoaded() {
-    return !!window.intercom_code;
-  }
-
-  isReady() {
-    return !!window.intercom_code;
+  page() {
+    // Get new messages of the current user
+    window.Intercom('update');
   }
 }
 
