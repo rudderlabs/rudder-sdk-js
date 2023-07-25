@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import onBody from 'on-body';

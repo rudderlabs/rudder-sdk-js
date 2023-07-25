@@ -1,13 +1,6 @@
-/* eslint-disable camelcase */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable unicorn/explicit-length-check */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-multi-assign */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
 import camelcase from '../../utils/camelcase';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
@@ -88,7 +81,7 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            console.error('FullStory unavailable, window["_fs_namespace"] must be defined');
+            logger.debug('FullStory unavailable, window["_fs_namespace"] must be defined');
             return undefined;
           }
           return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
