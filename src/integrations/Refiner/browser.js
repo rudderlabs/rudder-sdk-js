@@ -1,7 +1,7 @@
 /* eslint-disable */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
 
 class Refiner {
@@ -20,20 +20,7 @@ class Refiner {
   }
 
   loadScript() {
-    window._refinerQueue = window._refinerQueue || [];
-    this._refiner = function () {
-      window._refinerQueue.push(arguments);
-    };
-    (function () {
-      var a = document.createElement('script');
-      a.setAttribute('data-loader', LOAD_ORIGIN);
-      a.type = 'text/javascript';
-      a.async = !0;
-      a.src = 'https://js.refiner.io/v001/client.js';
-      var b = document.getElementsByTagName('script')[0];
-      b.parentNode.insertBefore(a, b);
-    })();
-    this._refiner('setProject', this.apiKey);
+    loadNativeSdk(this.apiKey);
   }
 
   init() {

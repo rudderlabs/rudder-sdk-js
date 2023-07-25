@@ -6,7 +6,7 @@ import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
 import { NAME } from './constants';
 
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -61,7 +61,7 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      loader(window, document);
+      loadNativeSdk(window, document);
     }
 
     const initOptions = {

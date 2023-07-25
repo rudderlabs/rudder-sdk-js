@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import md5 from 'md5';
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 import { flattenJsonPayload } from '../../utils/utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -21,47 +21,7 @@ class INTERCOM {
   }
 
   init() {
-    window.intercomSettings = {
-      app_id: this.APP_ID,
-    };
-
-    (function () {
-      const w = window;
-      const ic = w.Intercom;
-      if (typeof ic === 'function') {
-        ic('reattach_activator');
-        ic('update', w.intercomSettings);
-      } else {
-        const d = document;
-        var i = function () {
-          i.c(arguments);
-        };
-        i.q = [];
-        i.c = function (args) {
-          i.q.push(args);
-        };
-        w.Intercom = i;
-        const l = function () {
-          const s = d.createElement('script');
-          s.setAttribute('data-loader', LOAD_ORIGIN);
-          s.type = 'text/javascript';
-          s.async = true;
-          s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;
-          const x = d.getElementsByTagName('script')[0];
-          x.parentNode.insertBefore(s, x);
-        };
-        if (document.readyState === 'complete') {
-          l();
-          window.intercom_code = true;
-        } else if (w.attachEvent) {
-          w.attachEvent('onload', l);
-          window.intercom_code = true;
-        } else {
-          w.addEventListener('load', l, false);
-          window.intercom_code = true;
-        }
-      }
-    })();
+    loadNativeSdk(this.APP_ID);
   }
 
   page() {

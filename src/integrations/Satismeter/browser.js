@@ -4,7 +4,7 @@
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class Satismeter {
@@ -27,23 +27,7 @@ class Satismeter {
 
   init() {
     logger.debug('===In init Satismeter===');
-    (function () {
-      window.satismeter =
-        window.satismeter ||
-        function () {
-          (window.satismeter.q = window.satismeter.q || []).push(arguments);
-        };
-      window.satismeter.l = 1 * new Date();
-      var script = document.createElement('script');
-      var parent = document.getElementsByTagName('script')[0].parentNode;
-      script.async = 1;
-      script.src = 'https://app.satismeter.com/js';
-      script.setAttribute('data-loader', LOAD_ORIGIN), parent.appendChild(script);
-    })();
-
-    window.satismeter({
-      writeKey: this.writeKey,
-    });
+    loadNativeSdk(this.writeKey);
   }
 
   isLoaded() {
