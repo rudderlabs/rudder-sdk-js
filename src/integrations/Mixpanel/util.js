@@ -172,9 +172,8 @@ function sendAliasOnLoad(integrations) {
     if (Object.prototype.hasOwnProperty.call(MP, 'sendAliasOnLoad')) {
       return !!MP.sendAliasOnLoad;
     }
-    return true;
   }
-  return true;
+  return false;
 }
 
 export {
