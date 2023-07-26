@@ -45,6 +45,7 @@ describe('lemnisk page', () => {
           referrer: '',
           title: 'test page',
           testDimension: 'abc',
+          isRudderEvents: true,
         },
       },
     });
@@ -55,6 +56,7 @@ describe('lemnisk page', () => {
       referrer: '',
       title: 'test page',
       testDimension: 'abc',
+      isRudderEvents: true,
     });
   });
 });
@@ -102,6 +104,7 @@ describe('Lemnisk Track event', () => {
               image_url: 'https://www.example.com/product/bacon-jam.jpg',
             },
           ],
+          isRudderEvents: true,
         },
       },
     });
@@ -133,6 +136,7 @@ describe('Lemnisk Track event', () => {
           image_url: 'https://www.example.com/product/bacon-jam.jpg',
         },
       ],
+      isRudderEvents: true,
     });
   });
 });
@@ -154,6 +158,7 @@ describe('Lemnisk Identify event', () => {
         context: {
           traits: {
             email: 'abc@ruddertack.com',
+            isRudderEvents: true,
           },
         },
       },
@@ -161,6 +166,7 @@ describe('Lemnisk Identify event', () => {
     expect(window.lmSMTObj.identify.mock.calls[0][0]).toEqual('rudder01');
     expect(window.lmSMTObj.identify.mock.calls[0][1]).toEqual({
       email: 'abc@ruddertack.com',
+      isRudderEvents: true,
     });
   });
 });
