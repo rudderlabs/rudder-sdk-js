@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';

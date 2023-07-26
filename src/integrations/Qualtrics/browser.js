@@ -1,14 +1,5 @@
-/* eslint-disable no-var */
-/* eslint-disable new-cap */
-/* eslint-disable no-empty */
-/* eslint-disable no-unneeded-ternary */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-nested-ternary */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-expressions */
-// eslint-disable-next-line no-nested-ternary
-// eslint-disable-next-line class-methods-use-this
-
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -67,8 +58,7 @@ class Qualtrics {
     }
 
     const { name, category, properties } = message;
-    const categoryField =
-      category || (properties && properties.category ? properties.category : null);
+    const categoryField = category || properties?.category || null;
 
     if (!categoryField && !name) {
       logger.debug('generic title is disabled and no name or category field found');

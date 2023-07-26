@@ -1,12 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable prefer-spread */
-/* eslint-disable no-multi-assign */
-/* eslint-disable func-names */
-/* eslint-disable no-var */
-/* eslint-disable vars-on-top */
-/* eslint-disable no-unused-expressions */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';

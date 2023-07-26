@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-underscore-dangle */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -42,7 +42,7 @@ class Refiner {
     logger.debug('===In Refiner Identify===');
     const { message } = rudderElement;
     const { userId, traits, context } = message;
-    const email = message.traits?.email || message.context?.traits?.email;
+    const email = traits?.email || context?.traits?.email;
     if (!userId && !email) {
       logger.error('either one userId or email is required');
       return;
@@ -68,8 +68,8 @@ class Refiner {
   group(rudderElement) {
     logger.debug('===In Refiner Group===');
     const { message } = rudderElement;
-    const { userId, groupId, traits } = message;
-    const userEmail = message.context?.traits?.email;
+    const { userId, groupId, traits, context } = message;
+    const userEmail = context?.traits?.email;
     if (!userId && !userEmail) {
       logger.error('either one userId or email is required');
       return;
