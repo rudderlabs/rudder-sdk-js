@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-
 import { isObject } from '../../utils/utils';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
@@ -28,7 +27,7 @@ class RollBar {
 
   init() {
     logger.debug('===in init RollBar===');
-    var _rollbarConfig = {
+    const _rollbarConfig = {
       accessToken: this.accessToken,
       captureUncaught: this.captureUncaughtException,
       captureUnhandledRejections: this.captureUnhandledRejections,
@@ -43,14 +42,17 @@ class RollBar {
         },
       },
     };
-    var msg = this.ignoredMessages;
-    if (msg.length > 0) {
-      var ret = [];
+    const { ignoredMessages } = this;
+    if (ignoredMessages.length > 0) {
+      const ret = [];
       // clean out array
-      for (var x = 0; x < msg.length; x++) {
-        if (msg[x] !== null && msg[x].singleIgnoredMessage !== '')
-          ret.push(msg[x].singleIgnoredMessage);
-      }
+      ignoredMessages.forEach((message) => {
+        if (
+          ignoredMessages[message] !== null &&
+          ignoredMessages[message].singleIgnoredMessage !== ''
+        )
+          ret.push(ignoredMessages[message].singleIgnoredMessage);
+      });
       _rollbarConfig.ignoredMessages = ret;
     }
 
@@ -71,8 +73,8 @@ class RollBar {
   identify(rudderElement) {
     logger.debug('===In RollBar Identify===');
     const { message } = rudderElement;
-    const { userId } = message;
-    const { traits } = rudderElement.message.context;
+    const { userId, context } = message;
+    const { traits } = context;
 
     const person = traits;
     if (person.name) {

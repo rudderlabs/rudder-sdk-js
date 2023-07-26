@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from './constants';

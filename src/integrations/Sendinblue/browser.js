@@ -1,4 +1,3 @@
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';

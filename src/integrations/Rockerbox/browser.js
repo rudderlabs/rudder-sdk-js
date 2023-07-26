@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this,prefer-rest-params, no-param-reassign */
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { getHashFromArray } from '../../utils/commonUtils';
