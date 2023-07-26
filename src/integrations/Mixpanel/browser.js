@@ -23,6 +23,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
+import isEmpty from 'lodash.isempty';
 import logger from '../../utils/logUtil';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
@@ -193,11 +194,14 @@ class Mixpanel {
     const superProperties = parseConfigArray(this.superProperties, 'property');
 
     // eslint-disable-next-line camelcase
-    const user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+    let user_id = rudderElement.message.userId;
+    if (sendAliasOnLoad(this.analytics.loadOnlyIntegrations)) {
+      user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+    }
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
-    if (user_id) window.mixpanel.identify(user_id);
+    if (!isEmpty(user_id)) window.mixpanel.identify(user_id);
 
     // name tag
     const nametag = email || username;
@@ -397,7 +401,16 @@ class Mixpanel {
       logger.debug('===Mixpanel: userId is same as previousId. Skipping alias ===');
       return;
     }
-    window.mixpanel.alias(newId, previousId);
+
+    let aliasId = previousId;
+    if (
+      !sendAliasOnLoad(this.analytics.loadOnlyIntegrations) &&
+      (previousId === this.analytics.getUserId() || previousId === this.analytics.getAnonymousId())
+    ) {
+      aliasId = window.mixpanel.get_distinct_id();
+    }
+
+    window.mixpanel.alias(newId, aliasId);
   }
 }
 export default Mixpanel;
