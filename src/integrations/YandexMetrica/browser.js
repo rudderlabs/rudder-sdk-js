@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
@@ -62,7 +63,7 @@ class YandexMetrica {
     const { message } = rudderElement;
     const { userId } = getDefinedTraits(message);
     let payload = { UserID: userId };
-    if (!(message.context && message.context.traits)) {
+    if (!message?.context?.traits) {
       logger.debug('user traits not present');
     } else {
       const { traits } = message.context;
@@ -77,7 +78,7 @@ class YandexMetrica {
     logger.debug('===In YandexMetrica track===');
 
     const { message } = rudderElement;
-    const { event } = message;
+    const { event, properties } = message;
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
       this.eventNameToYandexEvent,
       'from',
@@ -92,22 +93,19 @@ class YandexMetrica {
     const ecomEvents = Object.keys(ecommerceEventMapping);
 
     const trimmedEvent = event.trim().replace(/\s+/g, '_');
-    if (!message.properties) {
+    if (!properties) {
       logger.error('Properties is not present in the payload');
       return;
     }
 
     if (eventMappingFromConfigMap[event]) {
       eventMappingFromConfigMap[event].forEach((eventType) => {
-        sendEvent(
-          this.containerName,
-          ecommEventPayload(eventType, message.properties, this.goalId),
-        );
+        sendEvent(this.containerName, ecommEventPayload(eventType, properties, this.goalId));
       });
     } else if (ecomEvents.includes(trimmedEvent)) {
       sendEvent(
         this.containerName,
-        ecommEventPayload(ecommerceEventMapping[trimmedEvent], message.properties, this.goalId),
+        ecommEventPayload(ecommerceEventMapping[trimmedEvent], properties, this.goalId),
       );
     } else {
       logger.error(
@@ -120,7 +118,7 @@ class YandexMetrica {
   page(rudderElement) {
     logger.debug('===In YandexMetrica Page===');
     const { message } = rudderElement;
-    if (!(message.context && message.context.page)) {
+    if (!message?.context?.page) {
       logger.error('page object containing page properties are not present in the payload');
       return;
     }

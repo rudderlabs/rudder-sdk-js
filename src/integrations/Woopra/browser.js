@@ -1,6 +1,3 @@
-/* eslint-disable*/
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
@@ -49,7 +46,7 @@ class Woopra {
 
   isLoaded() {
     logger.debug('===In isLoaded Woopra===');
-    return !!(window.Woopra && window.Woopra.loaded);
+    return !!window?.Woopra?.loaded;
   }
 
   isReady() {
