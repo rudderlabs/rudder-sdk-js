@@ -1,13 +1,11 @@
-/* eslint-disable*/
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME, eventNameMapping } from './constants';
 import {
-  getHashFromArrayWithDuplicate,
-  getDestinationExternalID,
   isDefinedAndNotNull,
+  getDestinationExternalID,
+  getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
 import { getTrackResponse } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -89,7 +87,7 @@ class TiktokAds {
       });
     } else {
       event = eventNameMapping[event];
-      const updatedProperties = getTrackResponse(message, Config, event);
+      const updatedProperties = getTrackResponse(message);
       window.ttq.track(event, updatedProperties);
     }
   }
