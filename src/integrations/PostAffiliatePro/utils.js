@@ -1,22 +1,40 @@
 // This function helps to populate the sale object
 const updateSaleObject = (sale, properties) => {
-  if (properties.total) sale.setTotalCost(properties.total);
-  if (properties.fixedCost) sale.setFixedCost(properties.fixedCost);
-  if (properties.order_id) sale.setOrderID(properties.order_id);
-  // Post Affiliate Pro supports five extra data only.
-  if (properties.data1) sale.setData1(properties.data1);
-  if (properties.data2) sale.setData2(properties.data2);
-  if (properties.data3) sale.setData3(properties.data3);
-  if (properties.data4) sale.setData4(properties.data4);
-  if (properties.data5) sale.setData5(properties.data5);
-  if (properties.doNotDeleteCookies && properties.doNotDeleteCookies === true)
-    sale.doNotDeleteCookies();
-  if (properties.status) sale.setStatus(properties.status);
-  if (properties.currency) sale.setCurrency(properties.currency);
-  if (properties.customCommision) sale.setCustomCommission(properties.customCommision);
-  if (properties.channel) sale.setChannelID(properties.channel);
-  if (properties.coupon) sale.setCoupon(properties.coupon);
-  if (properties.campaignId) sale.setCampaignID(properties.campaignId);
-  if (properties.affiliateId) sale.setAffiliateID(properties.affiliateId);
+  const saleMethodsMap = [
+    { property: 'total', method: 'setTotalCost' },
+    { property: 'fixedCost', method: 'setFixedCost' },
+    { property: 'order_id', method: 'setOrderID' },
+    { property: 'data1', method: 'setData1' },
+    { property: 'data2', method: 'setData2' },
+    { property: 'data3', method: 'setData3' },
+    { property: 'data4', method: 'setData4' },
+    { property: 'data5', method: 'setData5' },
+    { property: 'doNotDeleteCookies', method: 'doNotDeleteCookies' },
+    { property: 'status', method: 'setStatus' },
+    { property: 'currency', method: 'setCurrency' },
+    { property: 'customCommission', method: 'setCustomCommission' },
+    { property: 'channel', method: 'setChannelID' },
+    { property: 'coupon', method: 'setCoupon' },
+    { property: 'campaignId', method: 'setCampaignID' },
+    { property: 'affiliateId', method: 'setAffiliateID' },
+  ];
+
+  saleMethodsMap.forEach(({ property, method }) => {
+    if (Object.prototype.hasOwnProperty.call(properties, property)) {
+      if (method === 'doNotDeleteCookies') {
+        sale[method]();
+      } else {
+        sale[method](properties[property]);
+      }
+    }
+  });
 };
-export default updateSaleObject;
+
+const getMergedProductIds = (productsArr) => {
+  const mergedProductId = productsArr
+    .filter((product) => product.product_id)
+    .map((product) => product.product_id)
+    .join();
+  return mergedProductId;
+};
+export { updateSaleObject, getMergedProductIds };

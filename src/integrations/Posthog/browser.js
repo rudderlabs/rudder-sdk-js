@@ -1,7 +1,9 @@
 /* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import logger from '../../utils/logUtil';
+import { getXhrHeaders, getPropertyBlackList } from './utils';
 import { removeTrailingSlashes } from '../../utils/utils';
 import { NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -19,33 +21,12 @@ class Posthog {
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;
     this.disableCookie = config.disableCookie || false;
-    this.propertyBlackList = [];
-    this.xhrHeaders = {};
+    this.propertyBlackList = getPropertyBlackList(config);
+    this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
-
-    if (config.xhrHeaders && config.xhrHeaders.length > 0) {
-      config.xhrHeaders.forEach((header) => {
-        if (
-          header &&
-          header.key &&
-          header.value &&
-          header.key.trim() !== '' &&
-          header.value.trim() !== ''
-        ) {
-          this.xhrHeaders[header.key] = header.value;
-        }
-      });
-    }
-    if (config.propertyBlackList && config.propertyBlackList.length > 0) {
-      config.propertyBlackList.forEach((element) => {
-        if (element && element.property && element.property.trim() !== '') {
-          this.propertyBlackList.push(element.property);
-        }
-      });
-    }
   }
 
   init() {
@@ -65,7 +46,7 @@ class Posthog {
       disable_cookie: this.disableCookie,
     };
 
-    if (options && options.loaded) {
+    if (options?.loaded) {
       configObject.loaded = options.loaded;
     }
     if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
@@ -78,6 +59,15 @@ class Posthog {
     posthog.init(this.teamApiKey, configObject);
   }
 
+  isLoaded() {
+    logger.debug('in Posthog isLoaded');
+    return !!window?.posthog?.__loaded;
+  }
+
+  isReady() {
+    return !!window?.posthog?.__loaded;
+  }
+
   /**
    * superproperties should be part of rudderelement.message.integrations.POSTHOG object.
    * Once we call the posthog.register api, the corresponding property will be sent along with subsequent capture calls.
@@ -85,7 +75,7 @@ class Posthog {
    */
   processSuperProperties(rudderElement) {
     const { integrations } = rudderElement.message;
-    if (integrations && integrations.POSTHOG) {
+    if (integrations?.POSTHOG) {
       const { superProperties, setOnceProperties, unsetProperties } = integrations.POSTHOG;
       if (superProperties && Object.keys(superProperties).length > 0) {
         posthog.register(superProperties);
@@ -156,15 +146,6 @@ class Posthog {
     posthog.group(groupType, groupKey, traits);
 
     this.processSuperProperties(rudderElement);
-  }
-
-  isLoaded() {
-    logger.debug('in Posthog isLoaded');
-    return !!(window.posthog && window.posthog.__loaded);
-  }
-
-  isReady() {
-    return !!(window.posthog && window.posthog.__loaded);
   }
 }
 
