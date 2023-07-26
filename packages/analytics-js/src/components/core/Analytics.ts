@@ -10,7 +10,7 @@ import { state } from '@rudderstack/analytics-js/state';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
@@ -487,7 +487,7 @@ class Analytics implements IAnalytics {
 
     this.eventManager?.addEvent({
       type: RudderEventType.Track,
-      name: payload.name,
+      name: payload.name || undefined,
       properties: payload.properties,
       options: payload.options,
       callback: payload.callback,
@@ -512,7 +512,10 @@ class Analytics implements IAnalytics {
       this.reset();
     }
 
-    this.userSessionManager?.setUserId(payload.userId);
+    // `null` value indicates that previous user ID needs to be retained
+    if (!isNull(payload.userId)) {
+      this.userSessionManager?.setUserId(payload.userId);
+    }
     this.userSessionManager?.setUserTraits(payload.traits);
 
     this.eventManager?.addEvent({
@@ -558,7 +561,11 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.userSessionManager?.setGroupId(payload.groupId);
+    // `null` value indicates that previous group ID needs to be retained
+    if (!isNull(payload.groupId)) {
+      this.userSessionManager?.setGroupId(payload.groupId);
+    }
+
     this.userSessionManager?.setGroupTraits(payload.traits);
 
     this.eventManager?.addEvent({
