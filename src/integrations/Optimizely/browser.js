@@ -1,5 +1,5 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
+import { mapRudderPropsToOptimizelyProps } from './utils';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 
@@ -32,6 +32,14 @@ class Optimizely {
     this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }
 
+  isLoaded() {
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+  }
+
   referrerOverride = (referrer) => {
     if (referrer) {
       window.optimizelyEffectiveReferrer = referrer;
@@ -42,8 +50,7 @@ class Optimizely {
 
   sendDataToRudder = (campaignState) => {
     logger.debug(campaignState);
-    const { experiment } = campaignState;
-    const { variation } = campaignState;
+    const { experiment, variation } = campaignState;
     const context = { integrations: { All: true } };
     const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
 
@@ -61,7 +68,7 @@ class Optimizely {
       .join(', ');
 
     if (this.sendExperimentTrack) {
-      const props = {
+      let props = {
         campaignName,
         campaignId: id,
         experimentId: experiment.id,
@@ -84,20 +91,10 @@ class Optimizely {
       // For Google's nonInteraction flag
       if (this.sendExperimentTrackAsNonInteractive) props.nonInteraction = 1;
 
-      // If customCampaignProperties is provided overide the props with it.
+      // If customCampaignProperties is provided override the props with it.
       // If valid customCampaignProperties present it will override existing props.
       // const data = window.optimizely && window.optimizely.get("data");
-      const data = campaignState;
-      if (data && this.customCampaignProperties.length > 0) {
-        for (let index = 0; index < this.customCampaignProperties.length; index += 1) {
-          const rudderProp = this.customCampaignProperties[index].from;
-          const optimizelyProp = this.customCampaignProperties[index].to;
-          if (typeof props[optimizelyProp] !== 'undefined') {
-            props[rudderProp] = props[optimizelyProp];
-            delete props[optimizelyProp];
-          }
-        }
-      }
+      props = mapRudderPropsToOptimizelyProps(props, campaignState, this.customCampaignProperties);
 
       // Send to Rudder
       this.analytics.track('Experiment Viewed', props, context);
@@ -113,7 +110,7 @@ class Optimizely {
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const activeCampaigns = state.getCampaignStates({
           isActive: true,
@@ -125,7 +122,7 @@ class Optimizely {
     };
 
     const checkReferrer = () => {
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
 
@@ -154,7 +151,7 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const referrer = checkReferrer();
         const activeCampaigns = state.getCampaignStates({
@@ -207,35 +204,24 @@ class Optimizely {
 
   page(rudderElement) {
     logger.debug('in Optimizely web page');
-    const { category } = rudderElement.message.properties;
-    const { name } = rudderElement.message;
-    /* const contextOptimizely = {
-      integrations: { All: false, Optimizely: true },
-    }; */
+
+    const clonedRudderElement = rudderElement;
+    const { category } = clonedRudderElement.message.properties;
+    const { name } = clonedRudderElement.message;
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
-      // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
-      rudderElement.message.event = `Viewed ${category} page`;
-      rudderElement.message.type = 'track';
-      this.track(rudderElement);
+      clonedRudderElement.message.event = `Viewed ${category} page`;
+      clonedRudderElement.message.type = 'track';
+      this.track(clonedRudderElement);
     }
 
     // named pages
     if (name && this.trackNamedPages) {
-      // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
-      rudderElement.message.event = `Viewed ${name} page`;
-      rudderElement.message.type = 'track';
-      this.track(rudderElement);
+      clonedRudderElement.message.event = `Viewed ${name} page`;
+      clonedRudderElement.message.type = 'track';
+      this.track(clonedRudderElement);
     }
-  }
-
-  isLoaded() {
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-  }
-
-  isReady() {
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 }
 

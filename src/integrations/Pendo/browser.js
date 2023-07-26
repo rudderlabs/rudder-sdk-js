@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable lines-between-class-members */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -64,8 +63,8 @@ class Pendo {
     let visitorObj = {};
     let accountObj = {};
     const { groupId } = this.analytics;
-    const id =
-      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
+    const { userId, anonymousId } = rudderElement.message;
+    const id = userId || this.constructPendoAnonymousId(anonymousId);
     visitorObj = {
       id,
       ...this.analytics.getUserTraits(),
@@ -77,6 +76,7 @@ class Pendo {
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
   }
+
   /*
    *Group call maps to an account for which visitor belongs.
    *It is same as identify call but here we send account object.
@@ -94,7 +94,7 @@ class Pendo {
     if (userId) {
       visitorObj = {
         id: userId,
-        ...(context && context.traits),
+        ...context?.traits,
       };
     }
 

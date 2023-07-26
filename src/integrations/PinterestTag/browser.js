@@ -42,7 +42,7 @@ export default class PinterestTag {
 
   handleEnhancedMatch() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email && this.enhancedMatch) {
       window.pintrk('load', this.tagId, {
         em: email,
@@ -198,7 +198,7 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
-    if (!rudderElement.message || !rudderElement.message.event) {
+    if (!rudderElement?.message || !rudderElement?.message?.event) {
       return;
     }
     const { message } = rudderElement;
@@ -230,7 +230,7 @@ export default class PinterestTag {
 
   identify() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email) {
       const ldpObject = this.generateLdpObject();
       window.pintrk('set', { em: email, ...ldpObject });
