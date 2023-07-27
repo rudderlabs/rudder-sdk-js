@@ -79,6 +79,7 @@ class Mixpanel {
     this.areTransformationsConnected =
       destinationInfo && destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.identityMergeApi = config.identityMergeApi || 'original';
   }
 
   init() {
@@ -186,12 +187,15 @@ class Mixpanel {
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
 
-    // eslint-disable-next-line camelcase
-    const user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+    let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (this.identityMergeApi === 'simplified') {
+      // calling mixpanel .identify() only for known users
+      userId = rudderElement.message.userId;
+    }
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
-    if (user_id) window.mixpanel.identify(user_id);
+    if (userId) window.mixpanel.identify(userId);
 
     // name tag
     const nametag = email || username;
@@ -376,6 +380,13 @@ class Mixpanel {
    */
   alias(rudderElement) {
     logger.debug('in Mixpanel alias');
+    if (this.identityMergeApi === 'simplified') {
+      logger.error(
+        "===Mixpanel: Event type 'alias' is not supported when 'Simplified ID merge' api is selected in webapp===",
+      );
+      return;
+    }
+
     const { previousId, userId } = rudderElement.message;
     const newId = userId;
     if (!previousId) {
