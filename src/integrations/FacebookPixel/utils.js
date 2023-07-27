@@ -284,6 +284,7 @@ const eventHelpers = {
   getProdId: (productId, sku, id) => productId || sku || id,
   getProdName: (productName, name) => productName || name || '',
   getFormattedRevenue: (revValue, value) => revValue || formatRevenue(value),
+  getEventName: (event) => (event === 'Product Viewed' ? 'ViewContent' : 'AddToCart'),
   getValue: (useValue, value, price) => (useValue ? value : formatRevenue(price)),
   isCustomEventNotMapped: (standardTo, legacyTo, event) =>
     !standardTo[event?.toLowerCase()] && !legacyTo[event?.toLowerCase()],

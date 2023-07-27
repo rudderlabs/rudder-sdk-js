@@ -178,7 +178,7 @@ class FacebookPixel {
         currency,
         value: revValue,
       });
-    } else if (event === 'Product Viewed') {
+    } else if (event === 'Product Viewed' || event === 'Product Added') {
       const { contents, contentIds } = getProductContentAndId(prodId, quantity, price);
 
       const productInfo = {
@@ -193,7 +193,7 @@ class FacebookPixel {
 
       this.makeTrackSignalCall(
         self.pixelId,
-        'ViewContent',
+        eventHelpers.getEventName(event),
         merge(productInfo, payload),
         derivedEventID,
       );
@@ -201,30 +201,6 @@ class FacebookPixel {
         currency,
         value: productInfo.value,
       });
-    } else if (event === 'Product Added') {
-      const { contents, contentIds } = getProductContentAndId(prodId, quantity, price);
-
-      const productInfo = {
-        content_ids: contentIds,
-        content_type: getContentType(rudderElement, 'product', this.categoryToContent),
-        content_name: eventHelpers.getProdName(productName, name),
-        content_category: eventHelpers.getCategory(category),
-        currency,
-        value: eventHelpers.getValue(useValue, value, price),
-        contents,
-      };
-
-      this.makeTrackSignalCall(
-        self.pixelId,
-        'AddToCart',
-        merge(productInfo, payload),
-        derivedEventID,
-      );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
-        currency,
-        value: productInfo.value,
-      });
-      merge(productInfo, payload);
     } else if (event === 'Order Completed') {
       const contentType = getContentType(rudderElement, 'product', this.categoryToContent);
       const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);

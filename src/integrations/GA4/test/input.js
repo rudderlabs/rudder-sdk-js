@@ -4,6 +4,19 @@ const url = 'https://www.website.com/product/path';
 const imageUrl = 'https://www.website.com/product/path.png';
 const imageUrl1 = 'https://www.website.com/product/path.jpg';
 
+const product = {
+  product_id: '123',
+  sku: 'F15',
+  category: 'Games',
+  name: 'Game',
+  brand: 'Gamepro',
+  variant: '111',
+  price: 13.49,
+  quantity: 11,
+  coupon: 'DISC21',
+  position: 1,
+};
+
 rudderanalytics.track('Products Searched', {
   query: 'HDMI cable',
 });
@@ -88,16 +101,7 @@ rudderanalytics.track('Promotion Clicked', {
 });
 
 rudderanalytics.track('Product Clicked', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
+  ...product,
   url,
   image_url: imageUrl,
 });
@@ -119,31 +123,13 @@ rudderanalytics.track('Product Viewed', {
 });
 
 rudderanalytics.track('Product Added', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
+  ...product,
   url,
   image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Removed', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
+  ...product,
   url,
   image_url: imageUrl,
 });
