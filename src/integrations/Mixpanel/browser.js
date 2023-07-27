@@ -155,9 +155,15 @@ class Mixpanel {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,
     };
+
     if (this.persistence !== 'none') {
-      options.persistence_name = this.persistence;
+      options.persistence = this.persistence;
+      // TODO: need to introduce new ui setting for persistence_name
+      // options.persistence_name = this.persistence;
+    } else {
+      options.disable_persistence = true;
     }
+
     if (this.dataResidency == 'eu') {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = 'https://api-eu.mixpanel.com';
