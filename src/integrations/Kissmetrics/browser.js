@@ -40,14 +40,8 @@ class Kissmetrics {
   }
 
   isEnvMobile() {
-    return (
-      navigator.userAgent.match(/android/i) ||
-      navigator.userAgent.match(/blackberry/i) ||
-      navigator.userAgent.match(/iemobile/i) ||
-      navigator.userAgent.match(/opera mini/i) ||
-      navigator.userAgent.match(/ipad/i) ||
-      navigator.userAgent.match(/iphone|ipod/i)
-    );
+    const mobileRegex = /android|blackberry|iemobile|opera mini|ipad|iphone|ipod/i;
+    return mobileRegex.test(navigator.userAgent);
   }
 
   // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js

@@ -98,7 +98,7 @@ class Clevertap {
 
     const { message } = rudderElement;
     const { context } = message;
-    if (!(context && context.traits)) {
+    if (!context?.traits) {
       logger.error('user traits not present');
       return;
     }

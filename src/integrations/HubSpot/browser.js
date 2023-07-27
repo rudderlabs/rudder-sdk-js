@@ -55,7 +55,8 @@ class HubSpot {
     logger.debug(traitsValue);
 
     if (typeof window !== 'undefined') {
-      const _hsq = Object.assign((window._hsq = window._hsq || []));
+      window._hsq = window._hsq || [];
+      const { _hsq } = window;
       _hsq.push(['identify', traitsValue]);
     }
   }
@@ -65,7 +66,8 @@ class HubSpot {
 
     const { properties } = rudderElement.message;
     const { revenue, value } = properties;
-    const _hsq = Object.assign((window._hsq = window._hsq || []));
+    window._hsq = window._hsq || [];
+    const { _hsq } = window;
 
     const eventValue = {
       id: rudderElement.message.event,
@@ -82,7 +84,8 @@ class HubSpot {
 
     const { properties } = rudderElement.message;
     const { path } = properties;
-    const _hsq = Object.assign((window._hsq = window._hsq || []));
+    window._hsq = window._hsq || [];
+    const { _hsq } = window;
     if (path) {
       _hsq.push(['setPath', path]);
     }

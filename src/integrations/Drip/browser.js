@@ -57,7 +57,7 @@ class Drip {
 
     const { message } = rudderElement;
     const { context } = message;
-    if (!context || !context.traits) {
+    if (!context?.traits) {
       logger.error('user context or traits not present');
       return;
     }

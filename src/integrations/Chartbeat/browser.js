@@ -16,12 +16,11 @@ class Chartbeat {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
-    this._sf_async_config = Object.assign(
-      (window._sf_async_config = window._sf_async_config || {}),
-    );
+    window._sf_async_config = window._sf_async_config || {};
     window._sf_async_config.useCanonical = true;
     window._sf_async_config.uid = config.uid;
     window._sf_async_config.domain = config.domain;
+    this._sf_async_config = window._sf_async_config;
     this.isVideo = !!config.video;
     this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
     this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
@@ -91,7 +90,8 @@ class Chartbeat {
     if (author) window._sf_async_config.authors = author;
     if (title) window._sf_async_config.title = title;
 
-    const _cbq = Object.assign((window._cbq = window._cbq || []));
+    window._cbq = window._cbq || [];
+    const { _cbq } = window;
 
     Object.keys(properties)
       .filter((key) => this.subscriberEngagementKeys.includes(key))

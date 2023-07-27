@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
@@ -36,11 +37,7 @@ class MoEngage {
   init() {
     const self = this;
     logger.debug('===in init MoEngage===');
-    // loading the script for moengage web sdk
-    /* eslint-disable */
     loadNativeSdk();
-    /* eslint-enable */
-
     // setting the region if us then not needed.
     if (this.region !== 'US') {
       self.moeClient = window.moe({
@@ -57,15 +54,15 @@ class MoEngage {
     this.initialUserId = this.analytics.getUserId();
   }
 
-  isLoaded = () => {
+  isLoaded() {
     logger.debug('in MoEngage isLoaded');
     return !!window.moeBannerText;
-  };
+  }
 
-  isReady = () => {
+  isReady() {
     logger.debug('in MoEngage isReady');
     return !!window.moeBannerText;
-  };
+  }
 
   track(rudderElement) {
     logger.debug('inside track');
@@ -75,10 +72,8 @@ class MoEngage {
       return;
     }
     const { event, properties, userId } = rudderElement.message;
-    if (userId) {
-      if (this.initialUserId !== userId) {
-        this.reset();
-      }
+    if (userId && this.initialUserId !== userId) {
+      this.reset();
     }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
@@ -101,10 +96,10 @@ class MoEngage {
 
   identify(rudderElement) {
     const self = this;
-    const { userId } = rudderElement.message;
+    const { userId, context } = rudderElement.message;
     let traits = null;
-    if (rudderElement.message.context) {
-      traits = rudderElement.message.context.traits;
+    if (context) {
+      traits = context.traits;
     }
     // check if user id is same or not
     if (this.initialUserId !== userId) {
@@ -117,7 +112,7 @@ class MoEngage {
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
     if (traits) {
-      each(function add(value, key) {
+      each((value, key) => {
         // check if name is present
         if (key === 'name') {
           self.moeClient.add_user_name(value);
