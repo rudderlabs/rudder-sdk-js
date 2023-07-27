@@ -352,7 +352,7 @@ class Analytics {
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
-        }, 100);
+        }, 1);
 
         setTimeout(() => {
           clearInterval(interval);
