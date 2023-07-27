@@ -1,38 +1,16 @@
-/* eslint-disable no-continue */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable block-scoped-var */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-multi-assign */
-/* eslint-disable prefer-template */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable no-undef */
-/* eslint-disable camelcase */
-/* eslint-disable no-shadow */
-/* eslint-disable no-plusplus */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable no-param-reassign */
-/* eslint-disable eqeqeq */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable func-names */
-/* eslint-disable no-var */
-/* eslint-disable yoda */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable vars-on-top */
-/* eslint-disable one-var */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
+  mapTraits,
+  unionArrays,
+  formatTraits,
+  extendTraits,
+  extractTraits,
   parseConfigArray,
   inverseObjectArrays,
-  extractTraits,
-  unionArrays,
-  extendTraits,
-  mapTraits,
-  formatTraits,
+  getConsolidatedPageCalls,
 } from './util';
 import { NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -53,12 +31,7 @@ class Mixpanel {
     this.eventIncrements = config.eventIncrements || [];
     this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
-    this.consolidatedPageCalls = Object.prototype.hasOwnProperty.call(
-      config,
-      'consolidatedPageCalls',
-    )
-      ? config.consolidatedPageCalls
-      : true;
+    this.consolidatedPageCalls = getConsolidatedPageCalls(config);
     this.trackCategorizedPages = config.trackCategorizedPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.groupKeySettings = config.groupKeySettings || [];
@@ -92,7 +65,7 @@ class Mixpanel {
     if (this.persistence !== 'none') {
       options.persistence_name = this.persistence;
     }
-    if (this.dataResidency == 'eu') {
+    if (this.dataResidency === 'eu') {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = 'https://api-eu.mixpanel.com';
     }
@@ -103,12 +76,12 @@ class Mixpanel {
     logger.debug('in Mixpanel isLoaded');
     logger.debug(!!(window.mixpanel && window.mixpanel.config));
     window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
-    return !!(window.mixpanel && window.mixpanel.config);
+    return !!window?.mixpanel?.config;
   }
 
   isReady() {
     logger.debug('in Mixpanel isReady');
-    return !!(window.mixpanel && window.mixpanel.config);
+    return !!window?.mixpanel?.config;
   }
 
   /**
@@ -122,12 +95,11 @@ class Mixpanel {
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
 
-    // eslint-disable-next-line camelcase
-    const user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+    const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
-    if (user_id) window.mixpanel.identify(user_id);
+    if (userId) window.mixpanel.identify(userId);
 
     // name tag
     const nametag = email || username;
@@ -139,10 +111,7 @@ class Mixpanel {
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
     const traitsToSet = {};
-    for (const key in traits) {
-      if (!traits.hasOwnProperty(key)) continue;
-
-      const trait = traits[key];
+    Object.entries(traits).forEach(([key, trait]) => {
       if (Array.isArray(trait) && trait.length > 0) {
         traitsToUnion[key] = trait;
         // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
@@ -154,7 +123,7 @@ class Mixpanel {
       } else {
         traitsToSet[key] = trait;
       }
-    }
+    });
 
     if (this.setAllTraitsByDefault) {
       window.mixpanel.register(traits);
@@ -221,7 +190,7 @@ class Mixpanel {
     const propIncrements = parseConfigArray(this.propIncrements, 'property');
     const event = get(message, 'event');
     const revenue = get(message, 'properties.revenue') || get(message, 'properties.total');
-    const sourceName = this.sourceName;
+    const { sourceName, people } = this;
     let props = get(message, 'properties');
     if (isNotEmpty(props)) {
       props = inverseObjectArrays(props);
@@ -239,20 +208,19 @@ class Mixpanel {
     delete props.token;
 
     // Mixpanel People operations
-    if (this.people) {
+    if (people) {
       // increment event count, check if the current event exists in eventIncrements
       if (eventIncrements.indexOf(event) !== -1) {
         window.mixpanel.people.increment(event);
-        window.mixpanel.people.set('Last ' + event, new Date());
+        window.mixpanel.people.set(`Last ${event}`, new Date());
       }
       // increment property counts
-      // eslint-disable-next-line guard-for-in
-      for (const key in props) {
-        const prop = props[key];
-        if (prop && propIncrements.indexOf(key) != -1) {
+      Object.entries(props).forEach(([key, prop]) => {
+        if (prop && propIncrements.includes(key)) {
           window.mixpanel.people.increment(key, prop);
         }
-      }
+      });
+
       // track revenue
       if (revenue) {
         window.mixpanel.people.track_charge(revenue);

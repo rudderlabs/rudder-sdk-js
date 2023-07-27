@@ -162,12 +162,18 @@ const mapTraits = (arr) => {
   return ret;
 };
 
+const getConsolidatedPageCalls = (config) =>
+  Object.prototype.hasOwnProperty.call(config, 'consolidatedPageCalls')
+    ? config.consolidatedPageCalls
+    : true;
+
 export {
-  parseConfigArray,
-  inverseObjectArrays,
-  extractTraits,
+  mapTraits,
   unionArrays,
   extendTraits,
-  mapTraits,
   formatTraits,
+  extractTraits,
+  parseConfigArray,
+  inverseObjectArrays,
+  getConsolidatedPageCalls,
 };
