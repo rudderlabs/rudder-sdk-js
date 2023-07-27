@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
-import md5 from 'md5';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { flattenJsonPayload } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { flattenJsonPayload } from '../../utils/utils';
+import { processNameField, processCompanyField, processIdentityVerificationProps } from './utils';
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -33,33 +33,10 @@ class INTERCOM {
   }
 
   identify(rudderElement) {
-    const rawPayload = {};
     const { context, userId } = rudderElement.message;
-
     const identityVerificationProps = context.Intercom || null;
-
-    if (identityVerificationProps) {
-      // user hash
-      const userHash = context.Intercom.user_hash || null;
-
-      if (userHash) {
-        rawPayload.user_hash = userHash;
-      }
-
-      // hide default launcher
-      const hideDefaultLauncher = context.Intercom.hideDefaultLauncher || null;
-
-      if (hideDefaultLauncher) {
-        rawPayload.hide_default_launcher = hideDefaultLauncher;
-      }
-    }
-
-    // populate name if firstname and lastname is populated
-    // if name is not set
-    const { firstName, lastName, name } = context.traits;
-    if (!name && (firstName || lastName)) {
-      context.traits.name = `${firstName} ${lastName}`.trim();
-    }
+    const rawPayload = processIdentityVerificationProps(identityVerificationProps);
+    context.traits.name = processNameField(context.traits);
 
     // map rudderPayload to desired
     Object.keys(context.traits).forEach((field) => {
@@ -75,38 +52,13 @@ class INTERCOM {
             rawPayload[field] = context.traits[field];
             break;
           case 'company':
-            {
-              const companies = [];
-              const company = {};
-              // special handling string
-              if (typeof context.traits[field] === 'string') {
-                company.company_id = md5(context.traits[field]);
-              }
-              const companyFields =
-                (typeof context.traits[field] === 'object' && Object.keys(context.traits[field])) ||
-                [];
-              companyFields.forEach((key) => {
-                if (companyFields.includes(key)) {
-                  if (key !== 'id') {
-                    company[key] = context.traits[field][key];
-                  } else {
-                    company.company_id = context.traits[field][key];
-                  }
-                }
-              });
-
-              if (typeof context.traits[field] === 'object' && !companyFields.includes('id')) {
-                company.company_id = md5(company.name);
-              }
-
-              companies.push(company);
-              rawPayload.companies = companies;
-            }
+            rawPayload.companies = [processCompanyField(value)];
             break;
           case 'avatar':
-            rawPayload.avatar = {};
-            rawPayload.avatar.type = 'avatar';
-            rawPayload.avatar.image_url = value;
+            rawPayload.avatar = {
+              type: 'avatar',
+              image_url: value,
+            };
             break;
           default:
             rawPayload[field] = context.traits[field];
