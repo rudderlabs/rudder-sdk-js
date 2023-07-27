@@ -17,6 +17,27 @@ const product = {
   position: 1,
 };
 
+const products = [
+  {
+    product_id: '123',
+    sku: 'G-32',
+    name: 'Monopoly',
+    price: 14,
+    quantity: 1,
+    category: 'Games',
+    url,
+    image_url: imageUrl1,
+  },
+  {
+    product_id: '345',
+    sku: 'F-32',
+    name: 'UNO',
+    price: 3.45,
+    quantity: 2,
+    category: 'Games',
+  },
+];
+
 rudderanalytics.track('Products Searched', {
   query: 'HDMI cable',
 });
@@ -168,26 +189,7 @@ rudderanalytics.track('Checkout Started', {
   discount: 1.5,
   coupon: 'ImagePro',
   currency: 'USD',
-  products: [
-    {
-      product_id: '123',
-      sku: 'G-32',
-      name: 'Monopoly',
-      price: 14,
-      quantity: 1,
-      category: 'Games',
-      url,
-      image_url: imageUrl1,
-    },
-    {
-      product_id: '345',
-      sku: 'F-32',
-      name: 'UNO',
-      price: 3.45,
-      quantity: 2,
-      category: 'Games',
-    },
-  ],
+  products,
 });
 
 rudderanalytics.track('Payment Info Entered', {
@@ -207,26 +209,7 @@ rudderanalytics.track('Order Completed', {
   discount: 1.5,
   coupon: 'ImagePro',
   currency: 'USD',
-  products: [
-    {
-      product_id: '123',
-      sku: 'G-32',
-      name: 'Monopoly',
-      price: 14,
-      quantity: 1,
-      category: 'Games',
-      url,
-      image_url: imageUrl1,
-    },
-    {
-      product_id: '345',
-      sku: 'F-32',
-      name: 'UNO',
-      price: 3.45,
-      quantity: 2,
-      category: 'Games',
-    },
-  ],
+  products,
 });
 
 rudderanalytics.track('Order Refunded', {
