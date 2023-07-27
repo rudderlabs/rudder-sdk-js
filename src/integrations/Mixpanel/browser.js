@@ -23,7 +23,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import isEmpty from 'lodash.isempty';
 import logger from '../../utils/logUtil';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
@@ -207,7 +206,7 @@ class Mixpanel {
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
-    if (!isEmpty(user_id)) window.mixpanel.identify(user_id);
+    if (isNotEmpty(user_id)) window.mixpanel.identify(user_id);
 
     // name tag
     const nametag = email || username;
