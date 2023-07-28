@@ -13,9 +13,8 @@
 function getDestinationExternalID(message, type) {
   let externalIdArray = null;
   let destinationExternalId = null;
-  const { context } = message;
-  if (context?.externalId) {
-    externalIdArray = context.externalId;
+  if (message?.context?.externalId) {
+    externalIdArray = message.context.externalId;
   }
   if (externalIdArray) {
     externalIdArray.forEach((extIdObj) => {

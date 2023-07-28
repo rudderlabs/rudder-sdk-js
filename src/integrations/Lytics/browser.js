@@ -42,7 +42,6 @@ class Lytics {
 
   identify(rudderElement) {
     logger.debug('in Lytics identify');
-    // eslint-disable-next-line camelcase
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     const { traits } = rudderElement.message.context;
     let payload = { user_id: userId, ...traits };

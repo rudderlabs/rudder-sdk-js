@@ -94,7 +94,11 @@ class Chartbeat {
     const { _cbq } = window;
 
     Object.keys(properties)
-      .filter((key) => this.subscriberEngagementKeys.includes(key))
+      .filter(
+        (key) =>
+          Object.prototype.hasOwnProperty.call(properties, key) &&
+          this.subscriberEngagementKeys.includes(key),
+      )
       .forEach((key) => {
         _cbq.push([key, properties[key]]);
       });

@@ -35,15 +35,17 @@ class Lemnisk {
 
   identify(rudderElement) {
     logger.debug('===In Lemnisk Marketing Automation identify===');
+
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
       logger.debug('[Lemnisk] identify:: user id is required');
       return;
     }
-    const { context } = rudderElement.message;
-    const { traits } = context;
+    const { message } = rudderElement;
+    const context = message?.context || {};
+    const traits = context?.traits || {};
     traits.isRudderEvents = true;
-    window.lmSMTObj.identify(rudderElement.message.userId, traits);
+    window.lmSMTObj.identify(userId, traits);
   }
 
   track(rudderElement) {

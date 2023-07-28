@@ -34,22 +34,24 @@ class INTERCOM {
 
   identify(rudderElement) {
     const { context, userId } = rudderElement.message;
-    const identityVerificationProps = context.Intercom || null;
+    const { traits, Intercom } = context;
+
+    const identityVerificationProps = Intercom || null;
     const rawPayload = processIdentityVerificationProps(identityVerificationProps);
-    context.traits.name = processNameField(context.traits);
+    traits.name = processNameField(traits);
 
     // map rudderPayload to desired
-    Object.keys(context.traits).forEach((field) => {
-      if (context.traits[field]) {
-        const value = context.traits[field];
+    Object.keys(traits).forEach((field) => {
+      if (Object.prototype.hasOwnProperty.call(traits, field)) {
+        const value = traits[field];
         switch (field) {
           case 'createdAt':
             rawPayload.created_at = value;
-            rawPayload[field] = context.traits[field];
+            rawPayload[field] = value;
             break;
           case 'anonymousId':
             rawPayload.user_id = value;
-            rawPayload[field] = context.traits[field];
+            rawPayload[field] = value;
             break;
           case 'company':
             rawPayload.companies = [processCompanyField(value)];
@@ -61,7 +63,7 @@ class INTERCOM {
             };
             break;
           default:
-            rawPayload[field] = context.traits[field];
+            rawPayload[field] = value;
             break;
         }
       }
@@ -72,7 +74,9 @@ class INTERCOM {
 
   track(rudderElement) {
     const rawPayload = {};
-    const { event, userId, anonymousId, properties, originalTimestamp } = rudderElement.message;
+    const { message } = rudderElement;
+    const { event, userId, anonymousId, originalTimestamp } = message;
+    const properties = message?.properties || {};
 
     if (event) {
       rawPayload.event_name = event;

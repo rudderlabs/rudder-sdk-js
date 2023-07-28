@@ -39,14 +39,14 @@ class HubSpot {
     const traitsValue = {};
 
     Object.keys(traits).forEach((key) => {
-      if (traits[key]) {
+      if (Object.prototype.hasOwnProperty.call(traits, key)) {
         const value = traits[key];
         traitsValue[key] = value instanceof Date ? value.getTime() : value;
       }
     });
 
     Object.keys(userProperties).forEach((key) => {
-      if (userProperties[key]) {
+      if (Object.prototype.hasOwnProperty.call(userProperties, key)) {
         const value = userProperties[key];
         traitsValue[key] = value;
       }
@@ -64,13 +64,13 @@ class HubSpot {
   track(rudderElement) {
     logger.debug('in HubSpotAnalyticsManager track');
 
-    const { properties } = rudderElement.message;
+    const { properties, event } = rudderElement.message;
     const { revenue, value } = properties;
     window._hsq = window._hsq || [];
     const { _hsq } = window;
 
     const eventValue = {
-      id: rudderElement.message.event,
+      id: event,
     };
     if (revenue || value) {
       eventValue.value = revenue || value;

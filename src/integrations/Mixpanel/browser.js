@@ -111,17 +111,20 @@ class Mixpanel {
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
     const traitsToSet = {};
-    Object.entries(traits).forEach(([key, trait]) => {
-      if (Array.isArray(trait) && trait.length > 0) {
-        traitsToUnion[key] = trait;
-        // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
-        // from mixpanel and manually unioning to it ourselves
-        const existingTrait = window.mixpanel.get_property(key);
-        if (existingTrait && Array.isArray(existingTrait)) {
-          traits[key] = unionArrays(existingTrait, trait);
+    Object.keys(traits).forEach((trait) => {
+      if (Object.prototype.hasOwnProperty.call(traits, trait)) {
+        const value = traits[trait];
+        if (Array.isArray(value) && value.length > 0) {
+          traitsToUnion[trait] = value;
+          // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
+          // from mixpanel and manually unioning to it ourselves
+          const existingTrait = window.mixpanel.get_property(trait);
+          if (existingTrait && Array.isArray(existingTrait)) {
+            traits[trait] = unionArrays(existingTrait, value);
+          }
+        } else {
+          traitsToSet[trait] = value;
         }
-      } else {
-        traitsToSet[key] = trait;
       }
     });
 
@@ -215,9 +218,10 @@ class Mixpanel {
         window.mixpanel.people.set(`Last ${event}`, new Date());
       }
       // increment property counts
-      Object.entries(props).forEach(([key, prop]) => {
-        if (prop && propIncrements.includes(key)) {
-          window.mixpanel.people.increment(key, prop);
+      Object.keys(props).forEach((prop) => {
+        const value = props[prop];
+        if (value && propIncrements.includes(prop)) {
+          window.mixpanel.people.increment(prop, value);
         }
       });
 

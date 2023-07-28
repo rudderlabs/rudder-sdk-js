@@ -281,6 +281,7 @@ const getProductListViewedEventParams = (properties) => {
 const eventHelpers = {
   getCategory: (category) => category || '',
   getCurrency: (currency) => currency || 'USD',
+  getProperties: (message) => message?.properties || {},
   getProdId: (productId, sku, id) => productId || sku || id,
   getProdName: (productName, name) => productName || name || '',
   getFormattedRevenue: (revValue, value) => revValue || formatRevenue(value),

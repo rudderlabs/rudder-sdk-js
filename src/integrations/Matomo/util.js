@@ -119,7 +119,7 @@ const trackContentInteraction = (properties) => {
  */
 const makeACall = (value, message) => {
   const { context } = message;
-  const properties = message.properties || {};
+  const properties = message?.properties || {};
 
   value.forEach((v) => {
     switch (v) {
@@ -355,7 +355,7 @@ const handleGenericTrackEvent = (event, properties) => {
 const ecommerceEventsMapping = (event, message) => {
   let products;
 
-  const properties = message.properties || {};
+  const properties = message?.properties || {};
   if (properties) {
     products = properties.products;
   }

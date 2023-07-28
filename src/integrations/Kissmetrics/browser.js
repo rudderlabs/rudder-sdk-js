@@ -55,8 +55,8 @@ class Kissmetrics {
     let ret = {};
 
     Object.keys(obj).forEach((key) => {
-      const value = obj[key];
-      if (value) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = obj[key];
         if (is.date(value)) {
           // convert date to unix
           ret[key] = this.toUnixTimestamp(value);
@@ -103,7 +103,7 @@ class Kissmetrics {
     function step(object, prev) {
       // eslint-disable-next-line no-restricted-syntax
       for (const key in object) {
-        if (object[key]) {
+        if (Object.prototype.hasOwnProperty.call(object, key)) {
           const value = object[key];
           const isarray = safe && is.array(value);
           const type = Object.prototype.toString.call(value);
@@ -117,7 +117,7 @@ class Kissmetrics {
           }
 
           Object.keys(value).forEach((valueKey) => {
-            if (value[valueKey]) {
+            if (Object.prototype.hasOwnProperty.call(value, valueKey)) {
               arr.push(valueKey);
             }
           });

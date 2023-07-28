@@ -81,7 +81,7 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            logger.debug('FullStory unavailable, window["_fs_namespace"] must be defined');
+            logger.error('FullStory unavailable, window["_fs_namespace"] must be defined');
             return undefined;
           }
           return api ? window[window._fs_namespace][api] : window[window._fs_namespace];

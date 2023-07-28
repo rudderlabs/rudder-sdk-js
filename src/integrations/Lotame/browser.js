@@ -107,10 +107,11 @@ class Lotame {
   compileUrl(map, url) {
     let compiledUrl = url;
     Object.keys(map).forEach((key) => {
-      if (map[key]) {
+      if (Object.prototype.hasOwnProperty.call(map, key)) {
+        const value = map[key];
         const replaceKey = `{{${key}}}`;
         const regex = new RegExp(replaceKey, 'gi');
-        compiledUrl = compiledUrl.replace(regex, map[key]);
+        compiledUrl = compiledUrl.replace(regex, value);
       }
     });
     return compiledUrl;

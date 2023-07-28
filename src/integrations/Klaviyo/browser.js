@@ -139,15 +139,15 @@ class Klaviyo {
 
   track(rudderElement) {
     const { message } = rudderElement;
-    const { event, properties } = message;
+    const { event } = message;
+    const properties = message?.properties || {};
 
     if (this.ecomEvents.includes(event)) {
       let payload = ecommEventPayload(this.eventNameMapping[event], message);
       const eventName = this.eventNameMapping[event];
-      let customProperties = {};
-      customProperties = extractCustomFields(
+      const customProperties = extractCustomFields(
         message,
-        customProperties,
+        {},
         ['properties'],
         this.ecomExclusionKeys,
       );
@@ -169,7 +169,7 @@ class Klaviyo {
 
   page(rudderElement) {
     const { message } = rudderElement;
-    const { properties } = rudderElement;
+    const properties = message?.properties || {};
     if (this.sendPageAsTrack) {
       let eventName;
       if (properties?.category && message.name) {

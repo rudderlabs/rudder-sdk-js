@@ -55,9 +55,11 @@ class Keen {
   identify(rudderElement) {
     logger.debug('in Keen identify');
 
-    let { userId, properties } = rudderElement.message;
-    const { context, anonymousId } = rudderElement.message;
+    const { message } = rudderElement;
+    let { userId } = message;
+    const { context, anonymousId } = message;
     const { traits } = context;
+    let properties = message?.properties || {};
 
     userId = userId || anonymousId;
     properties.user = {

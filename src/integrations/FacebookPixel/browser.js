@@ -115,7 +115,8 @@ class FacebookPixel {
 
   track(rudderElement) {
     const self = this;
-    const { event, properties } = rudderElement.message;
+    const { event } = rudderElement.message;
+    const properties = eventHelpers.getProperties(rudderElement.message);
     const {
       id,
       sku,

@@ -318,7 +318,7 @@ const getDeviceType = (userAgent) => {
 
   if (/iPad/.test(userAgent)) {
     deviceType = 't';
-  } else if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent)) {
+  } else if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(userAgent)) {
     deviceType = 'm';
   } else {
     deviceType = 'd';
