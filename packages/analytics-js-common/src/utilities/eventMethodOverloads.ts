@@ -229,7 +229,7 @@ const identifyArgumentsToCallOptions = (
   if (isDefined(payload.userId)) {
     payload.userId = tryStringify(payload.userId);
   } else {
-    delete payload.traits;
+    delete payload.userId;
   }
   if (isObjectLiteralAndNotNull(payload.traits)) {
     payload.traits = clone(payload.traits);
