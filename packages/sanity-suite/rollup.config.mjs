@@ -140,14 +140,6 @@ const getBuildConfig = (featureName) => ({
 
     warn(warning);
   },
-  external: [],
-  onwarn(warning, warn) {
-    if (warning.code === 'THIS_IS_UNDEFINED') {
-      return;
-    }
-
-    warn(warning);
-  },
   plugins: [
     replace({
       preventAssignment: true,
@@ -183,8 +175,6 @@ const getBuildConfig = (featureName) => ({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
     }),
-    json(),
-    nodePolyfills({ include: null }),
     babel({
       inputSourceMap: true,
       compact: true,
