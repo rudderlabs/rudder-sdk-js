@@ -10,7 +10,12 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  NO_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
 import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
 import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
@@ -70,30 +75,46 @@ class StoreManager implements IStoreManager {
    */
   initClientDataStore() {
     let storageType: StorageType | '' = '';
+    storageType = state.storage.type.value || '';
 
-    // First try setting the storage to cookie else to localstorage
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageType = COOKIE_STORAGE;
-    } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageType = LOCAL_STORAGE;
-    }
-    // TODO: fallback to in-memory storage if not other storage is available
-
-    // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
-    if (!storageType) {
-      this.logger?.error(STORAGE_UNAVAILABLE_ERROR(STORE_MANAGER));
-      return;
+    switch (storageType) {
+      case COOKIE_STORAGE:
+        if (!getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          storageType = MEMORY_STORAGE;
+        }
+        break;
+      case LOCAL_STORAGE:
+        if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          storageType = MEMORY_STORAGE;
+        }
+        break;
+      case MEMORY_STORAGE:
+        break;
+      case NO_STORAGE:
+        break;
+      default:
+        // First try setting the storage to cookie else to localstorage
+        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          storageType = COOKIE_STORAGE;
+        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          storageType = LOCAL_STORAGE;
+        } else {
+          storageType = MEMORY_STORAGE;
+        }
+        break;
     }
 
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    this.setStore({
-      id: CLIENT_DATA_STORE_NAME,
-      name: CLIENT_DATA_STORE_NAME,
-      isEncrypted: true,
-      noCompoundKey: true,
-      type: storageType,
-    });
+    if (storageType !== NO_STORAGE) {
+      this.setStore({
+        id: CLIENT_DATA_STORE_NAME,
+        name: CLIENT_DATA_STORE_NAME,
+        isEncrypted: true,
+        noCompoundKey: true,
+        type: storageType,
+      });
+    }
   }
 
   /**

@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import {
   isApiKeyValid,
   getGlobalBugsnagLibInstance,
@@ -276,7 +277,10 @@ describe('Bugsnag utilities', () => {
     }
 
     class MockErrorHandler implements IErrorHandler {
+      init = jest.fn();
       onError = jest.fn();
+      leaveBreadcrumb = jest.fn();
+      notifyError = jest.fn();
     }
 
     const mockLogger = new MockLogger();

@@ -306,7 +306,7 @@ describe('Event Manager - Utilities', () => {
         referrer: 'https://www.google.com/test',
       };
 
-      const enrichedEvent = getEnrichedEvent(event, options, pageProps);
+      const enrichedEvent = getEnrichedEvent(event, options, undefined, pageProps);
 
       expect(enrichedEvent).toEqual({
         type: 'page',
@@ -1023,7 +1023,7 @@ describe('Event Manager - Utilities', () => {
         anonymousId: 'modified_anon_id',
       };
 
-      const enrichedEvent = getEnrichedEvent(rudderEvent, options, pageProperties);
+      const enrichedEvent = getEnrichedEvent(rudderEvent, options, undefined, pageProperties);
 
       expect(enrichedEvent).toEqual({
         event: 'test_event',

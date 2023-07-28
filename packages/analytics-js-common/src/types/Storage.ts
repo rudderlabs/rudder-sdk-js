@@ -1,3 +1,5 @@
+import { StorageType } from './Store';
+
 export enum StorageEncryptionVersion {
   Legacy = 'legacy',
   V3 = 'v3', // default
@@ -10,4 +12,5 @@ export type StorageEncryption = {
 export type StorageOpts = {
   encryption?: StorageEncryption;
   migrate?: boolean;
+  type?: StorageType;
 };

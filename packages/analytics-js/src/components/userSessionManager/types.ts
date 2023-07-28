@@ -5,7 +5,7 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 
 export interface IUserSessionManager {
   store?: IStore;
-  init(storage: IStore): void;
+  init(storage: IStore | undefined): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;
   refreshSession(): void;

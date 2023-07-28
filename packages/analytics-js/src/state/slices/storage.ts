@@ -4,6 +4,7 @@ import { StorageState } from '@rudderstack/analytics-js-common/types/Application
 const storageState: StorageState = {
   encryptionPluginName: signal(undefined),
   migrate: signal(false),
+  type: signal(undefined),
 };
 
 export { storageState };

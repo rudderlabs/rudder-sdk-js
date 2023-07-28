@@ -22,6 +22,7 @@ import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
 } from '@rudderstack/analytics-js/constants/logMessages';
+import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,
@@ -229,16 +230,15 @@ const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
 const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
   options?: Nullable<ApiOptions>,
+  traits?: Nullable<ApiObject>,
   pageProps?: ApiObject,
   logger?: ILogger,
 ): RudderEvent => {
   const commonEventData = {
-    // Type casting to string as the user session manager will take care of initializing the value
-    anonymousId: state.session.anonymousUserId.value as string,
     channel: CHANNEL,
     context: {
       traits: clone(state.session.userTraits.value),
-      sessionId: state.session.sessionInfo.value.id,
+      sessionId: state.session.sessionInfo.value.id || undefined,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
@@ -256,12 +256,31 @@ const getEnrichedEvent = (
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: DEFAULT_INTEGRATIONS_CONFIG,
     messageId: generateUUID(),
-    userId: state.session.userId.value,
+    userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
+  if (state.storage.type.value === NO_STORAGE) {
+    // Generate new anonymous id for each request
+    commonEventData.anonymousId = generateUUID();
+    if (commonEventData.context) {
+      commonEventData.context.anonymousTracking = true;
+    }
+  } else {
+    // Type casting to string as the user session manager will take care of initializing the value
+    commonEventData.anonymousId = state.session.anonymousUserId.value as string;
+  }
+
+  if (rudderEvent.type === RudderEventType.Identify && commonEventData.context) {
+    commonEventData.context.traits = traits
+      ? mergeDeepRight(traits, clone(state.session.userTraits.value) as ApiObject)
+      : clone(state.session.userTraits.value);
+  }
+
   if (rudderEvent.type === RudderEventType.Group) {
-    commonEventData.groupId = state.session.groupId.value;
-    commonEventData.traits = clone(state.session.groupTraits.value);
+    commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
+    commonEventData.traits = traits
+      ? mergeDeepRight(traits, clone(state.session.groupTraits.value) as ApiObject)
+      : clone(state.session.groupTraits.value);
   }
 
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;

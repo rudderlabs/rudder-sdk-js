@@ -100,22 +100,6 @@ describe('StoreManager', () => {
       expect(storeManager.stores).toHaveProperty('clientData');
     });
 
-    it('should log an error if neither cookie nor local storage is available', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: false,
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
-
-      storeManager.initClientDataStore();
-
-      expect(storeManager.stores).not.toHaveProperty('clientData');
-      expect(storeManager.logger?.error).toHaveBeenCalledTimes(1);
-    });
-
     describe('Stores', () => {
       it('should set store', () => {
         storeManager.setStore({

@@ -113,6 +113,9 @@ class ConfigManager implements IConfigManager {
 
         // Set consent manager plugin name in state
         state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+
+        // set storage type in state
+        state.storage.type.value = state.loadOptions.value.storage?.type;
       });
     } catch (err) {
       const issue = 'Failed to load the SDK';

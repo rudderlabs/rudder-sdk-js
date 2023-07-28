@@ -43,7 +43,7 @@ class RudderEventFactory {
       type: RudderEventType.Page,
     };
 
-    return getEnrichedEvent(pageEvent, options, props, this.logger);
+    return getEnrichedEvent(pageEvent, options, undefined, props, this.logger);
   }
 
   /**
@@ -63,19 +63,24 @@ class RudderEventFactory {
       type: RudderEventType.Track,
     };
 
-    return getEnrichedEvent(trackEvent, options, undefined, this.logger);
+    return getEnrichedEvent(trackEvent, options, undefined, undefined, this.logger);
   }
 
   /**
    * Generate an 'identify' event based on the user-input fields
    * @param options API options
    */
-  generateIdentifyEvent(options?: Nullable<ApiOptions>): RudderEvent {
+  generateIdentifyEvent(
+    userId?: Nullable<string>,
+    traits?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+  ): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
+      userId,
       type: RudderEventType.Identify,
     };
 
-    return getEnrichedEvent(identifyEvent, options, undefined, this.logger);
+    return getEnrichedEvent(identifyEvent, options, traits, undefined, this.logger);
   }
 
   /**
@@ -94,7 +99,7 @@ class RudderEventFactory {
       type: RudderEventType.Alias,
     };
 
-    const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, this.logger);
+    const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, undefined, this.logger);
     // override the User ID from the API inputs
     enrichedEvent.userId = to ?? enrichedEvent.userId;
     return enrichedEvent;
@@ -104,12 +109,17 @@ class RudderEventFactory {
    * Generate a 'group' event based on the user-input fields
    * @param options API options
    */
-  generateGroupEvent(options?: Nullable<ApiOptions>): RudderEvent {
+  generateGroupEvent(
+    groupId?: Nullable<string>,
+    traits?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+  ): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
+      groupId,
       type: RudderEventType.Group,
     };
 
-    return getEnrichedEvent(groupEvent, options, undefined, this.logger);
+    return getEnrichedEvent(groupEvent, options, traits, undefined, this.logger);
   }
 
   /**
@@ -132,13 +142,13 @@ class RudderEventFactory {
         eventObj = this.generateTrackEvent(event.name as string, event.properties, event.options);
         break;
       case RudderEventType.Identify:
-        eventObj = this.generateIdentifyEvent(event.options);
+        eventObj = this.generateIdentifyEvent(event.userId, event.traits, event.options);
         break;
       case RudderEventType.Alias:
         eventObj = this.generateAliasEvent(event.to as Nullable<string>, event.from, event.options);
         break;
       case RudderEventType.Group:
-        eventObj = this.generateGroupEvent(event.options);
+        eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);
         break;
       default:
         // Do nothing

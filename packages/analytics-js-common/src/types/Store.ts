@@ -6,7 +6,12 @@ import { CookieSameSite } from './LoadOptions';
 
 export type StoreId = string;
 
-export type StorageType = 'localStorage' | 'sessionStorage' | 'memoryStorage' | 'cookieStorage';
+export type StorageType =
+  | 'localStorage'
+  | 'memoryStorage'
+  | 'cookieStorage'
+  | 'sessionStorage'
+  | 'none';
 
 export interface IStoreConfig {
   name: string;
