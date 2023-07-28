@@ -116,6 +116,9 @@ const pageArgumentsToCallOptions = (
     payload.name = category as string;
   }
 
+  // Rest of the code is just to clean up undefined values
+  // and set some proper defaults
+  // Also, to clone the incoming object type arguments
   if (!isDefined(payload.category)) {
     delete payload.category;
   }
@@ -132,6 +135,7 @@ const pageArgumentsToCallOptions = (
     delete payload.options;
   }
 
+  // add name and category to properties
   payload.properties = mergeDeepRight(
     isObjectLiteralAndNotNull(payload.properties as ApiObject)
       ? (payload.properties as ApiObject)
@@ -176,7 +180,11 @@ const trackArgumentsToCallOptions = (
     payload.callback = properties as ApiCallback;
   }
 
+  // Rest of the code is just to clean up undefined values
+  // and set some proper defaults
+  // Also, to clone the incoming object type arguments
   payload.properties = isDefinedAndNotNull(payload.properties) ? clone(payload.properties) : {};
+
   if (isDefined(payload.options)) {
     payload.options = clone(payload.options);
   } else {
@@ -221,21 +229,27 @@ const identifyArgumentsToCallOptions = (
 
   if (isObjectLiteralAndNotNull(userId) || isNull(userId)) {
     // Explicitly set null to prevent resetting the existing value
+    // in the Analytics class
     payload.userId = null;
     payload.traits = userId as Nullable<ApiObject>;
     payload.options = traits as Nullable<ApiOptions>;
   }
 
+  // Rest of the code is just to clean up undefined values
+  // and set some proper defaults
+  // Also, to clone the incoming object type arguments
   if (isDefined(payload.userId)) {
     payload.userId = tryStringify(payload.userId);
   } else {
     delete payload.userId;
   }
+
   if (isObjectLiteralAndNotNull(payload.traits)) {
     payload.traits = clone(payload.traits);
   } else {
     delete payload.traits;
   }
+
   if (isDefined(payload.options)) {
     payload.options = clone(payload.options);
   } else {
@@ -293,6 +307,9 @@ const aliasArgumentsToCallOptions = (
     payload.options = to as Nullable<ApiOptions>;
   }
 
+  // Rest of the code is just to clean up undefined values
+  // and set some proper defaults
+  // Also, to clone the incoming object type arguments
   if (isDefined(payload.to)) {
     payload.to = tryStringify(payload.to);
   } else {
@@ -356,11 +373,15 @@ const groupArgumentsToCallOptions = (
     payload.callback = groupId as ApiCallback;
   } else if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
     // Explicitly set null to prevent resetting the existing value
+    // in the Analytics class
     payload.groupId = null;
     payload.traits = groupId as Nullable<ApiObject>;
     payload.options = !isFunction(traits) ? (traits as Nullable<ApiOptions>) : null;
   }
 
+  // Rest of the code is just to clean up undefined values
+  // and set some proper defaults
+  // Also, to clone the incoming object type arguments
   if (isDefined(payload.groupId)) {
     payload.groupId = tryStringify(payload.groupId);
   } else {
@@ -368,6 +389,7 @@ const groupArgumentsToCallOptions = (
   }
 
   payload.traits = isObjectLiteralAndNotNull(payload.traits) ? clone(payload.traits) : {};
+  
   if (isDefined(payload.options)) {
     payload.options = clone(payload.options);
   } else {
