@@ -784,7 +784,9 @@ class Analytics {
     const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
-    rudderElement.message.groupId = normalizedGroupId;
+    if (normalizedGroupId) {
+      rudderElement.message.groupId = normalizedGroupId;
+    }
 
     let curGroupTraits;
     if (clonedTraits) {
@@ -796,9 +798,11 @@ class Analytics {
       curGroupTraits = {};
     }
     this.storage.setGroupTraits(curGroupTraits);
-    rudderElement.message.traits = {
-      ...curGroupTraits,
-    };
+    if (curGroupTraits) {
+      rudderElement.message.traits = {
+        ...curGroupTraits,
+      };
+    }
 
     this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
