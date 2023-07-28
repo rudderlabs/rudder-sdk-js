@@ -83,8 +83,7 @@ class UserSession {
    * @param {number} timestamp
    * @returns boolean
    */
-  isValidSession(timestamp) {
-    const sessionInfo = this.getSafeSessionInfo();
+  isValidSession(sessionInfo, timestamp) {
     return timestamp <= sessionInfo.expiresAt;
   }
 
@@ -102,7 +101,7 @@ class UserSession {
   startAutoTracking(sessionInfo) {
     let finalSessionInfo = sessionInfo;
     const timestamp = Date.now();
-    if (!this.isValidSession(timestamp)) {
+    if (!this.isValidSession(finalSessionInfo, timestamp)) {
       finalSessionInfo = {
         id: timestamp, // set the current timestamp
         expiresAt: timestamp + this.timeout, // set the expiry time of the session
@@ -156,7 +155,7 @@ class UserSession {
   getSessionId() {
     const sessionInfo = this.getSafeSessionInfo();
     if (
-      (sessionInfo.autoTrack && this.isValidSession(Date.now())) ||
+      (sessionInfo.autoTrack && this.isValidSession(sessionInfo, Date.now())) ||
       sessionInfo.manualTrack
     ) {
       return sessionInfo.id;
@@ -181,7 +180,7 @@ class UserSession {
       // renew or create a new auto-tracking session
       if (sessionInfo.autoTrack) {
         const timestamp = Date.now();
-        if (!this.isValidSession(timestamp)) {
+        if (!this.isValidSession(sessionInfo, timestamp)) {
           sessionInfo = this.startAutoTracking(sessionInfo);
         } else {
           sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session

@@ -7,7 +7,8 @@ import store from 'storejs';
 class StoreLocal {
   constructor(options) {
     this.sOpts = {};
-    this.enabled = this.checkSupportAvailability();
+    this.isSupportAvailable = this.checkSupportAvailability();
+    this.enabled = this.isSupportAvailable;
     this.options(options);
   }
 

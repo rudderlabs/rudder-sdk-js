@@ -137,18 +137,18 @@ class Storage {
     };
   }
 
-  options(options = {}) {
-    const globalStorageType = get(options, 'storage.type');
+  options(opts = {}) {
+    const globalStorageType = opts.type;
 
     Object.keys(this.storageEntries).forEach((entry) => {
-      const storageType = globalStorageType || get(options, `storage.entries.${entry}.type`) || 'cookie';
+      const storageType = get(opts, `entries.${entry}.type`) || globalStorageType || 'cookie';
       let selectedStorage = null;
       switch (storageType) {
         case 'cookie':
           {
             if (Cookie.isSupportAvailable) {
               selectedStorage = Cookie;
-            } else if (Store.enabled) {
+            } else if (Store.isSupportAvailable) {
               selectedStorage = Store;
             } else {
               selectedStorage = defaultInMemoryStorage;
@@ -157,7 +157,7 @@ class Storage {
           }
         case 'localStorage':
           {
-            if (Store.enabled) {
+            if (Store.isSupportAvailable) {
               selectedStorage = Store;
             } else {
               selectedStorage = defaultInMemoryStorage;
@@ -170,15 +170,30 @@ class Storage {
         case 'none':
         default:
           selectedStorage = null;
+          break;
       }
       if (selectedStorage) {
-        selectedStorage.options(options);
+        selectedStorage.options(opts);
       }
       this.storageEntries[entry].storage = selectedStorage;
+      this.migrateDataFromPreviousStorage(selectedStorage, entry);
     });
+  }
 
-    // TODO: Migrate any existing data from previous storage
-    // TODO: Delete storage data if the storage type is memory or none
+  migrateDataFromPreviousStorage(curStorage, entry) {
+    // in the increasing order of preference
+    const storages = [Store, Cookie];
+    storages.forEach((stg) => {
+      if (stg !== curStorage && stg.isSupportAvailable) {
+        const value = stg.get(this.storageEntries[entry].key);
+        if (value) {
+          if (curStorage) {
+            curStorage.set(this.storageEntries[entry].key, value);
+          }
+          stg.remove(this.storageEntries[entry].key);
+        }
+      }
+    });
   }
 
   /**
@@ -332,7 +347,7 @@ class Storage {
          * First check the local storage for anonymousId
          * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
          */
-        if (Store.enabled) {
+        if (Store.isSupportAvailable) {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
         // If anonymousId is not present in local storage and check cookie support exists

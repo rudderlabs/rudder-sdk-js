@@ -15,6 +15,7 @@ class InMemoryStorage {
   constructor(options) {
     this.opts = { enabled: true };
     this.options(options ?? {});
+    this.isSupportAvailable = true;
   }
 
   options(inOpts) {

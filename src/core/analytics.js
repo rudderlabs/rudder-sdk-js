@@ -711,14 +711,18 @@ class Analytics {
     const clonedTraits = R.clone(traits);
     const clonedOptions = R.clone(options);
 
+    const curUserTraits = this.getUserTraits();
     if (clonedTraits) {
-      const curUserTraits = this.getUserTraits();
       for (const key in clonedTraits) {
         curUserTraits[key] = clonedTraits[key];
       }
-      this.storage.setUserTraits(curUserTraits);
     }
     const rudderElement = new RudderElementBuilder().setType('identify').build();
+    rudderElement.setUserId(normalisedUserId);
+    rudderElement.message.context.traits = {
+      ...curUserTraits,
+    };
+    this.storage.setUserTraits(curUserTraits);
 
     this.processAndSendDataToDestinations('identify', rudderElement, clonedOptions, callback);
   }
@@ -774,11 +778,13 @@ class Analytics {
     if (typeof groupId === 'function')
       (callback = groupId), (options = null), (traits = null), (groupId = this.getGroupId());
 
-    this.storage.setGroupId(getStringId(groupId));
+    const normalizedGroupId = getStringId(groupId);
+    this.storage.setGroupId(normalizedGroupId);
     const clonedTraits = R.clone(traits);
     const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
+    rudderElement.message.groupId = normalizedGroupId;
 
     let curGroupTraits;
     if (clonedTraits) {
@@ -790,6 +796,9 @@ class Analytics {
       curGroupTraits = {};
     }
     this.storage.setGroupTraits(curGroupTraits);
+    rudderElement.message.traits = {
+      ...curGroupTraits,
+    };
 
     this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
@@ -862,9 +871,11 @@ class Analytics {
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
       this.errorReporting.leaveBreadcrumb('Started sending data to destinations');
-      rudderElement.message.context.traits = {
-        ...this.getUserTraits(),
-      };
+      rudderElement.message.context.traits = rudderElement.message.context.traits
+      ? rudderElement.message.context.traits
+      : {
+          ...this.getUserTraits(),
+        };
 
       // logger.debug("anonymousId: ", this.storage.getAnonymousId())
       rudderElement.message.anonymousId = this.getAnonymousId();
@@ -874,10 +885,12 @@ class Analytics {
 
       if (type == 'group') {
         if (this.getGroupId()) {
-          rudderElement.message.groupId = this.getGroupId();
+          rudderElement.message.groupId = rudderElement.message.groupId
+          ? rudderElement.message.groupId : this.getGroupId();
         }
         if (this.getGroupTraits()) {
-          rudderElement.message.traits = {
+          rudderElement.message.traits = rudderElement.message.traits
+          ? rudderElement.message.traits : {
             ...this.getGroupTraits(),
           };
         }
