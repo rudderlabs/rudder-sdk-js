@@ -117,13 +117,13 @@ class Analytics {
    */
   initializeUser(anonymousIdOptions) {
     // save once for storing older values to encrypted
-    this.storage.setUserId(this.storage.getUserId() || '');
+    this.storage.setUserId(this.getUserId());
 
-    this.storage.setUserTraits(this.storage.getUserTraits() || {});
+    this.storage.setUserTraits(this.getUserTraits());
 
-    this.storage.setGroupId(this.storage.getGroupId() || '');
+    this.storage.setGroupId(this.getGroupId());
 
-    this.storage.setGroupTraits(this.storage.getGroupTraits() || {});
+    this.storage.setGroupTraits(this.getGroupTraits());
 
     this.storage.setAnonymousId(this.getAnonymousId(anonymousIdOptions));
   }
@@ -700,10 +700,10 @@ class Analytics {
     }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
-    if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.storage.getUserId());
+    if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.getUserId());
 
     const normalisedUserId = getStringId(userId);
-    if (normalisedUserId && this.storage.getUserId() && normalisedUserId !== this.storage.getUserId()) {
+    if (normalisedUserId && this.getUserId() && normalisedUserId !== this.getUserId()) {
       this.reset();
     }
     this.storage.setUserId(normalisedUserId);
@@ -712,7 +712,7 @@ class Analytics {
     const clonedOptions = R.clone(options);
 
     if (clonedTraits) {
-      const curUserTraits = this.storage.getUserTraits() || {};
+      const curUserTraits = this.getUserTraits();
       for (const key in clonedTraits) {
         curUserTraits[key] = clonedTraits[key];
       }
@@ -745,7 +745,7 @@ class Analytics {
     const rudderElement = new RudderElementBuilder().setType('alias').build();
 
     rudderElement.message.previousId =
-      getStringId(from) || (this.storage.getUserId() ? this.storage.getUserId() : this.getAnonymousId());
+      getStringId(from) || (this.getUserId() ? this.getUserId() : this.getAnonymousId());
     rudderElement.message.userId = getStringId(to);
     const clonedOptions = R.clone(options);
 
@@ -770,9 +770,9 @@ class Analytics {
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof groupId === 'object')
-      (options = traits), (traits = groupId), (groupId = this.storage.getGroupId());
+      (options = traits), (traits = groupId), (groupId = this.getGroupId());
     if (typeof groupId === 'function')
-      (callback = groupId), (options = null), (traits = null), (groupId = this.storage.getGroupId());
+      (callback = groupId), (options = null), (traits = null), (groupId = this.getGroupId());
 
     this.storage.setGroupId(getStringId(groupId));
     const clonedTraits = R.clone(traits);
@@ -782,7 +782,7 @@ class Analytics {
 
     let curGroupTraits;
     if (clonedTraits) {
-      curGroupTraits = this.storage.getGroupTraits() || {};
+      curGroupTraits = this.getGroupTraits();
       for (const key in clonedTraits) {
         curGroupTraits[key] = clonedTraits[key];
       }
@@ -859,30 +859,26 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      if (!this.storage.getAnonymousId()) {
-        this.setAnonymousId();
-      }
-
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
       this.errorReporting.leaveBreadcrumb('Started sending data to destinations');
       rudderElement.message.context.traits = {
-        ...(this.storage.getUserTraits() || {}),
+        ...this.getUserTraits(),
       };
 
       // logger.debug("anonymousId: ", this.storage.getAnonymousId())
-      rudderElement.message.anonymousId = this.storage.getAnonymousId();
+      rudderElement.message.anonymousId = this.getAnonymousId();
       rudderElement.message.userId = rudderElement.message.userId
         ? rudderElement.message.userId
-        : this.storage.getUserId();
+        : this.getUserId();
 
       if (type == 'group') {
-        if (this.storage.getGroupId()) {
-          rudderElement.message.groupId = this.storage.getGroupId();
+        if (this.getGroupId()) {
+          rudderElement.message.groupId = this.getGroupId();
         }
-        if (this.storage.getGroupTraits()) {
+        if (this.getGroupTraits()) {
           rudderElement.message.traits = {
-            ...this.storage.getGroupTraits(),
+            ...this.getGroupTraits(),
           };
         }
       }
@@ -1069,15 +1065,15 @@ class Analytics {
 
   getAnonymousId(anonymousIdOptions) {
     // if (!this.loaded) return;
-    const anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
+    let anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
     if (!anonymousId) {
-      this.setAnonymousId();
+      anonymousId = this.setAnonymousId();
     }
-    return this.storage.getAnonymousId();
+    return anonymousId;
   }
 
   getUserId() {
-    return this.storage.getUserId();
+    return this.storage.getUserId() || '';
   }
 
   getSessionId() {
@@ -1085,15 +1081,15 @@ class Analytics {
   }
 
   getUserTraits() {
-    return this.storage.getUserTraits();
+    return this.storage.getUserTraits() || {};
   }
 
   getGroupId() {
-    return this.storage.getGroupId();
+    return this.storage.getGroupId() || '';
   }
 
   getGroupTraits() {
-    return this.storage.getGroupTraits();
+    return this.storage.getGroupTraits() || {};
   }
 
   /**
@@ -1112,6 +1108,7 @@ class Analytics {
     const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
     const finalAnonId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(finalAnonId);
+    return finalAnonId;
   }
 
   isValidWriteKey(writeKey) {
