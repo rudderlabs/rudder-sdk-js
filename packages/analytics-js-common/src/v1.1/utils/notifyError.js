@@ -7,7 +7,7 @@ import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
  */
 const notifyError = error => {
   const errorReportingClient =
-    window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
+    window.RudderStackGlobals && window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
   if (errorReportingClient && error instanceof Error) {
     errorReportingClient.notify(error);
   }

@@ -140,9 +140,19 @@ const getBuildConfig = (featureName) => ({
 
     warn(warning);
   },
+  external: [],
+  onwarn(warning, warn) {
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return;
+    }
+
+    warn(warning);
+  },
   plugins: [
     replace({
       preventAssignment: true,
+      __PACKAGE_VERSION__: process.env.CDN_VERSION_PATH || defaultVersion,
+      __MODULE_TYPE__: process.env.TEST_PACKAGE,
       WRITE_KEY: process.env.WRITE_KEY,
       FEATURE_PRELOAD_BUFFER_WRITE_KEY: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
       FEATURE_EVENT_FILTERING_WRITE_KEY: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
@@ -173,7 +183,10 @@ const getBuildConfig = (featureName) => ({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
     }),
+    json(),
+    nodePolyfills({ include: null }),
     babel({
+      inputSourceMap: true,
       compact: true,
       babelHelpers: 'bundled',
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],

@@ -4,7 +4,7 @@ import {
 } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-window.rudderanalytics = {
+window.RudderStackGlobals = {
   errorReporting: {
     notify: jest.fn(),
   },
@@ -52,12 +52,12 @@ describe("Test group for 'handleError' method", () => {
     const errMessage = `sample error message`;
     const err = new Error(errMessage);
     handleError(err);
-    expect(window.rudderanalytics.errorReporting.notify).toHaveBeenCalledWith(err);
+    expect(window.RudderStackGlobals.errorReporting.notify).toHaveBeenCalledWith(err);
   });
   it('Should not notify for request failed errors', () => {
     const errMessage = `${FAILED_REQUEST_ERR_MSG_PREFIX} 504 for url: https://example.com`;
     const obj = new Error(errMessage);
     handleError(obj);
-    expect(window.rudderanalytics.errorReporting.notify).not.toHaveBeenCalled();
+    expect(window.RudderStackGlobals.errorReporting.notify).not.toHaveBeenCalled();
   });
 });

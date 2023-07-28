@@ -326,6 +326,8 @@ class Analytics implements IAnalytics {
     if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
       state.loadOptions.value.onLoaded(this);
     }
+
+    this.initialized = true;
   }
 
   /**

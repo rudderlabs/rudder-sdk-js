@@ -98,7 +98,7 @@ describe('JS SDK Service Worker', () => {
     setTimeout(() => {
       expect(requestBody.batch[0]).toEqual(expect.objectContaining(groupRequestPayload));
       done();
-    }, 1);
+    }, 10);
   });
 
   it('Should record alias', done => {
