@@ -15,8 +15,10 @@ class UserSession {
   constructor() {
     this.storage = Storage;
     this.timeout = DEFAULT_SESSION_TIMEOUT;
-    // Fetch session information from storage if any or enable auto track
-    this.sessionInfo = this.storage.getSessionInfo() || { autoTrack: true };
+  }
+
+  getSafeSessionInfo () {
+    return this.storage.getSessionInfo() || {};
   }
 
   /**
@@ -33,22 +35,24 @@ class UserSession {
        *
        * Depending on the use case, this.autoTrack is set to true/false.
        */
-      this.sessionInfo.autoTrack = !(
-        options?.sessions?.autoTrack === false || this.sessionInfo.manualTrack
+      // Fetch session information from storage if any or enable auto track
+      let sessionInfo = this.storage.getSessionInfo() || { autoTrack: true };
+      sessionInfo.autoTrack = !(
+        options?.sessions?.autoTrack === false || sessionInfo.manualTrack
       );
       /**
        * Validate "timeout" input. Should be provided in milliseconds.
        * Session timeout: By default, a session lasts until there's 30 minutes of inactivity,
        * but you can configure this limit using "timeout" load option
        */
-      if (options?.sessions && !isNaN(options.sessions.timeout)) {
+      if (options?.sessions && !Number.isNaN(options.sessions.timeout)) {
         const { timeout } = options.sessions;
         // In case user provides 0 as the timeout, auto session tracking will be disabled
         if (timeout === 0) {
           logger.warn(
             '[Session]:: Provided timeout value 0 will disable the auto session tracking feature.',
           );
-          this.sessionInfo.autoTrack = false;
+          sessionInfo.autoTrack = false;
         }
         // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
         // and will proceed with it
@@ -58,9 +62,9 @@ class UserSession {
         this.timeout = timeout;
       }
       // If auto session tracking is enabled start the session tracking
-      if (this.sessionInfo.autoTrack) {
-        this.startAutoTracking();
-      } else if (this.sessionInfo.autoTrack === false && !this.sessionInfo.manualTrack) {
+      if (sessionInfo.autoTrack) {
+        sessionInfo = this.startAutoTracking(sessionInfo);
+      } else if (sessionInfo.autoTrack === false && !sessionInfo.manualTrack) {
         /**
          * Use case:
          * By default user session is enabled which means storage will have session data.
@@ -80,7 +84,8 @@ class UserSession {
    * @returns boolean
    */
   isValidSession(timestamp) {
-    return timestamp <= this.sessionInfo.expiresAt;
+    const sessionInfo = this.getSafeSessionInfo();
+    return timestamp <= sessionInfo.expiresAt;
   }
 
   /**
@@ -94,16 +99,19 @@ class UserSession {
   /**
    * A function to check for existing session details and depending on that create a new session.
    */
-  startAutoTracking() {
+  startAutoTracking(sessionInfo) {
+    let finalSessionInfo = sessionInfo;
     const timestamp = Date.now();
     if (!this.isValidSession(timestamp)) {
-      this.sessionInfo = {};
-      this.sessionInfo.id = timestamp; // set the current timestamp
-      this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
-      this.sessionInfo.sessionStart = true;
-      this.sessionInfo.autoTrack = true;
+      finalSessionInfo = {
+        id: timestamp, // set the current timestamp
+        expiresAt: timestamp + this.timeout, // set the expiry time of the session
+        sessionStart: true,
+        autoTrack: true,
+      };
     }
-    this.storage.setSessionInfo(this.sessionInfo);
+    this.storage.setSessionInfo(finalSessionInfo);
+    return finalSessionInfo;
   }
 
   /**
@@ -133,12 +141,12 @@ class UserSession {
   start(id) {
     const sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
 
-    this.sessionInfo = {
+    const sessionInfo = {
       id: sessionId || this.generateSessionId(),
       sessionStart: true,
       manualTrack: true,
     };
-    this.storage.setSessionInfo(this.sessionInfo);
+    this.storage.setSessionInfo(sessionInfo);
   }
 
   /**
@@ -146,11 +154,12 @@ class UserSession {
    * @returns string sessionId
    */
   getSessionId() {
+    const sessionInfo = this.getSafeSessionInfo();
     if (
-      (this.sessionInfo.autoTrack && this.isValidSession(Date.now())) ||
-      this.sessionInfo.manualTrack
+      (sessionInfo.autoTrack && this.isValidSession(Date.now())) ||
+      sessionInfo.manualTrack
     ) {
-      return this.sessionInfo.id;
+      return sessionInfo.id;
     }
     return null;
   }
@@ -159,7 +168,6 @@ class UserSession {
    * A public method to end an ongoing session.
    */
   end() {
-    this.sessionInfo = {};
     this.storage.removeSessionInfo();
   }
 
@@ -168,23 +176,24 @@ class UserSession {
    */
   getSessionInfo() {
     const session = {};
-    if (this.sessionInfo.autoTrack || this.sessionInfo.manualTrack) {
+    let sessionInfo = this.getSafeSessionInfo();
+    if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       // renew or create a new auto-tracking session
-      if (this.sessionInfo.autoTrack) {
+      if (sessionInfo.autoTrack) {
         const timestamp = Date.now();
         if (!this.isValidSession(timestamp)) {
-          this.startAutoTracking();
+          sessionInfo = this.startAutoTracking(sessionInfo);
         } else {
-          this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
+          sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
         }
       }
 
-      if (this.sessionInfo.sessionStart) {
+      if (sessionInfo.sessionStart) {
         session.sessionStart = true;
-        this.sessionInfo.sessionStart = false;
+        sessionInfo.sessionStart = false;
       }
-      session.sessionId = this.sessionInfo.id;
-      this.storage.setSessionInfo(this.sessionInfo);
+      session.sessionId = sessionInfo.id;
+      this.storage.setSessionInfo(sessionInfo);
     }
     return session;
   }
@@ -193,10 +202,10 @@ class UserSession {
    * Refresh session info on reset API call
    */
   reset() {
-    const { manualTrack, autoTrack } = this.sessionInfo;
+    const { manualTrack, autoTrack } = this.getSafeSessionInfo();
     if (autoTrack) {
-      this.sessionInfo = {};
-      this.startAutoTracking();
+      const sessionInfo = {};
+      this.startAutoTracking(sessionInfo);
     } else if (manualTrack) {
       this.start();
     }

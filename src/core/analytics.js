@@ -117,26 +117,21 @@ class Analytics {
    */
   initializeUser(anonymousIdOptions) {
     // save once for storing older values to encrypted
-    this.userId = this.storage.getUserId() || '';
-    this.storage.setUserId(this.userId);
+    this.storage.setUserId(this.storage.getUserId() || '');
 
-    this.userTraits = this.storage.getUserTraits() || {};
-    this.storage.setUserTraits(this.userTraits);
+    this.storage.setUserTraits(this.storage.getUserTraits() || {});
 
-    this.groupId = this.storage.getGroupId() || '';
-    this.storage.setGroupId(this.groupId);
+    this.storage.setGroupId(this.storage.getGroupId() || '');
 
-    this.groupTraits = this.storage.getGroupTraits() || {};
-    this.storage.setGroupTraits(this.groupTraits);
+    this.storage.setGroupTraits(this.storage.getGroupTraits() || {});
 
-    this.anonymousId = this.getAnonymousId(anonymousIdOptions);
-    this.storage.setAnonymousId(this.anonymousId);
+    this.storage.setAnonymousId(this.getAnonymousId(anonymousIdOptions));
   }
 
   setInitialPageProperties() {
     if (
-      this.storage.getInitialReferrer() == null &&
-      this.storage.getInitialReferringDomain() == null
+      this.storage.getInitialReferrer() === null &&
+      this.storage.getInitialReferringDomain() === null
     ) {
       const initialReferrer = getReferrer();
       this.storage.setInitialReferrer(initialReferrer);
@@ -705,23 +700,23 @@ class Analytics {
     }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
-    if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
+    if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.storage.getUserId());
 
     const normalisedUserId = getStringId(userId);
-    if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
+    if (normalisedUserId && this.storage.getUserId() && normalisedUserId !== this.storage.getUserId()) {
       this.reset();
     }
-    this.userId = normalisedUserId;
-    this.storage.setUserId(this.userId);
+    this.storage.setUserId(normalisedUserId);
 
     const clonedTraits = R.clone(traits);
     const clonedOptions = R.clone(options);
 
     if (clonedTraits) {
+      const curUserTraits = this.storage.getUserTraits() || {};
       for (const key in clonedTraits) {
-        this.userTraits[key] = clonedTraits[key];
+        curUserTraits[key] = clonedTraits[key];
       }
-      this.storage.setUserTraits(this.userTraits);
+      this.storage.setUserTraits(curUserTraits);
     }
     const rudderElement = new RudderElementBuilder().setType('identify').build();
 
@@ -750,7 +745,7 @@ class Analytics {
     const rudderElement = new RudderElementBuilder().setType('alias').build();
 
     rudderElement.message.previousId =
-      getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
+      getStringId(from) || (this.storage.getUserId() ? this.storage.getUserId() : this.getAnonymousId());
     rudderElement.message.userId = getStringId(to);
     const clonedOptions = R.clone(options);
 
@@ -775,25 +770,26 @@ class Analytics {
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof groupId === 'object')
-      (options = traits), (traits = groupId), (groupId = this.groupId);
+      (options = traits), (traits = groupId), (groupId = this.storage.getGroupId());
     if (typeof groupId === 'function')
-      (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
+      (callback = groupId), (options = null), (traits = null), (groupId = this.storage.getGroupId());
 
-    this.groupId = getStringId(groupId);
-    this.storage.setGroupId(this.groupId);
+    this.storage.setGroupId(getStringId(groupId));
     const clonedTraits = R.clone(traits);
     const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
 
+    let curGroupTraits;
     if (clonedTraits) {
+      curGroupTraits = this.storage.getGroupTraits() || {};
       for (const key in clonedTraits) {
-        this.groupTraits[key] = clonedTraits[key];
+        curGroupTraits[key] = clonedTraits[key];
       }
     } else {
-      this.groupTraits = {};
+      curGroupTraits = {};
     }
-    this.storage.setGroupTraits(this.groupTraits);
+    this.storage.setGroupTraits(curGroupTraits);
 
     this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
@@ -863,7 +859,7 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      if (!this.anonymousId) {
+      if (!this.storage.getAnonymousId()) {
         this.setAnonymousId();
       }
 
@@ -871,22 +867,22 @@ class Analytics {
       // rudderElement.message.context.page = getDefaultPageProperties();
       this.errorReporting.leaveBreadcrumb('Started sending data to destinations');
       rudderElement.message.context.traits = {
-        ...this.userTraits,
+        ...(this.storage.getUserTraits() || {}),
       };
 
-      // logger.debug("anonymousId: ", this.anonymousId)
-      rudderElement.message.anonymousId = this.anonymousId;
+      // logger.debug("anonymousId: ", this.storage.getAnonymousId())
+      rudderElement.message.anonymousId = this.storage.getAnonymousId();
       rudderElement.message.userId = rudderElement.message.userId
         ? rudderElement.message.userId
-        : this.userId;
+        : this.storage.getUserId();
 
       if (type == 'group') {
-        if (this.groupId) {
-          rudderElement.message.groupId = this.groupId;
+        if (this.storage.getGroupId()) {
+          rudderElement.message.groupId = this.storage.getGroupId();
         }
-        if (this.groupTraits) {
+        if (this.storage.getGroupTraits()) {
           rudderElement.message.traits = {
-            ...this.groupTraits,
+            ...this.storage.getGroupTraits(),
           };
         }
       }
@@ -1067,28 +1063,21 @@ class Analytics {
       this.toBeProcessedArray.push(['reset', flag]);
       return;
     }
-    if (flag) {
-      this.anonymousId = '';
-    }
-    this.userId = '';
-    this.userTraits = {};
-    this.groupId = '';
-    this.groupTraits = {};
     this.uSession.reset();
     this.storage.clear(flag);
   }
 
   getAnonymousId(anonymousIdOptions) {
     // if (!this.loaded) return;
-    this.anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
-    if (!this.anonymousId) {
+    const anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
+    if (!anonymousId) {
       this.setAnonymousId();
     }
-    return this.anonymousId;
+    return this.storage.getAnonymousId();
   }
 
   getUserId() {
-    return this.userId;
+    return this.storage.getUserId();
   }
 
   getSessionId() {
@@ -1096,15 +1085,15 @@ class Analytics {
   }
 
   getUserTraits() {
-    return this.userTraits;
+    return this.storage.getUserTraits();
   }
 
   getGroupId() {
-    return this.groupId;
+    return this.storage.getGroupId();
   }
 
   getGroupTraits() {
-    return this.groupTraits;
+    return this.storage.getGroupTraits();
   }
 
   /**
@@ -1121,8 +1110,8 @@ class Analytics {
     // if (!this.loaded) return;
     const parsedAnonymousIdObj = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
     const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
-    this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
-    this.storage.setAnonymousId(this.anonymousId);
+    const finalAnonId = anonymousId || parsedAnonymousId || generateUUID();
+    this.storage.setAnonymousId(finalAnonId);
   }
 
   isValidWriteKey(writeKey) {
@@ -1167,18 +1156,22 @@ class Analytics {
     this.serverUrl = serverUrl;
     this.options = options;
 
-    let storageOptions = {};
-
+    let cookieOptions = {};
     if (options && options.setCookieDomain) {
-      storageOptions = { ...storageOptions, domain: options.setCookieDomain };
+      cookieOptions = { ...cookieOptions, domain: options.setCookieDomain };
     }
 
     if (options && typeof options.secureCookie === 'boolean') {
-      storageOptions = { ...storageOptions, secure: options.secureCookie };
+      cookieOptions = { ...cookieOptions, secure: options.secureCookie };
     }
 
     if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
-      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
+      cookieOptions = { ...cookieOptions, samesite: options.sameSiteCookie };
+    }
+
+    let storageOptions = { cookie: cookieOptions };
+    if (options && options.storage) {
+      storageOptions = { ...storageOptions, ...options.storage };
     }
     this.storage.options(storageOptions);
 
