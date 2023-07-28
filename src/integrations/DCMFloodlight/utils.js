@@ -1,4 +1,3 @@
-/* eslint-disable compat/compat */
 import get from 'get-value';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import logger from '../../utils/logUtil';
@@ -169,11 +168,7 @@ const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
  * Generate a cryptographically secure random number between 0 and 9999999999999
  * @returns
  */
-const getRandomNumber = () => {
-  const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  return array[0] % 10000000000000;
-};
+const getRandomNumber = () => Math.random() * 10000000000000;
 
 /**
  * Returns quantity parameter
