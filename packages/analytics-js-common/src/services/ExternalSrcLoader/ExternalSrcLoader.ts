@@ -1,4 +1,4 @@
-import { EXTERNAL_SRC_LOADER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { EXTERNAL_SRC_LOADER } from '../../constants/loggerContexts';
 import { DEFAULT_EXT_SRC_LOAD_TIMEOUT } from '../../constants/timeouts';
 import { isFunction } from '../../utilities/checks';
 import { IErrorHandler } from '../../types/ErrorHandler';

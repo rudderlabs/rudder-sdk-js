@@ -27,6 +27,12 @@ jobs:
           npm ci --no-audit
           npm run setup:ci
 
+      - name: Restore lerna installation
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ hashFiles('**/package.lock') }}
+
       - name: Execute quality checks
         run: |
           npm run check:circular
@@ -44,5 +50,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: install
           build_script: check:size:build
-          script: npx lerna exec --loglevel=silent -- npx size-limit --json
+          script: npx lerna exec --loglevel=silent -- npm run check:size:json
           is_monorepo: true

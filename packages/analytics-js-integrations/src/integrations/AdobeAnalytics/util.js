@@ -16,18 +16,14 @@ const setDynamicKeys = dk => {
   dynamicKeys = dk;
 };
 
-const getDynamicKeys = () => {
-  return dynamicKeys;
-};
+const getDynamicKeys = () => dynamicKeys;
 
 let config;
 const setConfig = c => {
   config = c;
 };
 
-const getConfig = () => {
-  return config;
-};
+const getConfig = () => config;
 
 const topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
@@ -312,7 +308,11 @@ const handleHier = rudderElement => {
 const handleLists = rudderElement => {
   const { properties } = rudderElement.message;
   const listMappingHashmap = getHashFromArray(config.listMapping, 'from', 'to', false);
-  const listDelimiterHashmap = getHashFromArray(config.listDelimiter, 'from', 'to', false);
+  let listDelimiterHashmap = getHashFromArray(config.listMapping, 'from', 'delimiter', false);
+  // Keeping listDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
+  if (config.listMapping?.length > 0 && !get(config, 'listMapping.0.delimiter')) {
+    listDelimiterHashmap = getHashFromArray(config.listDelimiter, 'from', 'to', false);
+  }
   if (properties) {
     each((value, key) => {
       if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
@@ -349,7 +349,16 @@ const handleCustomProps = rudderElement => {
     'to',
     false,
   );
-  const propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
+  let propsDelimiterHashmap = getHashFromArray(
+    config.customPropsMapping,
+    'from',
+    'delimiter',
+    false,
+  );
+  // Keeping propsDelimiter usage as a fallback until transformer and integrations-config releases are done to reflect the latest config structure
+  if (config.customPropsMapping?.length > 0 && !get(config, 'customPropsMapping.0.delimiter')) {
+    propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
+  }
   if (properties) {
     each((value, key) => {
       if (customPropsMappingHashmap[key]) {
@@ -403,9 +412,7 @@ const setEventsString = (event, properties, adobeEventName) => {
   let adobeEventArray = adobeEventName ? adobeEventName.split(',') : [];
   const merchMap = mapMerchEvents(event, properties);
   adobeEventArray = adobeEventArray.concat(merchMap);
-  adobeEventArray = adobeEventArray.filter(item => {
-    return !!item;
-  });
+  adobeEventArray = adobeEventArray.filter(item => !!item);
 
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent,

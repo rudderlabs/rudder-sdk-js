@@ -82,7 +82,13 @@ class TestBook {
                             </button>
                             <hr>
                             <p><strong>Arguments Array</strong></p>
-                            <p>${testCase.triggerHandler}</p>
+                            <p>${
+                              typeof testCase.triggerHandler === 'string'
+                                ? testCase.triggerHandler
+                                : testCase.triggerHandler.map(handler =>
+                                    typeof handler === 'function' ? 'Custom function' : handler,
+                                  )
+                            }</p>
                             <div style="word-wrap: break-word; position: relative;">
                               <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
                             </div>
@@ -177,7 +183,7 @@ class TestBook {
   // Invoke the trigger handlers passing as arguments the input data array items
   invokeTriggerHandlers(clickHandler, inputData, resultCallback) {
     // Always add callback methods in order to retrieve the generated message object
-    const inputs = [...inputData];
+    const inputs = [...(inputData || [])];
     inputs.push(resultCallback);
 
     if (typeof clickHandler === 'function') {
@@ -197,11 +203,11 @@ class TestBook {
       const suiteIndex = triggerElement.dataset.suiteIndex;
       const testCaseIndex = triggerElement.dataset.testCaseIndex;
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
-      const resultCallback = function (generatedPayload) {
+      const resultCallback = function (generatedPayload, isApiTest) {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
-        // To cater for both v1.1 and v3 internal data structure
+        // To cater for both v1.1 and v3 internal data structure & API endpoint tests
         let normalisedResultData = generatedPayload;
-        if (!normalisedResultData.message) {
+        if (!isApiTest && !normalisedResultData.message) {
           normalisedResultData = {
             message: generatedPayload,
           };
@@ -273,7 +279,8 @@ class TestBook {
       const testCaseId = resultContainerElement.dataset.testCaseId;
 
       const observer = new MutationObserver((mutationList, observer) => {
-        const resultData = mutationList[0].addedNodes[0].nodeValue.trim();
+        const resultDataElement = mutationList[0].addedNodes[0].parentNode;
+        const resultData = resultDataElement.textContent.trim();
         const expectedResult = resultRowElement.lastElementChild.childNodes[1].textContent.trim();
         const sanitizedResultData = ResultsAssertions.sanitizeResultData(
           resultData,

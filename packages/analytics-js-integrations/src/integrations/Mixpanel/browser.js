@@ -362,7 +362,7 @@ class Mixpanel {
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
     const identifierTraitsList = parseConfigArray(this.groupKeySettings, 'groupKey');
-    if (traits && Object.keys(traits).length) {
+    if (traits && Object.keys(traits).length > 0) {
       identifierTraitsList.forEach(trait => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
       });
@@ -371,25 +371,27 @@ class Mixpanel {
   }
 
   /**
+   * https://github.com/mixpanel/mixpanel-js/blob/master/doc/readme.io/javascript-full-api-reference.md#mixpanelalias
    * @param {*} rudderElement
    */
   alias(rudderElement) {
     logger.debug('in Mixpanel alias');
     const { previousId, userId } = rudderElement.message;
+    const newId = userId;
     if (!previousId) {
       logger.debug('===Mixpanel: previousId is required for alias call===');
       return;
     }
-    if (!userId) {
+    if (!newId) {
       logger.debug('===Mixpanel: userId is required for alias call===');
       return;
     }
 
-    if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === userId) {
+    if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === newId) {
       logger.debug('===Mixpanel: userId is same as previousId. Skipping alias ===');
       return;
     }
-    window.mixpanel.alias(userId, previousId);
+    window.mixpanel.alias(newId, previousId);
   }
 }
 export default Mixpanel;

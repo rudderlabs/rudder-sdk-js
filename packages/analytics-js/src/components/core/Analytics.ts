@@ -337,6 +337,8 @@ class Analytics implements IAnalytics {
       state.lifecycle.loaded.value = true;
       state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
+
+    this.initialized = true;
   }
 
   /**
