@@ -1,18 +1,18 @@
 /* eslint-disable class-methods-use-this */
-import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
+import sha256 from 'crypto-js/sha256';
 import logger from '../../utils/logUtil';
 import {
+  propertyMapping,
   searchPropertyMapping,
   productPropertyMapping,
-  propertyMapping,
   pinterestPropertySupport,
 } from './propertyMappingConfig';
 import {
+  getDefinedTraits,
+  getDataFromSource,
   flattenJsonPayload,
   isDefinedAndNotNull,
-  getDataFromSource,
-  getDefinedTraits,
 } from '../../utils/utils';
 import { NAME } from './constants';
 import { getDestinationEventName } from './utils';
@@ -198,10 +198,10 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
-    if (!rudderElement?.message || !rudderElement?.message?.event) {
+    const { message } = rudderElement;
+    if (!message?.event) {
       return;
     }
-    const { message } = rudderElement;
     const { properties, event, messageId } = message;
     const destEventArray = getDestinationEventName(
       event,

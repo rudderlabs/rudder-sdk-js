@@ -1,6 +1,6 @@
+import { LINE_ITEMS_CONFIG } from './constants';
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
-import { LINE_ITEMS_CONFIG } from './constants';
 
 /**
  * This function is used to build payload with line_items, it will search from
@@ -50,7 +50,7 @@ const payloadBuilderInList = (properties, CONFIG_EVENT) => {
   const productPayload = constructPayload(properties, CONFIG_EVENT);
   if (productList && Array.isArray(productList)) {
     productList.forEach((product) => {
-      const productDetails = constructPayload(product, LINE_ITEMS_CONFIG);
+      const productDetails = constructPayload(product, CONFIG_EVENT);
       payloadList.push({
         ...productPayload,
         ...removeUndefinedAndNullValues(productDetails),
