@@ -13,8 +13,8 @@ const defaults = {
   anonymousId: 'anonymousId',
   groupId: 'groupId',
   groupTraits: 'groupTraits',
-  pageInitialReferrer: 'pageInitialReferrer',
-  pageInitialReferringDomain: 'pageInitialReferringDomain',
+  initialReferrer: 'initialReferrer',
+  initialReferringDomain: 'initialReferringDomain',
   sessionInfo: 'sessionInfo',
   authToken: 'authToken',
 
@@ -118,11 +118,11 @@ class Storage {
         key: defaults.group_storage_trait,
         storage: defaultInMemoryStorage,
       },
-      [defaults.pageInitialReferrer]: {
+      [defaults.initialReferrer]: {
         key: defaults.page_storage_init_referrer,
         storage: defaultInMemoryStorage,
       },
-      [defaults.pageInitialReferringDomain]: {
+      [defaults.initialReferringDomain]: {
         key: defaults.page_storage_init_referring_domain,
         storage: defaultInMemoryStorage,
       },
@@ -264,14 +264,14 @@ class Storage {
    * @param {*} value
    */
   setInitialReferrer(value) {
-    this.setItem(defaults.pageInitialReferrer, value);
+    this.setItem(defaults.initialReferrer, value);
   }
 
   /**
    * @param {*} value
    */
   setInitialReferringDomain(value) {
-    this.setItem(defaults.pageInitialReferringDomain, value);
+    this.setItem(defaults.initialReferringDomain, value);
   }
 
   /**
@@ -421,14 +421,14 @@ class Storage {
    * get stored initial referrer
    */
   getInitialReferrer() {
-    return this.getItem(defaults.pageInitialReferrer);
+    return this.getItem(defaults.initialReferrer);
   }
 
   /**
    * get stored initial referring domain
    */
   getInitialReferringDomain() {
-    return this.getItem(defaults.pageInitialReferringDomain);
+    return this.getItem(defaults.initialReferringDomain);
   }
 
   /**
