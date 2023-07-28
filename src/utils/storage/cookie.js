@@ -24,8 +24,9 @@ class CookieLocal {
     let domain = `.${topDomain(window.location.href)}`;
     if (domain === '.') domain = null;
 
+    const curOptions = inOpts.cookie || {};
     // the default maxage and path
-    this.cOpts = defaults(inOpts, {
+    this.cOpts = defaults(curOptions, {
       maxage: 31536000000,
       path: '/',
       domain,

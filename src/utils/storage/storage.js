@@ -5,8 +5,19 @@ import get from 'get-value';
 import logger from '../logUtil';
 import { Cookie } from './cookie';
 import { Store } from './store';
+import { defaultInMemoryStorage } from './memoryStorage';
 
 const defaults = {
+  userId: 'userId',
+  userTraits: 'userTraits',
+  anonymousId: 'anonymousId',
+  groupId: 'groupId',
+  groupTraits: 'groupTraits',
+  initialReferrer: 'initialReferrer',
+  initialReferringDomain: 'initialReferringDomain',
+  sessionInfo: 'sessionInfo',
+  authToken: 'authToken',
+
   user_storage_key: 'rl_user_id',
   user_storage_trait: 'rl_trait',
   user_storage_anonymousId: 'rl_anonymous_id',
@@ -86,47 +97,127 @@ function encryptValue(value) {
  */
 class Storage {
   constructor() {
-    // First try setting the storage to cookie else to localstorage
-
-    if (Cookie.isSupportAvailable) {
-      this.storage = Cookie;
-      return;
-    }
-
-    // localStorage is enabled.
-    if (Store.enabled) {
-      this.storage = Store;
-    }
-
-    if (!this.storage) {
-      logger.error('No storage is available :: initializing the SDK without storage');
-    }
+    this.storageEntries = {
+      [defaults.userId]: {
+        key: defaults.user_storage_key,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.userTraits]: {
+        key: defaults.user_storage_trait,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.anonymousId]: {
+        key: defaults.user_storage_anonymousId,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.groupId]: {
+        key: defaults.group_storage_key,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.groupTraits]: {
+        key: defaults.group_storage_trait,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.initialReferrer]: {
+        key: defaults.page_storage_init_referrer,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.initialReferringDomain]: {
+        key: defaults.page_storage_init_referring_domain,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.sessionInfo]: {
+        key: defaults.session_info,
+        storage: defaultInMemoryStorage,
+      },
+      [defaults.authToken]: {
+        key: defaults.auth_token,
+        storage: defaultInMemoryStorage,
+      },
+    };
   }
 
-  options(options = {}) {
-    this.storage.options(options);
+  options(opts = {}) {
+    const globalStorageType = opts.type;
+
+    Object.keys(this.storageEntries).forEach((entry) => {
+      const storageType = get(opts, `entries.${entry}.type`) || globalStorageType || 'cookie';
+      let selectedStorage = null;
+      switch (storageType) {
+        case 'cookie':
+          {
+            if (Cookie.isSupportAvailable) {
+              selectedStorage = Cookie;
+            } else if (Store.isSupportAvailable) {
+              selectedStorage = Store;
+            } else {
+              selectedStorage = defaultInMemoryStorage;
+            }
+            break;
+          }
+        case 'localStorage':
+          {
+            if (Store.isSupportAvailable) {
+              selectedStorage = Store;
+            } else {
+              selectedStorage = defaultInMemoryStorage;
+            }
+            break;
+          }
+        case 'memoryStorage':
+          selectedStorage = defaultInMemoryStorage;
+          break;
+        case 'none':
+        default:
+          selectedStorage = null;
+          break;
+      }
+      if (selectedStorage) {
+        selectedStorage.options(opts);
+      }
+      this.storageEntries[entry].storage = selectedStorage;
+      this.migrateDataFromPreviousStorage(selectedStorage, entry);
+    });
+  }
+
+  migrateDataFromPreviousStorage(curStorage, entry) {
+    // in the increasing order of preference
+    const storages = [Store, Cookie];
+    storages.forEach((stg) => {
+      if (stg !== curStorage && stg.isSupportAvailable) {
+        const value = stg.get(this.storageEntries[entry].key);
+        if (value) {
+          if (curStorage) {
+            curStorage.set(this.storageEntries[entry].key, value);
+          }
+          stg.remove(this.storageEntries[entry].key);
+        }
+      }
+    });
   }
 
   /**
    *
-   * @param {*} key
+   * @param {*} entry
    * @param {*} value
    */
-  setItem(key, value) {
-    this.storage.set(key, encryptValue(stringify(value)));
+  setItem(entry, value) {
+    if (this.storageEntries[entry] && this.storageEntries[entry].storage) {
+      this.storageEntries[entry].storage.set(this.storageEntries[entry].key, encryptValue(stringify(value)));
+    }
   }
 
   /**
    *
-   * @param {*} key
+   * @param {*} entry
    * @param {*} value
    */
-  setStringItem(key, value) {
+  setStringItem(entry, value) {
     if (typeof value !== 'string') {
-      logger.error(`[Storage] ${key} should be string`);
+      logger.error(`[Storage] ${entry} should be string`);
       return;
     }
-    this.setItem(key, value);
+    this.setItem(entry, value);
   }
 
   /**
@@ -134,7 +225,7 @@ class Storage {
    * @param {*} value
    */
   setUserId(value) {
-    this.setStringItem(defaults.user_storage_key, value);
+    this.setStringItem(defaults.userId, value);
   }
 
   /**
@@ -142,7 +233,7 @@ class Storage {
    * @param {*} value
    */
   setUserTraits(value) {
-    this.setItem(defaults.user_storage_trait, value);
+    this.setItem(defaults.userTraits, value);
   }
 
   /**
@@ -150,7 +241,7 @@ class Storage {
    * @param {*} value
    */
   setGroupId(value) {
-    this.setStringItem(defaults.group_storage_key, value);
+    this.setStringItem(defaults.groupId, value);
   }
 
   /**
@@ -158,7 +249,7 @@ class Storage {
    * @param {*} value
    */
   setGroupTraits(value) {
-    this.setItem(defaults.group_storage_trait, value);
+    this.setItem(defaults.groupTraits, value);
   }
 
   /**
@@ -166,21 +257,21 @@ class Storage {
    * @param {*} value
    */
   setAnonymousId(value) {
-    this.setStringItem(defaults.user_storage_anonymousId, value);
+    this.setStringItem(defaults.anonymousId, value);
   }
 
   /**
    * @param {*} value
    */
   setInitialReferrer(value) {
-    this.setItem(defaults.page_storage_init_referrer, value);
+    this.setItem(defaults.initialReferrer, value);
   }
 
   /**
    * @param {*} value
    */
   setInitialReferringDomain(value) {
-    this.setItem(defaults.page_storage_init_referring_domain, value);
+    this.setItem(defaults.initialReferringDomain, value);
   }
 
   /**
@@ -188,7 +279,7 @@ class Storage {
    * @param {*} value
    */
   setSessionInfo(value) {
-    this.setItem(defaults.session_info, value);
+    this.setItem(defaults.sessionInfo, value);
   }
 
   /**
@@ -196,43 +287,46 @@ class Storage {
    * @param {*} value
    */
   setAuthToken(value) {
-    this.setItem(defaults.auth_token, value);
+    this.setItem(defaults.authToken, value);
   }
 
   /**
    *
-   * @param {*} key
+   * @param {*} entry
    */
-  getItem(key) {
-    return parse(decryptValue(this.storage.get(key)));
+  getItem(entry) {
+    if (this.storageEntries[entry] && this.storageEntries[entry].storage) {
+      return parse(decryptValue(this.storageEntries[entry].storage.get(this.storageEntries[entry].key)));
+    }
+    return null;
   }
 
   /**
    * get the stored userId
    */
   getUserId() {
-    return this.getItem(defaults.user_storage_key);
+    return this.getItem(defaults.userId);
   }
 
   /**
    * get the stored user traits
    */
   getUserTraits() {
-    return this.getItem(defaults.user_storage_trait);
+    return this.getItem(defaults.userTraits);
   }
 
   /**
    * get the stored userId
    */
   getGroupId() {
-    return this.getItem(defaults.group_storage_key);
+    return this.getItem(defaults.groupId);
   }
 
   /**
    * get the stored user traits
    */
   getGroupTraits() {
-    return this.getItem(defaults.group_storage_trait);
+    return this.getItem(defaults.groupTraits);
   }
 
   /**
@@ -253,7 +347,7 @@ class Storage {
          * First check the local storage for anonymousId
          * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
          */
-        if (Store.enabled) {
+        if (Store.isSupportAvailable) {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
         // If anonymousId is not present in local storage and check cookie support exists
@@ -292,7 +386,7 @@ class Storage {
    */
   getAnonymousId(anonymousIdOptions) {
     // fetch the rl_anonymous_id from storage
-    const rlAnonymousId = parse(decryptValue(this.storage.get(defaults.user_storage_anonymousId)));
+    const rlAnonymousId = this.getItem(defaults.anonymousId);
     /**
      * If RS's anonymous ID is available, return from here.
      *
@@ -327,53 +421,57 @@ class Storage {
    * get stored initial referrer
    */
   getInitialReferrer() {
-    return this.getItem(defaults.page_storage_init_referrer);
+    return this.getItem(defaults.initialReferrer);
   }
 
   /**
    * get stored initial referring domain
    */
   getInitialReferringDomain() {
-    return this.getItem(defaults.page_storage_init_referring_domain);
+    return this.getItem(defaults.initialReferringDomain);
   }
 
   /**
    * get the stored session info
    */
   getSessionInfo() {
-    return this.getItem(defaults.session_info);
+    return this.getItem(defaults.sessionInfo);
   }
 
   /**
    * get the auth token
    */
   getAuthToken() {
-    return this.getItem(defaults.auth_token);
+    return this.getItem(defaults.authToken);
   }
 
   /**
    *
-   * @param {*} key
+   * @param {*} entry
    */
-  removeItem(key) {
-    return this.storage.remove(key);
+  removeItem(entry) {
+    if (this.storageEntries[entry] && this.storageEntries[entry].storage) {
+      return this.storageEntries[entry].storage.remove(this.storageEntries[entry].key);
+    }
+    return false;
   }
 
   removeSessionInfo() {
-    this.removeItem(defaults.session_info);
+    this.removeItem(defaults.sessionInfo);
   }
 
   /**
    * remove stored keys
    */
   clear(flag) {
-    this.storage.remove(defaults.user_storage_key);
-    this.storage.remove(defaults.user_storage_trait);
-    this.storage.remove(defaults.group_storage_key);
-    this.storage.remove(defaults.group_storage_trait);
-    this.storage.remove(defaults.auth_token);
+    this.removeItem(defaults.userId);
+    this.removeItem(defaults.userTraits);
+    this.removeItem(defaults.groupId);
+    this.removeItem(defaults.groupTraits);
+    this.removeItem(defaults.authToken);
+
     if (flag) {
-      this.storage.remove(defaults.user_storage_anonymousId);
+      this.removeItem(defaults.anonymousId);
     }
   }
 }

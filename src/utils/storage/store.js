@@ -7,7 +7,8 @@ import store from 'storejs';
 class StoreLocal {
   constructor(options) {
     this.sOpts = {};
-    this.enabled = this.checkSupportAvailability();
+    this.isSupportAvailable = this.checkSupportAvailability();
+    this.enabled = this.isSupportAvailable;
     this.options(options);
   }
 
@@ -18,10 +19,11 @@ class StoreLocal {
   options(options = {}) {
     if (arguments.length === 0) return this.sOpts;
 
-    defaults(options, { enabled: true });
+    const curOptions = options.localStorage || {};
+    defaults(curOptions, { enabled: true });
 
-    this.enabled = options.enabled && this.enabled;
-    this.sOpts = options;
+    this.enabled = curOptions.enabled && this.enabled;
+    this.sOpts = curOptions;
     return this.sOpts;
   }
 
