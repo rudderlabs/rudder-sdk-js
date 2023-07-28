@@ -260,8 +260,12 @@ const getEnrichedEvent = (
   } as Partial<RudderEvent>;
 
   if (rudderEvent.type === RudderEventType.Group) {
-    commonEventData.groupId = state.session.groupId.value;
-    commonEventData.traits = clone(state.session.groupTraits.value);
+    if (state.session.groupId.value) {
+      commonEventData.groupId = state.session.groupId.value;
+    }
+    if (state.session.groupTraits.value) {
+      commonEventData.traits = clone(state.session.groupTraits.value);
+    }
   }
 
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
