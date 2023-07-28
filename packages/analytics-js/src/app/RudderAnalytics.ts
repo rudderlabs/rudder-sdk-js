@@ -24,7 +24,7 @@ import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import { WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
+import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -233,6 +233,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
+    if (arguments.length === 0) {
+      this.logger.error(EMPTY_GROUP_CALL_ERROR(RS_APP));
+      return;
+    }
+
     this.getAnalyticsInstance().group(
       groupArgumentsToCallOptions(groupId, traits, options, callback),
     );
