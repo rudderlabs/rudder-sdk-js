@@ -7,7 +7,7 @@ jobs:
   draft-new-release:
     name: Draft a new release v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/v3-staging') || startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
+    if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
     steps:
       - name: Checkout source branch
         uses: actions/checkout@v3
