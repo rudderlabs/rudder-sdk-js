@@ -137,9 +137,7 @@ const pageArgumentsToCallOptions = (
 
   // add name and category to properties
   payload.properties = mergeDeepRight(
-    isObjectLiteralAndNotNull(payload.properties as ApiObject)
-      ? (payload.properties as ApiObject)
-      : {},
+    isObjectLiteralAndNotNull(payload.properties) ? payload.properties : {},
     {
       name: isString(payload.name) ? payload.name : null,
       category: isString(payload.category) ? payload.category : null,
@@ -389,7 +387,7 @@ const groupArgumentsToCallOptions = (
   }
 
   payload.traits = isObjectLiteralAndNotNull(payload.traits) ? clone(payload.traits) : {};
-  
+
   if (isDefined(payload.options)) {
     payload.options = clone(payload.options);
   } else {
