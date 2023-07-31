@@ -91,6 +91,13 @@ describe('Core - Event Method Overloads', () => {
       properties: { props: {}, category: null, name: 'category' },
       options: { options: {} },
     });
+    expect(pageArgumentsToCallOptions('category', 'name', null, {}, callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      category: 'category',
+      name: 'name',
+      properties: { category: 'category', name: 'name' },
+      options: {},
+    });
   });
 
   it('should convert facade track method arguments to analytics track call options', () => {
@@ -157,6 +164,10 @@ describe('Core - Event Method Overloads', () => {
     });
     expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
       userId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
+    });
+    expect(identifyArgumentsToCallOptions(undefined, { traits: {} }, { options: {} })).toStrictEqual({
       traits: { traits: {} },
       options: { options: {} },
     });
@@ -236,6 +247,10 @@ describe('Core - Event Method Overloads', () => {
     });
     expect(groupArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
       groupId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
+    });
+    expect(groupArgumentsToCallOptions(undefined, { traits: {} }, { options: {} })).toStrictEqual({
       traits: { traits: {} },
       options: { options: {} },
     });
