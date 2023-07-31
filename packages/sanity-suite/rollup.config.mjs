@@ -23,11 +23,8 @@ const isV3 = process.env.CDN_VERSION_PATH === 'v3';
 const featuresList = ['eventFiltering', 'preloadBuffer'];
 
 const getDistPath = () => {
-  let distPath = process.env.TEST_PACKAGE ? `/${process.env.TEST_PACKAGE}` : '';
-
-  if (process.env.TEST_PACKAGE === 'cdn') {
-    distPath += `/${process.env.CDN_VERSION_PATH || defaultVersion}`;
-  }
+  let distPath = process.env.TEST_PACKAGE ? `/${process.env.TEST_PACKAGE}` : '/npm';
+  distPath += `/${process.env.CDN_VERSION_PATH || defaultVersion}`;
 
   if (process.env.STAGING) {
     distPath += '/staging';
@@ -140,14 +137,6 @@ const getBuildConfig = (featureName) => ({
 
     warn(warning);
   },
-  external: [],
-  onwarn(warning, warn) {
-    if (warning.code === 'THIS_IS_UNDEFINED') {
-      return;
-    }
-
-    warn(warning);
-  },
   plugins: [
     replace({
       preventAssignment: true,
@@ -183,8 +172,6 @@ const getBuildConfig = (featureName) => ({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
     }),
-    json(),
-    nodePolyfills({ include: null }),
     babel({
       inputSourceMap: true,
       compact: true,
