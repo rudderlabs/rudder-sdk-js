@@ -70,8 +70,7 @@ class StoreManager implements IStoreManager {
    * Create store to persist data used by the SDK like session, used details etc
    */
   initClientDataStore() {
-    let storageType: StorageType | '' = '';
-    storageType = state.storage.type.value || '';
+    let storageType: state.storage.type.value || '';
 
     switch (storageType) {
       case COOKIE_STORAGE:
