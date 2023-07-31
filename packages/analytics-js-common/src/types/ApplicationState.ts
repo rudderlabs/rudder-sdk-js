@@ -13,7 +13,7 @@ import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentInfo } from './Consent';
-import { StorageType } from './Store';
+import { StorageType } from './Storage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;

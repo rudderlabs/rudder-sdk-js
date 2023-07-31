@@ -1,6 +1,7 @@
 import { generateUUID } from '@rudderstack/analytics-js-common/index';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { IStore, IStoreManager, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';

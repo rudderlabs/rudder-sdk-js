@@ -1,5 +1,5 @@
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 

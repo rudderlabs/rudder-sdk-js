@@ -5,7 +5,6 @@ import {
   IInMemoryStorageOptions,
   ILocalStorageOptions,
   IStorage,
-  StorageType,
 } from '@rudderstack/analytics-js-common/types/Store';
 import {
   COOKIE_STORAGE,
@@ -13,6 +12,7 @@ import {
   MEMORY_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 

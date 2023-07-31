@@ -1,10 +1,5 @@
 import { state } from '@rudderstack/analytics-js/state';
-import {
-  IStoreConfig,
-  IStoreManager,
-  StorageType,
-  StoreId,
-} from '@rudderstack/analytics-js-common/types/Store';
+import { IStoreConfig, IStoreManager, StoreId } from '@rudderstack/analytics-js-common/types/Store';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -19,6 +14,7 @@ import {
 import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
 import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
 

@@ -1,9 +1,14 @@
-import { StorageType } from './Store';
-
 export enum StorageEncryptionVersion {
   Legacy = 'legacy',
   V3 = 'v3', // default
 }
+
+export type StorageType =
+  | 'localStorage'
+  | 'memoryStorage'
+  | 'cookieStorage'
+  | 'sessionStorage'
+  | 'none';
 
 export type StorageEncryption = {
   version: StorageEncryptionVersion;
