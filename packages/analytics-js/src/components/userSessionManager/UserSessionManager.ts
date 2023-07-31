@@ -27,7 +27,6 @@ import {
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
 } from '@rudderstack/analytics-js/constants/logMessages';
-import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
@@ -35,7 +34,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { userSessionStorageKeys } from './userSessionStorageKeys';
+import { defaultSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
 import { IUserSessionManager } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
@@ -63,7 +62,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param store Selected store
    */
   init(store: IStore | undefined) {
-    if (!store && state.storage.type.value === NO_STORAGE) {
+    if (!store) {
       this.setDefaultValues();
     } else {
       this.store = store;
@@ -71,10 +70,10 @@ class UserSessionManager implements IUserSessionManager {
       this.migrateStorageIfNeeded();
 
       // get the values from storage and set it again
-      this.setUserId(this.getUserId() ?? '');
-      this.setUserTraits(this.getUserTraits() ?? {});
-      this.setGroupId(this.getGroupId() ?? '');
-      this.setGroupTraits(this.getGroupTraits() ?? {});
+      this.setUserId(this.getUserId() ?? defaultSessionValues.userId);
+      this.setUserTraits(this.getUserTraits() ?? defaultSessionValues.userTraits);
+      this.setGroupId(this.getGroupId() ?? defaultSessionValues.groupId);
+      this.setGroupTraits(this.getGroupTraits() ?? defaultSessionValues.groupTraits);
       this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
 
       const initialReferrer = this.getInitialReferrer();
@@ -99,14 +98,14 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   setDefaultValues() {
-    state.session.userId.value = '';
-    state.session.userTraits.value = {};
-    state.session.groupId.value = '';
-    state.session.groupTraits.value = {};
-    state.session.anonymousUserId.value = undefined;
-    state.session.initialReferrer.value = '';
-    state.session.initialReferringDomain.value = '';
-    state.session.sessionInfo.value = {};
+    state.session.userId.value = defaultSessionValues.userId;
+    state.session.userTraits.value = defaultSessionValues.userTraits;
+    state.session.groupId.value = defaultSessionValues.groupId;
+    state.session.groupTraits.value = defaultSessionValues.groupTraits;
+    state.session.anonymousUserId.value = defaultSessionValues.anonymousUserId;
+    state.session.initialReferrer.value = defaultSessionValues.initialReferrer;
+    state.session.initialReferringDomain.value = defaultSessionValues.initialReferringDomain;
+    state.session.sessionInfo.value = defaultSessionValues.sessionInfo;
   }
 
   migrateStorageIfNeeded() {
@@ -269,7 +268,7 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    if (state.storage.type.value !== NO_STORAGE) {
+    if (this.store) {
       let finalAnonymousId: string | undefined | null = anonymousId;
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
@@ -427,7 +426,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    if (state.storage.type.value !== NO_STORAGE) {
+    if (this.store) {
       state.session.userId.value = userId;
     }
   }
@@ -437,7 +436,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
-    if (traits && state.storage.type.value !== NO_STORAGE) {
+    if (traits && this.store) {
       state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
@@ -447,7 +446,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
-    if (state.storage.type.value !== NO_STORAGE) {
+    if (this.store) {
       state.session.groupId.value = groupId;
     }
   }
@@ -457,7 +456,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
-    if (traits && state.storage.type.value !== NO_STORAGE) {
+    if (traits && this.store) {
       state.session.groupTraits.value = mergeDeepRight(
         state.session.groupTraits.value ?? {},
         traits,
@@ -470,7 +469,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferrer(referrer?: string) {
-    if (state.storage.type.value !== NO_STORAGE) {
+    if (this.store) {
       state.session.initialReferrer.value = referrer;
     }
   }
@@ -480,7 +479,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferringDomain(referrer?: string) {
-    if (state.storage.type.value !== NO_STORAGE) {
+    if (this.store) {
       state.session.initialReferringDomain.value = referrer;
     }
   }

@@ -4,6 +4,7 @@ import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
@@ -30,4 +31,6 @@ const isValidSourceConfig = (res: any): boolean =>
   isObjectLiteralAndNotNull(res.source.config) &&
   Array.isArray(res.source.destinations);
 
-export { validateLoadArgs, isValidSourceConfig };
+const isValidStorageType = (storageType?: StorageType): boolean => typeof storageType === 'string';
+
+export { validateLoadArgs, isValidSourceConfig, isValidStorageType };

@@ -84,6 +84,9 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
+const STORAGE_TYPE_VALIDATION_ERROR = (storageType: any): string =>
+  `The storage type "${storageType}" is invalid. It must be a string. Please check that the storage type is correct and try again.`;
+
 // WARNING
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
@@ -162,8 +165,12 @@ const INVALID_SESSION_ID_WARNING = (
 const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`;
 
-const STORAGE_UNAVAILABLE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}No storage is available. The SDK will be initialized without storage.`;
+const STORAGE_UNAVAILABLE_WARNING = (
+  context: string,
+  selectedStorageType: string,
+  finalStorageType: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}${selectedStorageType} is not available. The SDK will be initialized with ${finalStorageType}.`;
 
 // DEBUG
 
@@ -189,7 +196,7 @@ export {
   PLUGIN_DEPS_ERROR,
   PLUGIN_INVOCATION_ERROR,
   STORAGE_QUOTA_EXCEEDED_WARNING,
-  STORAGE_UNAVAILABLE_ERROR,
+  STORAGE_UNAVAILABLE_WARNING,
   STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
@@ -208,4 +215,5 @@ export {
   EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
+  STORAGE_TYPE_VALIDATION_ERROR,
 };

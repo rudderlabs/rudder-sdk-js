@@ -3,6 +3,7 @@ import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/t
 import { batch, effect } from '@preact/signals-core';
 import {
   isValidSourceConfig,
+  isValidStorageType,
   validateLoadArgs,
 } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { state } from '@rudderstack/analytics-js/state';
@@ -21,6 +22,7 @@ import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
+  STORAGE_TYPE_VALIDATION_ERROR,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
 } from '@rudderstack/analytics-js/constants/logMessages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
@@ -115,7 +117,12 @@ class ConfigManager implements IConfigManager {
         state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
 
         // set storage type in state
-        state.storage.type.value = state.loadOptions.value.storage?.type;
+        const storageType = state.loadOptions.value.storage?.type;
+        if (!isValidStorageType(storageType)) {
+          this.onError(new Error(STORAGE_TYPE_VALIDATION_ERROR(storageType)));
+          return;
+        }
+        state.storage.type.value = storageType;
       });
     } catch (err) {
       const issue = 'Failed to load the SDK';

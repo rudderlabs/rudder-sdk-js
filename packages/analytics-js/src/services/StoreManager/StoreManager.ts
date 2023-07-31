@@ -11,7 +11,7 @@ import {
   MEMORY_STORAGE,
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { STORAGE_UNAVAILABLE_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
 import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
@@ -70,11 +70,22 @@ class StoreManager implements IStoreManager {
    * Create store to persist data used by the SDK like session, used details etc
    */
   initClientDataStore() {
-    let storageType: state.storage.type.value || '';
+    let storageType = state.storage.type.value || '';
 
     switch (storageType) {
       case COOKIE_STORAGE:
-        if (!getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+        // First try setting the storage to cookie else to local storage
+        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          storageType = COOKIE_STORAGE;
+        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          this.logger?.warn(
+            STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, COOKIE_STORAGE, LOCAL_STORAGE),
+          );
+          storageType = LOCAL_STORAGE;
+        } else {
+          this.logger?.warn(
+            STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, COOKIE_STORAGE, MEMORY_STORAGE),
+          );
           storageType = MEMORY_STORAGE;
         }
         break;
@@ -84,11 +95,10 @@ class StoreManager implements IStoreManager {
         }
         break;
       case MEMORY_STORAGE:
-        break;
       case NO_STORAGE:
         break;
       default:
-        // First try setting the storage to cookie else to localstorage
+        // First try setting the storage to cookie else to local storage
         if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
           storageType = COOKIE_STORAGE;
         } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
@@ -107,7 +117,7 @@ class StoreManager implements IStoreManager {
         name: CLIENT_DATA_STORE_NAME,
         isEncrypted: true,
         noCompoundKey: true,
-        type: storageType,
+        type: storageType as StorageType,
       });
     }
   }
