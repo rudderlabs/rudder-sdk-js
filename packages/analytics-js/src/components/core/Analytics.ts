@@ -327,6 +327,8 @@ class Analytics implements IAnalytics {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
 
+    // TODO: we need to avoid passing the window object to the callback function
+    // as this will prevent us from supporting multiple SDK instances in the same page
     // Execute onLoaded callback if provided in load options
     if (isFunction(state.loadOptions.value.onLoaded)) {
       (state.loadOptions.value.onLoaded as OnLoadedCallback)((globalThis as any).rudderanalytics);
