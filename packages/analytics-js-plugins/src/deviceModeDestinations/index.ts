@@ -9,21 +9,17 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEn
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 import {
   createDestinationInstance,
-  isDestinationSDKEvaluated,
+  isDestinationSDKMounted,
   isDestinationReady,
   normalizeIntegrationOptions,
   filterDestinations,
   getCumulativeIntegrationsConfig,
+  initializeDestination,
 } from './utils';
-import {
-  DEVICE_MODE_DESTINATIONS_PLUGIN,
-  INITIALIZED_CHECK_POLL_INTERVAL,
-  LOAD_CHECK_TIMEOUT,
-} from './constants';
+import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_NOT_SUPPORTED_ERROR,
-  DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR,
   DESTINATION_SDK_LOAD_ERROR,
 } from '../utilities/logMessages';
 
@@ -94,9 +90,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
-        let timeoutId: number;
-        let intervalId: number;
-        if (!isDestinationSDKEvaluated(destSDKIdentifier, sdkName, logger)) {
+        const sdkTypeName = sdkName;
+        if (!isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, logger)) {
           const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader.loadJSFile({
             url: destSdkURL,
@@ -105,10 +100,6 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               externalScriptOnLoad ??
               ((id?: string) => {
                 if (!id) {
-                  // Stop wasting time to check whether SDK is loaded
-                  (globalThis as typeof window).clearInterval(intervalId);
-                  (globalThis as typeof window).clearTimeout(timeoutId);
-
                   logger?.error(
                     DESTINATION_SDK_LOAD_ERROR(
                       DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -119,84 +110,15 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     ...state.nativeDestinations.failedDestinations.value,
                     dest,
                   ];
+                } else {
+                  initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
                 }
               }),
+            timeout: SCRIPT_LOAD_TIMEOUT_MS,
           });
+        } else {
+          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
         }
-
-        intervalId = (globalThis as typeof window).setInterval(() => {
-          const sdkTypeName = sdkName;
-          if (isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName, logger)) {
-            (globalThis as typeof window).clearInterval(intervalId);
-            (globalThis as typeof window).clearTimeout(timeoutId);
-
-            try {
-              const destInstance = createDestinationInstance(
-                destSDKIdentifier,
-                sdkTypeName,
-                dest,
-                state,
-                logger,
-              );
-              destInstance.init();
-
-              const initializedDestination = clone(dest);
-              initializedDestination.instance = destInstance;
-
-              isDestinationReady(initializedDestination, logger)
-                .then(() => {
-                  // Collect the integrations data for the hybrid mode destinations
-                  if (isHybridModeDestination(initializedDestination)) {
-                    state.nativeDestinations.integrationsConfig.value =
-                      getCumulativeIntegrationsConfig(
-                        initializedDestination,
-                        state.nativeDestinations.integrationsConfig.value,
-                        logger,
-                      );
-                  }
-
-                  state.nativeDestinations.initializedDestinations.value = [
-                    ...state.nativeDestinations.initializedDestinations.value,
-                    initializedDestination,
-                  ];
-                })
-                .catch(err => {
-                  // The error message is already formatted in the isDestinationReady function
-                  logger?.error(err);
-
-                  state.nativeDestinations.failedDestinations.value = [
-                    ...state.nativeDestinations.failedDestinations.value,
-                    dest,
-                  ];
-                });
-            } catch (err) {
-              logger?.error(
-                DESTINATION_INIT_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
-                err,
-              );
-
-              state.nativeDestinations.failedDestinations.value = [
-                ...state.nativeDestinations.failedDestinations.value,
-                dest,
-              ];
-            }
-          }
-        }, INITIALIZED_CHECK_POLL_INTERVAL);
-
-        timeoutId = (globalThis as typeof window).setTimeout(() => {
-          (globalThis as typeof window).clearInterval(intervalId);
-
-          logger?.error(
-            DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR(
-              DEVICE_MODE_DESTINATIONS_PLUGIN,
-              dest.userFriendlyId,
-            ),
-          );
-          state.nativeDestinations.failedDestinations.value = [
-            ...state.nativeDestinations.failedDestinations.value,
-            dest,
-          ];
-        }, LOAD_CHECK_TIMEOUT);
       });
     },
   },

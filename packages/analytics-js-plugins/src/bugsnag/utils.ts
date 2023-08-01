@@ -173,7 +173,7 @@ const initBugsnagClient = (
     promiseReject(new Error(BUGSNAG_SDK_LOAD_TIMEOUT_ERROR(MAX_WAIT_FOR_SDK_LOAD_MS)));
   } else {
     // Try to initialize the client after a delay
-    setTimeout(
+    (globalThis as typeof window).setTimeout(
       initBugsnagClient,
       SDK_LOAD_POLL_INTERVAL_MS,
       state,
