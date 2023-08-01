@@ -43,5 +43,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build
-          script: npm run check:size:json
+          script: npx lerna@6 exec --loglevel=silent --npm run check:size:json
           is_monorepo: true
