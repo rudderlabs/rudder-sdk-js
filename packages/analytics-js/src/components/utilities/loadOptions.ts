@@ -10,6 +10,8 @@ import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
+import { DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS } from '../../constants/timeouts';
+import { isNumber } from './number';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
@@ -72,6 +74,12 @@ const normalizeLoadOptions = (
     : {};
 
   normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
+
+  normalizedLoadOpts.dataPlaneEventsBufferTimeout = isNumber(
+    normalizedLoadOpts.dataPlaneEventsBufferTimeout,
+  )
+    ? normalizedLoadOpts.dataPlaneEventsBufferTimeout
+    : DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS;
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 

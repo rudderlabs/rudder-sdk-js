@@ -8,8 +8,8 @@ import {
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { DEFAULT_XHR_TIMEOUT_MS } from '../../../constants/timeouts';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../../constants/errors';
-import { DEFAULT_XHR_TIMEOUT } from '../../../constants/timeouts';
 import {
   XHR_PAYLOAD_PREP_ERROR,
   XHR_DELIVERY_ERROR,
@@ -56,7 +56,7 @@ const createXhrRequestOptions = (
  */
 const xhrRequest = (
   options: IXHRRequestOptions,
-  timeout = DEFAULT_XHR_TIMEOUT,
+  timeout = DEFAULT_XHR_TIMEOUT_MS,
   logger?: ILogger,
 ): Promise<ResponseDetails> =>
   new Promise((resolve, reject) => {

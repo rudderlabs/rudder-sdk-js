@@ -15,9 +15,9 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import { getPreloadedLoadEvent } from '../components/preloadBuffer';
 import { PreloadedEventCall } from '../components/preloadBuffer/types';
 import { setExposedGlobal } from '../components/utilities/globals';

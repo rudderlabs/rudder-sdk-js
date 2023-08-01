@@ -5,16 +5,16 @@ import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/Applicat
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import {
-  getDefaultPageProperties,
-  getLanguage,
-  getUserAgent,
-} from '@rudderstack/analytics-js/components/utilities/page';
-import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  getDefaultPageProperties,
+  getLanguage,
+  getUserAgent,
+} from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';

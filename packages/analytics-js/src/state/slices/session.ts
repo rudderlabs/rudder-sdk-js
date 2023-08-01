@@ -1,11 +1,11 @@
 import { signal } from '@preact/signals-core';
 import { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { DEFAULT_SESSION_TIMEOUT } from '../../constants/timeouts';
+import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 
 const defaultSessionInfo: SessionInfo = {
   autoTrack: true,
-  timeout: DEFAULT_SESSION_TIMEOUT,
+  timeout: DEFAULT_SESSION_TIMEOUT_MS,
 };
 
 const sessionState: SessionState = {

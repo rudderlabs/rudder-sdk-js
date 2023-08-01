@@ -115,5 +115,6 @@ export type LoadOptions = {
   polyfillURL?: string;
   useGlobalIntegrationsConfigInEvents?: boolean;
   bufferDataPlaneEventsUntilReady?: boolean;
+  dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
 };

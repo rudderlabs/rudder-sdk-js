@@ -1,7 +1,7 @@
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEFAULT_SESSION_TIMEOUT } from '../../constants/timeouts';
+import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
@@ -48,7 +48,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
  */
 const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {
   const timestamp = Date.now();
-  const timeout: number = sessionTimeout || DEFAULT_SESSION_TIMEOUT;
+  const timeout: number = sessionTimeout || DEFAULT_SESSION_TIMEOUT_MS;
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + timeout, // set the expiry time of the session

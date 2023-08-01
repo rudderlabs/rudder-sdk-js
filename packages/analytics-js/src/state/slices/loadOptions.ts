@@ -7,7 +7,10 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { DEFAULT_SESSION_TIMEOUT } from '../../constants/timeouts';
+import {
+  DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
+  DEFAULT_SESSION_TIMEOUT_MS,
+} from '../../constants/timeouts';
 import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
 import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
 
@@ -17,7 +20,7 @@ const defaultLoadOptions: LoadOptions = {
   loadIntegration: true,
   sessions: {
     autoTrack: true,
-    timeout: DEFAULT_SESSION_TIMEOUT,
+    timeout: DEFAULT_SESSION_TIMEOUT_MS,
   },
   sameSiteCookie: CookieSameSite.Lax,
   polyfillIfRequired: true,
@@ -28,6 +31,7 @@ const defaultLoadOptions: LoadOptions = {
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,
+  dataPlaneEventsBufferTimeout: DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   storage: {
     encryption: {
       version: DEFAULT_STORAGE_ENCRYPTION_VERSION,

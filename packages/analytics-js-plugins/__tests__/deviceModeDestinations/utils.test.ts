@@ -4,7 +4,7 @@ import {
   wait,
   isDestinationReady,
   createDestinationInstance,
-  isDestinationSDKEvaluated,
+  isDestinationSDKMounted,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { signal } from '@preact/signals-core';
@@ -256,7 +256,7 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('isDestinationReady', () => {
-    const originalInitializedCheckTimeout = dmdConstants.INITIALIZED_CHECK_TIMEOUT;
+    const originalInitializedCheckTimeout = dmdConstants.READY_CHECK_TIMEOUT_MS;
     const originalInitializedPollInterval = dmdConstants.LOAD_CHECK_POLL_INTERVAL;
     const destination = {
       instance: {
@@ -267,12 +267,12 @@ describe('deviceModeDestinations utils', () => {
 
     beforeEach(() => {
       // temporarily manipulate the timeout and interval constants to speed up the test
-      dmdConstants.INITIALIZED_CHECK_TIMEOUT = 200;
+      dmdConstants.READY_CHECK_TIMEOUT_MS = 200;
       dmdConstants.LOAD_CHECK_POLL_INTERVAL = 100;
     });
 
     afterEach(() => {
-      dmdConstants.INITIALIZED_CHECK_TIMEOUT = originalInitializedCheckTimeout;
+      dmdConstants.READY_CHECK_TIMEOUT_MS = originalInitializedCheckTimeout;
       dmdConstants.LOAD_CHECK_POLL_INTERVAL = originalInitializedPollInterval;
       destination.instance.isLoaded = () => false;
     });
@@ -408,7 +408,7 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('isDestinationSDKEvaluated', () => {
+  describe('isDestinationSDKMounted', () => {
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
 
@@ -434,7 +434,7 @@ describe('deviceModeDestinations utils', () => {
     const mockLogger = new MockLogger();
 
     it('should return false if the destination SDK is not evaluated', () => {
-      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
     it('should return false if the destination SDK is mounted but it is not a constructable type', () => {
@@ -442,7 +442,7 @@ describe('deviceModeDestinations utils', () => {
         [sdkTypeName]: 'not a constructable type',
       };
 
-      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
     it('should return true if the destination SDK is a constructable type', () => {

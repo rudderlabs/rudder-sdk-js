@@ -13,7 +13,7 @@ import {
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
