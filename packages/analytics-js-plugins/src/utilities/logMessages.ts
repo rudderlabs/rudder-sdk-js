@@ -29,12 +29,6 @@ const DESTINATION_SDK_LOAD_ERROR = (context: string, destUserFriendlyId: string)
 const DESTINATION_INIT_ERROR = (context: string, destUserFriendlyId: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to initialize destination ${destUserFriendlyId}.`;
 
-const DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR = (
-  context: string,
-  destUserFriendlyId: string,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}SDK script evaluation timed out for destination ${destUserFriendlyId}.`;
-
 const DESTINATION_INTEGRATIONS_DATA_ERROR = (context: string, destUserFriendlyId: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to get integrations data for destination ${destUserFriendlyId}.`;
 
@@ -109,7 +103,6 @@ export {
   DESTINATION_NOT_SUPPORTED_ERROR,
   DESTINATION_SDK_LOAD_ERROR,
   DESTINATION_INIT_ERROR,
-  DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_EVENT_FILTERING_WARNING,
   ONETRUST_ACCESS_ERROR,
