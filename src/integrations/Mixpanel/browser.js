@@ -65,7 +65,7 @@ class Mixpanel {
     this.peopleProperties = config.peopleProperties || [];
     this.crossSubdomainCookie = config.crossSubdomainCookie || false;
     this.secureCookie = config.secureCookie || false;
-    this.persistence = config.persistence || 'none';
+    this.persistence = config.persistence || 'cookie';
     this.persistenceName = config.persistenceName;
     this.traitAliases = {
       created: '$created',
@@ -161,6 +161,8 @@ class Mixpanel {
 
     if (this.persistence !== 'none') {
       options.persistence = this.persistence;
+    } else {
+      options.disable_persistence = true;
     }
 
     if (this.dataResidency == 'eu') {
