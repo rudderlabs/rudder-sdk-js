@@ -159,7 +159,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isOnline.value = true;
     });
 
-    // TODO: add debounched listener for globalThis.onResize event and update state.context.screen.value
+    // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value
   }
 
   /**
