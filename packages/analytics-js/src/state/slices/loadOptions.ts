@@ -1,7 +1,10 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
 import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import {
+  DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
+  DEFAULT_SESSION_TIMEOUT_MS,
+} from '@rudderstack/analytics-js/constants/timeouts';
 import {
   CookieSameSite,
   LoadOptions,
@@ -17,7 +20,7 @@ const defaultLoadOptions: LoadOptions = {
   loadIntegration: true,
   sessions: {
     autoTrack: true,
-    timeout: DEFAULT_SESSION_TIMEOUT,
+    timeout: DEFAULT_SESSION_TIMEOUT_MS,
   },
   sameSiteCookie: CookieSameSite.Lax,
   polyfillIfRequired: true,
@@ -28,6 +31,7 @@ const defaultLoadOptions: LoadOptions = {
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,
+  dataPlaneEventsBufferTimeout: DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   storage: {
     encryption: {
       version: DEFAULT_STORAGE_ENCRYPTION_VERSION,

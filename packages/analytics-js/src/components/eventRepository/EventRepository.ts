@@ -101,11 +101,21 @@ class EventRepository implements IEventRepository {
 
       if (
         hybridDestExist === false ||
-        (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true)
+        (shouldBufferDpEvents === false &&
+          this.dataplaneEventsQueue?.scheduleTimeoutActive !== true)
       ) {
         this.dataplaneEventsQueue?.start();
       }
     });
+
+    // Force start the data plane events queue processing after a timeout
+    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
+      (globalThis as typeof window).setTimeout(() => {
+        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+          this.dataplaneEventsQueue?.start();
+        }
+      }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
+    }
 
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
