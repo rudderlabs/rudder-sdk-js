@@ -1,7 +1,5 @@
-import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -11,6 +9,8 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { HttpClient } from '../../services/HttpClient';
+import { state } from '../../state';
 import { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,

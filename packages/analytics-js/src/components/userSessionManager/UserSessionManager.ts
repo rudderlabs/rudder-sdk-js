@@ -1,18 +1,11 @@
 /* eslint-disable class-methods-use-this */
-import { state } from '@rudderstack/analytics-js/state';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { batch, effect } from '@preact/signals-core';
 import {
   isNonEmptyObject,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import {
-  DEFAULT_SESSION_TIMEOUT_MS,
-  MIN_SESSION_TIMEOUT_MS,
-} from '@rudderstack/analytics-js/constants/timeouts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IStore } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -23,10 +16,17 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
+  DEFAULT_SESSION_TIMEOUT_MS,
+  MIN_SESSION_TIMEOUT_MS,
+} from '../../constants/timeouts';
+import { defaultSessionInfo } from '../../state/slices/session';
+import { state } from '../../state';
+import { getStorageEngine } from '../../services/StoreManager/storages';
+import {
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,

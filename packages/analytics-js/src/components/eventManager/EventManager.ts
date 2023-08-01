@@ -2,7 +2,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { EVENT_OBJECT_GENERATION_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { EVENT_OBJECT_GENERATION_ERROR } from '../../constants/logMessages';
 import { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import { IEventRepository } from '../eventRepository/types';

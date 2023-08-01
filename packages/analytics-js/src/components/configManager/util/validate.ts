@@ -3,7 +3,7 @@ import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/ut
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../../constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {

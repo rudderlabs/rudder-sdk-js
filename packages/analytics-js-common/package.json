@@ -54,6 +54,7 @@
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "exit 0",
     "build:modern": "npm run build:npm:modern",
+    "prepare": "npm run build:package",
     "package": "cd dist/npm && npm pack --pack-destination ../../",
     "release": "npm publish"
   },

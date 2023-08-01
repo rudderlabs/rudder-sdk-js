@@ -1,16 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import {
-  isValidSourceConfig,
-  validateLoadArgs,
-} from '@rudderstack/analytics-js/components/configManager/util/validate';
-import { state } from '@rudderstack/analytics-js/state';
-import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
-import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
@@ -22,7 +13,13 @@ import {
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
+import { getSourceConfigURL } from '../utilities/loadOptions';
+import { filterEnabledDestination } from '../utilities/destinations';
+import { removeTrailingSlashes } from '../utilities/url';
+import { APP_VERSION } from '../../constants/app';
+import { state } from '../../state';
+import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
