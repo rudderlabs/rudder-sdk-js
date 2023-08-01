@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.38.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.0...v2.38.1) (2023-07-25)
+
+
+### Bug Fixes
+
+* revert mixpanel alias id ordering ([18f67e6](https://github.com/rudderlabs/rudder-sdk-js/commit/18f67e6b01691f4453ea7ef3154955d2a9c37573))
+
+## [2.38.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.37.1...v2.38.0) (2023-07-21)
+
+
+### Features
+
+* **adobe:** remove 2 delimiter fields from config and fetching that info from mapping fields itself ([#1218](https://github.com/rudderlabs/rudder-sdk-js/issues/1218)) ([5ce6899](https://github.com/rudderlabs/rudder-sdk-js/commit/5ce68997728f8a38e9c57b81e20661b7befd580c))
+* implement usage of connectionMode wherever useNativeSDKToSend is used ([#1106](https://github.com/rudderlabs/rudder-sdk-js/issues/1106)) ([57cec8f](https://github.com/rudderlabs/rudder-sdk-js/commit/57cec8f8e76a53512655c4bfcb4b80a257d26a0a))
+* **VWO:** add campaignName and variationId in properties ([#1219](https://github.com/rudderlabs/rudder-sdk-js/issues/1219)) ([9715186](https://github.com/rudderlabs/rudder-sdk-js/commit/9715186b1e70211eab6b9344f4904ab33683b5b4))
+
+
+### Bug Fixes
+
+* ** integration:** fb pixel build payload ([#1224](https://github.com/rudderlabs/rudder-sdk-js/issues/1224)) ([06a58c0](https://github.com/rudderlabs/rudder-sdk-js/commit/06a58c0ffd64461516e9593ee6eaa0f48f5f951e))
+* destination sdk load check ([#1204](https://github.com/rudderlabs/rudder-sdk-js/issues/1204)) ([8bc521d](https://github.com/rudderlabs/rudder-sdk-js/commit/8bc521d9d36098f0dce52c71930b325044704f83))
+* ignore localstorage NS_ERROR_STORAGE_BUSY from reporting ([#1211](https://github.com/rudderlabs/rudder-sdk-js/issues/1211)) ([dc17ab5](https://github.com/rudderlabs/rudder-sdk-js/commit/dc17ab5ade6912b9c26d3976ae923a9e7aeeaf1d))
+* **lemnisk:** add rudder message identifier flag ([#1198](https://github.com/rudderlabs/rudder-sdk-js/issues/1198)) ([37697f1](https://github.com/rudderlabs/rudder-sdk-js/commit/37697f1d1b3c477b461ce7a7a23ccbfa41116865))
+
+### [2.37.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.37.0...v2.37.1) (2023-07-21)
+
+
+### Bug Fixes
+
+* **mixpanel:** alias id ordering ([#1234](https://github.com/rudderlabs/rudder-sdk-js/issues/1234)) ([959c5d6](https://github.com/rudderlabs/rudder-sdk-js/commit/959c5d6910144487b9cb74a2c1a3cb6b9e5b43d0))
+
+## [2.37.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.36.0...v2.37.0) (2023-07-07)
+
+
+### Features
+
+* attach beacon flush on visibility change event hidden value ([#1192](https://github.com/rudderlabs/rudder-sdk-js/issues/1192)) ([d77f5e1](https://github.com/rudderlabs/rudder-sdk-js/commit/d77f5e1129744ebe858f263fe10706cc19da53b0))
+* enhance dedup support using persistence ([#1089](https://github.com/rudderlabs/rudder-sdk-js/issues/1089)) ([caa2d34](https://github.com/rudderlabs/rudder-sdk-js/commit/caa2d34fbf4f6619c2cfdc09b267b928d5a1c7f9))
+* ketch consent manager ([#1095](https://github.com/rudderlabs/rudder-sdk-js/issues/1095)) ([6f83ffa](https://github.com/rudderlabs/rudder-sdk-js/commit/6f83ffaf487cfc431f3c037007819ed76152fdc9))
+
+
+### Bug Fixes
+
+* clevertap sdk version to latest, check mandatory traits for identify ([#1189](https://github.com/rudderlabs/rudder-sdk-js/issues/1189)) ([2afb6b3](https://github.com/rudderlabs/rudder-sdk-js/commit/2afb6b39addf402bc6a8748aba092007ee1faed3))
+* update crypto-js to latest version to ensure crypto random values ([#1193](https://github.com/rudderlabs/rudder-sdk-js/issues/1193)) ([7a50d15](https://github.com/rudderlabs/rudder-sdk-js/commit/7a50d15fa70d512440c52e45021ccee199047b1f))
+
 ## [2.36.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.35.1...v2.36.0) (2023-06-23)
 
 
