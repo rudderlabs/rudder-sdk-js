@@ -36,11 +36,12 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.4.0
+        uses: rudderlabs/github-action-check-size-limit@v2.5.0
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          install_script: setup:ci
           build_script: check:size:build
           script: npm run check:size:json
           is_monorepo: true

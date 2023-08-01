@@ -31,7 +31,7 @@
     "check:lint": "lerna run check:lint",
     "check:lint:dev": "lerna run check:lint:dev",
     "check:size": "lerna run check:size",
-    "check:size:build": "lerna run build:package && lerna link && lerna run check:size:build",
+    "check:size:build": "lerna run check:size:build",
     "check:size:json": "lerna run check:size:json",
     "check:circular": "lerna run check:circular",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
