@@ -1,4 +1,4 @@
-import { STORAGE_TEST_TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storage';
+import { STORAGE_TEST_TOP_LEVEL_DOMAIN } from '../../../constants/storage';
 import { cookie } from '../component-cookie';
 
 const legacyGetHostname = (href: string): string => {

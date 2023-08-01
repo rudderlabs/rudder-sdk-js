@@ -2,7 +2,7 @@ name: Build & Code Quality Checks v3
 
 on:
   pull_request:
-    branches: ['v3-staging', 'develop', 'main']
+    branches: ['develop', 'main']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -24,14 +24,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
           npm run setup:ci
-
-      - name: Restore lerna installation
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-${{ hashFiles('**/package.lock') }}
 
       - name: Execute quality checks
         run: |
@@ -43,12 +36,12 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.4.0
+        uses: rudderlabs/github-action-check-size-limit@v2.5.0
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
+          install_script: setup:ci
           build_script: check:size:build
-          script: npx lerna exec --loglevel=silent -- npm run check:size:json
+          script: npx lerna@6 exec --loglevel=silent --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common'  --scope '@rudderstack/analytics-js-integrations' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json
           is_monorepo: true

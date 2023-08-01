@@ -55,6 +55,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
+    "prepare": "npm run build:package",
     "package": "cd dist && rimraf -rf ./dts && npm pack --pack-destination ../",
     "release": "npm publish"
   },

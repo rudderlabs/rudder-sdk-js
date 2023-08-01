@@ -1,15 +1,15 @@
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   CDN_ARCH_VERSION_DIR,
   CDN_INT_DIR,
   CDN_PLUGINS_DIR,
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
-} from '@rudderstack/analytics-js/constants/urls';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+} from '../../../constants/urls';
 import {
   INTG_CDN_BASE_URL_ERROR,
   PLUGINS_CDN_BASE_URL_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../../constants/logMessages';
 import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 

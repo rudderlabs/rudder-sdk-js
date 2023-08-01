@@ -1,24 +1,24 @@
-import { state } from '@rudderstack/analytics-js/state';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import {
-  getDefaultPageProperties,
-  getLanguage,
-  getUserAgent,
-} from '@rudderstack/analytics-js/components/utilities/page';
-import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
-import { getUserAgentClientHint } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/clientHint';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  getDefaultPageProperties,
+  getLanguage,
+  getUserAgent,
+} from '../utilities/page';
+import { extractUTMParameters } from '../utilities/url';
+import { getUserAgentClientHint } from './detection/clientHint';
+import { getStorageEngine } from '../../services/StoreManager/storages';
+import { state } from '../../state';
 import { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {

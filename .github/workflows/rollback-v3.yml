@@ -1,11 +1,7 @@
-name: Deploy to PROD v3
+name: Rollback v3
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: ['main']
-    types:
-      - closed
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -13,9 +9,9 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy to PROD v3
+    name: Rollback v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main')
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -122,7 +118,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v3 Browser Package'
+          PROJECT_NAME: 'JS SDK v3 Browser Package Rollback'
           CDN_URL: 'https://cdn.rudderlabs.com/v3/modern/rsa.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
@@ -154,7 +150,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v1.1 Browser Package'
+          PROJECT_NAME: 'JS SDK v1.1 Browser Package Rollback'
           CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
