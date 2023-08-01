@@ -1,9 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
-import camelcase from '../../utils/camelcase';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import camelcase from '../../utils/camelcase';
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -119,9 +122,11 @@ class Fullstory {
         };
     })(window, document, window._fs_namespace, 'script', 'user');
 
-    const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
+    const fullstoryIntgConfig =
+      this.analytics.loadOnlyIntegrations[DISPLAY_NAME] ||
+      this.analytics.loadOnlyIntegrations[NAME];
     // Checking if crossDomainSupport is their or not.
-    if (FULLSTORY?.crossDomainSupport === true) {
+    if (fullstoryIntgConfig?.crossDomainSupport === true) {
       // This function will check if the customer hash is available or not in localStorage
       window._fs_identity = function () {
         if (window.localStorage) {
@@ -167,7 +172,7 @@ class Fullstory {
           resultFn();
         }
         // Checking if timeout is provided or not.
-        const timeout = FULLSTORY.timeout || 2000;
+        const timeout = fullstoryIntgConfig.timeout || 2000;
 
         function identify() {
           if (typeof window._fs_identity === 'function') {

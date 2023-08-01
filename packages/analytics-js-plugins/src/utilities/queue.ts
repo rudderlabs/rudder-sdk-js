@@ -17,6 +17,7 @@ import {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
+import { normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 
@@ -104,7 +105,7 @@ const getFinalEventForDeliveryMutator = (
   // IMPORTANT: This logic has been improved over the v1.1 to handle other generic cases as well
   // Merge the destination specific integrations config with the event's integrations config
   // In general, the preference is given to the event's integrations config
-  let finalIntgConfig = event.integrations;
+  let finalIntgConfig = normalizeIntegrationOptions(event.integrations);
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
   const overriddenIntgOpts = getOverriddenIntegrationOptions(
     finalIntgConfig,

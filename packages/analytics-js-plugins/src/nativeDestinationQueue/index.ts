@@ -10,6 +10,7 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { clone } from 'ramda';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
@@ -58,12 +59,17 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           );
 
           destinationsToSend.forEach((dest: Destination) => {
-            const sendEvent = !isEventDenyListed(rudderEvent.type, rudderEvent.event, dest);
+            const clonedRudderEvent = clone(rudderEvent);
+            const sendEvent = !isEventDenyListed(
+              clonedRudderEvent.type,
+              clonedRudderEvent.event,
+              dest,
+            );
             if (!sendEvent) {
               logger?.warn(
                 DESTINATION_EVENT_FILTERING_WARNING(
                   NATIVE_DESTINATION_QUEUE_PLUGIN,
-                  rudderEvent.event,
+                  clonedRudderEvent.event,
                   dest.userFriendlyId,
                 ),
               );
@@ -74,12 +80,12 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               pluginsManager.invokeSingle(
                 'transformEvent.enqueue',
                 state,
-                rudderEvent,
+                clonedRudderEvent,
                 dest,
                 logger,
               );
             } else {
-              sendEventToDestination(rudderEvent, dest, errorHandler, logger);
+              sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
             }
           });
 

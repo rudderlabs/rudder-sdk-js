@@ -179,16 +179,16 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
 const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
   const allOptVal = intgOpts.All;
   return destinations.filter(dest => {
-    const dispName = dest.displayName;
+    const destDisplayName = dest.displayName;
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (isDestIntgConfigFalsy(intgOpts[dispName])) {
+      if (isDestIntgConfigFalsy(intgOpts[destDisplayName])) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      if (isDestIntgConfigTruthy(intgOpts[dispName])) {
+      if (isDestIntgConfigTruthy(intgOpts[destDisplayName])) {
         isDestEnabled = true;
       }
     }
@@ -214,7 +214,7 @@ const getCumulativeIntegrationsConfig = (
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject(),
+        normalizeIntegrationOptions(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
       logger?.error(

@@ -28,7 +28,10 @@ class VWO {
 
   init() {
     logger.debug('===In init VWO===');
-    if (this.analytics.loadOnlyIntegrations?.VWO?.loadIntegration) {
+    const vwoIntgConfig =
+      this.analytics.loadOnlyIntegrations[DISPLAY_NAME] ||
+      this.analytics.loadOnlyIntegrations[NAME];
+    if (vwoIntgConfig && vwoIntgConfig.loadIntegration) {
       const account_id = this.accountId;
       const settings_tolerance = this.settingsTolerance;
       const library_tolerance = this.libraryTolerance;

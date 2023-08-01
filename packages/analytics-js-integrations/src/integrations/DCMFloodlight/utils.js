@@ -1,8 +1,12 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable consistent-return */
 import get from 'get-value';
-import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
+import {
+  DISPLAY_NAME,
+  NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {
   isDefinedAndNotNull,
   isNotEmpty,
@@ -137,22 +141,25 @@ const isValidCountingMethod = (salesTag, countingMethod) => {
 const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
   const customParams = {};
   // COPPA, GDPR, npa must be provided inside integration object
-  let { DCM_FLOODLIGHT } = message.integrations;
-  if (!DCM_FLOODLIGHT) {
-    ({ DCM_FLOODLIGHT } = integrationObj);
+  let dcmFloodlightIntgConfig = message.integrations[DISPLAY_NAME] || message.integrations[NAME];
+  if (!dcmFloodlightIntgConfig) {
+    dcmFloodlightIntgConfig = integrationObj[DISPLAY_NAME] || integrationObj[NAME];
   }
 
-  if (DCM_FLOODLIGHT) {
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.COPPA)) {
-      customParams.tag_for_child_directed_treatment = mapFlagValue('COPPA', DCM_FLOODLIGHT.COPPA);
+  if (dcmFloodlightIntgConfig) {
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.COPPA)) {
+      customParams.tag_for_child_directed_treatment = mapFlagValue(
+        'COPPA',
+        dcmFloodlightIntgConfig.COPPA,
+      );
     }
 
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.GDPR)) {
-      customParams.tfua = mapFlagValue('GDPR', DCM_FLOODLIGHT.GDPR);
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.GDPR)) {
+      customParams.tfua = mapFlagValue('GDPR', dcmFloodlightIntgConfig.GDPR);
     }
 
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.npa)) {
-      customParams.npa = mapFlagValue('npa', DCM_FLOODLIGHT.npa);
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.npa)) {
+      customParams.npa = mapFlagValue('npa', dcmFloodlightIntgConfig.npa);
     }
   }
 

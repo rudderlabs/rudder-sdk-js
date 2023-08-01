@@ -2,6 +2,10 @@
 import _difference from 'lodash.difference';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import {
   eventNamesConfigArray,
   itemParametersConfigArray,
   ITEM_PROP_EXCLUSION_LIST,
@@ -197,10 +201,10 @@ function getPageViewProperty(props) {
  * @param {*} integrations
  */
 function sendUserIdToGA4(integrations) {
-  if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
-    const { GA4 } = integrations;
-    if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
-      return !!GA4.sendUserId;
+  const ga4IntgConfig = integrations[DISPLAY_NAME] || integrations[NAME];
+  if (ga4IntgConfig) {
+    if (Object.prototype.hasOwnProperty.call(ga4IntgConfig, 'sendUserId')) {
+      return !!ga4IntgConfig.sendUserId;
     }
     return true;
   }
