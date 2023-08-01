@@ -1,6 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { clone } from 'ramda';
-import { isHybridModeDestination } from '@rudderstack/analytics-js-common/index';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
@@ -8,17 +6,13 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 import {
-  createDestinationInstance,
   isDestinationSDKMounted,
-  isDestinationReady,
   normalizeIntegrationOptions,
   filterDestinations,
-  getCumulativeIntegrationsConfig,
   initializeDestination,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
-  DESTINATION_INIT_ERROR,
   DESTINATION_NOT_SUPPORTED_ERROR,
   DESTINATION_SDK_LOAD_ERROR,
 } from '../utilities/logMessages';
