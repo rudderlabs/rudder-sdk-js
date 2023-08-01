@@ -1,8 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   IXHRRequestOptions,
@@ -10,12 +8,14 @@ import {
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../../constants/errors';
+import { DEFAULT_XHR_TIMEOUT } from '../../../constants/timeouts';
 import {
   XHR_PAYLOAD_PREP_ERROR,
   XHR_DELIVERY_ERROR,
   XHR_REQUEST_ERROR,
   XHR_SEND_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../../constants/logMessages';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   headers: {

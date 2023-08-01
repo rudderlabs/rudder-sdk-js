@@ -3,8 +3,8 @@ import {
   IInMemoryStorageOptions,
   ILocalStorageOptions,
 } from '@rudderstack/analytics-js-common/types/Store';
-import { DEFAULT_COOKIE_MAX_AGE } from '@rudderstack/analytics-js/constants/timeouts';
 import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { DEFAULT_COOKIE_MAX_AGE } from '../../../constants/timeouts';
 import { domain } from '../top-domain';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {

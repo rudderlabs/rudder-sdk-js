@@ -5,7 +5,6 @@ import {
   isNullOrUndefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { state } from '@rudderstack/analytics-js/state';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiOptions, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -18,10 +17,11 @@ import {
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,

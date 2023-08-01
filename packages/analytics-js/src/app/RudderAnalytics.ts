@@ -7,8 +7,6 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
@@ -17,10 +15,12 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getPreloadedLoadEvent } from '../components/preloadBuffer';
+import { PreloadedEventCall } from '../components/preloadBuffer/types';
+import { setExposedGlobal } from '../components/utilities/globals';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';

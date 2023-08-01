@@ -1,7 +1,5 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
-import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import {
   CookieSameSite,
   LoadOptions,
@@ -9,7 +7,9 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '@rudderstack/analytics-js/components/configManager/constants';
+import { DEFAULT_SESSION_TIMEOUT } from '../../constants/timeouts';
+import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
+import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
   logLevel: LogLevel.Error,

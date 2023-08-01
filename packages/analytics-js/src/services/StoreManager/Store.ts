@@ -1,7 +1,4 @@
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { trim } from '@rudderstack/analytics-js-common/utilities/string';
-import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
@@ -12,11 +9,14 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { defaultLogger } from '../Logger';
+import { defaultErrorHandler } from '../ErrorHandler';
+import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,
   STORE_DATA_SAVE_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
 import { getStorageEngine } from './storages/storageEngine';
 
 /**
