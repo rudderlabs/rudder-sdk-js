@@ -381,7 +381,7 @@ class Mixpanel {
   alias(rudderElement) {
     logger.debug('in Mixpanel alias');
     if (this.identityMergeApi === 'simplified') {
-      logger.error(
+      logger.debug(
         "===Mixpanel: Event type 'alias' is not supported when 'Simplified ID merge' api is selected in webapp===",
       );
       return;
