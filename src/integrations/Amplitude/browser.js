@@ -3,7 +3,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
-import { type } from '../../utils/utils';
 import { NAME } from './constants';
 
 import { loader } from './loader';
@@ -191,7 +190,7 @@ class Amplitude {
   logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue) {
     const { properties, event } = rudderMessage;
 
-    window.amplitude.logEvent(event, properties);
+    window.amplitude.track(event, properties);
     if (properties.revenue && !dontTrackRevenue) {
       this.trackRevenue(rudderMessage);
     }
@@ -213,7 +212,7 @@ class Amplitude {
     // all pages
     if (this.trackAllPages) {
       const event = 'Loaded a page';
-      window.amplitude.logEvent(event, properties);
+      window.amplitude.track(event, properties);
     }
 
     // categorized pages
@@ -221,7 +220,7 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
       else event = `Viewed ${category} Page`;
-      window.amplitude.logEvent(event, properties);
+      window.amplitude.track(event, properties);
     }
 
     // named pages
@@ -229,7 +228,7 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
       else event = `Viewed ${name} Page`;
-      window.amplitude.logEvent(event, properties);
+      window.amplitude.track(event, properties);
     }
   }
 
