@@ -162,6 +162,20 @@ const mapTraits = (arr) => {
   return ret;
 };
 
+/**
+ * Validates weather to send alias call with mixpanel distinct id or not
+ * @param {*} integrations
+ */
+function aliasWithMixpanelDistinctId(integrations) {
+  if (Object.prototype.hasOwnProperty.call(integrations, 'MP')) {
+    const { MP } = integrations;
+    if (Object.prototype.hasOwnProperty.call(MP, 'aliasWithMixpanelDistinctId')) {
+      return !!MP.aliasWithMixpanelDistinctId;
+    }
+  }
+  return false;
+}
+
 export {
   parseConfigArray,
   inverseObjectArrays,
@@ -170,4 +184,5 @@ export {
   extendTraits,
   mapTraits,
   formatTraits,
+  aliasWithMixpanelDistinctId,
 };
