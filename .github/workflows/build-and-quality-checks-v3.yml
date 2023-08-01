@@ -48,7 +48,6 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_step: install
           build_script: check:size:build
           script: npm run check:size:json
           is_monorepo: true
