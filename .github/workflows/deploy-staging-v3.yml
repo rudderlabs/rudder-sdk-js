@@ -31,8 +31,10 @@ jobs:
       - name: Install dependencies
         env:
           HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'development'
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
       - name: Build assets

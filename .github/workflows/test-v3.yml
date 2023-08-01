@@ -29,7 +29,6 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
       - name: Execute unit tests
