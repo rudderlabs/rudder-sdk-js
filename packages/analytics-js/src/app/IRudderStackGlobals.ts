@@ -3,7 +3,7 @@ import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preload
 
 /**
  * Exposed values that can be accessed as global objects per analytics instance
- * // TODO: find all values that need to be exposed in globals if anything else
+ * TODO: find all values that need to be exposed in globals if anything else
  */
 export type ExposedGlobals = {
   state?: ApplicationState;

@@ -142,7 +142,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const groupSpy = jest.spyOn(analyticsInstance, 'group');
 
     rudderAnalytics.group(1234);
-    expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234' });
+    expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234', traits: {} });
   });
 
   it('should process reset arguments and forwards to reset call', () => {

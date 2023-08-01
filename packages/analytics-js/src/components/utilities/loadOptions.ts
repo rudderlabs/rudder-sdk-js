@@ -71,6 +71,8 @@ const normalizeLoadOptions = (
     ? removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions)
     : {};
 
+  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
+
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 
   return mergedLoadOptions;
