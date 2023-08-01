@@ -1,6 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
+import { DEFAULT_XHR_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js/constants/errors';
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -56,7 +56,7 @@ const createXhrRequestOptions = (
  */
 const xhrRequest = (
   options: IXHRRequestOptions,
-  timeout = DEFAULT_XHR_TIMEOUT,
+  timeout = DEFAULT_XHR_TIMEOUT_MS,
   logger?: ILogger,
 ): Promise<ResponseDetails> =>
   new Promise((resolve, reject) => {
