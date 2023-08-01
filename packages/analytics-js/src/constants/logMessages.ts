@@ -165,6 +165,12 @@ const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
 const STORAGE_UNAVAILABLE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}No storage is available. The SDK will be initialized without storage.`;
 
+const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
+
+const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
+
 // DEBUG
 
 export {
@@ -208,4 +214,6 @@ export {
   EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
+  WRITE_KEY_NOT_A_STRING_ERROR,
+  EMPTY_GROUP_CALL_ERROR,
 };

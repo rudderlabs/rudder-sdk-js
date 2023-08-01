@@ -80,6 +80,8 @@ export type DestinationsQueueOpts = {
   maxItems?: number;
 };
 
+export type OnLoadedCallback = (analytics: any) => void;
+
 /**
  * Represents the options parameter in the load API
  */
@@ -102,7 +104,7 @@ export type LoadOptions = {
   sameSiteCookie: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
   polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
-  onLoaded?: (analytics: any) => void;
+  onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
   // TODO: define type for sourceConfig once the trimmed response is implemented
