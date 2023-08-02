@@ -24,9 +24,11 @@ class Woopra {
     this.ignoreQueryUrl = config.ignoreQueryUrl;
     this.outgoingIgnoreSubdomain = config.outgoingIgnoreSubdomain;
     this.outgoingTracking = config.outgoingTracking;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
