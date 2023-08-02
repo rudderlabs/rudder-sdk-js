@@ -1,6 +1,4 @@
 /* eslint-disable */
-/* sonar-ignore */
-
 window.s = s_gi(window.s_account);
 
 /* Plugin Config */
