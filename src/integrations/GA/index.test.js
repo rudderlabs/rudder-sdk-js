@@ -7,14 +7,22 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-const destinationInfo = { areTransformationsConnected: false, destinationId: 'sample-destination-id' };
+const destinationInfo = {
+  shouldApplyDeviceModeTransformation: false,
+  propagateEventsUntransformedOnError: false,
+  destinationId: 'sample-destination-id',
+};
 
 GA.prototype.loadScript = jest.fn();
 
 describe('GA init tests', () => {
   let googleAnalytics;
   beforeEach(() => {
-    googleAnalytics = new GA({ trackingID: 'UA-143161493-8' }, { loadIntegration: true }, destinationInfo);
+    googleAnalytics = new GA(
+      { trackingID: 'UA-143161493-8' },
+      { loadIntegration: true },
+      destinationInfo,
+    );
     googleAnalytics.init();
   });
 
@@ -63,7 +71,7 @@ describe('GA init tests', () => {
           ],
         },
         { loadIntegration: true },
-        destinationInfo
+        destinationInfo,
       );
       googleAnalytics.init();
       window.ga = jest.fn();
@@ -113,7 +121,7 @@ describe('GA init tests', () => {
           contentGroupings: [],
         },
         { loadIntegration: true },
-        destinationInfo
+        destinationInfo,
       );
       googleAnalytics.init();
       window.ga = jest.fn();
