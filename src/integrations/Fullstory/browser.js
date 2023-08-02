@@ -16,9 +16,11 @@ class Fullstory {
     this.fs_host = config.fs_host || 'fullstory.com';
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   static getFSProperties(properties) {

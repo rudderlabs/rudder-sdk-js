@@ -14,9 +14,11 @@ class Refiner {
     this.apiKey = config.webClientApiKey;
     this.userAttributesMapping = config.userAttributesMapping;
     this.accountAttributesMapping = config.accountAttributesMapping;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {

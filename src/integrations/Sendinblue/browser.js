@@ -17,9 +17,11 @@ class Sendinblue {
     this.clientKey = config.clientKey;
     this.contactAttributeMapping = config.contactAttributeMapping;
     this.sendTraitsInTrack = config.sendTraitsInTrack;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {
