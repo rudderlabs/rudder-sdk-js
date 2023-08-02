@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
 import {
@@ -46,13 +46,11 @@ class Criteo {
     window.criteo_q.push({ event: 'setSiteType', type: this.deviceType });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isLoaded() {
     logger.debug('===in Criteo isLoaded===');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug('===in Criteo isReady===');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);

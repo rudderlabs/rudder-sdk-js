@@ -1,8 +1,4 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable camelcase */
 /* eslint-disable class-methods-use-this */
-
 import * as utils from './util';
 import * as ecommUtils from './eCommHandle';
 import * as heartbeatUtils from './heartbeatHandle';

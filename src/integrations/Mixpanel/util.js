@@ -1,6 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-prototype-builtins */
 import logger from '../../utils/logUtil';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
@@ -95,11 +92,13 @@ const inverseObjectArrays = (input) => {
 };
 
 const extractTraits = (traits, traitAliasesParam) => {
-  for (const [key, value] of Object.entries(traitAliasesParam)) {
-    traits[value] = traits[key];
-    delete traits[key];
-  }
-  return traits;
+  const extractedTraits = traits;
+  Object.keys(traitAliasesParam).forEach((key) => {
+    const value = traitAliasesParam[key];
+    extractedTraits[value] = extractedTraits[key];
+    delete extractedTraits[key];
+  });
+  return extractedTraits;
 };
 
 /**
@@ -152,7 +151,7 @@ const mapTraits = (arr) => {
   const ret = new Array(arr.length);
 
   arr.forEach((key) => {
-    if (traitAliases.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(traitAliases, key)) {
       ret.push(traitAliases[key]);
     } else {
       ret.push(key);

@@ -1,4 +1,5 @@
-/* eslint-disable */
+/* eslint-disable class-methods-use-this */
+
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
