@@ -12,9 +12,11 @@ class Shynet {
     const { shynetServiceUrl } = config;
     this.scriptCheck = false;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
 
     this.shynetScript = {
       idempotency: null,

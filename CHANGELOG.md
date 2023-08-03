@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.39.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.1...v2.39.0) (2023-08-01)
+
+
+### Features
+
+* enhancement of device mode transformation ([#1169](https://github.com/rudderlabs/rudder-sdk-js/issues/1169)) ([7b5aea1](https://github.com/rudderlabs/rudder-sdk-js/commit/7b5aea1eea91511e4b68ad6fe895b638f4c4413a))
+
+
+### Bug Fixes
+
+* resolve issue with error reporting global key in IE11 for npm package ([#1241](https://github.com/rudderlabs/rudder-sdk-js/issues/1241)) ([1c45585](https://github.com/rudderlabs/rudder-sdk-js/commit/1c4558596c6fabaf7aa41e2824b4405a4dfd170c))
+
 ### [2.38.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.0...v2.38.1) (2023-07-25)
 
 
