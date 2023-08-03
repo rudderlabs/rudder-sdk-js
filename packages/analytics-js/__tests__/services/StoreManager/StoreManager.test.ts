@@ -34,7 +34,7 @@ describe('StoreManager', () => {
 
   beforeEach(() => {
     errorHandler = { onError: jest.fn() };
-    logger = { error: jest.fn() };
+    logger = { error: jest.fn(), warn: jest.fn() };
     storeManager = new StoreManager(defaultPluginsManager, errorHandler, logger);
   });
 

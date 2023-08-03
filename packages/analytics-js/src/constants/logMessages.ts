@@ -84,8 +84,8 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
-const STORAGE_TYPE_VALIDATION_ERROR = (storageType: any): string =>
-  `The storage type "${storageType}" is invalid. It must be a string. Please check that the storage type is correct and try again.`;
+const STORAGE_TYPE_VALIDATION_ERROR = (context: string, storageType: any): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is invalid. It must be a string. Please check that the storage type is correct and try again.`;
 
 // WARNING
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
@@ -170,7 +170,7 @@ const STORAGE_UNAVAILABLE_WARNING = (
   selectedStorageType: string,
   finalStorageType: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}${selectedStorageType} is not available. The SDK will be initialized with ${finalStorageType}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available. The SDK will be initialized with "${finalStorageType}" instead.`;
 
 const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;

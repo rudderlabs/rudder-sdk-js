@@ -73,7 +73,7 @@ class ConfigManager implements IConfigManager {
     );
     // determine the path to fetch remote plugins from
     const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
-    
+
     // Get the consent manager if provided as load option
     const selectedConsentManager = getUserSelectedConsentManager(
       state.loadOptions.value.cookieConsentManager,
@@ -92,7 +92,7 @@ class ConfigManager implements IConfigManager {
         );
       }
     }
-    
+
     updateStorageState(this.logger);
 
     // set application lifecycle state in global state
@@ -114,11 +114,11 @@ class ConfigManager implements IConfigManager {
 
       // Set consent manager plugin name in state
       state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
-      
+
       // set storage type in state
       const storageType = state.loadOptions.value.storage?.type;
       if (!isValidStorageType(storageType)) {
-        this.onError(new Error(STORAGE_TYPE_VALIDATION_ERROR(storageType)));
+        this.onError(new Error(STORAGE_TYPE_VALIDATION_ERROR(CONFIG_MANAGER, storageType)));
         return;
       }
       state.storage.type.value = storageType;

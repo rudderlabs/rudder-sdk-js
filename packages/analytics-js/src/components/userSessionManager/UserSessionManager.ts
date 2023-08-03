@@ -15,10 +15,7 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
-  DEFAULT_SESSION_TIMEOUT_MS,
-  MIN_SESSION_TIMEOUT_MS,
-} from '../../constants/timeouts';
+import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -34,7 +31,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { defaultSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
+import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
 import { IUserSessionManager } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
@@ -70,10 +67,10 @@ class UserSessionManager implements IUserSessionManager {
       this.migrateStorageIfNeeded();
 
       // get the values from storage and set it again
-      this.setUserId(this.getUserId() ?? defaultSessionValues.userId);
-      this.setUserTraits(this.getUserTraits() ?? defaultSessionValues.userTraits);
-      this.setGroupId(this.getGroupId() ?? defaultSessionValues.groupId);
-      this.setGroupTraits(this.getGroupTraits() ?? defaultSessionValues.groupTraits);
+      this.setUserId(this.getUserId() ?? defaultUserSessionValues.userId);
+      this.setUserTraits(this.getUserTraits() ?? defaultUserSessionValues.userTraits);
+      this.setGroupId(this.getGroupId() ?? defaultUserSessionValues.groupId);
+      this.setGroupTraits(this.getGroupTraits() ?? defaultUserSessionValues.groupTraits);
       this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
 
       const initialReferrer = this.getInitialReferrer();
@@ -98,14 +95,14 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   setDefaultValues() {
-    state.session.userId.value = defaultSessionValues.userId;
-    state.session.userTraits.value = defaultSessionValues.userTraits;
-    state.session.groupId.value = defaultSessionValues.groupId;
-    state.session.groupTraits.value = defaultSessionValues.groupTraits;
-    state.session.anonymousUserId.value = defaultSessionValues.anonymousUserId;
-    state.session.initialReferrer.value = defaultSessionValues.initialReferrer;
-    state.session.initialReferringDomain.value = defaultSessionValues.initialReferringDomain;
-    state.session.sessionInfo.value = defaultSessionValues.sessionInfo;
+    state.session.userId.value = defaultUserSessionValues.userId;
+    state.session.userTraits.value = defaultUserSessionValues.userTraits;
+    state.session.groupId.value = defaultUserSessionValues.groupId;
+    state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
+    state.session.anonymousUserId.value = defaultUserSessionValues.anonymousUserId;
+    state.session.initialReferrer.value = defaultUserSessionValues.initialReferrer;
+    state.session.initialReferringDomain.value = defaultUserSessionValues.initialReferringDomain;
+    state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
   }
 
   migrateStorageIfNeeded() {

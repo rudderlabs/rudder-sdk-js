@@ -70,54 +70,47 @@ class StoreManager implements IStoreManager {
    * Create store to persist data used by the SDK like session, used details etc
    */
   initClientDataStore() {
-    let storageType = state.storage.type.value || '';
+    const storageType = state.storage.type.value || COOKIE_STORAGE;
+    let finalStorageType = storageType;
 
     switch (storageType) {
-      case COOKIE_STORAGE:
-        // First try setting the storage to cookie else to local storage
-        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-          storageType = COOKIE_STORAGE;
-        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-          this.logger?.warn(
-            STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, COOKIE_STORAGE, LOCAL_STORAGE),
-          );
-          storageType = LOCAL_STORAGE;
-        } else {
-          this.logger?.warn(
-            STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, COOKIE_STORAGE, MEMORY_STORAGE),
-          );
-          storageType = MEMORY_STORAGE;
-        }
-        break;
       case LOCAL_STORAGE:
         if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-          storageType = MEMORY_STORAGE;
+          finalStorageType = MEMORY_STORAGE;
         }
         break;
       case MEMORY_STORAGE:
-      case NO_STORAGE:
+        finalStorageType = MEMORY_STORAGE;
         break;
+      case NO_STORAGE:
+        finalStorageType = NO_STORAGE;
+        break;
+      case COOKIE_STORAGE:
       default:
         // First try setting the storage to cookie else to local storage
         if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-          storageType = COOKIE_STORAGE;
+          finalStorageType = COOKIE_STORAGE;
         } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-          storageType = LOCAL_STORAGE;
+          finalStorageType = LOCAL_STORAGE;
         } else {
-          storageType = MEMORY_STORAGE;
+          finalStorageType = MEMORY_STORAGE;
         }
         break;
     }
 
+    if (finalStorageType !== storageType) {
+      this.logger?.warn(STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType));
+    }
+
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    if (storageType !== NO_STORAGE) {
+    if (finalStorageType !== NO_STORAGE) {
       this.setStore({
         id: CLIENT_DATA_STORE_NAME,
         name: CLIENT_DATA_STORE_NAME,
         isEncrypted: true,
         noCompoundKey: true,
-        type: storageType as StorageType,
+        type: finalStorageType,
       });
     }
   }
