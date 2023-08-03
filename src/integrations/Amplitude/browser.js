@@ -30,12 +30,11 @@ class Amplitude {
     this.traitsToIncrement = [];
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {

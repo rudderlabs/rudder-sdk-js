@@ -60,9 +60,11 @@ class SnapPixel {
       'custom_event_4',
       'custom_event_5',
     ];
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {

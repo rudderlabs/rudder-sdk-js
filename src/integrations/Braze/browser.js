@@ -38,7 +38,8 @@ class Braze {
     this.name = NAME;
     this.supportDedup = config.supportDedup || false;
     ({
-      areTransformationsConnected: this.areTransformationsConnected,
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
 
