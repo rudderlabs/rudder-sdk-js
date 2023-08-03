@@ -10,7 +10,8 @@ import {
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
-import { STORAGE_UNAVAILABLE_ERROR } from '../../constants/logMessages';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions } from './types';
 import { state } from '../../state';
 import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';

@@ -259,18 +259,17 @@ const getEnrichedEvent = (
     userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
-  commonEventData.context = commonEventData.context as RudderContext;
   if (state.storage.type.value === NO_STORAGE) {
     // Generate new anonymous id for each request
     commonEventData.anonymousId = generateUUID();
-    commonEventData.context.anonymousTracking = true;
+    (commonEventData.context as RudderContext).anonymousTracking = true;
   } else {
     // Type casting to string as the user session manager will take care of initializing the value
     commonEventData.anonymousId = state.session.anonymousUserId.value as string;
   }
 
   if (rudderEvent.type === RudderEventType.Identify) {
-    commonEventData.context.traits = traits
+    (commonEventData.context as RudderContext).traits = traits
       ? mergeDeepRight(traits, clone(state.session.userTraits.value) as ApiObject)
       : clone(state.session.userTraits.value);
   }
@@ -281,8 +280,8 @@ const getEnrichedEvent = (
     }
     if (traits || state.session.groupTraits.value) {
       commonEventData.traits = traits
-      ? mergeDeepRight(traits, clone(state.session.groupTraits.value) as ApiObject)
-      : clone(state.session.groupTraits.value);
+        ? mergeDeepRight(traits, clone(state.session.groupTraits.value) as ApiObject)
+        : clone(state.session.groupTraits.value);
     }
   }
 
