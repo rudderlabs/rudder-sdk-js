@@ -12,6 +12,7 @@ class CustomerIO {
     this.analytics = analytics;
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
+    this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -50,9 +51,12 @@ class CustomerIO {
 
   page(rudderElement) {
     logger.debug('in Customer IO page');
-
-    const name = rudderElement.message.name || rudderElement.message.properties.url;
-    window._cio.page(name, rudderElement.message.properties);
+    if (this.sendPageNameInSDK === false) {
+      window._cio.page(rudderElement.message.properties);
+    } else {
+      const name = rudderElement.message.name || rudderElement.message.properties.url;
+      window._cio.page(name, rudderElement.message.properties);
+    }
   }
 
   isLoaded() {
