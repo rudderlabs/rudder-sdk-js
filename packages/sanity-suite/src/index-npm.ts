@@ -26,6 +26,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
             enabled: true,
           },
         },
+        storage: {
+          migrate: true,
+        },
       };
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     case 'eventFiltering':
@@ -39,6 +42,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
             enabled: true,
           },
         },
+        storage: {
+          migrate: true,
+        },
       };
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     default:
@@ -51,6 +57,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
           oneTrust: {
             enabled: true,
           },
+        },
+        storage: {
+          migrate: true,
         },
       };
   }

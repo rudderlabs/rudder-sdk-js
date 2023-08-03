@@ -1,11 +1,4 @@
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { Store } from '@rudderstack/analytics-js/services/StoreManager';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
-import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
@@ -26,6 +19,13 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { Store } from '../../services/StoreManager';
+import { IUserSessionManager } from '../userSessionManager/types';
+import { IConfigManager } from '../configManager/types';
+import { IEventManager } from '../eventManager/types';
+import { ICapabilitiesManager } from '../capabilitiesManager/types';
+import { PreloadedEventCall } from '../preloadBuffer/types';
+import { BufferQueue } from './BufferQueue';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
@@ -95,7 +95,7 @@ export interface IAnalytics {
   /**
    * Trigger onLoaded callback if any is provided in config
    */
-  onLoaded(): void;
+  onInitialized(): void;
 
   /**
    * Consume preloaded events buffer
@@ -103,14 +103,14 @@ export interface IAnalytics {
   processBufferedEvents(): void;
 
   /**
-   * Load device mode integrations
+   * Load device mode destinations
    */
-  loadIntegrations(): void;
+  loadDestinations(): void;
 
   /**
    * Invoke the ready callbacks if any exist
    */
-  onReady(): void;
+  onDestinationsReady(): void;
 
   /**
    * To register a callback for SDK ready state

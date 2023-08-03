@@ -1,32 +1,7 @@
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { batch, effect } from '@preact/signals-core';
-import { state } from '@rudderstack/analytics-js/state';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
-import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
-import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
+import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { normalizeLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import {
-  consumePreloadBufferedEvent,
-  retrievePreloadBufferEvents,
-} from '@rudderstack/analytics-js/components/preloadBuffer';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
-import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
-import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import { clone } from 'ramda';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -34,25 +9,22 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AnonymousIdOptions,
   LoadOptions,
+  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
-  ADBLOCK_PAGE_CATEGORY,
-  ADBLOCK_PAGE_NAME,
-  ADBLOCK_PAGE_PATH,
-} from '@rudderstack/analytics-js/constants/app';
-import {
+  ANALYTICS_CORE,
   LOAD_CONFIGURATION,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { READY_API_CALLBACK_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -60,7 +32,31 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
+import { defaultLogger } from '../../services/Logger';
+import { defaultErrorHandler } from '../../services/ErrorHandler';
+import { defaultPluginEngine } from '../../services/PluginEngine';
+import { PluginsManager } from '../pluginsManager';
+import { defaultHttpClient } from '../../services/HttpClient';
+import { Store, StoreManager } from '../../services/StoreManager';
+import { state } from '../../state';
+import { ConfigManager } from '../configManager/ConfigManager';
+import { ICapabilitiesManager } from '../capabilitiesManager/types';
+import { CapabilitiesManager } from '../capabilitiesManager';
+import { IEventManager } from '../eventManager/types';
+import { EventManager } from '../eventManager';
+import { UserSessionManager } from '../userSessionManager/UserSessionManager';
+import { IUserSessionManager } from '../userSessionManager/types';
+import { IConfigManager } from '../configManager/types';
+import { setExposedGlobal } from '../utilities/globals';
+import { normalizeLoadOptions } from '../utilities/loadOptions';
+import { consumePreloadBufferedEvent, retrievePreloadBufferEvents } from '../preloadBuffer';
+import { PreloadedEventCall } from '../preloadBuffer/types';
+import { BufferQueue } from './BufferQueue';
+import { EventRepository } from '../eventRepository';
+import { IEventRepository } from '../eventRepository/types';
+import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import { READY_API_CALLBACK_ERROR } from '../../constants/logMessages';
+import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { IAnalytics } from './IAnalytics';
 
 /*
@@ -103,10 +99,10 @@ class Analytics implements IAnalytics {
     this.loadConfig = this.loadConfig.bind(this);
     this.init = this.init.bind(this);
     this.loadPlugins = this.loadPlugins.bind(this);
-    this.onLoaded = this.onLoaded.bind(this);
+    this.onInitialized = this.onInitialized.bind(this);
     this.processBufferedEvents = this.processBufferedEvents.bind(this);
-    this.loadIntegrations = this.loadIntegrations.bind(this);
-    this.onReady = this.onReady.bind(this);
+    this.loadDestinations = this.loadDestinations.bind(this);
+    this.onDestinationsReady = this.onDestinationsReady.bind(this);
     this.ready = this.ready.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -169,40 +165,45 @@ class Analytics implements IAnalytics {
    */
   startLifecycle() {
     effect(() => {
-      switch (state.lifecycle.status.value) {
-        case LifecycleStatus.Mounted:
-          this.prepareBrowserCapabilities();
-          break;
-        case LifecycleStatus.BrowserCapabilitiesReady:
-          // initialize the preloaded events enqueuing
-          retrievePreloadBufferEvents(this);
-          this.prepareInternalServices();
-          this.loadConfig();
-          break;
-        case LifecycleStatus.Configured:
-          this.loadPlugins();
-          break;
-        case LifecycleStatus.PluginsLoading:
-          break;
-        case LifecycleStatus.PluginsReady:
-          this.init();
-          break;
-        case LifecycleStatus.Initialized:
-          this.onLoaded();
-          break;
-        case LifecycleStatus.Loaded:
-          this.loadIntegrations();
-          this.processBufferedEvents();
-          break;
-        case LifecycleStatus.DestinationsLoading:
-          break;
-        case LifecycleStatus.DestinationsReady:
-          this.onReady();
-          break;
-        case LifecycleStatus.Ready:
-          break;
-        default:
-          break;
+      try {
+        switch (state.lifecycle.status.value) {
+          case LifecycleStatus.Mounted:
+            this.prepareBrowserCapabilities();
+            break;
+          case LifecycleStatus.BrowserCapabilitiesReady:
+            // initialize the preloaded events enqueuing
+            retrievePreloadBufferEvents(this);
+            this.prepareInternalServices();
+            this.loadConfig();
+            break;
+          case LifecycleStatus.Configured:
+            this.loadPlugins();
+            break;
+          case LifecycleStatus.PluginsLoading:
+            break;
+          case LifecycleStatus.PluginsReady:
+            this.init();
+            break;
+          case LifecycleStatus.Initialized:
+            this.onInitialized();
+            break;
+          case LifecycleStatus.Loaded:
+            this.loadDestinations();
+            this.processBufferedEvents();
+            break;
+          case LifecycleStatus.DestinationsLoading:
+            break;
+          case LifecycleStatus.DestinationsReady:
+            this.onDestinationsReady();
+            break;
+          case LifecycleStatus.Ready:
+            break;
+          default:
+            break;
+        }
+      } catch (err) {
+        const issue = 'Failed to load the SDK';
+        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
   }
@@ -298,6 +299,9 @@ class Analytics implements IAnalytics {
 
     // Initialize event manager
     this.eventManager?.init();
+
+    // Mark the SDK as initialized
+    state.lifecycle.status.value = LifecycleStatus.Initialized;
   }
 
   /**
@@ -312,20 +316,22 @@ class Analytics implements IAnalytics {
   /**
    * Trigger onLoaded callback if any is provided in config
    */
-  onLoaded() {
+  onInitialized() {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
+
+    // TODO: we need to avoid passing the window object to the callback function
+    // as this will prevent us from supporting multiple SDK instances in the same page
+    // Execute onLoaded callback if provided in load options
+    if (isFunction(state.loadOptions.value.onLoaded)) {
+      (state.loadOptions.value.onLoaded as OnLoadedCallback)((globalThis as any).rudderanalytics);
+    }
 
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
       state.lifecycle.status.value = LifecycleStatus.Loaded;
     });
-
-    // Execute onLoaded callback if provided in load options
-    if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
-      state.loadOptions.value.onLoaded(this);
-    }
 
     this.initialized = true;
   }
@@ -345,10 +351,10 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Load device mode integrations
+   * Load device mode destinations
    */
-  loadIntegrations() {
-    // Set in state the desired activeIntegrations to inject in DOM
+  loadDestinations() {
+    // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
       state,
@@ -371,7 +377,7 @@ class Analytics implements IAnalytics {
       this.logger,
     );
 
-    // Progress to next lifecycle phase if all native integrations are initialized or failed
+    // Progress to next lifecycle phase if all native destinations are initialized or failed
     effect(() => {
       const areAllDestinationsReady =
         totalDestinationsToLoad === 0 ||
@@ -392,7 +398,7 @@ class Analytics implements IAnalytics {
    * Invoke the ready callbacks if any exist
    */
   // eslint-disable-next-line class-methods-use-this
-  onReady() {
+  onDestinationsReady() {
     state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
     state.lifecycle.status.value = LifecycleStatus.Ready;
   }
@@ -403,18 +409,18 @@ class Analytics implements IAnalytics {
     const type = 'ready';
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
-    if (!isFunction(callback)) {
-      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
-      return;
-    }
-
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
       return;
     }
 
+    if (!isFunction(callback)) {
+      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
+      return;
+    }
+
     /**
-     * If integrations are loaded or no integration is available for loading
+     * If destinations are loaded or no integration is available for loading
      * execute the callback immediately else push the callbacks to a queue that
      * will be executed after loading completes
      */
@@ -478,7 +484,7 @@ class Analytics implements IAnalytics {
 
     this.eventManager?.addEvent({
       type: RudderEventType.Track,
-      name: payload.name,
+      name: payload.name || undefined,
       properties: payload.properties,
       options: payload.options,
       callback: payload.callback,
@@ -503,7 +509,10 @@ class Analytics implements IAnalytics {
       this.reset();
     }
 
-    this.userSessionManager?.setUserId(payload.userId);
+    // `null` value indicates that previous user ID needs to be retained
+    if (!isNull(payload.userId)) {
+      this.userSessionManager?.setUserId(payload.userId);
+    }
     this.userSessionManager?.setUserTraits(payload.traits);
 
     this.eventManager?.addEvent({
@@ -549,7 +558,11 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.userSessionManager?.setGroupId(payload.groupId);
+    // `null` value indicates that previous group ID needs to be retained
+    if (!isNull(payload.groupId)) {
+      this.userSessionManager?.setGroupId(payload.groupId);
+    }
+
     this.userSessionManager?.setGroupTraits(payload.traits);
 
     this.eventManager?.addEvent({
@@ -579,7 +592,14 @@ class Analytics implements IAnalytics {
     return this.userSessionManager?.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void {
+    const type = 'setAnonymousId';
+    // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type, anonymousId, rudderAmpLinkerParam]);
+      return;
+    }
+
     this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
@@ -603,11 +623,27 @@ class Analytics implements IAnalytics {
     return state.session.groupTraits.value;
   }
 
-  startSession(sessionId?: number) {
+  startSession(sessionId?: number): void {
+    const type = 'startSession';
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
+      return;
+    }
+
     this.userSessionManager?.start(sessionId);
   }
 
-  endSession() {
+  endSession(): void {
+    const type = 'endSession';
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      return;
+    }
+
     this.userSessionManager?.end();
   }
 

@@ -7,22 +7,7 @@
       var asyncScript = true;
       window.rudderAnalyticsBuildType = 'legacy';
       window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'getAnonymousId',
-        'setAnonymousId',
-        'startSession',
-        'endSession',
-        'getSessionId',
-      ];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         window.rudderanalytics[method] = (function (methodName) {

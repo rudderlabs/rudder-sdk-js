@@ -1,14 +1,14 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../../constants/logMessages';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
-  if (!writeKey || writeKey.trim().length === 0) {
+  if (!isString(writeKey) || (writeKey as string).trim().length === 0) {
     throw new Error(WRITE_KEY_VALIDATION_ERROR(writeKey));
   }
 };
@@ -33,4 +33,4 @@ const isValidSourceConfig = (res: any): boolean =>
 
 const isValidStorageType = (storageType?: StorageType): boolean => typeof storageType === 'string';
 
-export { validateLoadArgs, isValidSourceConfig, isValidStorageType };
+export { validateLoadArgs, isValidSourceConfig, isValidStorageType, validateWriteKey, validateDataPlaneUrl };

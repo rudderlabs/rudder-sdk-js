@@ -3,15 +3,15 @@ import {
   IInMemoryStorageOptions,
   ILocalStorageOptions,
 } from '@rudderstack/analytics-js-common/types/Store';
-import { DEFAULT_COOKIE_MAX_AGE } from '@rudderstack/analytics-js/constants/timeouts';
 import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { DEFAULT_COOKIE_MAX_AGE_MS } from '../../../constants/timeouts';
 import { domain } from '../top-domain';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
   const topDomain = domain(globalThis.location.href);
 
   return {
-    maxage: DEFAULT_COOKIE_MAX_AGE,
+    maxage: DEFAULT_COOKIE_MAX_AGE_MS,
     path: '/',
     domain: !topDomain || topDomain === '.' ? undefined : topDomain,
     samesite: CookieSameSite.Lax,

@@ -20,9 +20,6 @@
     "test": "exit 0",
     "test:ci": "exit 0",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "exit 0",
-    "check:size": "exit 0",
-    "check:size:json": "exit 0",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
@@ -56,10 +53,10 @@
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
-    "@rudderstack/analytics-js": "3.0.0",
+    "@rudderstack/analytics-js": "^3.0.0",
     "deep-equal": "2.2.1",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "2.38.1"
+    "rudder-sdk-js": "^2.38.1"
   },
   "devDependencies": {
     "@babel/core": "7.22.9",

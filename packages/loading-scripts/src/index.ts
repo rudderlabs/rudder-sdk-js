@@ -22,11 +22,9 @@ const methods: string[] = [
   'alias',
   'group',
   'reset',
-  'getAnonymousId',
   'setAnonymousId',
   'startSession',
   'endSession',
-  'getSessionId',
 ];
 
 for (let i = 0; i < methods.length; i++) {

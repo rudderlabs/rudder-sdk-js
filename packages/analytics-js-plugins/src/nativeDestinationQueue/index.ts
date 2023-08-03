@@ -51,19 +51,19 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
-        (item: RudderEvent, done: DoneCallback) => {
+        (rudderEvent: RudderEvent, done: DoneCallback) => {
           const destinationsToSend = filterDestinations(
-            item.integrations,
+            rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,
           );
 
           destinationsToSend.forEach((dest: Destination) => {
-            const sendEvent = !isEventDenyListed(item.type, item.event, dest);
+            const sendEvent = !isEventDenyListed(rudderEvent.type, rudderEvent.event, dest);
             if (!sendEvent) {
               logger?.warn(
                 DESTINATION_EVENT_FILTERING_WARNING(
                   NATIVE_DESTINATION_QUEUE_PLUGIN,
-                  item.event,
+                  rudderEvent.event,
                   dest.userFriendlyId,
                 ),
               );
@@ -71,9 +71,15 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             }
 
             if (dest.shouldApplyDeviceModeTransformation) {
-              pluginsManager.invokeSingle('transformEvent.enqueue', state, item, dest, logger);
+              pluginsManager.invokeSingle(
+                'transformEvent.enqueue',
+                state,
+                rudderEvent,
+                dest,
+                logger,
+              );
             } else {
-              sendEventToDestination(item, dest, errorHandler, logger);
+              sendEventToDestination(rudderEvent, dest, errorHandler, logger);
             }
           });
 

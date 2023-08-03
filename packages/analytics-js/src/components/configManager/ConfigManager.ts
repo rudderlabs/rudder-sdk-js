@@ -6,12 +6,7 @@ import {
   isValidStorageType,
   validateLoadArgs,
 } from '@rudderstack/analytics-js/components/configManager/util/validate';
-import { state } from '@rudderstack/analytics-js/state';
-import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
-import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
@@ -24,8 +19,12 @@ import {
   SOURCE_CONFIG_OPTION_ERROR,
   STORAGE_TYPE_VALIDATION_ERROR,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
-import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+} from '../../constants/logMessages';
+import { getSourceConfigURL } from '../utilities/loadOptions';
+import { filterEnabledDestination } from '../utilities/destinations';
+import { removeTrailingSlashes } from '../utilities/url';
+import { APP_VERSION } from '../../constants/app';
+import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -62,73 +61,68 @@ class ConfigManager implements IConfigManager {
   init() {
     let consentManagerPluginName: PluginName | undefined;
     this.attachEffects();
+    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
+
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
-    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
 
-    try {
-      // determine the path to fetch integration SDK from
-      const intgCdnUrl = getIntegrationsCDNPath(
-        APP_VERSION,
-        lockIntegrationsVersion,
-        state.loadOptions.value.destSDKBaseURL,
-      );
-      // determine the path to fetch remote plugins from
-      const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+    // determine the path to fetch integration SDK from
+    const intgCdnUrl = getIntegrationsCDNPath(
+      APP_VERSION,
+      lockIntegrationsVersion,
+      state.loadOptions.value.destSDKBaseURL,
+    );
+    // determine the path to fetch remote plugins from
+    const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+    
+    // Get the consent manager if provided as load option
+    const selectedConsentManager = getUserSelectedConsentManager(
+      state.loadOptions.value.cookieConsentManager,
+    );
 
-      // Get the consent manager if provided as load option
-      const selectedConsentManager = getUserSelectedConsentManager(
-        state.loadOptions.value.cookieConsentManager,
-      );
+    if (selectedConsentManager) {
+      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+      consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
+      if (!consentManagerPluginName) {
+        this.logger?.error(
+          UNSUPPORTED_CONSENT_MANAGER_ERROR(
+            CONFIG_MANAGER,
+            selectedConsentManager,
+            ConsentManagersToPluginNameMap,
+          ),
+        );
+      }
+    }
+    
+    updateStorageState(this.logger);
 
-      if (selectedConsentManager) {
-        // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-        consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
-        if (!consentManagerPluginName) {
-          this.logger?.error(
-            UNSUPPORTED_CONSENT_MANAGER_ERROR(
-              CONFIG_MANAGER,
-              selectedConsentManager,
-              ConsentManagersToPluginNameMap,
-            ),
-          );
-        }
+    // set application lifecycle state in global state
+    batch(() => {
+      state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
+      state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
+
+      if (state.loadOptions.value.logLevel) {
+        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
       }
 
-      updateStorageState(this.logger);
+      if (state.loadOptions.value.configUrl) {
+        state.lifecycle.sourceConfigUrl.value = new URL(
+          `${getSourceConfigURL(state.loadOptions.value.configUrl)}&writeKey=${
+            state.lifecycle.writeKey.value
+          }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
+        ).toString();
+      }
 
-      // set application lifecycle state in global state
-      batch(() => {
-        state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
-        state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
-
-        if (state.loadOptions.value.logLevel) {
-          state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
-        }
-
-        if (state.loadOptions.value.configUrl) {
-          state.lifecycle.sourceConfigUrl.value = new URL(
-            `${getSourceConfigURL(state.loadOptions.value.configUrl)}&writeKey=${
-              state.lifecycle.writeKey.value
-            }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
-          ).toString();
-        }
-
-        // Set consent manager plugin name in state
-        state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
-
-        // set storage type in state
-        const storageType = state.loadOptions.value.storage?.type;
-        if (!isValidStorageType(storageType)) {
-          this.onError(new Error(STORAGE_TYPE_VALIDATION_ERROR(storageType)));
-          return;
-        }
-        state.storage.type.value = storageType;
-      });
-    } catch (err) {
-      const issue = 'Failed to load the SDK';
-      this.onError(getMutatedError(err, issue));
-      return;
-    }
+      // Set consent manager plugin name in state
+      state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+      
+      // set storage type in state
+      const storageType = state.loadOptions.value.storage?.type;
+      if (!isValidStorageType(storageType)) {
+        this.onError(new Error(STORAGE_TYPE_VALIDATION_ERROR(storageType)));
+        return;
+      }
+      state.storage.type.value = storageType;
+    });
 
     this.getConfig();
   }
@@ -201,11 +195,6 @@ class ConfigManager implements IConfigManager {
       // set device mode destination related information in state
       state.nativeDestinations.configuredDestinations.value = nativeDestinations;
 
-      // set application lifecycle state
-      // Cast to string as we are sure that the value is not undefined
-      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
-      state.lifecycle.status.value = LifecycleStatus.Configured;
-
       // set the values in state for reporting slice
       updateReportingState(res, this.logger);
 
@@ -213,7 +202,8 @@ class ConfigManager implements IConfigManager {
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
       // set application lifecycle state
-      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      // Cast to string as we are sure that the value is not undefined
+      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
       state.lifecycle.status.value = LifecycleStatus.Configured;
     });
   }
