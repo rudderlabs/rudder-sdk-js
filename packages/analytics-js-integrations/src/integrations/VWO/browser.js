@@ -5,6 +5,7 @@
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import { getDestinationOptions } from './utils';
 
 class VWO {
   constructor(config, analytics, destinationInfo) {
@@ -28,7 +29,8 @@ class VWO {
 
   init() {
     logger.debug('===In init VWO===');
-    if (this.analytics.loadOnlyIntegrations?.VWO?.loadIntegration) {
+    const vwoIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
+    if (vwoIntgConfig?.loadIntegration) {
       const account_id = this.accountId;
       const settings_tolerance = this.settingsTolerance;
       const library_tolerance = this.libraryTolerance;

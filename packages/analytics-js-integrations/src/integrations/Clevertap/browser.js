@@ -3,6 +3,7 @@ import get from 'get-value';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Clevertap/constants';
+import { getDestinationOptions } from './utils';
 import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../utils/utils';
 
 class Clevertap {
@@ -67,10 +68,10 @@ class Clevertap {
     /*
       Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
     */
-    const { CLEVERTAP } = this.analytics.loadOnlyIntegrations;
-    if (CLEVERTAP) {
-      this.optOut = CLEVERTAP.optOut;
-      this.useIP = CLEVERTAP.useIP;
+    const clevertapIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
+    if (clevertapIntgConfig) {
+      this.optOut = clevertapIntgConfig.optOut;
+      this.useIP = clevertapIntgConfig.useIP;
     }
     window.clevertap.enablePersonalization = true;
     window.clevertap.privacy.push({ optOut: this.optOut || false });

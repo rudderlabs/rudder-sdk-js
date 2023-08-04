@@ -10,11 +10,13 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { clone } from 'ramda';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
-import { filterDestinations, normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
+import { filterDestinations } from '../deviceModeDestinations/utils';
 import { DESTINATION_EVENT_FILTERING_WARNING } from '../utilities/logMessages';
 
 const pluginName = 'NativeDestinationQueue';
@@ -58,12 +60,17 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           );
 
           destinationsToSend.forEach((dest: Destination) => {
-            const sendEvent = !isEventDenyListed(rudderEvent.type, rudderEvent.event, dest);
+            const clonedRudderEvent = clone(rudderEvent);
+            const sendEvent = !isEventDenyListed(
+              clonedRudderEvent.type,
+              clonedRudderEvent.event,
+              dest,
+            );
             if (!sendEvent) {
               logger?.warn(
                 DESTINATION_EVENT_FILTERING_WARNING(
                   NATIVE_DESTINATION_QUEUE_PLUGIN,
-                  rudderEvent.event,
+                  clonedRudderEvent.event,
                   dest.userFriendlyId,
                 ),
               );
@@ -74,12 +81,12 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               pluginsManager.invokeSingle(
                 'transformEvent.enqueue',
                 state,
-                rudderEvent,
+                clonedRudderEvent,
                 dest,
                 logger,
               );
             } else {
-              sendEventToDestination(rudderEvent, dest, errorHandler, logger);
+              sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
             }
           });
 

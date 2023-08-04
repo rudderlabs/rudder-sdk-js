@@ -2,6 +2,10 @@ import is from 'is';
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
 
 function getEventId(message) {
   return (
@@ -123,4 +127,15 @@ const buildPayLoad = (
   return payload;
 };
 
-export { getEventId, getContentCategory, buildPayLoad, getHashedStatus };
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
+
+export { getEventId, getContentCategory, buildPayLoad, getHashedStatus, getDestinationOptions };

@@ -5,6 +5,7 @@ import {
   mergeDeepRight,
   stringifyWithoutCircular,
 } from '@rudderstack/analytics-js-common/index';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
@@ -104,7 +105,7 @@ const getFinalEventForDeliveryMutator = (
   // IMPORTANT: This logic has been improved over the v1.1 to handle other generic cases as well
   // Merge the destination specific integrations config with the event's integrations config
   // In general, the preference is given to the event's integrations config
-  let finalIntgConfig = event.integrations;
+  let finalIntgConfig = normalizeIntegrationOptions(event.integrations);
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
   const overriddenIntgOpts = getOverriddenIntegrationOptions(
     finalIntgConfig,
