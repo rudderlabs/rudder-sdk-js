@@ -1,5 +1,8 @@
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import {
+  StorageType,
+  SUPPORTED_STORAGE_TYPES,
+} from '@rudderstack/analytics-js-common/types/Storage';
 import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 
@@ -85,8 +88,12 @@ const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
 // WARNING
-const STORAGE_TYPE_VALIDATION_WARNING = (context: string, storageType: any): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is invalid. SDK will be initialized with the default storage type.`;
+const STORAGE_TYPE_VALIDATION_WARNING = (
+  context: string,
+  storageType: any,
+  defaultStorageType: StorageType,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported storage types: "${SUPPORTED_STORAGE_TYPES}". The default storage "${defaultStorageType}" will be used instead.`;
 
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,

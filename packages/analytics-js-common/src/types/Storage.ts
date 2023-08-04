@@ -18,6 +18,8 @@ export const SUPPORTED_STORAGE_TYPES = [
   'none',
 ];
 
+export const DEFAULT_STORAGE_TYPE = 'cookieStorage';
+
 export type StorageEncryption = {
   version: StorageEncryptionVersion;
 };

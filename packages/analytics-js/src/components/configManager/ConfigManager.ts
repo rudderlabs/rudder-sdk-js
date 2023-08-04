@@ -13,7 +13,7 @@ import { Destination } from '@rudderstack/analytics-js-common/types/Destination'
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
@@ -119,8 +119,10 @@ class ConfigManager implements IConfigManager {
       // set storage type in state
       const storageType = state.loadOptions.value.storage?.type;
       if (!isValidStorageType(storageType)) {
-        this.logger?.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType));
-        state.storage.type.value = COOKIE_STORAGE;
+        this.logger?.warn(
+          STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
+        );
+        state.storage.type.value = DEFAULT_STORAGE_TYPE;
       } else {
         state.storage.type.value = storageType;
       }

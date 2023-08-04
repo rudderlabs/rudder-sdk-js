@@ -1,13 +1,13 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
-  WRITE_KEY_VALIDATION_ERROR,
-  DATA_PLANE_URL_VALIDATION_ERROR,
-} from '../../../constants/logMessages';
-import {
   SUPPORTED_STORAGE_TYPES,
   StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import {
+  WRITE_KEY_VALIDATION_ERROR,
+  DATA_PLANE_URL_VALIDATION_ERROR,
+} from '../../../constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {

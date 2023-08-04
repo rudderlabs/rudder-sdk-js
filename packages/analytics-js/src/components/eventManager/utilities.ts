@@ -268,12 +268,10 @@ const getEnrichedEvent = (
   }
 
   if (rudderEvent.type === RudderEventType.Identify) {
-    (commonEventData.context as RudderContext).traits = rudderEvent.context?.traits
-      ? mergeDeepRight(
-          rudderEvent.context?.traits,
-          clone(state.session.userTraits.value) as ApiObject,
-        )
-      : clone(state.session.userTraits.value);
+    (commonEventData.context as RudderContext).traits =
+      state.storage.type.value !== NO_STORAGE
+        ? clone(state.session.userTraits.value)
+        : rudderEvent.context?.traits || {};
   }
 
   if (rudderEvent.type === RudderEventType.Group) {
@@ -281,9 +279,10 @@ const getEnrichedEvent = (
       commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
     }
     if (rudderEvent.traits || state.session.groupTraits.value) {
-      commonEventData.traits = rudderEvent.traits
-        ? mergeDeepRight(rudderEvent.traits, clone(state.session.groupTraits.value) as ApiObject)
-        : clone(state.session.groupTraits.value);
+      commonEventData.traits =
+        state.storage.type.value !== NO_STORAGE
+          ? clone(state.session.groupTraits.value)
+          : rudderEvent.traits || {};
     }
   }
 
