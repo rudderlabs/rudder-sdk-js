@@ -205,7 +205,7 @@ function getPageViewProperty(props) {
  * @returns destination specific options
  */
 const getDestinationOptions = integrationsOptions =>
-  integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME];
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 /**
  * Validates weather to send userId property to GA4 or not

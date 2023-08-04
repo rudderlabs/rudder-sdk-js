@@ -23,7 +23,7 @@ import {
  * @returns destination specific options
  */
 const getDestinationOptions = integrationsOptions =>
-  integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME];
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 /**
  * transform webapp dynamicForm custom floodlight variable
