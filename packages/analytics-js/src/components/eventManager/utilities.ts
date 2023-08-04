@@ -17,6 +17,7 @@ import {
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
@@ -233,12 +234,10 @@ const getEnrichedEvent = (
   logger?: ILogger,
 ): RudderEvent => {
   const commonEventData = {
-    // Type casting to string as the user session manager will take care of initializing the value
-    anonymousId: state.session.anonymousUserId.value as string,
     channel: CHANNEL,
     context: {
       traits: clone(state.session.userTraits.value),
-      sessionId: state.session.sessionInfo.value.id,
+      sessionId: state.session.sessionInfo.value.id || undefined,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
@@ -256,15 +255,34 @@ const getEnrichedEvent = (
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: DEFAULT_INTEGRATIONS_CONFIG,
     messageId: generateUUID(),
-    userId: state.session.userId.value,
+    userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
+  if (state.storage.type.value === NO_STORAGE) {
+    // Generate new anonymous id for each request
+    commonEventData.anonymousId = generateUUID();
+    (commonEventData.context as RudderContext).anonymousTracking = true;
+  } else {
+    // Type casting to string as the user session manager will take care of initializing the value
+    commonEventData.anonymousId = state.session.anonymousUserId.value as string;
+  }
+
+  if (rudderEvent.type === RudderEventType.Identify) {
+    (commonEventData.context as RudderContext).traits =
+      state.storage.type.value !== NO_STORAGE
+        ? clone(state.session.userTraits.value)
+        : rudderEvent.context?.traits || {};
+  }
+
   if (rudderEvent.type === RudderEventType.Group) {
-    if (state.session.groupId.value) {
-      commonEventData.groupId = state.session.groupId.value;
+    if (rudderEvent.groupId || state.session.groupId.value) {
+      commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
     }
-    if (state.session.groupTraits.value) {
-      commonEventData.traits = clone(state.session.groupTraits.value);
+    if (rudderEvent.traits || state.session.groupTraits.value) {
+      commonEventData.traits =
+        state.storage.type.value !== NO_STORAGE
+          ? clone(state.session.groupTraits.value)
+          : rudderEvent.traits || {};
     }
   }
 

@@ -3,10 +3,9 @@ import { ILogger } from './Logger';
 import { IPluginsManager } from './PluginsManager';
 import { Nullable } from './Nullable';
 import { CookieSameSite } from './LoadOptions';
+import { StorageType } from './Storage';
 
 export type StoreId = string;
-
-export type StorageType = 'localStorage' | 'sessionStorage' | 'memoryStorage' | 'cookieStorage';
 
 export interface IStoreConfig {
   name: string;
