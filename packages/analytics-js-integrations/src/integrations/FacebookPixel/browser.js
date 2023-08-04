@@ -588,7 +588,7 @@ class FacebookPixel {
   getContentType(rudderElement, defaultValue) {
     // Get the message-specific override if it exists in the options parameter of `track()`
     const fbPixelIntgConfig = getDestinationOptions(rudderElement.message.integrations);
-    const contentTypeMessageOverride = fbPixelIntgConfig && fbPixelIntgConfig.contentType;
+    const contentTypeMessageOverride = fbPixelIntgConfig?.contentType;
     if (contentTypeMessageOverride) return contentTypeMessageOverride;
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
