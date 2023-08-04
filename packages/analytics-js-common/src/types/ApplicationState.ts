@@ -13,6 +13,7 @@ import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentInfo } from './Consent';
+import { StorageType } from './Storage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -133,6 +134,7 @@ export type SourceConfigState = Signal<Source | undefined>;
 export type StorageState = {
   encryptionPluginName: Signal<PluginName | undefined>;
   migrate: Signal<boolean>;
+  type: Signal<StorageType | undefined>;
 };
 
 export interface ApplicationState {

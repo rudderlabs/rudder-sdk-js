@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
-import { IStorage, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';

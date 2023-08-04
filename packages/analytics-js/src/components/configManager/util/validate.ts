@@ -1,6 +1,10 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
+  SUPPORTED_STORAGE_TYPES,
+  StorageType,
+} from '@rudderstack/analytics-js-common/types/Storage';
+import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
 } from '../../../constants/logMessages';
@@ -30,4 +34,13 @@ const isValidSourceConfig = (res: any): boolean =>
   isObjectLiteralAndNotNull(res.source.config) &&
   Array.isArray(res.source.destinations);
 
-export { validateLoadArgs, isValidSourceConfig, validateWriteKey, validateDataPlaneUrl };
+const isValidStorageType = (storageType?: StorageType): boolean =>
+  typeof storageType === 'string' && SUPPORTED_STORAGE_TYPES.includes(storageType);
+
+export {
+  validateLoadArgs,
+  isValidSourceConfig,
+  isValidStorageType,
+  validateWriteKey,
+  validateDataPlaneUrl,
+};

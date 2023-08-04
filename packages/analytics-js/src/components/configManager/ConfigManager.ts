@@ -1,6 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
+import {
+  isValidSourceConfig,
+  isValidStorageType,
+  validateLoadArgs,
+} from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
@@ -8,10 +13,12 @@ import { Destination } from '@rudderstack/analytics-js-common/types/Destination'
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
+  STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
@@ -19,7 +26,6 @@ import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
-import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
@@ -109,6 +115,17 @@ class ConfigManager implements IConfigManager {
 
       // Set consent manager plugin name in state
       state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+
+      // set storage type in state
+      const storageType = state.loadOptions.value.storage?.type;
+      if (!isValidStorageType(storageType)) {
+        this.logger?.warn(
+          STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
+        );
+        state.storage.type.value = DEFAULT_STORAGE_TYPE;
+      } else {
+        state.storage.type.value = storageType;
+      }
     });
 
     this.getConfig();

@@ -15,10 +15,7 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
-  DEFAULT_SESSION_TIMEOUT_MS,
-  MIN_SESSION_TIMEOUT_MS,
-} from '../../constants/timeouts';
+import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -34,7 +31,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { userSessionStorageKeys } from './userSessionStorageKeys';
+import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
 import { IUserSessionManager } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
@@ -61,37 +58,51 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    * @param store Selected store
    */
-  init(store: IStore) {
-    this.store = store;
-
-    this.migrateStorageIfNeeded();
-
-    // get the values from storage and set it again
-    this.setUserId(this.getUserId() ?? '');
-    this.setUserTraits(this.getUserTraits() ?? {});
-    this.setGroupId(this.getGroupId() ?? '');
-    this.setGroupTraits(this.getGroupTraits() ?? {});
-    this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
-
-    const initialReferrer = this.getInitialReferrer();
-    const initialReferringDomain = this.getInitialReferringDomain();
-
-    if (initialReferrer && initialReferringDomain) {
-      this.setInitialReferrer(initialReferrer);
-      this.setInitialReferringDomain(initialReferringDomain);
+  init(store: IStore | undefined) {
+    if (!store) {
+      this.setDefaultValues();
     } else {
-      if (initialReferrer) {
+      this.store = store;
+
+      this.migrateStorageIfNeeded();
+
+      // get the values from storage and set it again
+      this.setUserId(this.getUserId() ?? defaultUserSessionValues.userId);
+      this.setUserTraits(this.getUserTraits() ?? defaultUserSessionValues.userTraits);
+      this.setGroupId(this.getGroupId() ?? defaultUserSessionValues.groupId);
+      this.setGroupTraits(this.getGroupTraits() ?? defaultUserSessionValues.groupTraits);
+      this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
+
+      const initialReferrer = this.getInitialReferrer();
+      const initialReferringDomain = this.getInitialReferringDomain();
+
+      if (initialReferrer && initialReferringDomain) {
+        this.setInitialReferrer(initialReferrer);
+        this.setInitialReferringDomain(initialReferringDomain);
+      } else if (initialReferrer) {
         this.setInitialReferrer(initialReferrer);
         this.setInitialReferringDomain(getReferringDomain(initialReferrer));
+      } else {
+        const referrer = getReferrer();
+        this.setInitialReferrer(referrer);
+        this.setInitialReferringDomain(getReferringDomain(referrer));
       }
-      const referrer = getReferrer();
-      this.setInitialReferrer(referrer);
-      this.setInitialReferringDomain(getReferringDomain(referrer));
+      // Initialize session tracking
+      this.initializeSessionTracking();
+      // Register the effect to sync with storage
+      this.registerEffects();
     }
-    // Initialize session tracking
-    this.initializeSessionTracking();
-    // Register the effect to sync with storage
-    this.registerEffects();
+  }
+
+  setDefaultValues() {
+    state.session.userId.value = defaultUserSessionValues.userId;
+    state.session.userTraits.value = defaultUserSessionValues.userTraits;
+    state.session.groupId.value = defaultUserSessionValues.groupId;
+    state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
+    state.session.anonymousUserId.value = defaultUserSessionValues.anonymousUserId;
+    state.session.initialReferrer.value = defaultUserSessionValues.initialReferrer;
+    state.session.initialReferringDomain.value = defaultUserSessionValues.initialReferringDomain;
+    state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
   }
 
   migrateStorageIfNeeded() {
@@ -258,15 +269,17 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    let finalAnonymousId: string | undefined | null = anonymousId;
-    if (!finalAnonymousId && rudderAmpLinkerParam) {
-      const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
-        'userSession.anonymousIdGoogleLinker',
-        rudderAmpLinkerParam,
-      );
-      finalAnonymousId = linkerPluginsResult?.[0];
+    if (this.store) {
+      let finalAnonymousId: string | undefined | null = anonymousId;
+      if (!finalAnonymousId && rudderAmpLinkerParam) {
+        const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
+          'userSession.anonymousIdGoogleLinker',
+          rudderAmpLinkerParam,
+        );
+        finalAnonymousId = linkerPluginsResult?.[0];
+      }
+      state.session.anonymousUserId.value = finalAnonymousId || this.generateAnonymousId();
     }
-    state.session.anonymousUserId.value = finalAnonymousId || this.generateAnonymousId();
   }
 
   /**
@@ -414,7 +427,9 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    state.session.userId.value = userId;
+    if (this.store) {
+      state.session.userId.value = userId;
+    }
   }
 
   /**
@@ -422,7 +437,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
-    if (traits) {
+    if (traits && this.store) {
       state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
@@ -432,7 +447,9 @@ class UserSessionManager implements IUserSessionManager {
    * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
-    state.session.groupId.value = groupId;
+    if (this.store) {
+      state.session.groupId.value = groupId;
+    }
   }
 
   /**
@@ -440,7 +457,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
-    if (traits) {
+    if (traits && this.store) {
       state.session.groupTraits.value = mergeDeepRight(
         state.session.groupTraits.value ?? {},
         traits,
@@ -453,7 +470,9 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferrer(referrer?: string) {
-    state.session.initialReferrer.value = referrer;
+    if (this.store) {
+      state.session.initialReferrer.value = referrer;
+    }
   }
 
   /**
@@ -461,7 +480,9 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferringDomain(referrer?: string) {
-    state.session.initialReferringDomain.value = referrer;
+    if (this.store) {
+      state.session.initialReferringDomain.value = referrer;
+    }
   }
 
   /**
