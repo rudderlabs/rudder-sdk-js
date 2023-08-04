@@ -105,7 +105,7 @@ class Engage {
       engageId = userIdOnly || null;
     }
     if (!engageId) {
-      logger.error('externalId or userId is required for track call.');
+      logger.error('externalId or userId is required for page call.');
       return;
     }
     let payload = refinePayload(properties);
