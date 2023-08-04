@@ -15,6 +15,17 @@ import {
 } from '../../utils/commonUtils';
 
 /**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME];
+
+/**
  * transform webapp dynamicForm custom floodlight variable
  * [
       {
@@ -141,10 +152,8 @@ const isValidCountingMethod = (salesTag, countingMethod) => {
 const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
   const customParams = {};
   // COPPA, GDPR, npa must be provided inside integration object
-  let dcmFloodlightIntgConfig = message.integrations[DISPLAY_NAME] || message.integrations[NAME];
-  if (!dcmFloodlightIntgConfig) {
-    dcmFloodlightIntgConfig = integrationObj[DISPLAY_NAME] || integrationObj[NAME];
-  }
+  const dcmFloodlightIntgConfig =
+    getDestinationOptions(message.integrations) || getDestinationOptions(integrationObj);
 
   if (dcmFloodlightIntgConfig) {
     if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.COPPA)) {

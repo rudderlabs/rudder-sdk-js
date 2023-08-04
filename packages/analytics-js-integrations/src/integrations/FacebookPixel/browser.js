@@ -5,11 +5,16 @@ import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoad
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
-  DISPLAY_NAME,
   traitsMapper,
   reserveTraits,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
-import { getEventId, getContentCategory, buildPayLoad, getHashedStatus } from './utils';
+import {
+  getEventId,
+  getContentCategory,
+  buildPayLoad,
+  getHashedStatus,
+  getDestinationOptions,
+} from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
 
@@ -582,8 +587,7 @@ class FacebookPixel {
    */
   getContentType(rudderElement, defaultValue) {
     // Get the message-specific override if it exists in the options parameter of `track()`
-    const fbPixelIntgConfig =
-      rudderElement.message.integrations[DISPLAY_NAME] || rudderElement.message.integrations[NAME];
+    const fbPixelIntgConfig = getDestinationOptions(rudderElement.message.integrations);
     const contentTypeMessageOverride = fbPixelIntgConfig && fbPixelIntgConfig.contentType;
     if (contentTypeMessageOverride) return contentTypeMessageOverride;
 

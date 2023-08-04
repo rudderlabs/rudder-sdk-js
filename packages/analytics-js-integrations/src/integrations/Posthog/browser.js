@@ -3,11 +3,9 @@
 import get from 'get-value';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
 import { removeTrailingSlashes } from '../../utils/utils';
+import { getDestinationOptions } from './utils';
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {
@@ -52,9 +50,7 @@ class Posthog {
   }
 
   init() {
-    const options =
-      this.analytics.loadOnlyIntegrations[DISPLAY_NAME] ||
-      this.analytics.loadOnlyIntegrations[NAME];
+    const options = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     if (options && !options.loadIntegration) {
       logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
       return;
@@ -130,8 +126,7 @@ class Posthog {
    * To remove the superproperties, we call unregister api.
    */
   processSuperProperties(rudderElement) {
-    const posthogIntgConfig =
-      rudderElement.message.integrations[DISPLAY_NAME] || rudderElement.message.integrations[NAME];
+    const posthogIntgConfig = getDestinationOptions(rudderElement.message.integrations);
     if (posthogIntgConfig) {
       const { superProperties, setOnceProperties, unsetProperties } = posthogIntgConfig;
       if (superProperties && Object.keys(superProperties).length > 0) {

@@ -2,11 +2,9 @@
 /* eslint-disable no-undef */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
 import camelcase from '../../utils/camelcase';
+import { getDestinationOptions } from './utils';
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -122,9 +120,7 @@ class Fullstory {
         };
     })(window, document, window._fs_namespace, 'script', 'user');
 
-    const fullstoryIntgConfig =
-      this.analytics.loadOnlyIntegrations[DISPLAY_NAME] ||
-      this.analytics.loadOnlyIntegrations[NAME];
+    const fullstoryIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     // Checking if crossDomainSupport is their or not.
     if (fullstoryIntgConfig?.crossDomainSupport === true) {
       // This function will check if the customer hash is available or not in localStorage
