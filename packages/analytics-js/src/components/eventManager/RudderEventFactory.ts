@@ -6,7 +6,7 @@ import {
   ApiOptions,
   RudderEventType,
 } from '@rudderstack/analytics-js-common/types/EventApi';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {
@@ -43,7 +43,7 @@ class RudderEventFactory {
       type: RudderEventType.Page,
     };
 
-    return getEnrichedEvent(pageEvent, options, undefined, props, this.logger);
+    return getEnrichedEvent(pageEvent, options, props, this.logger);
   }
 
   /**
@@ -63,7 +63,7 @@ class RudderEventFactory {
       type: RudderEventType.Track,
     };
 
-    return getEnrichedEvent(trackEvent, options, undefined, undefined, this.logger);
+    return getEnrichedEvent(trackEvent, options, undefined, this.logger);
   }
 
   /**
@@ -78,9 +78,12 @@ class RudderEventFactory {
     const identifyEvent: Partial<RudderEvent> = {
       userId,
       type: RudderEventType.Identify,
+      context: {
+        traits,
+      } as RudderContext,
     };
 
-    return getEnrichedEvent(identifyEvent, options, traits, undefined, this.logger);
+    return getEnrichedEvent(identifyEvent, options, undefined, this.logger);
   }
 
   /**
@@ -99,7 +102,7 @@ class RudderEventFactory {
       type: RudderEventType.Alias,
     };
 
-    const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, undefined, this.logger);
+    const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, this.logger);
     // override the User ID from the API inputs
     enrichedEvent.userId = to ?? enrichedEvent.userId;
     return enrichedEvent;
@@ -117,9 +120,10 @@ class RudderEventFactory {
     const groupEvent: Partial<RudderEvent> = {
       groupId,
       type: RudderEventType.Group,
+      traits,
     };
 
-    return getEnrichedEvent(groupEvent, options, traits, undefined, this.logger);
+    return getEnrichedEvent(groupEvent, options, undefined, this.logger);
   }
 
   /**

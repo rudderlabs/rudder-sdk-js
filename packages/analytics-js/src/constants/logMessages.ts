@@ -84,10 +84,10 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
-const STORAGE_TYPE_VALIDATION_ERROR = (context: string, storageType: any): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is invalid. It must be a string. Please check that the storage type is correct and try again.`;
-
 // WARNING
+const STORAGE_TYPE_VALIDATION_WARNING = (context: string, storageType: any): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is invalid. SDK will be initialized with the default storage type.`;
+
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
   selectedErrorReportingProvider: string | undefined,
@@ -221,7 +221,7 @@ export {
   EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
-  STORAGE_TYPE_VALIDATION_ERROR,
+  STORAGE_TYPE_VALIDATION_WARNING,
   WRITE_KEY_NOT_A_STRING_ERROR,
   EMPTY_GROUP_CALL_ERROR,
 };

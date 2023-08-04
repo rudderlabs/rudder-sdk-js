@@ -10,6 +10,14 @@ export type StorageType =
   | 'sessionStorage'
   | 'none';
 
+export const SUPPORTED_STORAGE_TYPES = [
+  'localStorage',
+  'memoryStorage',
+  'cookieStorage',
+  'sessionStorage',
+  'none',
+];
+
 export type StorageEncryption = {
   version: StorageEncryptionVersion;
 };

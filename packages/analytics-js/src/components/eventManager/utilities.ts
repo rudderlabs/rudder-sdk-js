@@ -17,12 +17,12 @@ import {
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
 } from '../../constants/logMessages';
-import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,
@@ -230,7 +230,6 @@ const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
 const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
   options?: Nullable<ApiOptions>,
-  traits?: Nullable<ApiObject>,
   pageProps?: ApiObject,
   logger?: ILogger,
 ): RudderEvent => {
@@ -269,8 +268,11 @@ const getEnrichedEvent = (
   }
 
   if (rudderEvent.type === RudderEventType.Identify) {
-    (commonEventData.context as RudderContext).traits = traits
-      ? mergeDeepRight(traits, clone(state.session.userTraits.value) as ApiObject)
+    (commonEventData.context as RudderContext).traits = rudderEvent.context?.traits
+      ? mergeDeepRight(
+          rudderEvent.context?.traits,
+          clone(state.session.userTraits.value) as ApiObject,
+        )
       : clone(state.session.userTraits.value);
   }
 
@@ -278,9 +280,9 @@ const getEnrichedEvent = (
     if (rudderEvent.groupId || state.session.groupId.value) {
       commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
     }
-    if (traits || state.session.groupTraits.value) {
-      commonEventData.traits = traits
-        ? mergeDeepRight(traits, clone(state.session.groupTraits.value) as ApiObject)
+    if (rudderEvent.traits || state.session.groupTraits.value) {
+      commonEventData.traits = rudderEvent.traits
+        ? mergeDeepRight(rudderEvent.traits, clone(state.session.groupTraits.value) as ApiObject)
         : clone(state.session.groupTraits.value);
     }
   }
