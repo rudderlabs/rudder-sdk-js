@@ -3,7 +3,6 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-param-reassign */
 import get from 'get-value';
-import set from 'set-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import logger from './logUtil';
@@ -435,7 +434,7 @@ function extractCustomFields(message, dest, keys, exclusionFields) {
         });
         mappingKeys.forEach((mappingKey) => {
           if (!(typeof messageContext[mappingKey] === 'undefined')) {
-            set(destination, mappingKey, get(messageContext, mappingKey));
+            destination[mappingKey] = get(messageContext, mappingKey);
           }
         });
       }
@@ -446,7 +445,7 @@ function extractCustomFields(message, dest, keys, exclusionFields) {
     });
     mappingKeys.forEach((mappingKey) => {
       if (!(typeof message[mappingKey] === 'undefined')) {
-        set(destination, mappingKey, get(message, mappingKey));
+        destination[mappingKey] = get(message, mappingKey);
       }
     });
   } else {

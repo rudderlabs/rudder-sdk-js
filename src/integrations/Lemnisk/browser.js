@@ -16,9 +16,11 @@ class Lemnisk {
     this.accountId = config.accountId;
     this.sdkWriteKey = config.sdkWriteKey;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -73,11 +75,8 @@ class Lemnisk {
     // disabling eslint as message will be there iinn any case
     // eslint-disable-next-line no-unsafe-optional-chaining
     const { traits } = rudderElement.message?.context;
-    if (traits) {
-      window.lmSMTObj.identify(rudderElement.message.userId, traits);
-    } else {
-      window.lmSMTObj.identify(rudderElement.message.userId);
-    }
+    traits['isRudderEvents'] = true;
+    window.lmSMTObj.identify(rudderElement.message.userId, traits);
   }
 
   track(rudderElement) {
@@ -89,9 +88,10 @@ class Lemnisk {
       return;
     }
     if (properties) {
+      properties['isRudderEvents'] = true;
       window.lmSMTObj.track(event, properties);
     } else {
-      window.lmSMTObj.track(event);
+      window.lmSMTObj.track(event,{'isRudderEvents': true});
     }
   }
 
@@ -99,13 +99,15 @@ class Lemnisk {
     logger.debug('===In Lemnisk Marketing Automation page===');
     const { name, properties } = rudderElement.message;
     if (name && !properties) {
-      window.lmSMTObj.page(name);
+      window.lmSMTObj.page(name,{'isRudderEvents': true});
     } else if (!name && properties) {
+      properties['isRudderEvents'] = true;
       window.lmSMTObj.page(properties);
     } else if (name && properties) {
+      properties['isRudderEvents'] = true;
       window.lmSMTObj.page(name, properties);
     } else {
-      window.lmSMTObj.page();
+      window.lmSMTObj.page({'isRudderEvents': true});
     }
   }
 }

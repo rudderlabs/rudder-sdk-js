@@ -1,5 +1,4 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable class-methods-use-this */
+/* eslint-disable class-methods-use-this,prefer-rest-params, no-param-reassign */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
@@ -16,10 +15,12 @@ class Rockerbox {
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
-    this.useNativeSDKToSend = config.useNativeSDKToSend;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.connectionMode = config.connectionMode;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -65,30 +66,30 @@ class Rockerbox {
   identify(rudderElement) {
     logger.debug('===In Rockerbox Identify===');
     const { message } = rudderElement;
-    const { userId, anonymousId } = message;
+    const { userId, anonymousId, traits, context } = message;
     if (!userId) {
       logger.debug('userId is needed. A primary identifier is expected by RockerBox');
     }
-    const email = message.traits?.email || message.context?.traits?.email;
+    const email = traits?.email || context?.traits?.email;
     window.RB.track('identify', {
       external_id: userId,
       anonymousId,
       email,
-      phone_number: message.traits?.phone || message.context?.traits?.phone,
+      phone_number: traits?.phone || context?.traits?.phone,
     });
   }
 
   track(rudderElement) {
-    if (!this.useNativeSDKToSend) {
+    if (this.connectionMode === 'hybrid') {
       logger.info(
-        'The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode.',
+        'The connectionMode is set to hybrid. Track call will not be sent via device mode.',
       );
       return;
     }
     logger.debug('===In Rockerbox track===');
 
     const { message } = rudderElement;
-    const { event, anonymousId } = message;
+    const { event, anonymousId, properties } = message;
     if (!event) {
       logger.error('Event name not present');
       return;
@@ -96,17 +97,17 @@ class Rockerbox {
     const eventsHashmap = getHashFromArray(this.eventsMap);
     const rbEvent = eventsHashmap[event.toLowerCase()];
     if (rbEvent) {
-      window.RB.track(rbEvent, { ...message.properties, anonymousId });
+      window.RB.track(rbEvent, { ...properties, anonymousId });
     } else {
-      logger.error(`The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`);
+      logger.error(`The event ${event} is not mapped to any Rockerbox Event. Aborting!`);
     }
   }
 
   page(rudderElement) {
     logger.debug('=== In Rockerbox Page ===');
     const { message } = rudderElement;
-    const { anonymousId } = message;
-    window.RB.track('view', { ...message.properties, anonymousId });
+    const { anonymousId, properties } = message;
+    window.RB.track('view', { ...properties, anonymousId });
   }
 }
 

@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.39.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.1...v2.39.0) (2023-08-01)
+
+
+### Features
+
+* enhancement of device mode transformation ([#1169](https://github.com/rudderlabs/rudder-sdk-js/issues/1169)) ([7b5aea1](https://github.com/rudderlabs/rudder-sdk-js/commit/7b5aea1eea91511e4b68ad6fe895b638f4c4413a))
+
+
+### Bug Fixes
+
+* resolve issue with error reporting global key in IE11 for npm package ([#1241](https://github.com/rudderlabs/rudder-sdk-js/issues/1241)) ([1c45585](https://github.com/rudderlabs/rudder-sdk-js/commit/1c4558596c6fabaf7aa41e2824b4405a4dfd170c))
+
+### [2.38.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.0...v2.38.1) (2023-07-25)
+
+
+### Bug Fixes
+
+* revert mixpanel alias id ordering ([18f67e6](https://github.com/rudderlabs/rudder-sdk-js/commit/18f67e6b01691f4453ea7ef3154955d2a9c37573))
+
+## [2.38.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.37.1...v2.38.0) (2023-07-21)
+
+
+### Features
+
+* **adobe:** remove 2 delimiter fields from config and fetching that info from mapping fields itself ([#1218](https://github.com/rudderlabs/rudder-sdk-js/issues/1218)) ([5ce6899](https://github.com/rudderlabs/rudder-sdk-js/commit/5ce68997728f8a38e9c57b81e20661b7befd580c))
+* implement usage of connectionMode wherever useNativeSDKToSend is used ([#1106](https://github.com/rudderlabs/rudder-sdk-js/issues/1106)) ([57cec8f](https://github.com/rudderlabs/rudder-sdk-js/commit/57cec8f8e76a53512655c4bfcb4b80a257d26a0a))
+* **VWO:** add campaignName and variationId in properties ([#1219](https://github.com/rudderlabs/rudder-sdk-js/issues/1219)) ([9715186](https://github.com/rudderlabs/rudder-sdk-js/commit/9715186b1e70211eab6b9344f4904ab33683b5b4))
+
+
+### Bug Fixes
+
+* ** integration:** fb pixel build payload ([#1224](https://github.com/rudderlabs/rudder-sdk-js/issues/1224)) ([06a58c0](https://github.com/rudderlabs/rudder-sdk-js/commit/06a58c0ffd64461516e9593ee6eaa0f48f5f951e))
+* destination sdk load check ([#1204](https://github.com/rudderlabs/rudder-sdk-js/issues/1204)) ([8bc521d](https://github.com/rudderlabs/rudder-sdk-js/commit/8bc521d9d36098f0dce52c71930b325044704f83))
+* ignore localstorage NS_ERROR_STORAGE_BUSY from reporting ([#1211](https://github.com/rudderlabs/rudder-sdk-js/issues/1211)) ([dc17ab5](https://github.com/rudderlabs/rudder-sdk-js/commit/dc17ab5ade6912b9c26d3976ae923a9e7aeeaf1d))
+* **lemnisk:** add rudder message identifier flag ([#1198](https://github.com/rudderlabs/rudder-sdk-js/issues/1198)) ([37697f1](https://github.com/rudderlabs/rudder-sdk-js/commit/37697f1d1b3c477b461ce7a7a23ccbfa41116865))
+
+### [2.37.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.37.0...v2.37.1) (2023-07-21)
+
+
+### Bug Fixes
+
+* **mixpanel:** alias id ordering ([#1234](https://github.com/rudderlabs/rudder-sdk-js/issues/1234)) ([959c5d6](https://github.com/rudderlabs/rudder-sdk-js/commit/959c5d6910144487b9cb74a2c1a3cb6b9e5b43d0))
+
 ## [2.37.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.36.0...v2.37.0) (2023-07-07)
 
 
