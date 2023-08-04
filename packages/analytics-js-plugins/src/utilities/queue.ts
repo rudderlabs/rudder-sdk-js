@@ -3,6 +3,7 @@ import {
   getCurrentTimeFormatted,
   isUndefined,
   mergeDeepRight,
+  normalizeIntegrationOptions,
   stringifyWithoutCircular,
 } from '@rudderstack/analytics-js-common/index';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -17,7 +18,6 @@ import {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
-import { normalizeIntegrationOptions } from '../deviceModeDestinations/utils';
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 

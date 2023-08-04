@@ -7,8 +7,8 @@ import {
   identifyArgumentsToCallOptions,
   isFunction,
   isHybridModeDestination,
-  isUndefined,
   mergeDeepRight,
+  normalizeIntegrationOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/index';
@@ -23,7 +23,6 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
@@ -140,35 +139,6 @@ const isDestinationReady = (dest: Destination) =>
       );
     }, READY_CHECK_TIMEOUT_MS);
   });
-
-/**
- * Converts the common names of the destinations to their display names
- * @param intgOptions Load or API integration options
- */
-const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): IntegrationOpts => {
-  const normalizedIntegrationOptions: IntegrationOpts = {};
-  if (intgOptions) {
-    Object.keys(intgOptions).forEach(key => {
-      const destOpts = clone(intgOptions[key]);
-      if (key === 'All') {
-        normalizedIntegrationOptions[key] = Boolean(destOpts);
-      } else {
-        const displayName = destCNamesToDisplayNamesMap[key];
-        if (displayName) {
-          normalizedIntegrationOptions[displayName] = destOpts;
-        } else {
-          normalizedIntegrationOptions[key] = destOpts;
-        }
-      }
-    });
-  }
-
-  if (isUndefined(normalizedIntegrationOptions.All)) {
-    normalizedIntegrationOptions.All = true;
-  }
-
-  return normalizedIntegrationOptions;
-};
 
 /**
  * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
@@ -289,7 +259,6 @@ export {
   wait,
   createDestinationInstance,
   isDestinationReady,
-  normalizeIntegrationOptions,
   filterDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,
