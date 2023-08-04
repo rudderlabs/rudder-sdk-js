@@ -8,10 +8,10 @@ import {
   isFunction,
   isHybridModeDestination,
   mergeDeepRight,
-  normalizeIntegrationOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/index';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,
   DeviceModeDestination,

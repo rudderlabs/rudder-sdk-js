@@ -5,7 +5,7 @@ import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ex
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
-import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/destinations';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { isDestinationSDKMounted, filterDestinations, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {

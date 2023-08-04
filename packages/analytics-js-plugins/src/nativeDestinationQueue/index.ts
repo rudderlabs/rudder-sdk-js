@@ -11,7 +11,7 @@ import { Destination } from '@rudderstack/analytics-js-common/types/Destination'
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { clone } from 'ramda';
-import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/destinations';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';

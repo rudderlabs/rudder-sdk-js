@@ -3,9 +3,9 @@ import {
   getCurrentTimeFormatted,
   isUndefined,
   mergeDeepRight,
-  normalizeIntegrationOptions,
   stringifyWithoutCircular,
 } from '@rudderstack/analytics-js-common/index';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';

@@ -16,6 +16,12 @@ module.exports = [
     limit: '24.2 kB',
   },
   {
+    name: 'Core - NPM',
+    path: 'dist/npm/modern/umd/index.js',
+    gzip: true,
+    limit: '50 kB',
+  },
+  {
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
     gzip: true,
