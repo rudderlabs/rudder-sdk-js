@@ -49,6 +49,7 @@ class Mixpanel {
       username: '$username',
       phone: '$phone',
     };
+    this.identityMergeApi = config.identityMergeApi || 'original';
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -97,7 +98,11 @@ class Mixpanel {
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
 
-    const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+    let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (this.identityMergeApi === 'simplified') {
+      // calling mixpanel .identify() only for known users
+      userId = rudderElement.message.userId;
+    }
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
@@ -286,6 +291,11 @@ class Mixpanel {
    */
   alias(rudderElement) {
     logger.debug('in Mixpanel alias');
+    if (this.identityMergeApi === 'simplified') {
+      logger.debug("===Mixpanel: Alias call is deprecated in 'Simplified ID Merge'===");
+      return;
+    }
+
     const { previousId, userId } = rudderElement.message;
     const newId = userId;
     if (!previousId) {
