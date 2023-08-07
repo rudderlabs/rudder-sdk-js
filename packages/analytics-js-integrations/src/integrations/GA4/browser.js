@@ -30,10 +30,12 @@ export default class GA4 {
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript(measurementId) {
