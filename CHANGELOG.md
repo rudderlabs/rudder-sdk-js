@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.40.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.39.0...v2.40.0) (2023-08-04)
+
+
+### Features
+
+* enhancement: customerio option to send page name or not ([#1239](https://github.com/rudderlabs/rudder-sdk-js/issues/1239)) ([ee07e0c](https://github.com/rudderlabs/rudder-sdk-js/commit/ee07e0c424720f13144fe94185f18b6553f52cf3))
+* mixpanel simplified ID merge ([#1254](https://github.com/rudderlabs/rudder-sdk-js/issues/1254)) ([2a204c1](https://github.com/rudderlabs/rudder-sdk-js/commit/2a204c1810b5d2f9838f3eb30010e82a09b14712))
+
+
+### Bug Fixes
+
+* typo for engage page call ([#1270](https://github.com/rudderlabs/rudder-sdk-js/issues/1270)) ([433e29c](https://github.com/rudderlabs/rudder-sdk-js/commit/433e29cfae7e24de16b73f6b3f9b63f9a7f9924e))
+
 ## [2.39.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.38.1...v2.39.0) (2023-08-01)
 
 
