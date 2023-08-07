@@ -55,7 +55,7 @@ import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
-import { READY_API_CALLBACK_ERROR } from '../../constants/logMessages';
+import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { IAnalytics } from './IAnalytics';
 
@@ -399,7 +399,13 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onDestinationsReady() {
-    state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
+    state.eventBuffer.readyCallbacksArray.value.forEach(callback => {
+      try {
+        callback();
+      } catch (err) {
+        this.logger.error(READY_CALLBACK_INVOKE_ERROR(ANALYTICS_CORE), err);
+      }
+    });
     state.lifecycle.status.value = LifecycleStatus.Ready;
   }
   // End lifecycle methods
@@ -453,6 +459,7 @@ class Analytics implements IAnalytics {
     // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
     // Send automatic ad blocked page event if adblockers are detected on the page
+    // Check page category to avoid infinite loop
     if (
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY

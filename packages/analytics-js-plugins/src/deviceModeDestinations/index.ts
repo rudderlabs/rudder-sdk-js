@@ -31,6 +31,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         state.loadOptions.value.integrations,
       );
 
+      state.nativeDestinations.loadIntegration.value = state.loadOptions.value
+        .loadIntegration as boolean;
+
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
         state.nativeDestinations.configuredDestinations.value.filter(configDest => {
