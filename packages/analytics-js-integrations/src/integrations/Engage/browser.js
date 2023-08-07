@@ -15,9 +15,11 @@ class Engage {
     this.api_secret = config.privateKey;
     this.name = NAME;
     this.listsIds = config.listsIds;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -120,7 +122,7 @@ class Engage {
       engageId = userIdOnly || null;
     }
     if (!engageId) {
-      logger.error('externalId or userId is required for track call.');
+      logger.error('externalId or userId is required for page call.');
       return;
     }
     let payload = refinePayload(properties);
