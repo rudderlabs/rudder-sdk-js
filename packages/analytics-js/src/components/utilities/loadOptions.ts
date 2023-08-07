@@ -4,36 +4,46 @@ import {
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { CookieSameSite, LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import {
+  CookieSameSite,
+  LoadOptions,
+  UaChTrackLevel,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
-import { DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS } from '../../constants/timeouts';
 import { isNumber } from './number';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
   loadOptions: Partial<LoadOptions>,
 ): LoadOptions => {
-  // TODO: add all the validations as per
-  //  https://github.com/rudderlabs/rudder-sdk-js/blob/a620e11f98e1438be34114ad40b325201b1d7a6e/src/core/analytics.js#L1156
   // TODO: Maybe add warnings for invalid values
   const normalizedLoadOpts = clone(loadOptions);
 
-  normalizedLoadOpts.setCookieDomain =
-    isDefined(normalizedLoadOpts.setCookieDomain) && isString(normalizedLoadOpts.setCookieDomain)
-      ? normalizedLoadOpts.setCookieDomain
-      : undefined;
+  if (!isString(normalizedLoadOpts.setCookieDomain)) {
+    delete normalizedLoadOpts.setCookieDomain;
+  }
+
+  if (
+    !Object.values(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
+  ) {
+    delete normalizedLoadOpts.sameSiteCookie;
+  }
 
   normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
 
-  normalizedLoadOpts.sameSiteCookie =
-    isDefined(normalizedLoadOpts.sameSiteCookie) &&
-    Object.values(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
-      ? normalizedLoadOpts.sameSiteCookie
-      : undefined;
+  if (
+    !Object.values(UaChTrackLevel).includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)
+  ) {
+    delete normalizedLoadOpts.uaChTrackLevel;
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.integrations)) {
+    delete normalizedLoadOpts.integrations;
+  }
 
   normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
@@ -45,41 +55,51 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
 
-  normalizedLoadOpts.sendAdblockPageOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.sendAdblockPageOptions,
-  )
-    ? normalizedLoadOpts.sendAdblockPageOptions
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {
+    delete normalizedLoadOpts.sendAdblockPageOptions;
+  }
 
-  normalizedLoadOpts.storage = isObjectLiteralAndNotNull(normalizedLoadOpts.storage)
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.storage)
-    : {};
-  (normalizedLoadOpts.storage as StorageOpts).migrate =
-    normalizedLoadOpts.storage?.migrate === true;
+  if (!isDefined(normalizedLoadOpts.loadIntegration)) {
+    delete normalizedLoadOpts.loadIntegration;
+  } else {
+    normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
+  }
 
-  normalizedLoadOpts.beaconQueueOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.beaconQueueOptions,
-  )
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.beaconQueueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage)) {
+    delete normalizedLoadOpts.storage;
+  } else {
+    normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
+    (normalizedLoadOpts.storage as StorageOpts).migrate =
+      normalizedLoadOpts.storage?.migrate === true;
+  }
 
-  normalizedLoadOpts.destinationsQueueOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.destinationsQueueOptions,
-  )
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.destinationsQueueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.beaconQueueOptions)) {
+    delete normalizedLoadOpts.beaconQueueOptions;
+  } else {
+    normalizedLoadOpts.beaconQueueOptions = removeUndefinedAndNullValues(
+      normalizedLoadOpts.beaconQueueOptions,
+    );
+  }
 
-  normalizedLoadOpts.queueOptions = isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)) {
+    delete normalizedLoadOpts.destinationsQueueOptions;
+  } else {
+    normalizedLoadOpts.destinationsQueueOptions = removeUndefinedAndNullValues(
+      normalizedLoadOpts.destinationsQueueOptions,
+    );
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)) {
+    delete normalizedLoadOpts.queueOptions;
+  } else {
+    normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
+  }
 
   normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
 
-  normalizedLoadOpts.dataPlaneEventsBufferTimeout = isNumber(
-    normalizedLoadOpts.dataPlaneEventsBufferTimeout,
-  )
-    ? normalizedLoadOpts.dataPlaneEventsBufferTimeout
-    : DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS;
+  if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
+    delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
+  }
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 

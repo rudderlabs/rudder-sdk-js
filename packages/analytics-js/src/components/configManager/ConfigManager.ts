@@ -235,19 +235,18 @@ class ConfigManager implements IConfigManager {
       } else {
         this.processConfig(res as SourceConfigResponse);
       }
-      return;
-    }
-
-    // fetch source config from config url API
-    this.httpClient.getAsyncData({
-      url: state.lifecycle.sourceConfigUrl.value as string,
-      options: {
-        headers: {
-          'Content-Type': undefined,
+    } else {
+      // fetch source config from config url API
+      this.httpClient.getAsyncData({
+        url: state.lifecycle.sourceConfigUrl.value as string,
+        options: {
+          headers: {
+            'Content-Type': undefined,
+          },
         },
-      },
-      callback: this.processConfig,
-    });
+        callback: this.processConfig,
+      });
+    }
   }
 }
 

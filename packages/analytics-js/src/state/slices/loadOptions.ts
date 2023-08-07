@@ -26,6 +26,9 @@ const defaultLoadOptions: LoadOptions = {
   polyfillIfRequired: true,
   integrations: { All: true },
   useBeacon: false,
+  beaconQueueOptions: {},
+  destinationsQueueOptions: {},
+  queueOptions: {},
   lockIntegrationsVersion: false,
   uaChTrackLevel: UaChTrackLevel.None,
   plugins: [],
@@ -38,6 +41,7 @@ const defaultLoadOptions: LoadOptions = {
     },
     migrate: false,
   },
+  sendAdblockPageOptions: {},
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

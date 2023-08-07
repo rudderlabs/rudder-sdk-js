@@ -185,6 +185,9 @@ const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefi
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
 
+const READY_CALLBACK_INVOKE_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to invoke the ready callback.`;
+
 // DEBUG
 
 export {
@@ -231,4 +234,5 @@ export {
   STORAGE_TYPE_VALIDATION_WARNING,
   WRITE_KEY_NOT_A_STRING_ERROR,
   EMPTY_GROUP_CALL_ERROR,
+  READY_CALLBACK_INVOKE_ERROR,
 };
