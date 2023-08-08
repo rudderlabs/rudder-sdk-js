@@ -311,7 +311,7 @@ class TestBook {
     const totalTestCases = document.getElementsByClassName('testCaseResult').length;
     const totalPassedTestCases = document.getElementsByClassName('badge-success').length;
 
-    resultSummaryElement.innerHTML = `${totalTestCases}/${totalPassedTestCases}`;
+    resultSummaryElement.innerHTML = `${totalPassedTestCases}/${totalTestCases}`;
     resultSummaryElement.classList.add('bg-warning', 'summary-complete');
   }
 
