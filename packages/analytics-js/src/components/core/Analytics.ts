@@ -103,6 +103,7 @@ class Analytics implements IAnalytics {
     this.processBufferedEvents = this.processBufferedEvents.bind(this);
     this.loadDestinations = this.loadDestinations.bind(this);
     this.onDestinationsReady = this.onDestinationsReady.bind(this);
+    this.onReady = this.onReady.bind(this);
     this.ready = this.ready.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -197,6 +198,7 @@ class Analytics implements IAnalytics {
             this.onDestinationsReady();
             break;
           case LifecycleStatus.Ready:
+            this.onReady();
             break;
           default:
             break;
@@ -314,7 +316,7 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Trigger onLoaded callback if any is provided in config
+   * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized() {
     // Process any preloaded events
@@ -334,6 +336,32 @@ class Analytics implements IAnalytics {
     });
 
     this.initialized = true;
+
+    // Emit an event to use as substitute to the onLoaded callback
+    const initializedEvent = new CustomEvent('RSA_Initialised', {
+      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+
+    (globalThis as typeof window).document.dispatchEvent(initializedEvent);
+  }
+
+  /**
+   * Emit ready event
+   */
+  // eslint-disable-next-line class-methods-use-this
+  onReady() {
+    // Emit an event to use as substitute to the ready callback
+    const readyEvent = new CustomEvent('RSA_Ready', {
+      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+
+    (globalThis as typeof window).document.dispatchEvent(readyEvent);
   }
 
   /**
