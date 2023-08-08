@@ -431,7 +431,11 @@ class Analytics implements IAnalytics {
      * will be executed after loading completes
      */
     if (state.lifecycle.status.value === LifecycleStatus.Ready) {
-      callback();
+      try {
+        callback();
+      } catch (err) {
+        this.logger.error(READY_CALLBACK_INVOKE_ERROR(ANALYTICS_CORE), err);
+      }
     } else {
       state.eventBuffer.readyCallbacksArray.value.push(callback);
     }
