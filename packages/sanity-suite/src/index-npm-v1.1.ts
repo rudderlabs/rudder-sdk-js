@@ -20,7 +20,7 @@ const getLoadOptions = () => {
         logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DESTINATIONS_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -33,7 +33,7 @@ const getLoadOptions = () => {
         logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DESTINATIONS_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -46,7 +46,7 @@ const getLoadOptions = () => {
         logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
-        destSDKBaseURL: 'DESTINATIONS_SDK_BASE_URL',
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,

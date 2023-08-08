@@ -49,6 +49,7 @@ const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
     removeDuplicateSlashes(
       [
         dpUrl.pathname,
+        '/',
         'beacon',
         '/',
         DATA_PLANE_API_VERSION,
