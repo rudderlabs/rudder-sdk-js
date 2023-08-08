@@ -189,8 +189,8 @@ const getCumulativeIntegrationsConfig = (
     } catch (err) {
       errorHandler?.onError(
         err,
-        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
         DEVICE_MODE_DESTINATIONS_PLUGIN,
+        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
       );
     }
   }
@@ -240,8 +240,8 @@ const initializeDestination = (
   } catch (err) {
     errorHandler?.onError(
       err,
-      DESTINATION_INIT_ERROR(dest.userFriendlyId),
       DEVICE_MODE_DESTINATIONS_PLUGIN,
+      DESTINATION_INIT_ERROR(dest.userFriendlyId),
     );
 
     state.nativeDestinations.failedDestinations.value = [

@@ -9,6 +9,8 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { API_CALLBACK_INVOKE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { HttpClient } from '../../services/HttpClient';
 import { state } from '../../state';
 import { IEventRepository } from './types';
@@ -95,8 +97,8 @@ class EventRepository implements IEventRepository {
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
         state.nativeDestinations.clientDestinationsReady.value === false;
 
-      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(dest =>
-        isHybridModeDestination(dest),
+      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
+        (dest: Destination) => isHybridModeDestination(dest),
       );
 
       if (
@@ -143,7 +145,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(dpQEvent);
     } catch (error) {
-      this.onError(error, 'API Callback Invocation Failed');
+      this.onError(error, API_CALLBACK_INVOKE_ERROR);
     }
   }
 

@@ -73,7 +73,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
             done(null, isEnqueuedInBeacon);
           } catch (err) {
-            errorHandler?.onError(err, BEACON_QUEUE_DELIVERY_ERROR(url), BEACON_QUEUE_PLUGIN);
+            errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
             done(err);
           }
         } else {

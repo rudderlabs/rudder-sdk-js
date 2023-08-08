@@ -10,11 +10,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
-  getDefaultPageProperties,
-  getLanguage,
-  getUserAgent,
-} from '../utilities/page';
+import { getDefaultPageProperties, getLanguage, getUserAgent } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -50,8 +46,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
     try {
       this.prepareBrowserCapabilities();
       this.attachWindowListeners();
-    } catch (e) {
-      this.onError(e);
+    } catch (err) {
+      this.onError(err);
     }
   }
 

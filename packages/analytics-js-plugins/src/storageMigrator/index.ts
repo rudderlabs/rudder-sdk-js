@@ -47,7 +47,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // storejs that is used in localstorage engine already deserializes json strings but swallows errors
         return JSON.parse(decryptedVal);
       } catch (err) {
-        errorHandler?.onError(err, STORAGE_MIGRATION_ERROR(key), STORAGE_MIGRATOR_PLUGIN);
+        errorHandler?.onError(err, STORAGE_MIGRATOR_PLUGIN, STORAGE_MIGRATION_ERROR(key));
         return null;
       }
     },

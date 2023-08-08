@@ -13,6 +13,9 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { INVALID_CONFIG_URL_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
@@ -113,6 +116,7 @@ const getSourceConfigURL = (
   configUrl: string,
   writeKey: string,
   lockIntegrationsVersion: boolean,
+  logger?: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
     p: MODULE_TYPE,
@@ -146,7 +150,7 @@ const getSourceConfigURL = (
     searchParams = configUrlInstance.searchParams;
     hash = configUrlInstance.hash;
   } catch (err) {
-    // Do nothing
+    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
   }
 
   return `${origin}${pathname}?${searchParams}${hash}`;

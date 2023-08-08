@@ -137,8 +137,8 @@ describe('Plugin - Storage Migrator', () => {
     expect(migratedVal).toBe(null);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new SyntaxError('Unexpected token h in JSON at position 0'),
-      'Failed to retrieve or parse data for someKey from storage.',
       'StorageMigratorPlugin',
+      'Failed to retrieve or parse data for someKey from storage.',
     );
   });
 });

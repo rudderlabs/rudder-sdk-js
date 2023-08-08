@@ -7,6 +7,7 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEn
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { isDestinationSDKMounted, filterDestinations, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
@@ -38,7 +39,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
 
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
-        state.nativeDestinations.configuredDestinations.value.filter(configDest => {
+        state.nativeDestinations.configuredDestinations.value.filter((configDest: Destination) => {
           if (destDisplayNamesToFileNamesMap[configDest.displayName]) {
             return true;
           }
@@ -81,7 +82,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
 
-      activeDestinations.forEach(dest => {
+      activeDestinations.forEach((dest: Destination) => {
         const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
