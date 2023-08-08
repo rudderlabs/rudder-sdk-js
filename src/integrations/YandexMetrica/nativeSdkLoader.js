@@ -28,8 +28,8 @@ function loadNativeSdk(tagId, clickmap, trackLinks, accurateTrackBounce, webviso
     webvisor,
     ecommerce,
   });
-  window[`${this.containerName}`] = window[`${this.containerName}`] || [];
-  window[`${this.containerName}`].push({});
+  window[`${ecommerce}`] = window[`${ecommerce}`] || [];
+  window[`${ecommerce}`].push({});
 }
 
 export { loadNativeSdk };
