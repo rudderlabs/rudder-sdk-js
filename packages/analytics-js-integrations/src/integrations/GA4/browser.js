@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import {
   isReservedName,
@@ -335,7 +335,7 @@ export default class GA4 {
 
   getDataForIntegrationsObject() {
     return {
-      'Google Analytics 4': {
+      [DISPLAY_NAME]: {
         clientId: this.clientId,
         sessionId: this.sessionId,
         sessionNumber: this.sessionNumber,

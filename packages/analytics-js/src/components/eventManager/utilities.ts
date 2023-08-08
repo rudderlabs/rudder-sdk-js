@@ -271,18 +271,19 @@ const getEnrichedEvent = (
     (commonEventData.context as RudderContext).traits =
       state.storage.type.value !== NO_STORAGE
         ? clone(state.session.userTraits.value)
-        : rudderEvent.context?.traits || {};
+        : (rudderEvent.context as RudderContext).traits;
   }
 
   if (rudderEvent.type === RudderEventType.Group) {
     if (rudderEvent.groupId || state.session.groupId.value) {
       commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
     }
+
     if (rudderEvent.traits || state.session.groupTraits.value) {
       commonEventData.traits =
         state.storage.type.value !== NO_STORAGE
           ? clone(state.session.groupTraits.value)
-          : rudderEvent.traits || {};
+          : rudderEvent.traits;
     }
   }
 
