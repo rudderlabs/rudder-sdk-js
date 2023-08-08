@@ -118,10 +118,16 @@ class RudderEventFactory {
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
-      groupId,
       type: RudderEventType.Group,
-      traits,
     };
+
+    if (groupId) {
+      groupEvent.groupId = groupId;
+    }
+
+    if (traits) {
+      groupEvent.traits = traits;
+    }
 
     return getEnrichedEvent(groupEvent, options, undefined, this.logger);
   }
