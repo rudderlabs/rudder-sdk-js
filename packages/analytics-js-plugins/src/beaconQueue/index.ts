@@ -18,7 +18,7 @@ import { BeaconQueueItem } from './types';
 import {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_SEND_ERROR,
-  BEACON_QUEUE_PAYLOAD_PREPARATION_ERROR,
+  BEACON_QUEUE_DELIVERY_ERROR,
 } from '../utilities/logMessages';
 
 const pluginName = 'BeaconQueue';
@@ -72,16 +72,11 @@ const BeaconQueue = (): ExtensionPlugin => ({
             }
 
             done(null, isEnqueuedInBeacon);
-          } catch (e) {
-            (
-              e as Error
-            ).message = `An error occurred while sending events batch data to beacon queue for ${url}: ${
-              (e as Error).message
-            }`;
-            done(e);
+          } catch (err) {
+            errorHandler?.onError(err, BEACON_QUEUE_DELIVERY_ERROR(url), BEACON_QUEUE_PLUGIN);
+            done(err);
           }
         } else {
-          logger?.error(BEACON_QUEUE_PAYLOAD_PREPARATION_ERROR(BEACON_QUEUE_PLUGIN));
           // Mark the item as done so that it can be removed from the queue
           done(null);
         }

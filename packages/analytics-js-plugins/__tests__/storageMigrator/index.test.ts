@@ -25,6 +25,10 @@ describe('Plugin - Storage Migrator', () => {
     error: jest.fn(),
   };
 
+  const mockErrorHandler = {
+    onError: jest.fn(),
+  };
+
   beforeEach(() => {
     storedVal = undefined;
   });
@@ -36,59 +40,105 @@ describe('Plugin - Storage Migrator', () => {
 
   it('should migrate legacy encrypted data', () => {
     storedVal = 'RudderEncrypt:U2FsdGVkX1+5q5jikppUASe8AdIH6O2iORyF41sYXgxzIGiX9whSeVxxww0OK5h/';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe('1wefk7M3Y1D6EDX4ZpIE00LpKAE');
   });
 
   it('should migrate v3 encrypted data', () => {
     storedVal = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe('test-data');
   });
 
   it('should return null if the stored value is undefined', () => {
     storedVal = undefined;
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the stored value is null', () => {
     storedVal = null;
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the legacy decrypted value is undefined', () => {
     storedVal = 'RudderEncrypt:U2FsdGVkX195kUN9L968e0E/eu8CtnDHWt6ALf6bm8E=';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the legacy decrypted value is null', () => {
     storedVal = 'RudderEncrypt:U2FsdGVkX1+SMQ+LKcuk7w/nQ9DEjgU9EUmmBgb/Pfo=';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the v3 decrypted value is undefined', () => {
     storedVal = 'RS_ENC_v3_dW5kZWZpbmVk';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the v3 decrypted value is null', () => {
     storedVal = 'RS_ENC_v3_bnVsbA==';
-    const migratedVal = storageMigrator.storage?.migrate(null, storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      null,
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null and log error if the stored actual value is not JSON parsable', () => {
     storedVal = 'RudderEncrypt:U2FsdGVkX1+leaJ/SuyfirUYffyQelWPnCTB93FBo4Y=';
-    const migratedVal = storageMigrator.storage?.migrate('someKey', storageEngine, mockLogger);
+    const migratedVal = storageMigrator.storage?.migrate(
+      'someKey',
+      storageEngine,
+      mockErrorHandler,
+      mockLogger,
+    );
     expect(migratedVal).toBe(null);
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'StorageMigrator:: Failed to retrieve or parse data for someKey from storage.',
+    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new SyntaxError('Unexpected token h in JSON at position 0'),
+      'Failed to retrieve or parse data for someKey from storage.',
+      'StorageMigratorPlugin',
     );
   });
 });

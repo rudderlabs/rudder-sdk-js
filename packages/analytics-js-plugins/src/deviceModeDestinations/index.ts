@@ -6,6 +6,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { isDestinationSDKMounted, filterDestinations, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
@@ -24,6 +25,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     setActiveDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): void {
       // Normalize the integration options from the load API call
@@ -41,11 +43,9 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             return true;
           }
 
-          logger?.error(
-            DESTINATION_NOT_SUPPORTED_ERROR(
-              DEVICE_MODE_DESTINATIONS_PLUGIN,
-              configDest.userFriendlyId,
-            ),
+          errorHandler?.onError(
+            new Error(DESTINATION_NOT_SUPPORTED_ERROR(configDest.userFriendlyId)),
+            DEVICE_MODE_DESTINATIONS_PLUGIN,
           );
           return false;
         });
@@ -63,6 +63,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             `consentManager.isDestinationConsented`,
             state,
             dest.config,
+            errorHandler,
             logger,
           ) ?? true,
       );
@@ -73,6 +74,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     load(
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
       externalScriptOnLoad?: (id?: string) => unknown,
     ) {
@@ -104,13 +106,20 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     dest,
                   ];
                 } else {
-                  initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
+                  initializeDestination(
+                    dest,
+                    state,
+                    destSDKIdentifier,
+                    sdkTypeName,
+                    errorHandler,
+                    logger,
+                  );
                 }
               }),
             timeout: SCRIPT_LOAD_TIMEOUT_MS,
           });
         } else {
-          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
+          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, errorHandler, logger);
         }
       });
     },

@@ -23,6 +23,7 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
@@ -62,7 +63,6 @@ const createDestinationInstance = (
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-  logger?: ILogger,
 ) => {
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
@@ -177,7 +177,7 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
 const getCumulativeIntegrationsConfig = (
   dest: Destination,
   curDestIntgConfig: IntegrationOpts,
-  logger?: ILogger,
+  errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
@@ -187,9 +187,10 @@ const getCumulativeIntegrationsConfig = (
         normalizeIntegrationOptions(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
-      logger?.error(
-        DESTINATION_INTEGRATIONS_DATA_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
+      errorHandler?.onError(
         err,
+        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
+        DEVICE_MODE_DESTINATIONS_PLUGIN,
       );
     }
   }
@@ -201,17 +202,12 @@ const initializeDestination = (
   state: ApplicationState,
   destSDKIdentifier: string,
   sdkTypeName: string,
+  errorHandler?: IErrorHandler,
   logger?: ILogger,
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const destInstance = createDestinationInstance(
-      destSDKIdentifier,
-      sdkTypeName,
-      dest,
-      state,
-      logger,
-    );
+    const destInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, dest, state);
     initializedDestination.instance = destInstance;
 
     destInstance.init();
@@ -223,7 +219,7 @@ const initializeDestination = (
           state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
             initializedDestination,
             state.nativeDestinations.integrationsConfig.value,
-            logger,
+            errorHandler,
           );
         }
 
@@ -242,9 +238,10 @@ const initializeDestination = (
         ];
       });
   } catch (err) {
-    logger?.error(
-      DESTINATION_INIT_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
+    errorHandler?.onError(
       err,
+      DESTINATION_INIT_ERROR(dest.userFriendlyId),
+      DEVICE_MODE_DESTINATIONS_PLUGIN,
     );
 
     state.nativeDestinations.failedDestinations.value = [

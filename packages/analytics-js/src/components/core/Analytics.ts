@@ -387,6 +387,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.setActiveDestinations',
       state,
       this.pluginsManager,
+      this.errorHandler,
       this.logger,
     );
 
@@ -402,6 +403,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.load',
       state,
       this.externalSrcLoader,
+      this.errorHandler,
       this.logger,
     );
 

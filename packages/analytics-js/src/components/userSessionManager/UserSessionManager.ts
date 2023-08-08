@@ -115,6 +115,7 @@ class UserSessionManager implements IUserSessionManager {
         'storage.migrate',
         storageEntry,
         this.store?.engine,
+        this.errorHandler,
         this.logger,
       );
       this.syncValueToStorage(storageEntry, migratedVal);
