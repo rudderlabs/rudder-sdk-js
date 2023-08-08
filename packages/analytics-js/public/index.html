@@ -95,7 +95,7 @@
         },
         function (message) {
           console.log('in identify call', message);
-        },
+        }
       );
 
       rudderanalytics.page(
@@ -110,7 +110,7 @@
         },
         function (message) {
           console.log('in page call', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -122,7 +122,7 @@
         },
         function (message) {
           console.log('in track call 1', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -134,7 +134,7 @@
         },
         function (message) {
           console.log('in track call 2', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -146,7 +146,7 @@
         },
         function (message) {
           console.log('in track call 3', message);
-        },
+        }
       );
 
       rudderanalytics.ready(function () {
@@ -183,7 +183,7 @@
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -208,7 +208,7 @@
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -224,7 +224,7 @@
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -247,7 +247,7 @@
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
     </script>
