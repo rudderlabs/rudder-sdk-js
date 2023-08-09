@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment PROD_DEBUG",

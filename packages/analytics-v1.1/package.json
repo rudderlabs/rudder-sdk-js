@@ -74,10 +74,11 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/production/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
+    "url": "https://github.com/rudderlabs/rudder-sdk-js.git",
+    "directory": "packages/analytics-v1.1"
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
