@@ -1,0 +1,96 @@
+name: Draft new release v3
+
+on:
+  workflow_dispatch:
+
+jobs:
+  draft-new-release:
+    name: Draft a new release v3
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:ci
+
+      # In order to make a commit, we need to initialize a user.
+      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub actions"
+          git config user.email noreply@github.com
+
+      # Calculate the next release version based on conventional semantic release
+      - name: Create release branch
+        id: create-release
+        env:
+          HUSKY: 0
+        run: |
+          source_branch_name=${GITHUB_REF##*/}
+          release_type=v3-release
+          grep -q "v3-hotfix/" <<< "${GITHUB_REF}" && release_type=v3-hotfix-release
+          git fetch origin main
+          git fetch --tags origin
+          git merge origin/main
+          current_version=$(jq -r .version package.json)
+
+          npm run bump-version:monorepo
+          new_version=$(jq -r .version package.json)
+          git reset --hard
+
+          branch_name="${release_type}/${new_version}"
+
+          echo "Source branch for new release is $source_branch_name"
+          echo "Current version is $current_version"
+          echo "Release type is $release_type"
+          echo "New version is $new_version"
+          echo "New release branch name is $branch_name"
+          git checkout -b "$branch_name"
+          git push --set-upstream origin "$branch_name"
+
+          echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "NEW_VERSION_VALUE=$new_version" >> $GITHUB_ENV
+
+      - name: Update changelog & bump version
+        id: finish-release
+        env:
+          HUSKY: 0
+        run: |
+          echo "Current version: $CURRENT_VERSION_VALUE"
+          echo "New version: $NEW_VERSION_VALUE"
+          git fetch --no-tags --prune --depth=100 origin main
+          npm run lerna:version
+          npm run bump-version:monorepo
+          npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
+          git add sonar-project.properties
+          git commit -m "chore: sync versions and generate release logs" -n
+
+      - name: Push new version in release branch
+        run: |
+          git push --follow-tags
+
+      - name: Create pull request into production
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ steps.create-release.outputs.branch_name }}
+          destination_branch: 'main'
+          github_token: ${{ secrets.PAT }}
+          pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into main'
+          pr_body: ':crown: *An automated PR*'
+          pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

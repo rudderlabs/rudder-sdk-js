@@ -1,0 +1,47 @@
+name: Build & Code Quality Checks v3
+
+on:
+  pull_request:
+    branches: ['develop', 'main']
+    types: ['opened', 'reopened', 'synchronize']
+
+jobs:
+  build:
+    name: Build & Code Quality Checks v3
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:ci
+
+      - name: Execute quality checks
+        run: |
+          npm run check:circular
+          npm run check:duplicates
+
+      - name: Execute security checks
+        run: |
+          npm run check:security
+
+      - name: Execute bundle size checks
+        uses: rudderlabs/github-action-check-size-limit@v2.6.0
+        env:
+          HUSKY: 0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          install_script: setup:ci
+          build_script: check:size:build -- --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js'
+          script: npx lerna@6 exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json --silent
+          is_monorepo: true
