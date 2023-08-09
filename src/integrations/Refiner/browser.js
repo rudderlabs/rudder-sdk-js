@@ -64,6 +64,17 @@ class Refiner {
   track(rudderElement) {
     logger.debug('===In Refiner track===');
     const { event } = rudderElement.message;
+
+    if (!event) {
+      logger.error('Event name not present');
+      return;
+    }
+
+    if (typeof event !== 'string') {
+      logger.error('Event name should be string');
+      return;
+    }
+
     this._refiner('trackEvent', event);
   }
 
