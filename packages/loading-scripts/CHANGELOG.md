@@ -18,9 +18,3 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * loading snippet ([#1149](https://github.com/rudderlabs/rudder-sdk-js/issues/1149)) ([e0320fe](https://github.com/rudderlabs/rudder-sdk-js/commit/e0320feb090c826b2eeb920538bae6c97cd30e61))
 * refactor apis ([#1240](https://github.com/rudderlabs/rudder-sdk-js/issues/1240)) ([4f25a03](https://github.com/rudderlabs/rudder-sdk-js/commit/4f25a0377ef438a4e4b5dcad6f2504ec5da5f7a3))
 * rename sdk file name ([#1190](https://github.com/rudderlabs/rudder-sdk-js/issues/1190)) ([0167e38](https://github.com/rudderlabs/rudder-sdk-js/commit/0167e384a05e1fa33b3da3b940f3952ee06ef21e))
-
-
-
-
-
-# Change Log

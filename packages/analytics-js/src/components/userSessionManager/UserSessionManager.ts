@@ -95,14 +95,16 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   setDefaultValues() {
-    state.session.userId.value = defaultUserSessionValues.userId;
-    state.session.userTraits.value = defaultUserSessionValues.userTraits;
-    state.session.groupId.value = defaultUserSessionValues.groupId;
-    state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
-    state.session.anonymousUserId.value = defaultUserSessionValues.anonymousUserId;
-    state.session.initialReferrer.value = defaultUserSessionValues.initialReferrer;
-    state.session.initialReferringDomain.value = defaultUserSessionValues.initialReferringDomain;
-    state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
+    batch(() => {
+      state.session.userId.value = defaultUserSessionValues.userId;
+      state.session.userTraits.value = defaultUserSessionValues.userTraits;
+      state.session.groupId.value = defaultUserSessionValues.groupId;
+      state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
+      state.session.anonymousUserId.value = defaultUserSessionValues.anonymousUserId;
+      state.session.initialReferrer.value = defaultUserSessionValues.initialReferrer;
+      state.session.initialReferringDomain.value = defaultUserSessionValues.initialReferringDomain;
+      state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
+    });
   }
 
   migrateStorageIfNeeded() {

@@ -39,7 +39,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **analytics-js:** add application lifecycle and analytics class ([71ceed5](https://github.com/rudderlabs/rudder-sdk-js/commit/71ceed5276a9a4da83df4654b76b1d012e72f766))
 * **analytics-js:** add external source loader, fix async tests, cleanup ([8ba7bdf](https://github.com/rudderlabs/rudder-sdk-js/commit/8ba7bdf260a6771bf4cfc154b9f84ab61846a622))
 * **analytics-js:** add global state initial structure ([f636227](https://github.com/rudderlabs/rudder-sdk-js/commit/f636227e0094a4a3f0bfdc17d52c4731ab17e20c))
-* **analytics-js:** add globaly exposed analytics instances ([03931a6](https://github.com/rudderlabs/rudder-sdk-js/commit/03931a67c51a62b41db1398a28f1e82d48b9a8a5))
+* **analytics-js:** add globally exposed analytics instances ([03931a6](https://github.com/rudderlabs/rudder-sdk-js/commit/03931a67c51a62b41db1398a28f1e82d48b9a8a5))
 * **analytics-js:** add HttpClient, Logger & ErrorHandler services ([236f951](https://github.com/rudderlabs/rudder-sdk-js/commit/236f95198d8f2ae4a029339074fa063679fbaa38))
 * **analytics-js:** add more state slices ([#973](https://github.com/rudderlabs/rudder-sdk-js/issues/973)) ([7c1e627](https://github.com/rudderlabs/rudder-sdk-js/commit/7c1e6275ad9eeec2ccdd4a100b085437f78a2603))
 * **analytics-js:** add online status detection in capabilities mngr ([a4702da](https://github.com/rudderlabs/rudder-sdk-js/commit/a4702dab9718f66cacc8aa58add41840f1853a23))

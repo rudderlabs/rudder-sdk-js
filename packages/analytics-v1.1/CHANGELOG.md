@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.40.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.39.0...v2.40.0) (2023-08-04)
+# 2.40.0 (2023-08-04)
 
 
 ### Features
