@@ -1,37 +1,52 @@
 import { clone } from 'ramda';
-import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
 import {
+  getObjectValues,
   isObjectLiteralAndNotNull,
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { CookieSameSite, LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import {
+  CookieSameSite,
+  LoadOptions,
+  UaChTrackLevel,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
+import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
+import { isNumber } from './number';
+import { removeTrailingSlashes } from './url';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
   loadOptions: Partial<LoadOptions>,
 ): LoadOptions => {
-  // TODO: add all the validations as per
-  //  https://github.com/rudderlabs/rudder-sdk-js/blob/a620e11f98e1438be34114ad40b325201b1d7a6e/src/core/analytics.js#L1156
   // TODO: Maybe add warnings for invalid values
   const normalizedLoadOpts = clone(loadOptions);
 
-  normalizedLoadOpts.setCookieDomain =
-    isDefined(normalizedLoadOpts.setCookieDomain) && isString(normalizedLoadOpts.setCookieDomain)
-      ? normalizedLoadOpts.setCookieDomain
-      : undefined;
+  if (!isString(normalizedLoadOpts.setCookieDomain)) {
+    delete normalizedLoadOpts.setCookieDomain;
+  }
+
+  if (
+    !getObjectValues(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
+  ) {
+    delete normalizedLoadOpts.sameSiteCookie;
+  }
 
   normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
 
-  normalizedLoadOpts.sameSiteCookie =
-    isDefined(normalizedLoadOpts.sameSiteCookie) &&
-    Object.values(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
-      ? normalizedLoadOpts.sameSiteCookie
-      : undefined;
+  if (
+    !getObjectValues(UaChTrackLevel).includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)
+  ) {
+    delete normalizedLoadOpts.uaChTrackLevel;
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.integrations)) {
+    delete normalizedLoadOpts.integrations;
+  }
 
   normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
@@ -43,40 +58,98 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
 
-  normalizedLoadOpts.sendAdblockPageOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.sendAdblockPageOptions,
-  )
-    ? normalizedLoadOpts.sendAdblockPageOptions
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {
+    delete normalizedLoadOpts.sendAdblockPageOptions;
+  }
 
-  normalizedLoadOpts.storage = isObjectLiteralAndNotNull(normalizedLoadOpts.storage)
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.storage)
-    : {};
-  (normalizedLoadOpts.storage as StorageOpts).migrate =
-    normalizedLoadOpts.storage?.migrate === true;
+  if (!isDefined(normalizedLoadOpts.loadIntegration)) {
+    delete normalizedLoadOpts.loadIntegration;
+  } else {
+    normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
+  }
 
-  normalizedLoadOpts.beaconQueueOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.beaconQueueOptions,
-  )
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.beaconQueueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage)) {
+    delete normalizedLoadOpts.storage;
+  } else {
+    normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
+    (normalizedLoadOpts.storage as StorageOpts).migrate =
+      normalizedLoadOpts.storage?.migrate === true;
+  }
 
-  normalizedLoadOpts.destinationsQueueOptions = isObjectLiteralAndNotNull(
-    normalizedLoadOpts.destinationsQueueOptions,
-  )
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.destinationsQueueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.beaconQueueOptions)) {
+    delete normalizedLoadOpts.beaconQueueOptions;
+  } else {
+    normalizedLoadOpts.beaconQueueOptions = removeUndefinedAndNullValues(
+      normalizedLoadOpts.beaconQueueOptions,
+    );
+  }
 
-  normalizedLoadOpts.queueOptions = isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)
-    ? removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions)
-    : {};
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)) {
+    delete normalizedLoadOpts.destinationsQueueOptions;
+  } else {
+    normalizedLoadOpts.destinationsQueueOptions = removeUndefinedAndNullValues(
+      normalizedLoadOpts.destinationsQueueOptions,
+    );
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)) {
+    delete normalizedLoadOpts.queueOptions;
+  } else {
+    normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
+  }
+
+  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
+
+  if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
+    delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
+  }
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 
   return mergedLoadOptions;
 };
 
-const getSourceConfigURL = (configUrlHost = DEFAULT_CONFIG_BE_URL): string =>
-  `${configUrlHost}/sourceConfig/?p=${MODULE_TYPE}&v=${APP_VERSION}&build=${BUILD_TYPE}`;
+const getSourceConfigURL = (
+  configUrl: string,
+  writeKey: string,
+  lockIntegrationsVersion: boolean,
+): string => {
+  const defSearchParams = new URLSearchParams({
+    p: MODULE_TYPE,
+    v: APP_VERSION,
+    build: BUILD_TYPE,
+    writeKey,
+    lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+  });
+
+  let origin = DEFAULT_CONFIG_BE_URL;
+  let searchParams = defSearchParams;
+  let pathname = '/sourceConfig/';
+  let hash = '';
+  try {
+    const configUrlInstance = new URL(configUrl);
+    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
+      configUrlInstance.pathname = `${
+        removeTrailingSlashes(configUrlInstance.pathname) as string
+      }/sourceConfig/`;
+    }
+    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
+
+    defSearchParams.forEach((value, key) => {
+      if (configUrlInstance.searchParams.get(key) === null) {
+        configUrlInstance.searchParams.set(key, value);
+      }
+    });
+
+    origin = configUrlInstance.origin;
+    pathname = configUrlInstance.pathname;
+    searchParams = configUrlInstance.searchParams;
+    hash = configUrlInstance.hash;
+  } catch (err) {
+    // Do nothing
+  }
+
+  return `${origin}${pathname}?${searchParams}${hash}`;
+};
 
 export { normalizeLoadOptions, getSourceConfigURL };

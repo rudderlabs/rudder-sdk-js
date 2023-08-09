@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
@@ -11,10 +13,13 @@ class CustomerIO {
     this.analytics = analytics;
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
+    this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -25,12 +30,16 @@ class CustomerIO {
       let a;
       let b;
       let c;
+      // eslint-disable-next-line prefer-const
       a = function (f) {
         return function () {
+          // eslint-disable-next-line prefer-rest-params
           window._cio.push([f].concat(Array.prototype.slice.call(arguments, 0)));
         };
       };
+      // eslint-disable-next-line prefer-const
       b = ['load', 'identify', 'sidentify', 'track', 'page'];
+      // eslint-disable-next-line no-plusplus
       for (c = 0; c < b.length; c++) {
         window._cio[b[c]] = a(b[c]);
       }
@@ -69,9 +78,12 @@ class CustomerIO {
 
   page(rudderElement) {
     logger.debug('in Customer IO page');
-
-    const name = rudderElement.message.name || rudderElement.message.properties.url;
-    window._cio.page(name, rudderElement.message.properties);
+    if (this.sendPageNameInSDK === false) {
+      window._cio.page(rudderElement.message.properties);
+    } else {
+      const name = rudderElement.message.name || rudderElement.message.properties.url;
+      window._cio.page(name, rudderElement.message.properties);
+    }
   }
 
   isLoaded() {

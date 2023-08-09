@@ -64,7 +64,8 @@ const isNonEmptyObject = (value?: any) =>
  */
 const removeUndefinedValues = <T = Record<string, any>>(obj: T): T => {
   const result = pickBy(isDefined, obj) as Record<string, any>;
-  Object.entries(result).forEach(([key, value]) => {
+  Object.keys(result).forEach(key => {
+    const value = result[key];
     if (isObjectLiteralAndNotNull(value)) {
       result[key] = removeUndefinedValues(value);
     }
@@ -80,13 +81,28 @@ const removeUndefinedValues = <T = Record<string, any>>(obj: T): T => {
  */
 const removeUndefinedAndNullValues = <T = Record<string, any>>(obj: T): T => {
   const result = pickBy(isDefinedAndNotNull, obj) as Record<string, any>;
-  Object.entries(result).forEach(([key, value]) => {
+  Object.keys(result).forEach(key => {
+    const value = result[key];
     if (isObjectLiteralAndNotNull(value)) {
       result[key] = removeUndefinedAndNullValues(value);
     }
   });
 
   return result as T;
+};
+
+/**
+ * A utility to get all the values from an object
+ * @param obj Input object
+ * @returns an array of values from the input object
+ */
+const getObjectValues = <T = Record<string, any>>(obj: T): any[] => {
+  const result: any[] = [];
+  Object.keys(obj as Record<string, any>).forEach(key => {
+    result.push((obj as Record<string, any>)[key]);
+  });
+
+  return result;
 };
 
 export {
@@ -99,4 +115,5 @@ export {
   isObjectLiteralAndNotNull,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
+  getObjectValues,
 };

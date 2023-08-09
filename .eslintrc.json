@@ -22,7 +22,9 @@
       "String.prototype.replaceAll",
       "TextEncoder",
       "TextDecoder",
-      "String.fromCodePoint"
+      "String.fromCodePoint",
+      "requestAnimationFrame",
+      "cancelAnimationFrame"
     ]
   },
   "env": {

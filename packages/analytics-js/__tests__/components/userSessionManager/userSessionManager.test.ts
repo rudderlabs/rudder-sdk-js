@@ -4,8 +4,8 @@ import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import {
-  MIN_SESSION_TIMEOUT,
-  DEFAULT_SESSION_TIMEOUT,
+  MIN_SESSION_TIMEOUT_MS,
+  DEFAULT_SESSION_TIMEOUT_MS,
 } from '@rudderstack/analytics-js/constants/timeouts';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
@@ -259,7 +259,7 @@ describe('User session manager', () => {
     expect(defaultLogger.warn).toHaveBeenCalledWith(
       'UserSessionManager:: The session timeout value "100000" is not a number. The default timeout of 1800000 ms will be used instead.',
     );
-    expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT);
+    expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT_MS);
   });
   it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
     state.loadOptions.value.sessions.timeout = 0;

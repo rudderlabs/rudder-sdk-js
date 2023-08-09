@@ -30,9 +30,11 @@ class AdobeAnalytics {
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = '';
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
     utils.setConfig(config);
   }
 

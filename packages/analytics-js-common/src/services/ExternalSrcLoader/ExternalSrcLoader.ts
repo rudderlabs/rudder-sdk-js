@@ -1,5 +1,5 @@
 import { EXTERNAL_SRC_LOADER } from '../../constants/loggerContexts';
-import { DEFAULT_EXT_SRC_LOAD_TIMEOUT } from '../../constants/timeouts';
+import { DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS } from '../../constants/timeouts';
 import { isFunction } from '../../utilities/checks';
 import { IErrorHandler } from '../../types/ErrorHandler';
 import { ILogger } from '../../types/Logger';
@@ -18,7 +18,7 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
-    timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT,
+    timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS,
   ) {
     this.errorHandler = errorHandler;
     this.logger = logger;

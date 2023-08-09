@@ -6,16 +6,13 @@ Please include a summary of the change along with the relevant motivation and co
 
 Ticket link
 
-## Screenshots
+## Cross Browser Tests
 
-Please add screenshots for any new features or UI bug fixes for the following browsers -
+Please confirm you have tested for the following browsers:
 
-- Chrome
-  >
-- Firefox
-  >
-- Safari
-  >
+- [ ] Chrome
+- [ ] Firefox
+- [ ] IE11
 
 ## Security
 

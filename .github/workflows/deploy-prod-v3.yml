@@ -26,6 +26,14 @@ jobs:
       - name: Checkout source branch
         uses: actions/checkout@v3
 
+      - name: Get new version number
+        run: |
+          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -35,19 +43,13 @@ jobs:
       - name: Install dependencies
         env:
           HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.CURRENT_VERSION_VALUE }}/modern/plugins'
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
-      - name: Get new version number
-        run: |
-          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
-          current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
-
-      - name: Build and sync files to S3
+      - name: Build release artifacts
         env:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.CURRENT_VERSION_VALUE }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
@@ -121,7 +123,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v3 Browser Package'
-          CDN_URL: 'https://cdn.rudderlabs.com/v3/rsa.min.js'
+          CDN_URL: 'https://cdn.rudderlabs.com/v3/modern/rsa.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
@@ -152,7 +154,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v3 Browser Package'
+          PROJECT_NAME: 'JS SDK v1.1 Browser Package'
           CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

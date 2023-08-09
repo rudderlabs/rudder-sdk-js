@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
 import {
@@ -5,11 +6,12 @@ import {
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
   isFunction,
-  isUndefined,
+  isHybridModeDestination,
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/index';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,
   DeviceModeDestination,
@@ -21,15 +23,11 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
-import {
-  DEVICE_MODE_DESTINATIONS_PLUGIN,
-  INITIALIZED_CHECK_TIMEOUT,
-  LOAD_CHECK_POLL_INTERVAL,
-} from './constants';
+import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 import {
+  DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
 } from '../utilities/logMessages';
@@ -41,7 +39,7 @@ import {
  * @param logger Logger instance
  * @returns true if the destination SDK code is evaluated, false otherwise
  */
-const isDestinationSDKEvaluated = (
+const isDestinationSDKMounted = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   logger?: ILogger,
@@ -122,54 +120,25 @@ const createDestinationInstance = (
   );
 };
 
-const isDestinationReady = (dest: Destination, logger?: ILogger, time = 0) =>
+const isDestinationReady = (dest: Destination) =>
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
-    if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
-      resolve(true);
-    } else if (time >= INITIALIZED_CHECK_TIMEOUT) {
-      reject(
-        new Error(DESTINATION_READY_TIMEOUT_ERROR(INITIALIZED_CHECK_TIMEOUT, dest.userFriendlyId)),
-      );
-    } else {
-      wait(LOAD_CHECK_POLL_INTERVAL)
-        .then(() =>
-          isDestinationReady(dest, logger, time + LOAD_CHECK_POLL_INTERVAL)
-            .then(resolve)
-            .catch(err => reject(err)),
-        )
-        .catch(err => reject(err));
-    }
-  });
-
-/**
- * Converts the common names of the destinations to their display names
- * @param intgOptions Load or API integration options
- */
-const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): IntegrationOpts => {
-  const normalizedIntegrationOptions: IntegrationOpts = {};
-  if (intgOptions) {
-    Object.keys(intgOptions).forEach(key => {
-      const destOpts = clone(intgOptions[key]);
-      if (key === 'All') {
-        normalizedIntegrationOptions[key] = Boolean(destOpts);
+    let handleNumber: number;
+    const checkReady = () => {
+      if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
+        resolve(true);
       } else {
-        const displayName = destCNamesToDisplayNamesMap[key];
-        if (displayName) {
-          normalizedIntegrationOptions[displayName] = destOpts;
-        } else {
-          normalizedIntegrationOptions[key] = destOpts;
-        }
+        handleNumber = globalThis.requestAnimationFrame(checkReady);
       }
-    });
-  }
-
-  if (isUndefined(normalizedIntegrationOptions.All)) {
-    normalizedIntegrationOptions.All = true;
-  }
-
-  return normalizedIntegrationOptions;
-};
+    };
+    checkReady();
+    setTimeout(() => {
+      globalThis.cancelAnimationFrame(handleNumber);
+      reject(
+        new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
+      );
+    }, READY_CHECK_TIMEOUT_MS);
+  });
 
 /**
  * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
@@ -180,16 +149,16 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
 const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
   const allOptVal = intgOpts.All;
   return destinations.filter(dest => {
-    const dispName = dest.displayName;
+    const destDisplayName = dest.displayName;
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (isDestIntgConfigFalsy(intgOpts[dispName])) {
+      if (isDestIntgConfigFalsy(intgOpts[destDisplayName])) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      if (isDestIntgConfigTruthy(intgOpts[dispName])) {
+      if (isDestIntgConfigTruthy(intgOpts[destDisplayName])) {
         isDestEnabled = true;
       }
     }
@@ -215,7 +184,7 @@ const getCumulativeIntegrationsConfig = (
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject(),
+        normalizeIntegrationOptions(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
       logger?.error(
@@ -227,12 +196,70 @@ const getCumulativeIntegrationsConfig = (
   return integrationsConfig;
 };
 
+const initializeDestination = (
+  dest: Destination,
+  state: ApplicationState,
+  destSDKIdentifier: string,
+  sdkTypeName: string,
+  logger?: ILogger,
+) => {
+  try {
+    const initializedDestination = clone(dest);
+    const destInstance = createDestinationInstance(
+      destSDKIdentifier,
+      sdkTypeName,
+      dest,
+      state,
+      logger,
+    );
+    initializedDestination.instance = destInstance;
+
+    destInstance.init();
+
+    isDestinationReady(initializedDestination)
+      .then(() => {
+        // Collect the integrations data for the hybrid mode destinations
+        if (isHybridModeDestination(initializedDestination)) {
+          state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
+            initializedDestination,
+            state.nativeDestinations.integrationsConfig.value,
+            logger,
+          );
+        }
+
+        state.nativeDestinations.initializedDestinations.value = [
+          ...state.nativeDestinations.initializedDestinations.value,
+          initializedDestination,
+        ];
+      })
+      .catch(err => {
+        // The error message is already formatted in the isDestinationReady function
+        logger?.error(err);
+
+        state.nativeDestinations.failedDestinations.value = [
+          ...state.nativeDestinations.failedDestinations.value,
+          dest,
+        ];
+      });
+  } catch (err) {
+    logger?.error(
+      DESTINATION_INIT_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
+      err,
+    );
+
+    state.nativeDestinations.failedDestinations.value = [
+      ...state.nativeDestinations.failedDestinations.value,
+      dest,
+    ];
+  }
+};
+
 export {
-  isDestinationSDKEvaluated,
+  isDestinationSDKMounted,
   wait,
   createDestinationInstance,
   isDestinationReady,
-  normalizeIntegrationOptions,
   filterDestinations,
   getCumulativeIntegrationsConfig,
+  initializeDestination,
 };

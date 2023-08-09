@@ -3,9 +3,9 @@ name: 'Unit Tests, Coverage & Sonar v3'
 on:
   workflow_dispatch:
   push:
-    branches: ['main', 'develop', 'v3-staging']
+    branches: ['main', 'develop']
   pull_request:
-    branches: ['main', 'develop', 'v3-staging']
+    branches: ['main', 'develop']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -25,17 +25,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Restore lerna installation
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-${{ hashFiles('**/package.lock') }}
-
       - name: Install dependencies
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
       - name: Execute unit tests

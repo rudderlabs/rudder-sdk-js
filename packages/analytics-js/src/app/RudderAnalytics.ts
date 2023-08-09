@@ -7,9 +7,6 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
 import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
@@ -18,10 +15,16 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
+import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
+import { getPreloadedLoadEvent } from '../components/preloadBuffer';
+import { PreloadedEventCall } from '../components/preloadBuffer/types';
+import { setExposedGlobal } from '../components/utilities/globals';
 import { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
+import { defaultLogger } from '../services/Logger/Logger';
+import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -35,12 +38,15 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
+  logger = defaultLogger;
 
   // Singleton with constructor bind methods
   constructor() {
     if (RudderAnalytics.globalSingleton) {
+      // START-NO-SONAR-SCAN
       // eslint-disable-next-line no-constructor-return
       return RudderAnalytics.globalSingleton;
+      // END-NO-SONAR-SCAN
     }
 
     this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
@@ -72,9 +78,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
-
-    // eslint-disable-next-line no-constructor-return
-    return this;
   }
 
   /**
@@ -92,7 +95,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Retrieve an existing analytics instance
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
-    const instanceId = writeKey || this.defaultAnalyticsKey;
+    const instanceId = writeKey ?? this.defaultAnalyticsKey;
 
     const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
@@ -107,8 +110,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
-    const shouldSkipLoad = !isString(writeKey) || Boolean(this.analyticsInstances[writeKey]);
-    if (shouldSkipLoad) {
+    if (!isString(writeKey)) {
+      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
+      return;
+    }
+
+    if (this.analyticsInstances[writeKey]) {
       return;
     }
 
@@ -226,6 +233,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
+    if (arguments.length === 0) {
+      this.logger.error(EMPTY_GROUP_CALL_ERROR(RS_APP));
+      return;
+    }
+
     this.getAnalyticsInstance().group(
       groupArgumentsToCallOptions(groupId, traits, options, callback),
     );

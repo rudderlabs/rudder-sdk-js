@@ -23,9 +23,9 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   let payload;
-
+  const destinationIds = ['id1', 'id2', 'id3'];
   beforeEach(() => {
-    payload = createPayload(samplePageEvent, 'sample-auth-token');
+    payload = createPayload(samplePageEvent, destinationIds, 'sample-auth-token');
   });
 
   it('Validate payload format', () => {
@@ -36,6 +36,7 @@ describe('Test suite for device mode transformation feature', () => {
       batch: [
         {
           orderNo: expect.any(Number),
+          destinationIds,
           event: samplePageEvent.message,
         },
       ],
@@ -47,7 +48,6 @@ describe('Test suite for device mode transformation feature', () => {
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
-        expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
         const destObj = response.transformedPayload[0];
@@ -62,33 +62,12 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Transformation server response is in wrong format in case of successful transformation', async () => {
-    DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/invalidResponse`);
-
-    await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
-      .then(response => {
-        console.log(response);
-        expect('to').toBe('fail');
-      })
-      .catch(e => {
-        expect(typeof e).toBe('string');
-      });
-  });
-
   it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/accessDenied`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
-        expect(response.transformationServerAccess).toEqual(false);
-        expect(response.transformedPayload).toEqual(payload.batch);
-
-        const destObj = response.transformedPayload[0];
-
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'event')).toBe(true);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'orderNo')).toBe(true);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'id')).toBe(false);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'payload')).toEqual(false);
+        expect(response.status).toEqual(404);
       })
       .catch(e => {
         console.log(e);
@@ -110,7 +89,9 @@ describe('Test suite for device mode transformation feature', () => {
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
         console.log(response);
-        expect('to').toBe('fail');
+        expect(counter).toEqual(retryCount + 1); // retryCount+ first attempt
+        expect(response.errorMessage).toBe('Retries exhausted');
+        expect(response.status).toBe(500);
       })
       .catch(e => {
         expect(typeof e).toBe('string');
@@ -118,22 +99,20 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Transformation server returning response for partial success,SDK silently drops the unsuccessful events and procced', async () => {
+  it('Should not filter transformed events that are not 200', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/partialSuccess`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
         let totalTransformedEvents = 0;
-        let successfulTransformedEvents = 0;
+        let totalTransformedEventsInResponse = 0;
         samplePayloadPartialSuccess.transformedBatch.forEach(dest => {
           totalTransformedEvents += dest.payload.length;
         });
         response.transformedPayload.forEach(dest => {
-          dest.payload.forEach(tEvent => {
-            if (tEvent.status === '200') successfulTransformedEvents++;
-          });
+          totalTransformedEventsInResponse += dest.payload.length;
         });
-        expect(successfulTransformedEvents).toBeLessThan(totalTransformedEvents);
+        expect(totalTransformedEventsInResponse).toEqual(totalTransformedEvents);
       })
       .catch(e => {
         console.log(e);
@@ -147,7 +126,8 @@ describe('Test suite for device mode transformation feature', () => {
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
         console.log(response);
-        expect('to').toBe('fail');
+        expect(typeof response.errorMessage).toBe('string');
+        expect(response.status).toBe(400);
       })
       .catch(e => {
         expect(typeof e).toBe('string');
@@ -173,7 +153,6 @@ describe('Test suite for device mode transformation feature', () => {
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then(response => {
         expect(counter).toBeGreaterThan(1);
-        expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
         const destObj = response.transformedPayload[0];

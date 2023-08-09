@@ -1,19 +1,20 @@
-import { state } from '@rudderstack/analytics-js/state';
-import {
-  IStoreConfig,
-  IStoreManager,
-  StorageType,
-  StoreId,
-} from '@rudderstack/analytics-js-common/types/Store';
+import { IStoreConfig, IStoreManager, StoreId } from '@rudderstack/analytics-js-common/types/Store';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { STORAGE_UNAVAILABLE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  NO_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
-import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
+import { StoreManagerOptions } from './types';
+import { state } from '../../state';
+import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
 
@@ -69,31 +70,49 @@ class StoreManager implements IStoreManager {
    * Create store to persist data used by the SDK like session, used details etc
    */
   initClientDataStore() {
-    let storageType: StorageType | '' = '';
+    const storageType = state.storage.type.value || COOKIE_STORAGE;
+    let finalStorageType = storageType;
 
-    // First try setting the storage to cookie else to localstorage
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageType = COOKIE_STORAGE;
-    } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageType = LOCAL_STORAGE;
+    switch (storageType) {
+      case LOCAL_STORAGE:
+        if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+      case MEMORY_STORAGE:
+        finalStorageType = MEMORY_STORAGE;
+        break;
+      case NO_STORAGE:
+        finalStorageType = NO_STORAGE;
+        break;
+      case COOKIE_STORAGE:
+      default:
+        // First try setting the storage to cookie else to local storage
+        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          finalStorageType = COOKIE_STORAGE;
+        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = LOCAL_STORAGE;
+        } else {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
     }
-    // TODO: fallback to in-memory storage if not other storage is available
 
-    // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
-    if (!storageType) {
-      this.logger?.error(STORAGE_UNAVAILABLE_ERROR(STORE_MANAGER));
-      return;
+    if (finalStorageType !== storageType) {
+      this.logger?.warn(STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType));
     }
 
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    this.setStore({
-      id: CLIENT_DATA_STORE_NAME,
-      name: CLIENT_DATA_STORE_NAME,
-      isEncrypted: true,
-      noCompoundKey: true,
-      type: storageType,
-    });
+    if (finalStorageType !== NO_STORAGE) {
+      this.setStore({
+        id: CLIENT_DATA_STORE_NAME,
+        name: CLIENT_DATA_STORE_NAME,
+        isEncrypted: true,
+        noCompoundKey: true,
+        type: finalStorageType,
+      });
+    }
   }
 
   /**

@@ -34,7 +34,7 @@ describe('StoreManager', () => {
 
   beforeEach(() => {
     errorHandler = { onError: jest.fn() };
-    logger = { error: jest.fn() };
+    logger = { error: jest.fn(), warn: jest.fn() };
     storeManager = new StoreManager(defaultPluginsManager, errorHandler, logger);
   });
 
@@ -98,22 +98,6 @@ describe('StoreManager', () => {
       storeManager.initClientDataStore();
 
       expect(storeManager.stores).toHaveProperty('clientData');
-    });
-
-    it('should log an error if neither cookie nor local storage is available', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: false,
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
-
-      storeManager.initClientDataStore();
-
-      expect(storeManager.stores).not.toHaveProperty('clientData');
-      expect(storeManager.logger?.error).toHaveBeenCalledTimes(1);
     });
 
     describe('Stores', () => {
