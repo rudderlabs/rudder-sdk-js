@@ -12,9 +12,7 @@ class INTERCOM {
     }
     this.analytics = analytics;
     this.name = NAME;
-    this.API_KEY = config.apiKey;
-    this.APP_ID = config.appId;
-    this.MOBILE_APP_ID = config.mobileAppId;
+    this.appId = config.appId;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -23,7 +21,7 @@ class INTERCOM {
   }
 
   init() {
-    loadNativeSdk(this.APP_ID);
+    loadNativeSdk(this.appId);
   }
 
   isLoaded() {

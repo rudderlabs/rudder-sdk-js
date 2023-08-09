@@ -45,17 +45,17 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    const { integrations, anonymousId } = message;
+    const { integrations, anonymousId, userId } = message;
     if (integrations?.[NAME]) {
       const { tags } = integrations[NAME];
       if (isDefinedAndNotNull(tags)) {
-        const userId = message.userId || anonymousId;
+        const id = userId || anonymousId;
         const addTags = Array.isArray(tags.add) ? tags.add : [];
         const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
         window._veroq.push([
           'tags',
           {
-            id: userId,
+            id,
             add: addTags,
             remove: removeTags,
           },
@@ -97,18 +97,18 @@ class Vero {
     logger.debug('=== In Vero track ===');
 
     const { message } = rudderElement;
-    const { event, properties, anonymousId } = message;
+    const { event, properties, anonymousId, userId } = message;
     if (!event) {
       logger.error('[Vero]: Event name from track call is missing!!===');
       return;
     }
-    const userId = message.userId || anonymousId;
+    const id = userId || anonymousId;
     switch (event.toLowerCase()) {
       case 'unsubscribe':
-        window._veroq.push(['unsubscribe', userId]);
+        window._veroq.push(['unsubscribe', id]);
         break;
       case 'resubscribe':
-        window._veroq.push(['resubscribe', userId]);
+        window._veroq.push(['resubscribe', id]);
         break;
       default:
         window._veroq.push(['track', event, properties]);
