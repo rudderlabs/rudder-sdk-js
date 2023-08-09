@@ -110,6 +110,7 @@ class ConfigManager implements IConfigManager {
           state.loadOptions.value.configUrl,
           state.lifecycle.writeKey.value as string,
           lockIntegrationsVersion,
+          this.logger,
         );
       }
 

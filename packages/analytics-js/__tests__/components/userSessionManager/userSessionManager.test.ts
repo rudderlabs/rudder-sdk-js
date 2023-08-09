@@ -462,6 +462,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_user_id',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -469,6 +470,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_trait',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -476,6 +478,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_anonymous_id',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -483,6 +486,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_group_id',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -490,6 +494,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_group_trait',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -497,6 +502,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_page_init_referrer',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -504,6 +510,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_page_init_referring_domain',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).nthCalledWith(
@@ -511,6 +518,7 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_session',
       clientDataStore.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
 

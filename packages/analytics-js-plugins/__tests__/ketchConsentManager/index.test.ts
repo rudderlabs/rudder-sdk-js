@@ -24,6 +24,10 @@ describe('Plugin - KetchConsentManager', () => {
     log: jest.fn(),
   };
 
+  const mockErrorHandler = {
+    onError: jest.fn(),
+  };
+
   it('should add KetchConsentManager plugin in the loaded plugin list', () => {
     KetchConsentManager().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('KetchConsentManager')).toBe(true);
@@ -137,7 +141,12 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should return true if the consent manager is not initialized', () => {
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, undefined, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        undefined,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(true);
   });
 
@@ -155,7 +164,12 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, destConfig, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(true);
   });
 
@@ -174,7 +188,12 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, destConfig, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(true);
   });
 
@@ -200,7 +219,12 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, destConfig, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(true);
   });
 
@@ -226,7 +250,12 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, destConfig, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(false);
   });
 
@@ -252,11 +281,17 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(state, destConfig, mockLogger),
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
     ).toBe(true);
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'KetchConsentManagerPlugin:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
+    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
+      'KetchConsentManagerPlugin',
+      'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
     );
   });
 });

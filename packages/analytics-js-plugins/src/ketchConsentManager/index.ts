@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
@@ -5,6 +6,7 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { DESTINATION_CONSENT_STATUS_ERROR } from '../utilities/logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';
@@ -50,6 +52,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
     isDestinationConsented(
       state: ApplicationState,
       destConfig: DestinationConfig,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
       const consentData = state.consents.data.value;
@@ -74,7 +77,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
         );
         return containsAnyOfConsent;
       } catch (err) {
-        logger?.error(DESTINATION_CONSENT_STATUS_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
+        errorHandler?.onError(err, KETCH_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
         return true;
       }
     },
