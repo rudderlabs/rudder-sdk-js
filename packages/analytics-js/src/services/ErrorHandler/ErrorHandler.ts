@@ -108,7 +108,7 @@ class ErrorHandler implements IErrorHandler {
           this.logger,
         );
       } catch (err) {
-        this.onError(err, 'errorReporting.breadcrumb');
+        this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
     }
   }

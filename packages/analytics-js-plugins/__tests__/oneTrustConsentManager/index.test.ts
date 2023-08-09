@@ -14,6 +14,10 @@ describe('Plugin - OneTrustConsentManager', () => {
     log: jest.fn(),
   };
 
+  const mockErrorHandler = {
+    onError: jest.fn(),
+  };
+
   it('should add OneTrustConsentManager plugin in the loaded plugin list', () => {
     OneTrustConsentManager().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('OneTrustConsentManager')).toBe(true);
@@ -80,6 +84,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
+      mockErrorHandler,
       mockLogger,
     );
     expect(isDestinationConsented).toBe(true);
@@ -108,6 +113,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
+      mockErrorHandler,
       mockLogger,
     );
     expect(isDestinationConsented).toBe(true);
@@ -128,6 +134,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
+      mockErrorHandler,
       mockLogger,
     );
     expect(isDestinationConsented).toBe(true);
@@ -155,6 +162,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
+      mockErrorHandler,
       mockLogger,
     );
     expect(isDestinationConsented).toBe(false);
@@ -176,12 +184,14 @@ describe('Plugin - OneTrustConsentManager', () => {
     const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
+      mockErrorHandler,
       mockLogger,
     );
     expect(isDestinationConsented).toBe(true);
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'OneTrustConsentManagerPlugin:: Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
+    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError('oneTrustCookieCategories.map is not a function'),
+      'OneTrustConsentManagerPlugin',
+      'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
     );
   });
 });

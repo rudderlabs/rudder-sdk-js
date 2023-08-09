@@ -146,7 +146,7 @@ const getBuildConfig = (featureName) => ({
       FEATURE_PRELOAD_BUFFER_WRITE_KEY: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
       FEATURE_EVENT_FILTERING_WRITE_KEY: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
-      CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+      CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
       APP_DEST_SDK_BASE_URL: getDestinationsURL(),
       REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
       CDN_VERSION_PATH:
@@ -193,7 +193,7 @@ const getBuildConfig = (featureName) => ({
         __FEATURE_PRELOAD_BUFFER_WRITE_KEY__: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
         __FEATURE_EVENT_FILTERING_WRITE_KEY__: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST,
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:

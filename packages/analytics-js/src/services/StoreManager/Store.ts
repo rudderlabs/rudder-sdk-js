@@ -6,7 +6,6 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { defaultLogger } from '../Logger';
@@ -113,7 +112,7 @@ class Store implements IStore {
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
-        this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(STORE_MANAGER));
+        this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there

@@ -387,6 +387,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.setActiveDestinations',
       state,
       this.pluginsManager,
+      this.errorHandler,
       this.logger,
     );
 
@@ -402,6 +403,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.load',
       state,
       this.externalSrcLoader,
+      this.errorHandler,
       this.logger,
     );
 
@@ -427,11 +429,11 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onDestinationsReady() {
-    state.eventBuffer.readyCallbacksArray.value.forEach(callback => {
+    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
       try {
         callback();
       } catch (err) {
-        this.logger.error(READY_CALLBACK_INVOKE_ERROR(ANALYTICS_CORE), err);
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     });
     state.lifecycle.status.value = LifecycleStatus.Ready;
@@ -462,7 +464,7 @@ class Analytics implements IAnalytics {
       try {
         callback();
       } catch (err) {
-        this.logger.error(READY_CALLBACK_INVOKE_ERROR(ANALYTICS_CORE), err);
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {
       state.eventBuffer.readyCallbacksArray.value.push(callback);
