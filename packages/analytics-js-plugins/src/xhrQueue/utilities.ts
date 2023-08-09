@@ -15,7 +15,7 @@ const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
 const getDeliveryUrl = (dataplaneUrl: string, eventType: RudderEventType): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    removeDuplicateSlashes([dpUrl.pathname, DATA_PLANE_API_VERSION, '/', eventType].join('')),
+    removeDuplicateSlashes([dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', eventType].join('')),
     dpUrl,
   ).href;
 };
