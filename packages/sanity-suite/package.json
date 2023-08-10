@@ -56,7 +56,7 @@
     "@rudderstack/analytics-js": "3.0.0-beta.3",
     "deep-object-diff": "1.1.9",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "2.40.1"
+    "rudder-sdk-js": "2.40.0"
   },
   "devDependencies": {
     "@babel/core": "7.22.9",
