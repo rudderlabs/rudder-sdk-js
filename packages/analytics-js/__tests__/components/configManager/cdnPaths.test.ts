@@ -64,8 +64,10 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
     getSDKUrl.mockImplementation(() => undefined);
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, undefined);
-    expect(integrationsCDNPath).toBe(
-      `${SDK_CDN_BASE_URL}/${dummyVersion}/latest/modern/${CDN_INT_DIR}`,
-    );
+    expect(integrationsCDNPath).toBe(`${SDK_CDN_BASE_URL}/beta/3.0.0-beta/modern/${CDN_INT_DIR}`);
+    // TODO: change the above to production URLs when beta phase is done
+    // expect(integrationsCDNPath).toBe(
+    //   `${SDK_CDN_BASE_URL}/latest/${dummyVersion}/modern/${CDN_INT_DIR}`,
+    // );
   });
 });

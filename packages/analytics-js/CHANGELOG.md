@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.2...@rudderstack/analytics-js@3.0.0-beta.3) (2023-08-10)
+
+
+### Bug Fixes
+
+* **analytics-js:** add polyfill and feature detection for CustomEvent ([92c565f](https://github.com/rudderlabs/rudder-sdk-js/commit/92c565fca6ee2c90e0d7c34426e9a502d06ca745))
+* **analytics-js:** change default cdn paths to the beta ones ([8d4bbe4](https://github.com/rudderlabs/rudder-sdk-js/commit/8d4bbe4bbf8be60dbdf0d07244a11da8f1948e5f))
+
+
+
+
+
 # 3.0.0-beta.2 (2023-08-09)
 
 
