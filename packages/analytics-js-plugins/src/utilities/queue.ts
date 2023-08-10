@@ -1,7 +1,6 @@
 import { clone } from 'ramda';
 import {
   getCurrentTimeFormatted,
-  isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
 } from '@rudderstack/analytics-js-common/index';
@@ -11,7 +10,6 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {
   EVENT_STRINGIFY_ERROR,
@@ -60,29 +58,21 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
   }
 };
 
+/**
+ * Filters and returns the user supplied integrations config that should take preference over the destination specific integrations config
+ * @param eventIntgConfig User supplied integrations config at event level
+ * @param destinationsIntgConfig Cumulative integrations config from all destinations
+ * @returns Filtered user supplied integrations config
+ */
 const getOverriddenIntegrationOptions = (
-  finalIntgConfig: IntegrationOpts,
+  eventIntgConfig: IntegrationOpts,
   destinationsIntgConfig: IntegrationOpts,
 ): IntegrationOpts =>
-  Object.keys(finalIntgConfig)
-    .filter(intgName => {
-      const eventDestConfig = finalIntgConfig[intgName];
-      const globalDestConfig = destinationsIntgConfig[intgName];
-
-      // unless the event dest config is undefined, use it (falsy or truthy)
-      if (typeof eventDestConfig !== 'boolean') {
-        return !isUndefined(eventDestConfig);
-      }
-
-      if (eventDestConfig === false || isUndefined(globalDestConfig)) {
-        return true;
-      }
-
-      return isDestIntgConfigFalsy(globalDestConfig);
-    })
+  Object.keys(eventIntgConfig)
+    .filter(intgName => eventIntgConfig[intgName] !== true || !destinationsIntgConfig[intgName])
     .reduce((obj: IntegrationOpts, key: string) => {
       const retVal = clone(obj);
-      retVal[key] = finalIntgConfig[key];
+      retVal[key] = eventIntgConfig[key];
       return retVal;
     }, {});
 
@@ -102,18 +92,16 @@ const getFinalEventForDeliveryMutator = (
   // Update sentAt timestamp to the latest timestamp
   finalEvent.sentAt = getCurrentTimeFormatted();
 
-  // IMPORTANT: This logic has been improved over the v1.1 to handle other generic cases as well
   // Merge the destination specific integrations config with the event's integrations config
   // In general, the preference is given to the event's integrations config
-  let finalIntgConfig = normalizeIntegrationOptions(event.integrations);
+  const eventIntgConfig = normalizeIntegrationOptions(event.integrations);
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
   const overriddenIntgOpts = getOverriddenIntegrationOptions(
-    finalIntgConfig,
+    eventIntgConfig,
     destinationsIntgConfig,
   );
 
-  finalIntgConfig = mergeDeepRight(destinationsIntgConfig, overriddenIntgOpts);
-  finalEvent.integrations = finalIntgConfig;
+  finalEvent.integrations = mergeDeepRight(destinationsIntgConfig, overriddenIntgOpts);
 
   return finalEvent;
 };
