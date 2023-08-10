@@ -1,7 +1,6 @@
 import { clone } from 'ramda';
 import {
   getCurrentTimeFormatted,
-  isUndefined,
   mergeDeepRight,
   stringifyWithoutCircular,
 } from '@rudderstack/analytics-js-common/index';
@@ -11,7 +10,6 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { isDestIntgConfigFalsy } from './destination';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {
   EVENT_STRINGIFY_ERROR,
