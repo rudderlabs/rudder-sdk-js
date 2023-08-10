@@ -14,6 +14,8 @@ import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentInfo } from './Consent';
 import { StorageType } from './Storage';
+import { CookieOptions } from './Store';
+import { UserSessionKeys } from './userSessionStorageKeys';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -131,10 +133,23 @@ export type SessionState = {
 
 export type SourceConfigState = Signal<Source | undefined>;
 
+export type Entries = {
+  [UserSessionKeys.userId]: StorageType;
+  [UserSessionKeys.userTraits]: StorageType;
+  [UserSessionKeys.anonymousUserId]: StorageType;
+  [UserSessionKeys.groupId]: StorageType;
+  [UserSessionKeys.groupTraits]: StorageType;
+  [UserSessionKeys.initialReferrer]: StorageType;
+  [UserSessionKeys.initialReferringDomain]: StorageType;
+  [UserSessionKeys.sessionInfo]: StorageType;
+};
+
 export type StorageState = {
   encryptionPluginName: Signal<PluginName | undefined>;
   migrate: Signal<boolean>;
   type: Signal<StorageType | undefined>;
+  cookie: Signal<CookieOptions | undefined>;
+  entries: Signal<Entries>;
 };
 
 export interface ApplicationState {

@@ -10,7 +10,8 @@ import {
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { clone } from 'ramda';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions } from './types';
 import { state } from '../../state';
@@ -70,49 +71,61 @@ class StoreManager implements IStoreManager {
    * Create store to persist data used by the SDK like session, used details etc
    */
   initClientDataStore() {
-    const storageType = state.storage.type.value || COOKIE_STORAGE;
-    let finalStorageType = storageType;
+    const globalStorageType = state.storage.type.value;
+    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
 
-    switch (storageType) {
-      case LOCAL_STORAGE:
-        if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-          finalStorageType = MEMORY_STORAGE;
-        }
-        break;
-      case MEMORY_STORAGE:
-        finalStorageType = MEMORY_STORAGE;
-        break;
-      case NO_STORAGE:
-        finalStorageType = NO_STORAGE;
-        break;
-      case COOKIE_STORAGE:
-      default:
-        // First try setting the storage to cookie else to local storage
-        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-          finalStorageType = COOKIE_STORAGE;
-        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-          finalStorageType = LOCAL_STORAGE;
-        } else {
-          finalStorageType = MEMORY_STORAGE;
-        }
-        break;
-    }
+    Object.keys(state.storage.entries.value).forEach(entry => {
+      const providedEntries = state.loadOptions.value.storage?.entries;
+      const storageType = providedEntries
+        ? `providedEntries.${entry}.type`
+        : globalStorageType || DEFAULT_STORAGE_TYPE;
 
-    if (finalStorageType !== storageType) {
-      this.logger?.warn(STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType));
-    }
+      let finalStorageType = storageType;
+
+      switch (storageType) {
+        case LOCAL_STORAGE:
+          if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+            finalStorageType = MEMORY_STORAGE;
+          } else {
+            storageTypesRequiringInitialization.push(LOCAL_STORAGE);
+          }
+          break;
+        case MEMORY_STORAGE:
+        case NO_STORAGE:
+          break;
+        case COOKIE_STORAGE:
+        default:
+          // First try setting the storage to cookie else to local storage
+          if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+            finalStorageType = COOKIE_STORAGE;
+            storageTypesRequiringInitialization.push(COOKIE_STORAGE);
+          } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+            finalStorageType = LOCAL_STORAGE;
+          } else {
+            finalStorageType = MEMORY_STORAGE;
+          }
+          break;
+      }
+      if (finalStorageType !== storageType) {
+        this.logger?.warn(
+          STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType),
+        );
+      }
+      const clonedStorageState = clone(state.storage.entries.value);
+      state.storage.entries.value = { ...clonedStorageState, [entry]: finalStorageType };
+    });
 
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    if (finalStorageType !== NO_STORAGE) {
+    storageTypesRequiringInitialization.forEach(each => {
       this.setStore({
         id: CLIENT_DATA_STORE_NAME,
         name: CLIENT_DATA_STORE_NAME,
         isEncrypted: true,
         noCompoundKey: true,
-        type: finalStorageType,
+        type: each as StorageType,
       });
-    }
+    });
   }
 
   /**

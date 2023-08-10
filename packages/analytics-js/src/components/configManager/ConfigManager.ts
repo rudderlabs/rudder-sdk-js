@@ -96,6 +96,14 @@ class ConfigManager implements IConfigManager {
 
     updateStorageState(this.logger);
 
+    let storageType = state.loadOptions.value.storage?.type;
+    if (!isValidStorageType(storageType)) {
+      this.logger?.warn(
+        STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
+      );
+      storageType = DEFAULT_STORAGE_TYPE;
+    }
+
     // set application lifecycle state in global state
     batch(() => {
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
@@ -117,15 +125,9 @@ class ConfigManager implements IConfigManager {
       state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
 
       // set storage type in state
-      const storageType = state.loadOptions.value.storage?.type;
-      if (!isValidStorageType(storageType)) {
-        this.logger?.warn(
-          STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
-        );
-        state.storage.type.value = DEFAULT_STORAGE_TYPE;
-      } else {
-        state.storage.type.value = storageType;
-      }
+      state.storage.type.value = storageType;
+      // set storage type in state
+      state.storage.cookie.value = state.loadOptions.value.storage?.cookie;
     });
 
     this.getConfig();
