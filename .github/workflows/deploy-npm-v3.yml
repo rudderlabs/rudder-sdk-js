@@ -89,7 +89,7 @@ jobs:
             }
 
       - name: Send message to Slack channel for v1.1
-        id: slack
+        id: slackv1
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -122,7 +122,7 @@ jobs:
 
 
       - name: Send message to Slack channel for Service Worker
-        id: slack
+        id: slackSw
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
