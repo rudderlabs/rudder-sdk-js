@@ -1,4 +1,5 @@
-import { IStorage, StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { externallyLoadedSessionStorageKeys } from './constants';
 

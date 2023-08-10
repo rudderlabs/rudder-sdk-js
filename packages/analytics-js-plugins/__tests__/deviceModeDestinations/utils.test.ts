@@ -1,10 +1,9 @@
 import {
   filterDestinations,
-  normalizeIntegrationOptions,
   wait,
   isDestinationReady,
   createDestinationInstance,
-  isDestinationSDKEvaluated,
+  isDestinationSDKMounted,
 } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
 import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import { signal } from '@preact/signals-core';
@@ -122,93 +121,6 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('normalizeIntegrationOptions', () => {
-    it('should return integration options with all keys set with destination display names', () => {
-      const integrationOptions = {
-        All: true,
-        GA4: true,
-        BRAZE: true,
-      };
-
-      const normalizedIntegrationOptions = normalizeIntegrationOptions(integrationOptions);
-
-      expect(normalizedIntegrationOptions).toEqual({
-        All: true,
-        'Google Analytics 4 (GA4)': true,
-        Braze: true,
-      });
-    });
-
-    it('should return integration options with destinations unmodified that do not have any common names defined', () => {
-      const integrationOptions = {
-        All: true,
-        GA4: true,
-        Braze: true,
-        'Some Destination': true,
-      };
-
-      const normalizedIntegrationOptions = normalizeIntegrationOptions(integrationOptions);
-
-      expect(normalizedIntegrationOptions).toEqual({
-        All: true,
-        'Google Analytics 4 (GA4)': true,
-        Braze: true,
-        'Some Destination': true,
-      });
-    });
-
-    it('should return integration options with destinations value unmodified', () => {
-      const integrationOptions = {
-        All: true,
-        GA4: {
-          customKey: 'customValue',
-        },
-        Braze: [1, 2, 3],
-      };
-
-      const normalizedIntegrationOptions = normalizeIntegrationOptions(integrationOptions);
-
-      expect(normalizedIntegrationOptions).toEqual({
-        All: true,
-        'Google Analytics 4 (GA4)': {
-          customKey: 'customValue',
-        },
-        Braze: [1, 2, 3],
-      });
-    });
-
-    it('should return integration options with "All" key with always a boolean value', () => {
-      const integrationOptions = {
-        All: '',
-        GA4: true,
-        Braze: true,
-      };
-
-      const normalizedIntegrationOptions = normalizeIntegrationOptions(integrationOptions);
-
-      expect(normalizedIntegrationOptions).toEqual({
-        All: false,
-        'Google Analytics 4 (GA4)': true,
-        Braze: true,
-      });
-    });
-
-    it('should return integration options with default value for "All" if "All" key is not defined', () => {
-      const integrationOptions = {
-        GA4: true,
-        Braze: true,
-      };
-
-      const normalizedIntegrationOptions = normalizeIntegrationOptions(integrationOptions);
-
-      expect(normalizedIntegrationOptions).toEqual({
-        All: true,
-        'Google Analytics 4 (GA4)': true,
-        Braze: true,
-      });
-    });
-  });
-
   describe('wait', () => {
     it('should return a promise that resolves after the specified time', async () => {
       const time = 1000;
@@ -256,7 +168,7 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('isDestinationReady', () => {
-    const originalInitializedCheckTimeout = dmdConstants.INITIALIZED_CHECK_TIMEOUT;
+    const originalInitializedCheckTimeout = dmdConstants.READY_CHECK_TIMEOUT_MS;
     const originalInitializedPollInterval = dmdConstants.LOAD_CHECK_POLL_INTERVAL;
     const destination = {
       instance: {
@@ -267,12 +179,12 @@ describe('deviceModeDestinations utils', () => {
 
     beforeEach(() => {
       // temporarily manipulate the timeout and interval constants to speed up the test
-      dmdConstants.INITIALIZED_CHECK_TIMEOUT = 200;
+      dmdConstants.READY_CHECK_TIMEOUT_MS = 200;
       dmdConstants.LOAD_CHECK_POLL_INTERVAL = 100;
     });
 
     afterEach(() => {
-      dmdConstants.INITIALIZED_CHECK_TIMEOUT = originalInitializedCheckTimeout;
+      dmdConstants.READY_CHECK_TIMEOUT_MS = originalInitializedCheckTimeout;
       dmdConstants.LOAD_CHECK_POLL_INTERVAL = originalInitializedPollInterval;
       destination.instance.isLoaded = () => false;
     });
@@ -408,7 +320,7 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('isDestinationSDKEvaluated', () => {
+  describe('isDestinationSDKMounted', () => {
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
 
@@ -434,7 +346,7 @@ describe('deviceModeDestinations utils', () => {
     const mockLogger = new MockLogger();
 
     it('should return false if the destination SDK is not evaluated', () => {
-      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
     it('should return false if the destination SDK is mounted but it is not a constructable type', () => {
@@ -442,7 +354,7 @@ describe('deviceModeDestinations utils', () => {
         [sdkTypeName]: 'not a constructable type',
       };
 
-      expect(isDestinationSDKEvaluated(destSDKIdentifier, sdkTypeName)).toEqual(false);
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
     it('should return true if the destination SDK is a constructable type', () => {

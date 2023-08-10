@@ -1,14 +1,29 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable consistent-return */
 import get from 'get-value';
-import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
+import {
+  DISPLAY_NAME,
+  NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {
   isDefinedAndNotNull,
   isNotEmpty,
   isDefinedNotNullNotEmpty,
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
+
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 /**
  * transform webapp dynamicForm custom floodlight variable
@@ -137,22 +152,23 @@ const isValidCountingMethod = (salesTag, countingMethod) => {
 const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
   const customParams = {};
   // COPPA, GDPR, npa must be provided inside integration object
-  let { DCM_FLOODLIGHT } = message.integrations;
-  if (!DCM_FLOODLIGHT) {
-    ({ DCM_FLOODLIGHT } = integrationObj);
-  }
+  const dcmFloodlightIntgConfig =
+    getDestinationOptions(message.integrations) || getDestinationOptions(integrationObj);
 
-  if (DCM_FLOODLIGHT) {
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.COPPA)) {
-      customParams.tag_for_child_directed_treatment = mapFlagValue('COPPA', DCM_FLOODLIGHT.COPPA);
+  if (dcmFloodlightIntgConfig) {
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.COPPA)) {
+      customParams.tag_for_child_directed_treatment = mapFlagValue(
+        'COPPA',
+        dcmFloodlightIntgConfig.COPPA,
+      );
     }
 
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.GDPR)) {
-      customParams.tfua = mapFlagValue('GDPR', DCM_FLOODLIGHT.GDPR);
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.GDPR)) {
+      customParams.tfua = mapFlagValue('GDPR', dcmFloodlightIntgConfig.GDPR);
     }
 
-    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.npa)) {
-      customParams.npa = mapFlagValue('npa', DCM_FLOODLIGHT.npa);
+    if (isDefinedNotNullNotEmpty(dcmFloodlightIntgConfig.npa)) {
+      customParams.npa = mapFlagValue('npa', dcmFloodlightIntgConfig.npa);
     }
   }
 

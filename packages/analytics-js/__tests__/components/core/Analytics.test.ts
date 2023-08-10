@@ -48,9 +48,9 @@ describe('Core - Analytics', () => {
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
       const initSpy = jest.spyOn(analytics, 'init');
       const loadPluginsSpy = jest.spyOn(analytics, 'loadPlugins');
-      const onLoadedSpy = jest.spyOn(analytics, 'onLoaded');
-      const loadIntegrationsSpy = jest.spyOn(analytics, 'loadIntegrations');
-      const onReadySpy = jest.spyOn(analytics, 'onReady');
+      const onInitializedSpy = jest.spyOn(analytics, 'onInitialized');
+      const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
+      const onDestinationsReadySpy = jest.spyOn(analytics, 'onDestinationsReady');
 
       state.lifecycle.status.value = LifecycleStatus.Mounted;
       expect(prepareBrowserCapabilitiesSpy).toHaveBeenCalledTimes(1);
@@ -61,7 +61,6 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
 
       state.lifecycle.status.value = LifecycleStatus.Configured;
-      expect(initSpy).toHaveBeenCalledTimes(1);
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
@@ -70,19 +69,19 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.PluginsLoading);
 
       state.lifecycle.status.value = LifecycleStatus.PluginsReady;
-      expect(onLoadedSpy).toHaveBeenCalledTimes(2);
+      expect(initSpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.Initialized;
-      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.Loaded;
-      expect(loadIntegrationsSpy).toHaveBeenCalledTimes(4);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
 
       state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
-      expect(onReadySpy).toHaveBeenCalledTimes(5);
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
     });
   });
@@ -126,18 +125,27 @@ describe('Core - Analytics', () => {
   describe('onLoaded', () => {
     it('should invoke callback passed in onLoaded option', () => {
       state.loadOptions.value.onLoaded = jest.fn();
-      analytics.onLoaded();
+      analytics.onInitialized();
       expect(state.loadOptions.value.onLoaded).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.loaded.value).toBeTruthy();
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
     });
+    it('should dispatch RSA initialised event', () => {
+      const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
+      state.loadOptions.value.onLoaded = jest.fn();
+      analytics.onInitialized();
+      expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
+        analyticsInstance: undefined,
+      });
+    });
   });
 
-  describe('onReady', () => {
-    it('should invoke callbacks passed in onReady calls', () => {
+  describe('onDestinationsReady', () => {
+    it('should invoke callbacks passed in onDestinationsReady calls', () => {
       const callback = jest.fn();
       state.eventBuffer.readyCallbacksArray.value = [callback, callback];
-      analytics.onReady();
+      analytics.onDestinationsReady();
       expect(callback).toHaveBeenCalledTimes(2);
     });
   });
@@ -147,6 +155,8 @@ describe('Core - Analytics', () => {
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const errorSpy = jest.spyOn(analytics.logger, 'error');
       const callback = true;
+
+      state.lifecycle.loaded.value = true;
 
       analytics.ready(callback as any);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
@@ -181,6 +191,15 @@ describe('Core - Analytics', () => {
       expect(callback).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.readyCallbacksArray.value).toStrictEqual([]);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+    });
+    it('should dispatch RSA ready event', () => {
+      const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
+      analytics.onReady();
+
+      expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
+        analyticsInstance: undefined,
+      });
     });
   });
 

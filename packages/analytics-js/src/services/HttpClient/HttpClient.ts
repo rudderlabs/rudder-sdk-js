@@ -1,5 +1,3 @@
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   IAsyncRequestConfig,
@@ -11,6 +9,8 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { defaultErrorHandler } from '../ErrorHandler';
+import { defaultLogger } from '../Logger';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 

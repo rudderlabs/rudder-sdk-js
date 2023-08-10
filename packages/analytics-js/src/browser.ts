@@ -1,4 +1,4 @@
-import { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
+import { RudderAnalytics } from './app/RudderAnalytics';
 
 /*
  * Create new RudderAnalytics facade singleton

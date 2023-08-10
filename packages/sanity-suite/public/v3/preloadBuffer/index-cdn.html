@@ -27,7 +27,7 @@
       var asyncScript = true;
       window.rudderAnalyticsBuildType = "legacy";
       window.rudderanalytics = [];
-      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         window.rudderanalytics[method] = function(methodName) {
@@ -70,11 +70,11 @@
 
       // Identify call
       rudderanalytics.identify("12345", {
-        name: "Automation QA"
+        name: "Automation_QA"
       });
 
       // Track call
-      rudderanalytics.track("test event", {
+      rudderanalytics.track("test_event", {
         testProp: "automationQA_prop1"
       });
 
@@ -88,6 +88,9 @@
             enabled: true,
           },
         },
+        storage: {
+          migrate: true
+        }
       };
 
       rudderanalytics.load(

@@ -1,5 +1,5 @@
 import objectPath from 'object-path';
-import deepEqual from 'deep-equal';
+import { diff } from 'deep-object-diff';
 import { ignoredProperties } from './ignoredProperties';
 
 class ResultsAssertions {
@@ -10,18 +10,20 @@ class ResultsAssertions {
       const resultData = JSON.parse(result);
       const expectedResultData = JSON.parse(expectedResult);
 
-      ignoredProperties.forEach(property => {
-        if (
-          typeof objectPath.get(resultData, property.key) === property.type ||
-          property.optional === true
-        ) {
-          objectPath.set(
-            resultData,
-            property.key,
-            objectPath.get(expectedResultData, property.key),
-          );
-        }
-      });
+      if (resultData.message) {
+        ignoredProperties.forEach(property => {
+          if (
+            typeof objectPath.get(resultData, property.key) === property.type ||
+            property.optional === true
+          ) {
+            objectPath.set(
+              resultData,
+              property.key,
+              objectPath.get(expectedResultData, property.key),
+            );
+          }
+        });
+      }
 
       return JSON.stringify(resultData, undefined, 2);
     } catch (e) {
@@ -38,9 +40,14 @@ class ResultsAssertions {
     try {
       const resultObj = JSON.parse(result);
       const expectedObj = JSON.parse(expected);
-      return deepEqual(resultObj, expectedObj) ? 'success' : 'danger';
+      const comparisonDiff = diff(expectedObj, resultObj);
+      const isEqual = Object.keys(comparisonDiff).length === 0;
+      if(!isEqual) {
+        console.log(`Error: Comparison diff: `, comparisonDiff);
+      }
+      return isEqual ? 'success' : 'danger';
     } catch (e) {
-      console.error(`Error: Comparison diff: ${e}`);
+      console.error(`Error: Comparison diff: `, e);
       return 'danger';
     }
   }

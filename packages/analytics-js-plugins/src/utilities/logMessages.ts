@@ -8,8 +8,8 @@ const INVALID_SOURCE_CONFIG_ERROR = `Invalid source configuration or source id.`
 const BEACON_QUEUE_SEND_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to send events batch data to the browser's beacon queue. The events will be dropped.`;
 
-const BEACON_QUEUE_PAYLOAD_PREPARATION_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to prepare the events batch payload for delivery. The events will be dropped.`;
+const BEACON_QUEUE_DELIVERY_ERROR = (url: string): string =>
+  `Failed to send events batch data to the browser's beacon queue for URL ${url}.`;
 
 const BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to convert events batch object to string.`;
@@ -20,23 +20,17 @@ const BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR = (context: string): string =>
 const BUGSNAG_SDK_LOAD_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load the Bugsnag SDK.`;
 
-const DESTINATION_NOT_SUPPORTED_ERROR = (context: string, destUserFriendlyId: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Destination ${destUserFriendlyId} is not supported.`;
+const DESTINATION_NOT_SUPPORTED_ERROR = (destUserFriendlyId: string): string =>
+  `Destination ${destUserFriendlyId} is not supported.`;
 
 const DESTINATION_SDK_LOAD_ERROR = (context: string, destUserFriendlyId: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load script for destination ${destUserFriendlyId}.`;
 
-const DESTINATION_INIT_ERROR = (context: string, destUserFriendlyId: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to initialize destination ${destUserFriendlyId}.`;
+const DESTINATION_INIT_ERROR = (destUserFriendlyId: string): string =>
+  `Failed to initialize destination ${destUserFriendlyId}.`;
 
-const DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR = (
-  context: string,
-  destUserFriendlyId: string,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}SDK script evaluation timed out for destination ${destUserFriendlyId}.`;
-
-const DESTINATION_INTEGRATIONS_DATA_ERROR = (context: string, destUserFriendlyId: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to get integrations data for destination ${destUserFriendlyId}.`;
+const DESTINATION_INTEGRATIONS_DATA_ERROR = (destUserFriendlyId: string): string =>
+  `Failed to get integrations data for destination ${destUserFriendlyId}.`;
 
 const DESTINATION_EVENT_FILTERING_WARNING = (
   context: string,
@@ -54,11 +48,10 @@ const KETCH_CONSENT_COOKIE_READ_ERROR = (context: string): string =>
 const KETCH_CONSENT_COOKIE_PARSE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to parse the consent cookie.`;
 
-const DESTINATION_CONSENT_STATUS_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to determine the consent status for the destination. Please check the destination configuration and try again.`;
+const DESTINATION_CONSENT_STATUS_ERROR = `Failed to determine the consent status for the destination. Please check the destination configuration and try again.`;
 
-const STORAGE_MIGRATION_ERROR = (context: string, key: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to retrieve or parse data for ${key} from storage.`;
+const STORAGE_MIGRATION_ERROR = (key: string): string =>
+  `Failed to retrieve or parse data for ${key} from storage.`;
 
 const EVENT_STRINGIFY_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to convert event object to string.`;
@@ -101,7 +94,6 @@ const BEACON_PLUGIN_EVENTS_QUEUE_DEBUG = (context: string): string =>
 
 export {
   BEACON_QUEUE_SEND_ERROR,
-  BEACON_QUEUE_PAYLOAD_PREPARATION_ERROR,
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
@@ -109,7 +101,6 @@ export {
   DESTINATION_NOT_SUPPORTED_ERROR,
   DESTINATION_SDK_LOAD_ERROR,
   DESTINATION_INIT_ERROR,
-  DESTINATION_SDK_EVALUATION_TIMEOUT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_EVENT_FILTERING_WARNING,
   ONETRUST_ACCESS_ERROR,
@@ -128,4 +119,5 @@ export {
   INVALID_SOURCE_CONFIG_ERROR,
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,
+  BEACON_QUEUE_DELIVERY_ERROR,
 };

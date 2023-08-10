@@ -1,17 +1,120 @@
-# RudderStack JavaScript SDK
+## [![Release](https://img.shields.io/npm/v/rudder-sdk-js)](https://www.npmjs.com/package/rudder-sdk-js) [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](https://www.typescriptlang.org/) ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/rudder-sdk-js) ![npm](https://img.shields.io/npm/dw/rudder-sdk-js)
 
-The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `rudder-analytics.js` library to track and send user events from your website to RudderStack. You can then further transform and route this event data to the destination platform of your choice.
+<p align="center">
+  <a href="https://rudderstack.com/">
+    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+  </a>
+  <br />
+  <caption>The Customer Data Platform for Developers</caption>
+</p>
+<p align="center">
+  <b>
+    <a href="https://rudderstack.com">Website</a>
+    ·
+    <a href="https://rudderstack.com/docs/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk/">Documentation</a>
+    ·
+    <a href="https://rudderstack.com/join-rudderstack-slack-community">Community Slack</a>
+  </b>
+</p>
+
+---
+
+# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK
+
+The JavaScript SDK lets you track customer event data from your website and send it to your specified destinations via RudderStack.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
-| **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+## Table of Contents
 
-## Installing the JavaScript SDK
+- [**Installing the JavaScript SDK**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#installing-the-javascript-sdk)
+- [**Identifying your users**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#identifying-users)
+- [**Tracking user actions**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#tracking-user-actions)
+- [**The `ready` API**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#the-ready-api)
+- [**Self-hosted control plane**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#self-hosted-control-plane)
+- [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#adding-your-own-integrations)
 
-To integrate the JavaScript SDK with your website, you can use this [**NPM module**](https://www.npmjs.com/package/rudder-js) to package RudderStack directly into your project.
+| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK npm package and decoupled it to a new package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-To install, run:
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
+
+To integrate the JavaScript SDK with your website, place the following code snippet in the `<head>` section of your website.
+
+```javascript
+<script type="text/javascript">
+!function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){e.push([t].concat(Array.prototype.slice.call(arguments)))}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
+e.load(<WRITE_KEY>,<DATA_PLANE_URL>),
+e.page()}();
+</script>
+```
+
+<br>
+
+> The above snippet lets you integrate the SDK with your website and load it asynchronously to keep your page load time unaffected.
+
+To load `rudder-analytics.js` on to your page synchronously, you can refer to the minified or non-minified versions of the code in the following sections:
+
+### Minified code
+
+```html
+<script>
+  rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load(<WRITE_KEY>,<DATA_PLANE_URL>),rudderanalytics.page();
+</script>
+
+<script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
+```
+
+### Non-minified code
+
+```html
+<script>
+  rudderanalytics = window.rudderanalytics = [];
+
+  var methods = [
+    'load',
+    'page',
+    'track',
+    'identify',
+    'alias',
+    'group',
+    'ready',
+    'reset',
+    'getAnonymousId',
+    'setAnonymousId',
+  ];
+
+  for (var i = 0; i < methods.length; i++) {
+    var method = methods[i];
+    rudderanalytics[method] = (function (methodName) {
+      return function () {
+        rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+      };
+    })(method);
+  }
+  rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL);
+  //For example,
+  //rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
+  rudderanalytics.page();
+</script>
+
+<script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
+```
+
+In all the above versions, there is an explicit `page` call at the end. This is added to ensure that whenever the SDK loads in a page, a `page` call is sent. You can remove this call completely or modify it with the extra page properties to suit your requirement. You can also add `page` calls in your application in places not tied directly to page load, e.g., virtual page views, page renders on route change such as in SPAs, etc.
+
+### Write key and data plane URL
+
+To integrate and initialize the JavaScript SDK, you will need the source write key and the data plane URL.
+
+- To get the source write key, follow [**this guide**](https://www.rudderstack.com/docs/get-started/glossary/#write-key).
+- To get the data plane URL, follow [**this guide**](https://www.rudderstack.com/docs/rudderstack-cloud/dashboard-overview/#data-plane-url).
+
+### Alternative installation using NPM
+
+Although we recommend using the snippets mentioned above to use the JavaScript SDK with your website, you can also use this [**NPM module**](https://www.npmjs.com/package/rudder-sdk-js) to package RudderStack directly into your project.
+
+To install the SDK via npm, run the following command:
 
 ```bash
 npm install rudder-sdk-js --save
@@ -80,16 +183,16 @@ Refer to the following projects for a detailed walk-through of the above steps:
 | **Browser**     | **Supported Versions** |
 | :-------------- | :--------------------- |
 | Safari          | v7 or later            |
-| IE              | v10 or later           |
-| Edge            | v15 or later           |
-| Mozilla Firefox | v40 or later           |
-| Chrome          | v37 or later           |
-| Opera           | v23 or later           |
-| Yandex          | v14.12 or later        |
+| IE              | v11 or later           |
+| Edge            | v80 or later           |
+| Mozilla Firefox | v47 or later           |
+| Chrome          | v54 or later           |
+| Opera           | v43 or later           |
+| Yandex          | v19.10 or later        |
 
 > If the SDK does not work on the browser versions that you are targeting, verify if adding the browser polyfills to your application solves the issue.
 
-## Identifying users
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#identifying-users)Identifying users
 
 The `identify` call lets you identify a visiting user and associate them to their actions. It also lets you record the traits about them like their name, email address, etc.
 
@@ -122,7 +225,7 @@ In the above example, the user-related information like the `userId` and `email`
 
 For more information on how to use the `identify` call, refer to the [**JavaScript SDK documentation**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
-## Tracking user actions
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#tracking-user-actions)Tracking user actions
 
 The `track` call lets you record the customer events, i.e. the actions that they perform, along with any associated properties.
 
@@ -146,7 +249,7 @@ In the above example, the `track` method tracks the user event ‘**test track e
 
 > You can use the `track` method to track various success metrics for your website like user signups, item purchases, article bookmarks, and more.
 
-## The `ready` API
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#the-ready-api)The `ready` API
 
 There are cases when you may want to tap into the features provided by the end-destination SDKs to enhance tracking and other functionalities. The JavaScript SDK exposes a `ready` API with a `callback` parameter that fires when the SDK is done initializing itself and the other third-party native SDK destinations.
 
@@ -160,7 +263,7 @@ rudderanalytics.ready(() => {
 
 > For more information on the other supported methods, refer to the [**JavaScript SDK APIs**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk#supported-apis).
 
-## Self-Hosted control plane
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#self-hosted-control-plane)Self-Hosted control plane
 
 If you are using a device mode destination like Heap, FullStory, etc., the JavaScript SDK needs to fetch the required configuration from the [**control plane**](https://docs.rudderstack.com/get-started/rudderstack-architecture#control-plane).
 
@@ -176,6 +279,23 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 
 | **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).** |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
+## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#adding-your-own-integrations)Adding your own integrations
+
+You can start adding integrations of your choice for sending the data through their respective web (JavaScript) SDKs.
+
+### [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#how-to-build-the-sdk)How to build the SDK
+
+- Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
+
+  - `npm run build:browser`: This outputs **rudder-analytics.min.js**.
+  - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
+
+> We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` folder.
+
+## Contribute
+
+We would love to see you contribute to this project. Get more information on how to contribute [**here**](./CONTRIBUTING.md).
 
 ## Contact us
 

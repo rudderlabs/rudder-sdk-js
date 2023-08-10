@@ -7,7 +7,7 @@ jobs:
   draft-new-release:
     name: Draft a new release v3
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/v3-staging') || startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
+    if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
     steps:
       - name: Checkout source branch
         uses: actions/checkout@v3
@@ -24,7 +24,6 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
       # In order to make a commit, we need to initialize a user.
@@ -80,6 +79,8 @@ jobs:
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           git add sonar-project.properties
+          git add package-lock.json
+          git add package.json
           git commit -m "chore: sync versions and generate release logs" -n
 
       - name: Push new version in release branch

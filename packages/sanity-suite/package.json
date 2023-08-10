@@ -1,9 +1,9 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "2.38.1",
+  "version": "3.0.0-beta.2",
   "private": true,
   "description": "Sanity suite for testing JS SDK package",
-  "main": "./dist/testBook.js",
+  "main": "./dist/cdn/v3/testBook.js",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "npm run build:v1.1 && npm run build:v3 && npm run start:local",
@@ -20,9 +20,6 @@
     "test": "exit 0",
     "test:ci": "exit 0",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "exit 0",
-    "check:size": "exit 0",
-    "check:size:json": "exit 0",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
@@ -38,11 +35,13 @@
     "start:cdn:v1.1": "DEV_SERVER=true npm run build:cdn:v1.1 -- --watch",
     "start:cdn:v1": "DEV_SERVER=true npm run build:cdn:v1 -- --watch",
     "start:cdn:v3": "DEV_SERVER=true npm run build:cdn:v3 -- --watch",
+    "start:local:v3": "DEV_SERVER=true npm run build:local:v3 -- --watch",
     "start:npm": "DEV_SERVER=true npm run build:npm -- --watch",
     "build:cdn": "rollup -c --environment TEST_PACKAGE:cdn",
     "build:cdn:v1.1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1",
     "build:cdn:v1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1",
     "build:cdn:v3": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v3",
+    "build:local:v3": "rollup -c --environment TEST_PACKAGE:local,CDN_VERSION_PATH:v3",
     "build:npm:v1.1": "CDN_VERSION_PATH=v1.1 npm run build:npm",
     "build:npm:v3": "CDN_VERSION_PATH=v3 npm run build:npm",
     "build:cdn:v1.1:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1,STAGING:true",
@@ -54,10 +53,10 @@
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
-    "@rudderstack/analytics-js": "3.0.0",
-    "deep-equal": "2.2.1",
+    "@rudderstack/analytics-js": "3.0.0-beta.2",
+    "deep-object-diff": "1.1.9",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "2.38.1"
+    "rudder-sdk-js": "2.40.0"
   },
   "devDependencies": {
     "@babel/core": "7.22.9",

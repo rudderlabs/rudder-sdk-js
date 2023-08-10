@@ -2,27 +2,30 @@
 <html>
   <head>
     <script>
-      var sdkBaseUrl = "https://cdn.rudderlabs.com/beta/3.0.0-beta";
-      var sdkName = "rsa.min.js";
+      var sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/3.0.0-beta';
+      var sdkName = 'rsa.min.js';
       var asyncScript = true;
-      window.rudderAnalyticsBuildType = "legacy";
+      window.rudderAnalyticsBuildType = 'legacy';
       window.rudderanalytics = [];
-      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "getAnonymousId", "setAnonymousId", "startSession", "endSession", "getSessionId" ];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession" ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
-        window.rudderanalytics[method] = function(methodName) {
-          return function() {
-            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+        window.rudderanalytics[method] = (function (methodName) {
+          return function () {
+            window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
           };
-        }(method);
+        })(method);
       }
       try {
         new Function('return import("")');
-        window.rudderAnalyticsBuildType = "modern";
+        window.rudderAnalyticsBuildType = 'modern';
       } catch (e) {}
-      window.rudderAnalyticsMount = function() {
-        var rudderAnalyticsScript = document.createElement("script");
-        rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+      window.rudderAnalyticsMount = function () {
+        var rudderAnalyticsScript = document.createElement('script');
+        rudderAnalyticsScript.src = ''
+          .concat(sdkBaseUrl, '/')
+          .concat(window.rudderAnalyticsBuildType, '/')
+          .concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
         // Commented out as the local build file is auto-injected by rollup
         // if (document.head) {
@@ -31,9 +34,10 @@
         //   document.body.appendChild(rudderAnalyticsScript);
         // }
       };
-      if (typeof Promise === "undefined") {
-        var rudderAnalyticsPromisesScript = document.createElement("script");
-        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount";
+      if (typeof Promise === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement('script');
+        rudderAnalyticsPromisesScript.src =
+          'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
         rudderAnalyticsPromisesScript.async = asyncScript;
         if (document.head) {
           document.head.appendChild(rudderAnalyticsPromisesScript);
@@ -45,10 +49,11 @@
       }
       // New addition to load script ends
 
-      var loadOptions={
+      var loadOptions = {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
+        destSDKBaseURL:
+          '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
         // cookieConsentManager: {
         //   // oneTrust: {
@@ -62,19 +67,16 @@
         // beaconQueueOptions: {
         //   flushQueueInterval: 60 * 1000,
         // }
-        // storage: {
-        //   encryption: {
-        //     version: 'v3'
-        //   },
-        //   migrate: true,
-        // }
+        storage: {
+          // encryption: {
+          //   version: 'v3'
+          // },
+          // migrate: true,
+          // type: 'memoryStorage',
+        },
       };
 
-      rudderanalytics.load(
-        '__WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions
-      );
+      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
 
       rudderanalytics.identify(
         'customUserID',
@@ -91,7 +93,7 @@
           street: 'Sample Address',
           state: 'TX',
         },
-        function(message) {
+        function (message) {
           console.log('in identify call', message);
         }
       );
@@ -106,7 +108,7 @@
           title: '',
           url: '',
         },
-        function(message) {
+        function (message) {
           console.log('in page call', message);
         }
       );
@@ -118,7 +120,7 @@
           currency: 'USD',
           user_actual_id: 12345,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 1', message);
         }
       );
@@ -130,7 +132,7 @@
           currency: 'INR',
           user_actual_id: 333,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 2', message);
         }
       );
@@ -142,14 +144,22 @@
           currency: 'EUR',
           user_actual_id: 5678,
         },
-        function(message) {
+        function (message) {
           console.log('in track call 3', message);
         }
       );
 
-      rudderanalytics.ready(function() {
+      rudderanalytics.ready(function () {
         console.log('All ready!!!');
       });
+
+      document.addEventListener('RSA_Initialised', function (e) {
+        console.log('RSA_Initialised', e.detail.analyticsInstance);
+      })
+
+      document.addEventListener('RSA_Ready', function (e) {
+        console.log('RSA_Ready', e.detail.analyticsInstance);
+      })
     </script>
   </head>
   <body>
@@ -177,7 +187,7 @@
             title: '',
             url: '',
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
@@ -202,7 +212,7 @@
             state: 'TX',
           },
           {},
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
@@ -218,7 +228,7 @@
             currency: 'USD',
             user_actual_id: 12345,
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
@@ -227,14 +237,11 @@
       }
 
       function alias() {
-        rudderanalytics.alias(
-          'alias-user-id',
-          function(rudderElement) {
-            console.log('alias call');
-            document.getElementById('action').innerHTML = 'Alias called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
-        );
+        rudderanalytics.alias('alias-user-id', function (rudderElement) {
+          console.log('alias call');
+          document.getElementById('action').innerHTML = 'Alias called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
       }
 
       function group() {
@@ -244,7 +251,7 @@
             name: 'Apple Inc.',
             location: 'USA',
           },
-          function(rudderElement) {
+          function (rudderElement) {
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);

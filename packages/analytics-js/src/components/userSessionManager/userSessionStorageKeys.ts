@@ -9,8 +9,19 @@ const userSessionStorageKeys = {
   sessionInfo: 'rl_session',
 };
 
+const defaultUserSessionValues = {
+  userId: '',
+  userTraits: {},
+  anonymousUserId: '',
+  groupId: '',
+  groupTraits: {},
+  initialReferrer: '',
+  initialReferringDomain: '',
+  sessionInfo: {},
+};
+
 const inMemorySessionKeys = {
   session_id: 'sessionId',
 };
 
-export { userSessionStorageKeys, inMemorySessionKeys };
+export { userSessionStorageKeys, inMemorySessionKeys, defaultUserSessionValues };

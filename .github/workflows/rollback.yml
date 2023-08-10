@@ -1,4 +1,4 @@
-name: Rollback
+name: Rollback v1.1
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Rollback
+    name: Rollback v1.1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production')
     steps:
@@ -28,7 +28,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build and sync files to S3
+      - name: Build release artifacts
         env:
           HUSKY: 0
         run: |

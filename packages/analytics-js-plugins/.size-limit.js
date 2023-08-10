@@ -7,12 +7,12 @@ module.exports = [
     name: 'Remote Module Federation Mapping - CDN',
     path: 'dist/cdn/modern/plugins/rsa-plugins.js',
     gzip: true,
-    limit: '0.5 kB',
+    limit: '0.5 KiB',
   },
   {
     name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/cdn/modern/plugins/rsa-plugins-*.js',
     gzip: true,
-    limit: '14 kB',
+    limit: '14 KiB',
   },
 ];

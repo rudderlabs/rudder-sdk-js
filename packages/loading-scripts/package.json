@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-loading-script",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.2",
   "private": true,
   "description": "Loading script for RudderStack Javascript SDK",
   "main": "./src/index.js",
@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/loading-scripts/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "rollup -c --watch",
@@ -30,9 +30,6 @@
     "test:ci": "exit 0",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "exit 0",
-    "check:size": "exit 0",
-    "check:size:json": "exit 0",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "exit 0",
@@ -43,7 +40,6 @@
   "engines": {
     "node": ">=v16"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "7.22.9",
     "@babel/eslint-parser": "7.22.9",

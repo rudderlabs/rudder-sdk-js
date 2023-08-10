@@ -1,9 +1,9 @@
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+import { PreloadedEventCall } from '../components/preloadBuffer/types';
 
 /**
  * Exposed values that can be accessed as global objects per analytics instance
- * // TODO: find all values that need to be exposed in globals if anything else
+ * TODO: find all values that need to be exposed in globals if anything else
  */
 export type ExposedGlobals = {
   state?: ApplicationState;

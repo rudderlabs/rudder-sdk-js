@@ -26,6 +26,8 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   TextEncoder: () => isUndefined(TextEncoder),
   TextDecoder: () => isUndefined(TextDecoder),
   'String.fromCodePoint': () => !String.fromCodePoint,
+  requestAnimationFrame: () => !isFunction(globalThis.requestAnimationFrame),
+  cancelAnimationFrame: () => !isFunction(globalThis.cancelAnimationFrame),
 };
 
 const isLegacyJSEngine = (): boolean => {
@@ -38,6 +40,7 @@ const isLegacyJSEngine = (): boolean => {
 
     if (isCapabilityMissing()) {
       needsPolyfill = true;
+      break;
     }
   }
 

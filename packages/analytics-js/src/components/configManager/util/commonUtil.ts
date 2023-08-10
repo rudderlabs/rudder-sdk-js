@@ -1,13 +1,13 @@
-import { state } from '@rudderstack/analytics-js/state';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,

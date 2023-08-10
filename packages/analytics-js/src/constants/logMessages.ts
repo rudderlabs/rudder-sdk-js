@@ -1,5 +1,8 @@
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Store';
+import {
+  StorageType,
+  SUPPORTED_STORAGE_TYPES,
+} from '@rudderstack/analytics-js-common/types/Storage';
 import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 
@@ -85,6 +88,13 @@ const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
 // WARNING
+const STORAGE_TYPE_VALIDATION_WARNING = (
+  context: string,
+  storageType: any,
+  defaultStorageType: StorageType,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported storage types: "${SUPPORTED_STORAGE_TYPES}". The default storage "${defaultStorageType}" will be used instead.`;
+
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
   selectedErrorReportingProvider: string | undefined,
@@ -162,8 +172,25 @@ const INVALID_SESSION_ID_WARNING = (
 const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.`;
 
-const STORAGE_UNAVAILABLE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}No storage is available. The SDK will be initialized without storage.`;
+const STORAGE_UNAVAILABLE_WARNING = (
+  context: string,
+  selectedStorageType: string,
+  finalStorageType: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available. The SDK will be initialized with "${finalStorageType}" instead.`;
+
+const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
+
+const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
+
+const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
+
+const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
+
+const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
 
 // DEBUG
 
@@ -189,7 +216,7 @@ export {
   PLUGIN_DEPS_ERROR,
   PLUGIN_INVOCATION_ERROR,
   STORAGE_QUOTA_EXCEEDED_WARNING,
-  STORAGE_UNAVAILABLE_ERROR,
+  STORAGE_UNAVAILABLE_WARNING,
   STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
@@ -208,4 +235,10 @@ export {
   EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
+  STORAGE_TYPE_VALIDATION_WARNING,
+  WRITE_KEY_NOT_A_STRING_ERROR,
+  EMPTY_GROUP_CALL_ERROR,
+  READY_CALLBACK_INVOKE_ERROR,
+  API_CALLBACK_INVOKE_ERROR,
+  INVALID_CONFIG_URL_WARNING,
 };

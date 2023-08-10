@@ -1,7 +1,5 @@
-import { state } from '@rudderstack/analytics-js/state';
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -11,6 +9,10 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { API_CALLBACK_INVOKE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { HttpClient } from '../../services/HttpClient';
+import { state } from '../../state';
 import { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
@@ -95,17 +97,27 @@ class EventRepository implements IEventRepository {
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
         state.nativeDestinations.clientDestinationsReady.value === false;
 
-      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(dest =>
-        isHybridModeDestination(dest),
+      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
+        (dest: Destination) => isHybridModeDestination(dest),
       );
 
       if (
         hybridDestExist === false ||
-        (shouldBufferDpEvents === false && this.dataplaneEventsQueue?.running !== true)
+        (shouldBufferDpEvents === false &&
+          this.dataplaneEventsQueue?.scheduleTimeoutActive !== true)
       ) {
         this.dataplaneEventsQueue?.start();
       }
     });
+
+    // Force start the data plane events queue processing after a timeout
+    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
+      (globalThis as typeof window).setTimeout(() => {
+        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+          this.dataplaneEventsQueue?.start();
+        }
+      }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
+    }
 
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
@@ -133,7 +145,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(dpQEvent);
     } catch (error) {
-      this.onError(error, 'API Callback Invocation Failed');
+      this.onError(error, API_CALLBACK_INVOKE_ERROR);
     }
   }
 

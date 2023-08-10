@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals-core';
-import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { LifecycleState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../constants/urls';
 
 const lifecycleState: LifecycleState = {
   activeDataplaneUrl: signal(undefined),

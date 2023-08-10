@@ -2,6 +2,10 @@
 import _difference from 'lodash.difference';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import {
   eventNamesConfigArray,
   itemParametersConfigArray,
   ITEM_PROP_EXCLUSION_LIST,
@@ -193,14 +197,25 @@ function getPageViewProperty(props) {
 }
 
 /**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
+
+/**
  * Validates weather to send userId property to GA4 or not
  * @param {*} integrations
  */
 function sendUserIdToGA4(integrations) {
-  if (Object.prototype.hasOwnProperty.call(integrations, 'GA4')) {
-    const { GA4 } = integrations;
-    if (Object.prototype.hasOwnProperty.call(GA4, 'sendUserId')) {
-      return !!GA4.sendUserId;
+  const ga4IntgConfig = getDestinationOptions(integrations);
+  if (ga4IntgConfig) {
+    if (Object.prototype.hasOwnProperty.call(ga4IntgConfig, 'sendUserId')) {
+      return !!ga4IntgConfig.sendUserId;
     }
     return true;
   }

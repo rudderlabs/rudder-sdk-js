@@ -1,17 +1,17 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.2",
   "private": true,
-  "description": "",
+  "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
     "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
-    "bump-version:monorepo": "npm version minor --git-tag-version false",
-    "setup": "npx lerna bootstrap && lerna run build:package && lerna link",
-    "setup:ci": "lerna bootstrap && lerna run build:package && lerna link",
+    "bump-version:monorepo": "npm version prerelease --git-tag-version false",
+    "setup": "npx lerna@6 bootstrap && lerna link",
+    "setup:ci": "npx lerna@6 bootstrap --ci && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
     "clean:cache": "lerna clean --yes && rimraf -rf ./node_modules/.cache",
     "start": "lerna run start --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\"",
@@ -41,7 +41,7 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky install",
-    "pre-commit": "npm run test -- --concurrency 1 --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npm run check:size:build && npx lint-staged",
+    "pre-commit": "npm run test && npm run check:size:build && npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
     "release": "npx standard-version",
@@ -56,7 +56,7 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js#readme",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"

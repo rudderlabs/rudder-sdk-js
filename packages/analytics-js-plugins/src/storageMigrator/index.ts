@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
@@ -5,6 +6,7 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { decrypt } from '../storageEncryption/encryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
@@ -18,7 +20,12 @@ const StorageMigrator = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   storage: {
-    migrate(key: string, storageEngine: IStorage, logger?: ILogger): Nullable<string> {
+    migrate(
+      key: string,
+      storageEngine: IStorage,
+      errorHandler?: IErrorHandler,
+      logger?: ILogger,
+    ): Nullable<string> {
       try {
         const storedVal = storageEngine.getItem(key);
         if (isNullOrUndefined(storedVal)) {
@@ -40,7 +47,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // storejs that is used in localstorage engine already deserializes json strings but swallows errors
         return JSON.parse(decryptedVal);
       } catch (err) {
-        logger?.error(STORAGE_MIGRATION_ERROR(STORAGE_MIGRATOR_PLUGIN, key), err);
+        errorHandler?.onError(err, STORAGE_MIGRATOR_PLUGIN, STORAGE_MIGRATION_ERROR(key));
         return null;
       }
     },
