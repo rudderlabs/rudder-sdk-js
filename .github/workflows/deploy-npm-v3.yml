@@ -25,7 +25,7 @@ jobs:
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
           current_version_sw=$(jq -r .version packages/analytics-js-service-worker/package.json)
           current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_SW_VALUE=$current_version_sw" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
@@ -54,7 +54,7 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          lerna publish from-package --no-private --contents dist/npm
+          npx lerna@6 publish from-package --no-private --contents dist/npm
 
       - name: Send message to Slack channel for v3
         id: slack
@@ -89,7 +89,7 @@ jobs:
             }
 
       - name: Send message to Slack channel for v1.1
-        id: slack
+        id: slackv1
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -122,7 +122,7 @@ jobs:
 
 
       - name: Send message to Slack channel for Service Worker
-        id: slack
+        id: slackSw
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

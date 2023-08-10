@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
@@ -187,9 +187,12 @@
   },
   "overrides": {
     "@xmldom/xmldom": "0.8.5",
+    "conventional-changelog": "3.1.25",
     "debug": "4.3.4",
     "decode-uri-component": "0.4.1",
     "dot-prop": "5.3.0",
+    "gh-got": "9.0.0",
+    "git-semver-tags": "4.1.1",
     "http-cache-semantics": "4.1.1",
     "semver-regex": "3.1.4",
     "trim-newlines": "3.0.1",
