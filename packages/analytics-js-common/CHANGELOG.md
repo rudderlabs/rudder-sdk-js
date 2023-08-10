@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.0.0-beta.2...@rudderstack/analytics-js-common@3.0.0-beta.3) (2023-08-10)
+
+
+### Bug Fixes
+
+* **analytics-js:** change default cdn paths to the beta ones ([8d4bbe4](https://github.com/rudderlabs/rudder-sdk-js/commit/8d4bbe4bbf8be60dbdf0d07244a11da8f1948e5f))
+
+
+
+
+
 # 3.0.0-beta.2 (2023-08-09)
 
 
@@ -20,6 +31,3 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * configurable storage type ([#1258](https://github.com/rudderlabs/rudder-sdk-js/issues/1258)) ([08e3616](https://github.com/rudderlabs/rudder-sdk-js/commit/08e3616bece2ad3df1c533833b344a9c811e70fe))
 * refactor apis ([#1240](https://github.com/rudderlabs/rudder-sdk-js/issues/1240)) ([4f25a03](https://github.com/rudderlabs/rudder-sdk-js/commit/4f25a0377ef438a4e4b5dcad6f2504ec5da5f7a3))
 * storage service improvements ([#1233](https://github.com/rudderlabs/rudder-sdk-js/issues/1233)) ([441fd60](https://github.com/rudderlabs/rudder-sdk-js/commit/441fd600c2e72e990518e45c972e43ce33567e7f))
-
-
-

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.0.0-beta.2...@rudderstack/analytics-js-plugins@3.0.0-beta.3) (2023-08-10)
+
+
+### Bug Fixes
+
+* integrations data override to match with v1.1 ([#1293](https://github.com/rudderlabs/rudder-sdk-js/issues/1293)) ([f68f138](https://github.com/rudderlabs/rudder-sdk-js/commit/f68f138513301d19f7be7bfff474ff8011a2935c))
+
+
+
+
+
 # 3.0.0-beta.2 (2023-08-09)
 
 
