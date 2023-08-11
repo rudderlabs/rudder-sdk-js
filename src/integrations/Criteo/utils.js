@@ -1,8 +1,14 @@
 import md5 from 'md5';
-import sha256 from 'crypto-js/sha256';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 import logger from '../../utils/logUtil';
 
+/**
+ * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
+ * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825
+ * @param {*} rudderElement
+ * @param {*} hashMethod
+ * @returns
+ */
 const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;
   const { properties, userId, anonymousId } = message;
@@ -11,8 +17,8 @@ const handleCommonFields = (rudderElement, hashMethod) => {
   const setZipcode = {};
 
   const finalRequest = [
-    { event: 'setCustomerId', id: sha256(userId).toString() },
-    { event: 'setRetailerVisitorId', id: sha256(anonymousId).toString() },
+    { event: 'setCustomerId', id: md5(userId).toString() },
+    { event: 'setRetailerVisitorId', id: md5(anonymousId).toString() },
   ];
 
   if (properties?.email) {
