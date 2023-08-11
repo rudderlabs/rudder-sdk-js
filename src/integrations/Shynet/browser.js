@@ -44,7 +44,7 @@ class Shynet {
             idempotency: this.idempotency,
             referrer: referrerName,
             location: url,
-            loadTime: performance.now(),
+            loadTime: window.performance.now(),
           });
           xhr.send(payloadBody);
         } catch (exp) {
