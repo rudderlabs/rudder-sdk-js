@@ -65,14 +65,14 @@ jobs:
           echo "last_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
-      - name: Create GitHub Releases
-        id: create_release
-        env:
-          HUSKY: 0
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run release:github -- --base=$last_version --head=$current_version
+#      - name: Create GitHub Releases
+#        id: create_release
+#        env:
+#          HUSKY: 0
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          npm run release:github -- --base=$last_version --head=$current_version
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
