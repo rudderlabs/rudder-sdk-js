@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-function loadNativeSdk(e, t) {
+function loadNativeSdk(appId) {
   (window.heap = window.heap || []),
     (heap.load = function (e, t) {
       (window.heap.appid = e), (window.heap.config = t = t || {});
