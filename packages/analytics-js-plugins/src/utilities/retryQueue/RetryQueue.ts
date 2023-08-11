@@ -5,44 +5,22 @@ import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import {
-  IQueue,
-  QueueItem,
-  QueueItemData,
-  DoneCallback,
-  QueueProcessCallback,
-} from '../../types/plugins';
+import { IQueue, QueueItem, QueueItemData, QueueProcessCallback } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
+import {
+  DEFAULT_ACK_TIMER_MS,
+  DEFAULT_BACKOFF_FACTOR,
+  DEFAULT_BACKOFF_JITTER,
+  DEFAULT_MAX_ITEMS,
+  DEFAULT_MAX_RETRY_ATTEMPTS,
+  DEFAULT_MAX_RETRY_DELAY_MS,
+  DEFAULT_MIN_RETRY_DELAY_MS,
+  DEFAULT_RECLAIM_TIMEOUT_MS,
+  DEFAULT_RECLAIM_TIMER_MS,
+  DEFAULT_RECLAIM_WAIT_MS,
+} from './constants';
 import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
-
-export interface QueueOptions {
-  maxItems?: number;
-  maxAttempts?: number;
-  minRetryDelay?: number;
-  maxRetryDelay?: number;
-  backoffFactor?: number;
-  backoffJitter?: number;
-}
-
-export type QueueBackoff = {
-  MIN_RETRY_DELAY: number;
-  MAX_RETRY_DELAY: number;
-  FACTOR: number;
-  JITTER: number;
-};
-
-export type QueueTimeouts = {
-  ACK_TIMER: number;
-  RECLAIM_TIMER: number;
-  RECLAIM_TIMEOUT: number;
-  RECLAIM_WAIT: number;
-};
-
-export type InProgressQueueItem = {
-  item: Record<string, any> | string | number;
-  done: DoneCallback;
-  attemptNumber: number;
-};
+import { QueueTimeouts, QueueBackoff, QueueOptions, InProgressQueueItem } from './types';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -84,23 +62,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.name = name;
     this.id = generateUUID();
     this.processQueueCb = queueProcessCb;
-    this.maxItems = options.maxItems || Infinity;
-    this.maxAttempts = options.maxAttempts || Infinity;
+    this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
+    this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
     this.logger = logger;
 
     this.backoff = {
-      MIN_RETRY_DELAY: options.minRetryDelay || 1000,
-      MAX_RETRY_DELAY: options.maxRetryDelay || 30000,
-      FACTOR: options.backoffFactor || 2,
-      JITTER: options.backoffJitter || 0,
+      minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
+      maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
+      factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
+      jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
     };
 
     // painstakingly tuned. that's why they're not "easily" configurable
     this.timeouts = {
-      ACK_TIMER: 1000,
-      RECLAIM_TIMER: 3000,
-      RECLAIM_TIMEOUT: 10000,
-      RECLAIM_WAIT: 500,
+      ackTimer: DEFAULT_ACK_TIMER_MS,
+      reclaimTimer: DEFAULT_RECLAIM_TIMER_MS,
+      reclaimTimeout: DEFAULT_RECLAIM_TIMEOUT_MS,
+      reclaimWait: DEFAULT_RECLAIM_WAIT_MS,
     };
 
     this.schedule = new Schedule();
@@ -176,11 +154,11 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @return {Number} The delay in milliseconds to wait before attempting a retry
    */
   getDelay(attemptNumber: number): number {
-    let ms = this.backoff.MIN_RETRY_DELAY * this.backoff.FACTOR ** attemptNumber;
+    let ms = this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber;
 
-    if (this.backoff.JITTER) {
+    if (this.backoff.jitter) {
       const rand = Math.random();
-      const deviation = Math.floor(rand * this.backoff.JITTER * ms);
+      const deviation = Math.floor(rand * this.backoff.jitter * ms);
 
       if (Math.floor(rand * 10) < 5) {
         ms -= deviation;
@@ -189,7 +167,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       }
     }
 
-    return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
+    return Number(Math.min(ms, this.backoff.maxRetryDelay).toPrecision(1));
   }
 
   enqueue(entry: QueueItem<QueueItemData>) {
@@ -324,7 +302,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.setQueue(QueueStatuses.ACK, this.schedule.now());
     this.setQueue(QueueStatuses.RECLAIM_START, null);
     this.setQueue(QueueStatuses.RECLAIM_END, null);
-    this.schedule.run(this.ack, this.timeouts.ACK_TIMER, ScheduleModes.ASAP);
+    this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
   reclaim(id: string) {
@@ -443,7 +421,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
       this.schedule.run(
         createReclaimStartTask(store),
-        this.timeouts.RECLAIM_WAIT,
+        this.timeouts.reclaimWait,
         ScheduleModes.ABANDON,
       );
     };
@@ -453,7 +431,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
       this.schedule.run(
         createReclaimEndTask(store),
-        this.timeouts.RECLAIM_WAIT,
+        this.timeouts.reclaimWait,
         ScheduleModes.ABANDON,
       );
     };
@@ -498,14 +476,14 @@ class RetryQueue implements IQueue<QueueItemData> {
         return;
       }
 
-      if (this.schedule.now() - store.get(QueueStatuses.ACK) < this.timeouts.RECLAIM_TIMEOUT) {
+      if (this.schedule.now() - store.get(QueueStatuses.ACK) < this.timeouts.reclaimTimeout) {
         return;
       }
 
       tryReclaim(store);
     });
 
-    this.schedule.run(this.checkReclaim, this.timeouts.RECLAIM_TIMER, ScheduleModes.RESCHEDULE);
+    this.schedule.run(this.checkReclaim, this.timeouts.reclaimTimer, ScheduleModes.RESCHEDULE);
   }
 }
 

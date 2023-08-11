@@ -180,12 +180,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -211,12 +211,12 @@ describe('Queue', () => {
     });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
@@ -249,12 +249,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -287,12 +287,12 @@ describe('Queue', () => {
     });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
@@ -340,12 +340,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -390,12 +390,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -428,12 +428,12 @@ describe('Queue', () => {
     });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -465,12 +465,12 @@ describe('Queue', () => {
       ]);
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
@@ -502,12 +502,12 @@ describe('Queue', () => {
       });
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
@@ -546,12 +546,12 @@ describe('Queue', () => {
       });
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
