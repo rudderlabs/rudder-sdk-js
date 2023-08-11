@@ -21,8 +21,8 @@ class Amplitude {
     this.trackNamedPages = config.trackNamedPages || false;
     this.trackCategorizedPages = config.trackCategorizedPages || false;
     this.attribution = config.attribution || false;
-    this.flushQueueSize = config.flushQueueSize || 30;
-    this.flushIntervalMillis = +config.flushIntervalMillis || 30000;
+    this.flushQueueSize = config.eventUploadThreshold || 30;
+    this.flushIntervalMillis = +config.eventUploadPeriodMillis || 30000;
     this.trackNewCampaigns = config.trackNewCampaigns || false;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
