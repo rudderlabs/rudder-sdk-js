@@ -8,6 +8,7 @@ import { getHashFromArray } from '../../utils/commonUtils';
 import { NAME } from './constants';
 import ScriptLoader from '../../utils/ScriptLoader';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
+import { requiredConfigsList } from './constants';
 
 class Adroll {
   constructor(config, analytics, destinationInfo) {
@@ -17,6 +18,7 @@ class Adroll {
     this.analytics = analytics;
     this.advId = config.advId;
     this.pixId = config.pixId;
+    this.requiredConfigsList = requiredConfigsList;
     this.name = NAME;
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
@@ -26,6 +28,10 @@ class Adroll {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  getRequiredConfigs() {
+    return this.getRequiredConfigs;
   }
 
   init() {

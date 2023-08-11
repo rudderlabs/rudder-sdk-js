@@ -6,5 +6,6 @@ const CNameMapping = {
   'ad roll': NAME,
   adroll: NAME,
 };
+const requiredConfigsList = ['advId'];
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, requiredConfigsList };

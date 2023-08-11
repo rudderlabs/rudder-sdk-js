@@ -30,6 +30,7 @@ import {
   resolveDataPlaneUrl,
   fetchCookieConsentState,
   parseQueryString,
+  isDefinedAndNotNull,
 } from '../utils/utils';
 import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
 import { handleError } from '../utils/errorHandler';
@@ -195,6 +196,14 @@ class Analytics {
     );
   }
 
+  validateConfig(requiredConfigsList, configsFromDashboard, intg) {
+    return (requiredConfigsList.forEach(config => {
+      const configVal = configsFromDashboard[config];
+      if (!isDefinedAndNotNull(configVal) || (typeof configVal === "string" && configVal.length === 0))
+        throw Error(`${intg}: ${config} is either not present or does not have valid value`);
+    }));
+  };
+
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -342,6 +351,7 @@ class Analytics {
               // logger.debug(msg);
               this.errorReporting.leaveBreadcrumb(msg);
               intgInstance = new intMod[modName](intg.config, self, intg.destinationInfo);
+              this.validateConfig(intgInstance.getRequiredConfigs(), intg.config, intg.name);
               intgInstance.init();
 
               // logger.debug(pluginName, " initializing destination");
@@ -1422,7 +1432,7 @@ class Analytics {
   initializeCallbacks() {
     Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-        this.on(methodName, () => {});
+        this.on(methodName, () => { });
       }
     });
   }
