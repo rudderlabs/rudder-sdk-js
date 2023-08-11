@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-function loadNativeSdk(uniqueId) {
+function loadNativeSdk(uniqueId, tagID) {
   ((w, d, t, r, u) => {
     let f;
     let n;
@@ -8,7 +8,7 @@ function loadNativeSdk(uniqueId) {
     (w[u] = w[u] || []),
       (f = () => {
         const o = {
-          ti: this.tagID,
+          ti: tagID,
         };
         (o.q = w[u]), (w[u] = new UET(o));
       }),

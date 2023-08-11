@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
-function loadNativeSdk(projectId) {
+function loadNativeSdk(projectId, brandId) {
   const projectIdFormatted = projectId.replace(/_/g, '').toLowerCase().trim();
   const requestUrlFormatted = `https://${projectIdFormatted}-${brandId}.siteintercept.qualtrics.com/SIE/?Q_ZID=${projectId}`;
   const requestIdFormatted = `QSI_S_${projectId}`;

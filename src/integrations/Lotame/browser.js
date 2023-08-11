@@ -16,7 +16,7 @@ class Lotame {
     this.dspUrlSettingsPixel = config.dspUrlSettingsPixel;
     this.dspUrlSettingsIframe = config.dspUrlSettingsIframe;
     this.mappings = {};
-    config.mappings.forEach((mapping) => {
+    config?.mappings?.forEach((mapping) => {
       const { key } = mapping;
       const { value } = mapping;
       this.mappings[key] = value;

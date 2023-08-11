@@ -23,7 +23,7 @@ class BingAds {
 
   init = () => {
     logger.debug('===in init BingAds===');
-    loadNativeSdk(this.uniqueId);
+    loadNativeSdk(this.uniqueId, this.tagID);
   };
 
   isLoaded = () => {
