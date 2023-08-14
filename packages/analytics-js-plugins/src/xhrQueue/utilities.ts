@@ -7,7 +7,7 @@ import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from '../utilities/logMessages';
-import { RetryQueueItemData, XHRQueueItemData } from './types';
+import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import {
   getBatchDeliveryPayload,
   getDeliveryPayload,
@@ -17,12 +17,10 @@ import {
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
 
-const getDeliveryUrl = (dataplaneUrl: string, endpointType: string): string => {
+const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    removeDuplicateSlashes(
-      [dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpointType].join(''),
-    ),
+    removeDuplicateSlashes([dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpoint].join('')),
     dpUrl,
   ).href;
 };
@@ -60,7 +58,7 @@ const logErrorOnFailure = (
 };
 
 const getRequestInfo = (
-  itemData: RetryQueueItemData,
+  itemData: XHRRetryQueueItemData,
   state: ApplicationState,
   logger?: ILogger,
 ) => {
@@ -68,8 +66,8 @@ const getRequestInfo = (
   let headers;
   let url: string;
   if (Array.isArray(itemData)) {
-    const finalEvents = itemData.map((queueItem: XHRQueueItemData) =>
-      getFinalEventForDeliveryMutator(queueItem.event, state),
+    const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
+      getFinalEventForDeliveryMutator(queueItemData.event, state),
     );
     data = getBatchDeliveryPayload(finalEvents, logger);
     headers = {

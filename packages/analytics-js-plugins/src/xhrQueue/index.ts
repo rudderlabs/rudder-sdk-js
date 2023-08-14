@@ -22,10 +22,10 @@ import {
   logErrorOnFailure,
   getRequestInfo,
 } from './utilities';
-import { DoneCallback, IQueue } from '../types/plugins';
+import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
-import { RetryQueueItemData, XHRQueueItemData } from './types';
+import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import { EVENT_PAYLOAD_PREPARATION_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'XhrQueue';
@@ -65,13 +65,17 @@ const XhrQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
-          itemData: RetryQueueItemData,
+          itemData: QueueItemData,
           done: DoneCallback,
           attemptNumber?: number,
           maxRetryAttempts?: number,
           willBeRetried?: boolean,
         ) => {
-          const { data, url, headers } = getRequestInfo(itemData, state, logger);
+          const { data, url, headers } = getRequestInfo(
+            itemData as XHRRetryQueueItemData,
+            state,
+            logger,
+          );
 
           if (data) {
             httpClient.getAsyncData({
@@ -155,7 +159,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         url,
         headers,
         event,
-      } as RetryQueueItemData);
+      } as XHRRetryQueueItemData);
     },
   },
 });

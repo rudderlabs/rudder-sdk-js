@@ -6,6 +6,6 @@ export type XHRQueueItemData = {
   event: RudderEvent;
 };
 
-export type XHRBatchQueueItemData = XHRQueueItemData[];
+export type XHRQueueBatchItemData = XHRQueueItemData[];
 
-export type RetryQueueItemData = XHRQueueItemData | XHRBatchQueueItemData;
+export type XHRRetryQueueItemData = XHRQueueItemData | XHRQueueBatchItemData;
