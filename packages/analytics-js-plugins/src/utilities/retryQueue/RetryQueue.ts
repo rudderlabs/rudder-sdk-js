@@ -229,7 +229,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (this.isBatchReadyToDispatch(batchQueue)) {
-        const batchItems = batchQueue.map(queueItem => queueItem.data);
+        const batchItems = batchQueue.map(queueItem => queueItem.item);
         curEntry = this.generateQueueItem(batchItems);
         batchQueue = [];
       }
@@ -267,7 +267,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   generateQueueItem(itemData: QueueItemData): QueueItem<QueueItemData> {
     return {
-      data: itemData,
+      item: itemData,
       attemptNumber: 0,
       time: this.schedule.now(),
       id: generateUUID(),
@@ -285,7 +285,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   requeue(itemData: QueueItemData, attemptNumber: number, error?: Error, id?: string) {
     if (this.shouldRetry(itemData, attemptNumber)) {
       this.enqueue({
-        data: itemData,
+        item: itemData,
         attemptNumber,
         time: this.schedule.now() + this.getDelay(attemptNumber),
         id: id || generateUUID(),
@@ -306,7 +306,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       const curBatchSize = batchItems.reduce(
         (sizeSum: number, curQueueItem: QueueItem) =>
           sizeSum +
-          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curQueueItem.data),
+          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curQueueItem.item),
         0,
       );
 
@@ -335,13 +335,13 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue(el.data, el.attemptNumber + 1, err, el.id);
+        this.requeue(el.item, el.attemptNumber + 1, err, el.id);
       }
     };
 
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
-        data: el.data,
+        item: el.item,
         done: processItemCallback(el, id),
         attemptNumber: el.attemptNumber,
       });
@@ -357,7 +357,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
         // Save this to the in progress map
         inProgress[id] = {
-          data: el.data,
+          item: el.item,
           attemptNumber: el.attemptNumber,
           time: this.schedule.now(),
         };
@@ -372,8 +372,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     toRun.forEach(el => {
       // TODO: handle processQueueCb timeout
       try {
-        const willBeRetried = this.shouldRetry(el.data, el.attemptNumber + 1);
-        this.processQueueCb(el.data, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
+        const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
+        this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }
@@ -429,7 +429,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           // duplicated event
         } else {
           our.queue.push({
-            data: el.data,
+            item: el.item,
             attemptNumber: el.attemptNumber + incrementAttemptNumberBy,
             time: this.schedule.now(),
             id,

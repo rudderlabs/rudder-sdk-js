@@ -25,7 +25,7 @@ export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
 
 export type QueueItem<T = Record<string, any> | string | number> = {
-  data: T;
+  item: T;
   attemptNumber: number;
   time: number;
   id: string;

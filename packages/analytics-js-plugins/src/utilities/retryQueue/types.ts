@@ -30,7 +30,7 @@ export type QueueTimeouts = {
 };
 
 export type InProgressQueueItem = {
-  data: Record<string, any> | string | number | Record<string, any>[] | string[] | number[];
+  item: Record<string, any> | string | number | Record<string, any>[] | string[] | number[];
   done: DoneCallback;
   attemptNumber: number;
 };

@@ -105,7 +105,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
 
     // Calculate response payload size after the addition of new event
     let eventsToSend = queue.slice(0);
-    const batchData = getDeliveryPayload(eventsToSend.map(queueItem => queueItem.data.event));
+    const batchData = getDeliveryPayload(eventsToSend.map(queueItem => queueItem.item.event));
 
     // Send events that existed in the queue if totaling more max payload size
     const isExceededMaxPayloadSize = Boolean(
@@ -133,7 +133,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
 
   addItem(itemData: BeaconQueueItemData) {
     this.enqueue({
-      data: itemData,
+      item: itemData,
       attemptNumber: 0,
       time: Date.now(),
       id: generateUUID(),
