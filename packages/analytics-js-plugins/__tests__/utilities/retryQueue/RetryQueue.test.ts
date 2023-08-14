@@ -156,8 +156,8 @@ describe('Queue', () => {
 
     const storedQueue = queue.store.get(QueueStatuses.QUEUE);
     expect(storedQueue.length).toEqual(100);
-    expect(storedQueue[0].item).toEqual(5);
-    expect(storedQueue[99].item).toEqual(104);
+    expect(storedQueue[0].data).toEqual(5);
+    expect(storedQueue[99].data).toEqual(104);
   });
 
   it('should take over a queued task if a queue is abandoned', () => {
@@ -173,7 +173,7 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
@@ -204,7 +204,7 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
@@ -235,13 +235,13 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
       },
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
@@ -273,13 +273,13 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
       },
       'task-id-1': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
@@ -311,13 +311,13 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
       },
       'task-id-1': {
-        item: 'b',
+        data: 'b',
         time: 0,
         attemptNumber: 0,
         id: '456',
@@ -326,13 +326,13 @@ describe('Queue', () => {
 
     foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
         id: '123',
       },
       {
-        item: 'b',
+        data: 'b',
         time: 0,
         attemptNumber: 0,
         id: '456',
@@ -365,12 +365,12 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
       'task-id-1': {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
@@ -378,12 +378,12 @@ describe('Queue', () => {
 
     foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
@@ -414,14 +414,14 @@ describe('Queue', () => {
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
-        item: 'a',
+        data: 'a',
         time: 0,
         attemptNumber: 0,
       },
     ]);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id': {
-        item: 'b',
+        data: 'b',
         time: 1,
         attemptNumber: 0,
       },
@@ -458,7 +458,7 @@ describe('Queue', () => {
       foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
       foundQueue.set(foundQueue.validKeys.QUEUE, [
         {
-          item: 'a',
+          data: 'a',
           time: 0,
           attemptNumber: 0,
         },
@@ -495,7 +495,7 @@ describe('Queue', () => {
       foundQueue.set(foundQueue.validKeys.ACK, -15000);
       foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
         'task-id': {
-          item: 'a',
+          data: 'a',
           time: 0,
           attemptNumber: 0,
         },
@@ -532,14 +532,14 @@ describe('Queue', () => {
       foundQueue.set(foundQueue.validKeys.ACK, -15000);
       foundQueue.set(foundQueue.validKeys.QUEUE, [
         {
-          item: 'a',
+          data: 'a',
           time: 0,
           attemptNumber: 0,
         },
       ]);
       foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
         'task-id': {
-          item: 'b',
+          data: 'b',
           time: 1,
           attemptNumber: 0,
         },

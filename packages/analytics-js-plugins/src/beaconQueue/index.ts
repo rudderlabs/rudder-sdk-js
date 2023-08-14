@@ -14,7 +14,7 @@ import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../ut
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
 import { BEACON_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
-import { BeaconQueueItem } from './types';
+import { BeaconQueueItemData } from './types';
 import {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_SEND_ERROR,
@@ -55,12 +55,12 @@ const BeaconQueue = (): ExtensionPlugin => ({
       );
 
       const queueProcessCallback = (
-        queueItems: QueueItem<BeaconQueueItem>[],
+        queueItems: QueueItem<BeaconQueueItemData>[],
         done: DoneCallback,
       ) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const finalEvents = queueItems.map(queueItem =>
-          getFinalEventForDeliveryMutator(queueItem.item.event, state),
+          getFinalEventForDeliveryMutator(queueItem.data.event, state),
         );
         const data = getDeliveryPayload(finalEvents);
 
@@ -115,7 +115,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
       eventsQueue.addItem({
         event,
-      } as BeaconQueueItem);
+      } as BeaconQueueItemData);
     },
   },
 });

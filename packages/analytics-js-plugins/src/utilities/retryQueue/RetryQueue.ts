@@ -18,23 +18,28 @@ import {
   QueueProcessCallback,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
+import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
 import {
-  DEFAULT_ACK_TIMER_MS,
-  DEFAULT_BACKOFF_FACTOR,
-  DEFAULT_BACKOFF_JITTER,
+  QueueTimeouts,
+  QueueBackoff,
+  BatchOptions,
+  QueueOptions,
+  InProgressQueueItem,
+} from './types';
+import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,
-  DEFAULT_MAX_RETRY_DELAY_MS,
-  DEFAULT_MIN_RETRY_DELAY_MS,
-  DEFAULT_RECLAIM_TIMEOUT_MS,
-  DEFAULT_RECLAIM_TIMER_MS,
-  DEFAULT_RECLAIM_WAIT_MS,
   DEFAULT_MAX_BATCH_SIZE_BYTES,
   DEFAULT_MAX_BATCH_ITEMS,
+  DEFAULT_MIN_RETRY_DELAY_MS,
+  DEFAULT_MAX_RETRY_DELAY_MS,
+  DEFAULT_BACKOFF_FACTOR,
+  DEFAULT_BACKOFF_JITTER,
+  DEFAULT_ACK_TIMER_MS,
+  DEFAULT_RECLAIM_TIMER_MS,
+  DEFAULT_RECLAIM_TIMEOUT_MS,
+  DEFAULT_RECLAIM_WAIT_MS,
 } from './constants';
-import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
-import { QueueTimeouts, QueueBackoff, QueueOptions, InProgressQueueItem } from './types';
-import { BatchOptions } from './types';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -89,19 +94,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
 
     this.queueItemSizeCalculatorCb = queueItemSizeCalculatorCb;
-    if (this.enableBatching) {
-      this.batch = options.batch as BatchOptions;
-      if (isDefined(this.batch.maxSize)) {
-        this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
-      }
-      if (isDefined(this.batch.maxItems)) {
-        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
-      }
-
-      if (isUndefined(this.batch.maxSize) && isUndefined(this.batch.maxItems)) {
-        this.enableBatching = false;
-      }
-    }
+    this.configureBatchingOptions(options);
 
     this.logger = logger;
 
@@ -140,6 +133,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead = this.processHead.bind(this);
 
     this.scheduleTimeoutActive = false;
+  }
+
+  configureBatchingOptions(options: QueueOptions) {
+    if (this.enableBatching) {
+      this.batch = options.batch as BatchOptions;
+      if (isDefined(this.batch.maxSize)) {
+        this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
+      }
+      if (isDefined(this.batch.maxItems)) {
+        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
+      }
+
+      // if both maxSize and maxItems are undefined, disable batching
+      if (isUndefined(this.batch.maxSize) && isUndefined(this.batch.maxItems)) {
+        this.enableBatching = false;
+      }
+    }
   }
 
   getQueue(name?: string): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
@@ -211,26 +221,25 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   enqueue(entry: QueueItem<QueueItemData>) {
-    let curEntry;
+    let curEntry: QueueItem<QueueItemData> | undefined;
     if (this.enableBatching) {
       let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
       batchQueue = batchQueue.slice(-batchQueue.length);
       batchQueue.push(entry);
+
+      // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (this.isBatchReadyToDispatch(batchQueue)) {
-        const batchItems = batchQueue.map(queueItem => queueItem.item);
-        curEntry = {
-          item: batchItems,
-          attemptNumber: 0,
-          time: this.schedule.now(),
-          id: generateUUID(),
-        };
+        const batchItems = batchQueue.map(queueItem => queueItem.data);
+        curEntry = this.generateQueueItem(batchItems);
         batchQueue = [];
       }
+
       this.setQueue(QueueStatuses.BATCH_QUEUE, batchQueue);
     } else {
       curEntry = entry;
     }
 
+    // when batching is enabled, `curEntry` could be `undefined` if the batch criteria is not met
     if (curEntry) {
       let queue =
         (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
@@ -250,29 +259,33 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Adds an item to the queue
    *
-   * @param {Object} item The item to process
+   * @param {Object} itemData The item to process
    */
-  addItem(item: QueueItemData) {
-    this.enqueue({
-      item,
+  addItem(itemData: QueueItemData) {
+    this.enqueue(this.generateQueueItem(itemData));
+  }
+
+  generateQueueItem(itemData: QueueItemData): QueueItem<QueueItemData> {
+    return {
+      data: itemData,
       attemptNumber: 0,
       time: this.schedule.now(),
       id: generateUUID(),
-    });
+    };
   }
 
   /**
    * Adds an item to the retry queue
    *
-   * @param {Object} item The item to retry
+   * @param {Object} itemData The item to retry
    * @param {Number} attemptNumber The attempt number (1 for first retry)
    * @param {Error} [error] The error from previous attempt, if there was one
    * @param {String} [id] The id of the queued message used for tracking duplicate entries
    */
-  requeue(item: QueueItemData, attemptNumber: number, error?: Error, id?: string) {
-    if (this.shouldRetry(item, attemptNumber)) {
+  requeue(itemData: QueueItemData, attemptNumber: number, error?: Error, id?: string) {
+    if (this.shouldRetry(itemData, attemptNumber)) {
       this.enqueue({
-        item,
+        data: itemData,
         attemptNumber,
         time: this.schedule.now() + this.getDelay(attemptNumber),
         id: id || generateUUID(),
@@ -291,8 +304,9 @@ class RetryQueue implements IQueue<QueueItemData> {
     let sizeCriteriaMet = false;
     if (isDefined(this.batch.maxSize)) {
       const curBatchSize = batchItems.reduce(
-        (accSize: number, cur: QueueItem) =>
-          accSize + (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(cur.item),
+        (sizeSum: number, curQueueItem: QueueItem) =>
+          sizeSum +
+          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curQueueItem.data),
         0,
       );
 
@@ -321,13 +335,13 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue(el.item, el.attemptNumber + 1, err, el.id);
+        this.requeue(el.data, el.attemptNumber + 1, err, el.id);
       }
     };
 
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
-        item: el.item,
+        data: el.data,
         done: processItemCallback(el, id),
         attemptNumber: el.attemptNumber,
       });
@@ -343,7 +357,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
         // Save this to the in progress map
         inProgress[id] = {
-          item: el.item,
+          data: el.data,
           attemptNumber: el.attemptNumber,
           time: this.schedule.now(),
         };
@@ -358,8 +372,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     toRun.forEach(el => {
       // TODO: handle processQueueCb timeout
       try {
-        const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
-        this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
+        const willBeRetried = this.shouldRetry(el.data, el.attemptNumber + 1);
+        this.processQueueCb(el.data, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }
@@ -415,7 +429,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           // duplicated event
         } else {
           our.queue.push({
-            item: el.item,
+            data: el.data,
             attemptNumber: el.attemptNumber + incrementAttemptNumberBy,
             time: this.schedule.now(),
             id,
@@ -434,7 +448,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // add their queue to ours, resetting run-time to immediate and copying the attempt#
     addConcatQueue(their.queue, 0);
 
-    // Process batch queue items if any
+    // Process batch queue items
     if (this.enableBatching) {
       their.batchQueue.forEach((el: QueueItem) => {
         const id = el.id || generateUUID();
@@ -446,6 +460,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         }
       });
     } else {
+      // if batching is not enabled in the current instance, add those items to the main queue directly
       addConcatQueue(their.batchQueue, 0);
     }
 

@@ -4,9 +4,15 @@ import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClie
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
-import { XHRQueueItem } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from '../utilities/logMessages';
+import { RetryQueueItemData, XHRQueueItemData } from './types';
+import {
+  getBatchDeliveryPayload,
+  getDeliveryPayload,
+  getFinalEventForDeliveryMutator,
+} from '../utilities/queue';
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
@@ -53,4 +59,38 @@ const logErrorOnFailure = (
   logger?.error(errMsg);
 };
 
-export { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure, getBatchDeliveryUrl };
+const getRequestInfo = (
+  itemData: RetryQueueItemData,
+  state: ApplicationState,
+  logger?: ILogger,
+) => {
+  let data;
+  let headers;
+  let url: string;
+  if (Array.isArray(itemData)) {
+    const finalEvents = itemData.map((queueItem: XHRQueueItemData) =>
+      getFinalEventForDeliveryMutator(queueItem.event, state),
+    );
+    data = getBatchDeliveryPayload(finalEvents, logger);
+    headers = {
+      ...itemData[0].headers,
+    };
+    url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
+  } else {
+    const { url: eventUrl, event, headers: eventHeaders } = itemData;
+    const finalEvent = getFinalEventForDeliveryMutator(event, state);
+
+    data = getDeliveryPayload(finalEvent, logger);
+    headers = { ...eventHeaders };
+    url = eventUrl;
+  }
+  return { data, headers, url };
+};
+
+export {
+  getNormalizedQueueOptions,
+  getDeliveryUrl,
+  logErrorOnFailure,
+  getBatchDeliveryUrl,
+  getRequestInfo,
+};

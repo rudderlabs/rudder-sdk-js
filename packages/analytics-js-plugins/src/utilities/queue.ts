@@ -28,7 +28,7 @@ const QUEUE_UTILITIES = 'QueueUtilities';
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> => {
   let deliveryPayloadStr: Nullable<string> = '';
   try {
-    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true) as Nullable<string>;
+    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true);
   } catch (err) {
     logger?.error(EVENT_STRINGIFY_ERROR(QUEUE_UTILITIES), err);
   }
@@ -41,7 +41,7 @@ const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nulla
     const data = {
       batch: events,
     };
-    deliveryPayloadStr = stringifyWithoutCircular(data, true) as Nullable<string>;
+    deliveryPayloadStr = stringifyWithoutCircular(data, true);
   } catch (err) {
     logger?.error(EVENT_STRINGIFY_ERROR(QUEUE_UTILITIES), err);
   }
