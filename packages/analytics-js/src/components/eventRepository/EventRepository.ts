@@ -77,7 +77,7 @@ class EventRepository implements IEventRepository {
     // Start the queue once the client destinations are ready
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
-        this.destinationsEventsQueue.start();
+        this.destinationsEventsQueue?.start();
       }
     });
   }
