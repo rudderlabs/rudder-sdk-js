@@ -35,6 +35,19 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   return deliveryPayloadStr;
 };
 
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
+  let deliveryPayloadStr: Nullable<string> = '';
+  try {
+    const data = {
+      batch: events,
+    };
+    deliveryPayloadStr = stringifyWithoutCircular(data, true) as Nullable<string>;
+  } catch (err) {
+    logger?.error(EVENT_STRINGIFY_ERROR(QUEUE_UTILITIES), err);
+  }
+  return deliveryPayloadStr;
+};
+
 /**
  * Utility to validate final payload size before sending to server
  * @param event RudderEvent object
@@ -111,4 +124,5 @@ export {
   validateEventPayloadSize,
   getOverriddenIntegrationOptions,
   getFinalEventForDeliveryMutator,
+  getBatchDeliveryPayload,
 };

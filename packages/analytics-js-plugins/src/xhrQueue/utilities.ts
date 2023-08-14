@@ -25,7 +25,7 @@ const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dat
 
 const logErrorOnFailure = (
   details: ResponseDetails | undefined,
-  item: XHRQueueItem,
+  url: string,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
@@ -36,19 +36,19 @@ const logErrorOnFailure = (
   }
 
   const isRetryableFailure = isErrRetryable(details);
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, item.url);
-  const eventDropMsg = `The event will be dropped.`;
+  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
+  const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
-      errMsg = `${errMsg} It'll be retried.`;
+      errMsg = `${errMsg} It/they will be retried.`;
       if ((attemptNumber as number) > 0) {
         errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
       }
     } else {
-      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). ${eventDropMsg}`;
+      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). ${dropMsg}`;
     }
   } else {
-    errMsg = `${errMsg} ${eventDropMsg}`;
+    errMsg = `${errMsg} ${dropMsg}`;
   }
   logger?.error(errMsg);
 };

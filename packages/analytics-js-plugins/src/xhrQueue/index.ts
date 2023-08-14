@@ -10,12 +10,19 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
+import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import {
+  getBatchDeliveryPayload,
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
   validateEventPayloadSize,
 } from '../utilities/queue';
-import { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure } from './utilities';
+import {
+  getNormalizedQueueOptions,
+  getDeliveryUrl,
+  logErrorOnFailure,
+  getBatchDeliveryUrl,
+} from './utilities';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
@@ -50,6 +57,8 @@ const XhrQueue = (): ExtensionPlugin => ({
       const writeKey = state.lifecycle.writeKey.value as string;
       httpClient.setAuthHeader(writeKey);
 
+      const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
+
       const finalQOpts = getNormalizedQueueOptions(
         state.loadOptions.value.queueOptions as QueueOpts,
       );
@@ -59,16 +68,32 @@ const XhrQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
-          item: XHRQueueItem,
+          item: XHRQueueItem | XHRQueueItem[],
           done: DoneCallback,
           attemptNumber?: number,
           maxRetryAttempts?: number,
           willBeRetried?: boolean,
         ) => {
-          const { url, event, headers } = item;
-          const finalEvent = getFinalEventForDeliveryMutator(event, state);
+          let data;
+          let headers;
+          let url: string;
+          if (Array.isArray(item)) {
+            const finalEvents = item.map((queueItem: XHRQueueItem) =>
+              getFinalEventForDeliveryMutator(queueItem.event, state),
+            );
+            data = getBatchDeliveryPayload(finalEvents, logger);
+            headers = {
+              ...item[0].headers,
+            };
+            url = getBatchDeliveryUrl(dataplaneUrl);
+          } else {
+            const { url: eventUrl, event, headers: eventHeaders } = item;
+            const finalEvent = getFinalEventForDeliveryMutator(event, state);
 
-          const data = getDeliveryPayload(finalEvent);
+            data = getDeliveryPayload(finalEvent);
+            headers = { ...eventHeaders };
+            url = eventUrl;
+          }
 
           if (data) {
             httpClient.getAsyncData({
@@ -87,7 +112,7 @@ const XhrQueue = (): ExtensionPlugin => ({
 
                 logErrorOnFailure(
                   details,
-                  item,
+                  url,
                   willBeRetried,
                   attemptNumber,
                   maxRetryAttempts,
@@ -104,6 +129,15 @@ const XhrQueue = (): ExtensionPlugin => ({
           }
         },
         storeManager,
+        LOCAL_STORAGE,
+        logger,
+        (item: XHRQueueItem | XHRQueueItem[]): number => {
+          if (Array.isArray(item)) {
+            const events = item.map((queueItem: XHRQueueItem) => queueItem.event);
+            return getBatchDeliveryPayload(events, logger)?.length || 0;
+          }
+          return getDeliveryPayload(item.event, logger)?.length || 0;
+        },
       );
 
       return eventsQueue;

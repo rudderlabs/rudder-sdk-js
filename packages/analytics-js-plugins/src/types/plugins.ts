@@ -31,7 +31,13 @@ export type QueueItem<T = Record<string, any> | string | number> = {
   id: string;
 };
 
-export type QueueItemData = Record<string, any> | string | number;
+export type QueueItemData =
+  | Record<string, any>
+  | string
+  | number
+  | Record<string, any>[]
+  | string[]
+  | number[];
 
 /**
  * @callback processFunc

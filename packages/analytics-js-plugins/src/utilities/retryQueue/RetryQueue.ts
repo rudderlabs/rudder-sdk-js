@@ -132,6 +132,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
     this.setQueue(QueueStatuses.IN_PROGRESS, {});
     this.setQueue(QueueStatuses.QUEUE, []);
+    this.setQueue(QueueStatuses.BATCH_QUEUE, []);
 
     // bind recurring tasks for ease of use
     this.ack = this.ack.bind(this);
@@ -210,16 +211,39 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   enqueue(entry: QueueItem<QueueItemData>) {
-    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+    let curEntry;
+    if (this.enableBatching) {
+      let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+      batchQueue = batchQueue.slice(-batchQueue.length);
+      batchQueue.push(entry);
+      if (this.isBatchReadyToDispatch(batchQueue)) {
+        const batchItems = batchQueue.map(queueItem => queueItem.item);
+        curEntry = {
+          item: batchItems,
+          attemptNumber: 0,
+          time: this.schedule.now(),
+          id: generateUUID(),
+        };
+        batchQueue = [];
+      }
+      this.setQueue(QueueStatuses.BATCH_QUEUE, batchQueue);
+    } else {
+      curEntry = entry;
+    }
 
-    queue = queue.slice(-(this.maxItems - 1));
-    queue.push(entry);
-    queue = queue.sort(sortByTime);
+    if (curEntry) {
+      let queue =
+        (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
-    this.setQueue(QueueStatuses.QUEUE, queue);
+      queue = queue.slice(-(this.maxItems - 1));
+      queue.push(curEntry);
+      queue = queue.sort(sortByTime);
 
-    if (this.scheduleTimeoutActive) {
-      this.processHead();
+      this.setQueue(QueueStatuses.QUEUE, queue);
+
+      if (this.scheduleTimeoutActive) {
+        this.processHead();
+      }
     }
   }
 
@@ -258,23 +282,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
   }
 
-  shouldAddItemToBatch(batchItems: QueueItem[], curItemData: QueueItemData) {
+  isBatchReadyToDispatch(batchItems: QueueItem[]) {
+    let lengthCriteriaMet = false;
     if (isDefined(this.batch.maxItems)) {
-      return batchItems.length < (this.batch.maxItems as number);
+      lengthCriteriaMet = batchItems.length >= (this.batch.maxItems as number);
     }
+
+    let sizeCriteriaMet = false;
     if (isDefined(this.batch.maxSize)) {
       const curBatchSize = batchItems.reduce(
-        (accSize, cur) =>
+        (accSize: number, cur: QueueItem) =>
           accSize + (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(cur.item),
         0,
       );
-      return (
-        curBatchSize +
-          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curItemData) <=
-        (this.batch.maxSize as number)
-      );
+
+      sizeCriteriaMet = curBatchSize >= (this.batch.maxSize as number);
     }
-    return false;
+    return lengthCriteriaMet || sizeCriteriaMet;
   }
 
   processHead() {
@@ -375,6 +399,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
+      batchQueue: other.get(QueueStatuses.BATCH_QUEUE) ?? [],
       queue: (other.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const trackMessageIds: string[] = [];
@@ -409,6 +434,21 @@ class RetryQueue implements IQueue<QueueItemData> {
     // add their queue to ours, resetting run-time to immediate and copying the attempt#
     addConcatQueue(their.queue, 0);
 
+    // Process batch queue items if any
+    if (this.enableBatching) {
+      their.batchQueue.forEach((el: QueueItem) => {
+        const id = el.id || generateUUID();
+        if (trackMessageIds.includes(id)) {
+          // duplicated event
+        } else {
+          this.enqueue(el);
+          trackMessageIds.push(id);
+        }
+      });
+    } else {
+      addConcatQueue(their.batchQueue, 0);
+    }
+
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     addConcatQueue(their.inProgress, 1);
 
@@ -428,10 +468,10 @@ class RetryQueue implements IQueue<QueueItemData> {
         try {
           this.clearOtherQueue(other, 40);
         } catch (retryError) {
-          console.error(retryError);
+          this.logger?.error(retryError);
         }
       } else {
-        console.error(e);
+        this.logger?.error(e);
       }
     }
 
@@ -442,15 +482,18 @@ class RetryQueue implements IQueue<QueueItemData> {
   // eslint-disable-next-line class-methods-use-this
   clearOtherQueue(other: IStore, localStorageBackoff: number) {
     (globalThis as typeof window).setTimeout(() => {
-      other.remove(QueueStatuses.IN_PROGRESS);
+      other.remove(QueueStatuses.BATCH_QUEUE);
       (globalThis as typeof window).setTimeout(() => {
-        other.remove(QueueStatuses.QUEUE);
+        other.remove(QueueStatuses.IN_PROGRESS);
         (globalThis as typeof window).setTimeout(() => {
-          other.remove(QueueStatuses.RECLAIM_START);
+          other.remove(QueueStatuses.QUEUE);
           (globalThis as typeof window).setTimeout(() => {
-            other.remove(QueueStatuses.RECLAIM_END);
+            other.remove(QueueStatuses.RECLAIM_START);
             (globalThis as typeof window).setTimeout(() => {
-              other.remove(QueueStatuses.ACK);
+              other.remove(QueueStatuses.RECLAIM_END);
+              (globalThis as typeof window).setTimeout(() => {
+                other.remove(QueueStatuses.ACK);
+              }, localStorageBackoff);
             }, localStorageBackoff);
           }, localStorageBackoff);
         }, localStorageBackoff);

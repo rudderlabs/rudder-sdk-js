@@ -80,14 +80,7 @@ class EventRepository implements IEventRepository {
         this.destinationsEventsQueue?.start();
       }
     });
-  }
 
-  /**
-   * Enqueues the event for processing
-   * @param event RudderEvent object
-   * @param callback API callback function
-   */
-  enqueue(event: RudderEvent, callback?: ApiCallback): void {
     // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations
@@ -118,7 +111,14 @@ class EventRepository implements IEventRepository {
         }
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
+  }
 
+  /**
+   * Enqueues the event for processing
+   * @param event RudderEvent object
+   * @param callback API callback function
+   */
+  enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,

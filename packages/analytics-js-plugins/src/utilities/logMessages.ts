@@ -63,7 +63,7 @@ const EVENT_PAYLOAD_PREPARATION_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to prepare the event payload for delivery. The event will be dropped.`;
 
 const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, url: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event to ${url}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to ${url}.`;
 
 const BUGSNAG_API_KEY_VALIDATION_ERROR = (apiKey: string): string =>
   `The Bugsnag API key (${apiKey}) is invalid or not provided.`;
