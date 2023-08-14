@@ -1,11 +1,22 @@
-import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import {
+  generateUUID,
+  isDefined,
+  isObjectLiteralAndNotNull,
+  isUndefined,
+} from '@rudderstack/analytics-js-common/index';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { IQueue, QueueItem, QueueItemData, QueueProcessCallback } from '../../types/plugins';
+import {
+  IQueue,
+  QueueItem,
+  QueueItemData,
+  QueueItemSizeCalculatorCallback,
+  QueueProcessCallback,
+} from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
 import {
   DEFAULT_ACK_TIMER_MS,
@@ -18,9 +29,12 @@ import {
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_TIMER_MS,
   DEFAULT_RECLAIM_WAIT_MS,
+  DEFAULT_MAX_BATCH_SIZE_BYTES,
+  DEFAULT_MAX_BATCH_ITEMS,
 } from './constants';
 import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
 import { QueueTimeouts, QueueBackoff, QueueOptions, InProgressQueueItem } from './types';
+import { BatchOptions } from './types';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -49,6 +63,9 @@ class RetryQueue implements IQueue<QueueItemData> {
   schedule: Schedule;
   processId: string;
   logger?: ILogger;
+  enableBatching: boolean;
+  batch: BatchOptions;
+  queueItemSizeCalculatorCb?: QueueItemSizeCalculatorCallback<QueueItemData>;
 
   constructor(
     name: string,
@@ -57,6 +74,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     storeManager: IStoreManager,
     storageType: StorageType = LOCAL_STORAGE,
     logger?: ILogger,
+    queueItemSizeCalculatorCb?: QueueItemSizeCalculatorCallback,
   ) {
     this.storeManager = storeManager;
     this.name = name;
@@ -64,6 +82,27 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
+    this.enableBatching = isObjectLiteralAndNotNull(options.batch);
+    this.batch = {
+      maxSize: DEFAULT_MAX_BATCH_SIZE_BYTES,
+      maxItems: DEFAULT_MAX_BATCH_ITEMS,
+    };
+
+    this.queueItemSizeCalculatorCb = queueItemSizeCalculatorCb;
+    if (this.enableBatching) {
+      this.batch = options.batch as BatchOptions;
+      if (isDefined(this.batch.maxSize)) {
+        this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
+      }
+      if (isDefined(this.batch.maxItems)) {
+        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
+      }
+
+      if (isUndefined(this.batch.maxSize) && isUndefined(this.batch.maxItems)) {
+        this.enableBatching = false;
+      }
+    }
+
     this.logger = logger;
 
     this.backoff = {
@@ -217,6 +256,25 @@ class RetryQueue implements IQueue<QueueItemData> {
     } else {
       // Discard item
     }
+  }
+
+  shouldAddItemToBatch(batchItems: QueueItem[], curItemData: QueueItemData) {
+    if (isDefined(this.batch.maxItems)) {
+      return batchItems.length < (this.batch.maxItems as number);
+    }
+    if (isDefined(this.batch.maxSize)) {
+      const curBatchSize = batchItems.reduce(
+        (accSize, cur) =>
+          accSize + (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(cur.item),
+        0,
+      );
+      return (
+        curBatchSize +
+          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curItemData) <=
+        (this.batch.maxSize as number)
+      );
+    }
+    return false;
   }
 
   processHead() {

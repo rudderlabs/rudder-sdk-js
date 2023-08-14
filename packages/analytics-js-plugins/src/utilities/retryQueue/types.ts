@@ -1,5 +1,10 @@
 import { DoneCallback } from '../../types/plugins';
 
+export type BatchOptions = {
+  maxItems?: number;
+  maxSize?: number;
+};
+
 export interface QueueOptions {
   maxItems?: number;
   maxAttempts?: number;
@@ -7,6 +12,7 @@ export interface QueueOptions {
   maxRetryDelay?: number;
   backoffFactor?: number;
   backoffJitter?: number;
+  batch?: BatchOptions;
 }
 
 export type QueueBackoff = {

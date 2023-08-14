@@ -49,6 +49,8 @@ export type QueueProcessCallback<T = any> = (
   willBeRetried?: boolean,
 ) => void;
 
+export type QueueItemSizeCalculatorCallback<T = any> = (item: T) => number;
+
 /**
  * @callback doneCallback
  * @param {Error} Optional error parameter if the processing failed
