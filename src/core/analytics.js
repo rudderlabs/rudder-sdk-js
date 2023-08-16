@@ -1356,9 +1356,9 @@ class Analytics {
           !Object.entries ||
           !Object.values ||
           !String.prototype.replaceAll ||
-          !this.isDatasetAvailable())) ||
+          !this.isDatasetAvailable() ||
       typeof TextDecoder !== 'function' ||
-      typeof Uint8Array !== 'function'
+      typeof Uint8Array !== 'function'))
     );
   }
 
