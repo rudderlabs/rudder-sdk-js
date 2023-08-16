@@ -27,7 +27,7 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
     if (
       error.target.dataset &&
       (error.target.dataset.loader !== LOAD_ORIGIN ||
-        error.target.dataset.isNonNativeSDK !== 'true')
+        error.target.dataset.isnonnativesdk !== 'true')
     ) {
       return '';
     }

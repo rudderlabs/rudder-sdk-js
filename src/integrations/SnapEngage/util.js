@@ -15,7 +15,7 @@ function flip(data) {
 function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics) {
   const eventNames = flip(standardEventsMap);
 
-  window.SnapEngage.setCallback('StartChat', function () {
+  window.SnapEngage.setCallback('StartChat', () => {
     let eventName = 'Live Chat Conversation Started';
     if (updateEventNames && eventNames?.startChat) {
       eventName = eventNames.startChat;
@@ -23,7 +23,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics)
     analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
-  window.SnapEngage.setCallback('ChatMessageReceived', function (agent) {
+  window.SnapEngage.setCallback('ChatMessageReceived', (agent) => {
     let eventName = 'Live Chat Message Received';
     if (updateEventNames && eventNames?.chatMessageReceived) {
       eventName = eventNames.chatMessageReceived;
@@ -35,7 +35,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics)
     );
   });
 
-  window.SnapEngage.setCallback('ChatMessageSent', function () {
+  window.SnapEngage.setCallback('ChatMessageSent', () => {
     let eventName = 'Live Chat Message Sent';
     if (updateEventNames && eventNames?.chatMessageSent) {
       eventName = eventNames.chatMessageSent;
@@ -43,7 +43,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics)
     analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
-  window.SnapEngage.setCallback('Close', function () {
+  window.SnapEngage.setCallback('Close', () => {
     let eventName = 'Live Chat Conversation Ended';
     if (updateEventNames && eventNames?.close) {
       eventName = eventNames.close;
@@ -51,7 +51,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap, analytics)
     analytics.track(`${eventName}`, {}, { context: { integration: integrationContext } });
   });
 
-  window.SnapEngage.setCallback('InlineButtonClicked', function () {
+  window.SnapEngage.setCallback('InlineButtonClicked', () => {
     let eventName = 'Inline Button Clicked';
     if (updateEventNames && eventNames?.inlineButtonClicked) {
       eventName = eventNames.inlineButtonClicked;

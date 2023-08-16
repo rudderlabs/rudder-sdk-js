@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 import * as utils from './util';
 
 const productViewHandle = (rudderElement, pageName) => {
@@ -20,9 +18,9 @@ const productRemovedHandle = (rudderElement, pageName) => {
 const orderCompletedHandle = (rudderElement, pageName) => {
   utils.clearWindowSKeys(utils.getDynamicKeys());
   const { properties } = rudderElement.message;
-  const { purchaseId, transactionId, order_id } = properties;
-  utils.updateWindowSKeys(purchaseId || order_id, 'purchaseID');
-  utils.updateWindowSKeys(transactionId || order_id, 'transactionID');
+  const { purchaseId, transactionId, order_id: orderId } = properties;
+  utils.updateWindowSKeys(purchaseId || orderId, 'purchaseID');
+  utils.updateWindowSKeys(transactionId || orderId, 'transactionID');
 
   utils.processEvent(rudderElement, 'purchase', pageName);
 };
@@ -30,9 +28,9 @@ const orderCompletedHandle = (rudderElement, pageName) => {
 const checkoutStartedHandle = (rudderElement, pageName) => {
   utils.clearWindowSKeys(utils.getDynamicKeys());
   const { properties } = rudderElement.message;
-  const { purchaseId, transactionId, order_id } = properties;
-  utils.updateWindowSKeys(purchaseId || order_id, 'purchaseID');
-  utils.updateWindowSKeys(transactionId || order_id, 'transactionID');
+  const { purchaseId, transactionId, order_id: orderId } = properties;
+  utils.updateWindowSKeys(purchaseId || orderId, 'purchaseID');
+  utils.updateWindowSKeys(transactionId || orderId, 'transactionID');
 
   utils.processEvent(rudderElement, 'scCheckout', pageName);
 };
