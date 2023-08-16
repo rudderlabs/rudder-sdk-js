@@ -1,6 +1,6 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { refinePayload, getDestinationExternalID } from './utils';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';

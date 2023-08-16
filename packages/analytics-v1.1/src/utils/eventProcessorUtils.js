@@ -1,5 +1,5 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { SYSTEM_KEYWORDS } from './constants';
 
 const defaultTopLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];

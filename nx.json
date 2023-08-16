@@ -1,0 +1,18 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build:browser",
+          "build:browser:modern",
+          "build:npm",
+          "build:npm:modern",
+          "test",
+          "check:size:build"
+        ]
+      }
+    }
+  },
+  "defaultBase": "main"
+}

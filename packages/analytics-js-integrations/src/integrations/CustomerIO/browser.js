@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/CustomerIO/constants';
 
 class CustomerIO {

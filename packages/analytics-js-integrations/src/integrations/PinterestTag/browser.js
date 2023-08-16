@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
 import {
   searchPropertyMapping,

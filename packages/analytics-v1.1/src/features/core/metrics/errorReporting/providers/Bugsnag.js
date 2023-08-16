@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-import { configToIntNames } from '@rudderstack/analytics-js-common/v1.1/utils/config_to_integration_names';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { configToIntNames } from '@rudderstack/analytics-js-common/utilsV1/config_to_integration_names';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+} from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { get } from '../../../../../utils/utils';
 
 // Using the Bugsnag integration version to avoid version issues

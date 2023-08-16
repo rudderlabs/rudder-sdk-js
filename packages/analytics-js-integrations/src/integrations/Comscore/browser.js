@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   LOAD_ORIGIN,
-} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+} from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Comscore/constants';
 
 class Comscore {

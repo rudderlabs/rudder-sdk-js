@@ -1,10 +1,10 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
 import { getCurrentTimeFormatted, removeTrailingSlashes } from './utils';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/utilsV1/ObjectUtils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -67,7 +67,7 @@ class EventRepository {
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
     // check message size, if greater log an error
-    if (stringifyWithoutCircular(message, true).length > MESSAGE_LENGTH) {
+    if (stringifyWithoutCircularV1(message, true).length > MESSAGE_LENGTH) {
       logger.error('[EventRepository] enqueue:: message length greater 32 Kb ', message);
     }
 

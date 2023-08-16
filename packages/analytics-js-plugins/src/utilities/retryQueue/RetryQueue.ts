@@ -1,4 +1,4 @@
-import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';

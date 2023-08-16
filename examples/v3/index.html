@@ -72,6 +72,10 @@
         configUrl: 'https://api.rudderlabs.com',
         destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+        // plugins: [
+        //   'StorageEncryption',
+        //   'XhrQueue'
+        // ]
       };
 
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);

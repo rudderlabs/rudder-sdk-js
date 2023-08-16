@@ -2,7 +2,7 @@
 /* eslint-disable import/no-relative-packages */
 import { exec } from 'child_process';
 import { cpus } from 'os';
-import { configToIntNames } from '../../analytics-js-common/src/v1.1/utils/config_to_integration_names';
+import { configToIntNames } from '../../analytics-js-common/src/utilsV1/config_to_integration_names';
 
 const intgNamesArr = Object.values(configToIntNames);
 const totalIntgCount = intgNamesArr.length;

@@ -1,4 +1,9 @@
 /* eslint-disable max-classes-per-file */
+import { signal } from '@preact/signals-core';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
 import {
   isApiKeyValid,
   getGlobalBugsnagLibInstance,
@@ -11,11 +16,6 @@ import {
   onError,
   getAppStateForMetadata,
 } from '@rudderstack/analytics-js-plugins/bugsnag/utils';
-import { signal } from '@preact/signals-core';
-import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/index';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {

@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { Store } from '@rudderstack/analytics-js-common/utilsV1/storage/store';
+import { handleError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/utilsV1/ObjectUtils';
 
 const defaults = {
   queue: 'queue',
@@ -58,7 +58,7 @@ class BeaconQueue {
     queue.push(message);
     let batch = queue.slice(0);
     const data = { batch };
-    const dataToSend = stringifyWithoutCircular(data, true);
+    const dataToSend = stringifyWithoutCircularV1(data, true);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
       this.flushQueue(batch);
@@ -91,7 +91,7 @@ class BeaconQueue {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
-    const payload = stringifyWithoutCircular(data, true);
+    const payload = stringifyWithoutCircularV1(data, true);
     const blob = new Blob([payload], { type: 'text/plain' });
     const targetUrl = `${this.url}?writeKey=${this.writekey}`;
     try {

@@ -1,6 +1,6 @@
 import md5 from 'md5';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 
 const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;

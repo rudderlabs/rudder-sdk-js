@@ -1,9 +1,9 @@
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '@rudderstack/analytics-js-common/v1.1/utils/integration_cname';
-import { clientToServerNames } from '@rudderstack/analytics-js-common/v1.1/utils/client_server_name';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { commonNames } from '@rudderstack/analytics-js-common/utilsV1/integration_cname';
+import { clientToServerNames } from '@rudderstack/analytics-js-common/utilsV1/client_server_name';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -11,8 +11,8 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/utilsV1/constants';
+import { handleError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
 
 /**
  * Utility method to remove '/' at the end of URL

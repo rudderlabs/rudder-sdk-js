@@ -1,4 +1,4 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { eventMapping } from './propertyMappingConfig';

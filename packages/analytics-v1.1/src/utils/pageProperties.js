@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable camelcase */
-import Storage from '@rudderstack/analytics-js-common/v1.1/utils/storage';
+import { Storage } from '@rudderstack/analytics-js-common/utilsV1/storage';
 
 function getReferrer() {
   return document.referrer || '$direct';

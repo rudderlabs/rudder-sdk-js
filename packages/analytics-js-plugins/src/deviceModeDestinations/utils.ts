@@ -5,12 +5,12 @@ import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
-  isFunction,
-  isHybridModeDestination,
-  mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js-common/index';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,

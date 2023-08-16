@@ -1,4 +1,4 @@
-import { isUndefined } from '@rudderstack/analytics-js-common/index';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DestinationIntgConfig } from '@rudderstack/analytics-js-common/types/Integration';
 
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>

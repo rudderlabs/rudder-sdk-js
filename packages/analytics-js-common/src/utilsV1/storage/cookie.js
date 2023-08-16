@@ -2,7 +2,7 @@ import cookie from 'rudder-component-cookie';
 import defaults from '@ndhoule/defaults';
 import topDomain from '@segment/top-domain';
 import * as R from 'ramda';
-import logger from '../logUtil';
+import { logger } from '../logUtil';
 
 /**
  * An object utility to persist values in cookies

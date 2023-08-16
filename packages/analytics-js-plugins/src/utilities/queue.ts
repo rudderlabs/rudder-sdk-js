@@ -1,9 +1,7 @@
 import { clone } from 'ramda';
-import {
-  getCurrentTimeFormatted,
-  mergeDeepRight,
-  stringifyWithoutCircular,
-} from '@rudderstack/analytics-js-common/index';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';

@@ -3,7 +3,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
 import get from 'get-value';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';

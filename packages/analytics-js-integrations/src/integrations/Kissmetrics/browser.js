@@ -1,9 +1,9 @@
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { getRevenue } from '../../utils/utils';
 
 class Kissmetrics {

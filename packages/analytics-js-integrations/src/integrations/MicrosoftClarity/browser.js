@@ -1,5 +1,5 @@
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(NAME);

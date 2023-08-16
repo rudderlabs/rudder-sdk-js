@@ -1,4 +1,5 @@
-import { isUndefined, mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';

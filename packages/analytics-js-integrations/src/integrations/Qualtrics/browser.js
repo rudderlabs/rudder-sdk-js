@@ -8,8 +8,8 @@
 /* eslint-disable no-unused-expressions */
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
 
 class Qualtrics {

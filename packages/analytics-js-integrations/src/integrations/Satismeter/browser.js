@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Satismeter/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
 

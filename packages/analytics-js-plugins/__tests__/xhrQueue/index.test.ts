@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 import { batch } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
@@ -10,9 +9,10 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 
-jest.mock('@rudderstack/analytics-js-common/utilities', () => ({
-  ...jest.requireActual('@rudderstack/analytics-js-common/utilities'),
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
 }));
 

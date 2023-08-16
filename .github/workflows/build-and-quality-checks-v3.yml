@@ -43,5 +43,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build -- --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js'
-          script: npx lerna@6 exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json --silent
+          script: npx lerna exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json --silent
           is_monorepo: true

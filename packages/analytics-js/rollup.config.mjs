@@ -11,7 +11,6 @@ import filesize from 'rollup-plugin-filesize';
 import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
-import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
@@ -122,15 +121,6 @@ export function getDefaultConfig(distName) {
           format: {
             comments: false,
           },
-        }),
-      isNpmPackageBuild && !isLegacyBuild &&
-        copy({
-          targets: [
-            { src: 'package.json', dest: outDirNpmRoot },
-            { src: 'README.md', dest: outDirNpmRoot },
-            { src: 'CHANGELOG.md', dest: outDirNpmRoot },
-            { src: 'LICENSE', dest: outDirNpmRoot },
-          ],
         }),
       filesize({
         showBeforeSizes: 'build',
@@ -257,6 +247,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-plugins',
               replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-common',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
             }
           ]
         }),

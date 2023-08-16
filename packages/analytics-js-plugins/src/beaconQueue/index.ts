@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/index';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';

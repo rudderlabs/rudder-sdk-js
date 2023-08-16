@@ -1,5 +1,5 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/BingAds/constants';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';

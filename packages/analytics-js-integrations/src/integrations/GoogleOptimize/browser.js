@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleOptimize/constants';
 
 class GoogleOptimize {

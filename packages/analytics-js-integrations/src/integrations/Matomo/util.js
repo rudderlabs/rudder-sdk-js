@@ -1,5 +1,5 @@
 import each from '@ndhoule/each';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
 

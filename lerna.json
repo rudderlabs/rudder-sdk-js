@@ -1,10 +1,9 @@
 {
   "version": "independent",
   "npmClient": "npm",
-  "useWorkspaces": true,
   "command": {
     "version": {
-      "allowBranch": ["v3-release/*", "v3-hotfix-release/*", "develop", "chore/*"],
+      "allowBranch": ["v3-release/*", "v3-hotfix-release/*", "develop", "main"],
       "message": "chore(release): bump up package versions [skip ci]",
       "conventionalCommits": true
     },

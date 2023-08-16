@@ -1,4 +1,4 @@
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';

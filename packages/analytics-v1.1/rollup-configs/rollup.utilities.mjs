@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from "path";
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -12,6 +13,7 @@ import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
+import alias from "@rollup/plugin-alias";
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
@@ -58,6 +60,14 @@ export function getDefaultConfig(distName) {
         __MODULE_TYPE__: moduleType,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+      }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          }
+        ]
       }),
       nodePolyfills(),
       resolve({

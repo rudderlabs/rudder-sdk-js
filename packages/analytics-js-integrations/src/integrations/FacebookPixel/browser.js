@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import {
   NAME,
   traitsMapper,

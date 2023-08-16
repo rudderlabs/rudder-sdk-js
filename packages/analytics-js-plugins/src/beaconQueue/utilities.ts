@@ -1,4 +1,5 @@
-import { mergeDeepRight, stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';

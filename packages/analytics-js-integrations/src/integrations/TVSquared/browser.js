@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
 
 class TVSquared {

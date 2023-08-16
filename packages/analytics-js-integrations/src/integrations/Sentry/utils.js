@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 const convertObjectToArray = (objectInput, propertyName) => {

@@ -1,8 +1,5 @@
-import {
-  handleError,
-  normalizeError,
-} from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { handleError, normalizeError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/utilsV1/constants';
 
 window.RudderStackGlobals = {
   errorReporting: {

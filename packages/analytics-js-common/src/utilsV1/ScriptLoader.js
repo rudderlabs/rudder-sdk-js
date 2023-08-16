@@ -48,4 +48,4 @@ const ScriptLoader = (id, src, options = {}) => {
   }
 };
 
-export default ScriptLoader;
+export { ScriptLoader };
