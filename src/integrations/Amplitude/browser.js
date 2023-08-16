@@ -1,12 +1,11 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
 import { NAME } from './constants';
 
-import { loader } from './loader';
+import { loadNativeSdk } from './nativeSdkLoader';
+import { getTraitsToSetOnce, getTraitsToIncrement } from './utils';
 
 const logger = new Logger(NAME);
 
@@ -30,11 +29,10 @@ class Amplitude {
     this.trackGclid = config.trackGclid || false;
     this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
     this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false;
-    // this.mapQueryParams = config.mapQueryParams;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
-    this.traitsToSetOnce = [];
-    this.traitsToIncrement = [];
+    this.traitsToSetOnce = getTraitsToSetOnce(config);
+    this.traitsToIncrement = getTraitsToIncrement(config);
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
     this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
@@ -44,26 +42,11 @@ class Amplitude {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-
-    if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
-      config.traitsToSetOnce.forEach((element) => {
-        if (element && element.traits && element.traits !== '') {
-          this.traitsToSetOnce.push(element.traits);
-        }
-      });
-    }
-    if (config.traitsToIncrement && config.traitsToIncrement.length > 0) {
-      config.traitsToIncrement.forEach((element) => {
-        if (element && element.traits && element.traits !== '') {
-          this.traitsToIncrement.push(element.traits);
-        }
-      });
-    }
   }
 
   init() {
     if (this.analytics.loadIntegration) {
-      loader(window, document);
+      loadNativeSdk(window, document);
     }
 
     const initOptions = {
@@ -84,6 +67,15 @@ class Amplitude {
     if (this.versionName) {
       window.amplitude.getInstance().setVersionName(this.versionName);
     }
+  }
+
+  isLoaded() {
+    logger.debug('in Amplitude isLoaded');
+    return !!window?.amplitude?.getInstance()?.options;
+  }
+
+  isReady() {
+    return !!window?.amplitude?.getInstance()?.options;
   }
 
   identify(rudderElement) {
@@ -182,23 +174,24 @@ class Amplitude {
   }
 
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
-    let { revenueType } = trackEventMessage.properties;
-    const { revenue, revenue_type } = trackEventMessage.properties;
-    revenueType = revenueType || revenue_type;
+    const eventMessage = trackEventMessage;
+    let { revenueType } = eventMessage.properties;
+    const { revenue, revenue_type: revenueTtype } = eventMessage.properties;
+    revenueType = revenueType || revenueTtype;
     products.forEach((product) => {
-      trackEventMessage.properties = product;
-      trackEventMessage.event = 'Product Purchased';
+      eventMessage.properties = product;
+      eventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
         if (revenueType) {
-          trackEventMessage.properties.revenueType = revenueType;
+          eventMessage.properties.revenueType = revenueType;
         }
         if (revenue) {
-          trackEventMessage.properties.revenue = revenue;
+          eventMessage.properties.revenue = revenue;
         }
-        this.trackRevenue(trackEventMessage);
+        this.trackRevenue(eventMessage);
       }
       if (shouldTrackEventPerProduct) {
-        this.logEventAndCorrespondingRevenue(trackEventMessage, true);
+        this.logEventAndCorrespondingRevenue(eventMessage, true);
       }
     });
   }
@@ -303,11 +296,11 @@ class Amplitude {
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity } = properties;
-    const { revenue, product_id, revenue_type } = properties;
+    const { revenue, product_id: pId, revenue_type: revenueTtype } = properties;
     const revenueType =
-      properties.revenueType || revenue_type || mapRevenueType[event.toLowerCase()];
+      properties.revenueType || revenueTtype || mapRevenueType[event.toLowerCase()];
 
-    productId = productId || product_id;
+    productId = productId || pId;
 
     // If neither revenue nor price is present, then return
     // else send price and quantity from properties to amplitude
@@ -353,15 +346,6 @@ class Amplitude {
       quantity: product.quantity,
       category: product.category,
     };
-  }
-
-  isLoaded() {
-    logger.debug('in Amplitude isLoaded');
-    return !!(window.amplitude && window.amplitude.getInstance().options);
-  }
-
-  isReady() {
-    return !!(window.amplitude && window.amplitude.getInstance().options);
   }
 }
 

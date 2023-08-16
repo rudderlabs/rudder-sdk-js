@@ -1,3 +1,1 @@
-import Sendinblue from './browser';
-
-export { Sendinblue };
+export { default as Sendinblue } from './browser';
