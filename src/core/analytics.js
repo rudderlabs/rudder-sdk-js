@@ -197,11 +197,11 @@ class Analytics {
   }
 
   validateConfig(requiredConfigsList, configsFromDashboard, intg) {
-    return (requiredConfigsList.forEach(config => {
+    requiredConfigsList.forEach(config => {
       const configVal = configsFromDashboard[config];
       if (!isDefinedAndNotNull(configVal) || (typeof configVal === "string" && configVal.length === 0))
         throw Error(`${intg}: ${config} is either not present or does not have valid value`);
-    }));
+    });
   };
 
   /**
