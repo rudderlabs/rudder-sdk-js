@@ -57,7 +57,6 @@ describe('Queue', () => {
 
     queue.addItem('a');
 
-    expect(queue.processQueueCb).toHaveBeenCalled();
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
