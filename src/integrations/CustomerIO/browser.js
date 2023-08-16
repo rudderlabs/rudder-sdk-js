@@ -13,6 +13,7 @@ class CustomerIO {
     this.analytics = analytics;
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
+    this.datacenterEU = config.datacenterEU;
     this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
     ({
@@ -25,7 +26,7 @@ class CustomerIO {
   init() {
     logger.debug('===in init Customer IO init===');
     window._cio = window._cio || [];
-    const { siteID } = this;
+    const { siteID, datacenterEU } = this;
     (function () {
       let a;
       let b;
@@ -50,6 +51,9 @@ class CustomerIO {
       t.id = 'cio-tracker';
       t.setAttribute('data-site-id', siteID);
       t.src = 'https://assets.customer.io/assets/track.js';
+      if (datacenterEU === true) {
+        t.src = 'https://assets.customer.io/assets/track-eu.js';
+      }
       s.parentNode.insertBefore(t, s);
     })();
   }
