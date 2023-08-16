@@ -23,7 +23,7 @@ class Amplitude {
     this.attribution = config.attribution || false;
     this.flushQueueSize = config.eventUploadThreshold || 30;
     this.flushIntervalMillis = +config.eventUploadPeriodMillis || 30000;
-    this.trackNewCampaigns = config.trackNewCampaigns || false;
+    this.trackNewCampaigns = config.trackNewCampaigns || true;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
     this.traitsToSetOnce = [];
