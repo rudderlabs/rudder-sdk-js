@@ -1465,7 +1465,9 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      isNonNativeSDK: true,
+    });
   }
 
   /**
