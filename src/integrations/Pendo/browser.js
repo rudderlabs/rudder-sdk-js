@@ -108,7 +108,8 @@ class Pendo {
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
     if (!event) {
-      throw Error('Cannot call un-named track event');
+      logger.error('Cannot call un-named track event');
+      return;
     }
     const props = properties;
     window.pendo.track(event, props);

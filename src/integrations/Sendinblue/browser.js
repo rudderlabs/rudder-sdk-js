@@ -50,7 +50,7 @@ class Sendinblue {
     const { email, phone } = getDefinedTraits(message);
 
     if (!email || !validateEmail(email)) {
-      logger.error('[Sendinblue]:: provided email is invalid');
+      logger.error('[Sendinblue]:: email is missing');
       return;
     }
 
