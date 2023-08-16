@@ -89,8 +89,8 @@ jobs:
 
       - name: Sync assets to S3
         run: |
-          aws s3 cp assets/adobe-analytics-js/adobe-analytics-heartbeat.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js/adobe-analytics-heartbeat.js --cache-control max-age=3600
-          aws s3 cp assets/adobe-analytics-js/adobe-analytics-js.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js/adobe-analytics-js.js --cache-control max-age=3600
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
 
       - name: Send message to Slack channel
         id: slack
