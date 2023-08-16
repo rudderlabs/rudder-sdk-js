@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.40.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.0...v2.40.1) (2023-08-16)
+
+
+### Bug Fixes
+
+* ad blocked page request filtering ([00e0bae](https://github.com/rudderlabs/rudder-sdk-js/commit/00e0bae11535faee737a7c656bf4dd6a76e0fa59))
+* integration data values resolution ([#1302](https://github.com/rudderlabs/rudder-sdk-js/issues/1302)) ([d52dfe6](https://github.com/rudderlabs/rudder-sdk-js/commit/d52dfe6c8373ae070903919f3d37c0b5b96b8c7d))
+
 ## [2.40.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.39.0...v2.40.0) (2023-08-04)
 
 
