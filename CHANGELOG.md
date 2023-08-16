@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.40.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.1...v2.40.2) (2023-08-16)
+
+
+### Bug Fixes
+
+* persisted data decryption for v3 ([6a90ef6](https://github.com/rudderlabs/rudder-sdk-js/commit/6a90ef6e88682b71dad4bb2f14081b46844828f2))
+* persisted data decryption for v3 ([#1306](https://github.com/rudderlabs/rudder-sdk-js/issues/1306)) ([ccff8b3](https://github.com/rudderlabs/rudder-sdk-js/commit/ccff8b3e2cedb0cf64054534669ad0a6d4153d49))
+* polyfill detection conditions ([37f97ac](https://github.com/rudderlabs/rudder-sdk-js/commit/37f97ac92a5f3745fdf577bb0c3d8b2e74cb3b2f))
+
 ### [2.40.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.0...v2.40.1) (2023-08-16)
 
 
