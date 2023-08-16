@@ -1,3 +1,1 @@
-import PostAffiliatePro from './browser';
-
-export { PostAffiliatePro };
+export { default as PostAffiliatePro } from './browser';

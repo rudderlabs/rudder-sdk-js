@@ -1,3 +1,1 @@
-import FacebookPixel from './browser';
-
-export { FacebookPixel };
+export { default as FacebookPixel } from './browser';

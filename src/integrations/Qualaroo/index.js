@@ -1,3 +1,1 @@
-import Qualaroo from './browser';
-
-export { Qualaroo };
+export { default as Qualaroo } from './browser';

@@ -1,10 +1,7 @@
-/* eslint-disable no-var */
-/* eslint-disable no-param-reassign */
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class Lemnisk {
@@ -25,34 +22,7 @@ class Lemnisk {
 
   init() {
     logger.debug('===in init Lemnisk Marketing Automation===');
-    (function (window, tag, o, a, r) {
-      var methods = ['init', 'page', 'track', 'identify'];
-      window.lmSMTObj = window.lmSMTObj || [];
-
-      for (var i = 0; i < methods.length; i++) {
-        lmSMTObj[methods[i]] = (function (methodName) {
-          return function () {
-            lmSMTObj.push([methodName].concat(Array.prototype.slice.call(arguments)));
-          };
-        })(methods[i]);
-      }
-      // eslint-disable-next-line no-param-reassign
-      a = o.getElementsByTagName('head')[0];
-      // eslint-disable-next-line no-param-reassign
-      r = o.createElement('script');
-      r.setAttribute('data-loader', LOAD_ORIGIN);
-      r.type = 'text/javascript';
-      r.async = 1;
-      r.src = tag;
-      a.appendChild(r);
-    })(
-      window,
-      document.location.protocol === 'https:'
-        ? `https://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`
-        : `http://cdn25.lemnisk.co/ssp/st/${this.accountId}.js`,
-      document,
-    );
-    window.lmSMTObj.init(this.sdkWriteKey);
+    loadNativeSdk(this.accountId, this.sdkWriteKey);
   }
 
   isLoaded() {
@@ -67,16 +37,17 @@ class Lemnisk {
 
   identify(rudderElement) {
     logger.debug('===In Lemnisk Marketing Automation identify===');
+
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
       logger.debug('[Lemnisk] identify:: user id is required');
       return;
     }
-    // disabling eslint as message will be there iinn any case
-    // eslint-disable-next-line no-unsafe-optional-chaining
-    const { traits } = rudderElement.message?.context;
-    traits['isRudderEvents'] = true;
-    window.lmSMTObj.identify(rudderElement.message.userId, traits);
+    const { message } = rudderElement;
+    const context = message?.context || {};
+    const traits = context?.traits || {};
+    traits.isRudderEvents = true;
+    window.lmSMTObj.identify(userId, traits);
   }
 
   track(rudderElement) {
@@ -88,10 +59,10 @@ class Lemnisk {
       return;
     }
     if (properties) {
-      properties['isRudderEvents'] = true;
+      properties.isRudderEvents = true;
       window.lmSMTObj.track(event, properties);
     } else {
-      window.lmSMTObj.track(event,{'isRudderEvents': true});
+      window.lmSMTObj.track(event, { isRudderEvents: true });
     }
   }
 
@@ -99,15 +70,15 @@ class Lemnisk {
     logger.debug('===In Lemnisk Marketing Automation page===');
     const { name, properties } = rudderElement.message;
     if (name && !properties) {
-      window.lmSMTObj.page(name,{'isRudderEvents': true});
+      window.lmSMTObj.page(name, { isRudderEvents: true });
     } else if (!name && properties) {
-      properties['isRudderEvents'] = true;
+      properties.isRudderEvents = true;
       window.lmSMTObj.page(properties);
     } else if (name && properties) {
-      properties['isRudderEvents'] = true;
+      properties.isRudderEvents = true;
       window.lmSMTObj.page(name, properties);
     } else {
-      window.lmSMTObj.page({'isRudderEvents': true});
+      window.lmSMTObj.page({ isRudderEvents: true });
     }
   }
 }

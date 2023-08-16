@@ -1,3 +1,1 @@
-import { Comscore } from './browser';
-
-export { Comscore };
+export { Comscore } from './browser';

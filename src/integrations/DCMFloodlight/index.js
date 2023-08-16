@@ -1,3 +1,1 @@
-import DCMFloodlight from './browser';
-
-export { DCMFloodlight };
+export { default as DCMFloodlight } from './browser';
