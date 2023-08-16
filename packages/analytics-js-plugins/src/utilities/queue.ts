@@ -12,7 +12,6 @@ import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integrat
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {
-  EVENT_STRINGIFY_ERROR,
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
@@ -25,27 +24,14 @@ const QUEUE_UTILITIES = 'QueueUtilities';
  * @param logger Logger instance
  * @returns stringified event payload. Empty string if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> => {
-  let deliveryPayloadStr: Nullable<string> = '';
-  try {
-    deliveryPayloadStr = stringifyWithoutCircular<RudderEvent>(event, true);
-  } catch (err) {
-    logger?.error(EVENT_STRINGIFY_ERROR(QUEUE_UTILITIES), err);
-  }
-  return deliveryPayloadStr;
-};
+const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
+  stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
 
 const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
-  let deliveryPayloadStr: Nullable<string> = '';
-  try {
-    const data = {
-      batch: events,
-    };
-    deliveryPayloadStr = stringifyWithoutCircular(data, true);
-  } catch (err) {
-    logger?.error(EVENT_STRINGIFY_ERROR(QUEUE_UTILITIES), err);
-  }
-  return deliveryPayloadStr;
+  const data = {
+    batch: events,
+  };
+  return stringifyWithoutCircular(data, true, undefined, logger);
 };
 
 /**
