@@ -220,8 +220,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == true
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        Boolean(sdkSuppliedIntegrations[intgName]) === true
       ) {
         enabledList.push(intObj);
       }
@@ -230,8 +230,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
       let intgValue = true;
       // check if intg false supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == false
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        Boolean(sdkSuppliedIntegrations[intgName]) === false
       ) {
         intgValue = false;
       }
