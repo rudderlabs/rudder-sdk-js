@@ -1345,18 +1345,20 @@ class Analytics {
         ? options.polyfillIfRequired
         : true;
     return (
-      polyfillIfRequired &&
-      (!String.prototype.endsWith ||
-        !String.prototype.startsWith ||
-        !String.prototype.includes ||
-        !Array.prototype.find ||
-        !Array.prototype.includes ||
-        typeof window.URL !== 'function' ||
-        typeof Promise === 'undefined' ||
-        !Object.entries ||
-        !Object.values ||
-        !String.prototype.replaceAll ||
-        !this.isDatasetAvailable())
+      (polyfillIfRequired &&
+        (!String.prototype.endsWith ||
+          !String.prototype.startsWith ||
+          !String.prototype.includes ||
+          !Array.prototype.find ||
+          !Array.prototype.includes ||
+          typeof window.URL !== 'function' ||
+          typeof Promise === 'undefined' ||
+          !Object.entries ||
+          !Object.values ||
+          !String.prototype.replaceAll ||
+          !this.isDatasetAvailable() ||
+          typeof TextDecoder !== 'function' ||
+          typeof Uint8Array !== 'function'))
     );
   }
 
@@ -1465,7 +1467,9 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      isNonNativeSDK: true,
+    });
   }
 
   /**

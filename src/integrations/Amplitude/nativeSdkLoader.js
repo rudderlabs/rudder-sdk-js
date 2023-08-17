@@ -1,20 +1,15 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
-// START-NO-SONAR-SCAN
-/* eslint-disable */
 
-function loader(e, t) {
+function loadNativeSdk(e, t) {
   'use strict';
   var n = e.amplitude || { _q: [], _iq: {} };
-  if (n.invoked)
-    e.console && console.error && console.error('Amplitude snippet has been loaded.');
+  if (n.invoked) e.console && console.error && console.error('Amplitude snippet has been loaded.');
   else {
     var r = function (e, t) {
-      e.prototype[t] = function () {
-        return (
-          this._q.push({ name: t, args: Array.prototype.slice.call(arguments, 0) }), this
-        );
-      };
-    },
+        e.prototype[t] = function () {
+          return this._q.push({ name: t, args: Array.prototype.slice.call(arguments, 0) }), this;
+        };
+      },
       s = function (e, t, n) {
         return function (r) {
           e._q.push({ name: t, args: Array.prototype.slice.call(n, 0), resolve: r });
@@ -22,8 +17,7 @@ function loader(e, t) {
       },
       o = function (e, t, n) {
         e[t] = function () {
-          if (n)
-            return { promise: new Promise(s(e, t, Array.prototype.slice.call(arguments))) };
+          if (n) return { promise: new Promise(s(e, t, Array.prototype.slice.call(arguments))) };
         };
       },
       i = function (e) {
@@ -34,35 +28,33 @@ function loader(e, t) {
     var a = t.createElement('script');
     a.setAttribute('data-loader', LOAD_ORIGIN),
       (a.type = 'text/javascript'),
-      (a.integrity =
-        'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3'),
+      (a.integrity = 'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3'),
       (a.crossOrigin = 'anonymous'),
       (a.async = !0),
       (a.src = 'https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz'),
       (a.onload = function () {
-        e.amplitude.runQueuedFunctions ||
-          console.log('[Amplitude] Error: could not load SDK');
+        e.amplitude.runQueuedFunctions || console.log('[Amplitude] Error: could not load SDK');
       });
     var c = t.getElementsByTagName('script')[0];
     c.parentNode.insertBefore(a, c);
     for (
       var u = function () {
-        return (this._q = []), this;
-      },
-      l = [
-        'add',
-        'append',
-        'clearAll',
-        'prepend',
-        'set',
-        'setOnce',
-        'unset',
-        'preInsert',
-        'postInsert',
-        'remove',
-        'getUserProperties',
-      ],
-      p = 0;
+          return (this._q = []), this;
+        },
+        l = [
+          'add',
+          'append',
+          'clearAll',
+          'prepend',
+          'set',
+          'setOnce',
+          'unset',
+          'preInsert',
+          'postInsert',
+          'remove',
+          'getUserProperties',
+        ],
+        p = 0;
       p < l.length;
       p++
     )
@@ -70,34 +62,34 @@ function loader(e, t) {
     n.Identify = u;
     for (
       var d = function () {
-        return (this._q = []), this;
-      },
-      f = [
-        'getEventProperties',
-        'setProductId',
-        'setQuantity',
-        'setPrice',
-        'setRevenue',
-        'setRevenueType',
-        'setEventProperties',
-      ],
-      v = 0;
+          return (this._q = []), this;
+        },
+        f = [
+          'getEventProperties',
+          'setProductId',
+          'setQuantity',
+          'setPrice',
+          'setRevenue',
+          'setRevenueType',
+          'setEventProperties',
+        ],
+        v = 0;
       v < f.length;
       v++
     )
       r(d, f[v]);
     n.Revenue = d;
     var y = [
-      'getDeviceId',
-      'setDeviceId',
-      'getSessionId',
-      'setSessionId',
-      'getUserId',
-      'setUserId',
-      'setOptOut',
-      'setTransport',
-      'reset',
-    ],
+        'getDeviceId',
+        'setDeviceId',
+        'getSessionId',
+        'setSessionId',
+        'getUserId',
+        'setUserId',
+        'setOptOut',
+        'setTransport',
+        'reset',
+      ],
       g = [
         'init',
         'add',
@@ -118,7 +110,5 @@ function loader(e, t) {
   }
 }
 window, document;
-/* eslint-enable */
-// END-NO-SONAR-SCAN
 
-export { loader };
+export { loadNativeSdk };

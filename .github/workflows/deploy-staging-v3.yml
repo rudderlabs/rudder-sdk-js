@@ -1,0 +1,66 @@
+name: Deploy to STAGING v3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy-tag:
+    name: Deploy to STAGING v3
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix-release') || startsWith(github.ref, 'refs/heads/v3-release') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_STAGING_ACCOUNT_ID }}:role/${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'development'
+        run: |
+          npm run setup:ci
+
+      - name: Build assets
+        env:
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'development'
+        run: |
+          npm run build:browser --staging=true
+          npm run build:browser:modern --staging=true
+
+      - name: Sync files to S3 v1.1 staging folder
+        run: |
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/modern/rudder-analytics-staging.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/modern/rudder-analytics-staging.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/modern/js-integrations/ --recursive --cache-control max-age=3600
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/staging/latest*"
+
+      - name: Sync files to S3 v3 staging folder
+        run: |
+          aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/legacy/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/plugins/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/staging/latest/v3*"

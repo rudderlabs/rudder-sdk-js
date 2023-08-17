@@ -1,22 +1,22 @@
 /* eslint-disable class-methods-use-this */
-import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
+import sha256 from 'crypto-js/sha256';
 import logger from '../../utils/logUtil';
 import {
+  propertyMapping,
   searchPropertyMapping,
   productPropertyMapping,
-  propertyMapping,
   pinterestPropertySupport,
 } from './propertyMappingConfig';
 import {
+  getDefinedTraits,
+  getDataFromSource,
   flattenJsonPayload,
   isDefinedAndNotNull,
-  getDataFromSource,
-  getDefinedTraits,
 } from '../../utils/utils';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getDestinationEventName } from './utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 export default class PinterestTag {
   constructor(config, analytics, destinationInfo) {
@@ -39,24 +39,12 @@ export default class PinterestTag {
   }
 
   loadScript() {
-    !(function (e) {
-      if (!window.pintrk) {
-        window.pintrk = function () {
-          window.pintrk.queue.push(Array.prototype.slice.call(arguments));
-        };
-        const n = window.pintrk;
-        (n.queue = []), (n.version = '3.0');
-        const t = document.createElement('script');
-        (t.async = !0), (t.src = e), t.setAttribute('data-loader', LOAD_ORIGIN);
-        const r = document.getElementsByTagName('script')[0];
-        r.parentNode.insertBefore(t, r);
-      }
-    })('https://s.pinimg.com/ct/core.js');
+    loadNativeSdk();
   }
 
   handleEnhancedMatch() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email && this.enhancedMatch) {
       window.pintrk('load', this.tagId, {
         em: email,
@@ -212,10 +200,10 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
-    if (!rudderElement.message || !rudderElement.message.event) {
+    const { message } = rudderElement;
+    if (!message?.event) {
       return;
     }
-    const { message } = rudderElement;
     const { properties, event, messageId } = message;
     const destEventArray = getDestinationEventName(
       event,
@@ -244,7 +232,7 @@ export default class PinterestTag {
 
   identify() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email) {
       const ldpObject = this.generateLdpObject();
       window.pintrk('set', { em: email, ...ldpObject });
