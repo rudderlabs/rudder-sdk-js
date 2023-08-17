@@ -99,8 +99,8 @@ class EventRepository implements IEventRepository {
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
-        this.dataplaneEventsQueue?.start();
         (globalThis as typeof window).clearTimeout(timeoutId);
+        this.dataplaneEventsQueue?.start();
       }
     });
 
