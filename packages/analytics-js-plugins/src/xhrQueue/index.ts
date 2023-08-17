@@ -11,11 +11,7 @@ import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import {
-  getBatchDeliveryPayload,
-  getDeliveryPayload,
-  validateEventPayloadSize,
-} from '../utilities/queue';
+import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -24,7 +20,7 @@ import {
 } from './utilities';
 import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 
 const pluginName = 'XhrQueue';
@@ -108,7 +104,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
-          return getBatchDeliveryPayload(events, logger)?.length ?? 0;
+          return (getBatchDeliveryPayload(events, logger) as string)?.length;
         },
       );
 

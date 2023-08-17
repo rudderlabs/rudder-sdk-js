@@ -27,12 +27,8 @@ const QUEUE_UTILITIES = 'QueueUtilities';
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
   stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
 
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
-  const data = {
-    batch: events,
-  };
-  return stringifyWithoutCircular(data, true, undefined, logger);
-};
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
+  stringifyWithoutCircular({ batch: events }, true, undefined, logger);
 
 /**
  * Utility to validate final payload size before sending to server
