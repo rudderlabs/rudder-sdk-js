@@ -87,6 +87,11 @@ jobs:
           aws s3 cp public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/list_integration_sdks.html --cache-control max-age=3600
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
+      - name: Sync assets to S3
+        run: |
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
+
       - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
