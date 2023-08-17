@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.3...@rudderstack/analytics-js@3.0.0-beta.4) (2023-08-17)
+
+
+### Bug Fixes
+
+* **analytics-js:** fix SPA url change not reflecting in context page ([22c13bf](https://github.com/rudderlabs/rudder-sdk-js/commit/22c13bf7a3bdd632b7616995404548d7ea36d5a3))
+
+
+
+
+
 # [3.0.0-beta.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.2...@rudderstack/analytics-js@3.0.0-beta.3) (2023-08-10)
 
 
