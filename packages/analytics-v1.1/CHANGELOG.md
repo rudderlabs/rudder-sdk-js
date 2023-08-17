@@ -3,15 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.40.1](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.40.0...rudder-sdk-js@2.40.1) (2023-08-17)
-
-**Note:** Version bump only for package rudder-sdk-js
-
-
-
-
-
-
 # 2.40.0 (2023-08-04)
 
 
