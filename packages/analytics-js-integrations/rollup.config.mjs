@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from "path";
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -10,6 +11,7 @@ import filesize from 'rollup-plugin-filesize';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
@@ -67,6 +69,14 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         preventAssignment: true,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
+      }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          }
+        ]
       }),
       nodePolyfills(),
       resolve({
