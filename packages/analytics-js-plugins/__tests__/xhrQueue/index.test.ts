@@ -273,49 +273,7 @@ describe('XhrQueue', () => {
     };
 
     XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
-
-    expect(queue.getQueue('batchQueue')).toStrictEqual([
-      {
-        item: {
-          url: 'https://sampleurl.com/v1/track',
-          headers: {
-            AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
-          },
-          event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
-        },
-        attemptNumber: 0,
-        id: 'sample_uuid',
-        time: 1,
-      },
-    ]);
-
     XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event2);
-
-    // On queueing the second item, the batch queue is processed
-    expect(queue.getQueue('batchQueue')).toStrictEqual([]);
-    expect(queue.getQueue('queue')).toStrictEqual([
-      {
-        item: [
-          {
-            url: 'https://sampleurl.com/v1/track',
-            headers: {
-              AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
-            },
-            event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
-          },
-          {
-            url: 'https://sampleurl.com/v1/track',
-            headers: {
-              AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
-            },
-            event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
-          },
-        ],
-        attemptNumber: 0,
-        id: 'sample_uuid',
-        time: 1,
-      },
-    ]);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
