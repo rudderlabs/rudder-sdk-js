@@ -351,11 +351,11 @@ describe('Event Manager - Utilities', () => {
           page: {
             path: '/test',
             referrer: 'https://www.google.com/test',
-            referring_domain: 'https://sample.com',
-            search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-            title: 'title',
-            url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-            tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+            referring_domain: '',
+            search: '',
+            title: '',
+            url: 'http://www.test-host.com/',
+            tab_url: 'http://www.test-host.com/',
             initial_referrer: 'https://test.com/page',
             initial_referring_domain: 'https://test.com',
           },
@@ -977,7 +977,7 @@ describe('Event Manager - Utilities', () => {
   });
 
   describe('getEnrichedEvent', () => {
-    let pageProperties: ApiObject = {
+    const pageProperties: ApiObject = {
       path: '/test',
       referrer: 'https://www.google.com/test',
       search: '?test=true',

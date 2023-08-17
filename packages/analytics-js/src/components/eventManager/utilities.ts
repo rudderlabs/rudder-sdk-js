@@ -30,6 +30,7 @@ import {
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
 } from './constants';
+import { getPageProperties } from '../utilities/page';
 
 /**
  * To get the page properties for context object
@@ -37,6 +38,9 @@ import {
  * @returns page properties object for context
  */
 const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
+  // Need to get updated page details on each event as an event to notify on SPA url changes does not seem to exist
+  getPageProperties();
+
   const ctxPageProps: ApiObject = {};
   Object.keys(state.page).forEach((key: string) => {
     ctxPageProps[key] = pageProps?.[key] || state.page[key].value;

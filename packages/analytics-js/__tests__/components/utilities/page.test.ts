@@ -4,7 +4,10 @@ import {
   getUserAgent,
   getDefaultPageProperties,
   getReferrer,
+  getPageProperties,
 } from '@rudderstack/analytics-js/components/utilities/page';
+import { batch } from '@preact/signals-core';
+import { state } from '@rudderstack/analytics-js/state';
 
 describe('utilities - page', () => {
   let windowSpy: any;
@@ -215,6 +218,34 @@ describe('utilities - page', () => {
         referrer: 'https://google.com/',
         referring_domain: 'google.com',
         tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+      });
+    });
+
+    describe('getPageProperties', () => {
+      it('should get page details and update state values', () => {
+        documentSpy.mockRestore();
+
+        batch(() => {
+          state.page.referrer.value = 'https://sample.com/Page';
+          state.page.referring_domain.value = 'https://sample.com';
+          state.page.search.value = '?a=1&b=2&utm_campaign=test&utm_source=test';
+          state.page.title.value = 'title';
+          state.page.url.value =
+            'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
+          state.page.path.value = '/Page';
+          state.page.tab_url.value =
+            'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
+        });
+
+        getPageProperties();
+
+        expect(state.page.referrer.value).toBe('$direct');
+        expect(state.page.referring_domain.value).toBe('');
+        expect(state.page.search.value).toBe('');
+        expect(state.page.title.value).toBe('');
+        expect(state.page.url.value).toBe('http://www.test-host.com/');
+        expect(state.page.path.value).toBe('/');
+        expect(state.page.tab_url.value).toBe('http://www.test-host.com/');
       });
     });
   });
