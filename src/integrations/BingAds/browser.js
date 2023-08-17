@@ -1,5 +1,5 @@
 import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { extractCustomFields } from '../../utils/utils';
@@ -19,6 +19,11 @@ class BingAds {
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
     this.uniqueId = `bing${this.tagID}`;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getRequiredConfigs() {
+    return requiredConfigsList;
   }
 
   init = () => {

@@ -1,7 +1,7 @@
 import isEqual from 'lodash.isequal';
 import * as R from 'ramda';
 import Logger from '../../utils/logger';
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 import Storage from '../../utils/storage/index';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
@@ -44,6 +44,11 @@ class Braze {
     } = destinationInfo ?? {});
 
     logger.debug('Config ', config);
+  }
+  
+  // eslint-disable-next-line class-methods-use-this
+  getRequiredConfigs() {
+    return requiredConfigsList;
   }
 
   init() {

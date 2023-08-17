@@ -197,6 +197,9 @@ class Analytics {
   }
 
   validateConfig(requiredConfigsList, configsFromDashboard, intg) {
+    if(!requiredConfigsList){
+      throw Error(`${intg}: required configs not present`);
+    }
     requiredConfigsList.forEach(config => {
       const configVal = configsFromDashboard[config];
       if (!isDefinedAndNotNull(configVal) || (typeof configVal === "string" && configVal.length === 0))

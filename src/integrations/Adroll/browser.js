@@ -5,10 +5,9 @@ import logger from '../../utils/logUtil';
 
 import { getHashFromArray } from '../../utils/commonUtils';
 
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 import ScriptLoader from '../../utils/ScriptLoader';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
-import { requiredConfigsList } from './constants';
 
 class Adroll {
   constructor(config, analytics, destinationInfo) {
@@ -31,7 +30,7 @@ class Adroll {
   }
 
   getRequiredConfigs() {
-    return this.getRequiredConfigs;
+    return requiredConfigsList;
   }
 
   init() {

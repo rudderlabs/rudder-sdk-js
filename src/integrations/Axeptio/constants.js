@@ -4,5 +4,6 @@ const CNameMapping = {
   Axeptio: NAME,
   axeptio: NAME,
 };
+const requiredConfigsList = ['clientId'];
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, requiredConfigsList };

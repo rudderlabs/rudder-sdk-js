@@ -5,5 +5,7 @@ const CNameMapping = {
   'App Cues': NAME,
   appcues: NAME,
 };
+const requiredConfigsList = ['accountId'];
 
-export { NAME, CNameMapping };
+
+export { NAME, CNameMapping, requiredConfigsList };

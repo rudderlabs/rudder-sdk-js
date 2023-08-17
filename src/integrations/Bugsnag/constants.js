@@ -4,5 +4,6 @@ const CNameMapping = {
   bugsnag: NAME,
   Bugsnag: NAME,
 };
+const requiredConfigsList = ['apiKey', 'releaseStage'];
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, requiredConfigsList };

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 
 class Appcues {
   constructor(config, analytics, destinationInfo) {
@@ -22,6 +22,10 @@ class Appcues {
   init() {
     logger.debug('===in init Appcues===');
     ScriptLoader('appcues-id', `https://fast.appcues.com/${this.accountId}.js`);
+  }
+
+  getRequiredConfigs() {
+    return requiredConfigsList;
   }
 
   isLoaded() {

@@ -8,5 +8,6 @@ const CNameMapping = {
   'bing Ads': NAME,
   'bing ads': NAME,
 };
+const requiredConfigsList = ['tagID'];
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, requiredConfigsList };

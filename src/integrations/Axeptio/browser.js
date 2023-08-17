@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 import Logger from '../../utils/logger';
 import makeACall from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -27,6 +27,11 @@ class Axeptio {
   init() {
     logger.debug('===In init Axeptio===');
     loadNativeSdk(this.clientId);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getRequiredConfigs() {
+    return requiredConfigsList;
   }
 
   isLoaded() {

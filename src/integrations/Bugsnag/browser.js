@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
-import { NAME } from './constants';
+import { NAME, requiredConfigsList } from './constants';
 
 class Bugsnag {
   constructor(config, analytics, destinationInfo) {
@@ -18,6 +18,10 @@ class Bugsnag {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  getRequiredConfigs() {
+    return requiredConfigsList;
   }
 
   init() {
