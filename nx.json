@@ -9,7 +9,8 @@
           "build:npm",
           "build:npm:modern",
           "test",
-          "check:size:build"
+          "check:size:build",
+          "check:size"
         ]
       }
     }

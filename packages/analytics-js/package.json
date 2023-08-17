@@ -75,7 +75,7 @@
     "release": "npm publish"
   },
   "engines": {
-    "node": ">=v18"
+    "node": ">=v16"
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
