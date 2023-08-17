@@ -26,7 +26,6 @@ import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
-import { EVENT_PAYLOAD_PREPARATION_ERROR } from '../utilities/logMessages';
 
 const pluginName = 'XhrQueue';
 
@@ -77,48 +76,39 @@ const XhrQueue = (): ExtensionPlugin => ({
             logger,
           );
 
-          if (data) {
-            httpClient.getAsyncData({
-              url,
-              options: {
-                method: 'POST',
-                headers,
-                data,
-                sendRawData: true,
-              },
-              isRawResponse: true,
-              timeout: REQUEST_TIMEOUT_MS,
-              callback: (result, details) => {
-                // null means item will not be requeued
-                const queueErrResp = isErrRetryable(details) ? details : null;
+          httpClient.getAsyncData({
+            url,
+            options: {
+              method: 'POST',
+              headers,
+              data: data as string,
+              sendRawData: true,
+            },
+            isRawResponse: true,
+            timeout: REQUEST_TIMEOUT_MS,
+            callback: (result, details) => {
+              // null means item will not be requeued
+              const queueErrResp = isErrRetryable(details) ? details : null;
 
-                logErrorOnFailure(
-                  details,
-                  url,
-                  willBeRetried,
-                  attemptNumber,
-                  maxRetryAttempts,
-                  logger,
-                );
+              logErrorOnFailure(
+                details,
+                url,
+                willBeRetried,
+                attemptNumber,
+                maxRetryAttempts,
+                logger,
+              );
 
-                done(queueErrResp, result);
-              },
-            });
-          } else {
-            logger?.error(EVENT_PAYLOAD_PREPARATION_ERROR(XHR_QUEUE_PLUGIN));
-            // Mark the item as done so that it can be removed from the queue
-            done(null);
-          }
+              done(queueErrResp, result);
+            },
+          });
         },
         storeManager,
         LOCAL_STORAGE,
         logger,
-        (itemData: XHRQueueItemData | XHRQueueItemData[]): number => {
-          if (Array.isArray(itemData)) {
-            const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
-            return getBatchDeliveryPayload(events, logger)?.length ?? 0;
-          }
-          return getDeliveryPayload(itemData.event, logger)?.length ?? 0;
+        (itemData: XHRQueueItemData[]): number => {
+          const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          return getBatchDeliveryPayload(events, logger)?.length ?? 0;
         },
       );
 

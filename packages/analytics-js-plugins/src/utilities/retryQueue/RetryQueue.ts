@@ -14,7 +14,7 @@ import {
   IQueue,
   QueueItem,
   QueueItemData,
-  QueueItemSizeCalculatorCallback,
+  QueueBatchItemsSizeCalculatorCallback,
   QueueProcessCallback,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
@@ -70,7 +70,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   logger?: ILogger;
   enableBatching: boolean;
   batch: BatchOptions;
-  queueItemSizeCalculatorCb?: QueueItemSizeCalculatorCallback<QueueItemData>;
+  queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
     name: string,
@@ -79,7 +79,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     storeManager: IStoreManager,
     storageType: StorageType = LOCAL_STORAGE,
     logger?: ILogger,
-    queueItemSizeCalculatorCb?: QueueItemSizeCalculatorCallback,
+    queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback,
   ) {
     this.storeManager = storeManager;
     this.name = name;
@@ -93,7 +93,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       maxItems: DEFAULT_MAX_BATCH_ITEMS,
     };
 
-    this.queueItemSizeCalculatorCb = queueItemSizeCalculatorCb;
+    this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
     this.configureBatchingOptions(options);
 
     this.logger = logger;
@@ -303,12 +303,9 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     let sizeCriteriaMet = false;
     if (isDefined(this.batch.maxSize)) {
-      const curBatchSize = batchItems.reduce(
-        (sizeSum: number, curQueueItem: QueueItem) =>
-          sizeSum +
-          (this.queueItemSizeCalculatorCb as QueueItemSizeCalculatorCallback)(curQueueItem.item),
-        0,
-      );
+      const curBatchSize = (
+        this.queueBatchItemsSizeCalculatorCb as QueueBatchItemsSizeCalculatorCallback
+      )(batchItems.map(queueItem => queueItem.item));
 
       sizeCriteriaMet = curBatchSize >= (this.batch.maxSize as number);
     }

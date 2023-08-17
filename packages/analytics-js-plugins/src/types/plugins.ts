@@ -24,7 +24,7 @@ export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
 
-export type QueueItem<T = Record<string, any> | string | number> = {
+export type QueueItem<T = QueueItemData> = {
   item: T;
   attemptNumber: number;
   time: number;
@@ -55,7 +55,7 @@ export type QueueProcessCallback<T = any> = (
   willBeRetried?: boolean,
 ) => void;
 
-export type QueueItemSizeCalculatorCallback<T = any> = (item: T) => number;
+export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;
 
 /**
  * @callback doneCallback

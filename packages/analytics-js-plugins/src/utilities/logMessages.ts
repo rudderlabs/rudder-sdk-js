@@ -56,9 +56,6 @@ const STORAGE_MIGRATION_ERROR = (key: string): string =>
 const RETRY_QUEUE_PROCESS_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Process function threw an error.`;
 
-const EVENT_PAYLOAD_PREPARATION_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to prepare the event payload for delivery. The event will be dropped.`;
-
 const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, url: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to ${url}.`;
 
@@ -106,7 +103,6 @@ export {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
   RETRY_QUEUE_PROCESS_ERROR,
-  EVENT_PAYLOAD_PREPARATION_ERROR,
   EVENT_DELIVERY_FAILURE_ERROR_PREFIX,
   BUGSNAG_API_KEY_VALIDATION_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,

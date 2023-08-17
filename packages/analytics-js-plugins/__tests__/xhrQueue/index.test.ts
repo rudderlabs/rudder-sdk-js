@@ -10,10 +10,19 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
+import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
+}));
+
+jest.mock('@rudderstack/analytics-js-common/index', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/index'),
+  generateUUID: jest.fn(() => 'sample_uuid'),
 }));
 
 describe('XhrQueue', () => {
@@ -25,19 +34,11 @@ describe('XhrQueue', () => {
 
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
+  const mockLogger = {
+    error: jest.fn(),
+  } as unknown as ILogger;
+
   beforeAll(() => {
-    state.lifecycle.writeKey.value = 'sampleWriteKey';
-  });
-
-  const httpClient = new HttpClient();
-
-  it('should add itself to the loaded plugins list on initialized', () => {
-    XhrQueue().initialize(state);
-
-    expect(state.plugins.loadedPlugins.value).toContain('XhrQueue');
-  });
-
-  it('should return a queue object on init', () => {
     batch(() => {
       state.lifecycle.writeKey.value = 'sampleWriteKey';
       state.lifecycle.activeDataplaneUrl.value = 'https://sampleurl.com';
@@ -49,8 +50,24 @@ describe('XhrQueue', () => {
         maxItems: 100,
       };
     });
+  });
 
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
+  const httpClient = new HttpClient();
+
+  it('should add itself to the loaded plugins list on initialized', () => {
+    XhrQueue().initialize(state);
+
+    expect(state.plugins.loadedPlugins.value).toContain('XhrQueue');
+  });
+
+  it('should return a queue object on init', () => {
+    const queue = XhrQueue().dataplaneEventsQueue?.init(
+      state,
+      httpClient,
+      defaultStoreManager,
+      defaultErrorHandler,
+      defaultLogger,
+    );
 
     expect(queue).toBeDefined();
     expect(queue.name).toBe('rudder_sampleWriteKey');
@@ -87,7 +104,13 @@ describe('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
+    const mockHttpClient = {
+      getAsyncData: ({ callback }) => {
+        callback(true);
+      },
+      setAuthHeader: jest.fn(),
+    };
+    const queue = XhrQueue().dataplaneEventsQueue?.init(state, mockHttpClient, defaultStoreManager);
 
     const event: RudderEvent = {
       type: 'track',
@@ -123,6 +146,217 @@ describe('XhrQueue', () => {
       true,
     );
 
+    // Item is successfully processed and removed from queue
+    expect(queue.getQueue('queue').length).toBe(0);
+
     queueProcessCbSpy.mockRestore();
+  });
+
+  it('should log error on retryable failure and requeue the item', () => {
+    const mockHttpClient = {
+      getAsyncData: ({ callback }) => {
+        callback(false, { error: 'some error', xhr: { status: 429 } });
+      },
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+
+    const queue = XhrQueue().dataplaneEventsQueue?.init(
+      state,
+      mockHttpClient,
+      defaultStoreManager,
+      undefined,
+      mockLogger,
+    );
+
+    const schedule = new Schedule();
+    // Override the timestamp generation function to return a fixed value
+    schedule.now = () => 1;
+
+    queue.schedule = schedule;
+
+    const event: RudderEvent = {
+      type: 'track',
+      event: 'test',
+      userId: 'test',
+      properties: {
+        test: 'test',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    };
+
+    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+
+    // Explicitly start the queue to process the item
+    // In actual implementation, this is done based on the state signals
+    queue.start();
+
+    expect(mockLogger.error).toBeCalledWith(
+      'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
+    );
+
+    // The element is requeued
+    expect(queue.getQueue('queue')).toStrictEqual([
+      {
+        item: {
+          url: 'https://sampleurl.com/v1/track',
+          headers: {
+            AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          },
+          event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
+        },
+        attemptNumber: 1,
+        id: 'sample_uuid',
+        time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
+      },
+    ]);
+  });
+
+  it('should queue and process events when running in batch mode', () => {
+    batch(() => {
+      state.loadOptions.value.queueOptions = {
+        minRetryDelay: 1000,
+        maxRetryDelay: 360000,
+        backoffFactor: 2,
+        maxAttempts: 10,
+        maxItems: 100,
+        batch: {
+          maxSize: 1024,
+          maxItems: 2,
+        },
+      };
+    });
+
+    const mockHttpClient = {
+      getAsyncData: jest.fn(),
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+
+    const queue = XhrQueue().dataplaneEventsQueue?.init(
+      state,
+      mockHttpClient,
+      defaultStoreManager,
+      undefined,
+      mockLogger,
+    );
+    const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
+
+    const schedule = new Schedule();
+    // Override the timestamp generation function to return a fixed value
+    schedule.now = () => 1;
+
+    queue.schedule = schedule;
+
+    const event: RudderEvent = {
+      type: 'track',
+      event: 'test',
+      userId: 'test',
+      properties: {
+        test: 'test',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    };
+
+    const event2: RudderEvent = {
+      type: 'track',
+      event: 'test2',
+      userId: 'test2',
+      properties: {
+        test2: 'test2',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test2',
+      originalTimestamp: 'test2',
+    };
+
+    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+
+    expect(queue.getQueue('batchQueue')).toStrictEqual([
+      {
+        item: {
+          url: 'https://sampleurl.com/v1/track',
+          headers: {
+            AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          },
+          event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
+        },
+        attemptNumber: 0,
+        id: 'sample_uuid',
+        time: 1,
+      },
+    ]);
+
+    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event2);
+
+    // On queueing the second item, the batch queue is processed
+    expect(queue.getQueue('batchQueue')).toStrictEqual([]);
+    expect(queue.getQueue('queue')).toStrictEqual([
+      {
+        item: [
+          {
+            url: 'https://sampleurl.com/v1/track',
+            headers: {
+              AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            },
+            event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
+          },
+          {
+            url: 'https://sampleurl.com/v1/track',
+            headers: {
+              AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            },
+            event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
+          },
+        ],
+        attemptNumber: 0,
+        id: 'sample_uuid',
+        time: 1,
+      },
+    ]);
+
+    // Explicitly start the queue to process the item
+    // In actual implementation, this is done based on the state signals
+    queue.start();
+
+    expect(queueProcessCbSpy).toBeCalledWith(
+      [
+        {
+          url: 'https://sampleurl.com/v1/track',
+          headers: {
+            AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          },
+          event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
+        },
+        {
+          url: 'https://sampleurl.com/v1/track',
+          headers: {
+            AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          },
+          event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
+        },
+      ],
+      expect.any(Function),
+      0,
+      10,
+      true,
+    );
+
+    expect(mockHttpClient.getAsyncData).toBeCalledWith({
+      url: 'https://sampleurl.com/v1/batch',
+      options: {
+        method: 'POST',
+        headers: {
+          AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+        },
+        sendRawData: true,
+        data: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp","integrations":{"All":true}},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp","integrations":{"All":true}}]}',
+      },
+      isRawResponse: true,
+      timeout: 10000,
+      callback: expect.any(Function),
+    });
   });
 });
