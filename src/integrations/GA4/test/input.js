@@ -1,5 +1,43 @@
 const rudderanalytics = [];
 
+const url = 'https://www.website.com/product/path';
+const imageUrl = 'https://www.website.com/product/path.png';
+const imageUrl1 = 'https://www.website.com/product/path.jpg';
+
+const product = {
+  product_id: '123',
+  sku: 'F15',
+  category: 'Games',
+  name: 'Game',
+  brand: 'Gamepro',
+  variant: '111',
+  price: 13.49,
+  quantity: 11,
+  coupon: 'DISC21',
+  position: 1,
+};
+
+const products = [
+  {
+    product_id: '123',
+    sku: 'G-32',
+    name: 'Monopoly',
+    price: 14,
+    quantity: 1,
+    category: 'Games',
+    url,
+    image_url: imageUrl1,
+  },
+  {
+    product_id: '345',
+    sku: 'F-32',
+    name: 'UNO',
+    price: 3.45,
+    quantity: 2,
+    category: 'Games',
+  },
+];
+
 rudderanalytics.track('Products Searched', {
   query: 'HDMI cable',
 });
@@ -84,18 +122,9 @@ rudderanalytics.track('Promotion Clicked', {
 });
 
 rudderanalytics.track('Product Clicked', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  ...product,
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Viewed', {
@@ -110,38 +139,20 @@ rudderanalytics.track('Product Viewed', {
   coupon: 'DISC21',
   currency: 'USD',
   position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Added', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  ...product,
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Product Removed', {
-  product_id: '123',
-  sku: 'F15',
-  category: 'Games',
-  name: 'Game',
-  brand: 'Gamepro',
-  variant: '111',
-  price: 13.49,
-  quantity: 11,
-  coupon: 'DISC21',
-  position: 1,
-  url: 'https://www.website.com/product/path',
-  image_url: 'https://www.website.com/product/path.png',
+  ...product,
+  url,
+  image_url: imageUrl,
 });
 
 rudderanalytics.track('Cart Viewed', {
@@ -154,8 +165,8 @@ rudderanalytics.track('Cart Viewed', {
       price: 14.99,
       position: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',
@@ -178,26 +189,7 @@ rudderanalytics.track('Checkout Started', {
   discount: 1.5,
   coupon: 'ImagePro',
   currency: 'USD',
-  products: [
-    {
-      product_id: '123',
-      sku: 'G-32',
-      name: 'Monopoly',
-      price: 14,
-      quantity: 1,
-      category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
-    },
-    {
-      product_id: '345',
-      sku: 'F-32',
-      name: 'UNO',
-      price: 3.45,
-      quantity: 2,
-      category: 'Games',
-    },
-  ],
+  products,
 });
 
 rudderanalytics.track('Payment Info Entered', {
@@ -217,26 +209,7 @@ rudderanalytics.track('Order Completed', {
   discount: 1.5,
   coupon: 'ImagePro',
   currency: 'USD',
-  products: [
-    {
-      product_id: '123',
-      sku: 'G-32',
-      name: 'Monopoly',
-      price: 14,
-      quantity: 1,
-      category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
-    },
-    {
-      product_id: '345',
-      sku: 'F-32',
-      name: 'UNO',
-      price: 3.45,
-      quantity: 2,
-      category: 'Games',
-    },
-  ],
+  products,
 });
 
 rudderanalytics.track('Order Refunded', {
@@ -251,8 +224,8 @@ rudderanalytics.track('Order Refunded', {
       price: 17,
       quantity: 1,
       category: 'Games',
-      url: 'https://www.website.com/product/path',
-      image_url: 'https://www.website.com/product/path.jpg',
+      url,
+      image_url: imageUrl1,
     },
     {
       product_id: '345',

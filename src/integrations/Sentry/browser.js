@@ -1,8 +1,4 @@
-/* eslint-disable object-shorthand */
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable no-unused-expressions */
-
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { SentryScriptLoader, sentryInit } from './utils';
@@ -110,7 +106,7 @@ class Sentry {
 
     const payload = {
       id: userId,
-      email: email,
+      email,
       username: name,
       ip_address: ipAddress,
       ...traits,

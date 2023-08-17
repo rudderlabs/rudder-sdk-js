@@ -70,7 +70,7 @@ const prepareTrackEventData = (message) => {
   let eventData = {};
   if (isNotEmpty(properties)) {
     let id;
-    if (integrations && integrations[NAME]) {
+    if (integrations?.[NAME]) {
       const key = integrations[NAME]?.propertiesIdKey;
       if (key) {
         id = properties[key];
@@ -90,8 +90,8 @@ const refinePageProperties = (properties) => {
 };
 
 const preparePagePayload = (message) => {
-  const { properties } = message;
-  const { page } = message.context;
+  const { properties, context } = message;
+  const { page } = context;
 
   const title = properties?.title || page?.title;
   const url = properties?.url || page?.url;

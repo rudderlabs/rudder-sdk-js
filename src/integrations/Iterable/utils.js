@@ -1,4 +1,5 @@
 import { getDataFromSource } from '../../utils/utils';
+import { isDefinedAndNotNull } from '../../utils/commonUtils';
 
 const ITEMS_MAPPING = [
   { src: 'product_id', dest: 'id' },
@@ -22,10 +23,10 @@ function getMappingObject(properties, mappings) {
 }
 
 function formPurchaseEventPayload(message) {
-  let purchaseEventPayload = {};
-  const { products } = message.properties;
-  purchaseEventPayload.id = message.properties.order_id || message.properties.checkout_id;
-  purchaseEventPayload.total = message.properties.total;
+  const purchaseEventPayload = {};
+  const { products, order_id: orderId, checkout_id: checkoutId, total } = message.properties;
+  purchaseEventPayload.id = orderId || checkoutId;
+  purchaseEventPayload.total = total;
   purchaseEventPayload.items = [];
   const lineItems = [];
   if (products) {
@@ -34,15 +35,25 @@ function formPurchaseEventPayload(message) {
       lineItems.push(product);
     });
   } else {
+    const {
+      product_id: productId,
+      sku,
+      price,
+      quantity,
+      image_url: imageUrl,
+      url,
+      name,
+    } = message.properties;
     // if product related info is on properties root
-    let product = {};
-    product.id = message.properties.product_id;
-    product.sku = message.properties.sku;
-    product.name = message.properties.name;
-    product.price = message.properties.price;
-    product.quantity = message.properties.quantity;
-    product.imageUrl = message.properties.image_url;
-    product.url = message.properties.url;
+    const product = {
+      url,
+      sku,
+      name,
+      price,
+      quantity,
+      imageUrl,
+      id: productId,
+    };
     lineItems.push(product);
   }
   purchaseEventPayload.items = lineItems;
@@ -52,9 +63,49 @@ function formPurchaseEventPayload(message) {
 function existsInMapping(mappedEvents, event) {
   let mapped = false;
   mappedEvents.forEach((e) => {
-    if (e.eventName == event) mapped = true;
+    if (e.eventName.toLowerCase() === event.toLowerCase()) mapped = true;
   });
   return mapped;
 }
 
-export { formPurchaseEventPayload, existsInMapping };
+/**
+ * Returns jwt token
+ * @param {*} integrations
+ * @returns
+ */
+const extractJWT = (integrations) => {
+  if (integrations?.ITERABLE) {
+    const { jwt_token: jwtToken } = integrations.ITERABLE;
+    return isDefinedAndNotNull(jwtToken) ? jwtToken : undefined;
+  }
+  return undefined;
+};
+
+/**
+ * Returns inappmessages payload
+ * @param {*} config
+ * @returns
+ */
+const prepareInAppMessagesPayload = (config) => ({
+  count: 20,
+  animationDuration: Number(config.animationDuration) || 400,
+  displayInterval: Number(config.displayInterval) || 30000,
+  onOpenScreenReaderMessage: config.onOpenScreenReaderMessage,
+  onOpenNodeToTakeFocus: config.onOpenNodeToTakeFocus,
+  packageName: config.packageName,
+  rightOffset: config.rightOffset,
+  topOffset: config.topOffset,
+  bottomOffset: config.bottomOffset,
+  handleLinks: config.handleLinks,
+  closeButton: {
+    color: config.closeButtonColor || 'red',
+    size: config.closeButtonSize || '16px',
+    topOffset: config.closeButtonColorTopOffset || '4%',
+    sideOffset: config.closeButtonColorSideOffset || '4%',
+    iconPath: config.iconPath,
+    isRequiredToDismissMessage: config.isRequiredToDismissMessage,
+    position: config.closeButtonPosition || 'top-right',
+  },
+});
+
+export { formPurchaseEventPayload, existsInMapping, extractJWT, prepareInAppMessagesPayload };

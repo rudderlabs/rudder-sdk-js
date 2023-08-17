@@ -1,3 +1,1 @@
-import Rockerbox from './browser';
-
-export { Rockerbox };
+export { default as Rockerbox } from './browser';

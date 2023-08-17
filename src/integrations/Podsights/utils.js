@@ -1,6 +1,6 @@
+import { LINE_ITEMS_CONFIG } from './constants';
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
-import { LINE_ITEMS_CONFIG } from './constants';
 
 /**
  * This function is used to build payload with line_items, it will search from
@@ -23,13 +23,13 @@ const payloadBuilder = (properties, CONFIG_EVENT) => {
   // if products is an array of objects, then we'll build each line_items payload from products.
   const productList = properties?.products;
   if (productList && Array.isArray(productList)) {
-    for (const product of productList) {
+    productList.forEach((product) => {
       const productDetails = constructPayload(product, LINE_ITEMS_CONFIG);
       lineItems.push({
         ...lineItemsPayload,
         ...removeUndefinedAndNullValues(productDetails),
       });
-    }
+    });
   } else {
     lineItems.push(lineItemsPayload);
   }
@@ -47,15 +47,15 @@ const payloadBuilder = (properties, CONFIG_EVENT) => {
 const payloadBuilderInList = (properties, CONFIG_EVENT) => {
   const payloadList = [];
   const productList = properties?.products;
-  let productPayload = constructPayload(properties, CONFIG_EVENT);
+  const productPayload = constructPayload(properties, CONFIG_EVENT);
   if (productList && Array.isArray(productList)) {
-    for (const product of productList) {
+    productList.forEach((product) => {
       const productDetails = constructPayload(product, CONFIG_EVENT);
       payloadList.push({
         ...productPayload,
         ...removeUndefinedAndNullValues(productDetails),
       });
-    }
+    });
   } else {
     payloadList.push(productPayload);
   }
