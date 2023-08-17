@@ -1,3 +1,1 @@
-import MicrosoftClarity from './browser';
-
-export { MicrosoftClarity };
+export { default as MicrosoftClarity } from './browser';

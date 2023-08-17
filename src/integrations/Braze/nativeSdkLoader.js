@@ -1,7 +1,7 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString } from './constants';
 
-const load = () => {
+const loadNativeSdk = () => {
   // load braze
   +(function (a, p, P, b, y) {
     a.braze = {};
@@ -32,4 +32,4 @@ const load = () => {
   })(window, document, 'script');
 };
 
-export { load };
+export { loadNativeSdk };

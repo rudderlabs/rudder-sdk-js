@@ -1,6 +1,7 @@
 const createUser = (message, anonymousUsersSharedKey = undefined) => {
-  const user = {};
-  user.key = message.userId || message.anonymousId;
+  const user = {
+    key: message.userId || message.anonymousId,
+  };
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;

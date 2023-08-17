@@ -1,14 +1,14 @@
-/* eslint-disable no-lonely-if */
-/* eslint-disable consistent-return */
 import get from 'get-value';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import logger from '../../utils/logUtil';
 import {
-  isDefinedAndNotNull,
   isNotEmpty,
+  isDefinedAndNotNull,
   isDefinedNotNullNotEmpty,
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
+
+const matchIdKey = 'properties.matchId';
 
 /**
  * transform webapp dynamicForm custom floodlight variable
@@ -156,12 +156,30 @@ const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
     }
   }
 
-  const matchId = get(message, 'properties.matchId');
+  const matchId = get(message, matchIdKey);
   if (matchId) {
     customParams.match_id = matchId;
   }
 
   return customParams;
+};
+
+/**
+ * Generate a cryptographically secure random number between 0 and 9999999999999
+ * @returns
+ */
+const getRandomNumber = () => Math.random() * 10000000000000;
+
+/**
+ * Returns quantity parameter
+ * @param {*} message
+ * @returns
+ */
+const getQuantity = (message) => {
+  const qty = get(message, 'properties.quantity');
+  const products = get(message, 'properties.products');
+  const quantities = calculateQuantity(products);
+  return quantities || qty;
 };
 
 const buildGtagTrackPayload = (message, salesTag, countingMethod, integrationObj) => {
@@ -183,17 +201,9 @@ const buildGtagTrackPayload = (message, salesTag, countingMethod, integrationObj
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
     // possible values for counting method :- transactions, items_sold
-    if (countingMethod === 'items_sold') {
-      let qty = get(message, 'properties.quantity');
-      // sums quantity from products array or fallback to properties.quantity
-      const products = get(message, 'properties.products');
-      const quantities = calculateQuantity(products);
-      if (quantities) {
-        qty = quantities;
-      }
-      if (qty) {
-        eventSnippetPayload.quantity = parseFloat(qty);
-      }
+    const qty = getQuantity(message);
+    if (countingMethod === 'items_sold' && qty) {
+      eventSnippetPayload.quantity = parseFloat(qty);
     }
   } else {
     // counter tag
@@ -220,7 +230,7 @@ const buildGtagTrackPayload = (message, salesTag, countingMethod, integrationObj
   };
 
   const dcLat = get(message, 'context.device.adTrackingEnabled');
-  const matchId = get(message, 'properties.matchId');
+  const matchId = get(message, matchIdKey);
 
   if (isDefinedNotNullNotEmpty(dcLat)) {
     dcCustomParams.dc_lat = mapFlagValue('dc_lat', dcLat);
@@ -236,52 +246,67 @@ const buildGtagTrackPayload = (message, salesTag, countingMethod, integrationObj
   return eventSnippetPayload;
 };
 
+/**
+ * Returns customParams for sales tag
+ * @param {*} message
+ * @param {*} countingMethod
+ * @returns
+ */
+const buildCustomParamsForSalesTag = (message, countingMethod) => {
+  const customParams = {
+    ord: get(message, 'properties.orderId') || get(message, 'properties.order_id'),
+    cost: get(message, 'properties.revenue'),
+  };
+
+  // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Chow-the-ord-parameter-is-displayed-for-each-counter-type%2Csales-activity-tags
+  if (countingMethod === 'transactions') {
+    customParams.qty = 1;
+  } else {
+    const qty = getQuantity(message);
+    if (qty) {
+      customParams.qty = parseFloat(qty);
+    }
+  }
+
+  return customParams;
+};
+
+/**
+ * Returns customParams for counter tag
+ * @param {*} message
+ * @param {*} countingMethod
+ * @returns
+ */
+const buildCustomParamsForCounterTag = (message, countingMethod) => {
+  const customParams = {};
+
+  const randomNumber = getRandomNumber();
+  // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Ccounter-activity-tags%2Chow-the-ord-parameter-is-displayed-for-each-counter-type
+  switch (countingMethod) {
+    case 'standard':
+      customParams.ord = get(message, 'properties.ord') || randomNumber;
+      break;
+    case 'unique':
+      customParams.ord = 1;
+      customParams.num = get(message, 'properties.num') || randomNumber;
+      break;
+    case 'per_session':
+      customParams.ord = get(message, 'properties.sessionId');
+      break;
+    default:
+      break;
+  }
+
+  return customParams;
+};
+
 const buildIframeTrackPayload = (message, salesTag, countingMethod, integrationObj) => {
-  const randomNum = Math.random() * 10000000000000;
   // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Cother-parameters-for-iframe-and-image-tags:~:text=Other%20parameters%20for%20iFrame%20and%20image%20tags
   // we can pass custom params to DCM.
   // Total 9 params - ord, num, cost, qty, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
-  let customParams = {};
-
-  if (salesTag) {
-    // sales tag
-    customParams.ord = get(message, 'properties.orderId') || get(message, 'properties.order_id');
-    customParams.cost = get(message, 'properties.revenue');
-
-    // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Chow-the-ord-parameter-is-displayed-for-each-counter-type%2Csales-activity-tags
-    if (countingMethod === 'transactions') {
-      customParams.qty = 1;
-    } else {
-      // counting method is item_sold
-      let qty = get(message, 'properties.quantity');
-      // sums quantity from products array or fallback to properties.quantity
-      const products = get(message, 'properties.products');
-      const quantities = calculateQuantity(products);
-      if (quantities) {
-        qty = quantities;
-      }
-      if (qty) {
-        customParams.qty = parseFloat(qty);
-      }
-    }
-  } else {
-    // counter tag
-    // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Ccounter-activity-tags%2Chow-the-ord-parameter-is-displayed-for-each-counter-type
-    switch (countingMethod) {
-      case 'standard':
-        customParams.ord = get(message, 'properties.ord') || randomNum;
-        break;
-      case 'unique':
-        customParams.ord = 1;
-        customParams.num = get(message, 'properties.num') || randomNum;
-        break;
-      case 'per_session':
-        customParams.ord = get(message, 'properties.sessionId');
-        break;
-      default:
-        break;
-    }
-  }
+  let customParams = salesTag
+    ? buildCustomParamsForSalesTag(message, countingMethod)
+    : buildCustomParamsForCounterTag(message, countingMethod);
 
   customParams = {
     ...customParams,
@@ -289,7 +314,7 @@ const buildIframeTrackPayload = (message, salesTag, countingMethod, integrationO
   };
 
   const dcLat = get(message, 'context.device.adTrackingEnabled');
-  const matchId = get(message, 'properties.matchId');
+  const matchId = get(message, matchIdKey);
 
   if (isDefinedNotNullNotEmpty(dcLat)) {
     customParams.dc_lat = mapFlagValue('dc_lat', dcLat);
@@ -302,10 +327,10 @@ const buildIframeTrackPayload = (message, salesTag, countingMethod, integrationO
 };
 
 export {
-  transformCustomVariable,
-  flattenPayload,
   mapFlagValue,
+  flattenPayload,
+  isValidCountingMethod,
   buildGtagTrackPayload,
   buildIframeTrackPayload,
-  isValidCountingMethod,
+  transformCustomVariable,
 };

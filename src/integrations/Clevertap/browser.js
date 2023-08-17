@@ -99,7 +99,8 @@ class Clevertap {
     logger.debug('in clevertap identify');
 
     const { message } = rudderElement;
-    if (!(message.context && message.context.traits)) {
+    const { context } = message;
+    if (!context?.traits) {
       logger.error('user traits not present');
       return;
     }
@@ -182,7 +183,7 @@ class Clevertap {
     logger.debug('in clevertap page');
     const { name, properties } = rudderElement.message;
     let eventName;
-    if (properties && properties.category && name) {
+    if (properties?.category && name) {
       eventName = `WebPage Viewed ${name} ${properties.category}`;
     } else if (name) {
       eventName = `WebPage Viewed ${name}`;

@@ -1,10 +1,7 @@
-/* eslint-disable*/
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Woopra {
   constructor(config, analytics, destinationInfo) {
@@ -33,43 +30,7 @@ class Woopra {
 
   init() {
     logger.debug('===In init Woopra===');
-    !(function () {
-      var t,
-        o,
-        c,
-        e = window,
-        n = document,
-        r = arguments,
-        a = 'script',
-        i = [
-          'call',
-          'cancelAction',
-          'config',
-          'identify',
-          'push',
-          'track',
-          'trackClick',
-          'trackForm',
-          'update',
-          'visit',
-        ],
-        s = function () {
-          var t,
-            o = this,
-            c = function (t) {
-              o[t] = function () {
-                return o._e.push([t].concat(Array.prototype.slice.call(arguments, 0))), o;
-              };
-            };
-          for (o._e = [], t = 0; t < i.length; t++) c(i[t]);
-        };
-      for (e.__woo = e.__woo || {}, t = 0; t < r.length; t++)
-        e.__woo[r[t]] = e[r[t]] = e[r[t]] || new s();
-      ((o = n.createElement(a)).async = 1),
-        (o.src = 'https://static.woopra.com/w.js'),
-        o.setAttribute('data-loader', LOAD_ORIGIN),
-        (c = n.getElementsByTagName(a)[0]).parentNode.insertBefore(o, c);
-    })('Woopra');
+    loadNativeSdk();
     window.Woopra.config({
       domain: this.projectName,
       cookie_name: this.cookieName,
@@ -87,7 +48,7 @@ class Woopra {
 
   isLoaded() {
     logger.debug('===In isLoaded Woopra===');
-    return !!(window.Woopra && window.Woopra.loaded);
+    return !!window?.Woopra?.loaded;
   }
 
   isReady() {
