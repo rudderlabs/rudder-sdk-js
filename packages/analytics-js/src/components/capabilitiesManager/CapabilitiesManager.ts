@@ -10,7 +10,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { getDefaultPageProperties, getLanguage, getUserAgent } from '../utilities/page';
+import { getLanguage, getUserAgent } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -85,16 +85,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.context.userAgent.value = getUserAgent();
       state.context.locale.value = getLanguage();
       state.context.screen.value = getScreenDetails();
-      state.context.campaign.value = extractUTMParameters(globalThis.location.href);
 
       if (hasUAClientHints()) {
         getUserAgentClientHint((uach?: UADataValues) => {
           state.context['ua-ch'].value = uach;
         }, state.loadOptions.value.uaChTrackLevel);
       }
-
-      // Get page properties details
-      this.getPageProperties();
     });
 
     // Ad blocker detection
@@ -105,24 +101,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
       ) {
         detectAdBlockers(this.errorHandler, this.logger);
       }
-    });
-  }
-
-  /**
-   * Get page properties details to use in event context
-   */
-  // eslint-disable-next-line class-methods-use-this
-  getPageProperties() {
-    const pageProperties = getDefaultPageProperties();
-
-    batch(() => {
-      state.page.path.value = pageProperties.path;
-      state.page.referrer.value = pageProperties.referrer;
-      state.page.referring_domain.value = pageProperties.referring_domain;
-      state.page.search.value = pageProperties.search;
-      state.page.title.value = pageProperties.title;
-      state.page.url.value = pageProperties.url;
-      state.page.tab_url.value = pageProperties.tab_url;
     });
   }
 
@@ -164,10 +142,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
 
     globalThis.addEventListener('online', () => {
       state.capabilities.isOnline.value = true;
-    });
-
-    globalThis.addEventListener('popstate', () => {
-      this.getPageProperties();
     });
 
     // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value
