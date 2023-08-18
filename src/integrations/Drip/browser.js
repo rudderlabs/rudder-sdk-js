@@ -7,7 +7,7 @@ import { getDestinationExternalID } from './utils';
 
 import { extractCustomFields } from '../../utils/utils';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Drip {
   constructor(config, analytics, destinationInfo) {
@@ -41,19 +41,7 @@ class Drip {
   init() {
     logger.debug('===In init Drip===');
 
-    window._dcq = window._dcq || [];
-    window._dcs = window._dcs || {};
-    window._dcs.account = this.accountId;
-
-    (function () {
-      const dc = document.createElement('script');
-      dc.type = 'text/javascript';
-      dc.setAttribute('data-loader', LOAD_ORIGIN);
-      dc.async = true;
-      dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
-      const s = document.getElementsByTagName('script')[0];
-      s.parentNode.insertBefore(dc, s);
-    })();
+    loadNativeSdk(this.accountId);
   }
 
   isLoaded() {
@@ -70,7 +58,8 @@ class Drip {
     logger.debug('===In Drip identify===');
 
     const { message } = rudderElement;
-    if (!message.context || !message.context.traits) {
+    const { context } = message;
+    if (!context?.traits) {
       logger.error('user context or traits not present');
       return;
     }
@@ -142,7 +131,7 @@ class Drip {
     logger.debug('===In Drip track===');
 
     const { message } = rudderElement;
-    const { event } = rudderElement.message;
+    const { event } = message;
 
     if (!event) {
       logger.error('Event name not present');

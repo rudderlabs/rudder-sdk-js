@@ -1,8 +1,8 @@
 import logger from '../../utils/logUtil';
 
 import {
-  removeUndefinedAndNullAndEmptyValues,
   removeUndefinedAndNullValues,
+  removeUndefinedAndNullAndEmptyValues,
 } from '../../utils/commonUtils';
 
 // This function is used for sending the track event to yandex.metrica
@@ -42,6 +42,7 @@ const itemProperties = (properties) => {
  * @param {*} products
  * @returns
  */
+
 const populatePayload = (eventType, properties, products) => {
   const payload = {};
   products.push(itemProperties(properties));
@@ -54,20 +55,44 @@ const populatePayload = (eventType, properties, products) => {
 };
 
 /**
- * This function is used to prepare and return the final payload to be sent
- * @param {*} eventType - This is the e-commerce event type of yandex.metrica
- * @param {*} properties - Properties passed in the track call
- * @param {*} goalId - goalId taken from UI
- * @returns the responsePayload to be sent to yandex.metrica
+ * Returns actionField
+ * @param {*} properties
+ * @param {*} goalId
+ * @returns
  */
-const ecommEventPayload = (eventType, properties, goalId) => {
-  let responsePayload = {};
-  const { products } = properties;
-  const productsArray = [];
+const getActionField = (properties, goalId) => {
+  const { order_id: orderId, coupon, revenue } = properties;
+  const actionField = {
+    id: orderId,
+    coupon,
+    goal_id: goalId,
+    revenue,
+  };
 
-  // checking for products array if available each of the product inside is used
-  // populate the final payload else the product information inside the properties
-  // is used
+  // converting the goal_id and revenue in actionField to int and float type
+  actionField.goal_id = actionField.goal_id
+    ? parseInt(actionField.goal_id, 10)
+    : actionField.goal_id;
+  actionField.revenue = actionField.revenue ? parseFloat(actionField.revenue) : actionField.revenue;
+
+  return actionField;
+};
+
+/**
+ * Returns response payload
+ * @param {*} properties
+ * @param {*} eventType
+ * @returns
+ */
+const getResponsePayload = (properties, eventType) => {
+  let responsePayload = {};
+  const productsArray = [];
+  const { products, product_id: productId, name } = properties;
+
+  /**
+   * checking for products array if available each of the product inside is used
+   * populate the final payload else the product information inside the properties is used
+   */
   if (products && Array.isArray(products)) {
     products.forEach((element, index) => {
       if (!(element.product_id || element.name)) {
@@ -76,32 +101,37 @@ const ecommEventPayload = (eventType, properties, goalId) => {
         responsePayload = populatePayload(eventType, element, productsArray);
       }
     });
-  } else if (!(properties.product_id || properties.name)) {
+  } else if (!(productId || name)) {
     logger.error(`None of product_id or name is present for the product`);
   } else {
     responsePayload = populatePayload(eventType, properties, productsArray);
   }
+
+  return responsePayload;
+};
+
+/**
+ * This function is used to prepare and return the final payload to be sent
+ * @param {*} eventType - This is the e-commerce event type of yandex.metrica
+ * @param {*} properties - Properties passed in the track call
+ * @param {*} goalId - goalId taken from UI
+ * @returns the responsePayload to be sent to yandex.metrica
+ */
+const ecommEventPayload = (eventType, properties, goalId) => {
+  const { order_id: orderId } = properties;
+
+  const responsePayload = getResponsePayload(properties, eventType);
+
   // populating actionField object required for purchase event type
   if (eventType === 'purchase') {
-    if (!properties.order_id) {
+    if (!orderId) {
       logger.error('order_id is required for event type purchase');
     }
-    const actionField = {
-      id: properties.order_id,
-      coupon: properties.coupon,
-      goal_id: goalId,
-      revenue: properties.revenue,
-    };
-    // converting the goal_id and revenue in actionField to int and float type
-    actionField.goal_id = actionField.goal_id
-      ? parseInt(actionField.goal_id, 10)
-      : actionField.goal_id;
-    actionField.revenue = actionField.revenue
-      ? parseFloat(actionField.revenue)
-      : actionField.revenue;
-    responsePayload.ecommerce[eventType].actionField =
-      removeUndefinedAndNullAndEmptyValues(actionField);
+    responsePayload.ecommerce[eventType].actionField = removeUndefinedAndNullAndEmptyValues(
+      getActionField(properties, goalId),
+    );
   }
+
   return removeUndefinedAndNullValues(responsePayload);
 };
 

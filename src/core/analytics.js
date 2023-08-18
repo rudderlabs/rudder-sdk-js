@@ -1356,7 +1356,9 @@ class Analytics {
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
-        !this.isDatasetAvailable())
+        !this.isDatasetAvailable() ||
+        typeof TextDecoder !== 'function' ||
+        typeof Uint8Array !== 'function')
     );
   }
 
@@ -1465,7 +1467,9 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      isNonNativeSDK: true,
+    });
   }
 
   /**

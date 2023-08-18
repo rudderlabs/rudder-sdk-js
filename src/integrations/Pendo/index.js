@@ -1,3 +1,1 @@
-import { Pendo } from './browser';
-
-export { Pendo };
+export { Pendo } from './browser';

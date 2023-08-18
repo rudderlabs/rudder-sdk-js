@@ -1,11 +1,11 @@
 /* eslint-disable guard-for-in */
-import logger from '../../utils/logUtil';
 import {
   eventsConfig,
   itemsArrayParams,
   customParametersExclusion,
   rootLevelProductsSupportedEventsList,
 } from './config';
+import logger from '../../utils/logUtil';
 import { isBlank, flattenJson } from '../../utils/commonUtils';
 import { isEmptyObject, constructPayload, extractCustomFields } from '../../utils/utils';
 
@@ -30,24 +30,24 @@ const sendUserId = (integrations) => integrations?.GA4?.sendUserId ?? true;
  */
 const isReservedEventName = (event) => {
   const reservedEventNames = [
+    'click',
+    'error',
+    'scroll',
+    'form_start',
+    'form_submit',
+    'first_open',
+    'first_visit',
     'app_remove',
+    'video_start',
+    'session_start',
+    'view_complete',
+    'file_download',
+    'video_progress',
+    'user_engagement',
+    'in_app_purchase',
     'app_store_refund',
     'app_store_subscription_cancel',
     'app_store_subscription_renew',
-    'click',
-    'error',
-    'file_download',
-    'first_open',
-    'first_visit',
-    'form_start',
-    'form_submit',
-    'in_app_purchase',
-    'scroll',
-    'session_start',
-    'user_engagement',
-    'view_complete',
-    'video_progress',
-    'video_start',
   ];
 
   return reservedEventNames.includes(event);

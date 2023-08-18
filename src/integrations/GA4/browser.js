@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this */
-import logger from '../../utils/logUtil';
-import ScriptLoader from '../../utils/ScriptLoader';
-import { sendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
 import { NAME } from './constants';
 import { eventsConfig } from './config';
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../../utils/ScriptLoader';
 import { Cookie } from '../../utils/storage/cookie';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
+import { sendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -149,11 +149,12 @@ export default class GA4 {
   identify(rudderElement) {
     logger.debug('In Google Analytics 4 Identify');
 
-    const userTraits = this.analytics.getUserTraits();
-    window.gtag('set', 'user_properties', flattenJsonPayload(userTraits));
+    const { message } = rudderElement;
+    const { traits } = message.context;
+    window.gtag('set', 'user_properties', flattenJsonPayload(traits));
 
-    if (sendUserId(rudderElement.message.integrations) && rudderElement.message.userId) {
-      const { userId } = rudderElement.message;
+    if (sendUserId(message.integrations) && message?.userId) {
+      const { userId } = message;
       window.gtag('config', this.measurementId, { user_id: userId });
     }
   }
@@ -171,7 +172,6 @@ export default class GA4 {
     logger.debug('In Google Analytics 4 Track');
 
     const { message } = rudderElement;
-    const { integrations } = message;
 
     const eventName = formatAndValidateEventName(message?.event);
     if (!eventName) {
@@ -185,7 +185,7 @@ export default class GA4 {
     }
 
     const { params, event } = data;
-    const parameters = this.addSendToAndMeasurementIdToPayload(params, integrations);
+    const parameters = this.addSendToAndMeasurementIdToPayload(params, rudderElement);
 
     window.gtag('event', event, parameters);
   }
@@ -199,10 +199,10 @@ export default class GA4 {
 
     if (this.capturePageView === 'rs') {
       const { message } = rudderElement;
-      const { properties, integrations } = message;
+      const { properties } = message;
 
       let payload = constructPayload(message, eventsConfig.PAGE.mapping);
-      payload = this.addSendToAndMeasurementIdToPayload(payload, integrations);
+      payload = this.addSendToAndMeasurementIdToPayload(payload, rudderElement);
 
       if (this.extendPageViewParams) {
         window.gtag('event', 'page_view', {
@@ -227,9 +227,9 @@ export default class GA4 {
 
     logger.debug('In Google Analytics 4 Group');
 
-    const { groupId, traits, integrations } = rudderElement.message;
+    const { groupId, traits } = rudderElement.message;
     let payload = traits;
-    payload = this.addSendToAndMeasurementIdToPayload(payload, integrations);
+    payload = this.addSendToAndMeasurementIdToPayload(payload, rudderElement);
 
     const eventData = {
       group_id: groupId,
@@ -239,17 +239,13 @@ export default class GA4 {
     window.gtag('event', 'join_group', eventData);
   }
 
-  /**
-   * Adds send_to and user_id with payload
-   * @param {*} params
-   * @param {*} integrations
-   * @returns
-   */
-  addSendToAndMeasurementIdToPayload(params, integrations) {
+  addSendToAndMeasurementIdToPayload(params, rudderElement) {
+    const message = rudderElement;
+    const { integrations, userId } = message;
     const parameters = params;
     parameters.send_to = this.measurementId;
-    if (sendUserId(integrations) && this.analytics.getUserId()) {
-      parameters.user_id = this.analytics.getUserId();
+    if (sendUserId(integrations) && userId) {
+      parameters.user_id = userId;
     }
     return parameters;
   }

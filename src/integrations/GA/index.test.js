@@ -13,13 +13,17 @@ const destinationInfo = {
   destinationId: 'sample-destination-id',
 };
 
+const trackingId = 'UA-143161493-8';
+const eventName = 'test track';
+const label = 'test label';
+
 GA.prototype.loadScript = jest.fn();
 
 describe('GA init tests', () => {
   let googleAnalytics;
   beforeEach(() => {
     googleAnalytics = new GA(
-      { trackingID: 'UA-143161493-8' },
+      { trackingID: trackingId },
       { loadIntegration: true },
       destinationInfo,
     );
@@ -38,7 +42,7 @@ describe('GA init tests', () => {
     expect(typeof window.ga.l).toBe('number');
     // expect(window.ga.q[0]).toEqual();
     expect(window.ga.q[0][0]).toEqual('create');
-    expect(window.ga.q[0][1]).toEqual('UA-143161493-8');
+    expect(window.ga.q[0][1]).toEqual(trackingId);
     expect(window.ga.q[0][2]).toEqual({
       cookieDomain: 'auto',
       siteSpeedSampleRate: 1,
@@ -51,11 +55,10 @@ describe('GA init tests', () => {
   });
 
   describe('GA page', () => {
-    let googleAnalytics;
     beforeEach(() => {
       googleAnalytics = new GA(
         {
-          trackingID: 'UA-143161493-8',
+          trackingID: trackingId,
           dimensions: [
             {
               from: 'testDimension',
@@ -111,11 +114,10 @@ describe('GA init tests', () => {
   });
 
   describe('GA simple non ecomm event', () => {
-    let googleAnalytics;
     beforeEach(() => {
       googleAnalytics = new GA(
         {
-          trackingID: 'UA-143161493-8',
+          trackingID: trackingId,
           dimensions: [],
           metrics: [],
           contentGroupings: [],
@@ -131,10 +133,10 @@ describe('GA init tests', () => {
       googleAnalytics.track({
         message: {
           context: {},
-          event: 'test track',
+          event: eventName,
           properties: {
             value: 20,
-            label: 'test label',
+            label,
           },
         },
       });
@@ -145,8 +147,8 @@ describe('GA init tests', () => {
 
       expect(window.ga.mock.calls[0][2]).toEqual({
         eventCategory: 'All',
-        eventAction: 'test track',
-        eventLabel: 'test label',
+        eventAction: eventName,
+        eventLabel: label,
         eventValue: 20,
         nonInteraction: false,
       });
@@ -156,11 +158,11 @@ describe('GA init tests', () => {
       googleAnalytics.track({
         message: {
           context: {},
-          event: 'test track',
+          event: eventName,
           properties: {
             category: 'test cat',
             value: 20,
-            label: 'test label',
+            label,
             nonInteraction: 1,
           },
         },
@@ -172,8 +174,8 @@ describe('GA init tests', () => {
 
       expect(window.ga.mock.calls[0][2]).toEqual({
         eventCategory: 'test cat',
-        eventAction: 'test track',
-        eventLabel: 'test label',
+        eventAction: eventName,
+        eventLabel: label,
         eventValue: 20,
         nonInteraction: true,
       });
