@@ -37,7 +37,6 @@ describe('RudderEventFactory', () => {
 
       state.context['ua-ch'].value = { mobile: true } as UADataValues;
       state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
-      state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
       state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
       state.context.locale.value = 'en-US';
       state.context.userAgent.value = 'test';
@@ -76,10 +75,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -90,8 +86,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',
@@ -164,10 +163,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -178,8 +174,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',
@@ -239,10 +238,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -253,8 +249,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',
@@ -324,10 +323,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -338,8 +334,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',
@@ -395,10 +394,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -409,8 +405,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',
@@ -476,10 +475,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -490,8 +486,11 @@ describe('RudderEventFactory', () => {
           version: '1.0',
         },
         screen: {
-          height: 100,
-          width: 100,
+          height: 0,
+          width: 0,
+          density: 1,
+          innerHeight: 1024,
+          innerWidth: 1680,
         },
         traits: {
           test: 'test',

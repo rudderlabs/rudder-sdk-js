@@ -46,7 +46,6 @@ export type ContextState = {
   locale: Signal<Nullable<string>>;
   screen: Signal<ScreenInfo>;
   'ua-ch': Signal<UADataValues | undefined>;
-  campaign: Signal<UTMParameters>;
 };
 
 export type EventBufferState = {

@@ -29,7 +29,6 @@ const contextState: ContextState = {
     innerHeight: 0,
   }),
   'ua-ch': signal(undefined),
-  campaign: signal({}),
 };
 
 export { contextState };

@@ -26,7 +26,7 @@
     "build:package": "lerna run build:package",
     "package": "lerna run package",
     "build:integrations": "cd packages/analytics-js-integrations && npm run build:modern && npm run build",
-    "test": "lerna run --concurrency 1 test",
+    "test": "lerna run test",
     "test:ci": "lerna run --concurrency 1 test:ci",
     "check:lint": "lerna run check:lint",
     "check:lint:dev": "lerna run check:lint:dev",

@@ -85,7 +85,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.context.userAgent.value = getUserAgent();
       state.context.locale.value = getLanguage();
       state.context.screen.value = getScreenDetails();
-      state.context.campaign.value = extractUTMParameters(globalThis.location.href);
 
       if (hasUAClientHints()) {
         getUserAgentClientHint((uach?: UADataValues) => {

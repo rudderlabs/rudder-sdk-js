@@ -5,8 +5,6 @@ import {
   getDefaultPageProperties,
   getReferrer,
 } from '@rudderstack/analytics-js/components/utilities/page';
-import { batch } from '@preact/signals-core';
-import { state } from '@rudderstack/analytics-js/state';
 
 describe('utilities - page', () => {
   let windowSpy: any;

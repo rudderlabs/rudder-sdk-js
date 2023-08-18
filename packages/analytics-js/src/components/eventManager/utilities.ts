@@ -31,6 +31,8 @@ import {
   TOP_LEVEL_ELEMENTS,
 } from './constants';
 import { getDefaultPageProperties } from '../utilities/page';
+import { getScreenDetails } from '../capabilitiesManager/detection/screen';
+import { extractUTMParameters } from '../utilities/url';
 
 /**
  * To get the page properties for context object
@@ -255,8 +257,9 @@ const getEnrichedEvent = (
       userAgent: state.context.userAgent.value,
       os: state.context.os.value,
       locale: state.context.locale.value,
-      screen: state.context.screen.value,
-      campaign: clone(state.context.campaign.value),
+      // let's regenerate the screen details until we implement the window resize event
+      screen: getScreenDetails(),
+      campaign: extractUTMParameters(globalThis.location.href),
       page: getContextPageProperties(pageProps),
     },
     originalTimestamp: getCurrentTimeFormatted(),
