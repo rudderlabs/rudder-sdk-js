@@ -1,4 +1,3 @@
-/* eslint-disable guard-for-in */
 import {
   eventsConfig,
   itemsArrayParams,

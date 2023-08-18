@@ -1,3 +1,4 @@
+/* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
 import { NAME } from './constants';
 import { eventsConfig } from './config';
@@ -36,7 +37,6 @@ export default class GA4 {
     window.gtag =
       window.gtag ||
       function gt() {
-        // eslint-disable-next-line prefer-rest-params
         window.dataLayer.push(arguments);
       };
     window.gtag('js', new Date());
