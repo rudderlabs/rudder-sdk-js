@@ -10,7 +10,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { getLanguage, getPageProperties, getUserAgent } from '../utilities/page';
+import { getLanguage, getUserAgent } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -92,9 +92,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
           state.context['ua-ch'].value = uach;
         }, state.loadOptions.value.uaChTrackLevel);
       }
-
-      // Get page properties details
-      getPageProperties();
     });
 
     // Ad blocker detection
@@ -146,10 +143,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
 
     globalThis.addEventListener('online', () => {
       state.capabilities.isOnline.value = true;
-    });
-
-    globalThis.addEventListener('popstate', () => {
-      getPageProperties();
     });
 
     // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value

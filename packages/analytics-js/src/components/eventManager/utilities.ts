@@ -30,7 +30,7 @@ import {
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
 } from './constants';
-import { getPageProperties } from '../utilities/page';
+import { getDefaultPageProperties } from '../utilities/page';
 
 /**
  * To get the page properties for context object
@@ -39,11 +39,11 @@ import { getPageProperties } from '../utilities/page';
  */
 const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
   // Need to get updated page details on each event as an event to notify on SPA url changes does not seem to exist
-  getPageProperties();
+  const curPageProps = getDefaultPageProperties();
 
   const ctxPageProps: ApiObject = {};
-  Object.keys(state.page).forEach((key: string) => {
-    ctxPageProps[key] = pageProps?.[key] || state.page[key].value;
+  Object.keys(curPageProps).forEach((key: string) => {
+    ctxPageProps[key] = pageProps?.[key] || curPageProps[key];
   });
 
   ctxPageProps.initial_referrer =
@@ -66,9 +66,12 @@ const getUpdatedPageProperties = (
   const optionsPageProps = ((options as ApiOptions)?.page as ApiObject) || {};
   const pageProps = properties;
 
-  Object.keys(state.page).forEach((key: string) => {
+  // Need to get updated page details on each event as an event to notify on SPA url changes does not seem to exist
+  const curPageProps = getDefaultPageProperties();
+
+  Object.keys(curPageProps).forEach((key: string) => {
     if (isUndefined(pageProps[key])) {
-      pageProps[key] = optionsPageProps[key] || state.page[key].value;
+      pageProps[key] = optionsPageProps[key] || curPageProps[key];
     }
   });
 

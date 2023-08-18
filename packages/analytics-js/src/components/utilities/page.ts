@@ -1,8 +1,6 @@
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { batch } from '@preact/signals-core';
 import { getReferringDomain, getUrlWithoutHash } from './url';
-import { state } from '../../state';
 
 /**
  * Get the referrer URL
@@ -102,28 +100,4 @@ const getDefaultPageProperties = (): Record<string, any> => {
   };
 };
 
-/**
- * Get page properties details to use in event context
- */
-const getPageProperties = () => {
-  const pageProperties = getDefaultPageProperties();
-
-  batch(() => {
-    state.page.path.value = pageProperties.path;
-    state.page.referrer.value = pageProperties.referrer;
-    state.page.referring_domain.value = pageProperties.referring_domain;
-    state.page.search.value = pageProperties.search;
-    state.page.title.value = pageProperties.title;
-    state.page.url.value = pageProperties.url;
-    state.page.tab_url.value = pageProperties.tab_url;
-  });
-};
-
-export {
-  getCanonicalUrl,
-  getReferrer,
-  getUserAgent,
-  getLanguage,
-  getDefaultPageProperties,
-  getPageProperties,
-};
+export { getCanonicalUrl, getReferrer, getUserAgent, getLanguage, getDefaultPageProperties };
