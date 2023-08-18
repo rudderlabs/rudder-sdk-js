@@ -93,6 +93,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         }, state.loadOptions.value.uaChTrackLevel);
       }
 
+      // Get page properties details
       this.getPageProperties();
     });
 

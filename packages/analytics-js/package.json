@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.0-beta.3",
+  "version": "3.0.0-beta.4",
   "description": "RudderStack Javascript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -80,8 +80,8 @@
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
     "@preact/signals-core": "1.4.0",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.3",
-    "@rudderstack/analytics-js-plugins": "3.0.0-beta.3",
+    "@rudderstack/analytics-js-common": "3.0.0-beta.4",
+    "@rudderstack/analytics-js-plugins": "3.0.0-beta.4",
     "ramda": "0.29.0",
     "storejs": "2.0.5"
   },
