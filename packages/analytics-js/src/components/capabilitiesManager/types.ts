@@ -8,7 +8,6 @@ export interface ICapabilitiesManager {
   externalSrcLoader?: IExternalSrcLoader;
   init(): void;
   detectBrowserCapabilities(): void;
-  getPageProperties(): void;
   prepareBrowserCapabilities(): void;
   attachWindowListeners(): void;
   onReady(): void;
