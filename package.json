@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.4",
+  "version": "3.0.0-beta.5",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
@@ -9,7 +9,7 @@
   "scripts": {
     "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
     "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
-    "bump-version:monorepo": "npm version prerelease --git-tag-version false",
+    "bump-version:monorepo": "npm version prerelease --no-git-tag-version",
     "setup": "npx lerna@6 bootstrap && lerna link",
     "setup:ci": "npx lerna@6 bootstrap --ci && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
