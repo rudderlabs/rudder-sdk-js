@@ -1,6 +1,6 @@
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
-export type BeaconQueueItem = {
+export type BeaconQueueItemData = {
   event: RudderEvent;
 };
 
