@@ -5,7 +5,7 @@ on:
   push:
     branches: ['production', 'production-staging']
   pull_request:
-    branches: ['production', 'production-staging']
+    branches: ['production', 'production-staging', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
