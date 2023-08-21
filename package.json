@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "lerna:version": "lerna version --ignore \"rudder-sdk-js\" --exact --conventional-commits --no-push -y",
+    "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
     "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
     "bump-version:monorepo": "npm version prerelease --no-git-tag-version",
     "setup": "npx lerna@6 bootstrap && lerna link",
