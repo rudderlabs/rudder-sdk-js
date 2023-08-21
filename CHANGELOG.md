@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.40.4](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.3...v2.40.4) (2023-08-21)
+
+### [2.40.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.2...v2.40.3) (2023-08-18)
+
+
+### Bug Fixes
+
+* add support for EU region specific script ([#1305](https://github.com/rudderlabs/rudder-sdk-js/issues/1305)) ([66092d3](https://github.com/rudderlabs/rudder-sdk-js/commit/66092d357ffa87c8a39ffa05a1cd4c57085c7d47))
+* **INT-183:** resolve sonar issues and move integration script to separate file ([#1249](https://github.com/rudderlabs/rudder-sdk-js/issues/1249)) ([7afcc16](https://github.com/rudderlabs/rudder-sdk-js/commit/7afcc168de223c9765b13398c5bd1a78d9344333)), closes [#1195](https://github.com/rudderlabs/rudder-sdk-js/issues/1195)
+
 ### [2.40.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.1...v2.40.2) (2023-08-16)
 
 
