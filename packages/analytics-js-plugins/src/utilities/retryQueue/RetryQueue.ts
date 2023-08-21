@@ -69,7 +69,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   processId: string;
   logger?: ILogger;
   enableBatching: boolean;
-  batch: BatchOptions;
+  batch?: BatchOptions;
   queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
@@ -88,10 +88,6 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
     this.enableBatching = isObjectLiteralAndNotNull(options.batch);
-    this.batch = {
-      maxSize: DEFAULT_MAX_BATCH_SIZE_BYTES,
-      maxItems: DEFAULT_MAX_BATCH_ITEMS,
-    };
 
     this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
     this.configureBatchingOptions(options);
@@ -297,19 +293,23 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   isBatchReadyToDispatch(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
-    if (isDefined(this.batch.maxItems)) {
-      lengthCriteriaMet = batchItems.length >= (this.batch.maxItems as number);
+    if (isDefined(this.batch?.maxItems)) {
+      lengthCriteriaMet = batchItems.length >= (this.batch?.maxItems as number);
+    }
+
+    if (lengthCriteriaMet) {
+      return true;
     }
 
     let sizeCriteriaMet = false;
-    if (isDefined(this.batch.maxSize)) {
+    if (isDefined(this.batch?.maxSize) && isDefined(this.queueBatchItemsSizeCalculatorCb)) {
       const curBatchSize = (
         this.queueBatchItemsSizeCalculatorCb as QueueBatchItemsSizeCalculatorCallback
       )(batchItems.map(queueItem => queueItem.item));
 
-      sizeCriteriaMet = curBatchSize >= (this.batch.maxSize as number);
+      sizeCriteriaMet = curBatchSize >= (this.batch?.maxSize as number);
     }
-    return lengthCriteriaMet || sizeCriteriaMet;
+    return sizeCriteriaMet;
   }
 
   processHead() {
