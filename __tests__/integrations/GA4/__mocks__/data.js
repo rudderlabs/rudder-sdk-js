@@ -71,7 +71,36 @@ const expectedItemsArray = [
   },
 ];
 
-const events = [
+const identifyEvents = [
+  {
+    description: 'Event with userId and traits',
+    input: {
+      message: {
+        userId: 'user@1',
+        context: {
+          traits: {
+            age: 40,
+            userInterest: 'high',
+            source: 'RudderStack',
+          },
+        },
+        integrations: {},
+      },
+    },
+    output: {
+      userId: {
+        user_id: 'user@1',
+      },
+      traits: {
+        age: 40,
+        userInterest: 'high',
+        source: 'RudderStack',
+      },
+    },
+  },
+];
+
+const trackEvents = [
   {
     description: 'Product Search event',
     input: {
@@ -1339,4 +1368,110 @@ const events = [
   },
 ];
 
-export { events, mapping, expectedItemsArray, inputProductsArray, outputProductsArray };
+const pageEvents = [
+  {
+    description: 'Call with properties',
+    input: {
+      message: {
+        channel: 'web',
+        name: 'Contact Us',
+        context: {
+          app: {
+            build: '1.0.0',
+            name: 'RudderLabs JavaScript SDK',
+            namespace: 'com.rudderlabs.javascript',
+            version: '1.0.5',
+          },
+          ip: '0.0.0.0',
+          library: {
+            name: 'RudderLabs JavaScript SDK',
+            version: '1.0.5',
+          },
+          locale: 'en-GB',
+          screen: {
+            density: 2,
+          },
+          traits: {
+            email: 'abc@gmail.com',
+          },
+          page: {
+            path: '/destinations/mixpanel',
+            url: 'https://docs.rudderstack.com/destinations/mixpanel',
+            category: 'destination',
+            initial_referrer: 'https://docs.rudderstack.com',
+            initial_referring_domain: 'docs.rudderstack.com',
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
+        },
+        integrations: {
+          All: true,
+        },
+        properties: {
+          path: '/destinations/mixpanel',
+          url: 'https://docs.rudderstack.com/destinations/mixpanel',
+          category: 'destination',
+          initial_referrer: 'https://docs.rudderstack.com',
+          initial_referring_domain: 'docs.rudderstack.com',
+        },
+        type: 'page',
+        userId: 'user@10',
+      },
+    },
+    output: {
+      event: 'page_view',
+      params: {
+        path: '/destinations/mixpanel',
+        url: 'https://docs.rudderstack.com/destinations/mixpanel',
+        category: 'destination',
+        initial_referrer: 'https://docs.rudderstack.com',
+        initial_referring_domain: 'docs.rudderstack.com',
+        send_to: 'G-123456',
+      },
+    },
+  },
+];
+
+const groupEvents = [
+  {
+    description: 'Call with traits',
+    input: {
+      message: {
+        userId: 'user@1',
+        context: {
+          library: {
+            name: 'rudder-analytics-php',
+            version: '2.0.1',
+            consumer: 'LibCurl',
+          },
+        },
+        traits: {
+          companySize: 100,
+          companyName: 'RudderStack',
+        },
+        type: 'group',
+        groupId: 'group@1',
+      },
+    },
+    output: {
+      event: 'join_group',
+      params: {
+        companySize: 100,
+        group_id: 'group@1',
+        send_to: 'G-123456',
+        companyName: 'RudderStack',
+      },
+    },
+  },
+];
+
+export {
+  mapping,
+  pageEvents,
+  groupEvents,
+  trackEvents,
+  identifyEvents,
+  expectedItemsArray,
+  inputProductsArray,
+  outputProductsArray,
+};

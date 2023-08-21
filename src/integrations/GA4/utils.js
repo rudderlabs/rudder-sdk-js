@@ -71,7 +71,7 @@ const formatAndValidateEventName = (eventName) => {
 
   // Reserved event names are not allowed
   if (isReservedEventName(trimmedEvent)) {
-    logger.error('Reserved event names are not allowed');
+    logger.error(`Reserved event name ${trimmedEvent} is not allowed`);
     return null;
   }
 
@@ -252,12 +252,16 @@ const prepareStandardEventParams = (message, eventConfig) => {
 
   // Validation for required params
   if (Array.isArray(mapping) && mapping.length > 0) {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const mappingItem of mapping) {
+    const hasMissingRequiredValue = mapping.some((mappingItem) => {
       if (!payload[mappingItem.destKey] && mappingItem.required) {
         logger.error(`Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`);
-        return null;
+        return true;
       }
+      return false;
+    });
+
+    if (hasMissingRequiredValue) {
+      return null;
     }
   }
 
