@@ -37,14 +37,14 @@ const initHeartbeat = (rudderElement) => {
   const { va } = window.ADB;
   const { message } = rudderElement;
   const { properties, context } = message;
-  const { channel, video_player, session_id } = properties;
+  const { channel, video_player, session_id, ovp } = properties;
 
   const mediaHeartbeatConfig = new va.MediaHeartbeatConfig();
   const mediaHeartbeatDelegate = new va.MediaHeartbeatDelegate();
 
   mediaHeartbeatConfig.trackingServer = config.heartbeatTrackingServerUrl;
   mediaHeartbeatConfig.channel = channel || '';
-  mediaHeartbeatConfig.ovp = properties.ovp || 'unknown';
+  mediaHeartbeatConfig.ovp = ovp || 'unknown';
   mediaHeartbeatConfig.appVersion = context.app.version || 'unknown';
   mediaHeartbeatConfig.playerName = video_player || 'unknown';
   mediaHeartbeatConfig.ssl = config.sslHeartbeat;
@@ -57,9 +57,7 @@ const initHeartbeat = (rudderElement) => {
     return playhead;
   };
 
-  mediaHeartbeatDelegate.getQoSObject = () => {
-    return qosData;
-  };
+  mediaHeartbeatDelegate.getQoSObject = () => qosData;
 
   mediaHeartbeats[session_id || 'default'] = {
     heartbeat: new va.MediaHeartbeat(mediaHeartbeatDelegate, mediaHeartbeatConfig, window.s),

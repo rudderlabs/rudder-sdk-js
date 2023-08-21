@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import updateSaleObject from './utils';
+import { updateSaleObject, getMergedProductIds } from './utils';
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
@@ -77,55 +77,57 @@ class PostAffiliatePro {
     const visitorId = get(message, 'userId');
     window.PostAffTracker.setVisitorId(visitorId);
   }
-  // eslint-disable-next-line lines-between-class-members
+
   track(rudderElement) {
     logger.debug('===In Post Affiliate Pro track===');
     const clickEventsArr = this.clickEvents ? this.clickEvents.split(',') : null;
     const { message } = rudderElement;
     const { event } = message;
     const { properties } = message;
+
     // We are going to call click event, for the event list given in dashboard only.
-    if (clickEventsArr && clickEventsArr.includes(event)) {
+    if (clickEventsArr?.includes(event)) {
       if (properties) {
-        if (properties.data1) window.Data1 = properties.data1;
-        if (properties.data2) window.Data2 = properties.data2;
-        if (properties.affiliateId) window.AffiliateID = properties.affiliateId;
-        if (properties.bannerId) window.BannerID = properties.bannerId;
-        if (properties.campaignId) window.CampaignID = properties.campaignId;
-        if (properties.channel) window.Channel = properties.channel;
+        const rudderToWindowPropertiesMap = [
+          { property: 'data1', windowProperty: 'Data1' },
+          { property: 'data2', windowProperty: 'Data2' },
+          { property: 'affiliateId', windowProperty: 'AffiliateID' },
+          { property: 'bannerId', windowProperty: 'BannerID' },
+          { property: 'campaignId', windowProperty: 'CampaignID' },
+          { property: 'channel', windowProperty: 'Channel' },
+        ];
+
+        rudderToWindowPropertiesMap.forEach(({ property, windowProperty }) => {
+          if (Object.prototype.hasOwnProperty.call(properties, property)) {
+            window[windowProperty] = properties[property];
+          }
+        });
       }
       window.PostAffTracker.track();
     }
+
     // We are supporting only one event for sale.
     if (event === 'Order Completed') {
-      const productsArr = properties && properties.products ? properties.products : null;
-      if (productsArr) {
-        if (this.mergeProducts) {
-          window.sale = window.PostAffTracker.createSale();
-          if (window.sale) updateSaleObject(window.sale, properties);
-          const mergedProductId = [];
-          for (let i = 0; i < productsArr.length; i += 1)
-            if (productsArr[i].product_id) mergedProductId.push(productsArr[i].product_id);
-          const merged = mergedProductId.join();
-          if (merged) window.sale.setProductID(merged);
-        } else {
-          for (let i = 0; i < productsArr.length; i += 1) {
-            window[`sale${i}`] = window.PostAffTracker.createSale();
-            updateSaleObject(window[`sale${i}`], properties);
-            if (productsArr[i].product_id)
-              window[`sale${i}`].setProductID(productsArr[i].product_id);
+      const productsArr = properties?.products || null;
+      if (productsArr && this.mergeProducts) {
+        window.sale = window.PostAffTracker.createSale();
+        if (window.sale) updateSaleObject(window.sale, properties);
+        const merged = getMergedProductIds(productsArr);
+        window.sale.setProductID(merged);
+      } else if (productsArr) {
+        productsArr.forEach((product, index) => {
+          window[`sale${index}`] = window.PostAffTracker.createSale();
+          updateSaleObject(window[`sale${index}`], properties);
+          if (product.product_id) {
+            window[`sale${index}`].setProductID(product.product_id);
           }
-        }
+        });
       } else {
-        // If any product is not available.
+        // If any product is not available
         window.sale = window.PostAffTracker.createSale();
       }
       window.PostAffTracker.register();
     }
   }
-
-  // reset() {
-  //   window.PostAffTracker.setVisitorId(null);
-  // }
 }
 export default PostAffiliatePro;

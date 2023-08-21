@@ -2,7 +2,7 @@ name: Build & Code Quality Checks
 
 on:
   pull_request:
-    branches: ['production', 'production-staging']
+    branches: ['production', 'production-staging', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.4.0
+        uses: rudderlabs/github-action-check-size-limit@v2.6.0
         env:
           HUSKY: 0
         with:

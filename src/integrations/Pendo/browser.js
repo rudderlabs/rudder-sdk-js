@@ -1,8 +1,7 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable lines-between-class-members */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {
@@ -21,32 +20,7 @@ class Pendo {
   }
 
   init() {
-    (function (apiKey) {
-      (function (p, e, n, d, o) {
-        let v;
-        let w;
-        let x;
-        let y;
-        let z;
-        o = p[d] = p[d] || {};
-        o._q = [];
-        v = ['initialize', 'identify', 'updateOptions', 'pageLoad', 'track'];
-        for (w = 0, x = v.length; w < x; ++w)
-          (function (m) {
-            o[m] =
-              o[m] ||
-              function () {
-                o._q[m === v[0] ? 'unshift' : 'push']([m].concat([].slice.call(arguments, 0)));
-              };
-          })(v[w]);
-        y = e.createElement(n);
-        y.setAttribute('data-loader', LOAD_ORIGIN);
-        y.async = !0;
-        y.src = `https://cdn.pendo.io/agent/static/${apiKey}/pendo.js`;
-        z = e.getElementsByTagName(n)[0];
-        z.parentNode.insertBefore(y, z);
-      })(window, document, 'script', 'pendo');
-    })(this.apiKey);
+    loadNativeSdk(this.apiKey);
     this.initializeMe();
     logger.debug('===in init Pendo===');
   }
@@ -91,8 +65,8 @@ class Pendo {
     let visitorObj = {};
     let accountObj = {};
     const { groupId } = this.analytics;
-    const id =
-      this.analytics.getUserId() || this.constructPendoAnonymousId(this.analytics.getAnonymousId());
+    const { userId, anonymousId } = rudderElement.message;
+    const id = userId || this.constructPendoAnonymousId(anonymousId);
     visitorObj = {
       id,
       ...this.analytics.getUserTraits(),
@@ -104,6 +78,7 @@ class Pendo {
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
   }
+
   /*
    *Group call maps to an account for which visitor belongs.
    *It is same as identify call but here we send account object.
@@ -121,7 +96,7 @@ class Pendo {
     if (userId) {
       visitorObj = {
         id: userId,
-        ...(context && context.traits),
+        ...context?.traits,
       };
     }
 
@@ -133,7 +108,8 @@ class Pendo {
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
     if (!event) {
-      throw Error('Cannot call un-named track event');
+      logger.error('Cannot call un-named track event');
+      return;
     }
     const props = properties;
     window.pendo.track(event, props);

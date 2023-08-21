@@ -1,4 +1,3 @@
-import logger from '../../utils/logUtil';
 import Storage from '../../utils/storage';
 
 const defaults = {
@@ -7,7 +6,7 @@ const defaults = {
 
 class LotameStorage {
   constructor() {
-    this.storage = Storage; // new Storage();
+    this.storage = Storage;
   }
 
   setLotameSynchTime(value) {
