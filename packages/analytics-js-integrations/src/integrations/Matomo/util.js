@@ -1,9 +1,22 @@
 /* eslint-disable no-underscore-dangle */
 import each from '@ndhoule/each';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
 import { getHashFromArray } from '../../utils/commonUtils';
 
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 const userParameterRequiredErrorMessage = 'User parameter (sku or product_id) is required';
 
 /** If any event name matches with the goals list provided by the dashboard
@@ -399,8 +412,9 @@ const ecommerceEventsMapping = (event, message) => {
  */
 const checkCustomDimensions = message => {
   const { integrations } = message;
-  if (integrations) {
-    const customDimension = integrations[NAME]?.customDimension;
+  const matomoIntgConfig = getDestinationOptions(integrations);
+  if (matomoIntgConfig) {
+    const customDimension = matomoIntgConfig?.customDimension;
     if (customDimension) {
       const customDimensionsMap = getHashFromArray(
         customDimension,
