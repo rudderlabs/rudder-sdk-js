@@ -1,3 +1,1 @@
-import LiveChat from './browser';
-
-export { LiveChat };
+export { default as LiveChat } from './browser';

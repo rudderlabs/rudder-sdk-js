@@ -95,11 +95,13 @@ const inverseObjectArrays = input => {
 };
 
 const extractTraits = (traits, traitAliasesParam) => {
-  for (const [key, value] of Object.entries(traitAliasesParam)) {
-    traits[value] = traits[key];
-    delete traits[key];
-  }
-  return traits;
+  const extractedTraits = traits;
+  Object.keys(traitAliasesParam).forEach(key => {
+    const value = traitAliasesParam[key];
+    extractedTraits[value] = extractedTraits[key];
+    delete extractedTraits[key];
+  });
+  return extractedTraits;
 };
 
 /**
@@ -152,7 +154,7 @@ const mapTraits = arr => {
   const ret = new Array(arr.length);
 
   arr.forEach(key => {
-    if (traitAliases.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(traitAliases, key)) {
       ret.push(traitAliases[key]);
     } else {
       ret.push(key);
@@ -162,12 +164,18 @@ const mapTraits = arr => {
   return ret;
 };
 
+const getConsolidatedPageCalls = config =>
+  Object.prototype.hasOwnProperty.call(config, 'consolidatedPageCalls')
+    ? config.consolidatedPageCalls
+    : true;
+
 export {
-  parseConfigArray,
-  inverseObjectArrays,
-  extractTraits,
+  mapTraits,
   unionArrays,
   extendTraits,
-  mapTraits,
   formatTraits,
+  extractTraits,
+  parseConfigArray,
+  inverseObjectArrays,
+  getConsolidatedPageCalls,
 };

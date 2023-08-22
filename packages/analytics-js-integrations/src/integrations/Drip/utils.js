@@ -13,7 +13,7 @@
 function getDestinationExternalID(message, type) {
   let externalIdArray = null;
   let destinationExternalId = null;
-  if (message.context && message.context.externalId) {
+  if (message?.context?.externalId) {
     externalIdArray = message.context.externalId;
   }
   if (externalIdArray) {

@@ -1,3 +1,1 @@
-import Mouseflow from './browser';
-
-export { Mouseflow };
+export { default as Mouseflow } from './browser';

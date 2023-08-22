@@ -1,3 +1,1 @@
-import Adroll from './browser';
-
-export { Adroll };
+export { default as Adroll } from './browser';

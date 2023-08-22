@@ -1,3 +1,1 @@
-import Heap from './browser';
-
-export { Heap };
+export { default as Heap } from './browser';

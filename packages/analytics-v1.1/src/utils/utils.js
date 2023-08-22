@@ -4,6 +4,8 @@ import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import { commonNames } from '@rudderstack/analytics-js-common/v1.1/utils/integration_cname';
 import { clientToServerNames } from '@rudderstack/analytics-js-common/v1.1/utils/client_server_name';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -11,8 +13,6 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 
 /**
  * Utility method to remove '/' at the end of URL
@@ -176,8 +176,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == true
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        Boolean(sdkSuppliedIntegrations[intgName]) === true
       ) {
         enabledList.push(intObj);
       }
@@ -186,8 +186,8 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
       let intgValue = true;
       // check if intg false supplied
       if (
-        sdkSuppliedIntegrations[intgName] != undefined &&
-        sdkSuppliedIntegrations[intgName] == false
+        sdkSuppliedIntegrations[intgName] !== undefined &&
+        Boolean(sdkSuppliedIntegrations[intgName]) === false
       ) {
         intgValue = false;
       }

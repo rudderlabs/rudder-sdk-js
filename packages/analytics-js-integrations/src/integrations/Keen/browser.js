@@ -1,6 +1,8 @@
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Keen/constants';
+/* eslint-disable no-template-curly-in-string */
+/* eslint-disable no-use-before-define */
 
 class Keen {
   constructor(config, analytics, destinationInfo) {
@@ -29,29 +31,39 @@ class Keen {
 
     const check = setInterval(checkAndInitKeen.bind(this), 1000);
     function initKeen(object) {
-      object.client = new window.KeenTracking({
+      const client = new window.KeenTracking({
         projectId: object.projectID,
         writeKey: object.writeKey,
       });
-      return object.client;
+      return client;
     }
     function checkAndInitKeen() {
-      if (window.KeenTracking !== undefined && window.KeenTracking !== void 0) {
+      if (typeof window.KeenTracking !== 'undefined') {
         this.client = initKeen(this);
         clearInterval(check);
       }
     }
   }
 
+  isLoaded() {
+    logger.debug('in Keen isLoaded');
+    return !!(this.client != null);
+  }
+
+  isReady() {
+    return !!(this.client != null);
+  }
+
   identify(rudderElement) {
     logger.debug('in Keen identify');
-    const { traits } = rudderElement.message.context;
-    const userId = rudderElement.message.userId
-      ? rudderElement.message.userId
-      : rudderElement.message.anonymousId;
-    let properties = rudderElement.message.properties
-      ? Object.assign(properties, rudderElement.message.properties)
-      : {};
+
+    const { message } = rudderElement;
+    let { userId } = message;
+    const { context, anonymousId } = message;
+    const { traits } = context;
+    let properties = message?.properties || {};
+
+    userId = userId || anonymousId;
     properties.user = {
       userId,
       traits,
@@ -71,10 +83,10 @@ class Keen {
 
   page(rudderElement) {
     logger.debug('in Keen page');
+
+    let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
-    const pageCategory = rudderElement.message.properties
-      ? rudderElement.message.properties.category
-      : undefined;
+    const pageCategory = properties.category || undefined;
     let name = 'Loaded a Page';
     if (pageName) {
       name = `Viewed ${pageName} page`;
@@ -82,25 +94,15 @@ class Keen {
     if (pageCategory && pageName) {
       name = `Viewed ${pageCategory} ${pageName} page`;
     }
-
-    let { properties } = rudderElement.message;
     properties = this.getAddOn(properties);
     this.client.recordEvent(name, properties);
   }
 
-  isLoaded() {
-    logger.debug('in Keen isLoaded');
-    return !!(this.client != null);
-  }
-
-  isReady() {
-    return !!(this.client != null);
-  }
-
   getAddOn(properties) {
+    const params = properties;
     const addOns = [];
     if (this.ipAddon) {
-      properties.ip_address = '${keen.ip}';
+      params.ip_address = '${keen.ip}';
       addOns.push({
         name: 'keen:ip_to_geo',
         input: {
@@ -110,7 +112,7 @@ class Keen {
       });
     }
     if (this.uaAddon) {
-      properties.user_agent = '${keen.user_agent}';
+      params.user_agent = '${keen.user_agent}';
       addOns.push({
         name: 'keen:ua_parser',
         input: {
@@ -120,7 +122,7 @@ class Keen {
       });
     }
     if (this.urlAddon) {
-      properties.page_url = document.location.href;
+      params.page_url = document.location.href;
       addOns.push({
         name: 'keen:url_parser',
         input: {
@@ -130,8 +132,8 @@ class Keen {
       });
     }
     if (this.referrerAddon) {
-      properties.page_url = document.location.href;
-      properties.referrer_url = document.referrer;
+      params.page_url = document.location.href;
+      params.referrer_url = document.referrer;
       addOns.push({
         name: 'keen:referrer_parser',
         input: {
@@ -141,10 +143,10 @@ class Keen {
         output: 'referrer_info',
       });
     }
-    properties.keen = {
+    params.keen = {
       addons: addOns,
     };
-    return properties;
+    return params;
   }
 }
 
