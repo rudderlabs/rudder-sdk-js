@@ -1,3 +1,1 @@
-import { INTERCOM } from './browser';
-
-export { INTERCOM };
+export { INTERCOM } from './browser';

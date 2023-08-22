@@ -185,6 +185,13 @@ const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefi
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
 
+const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
+
+const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
+
+const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
+
 // DEBUG
 
 export {
@@ -231,4 +238,7 @@ export {
   STORAGE_TYPE_VALIDATION_WARNING,
   WRITE_KEY_NOT_A_STRING_ERROR,
   EMPTY_GROUP_CALL_ERROR,
+  READY_CALLBACK_INVOKE_ERROR,
+  API_CALLBACK_INVOKE_ERROR,
+  INVALID_CONFIG_URL_WARNING,
 };

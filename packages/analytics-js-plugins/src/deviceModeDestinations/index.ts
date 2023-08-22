@@ -5,12 +5,10 @@ import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ex
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
-import {
-  isDestinationSDKMounted,
-  normalizeIntegrationOptions,
-  filterDestinations,
-  initializeDestination,
-} from './utils';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { isDestinationSDKMounted, filterDestinations, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
   DESTINATION_NOT_SUPPORTED_ERROR,
@@ -28,6 +26,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     setActiveDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): void {
       // Normalize the integration options from the load API call
@@ -35,18 +34,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         state.loadOptions.value.integrations,
       );
 
+      state.nativeDestinations.loadIntegration.value = state.loadOptions.value
+        .loadIntegration as boolean;
+
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
-        state.nativeDestinations.configuredDestinations.value.filter(configDest => {
+        state.nativeDestinations.configuredDestinations.value.filter((configDest: Destination) => {
           if (destDisplayNamesToFileNamesMap[configDest.displayName]) {
             return true;
           }
 
-          logger?.error(
-            DESTINATION_NOT_SUPPORTED_ERROR(
-              DEVICE_MODE_DESTINATIONS_PLUGIN,
-              configDest.userFriendlyId,
-            ),
+          errorHandler?.onError(
+            new Error(DESTINATION_NOT_SUPPORTED_ERROR(configDest.userFriendlyId)),
+            DEVICE_MODE_DESTINATIONS_PLUGIN,
           );
           return false;
         });
@@ -64,6 +64,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             `consentManager.isDestinationConsented`,
             state,
             dest.config,
+            errorHandler,
             logger,
           ) ?? true,
       );
@@ -74,13 +75,14 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     load(
       state: ApplicationState,
       externalSrcLoader: IExternalSrcLoader,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
       externalScriptOnLoad?: (id?: string) => unknown,
     ) {
       const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
 
-      activeDestinations.forEach(dest => {
+      activeDestinations.forEach((dest: Destination) => {
         const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
@@ -105,13 +107,20 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     dest,
                   ];
                 } else {
-                  initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
+                  initializeDestination(
+                    dest,
+                    state,
+                    destSDKIdentifier,
+                    sdkTypeName,
+                    errorHandler,
+                    logger,
+                  );
                 }
               }),
             timeout: SCRIPT_LOAD_TIMEOUT_MS,
           });
         } else {
-          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, logger);
+          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, errorHandler, logger);
         }
       });
     },

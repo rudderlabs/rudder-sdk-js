@@ -1,3 +1,1 @@
-import { BingAds } from './browser';
-
-export { BingAds };
+export { BingAds } from './browser';

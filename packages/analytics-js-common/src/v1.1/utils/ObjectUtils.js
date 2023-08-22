@@ -53,6 +53,8 @@ const stringifyWithoutCircular = (obj, excludeNull) =>
 
 const isInstanceOfEvent = value => typeof value === 'object' && value !== null && 'target' in value;
 
+const isNonEmptyObject = value => isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
+
 export {
   mergeDeepRightObjectArrays,
   mergeDeepRight,
@@ -60,4 +62,5 @@ export {
   stringifyWithoutCircular,
   isInstanceOfEvent,
   isObjectLiteralAndNotNull,
+  isNonEmptyObject,
 };

@@ -166,6 +166,7 @@ class UserSessionManager implements IUserSessionManager {
           'storage.migrate',
           storageEntry,
           this.cookieStorage?.engine,
+          this.errorHandler,
           this.logger,
         );
         if (migratedVal) {
@@ -182,6 +183,7 @@ class UserSessionManager implements IUserSessionManager {
           'storage.migrate',
           storageEntry,
           this.localStorage?.engine,
+          this.errorHandler,
           this.logger,
         );
         if (migratedVal) {

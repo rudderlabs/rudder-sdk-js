@@ -28,6 +28,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'String.fromCodePoint': () => !String.fromCodePoint,
   requestAnimationFrame: () => !isFunction(globalThis.requestAnimationFrame),
   cancelAnimationFrame: () => !isFunction(globalThis.cancelAnimationFrame),
+  CustomEvent: () => !isFunction(globalThis.CustomEvent),
 };
 
 const isLegacyJSEngine = (): boolean => {

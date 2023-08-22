@@ -52,7 +52,7 @@ jobs:
         run: |
           npm run setup:ci
 
-      - name: Build and sync files to S3
+      - name: Build release artifacts
         env:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}

@@ -47,7 +47,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**', 'public/**'],
+      include: ['src/**'],
     },
     external: [
       /rudderAnalyticsRemotePlugins\/.*/,
@@ -68,6 +68,8 @@ export function getDefaultConfig(distName) {
         __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __SDK_BUNDLE_FILENAME__: distName,
       }),
       resolve({
@@ -152,7 +154,7 @@ export function getDefaultConfig(distName) {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
             __CONFIG_SERVER_HOST__:
-              process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+              process.env.CONFIG_SERVER_HOST,
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
             __PLUGINS_BASE_URL__: remotePluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,

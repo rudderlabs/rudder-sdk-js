@@ -1,9 +1,10 @@
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+/* eslint-disable class-methods-use-this */
 import { refinePayload, getDestinationExternalID } from './utils';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Engage {
   constructor(config, analytics, destinationInfo) {
@@ -15,33 +16,17 @@ class Engage {
     this.api_secret = config.privateKey;
     this.name = NAME;
     this.listsIds = config.listsIds;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===In init Engage===');
 
-    !(function (n) {
-      if (!window.Engage) {
-        (window[n] = window[n] || {}),
-          (window[n].queue = window[n].queue || []),
-          (window.Engage = window.Engage || {});
-        for (var e = ['init', 'identify', 'addAttribute', 'track'], i = 0; i < e.length; i++)
-          window.Engage[e[i]] = w(e[i]);
-        var d = document.createElement('script');
-        (d.src = '//d2969mkc0xw38n.cloudfront.net/next/engage.min.js'),
-          d.setAttribute('data-loader', LOAD_ORIGIN),
-          (d.async = !0),
-          document.head.appendChild(d);
-      }
-      function w(e) {
-        return function () {
-          window[n].queue.push([e].concat([].slice.call(arguments)));
-        };
-      }
-    })('engage');
+    loadNativeSdk();
 
     window.Engage.init({
       key: this.api_key,
@@ -70,10 +55,10 @@ class Engage {
       logger.error('externalId or userId is required for Identify call.');
       return;
     }
-    let { originalTimestamp } = message;
+    const { originalTimestamp, context } = message;
 
-    const { traits } = message.context;
-    let payload = refinePayload(traits, (this.identifyFlag = true));
+    const { traits } = context;
+    let payload = refinePayload(traits, true);
 
     payload.number = phone;
     payload.last_name = lastName;
@@ -104,7 +89,7 @@ class Engage {
     let payload = refinePayload(properties);
     payload = removeUndefinedAndNullValues(payload);
     window.Engage.track(engageId, {
-      event: event,
+      event,
       timestamp: originalTimestamp,
       properties: payload,
     });
@@ -120,7 +105,7 @@ class Engage {
       engageId = userIdOnly || null;
     }
     if (!engageId) {
-      logger.error('externalId or userId is required for track call.');
+      logger.error('externalId or userId is required for page call.');
       return;
     }
     let payload = refinePayload(properties);

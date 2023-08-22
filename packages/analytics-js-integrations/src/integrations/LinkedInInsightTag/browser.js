@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
@@ -13,9 +14,11 @@ class LinkedInInsightTag {
     this.name = NAME;
     this.partnerId = config.partnerId;
     this.eventToConversionIdMap = config.eventToConversionIdMap;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {

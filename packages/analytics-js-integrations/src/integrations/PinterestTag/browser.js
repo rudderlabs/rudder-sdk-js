@@ -1,22 +1,22 @@
 /* eslint-disable class-methods-use-this */
-import sha256 from 'crypto-js/sha256';
 import get from 'get-value';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
+import sha256 from 'crypto-js/sha256';
 import {
+  propertyMapping,
   searchPropertyMapping,
   productPropertyMapping,
-  propertyMapping,
   pinterestPropertySupport,
 } from './propertyMappingConfig';
 import {
+  getDefinedTraits,
+  getDataFromSource,
   flattenJsonPayload,
   isDefinedAndNotNull,
-  getDataFromSource,
-  getDefinedTraits,
 } from '../../utils/utils';
 import { getDestinationEventName } from './utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 export default class PinterestTag {
   constructor(config, analytics, destinationInfo) {
@@ -30,31 +30,21 @@ export default class PinterestTag {
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
     this.sendAsCustomEvent = config.sendAsCustomEvent || false;
   }
 
   loadScript() {
-    !(function (e) {
-      if (!window.pintrk) {
-        window.pintrk = function () {
-          window.pintrk.queue.push(Array.prototype.slice.call(arguments));
-        };
-        const n = window.pintrk;
-        (n.queue = []), (n.version = '3.0');
-        const t = document.createElement('script');
-        (t.async = !0), (t.src = e), t.setAttribute('data-loader', LOAD_ORIGIN);
-        const r = document.getElementsByTagName('script')[0];
-        r.parentNode.insertBefore(t, r);
-      }
-    })('https://s.pinimg.com/ct/core.js');
+    loadNativeSdk();
   }
 
   handleEnhancedMatch() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email && this.enhancedMatch) {
       window.pintrk('load', this.tagId, {
         em: email,
@@ -210,10 +200,10 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
-    if (!rudderElement.message || !rudderElement.message.event) {
+    const { message } = rudderElement;
+    if (!message?.event) {
       return;
     }
-    const { message } = rudderElement;
     const { properties, event, messageId } = message;
     const destEventArray = getDestinationEventName(
       event,
@@ -242,7 +232,7 @@ export default class PinterestTag {
 
   identify() {
     const userTraits = this.analytics.getUserTraits();
-    const email = userTraits && userTraits.email;
+    const { email } = userTraits;
     if (email) {
       const ldpObject = this.generateLdpObject();
       window.pintrk('set', { em: email, ...ldpObject });

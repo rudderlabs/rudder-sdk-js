@@ -505,48 +505,56 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_user_id',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_trait',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_anonymous_id',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_group_id',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_group_trait',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_page_init_referrer',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_page_init_referring_domain',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_session',
       clientDataStoreCookie.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
 
@@ -554,48 +562,56 @@ describe('User session manager', () => {
       'storage.migrate',
       'rl_user_id',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_trait',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_anonymous_id',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_group_id',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_group_trait',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_page_init_referrer',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_page_init_referring_domain',
       clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
     expect(invokeSpy).toHaveBeenCalledWith(
       'storage.migrate',
       'rl_session',
-      clientDataStoreCookie.engine,
+      clientDataStoreLS.engine,
+      defaultErrorHandler,
       defaultLogger,
     );
 

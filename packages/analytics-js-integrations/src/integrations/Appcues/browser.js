@@ -12,10 +12,11 @@ class Appcues {
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
-    // this.sendToAllDestinations = config.sendToAll;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {

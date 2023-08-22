@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
@@ -5,6 +6,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { OneTrustCookieCategory } from '@rudderstack/analytics-js-common/types/Consent';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from '../utilities/logMessages';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
 import { OneTrustGroup } from './types';
@@ -54,6 +56,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     isDestinationConsented(
       state: ApplicationState,
       destConfig: DestinationConfig,
+      errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
       const consentData = state.consents.data.value;
@@ -88,7 +91,11 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
 
         return containsAllConsent;
       } catch (err) {
-        logger?.error(DESTINATION_CONSENT_STATUS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN), err);
+        errorHandler?.onError(
+          err,
+          ONETRUST_CONSENT_MANAGER_PLUGIN,
+          DESTINATION_CONSENT_STATUS_ERROR,
+        );
         return true;
       }
     },

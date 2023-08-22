@@ -1,12 +1,11 @@
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { prepareUserTraits, prepareTrackEventData, preparePagePayload } from './utils';
 import { validateEmail, validatePhoneWithCountryCode } from '../../utils/commonUtils';
 
 import { getDefinedTraits } from '../../utils/utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Sendinblue {
   constructor(config, analytics, destinationInfo) {
@@ -18,43 +17,16 @@ class Sendinblue {
     this.clientKey = config.clientKey;
     this.contactAttributeMapping = config.contactAttributeMapping;
     this.sendTraitsInTrack = config.sendTraitsInTrack;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {
     const { clientKey } = this;
-    (function () {
-      window.sib = {
-        equeue: [],
-        client_key: clientKey,
-      };
-      window.sendinblue = {};
-      for (var j = ['track', 'identify', 'trackLink', 'page'], i = 0; i < j.length; i++) {
-        (function (k) {
-          window.sendinblue[k] = function () {
-            var arg = Array.prototype.slice.call(arguments);
-            (
-              window.sib[k] ||
-              function () {
-                var t = {};
-                t[k] = arg;
-                window.sib.equeue.push(t);
-              }
-            )(arg[0], arg[1], arg[2], arg[3]);
-          };
-        })(j[i]);
-      }
-      var n = document.createElement('script'),
-        i = document.getElementsByTagName('script')[0];
-      (n.type = 'text/javascript'),
-        (n.id = 'sendinblue-js'),
-        (n.async = !0),
-        (n.src = 'https://sibautomation.com/sa.js?key=' + clientKey),
-        n.setAttribute('data-loader', LOAD_ORIGIN),
-        i.parentNode.insertBefore(n, i);
-    })();
+    loadNativeSdk(clientKey);
   }
 
   init() {
@@ -78,7 +50,7 @@ class Sendinblue {
     const { email, phone } = getDefinedTraits(message);
 
     if (!email || !validateEmail(email)) {
-      logger.error('[Sendinblue]:: provided email is invalid');
+      logger.error('[Sendinblue]:: email is missing');
       return;
     }
 

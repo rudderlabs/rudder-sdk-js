@@ -1,9 +1,9 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "2.38.1",
+  "version": "3.0.0-beta.5",
   "private": true,
   "description": "Sanity suite for testing JS SDK package",
-  "main": "./dist/testBook.js",
+  "main": "./dist/cdn/v3/testBook.js",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
     "start": "npm run build:v1.1 && npm run build:v3 && npm run start:local",
@@ -31,12 +31,14 @@
     "release": "exit 0",
     "start:integrations": "npm run clean && mkdir dist && mkdir dist/local && npm run build:v1.1 && npm run build:integrations && rsync -r ../analytics-js-integrations/dist/cdn/legacy/js-integrations dist/local && npm run start:local",
     "start:local": "DEV_SERVER=true npm run build -- --watch",
+    "start:local:v3": "DEV_SERVER=true npm run build:local:v3 -- --watch",
     "start:cdn": "DEV_SERVER=true npm run build:cdn -- --watch",
     "start:cdn:v1.1": "DEV_SERVER=true npm run build:cdn:v1.1 -- --watch",
     "start:cdn:v1": "DEV_SERVER=true npm run build:cdn:v1 -- --watch",
     "start:cdn:v3": "DEV_SERVER=true npm run build:cdn:v3 -- --watch",
-    "start:local:v3": "DEV_SERVER=true npm run build:local:v3 -- --watch",
     "start:npm": "DEV_SERVER=true npm run build:npm -- --watch",
+    "start:npm:v1.1": "DEV_SERVER=true npm run build:npm:v1.1 -- --watch",
+    "start:npm:v3": "DEV_SERVER=true npm run build:npm:v3 -- --watch",
     "build:cdn": "rollup -c --environment TEST_PACKAGE:cdn",
     "build:cdn:v1.1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1",
     "build:cdn:v1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1",
@@ -53,10 +55,10 @@
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
-    "@rudderstack/analytics-js": "^3.0.0",
-    "deep-equal": "2.2.1",
+    "@rudderstack/analytics-js": "3.0.0-beta.5",
+    "deep-object-diff": "1.1.9",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "^2.38.1"
+    "rudder-sdk-js": "2.40.4"
   },
   "devDependencies": {
     "@babel/core": "7.22.9",

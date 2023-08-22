@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-
 // here we map the properties which give information about a singleproduct
 const PRODUCT_EVENTS = ['product clicked', 'product viewed', 'product added'];
 const ORDER_EVENTS = [
@@ -10,7 +8,8 @@ const ORDER_EVENTS = [
   'order updated',
 ];
 
-const productEvent = properties => {
+const productEvent = params => {
+  const properties = params;
   if (properties.price) {
     properties.adroll_conversion_value = properties.price;
     delete properties.price;
@@ -21,7 +20,8 @@ const productEvent = properties => {
 // here we map the properties which give information about the order
 // like order_id or revenue
 
-const orderEvent = properties => {
+const orderEvent = params => {
+  const properties = params;
   if (properties.orderId) {
     properties.order_id = properties.orderId;
     delete properties.orderId;

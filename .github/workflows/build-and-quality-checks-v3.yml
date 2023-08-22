@@ -2,7 +2,7 @@ name: Build & Code Quality Checks v3
 
 on:
   pull_request:
-    branches: ['develop', 'main']
+    branches: ['develop', 'main', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
@@ -36,12 +36,12 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.5.0
+        uses: rudderlabs/github-action-check-size-limit@v2.6.0
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build -- --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js'
-          script: npx lerna@6 exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json
+          script: npx lerna@6 exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json --silent
           is_monorepo: true

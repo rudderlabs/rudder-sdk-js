@@ -1,41 +1,19 @@
-/* eslint-disable no-continue */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable block-scoped-var */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-multi-assign */
-/* eslint-disable prefer-template */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable no-undef */
-/* eslint-disable camelcase */
-/* eslint-disable no-shadow */
-/* eslint-disable no-plusplus */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable no-param-reassign */
-/* eslint-disable eqeqeq */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable func-names */
-/* eslint-disable no-var */
-/* eslint-disable yoda */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable vars-on-top */
-/* eslint-disable one-var */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../../utils/commonUtils';
 import {
+  mapTraits,
+  unionArrays,
+  formatTraits,
+  extendTraits,
+  extractTraits,
   parseConfigArray,
   inverseObjectArrays,
-  extractTraits,
-  unionArrays,
-  extendTraits,
-  mapTraits,
-  formatTraits,
+  getConsolidatedPageCalls,
 } from './util';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Mixpanel {
   constructor(config, analytics, destinationInfo) {
@@ -53,12 +31,7 @@ class Mixpanel {
     this.eventIncrements = config.eventIncrements || [];
     this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
-    this.consolidatedPageCalls = Object.prototype.hasOwnProperty.call(
-      config,
-      'consolidatedPageCalls',
-    )
-      ? config.consolidatedPageCalls
-      : true;
+    this.consolidatedPageCalls = getConsolidatedPageCalls(config);
     this.trackCategorizedPages = config.trackCategorizedPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.groupKeySettings = config.groupKeySettings || [];
@@ -76,79 +49,18 @@ class Mixpanel {
       username: '$username',
       phone: '$phone',
     };
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    this.identityMergeApi = config.identityMergeApi || 'original';
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===in init Mixpanel===');
     // eslint-disable-next-line no-var
-    (function (f, b) {
-      if (!b.__SV) {
-        var e, g, i, h;
-        window.mixpanel = b;
-        b._i = [];
-        b.init = function (e, f, c) {
-          function g(a, d) {
-            var b = d.split('.');
-            2 == b.length && ((a = a[b[0]]), (d = b[1]));
-            a[d] = function () {
-              a.push([d].concat(Array.prototype.slice.call(arguments, 0)));
-            };
-          }
-          var a = b;
-          'undefined' !== typeof c ? (a = b[c] = []) : (c = 'mixpanel');
-          a.people = a.people || [];
-          a.toString = function (a) {
-            var d = 'mixpanel';
-            'mixpanel' !== c && (d += '.' + c);
-            a || (d += ' (stub)');
-            return d;
-          };
-          a.people.toString = function () {
-            return a.toString(1) + '.people (stub)';
-          };
-          i =
-            'disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove'.split(
-              ' ',
-            );
-          for (h = 0; h < i.length; h++) g(a, i[h]);
-          var j = 'set set_once union unset remove delete'.split(' ');
-          a.get_group = function () {
-            function b(c) {
-              d[c] = function () {
-                call2_args = arguments;
-                call2 = [c].concat(Array.prototype.slice.call(call2_args, 0));
-                a.push([e, call2]);
-              };
-            }
-            for (
-              var d = {}, e = ['get_group'].concat(Array.prototype.slice.call(arguments, 0)), c = 0;
-              c < j.length;
-              c++
-            )
-              b(j[c]);
-            return d;
-          };
-          b._i.push([e, f, c]);
-        };
-        b.__SV = 1.2;
-        e = f.createElement('script');
-        e.type = 'text/javascript';
-        e.async = !0;
-        e.setAttribute('data-loader', LOAD_ORIGIN);
-        e.src =
-          'undefined' !== typeof MIXPANEL_CUSTOM_LIB_URL
-            ? MIXPANEL_CUSTOM_LIB_URL
-            : 'file:' === f.location.protocol &&
-              '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'.match(/^\/\//)
-            ? 'https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'
-            : '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js';
-        g = f.getElementsByTagName('script')[0];
-        g.parentNode.insertBefore(e, g);
-      }
-    })(document, window.mixpanel || []);
+    loadNativeSdk();
     const options = {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,
@@ -156,7 +68,7 @@ class Mixpanel {
     if (this.persistence !== 'none') {
       options.persistence_name = this.persistence;
     }
-    if (this.dataResidency == 'eu') {
+    if (this.dataResidency === 'eu') {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = 'https://api-eu.mixpanel.com';
     }
@@ -167,12 +79,12 @@ class Mixpanel {
     logger.debug('in Mixpanel isLoaded');
     logger.debug(!!(window.mixpanel && window.mixpanel.config));
     window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
-    return !!(window.mixpanel && window.mixpanel.config);
+    return !!window?.mixpanel?.config;
   }
 
   isReady() {
     logger.debug('in Mixpanel isReady');
-    return !!(window.mixpanel && window.mixpanel.config);
+    return !!window?.mixpanel?.config;
   }
 
   /**
@@ -186,12 +98,15 @@ class Mixpanel {
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
 
-    // eslint-disable-next-line camelcase
-    const user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+    let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (this.identityMergeApi === 'simplified') {
+      // calling mixpanel .identify() only for known users
+      userId = rudderElement.message.userId;
+    }
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
-    if (user_id) window.mixpanel.identify(user_id);
+    if (userId) window.mixpanel.identify(userId);
 
     // name tag
     const nametag = email || username;
@@ -203,22 +118,22 @@ class Mixpanel {
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
     const traitsToSet = {};
-    for (const key in traits) {
-      if (!traits.hasOwnProperty(key)) continue;
-
-      const trait = traits[key];
-      if (Array.isArray(trait) && trait.length > 0) {
-        traitsToUnion[key] = trait;
-        // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
-        // from mixpanel and manually unioning to it ourselves
-        const existingTrait = window.mixpanel.get_property(key);
-        if (existingTrait && Array.isArray(existingTrait)) {
-          traits[key] = unionArrays(existingTrait, trait);
+    Object.keys(traits).forEach(trait => {
+      if (Object.prototype.hasOwnProperty.call(traits, trait)) {
+        const value = traits[trait];
+        if (Array.isArray(value) && value.length > 0) {
+          traitsToUnion[trait] = value;
+          // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
+          // from mixpanel and manually unioning to it ourselves
+          const existingTrait = window.mixpanel.get_property(trait);
+          if (existingTrait && Array.isArray(existingTrait)) {
+            traits[trait] = unionArrays(existingTrait, value);
+          }
+        } else {
+          traitsToSet[trait] = value;
         }
-      } else {
-        traitsToSet[key] = trait;
       }
-    }
+    });
 
     if (this.setAllTraitsByDefault) {
       window.mixpanel.register(traits);
@@ -285,7 +200,7 @@ class Mixpanel {
     const propIncrements = parseConfigArray(this.propIncrements, 'property');
     const event = get(message, 'event');
     const revenue = get(message, 'properties.revenue') || get(message, 'properties.total');
-    const sourceName = this.sourceName;
+    const { sourceName, people } = this;
     let props = get(message, 'properties');
     if (isNotEmpty(props)) {
       props = inverseObjectArrays(props);
@@ -303,20 +218,20 @@ class Mixpanel {
     delete props.token;
 
     // Mixpanel People operations
-    if (this.people) {
+    if (people) {
       // increment event count, check if the current event exists in eventIncrements
       if (eventIncrements.indexOf(event) !== -1) {
         window.mixpanel.people.increment(event);
-        window.mixpanel.people.set('Last ' + event, new Date());
+        window.mixpanel.people.set(`Last ${event}`, new Date());
       }
       // increment property counts
-      // eslint-disable-next-line guard-for-in
-      for (const key in props) {
-        const prop = props[key];
-        if (prop && propIncrements.indexOf(key) != -1) {
-          window.mixpanel.people.increment(key, prop);
+      Object.keys(props).forEach(prop => {
+        const value = props[prop];
+        if (value && propIncrements.includes(prop)) {
+          window.mixpanel.people.increment(prop, value);
         }
-      }
+      });
+
       // track revenue
       if (revenue) {
         window.mixpanel.people.track_charge(revenue);
@@ -376,6 +291,11 @@ class Mixpanel {
    */
   alias(rudderElement) {
     logger.debug('in Mixpanel alias');
+    if (this.identityMergeApi === 'simplified') {
+      logger.debug("===Mixpanel: Alias call is deprecated in 'Simplified ID Merge'===");
+      return;
+    }
+
     const { previousId, userId } = rudderElement.message;
     const newId = userId;
     if (!previousId) {

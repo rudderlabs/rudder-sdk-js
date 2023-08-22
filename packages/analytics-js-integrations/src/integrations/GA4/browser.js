@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import {
   isReservedName,
@@ -30,10 +33,12 @@ export default class GA4 {
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript(measurementId) {
@@ -206,7 +211,8 @@ export default class GA4 {
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj, integrations) {
     if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
-      throw Error('Payload must have required parameters..');
+      logger.error('Payload must have required parameters..');
+      return;
     }
     const params = { ...parameters };
     params.send_to = this.measurementId;
@@ -250,7 +256,8 @@ export default class GA4 {
     const { properties, integrations } = rudderElement.message;
     const { products } = properties;
     if (!event || isReservedName(event)) {
-      throw Error('Cannot call un-named/reserved named track event');
+      logger.error('Cannot call un-named/reserved named track event');
+      return;
     }
     // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);
@@ -333,7 +340,7 @@ export default class GA4 {
 
   getDataForIntegrationsObject() {
     return {
-      'Google Analytics 4': {
+      [DISPLAY_NAME]: {
         clientId: this.clientId,
         sessionId: this.sessionId,
         sessionNumber: this.sessionNumber,

@@ -1,3 +1,1 @@
-import { Bugsnag } from './browser';
-
-export { Bugsnag };
+export { Bugsnag } from './browser';

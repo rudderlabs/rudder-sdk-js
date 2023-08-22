@@ -70,11 +70,11 @@
 
       // Identify call
       rudderanalytics.identify("12345", {
-        name: "Automation QA"
+        name: "Automation_QA"
       });
 
       // Track call
-      rudderanalytics.track("test event", {
+      rudderanalytics.track("test_event", {
         testProp: "automationQA_prop1"
       });
 
@@ -102,6 +102,9 @@
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
+
+      window.userWriteKey = '__FEATURE_PRELOAD_BUFFER_WRITE_KEY__';
+      window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
       rel="stylesheet"

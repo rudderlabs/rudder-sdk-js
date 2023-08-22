@@ -1,3 +1,3 @@
-const STORAGE_MIGRATOR_PLUGIN = 'StorageMigrator';
+const STORAGE_MIGRATOR_PLUGIN = 'StorageMigratorPlugin';
 
 export { STORAGE_MIGRATOR_PLUGIN };

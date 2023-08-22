@@ -114,11 +114,12 @@ class ConfigManager implements IConfigManager {
       }
 
       if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = new URL(
-          `${getSourceConfigURL(state.loadOptions.value.configUrl)}&writeKey=${
-            state.lifecycle.writeKey.value
-          }&lockIntegrationsVersion=${lockIntegrationsVersion}`,
-        ).toString();
+        state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
+          state.loadOptions.value.configUrl,
+          state.lifecycle.writeKey.value as string,
+          lockIntegrationsVersion,
+          this.logger,
+        );
       }
 
       // Set consent manager plugin name in state
@@ -237,19 +238,18 @@ class ConfigManager implements IConfigManager {
       } else {
         this.processConfig(res as SourceConfigResponse);
       }
-      return;
-    }
-
-    // fetch source config from config url API
-    this.httpClient.getAsyncData({
-      url: state.lifecycle.sourceConfigUrl.value as string,
-      options: {
-        headers: {
-          'Content-Type': undefined,
+    } else {
+      // fetch source config from config url API
+      this.httpClient.getAsyncData({
+        url: state.lifecycle.sourceConfigUrl.value as string,
+        options: {
+          headers: {
+            'Content-Type': undefined,
+          },
         },
-      },
-      callback: this.processConfig,
-    });
+        callback: this.processConfig,
+      });
+    }
   }
 }
 

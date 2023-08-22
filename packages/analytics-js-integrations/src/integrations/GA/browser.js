@@ -44,9 +44,12 @@ export default class GA {
       'product viewed',
       'product removed',
     ];
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   initializeGlobalObject() {
@@ -55,6 +58,7 @@ export default class GA {
       window.ga ||
       function a() {
         window.ga.q = window.ga.q || [];
+        // eslint-disable-next-line prefer-rest-params
         window.ga.q.push(arguments);
       };
     window.ga.l = new Date().getTime();
@@ -158,63 +162,80 @@ export default class GA {
       this.contentGroupingsArray,
     );
 
-    if (Object.keys(custom).length) {
+    if (Object.keys(custom).length > 0) {
       window.ga(`${this.trackerName}set`, custom);
     }
 
     logger.debug('in GoogleAnalyticsManager identify');
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   track(rudderElement) {
     const self = this;
     // Ecommerce events
-    const { event, properties, name } = rudderElement.message;
-    const options = this.extractCheckoutOptions(rudderElement);
-    const props = rudderElement.message.properties;
-    const { products, revenue } = properties;
+    const { event, properties, name, context } = rudderElement.message;
     let { total } = properties;
+    const { campaign } = context;
+    const {
+      tax,
+      step,
+      value,
+      revenue,
+      products,
+      shipping,
+      currency,
+      affiliation,
+      nonInteraction,
+      label: eventLabel,
+      order_id: orderId,
+      category: eventCategory,
+    } = properties;
+
+    const options = this.extractCheckoutOptions(rudderElement);
+    const props = properties;
     const data = {};
-    const eventCategory = rudderElement.message.properties.category;
-    const orderId = properties.order_id;
     const eventAction = event || name || '';
-    const eventLabel = rudderElement.message.properties.label;
     let eventValue = '';
     let payload;
-    const { campaign } = rudderElement.message.context;
     let params;
     let filters;
     let sorts;
+
+    const orderIdNotPresentErrorMessage = 'order_id not present events are not sent to GA';
+
     if (event === 'Order Completed' && !this.enhancedEcommerce) {
       // order_id is required
       if (!orderId) {
-        logger.debug('order_id not present events are not sent to GA');
+        logger.debug(orderIdNotPresentErrorMessage);
         return;
       }
 
       // add transaction
       window.ga(`${this.trackerName}ecommerce:addTransaction`, {
-        affiliation: properties.affiliation,
-        shipping: properties.shipping,
+        affiliation,
+        shipping,
         revenue: total || revenue,
-        tax: properties.tax,
+        tax,
         id: orderId,
-        currency: properties.currency,
+        currency,
       });
 
-      // products added
-      products.forEach(product => {
-        const productTrack = self.createProductTrack(rudderElement, product);
+      if (Array.isArray(products)) {
+        // products added
+        products.forEach(product => {
+          const productTrack = self.createProductTrack(rudderElement, product);
 
-        window.ga(`${this.trackerName}ecommerce:addItem`, {
-          category: productTrack.properties.category,
-          quantity: productTrack.properties.quantity,
-          price: productTrack.properties.price,
-          name: productTrack.properties.name,
-          sku: productTrack.properties.sku,
-          id: orderId,
-          currency: productTrack.properties.currency,
+          window.ga(`${this.trackerName}ecommerce:addItem`, {
+            category: productTrack.properties.category,
+            quantity: productTrack.properties.quantity,
+            price: productTrack.properties.price,
+            name: productTrack.properties.name,
+            sku: productTrack.properties.sku,
+            id: orderId,
+            currency: productTrack.properties.currency,
+          });
         });
-      });
+      }
 
       window.ga(`${this.trackerName}ecommerce:send`);
     }
@@ -234,7 +255,7 @@ export default class GA {
           });
 
           window.ga(`${this.trackerName}ec:setAction`, 'checkout', {
-            step: properties.step || 1,
+            step: step || 1,
             option: options || undefined,
           });
 
@@ -256,11 +277,10 @@ export default class GA {
           window.ga(`${this.trackerName}send`, 'event', 'Checkout', 'Option');
           break;
         case 'Order Completed':
-          total =
-            rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
+          total = total || revenue || 0;
 
           if (!orderId) {
-            logger.debug('order_id not present events are not sent to GA');
+            logger.debug(orderIdNotPresentErrorMessage);
             return;
           }
           this.loadEnhancedEcommerce(rudderElement);
@@ -283,7 +303,7 @@ export default class GA {
           break;
         case 'Order Refunded':
           if (!orderId) {
-            logger.debug('order_id not present events are not sent to GA');
+            logger.debug(orderIdNotPresentErrorMessage);
             return;
           }
           this.loadEnhancedEcommerce(rudderElement);
@@ -386,16 +406,8 @@ export default class GA {
         case 'Product List Filtered':
           props.filters = props.filters || [];
           props.sorts = props.sorts || [];
-          filters = props.filters
-            .map(obj => {
-              return `${obj.type}:${obj.value}`;
-            })
-            .join();
-          sorts = props.sorters
-            .map(obj => {
-              return `${obj.type}:${obj.value}`;
-            })
-            .join();
+          filters = props.filters.map(obj => `${obj.type}:${obj.value}`).join();
+          sorts = props.sorts.map(obj => `${obj.type}:${obj.value}`).join();
 
           this.loadEnhancedEcommerce(rudderElement);
 
@@ -435,10 +447,8 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         default:
-          if (rudderElement.message.properties) {
-            eventValue = rudderElement.message.properties.value
-              ? rudderElement.message.properties.value
-              : rudderElement.message.properties.revenue;
+          if (properties) {
+            eventValue = value || revenue;
           }
 
           payload = {
@@ -447,10 +457,7 @@ export default class GA {
             eventLabel,
             eventValue: this.formatValue(eventValue),
             // Allow users to override their nonInteraction integration setting for any single particluar event.
-            nonInteraction:
-              rudderElement.message.properties.nonInteraction !== undefined
-                ? !!rudderElement.message.properties.nonInteraction
-                : !!this.nonInteraction,
+            nonInteraction: nonInteraction !== undefined ? !!nonInteraction : !!this.nonInteraction,
           };
 
           if (campaign) {
@@ -463,17 +470,15 @@ export default class GA {
 
           payload = {
             payload,
-            ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
+            ...this.setCustomDimenionsAndMetrics(properties),
           };
 
           window.ga(`${this.trackerName}send`, 'event', payload.payload);
           logger.debug('in GoogleAnalyticsManager track');
       }
     } else {
-      if (rudderElement.message.properties) {
-        eventValue = rudderElement.message.properties.value
-          ? rudderElement.message.properties.value
-          : rudderElement.message.properties.revenue;
+      if (properties) {
+        eventValue = value || revenue;
       }
 
       payload = {
@@ -482,10 +487,7 @@ export default class GA {
         eventLabel,
         eventValue: this.formatValue(eventValue),
         // Allow users to override their nonInteraction integration setting for any single particluar event.
-        nonInteraction:
-          rudderElement.message.properties.nonInteraction !== undefined
-            ? !!rudderElement.message.properties.nonInteraction
-            : !!this.nonInteraction,
+        nonInteraction: nonInteraction !== undefined ? !!nonInteraction : !!this.nonInteraction,
       };
 
       if (campaign) {
@@ -498,7 +500,7 @@ export default class GA {
 
       payload = {
         payload,
-        ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
+        ...this.setCustomDimenionsAndMetrics(properties),
       };
 
       window.ga(`${this.trackerName}send`, 'event', payload.payload);
@@ -509,26 +511,26 @@ export default class GA {
   page(rudderElement) {
     logger.debug('in GoogleAnalyticsManager page');
 
-    const { category } = rudderElement.message.properties;
-    const eventProperties = rudderElement.message.properties;
+    const { properties, context } = rudderElement.message;
+    const { category, referrer } = properties;
+    const eventProperties = properties;
     let name;
-    if (rudderElement.message.properties.category && rudderElement.message.name) {
-      name = `${rudderElement.message.properties.category} ${rudderElement.message.name}`;
-    } else if (!rudderElement.message.properties.category && !rudderElement.message.name) {
+    if (category && rudderElement.message.name) {
+      name = `${category} ${rudderElement.message.name}`;
+    } else if (!category && !rudderElement.message.name) {
       name = '';
     } else {
-      name = rudderElement.message.name || rudderElement.message.properties.category;
+      name = rudderElement.message.name || category;
     }
 
-    const campaign = rudderElement.message.context.campaign || {};
+    const campaign = context.campaign || {};
     let pageview = {};
     const pagePath = this.path(eventProperties, this.includeSearch);
-    const pageReferrer = rudderElement.message.properties.referrer || '';
+    const pageReferrer = referrer || '';
     let pageTitle;
-    if (!rudderElement.message.properties.category && !rudderElement.message.name)
-      pageTitle = eventProperties.title;
-    else if (!rudderElement.message.properties.category) pageTitle = rudderElement.message.name;
-    else if (!rudderElement.message.name) pageTitle = rudderElement.message.properties.category;
+    if (!category && !rudderElement.message.name) pageTitle = eventProperties.title;
+    else if (!category) pageTitle = rudderElement.message.name;
+    else if (!rudderElement.message.name) pageTitle = category;
     else pageTitle = name;
 
     pageview.page = pagePath;
@@ -650,7 +652,7 @@ export default class GA {
       this.metricsArray,
       this.contentGroupingsArray,
     );
-    if (Object.keys(custom).length) {
+    if (Object.keys(custom).length > 0) {
       if (this.setAllMappedProps) {
         window.ga(`${this.trackerName}set`, custom);
       } else {
@@ -673,10 +675,8 @@ export default class GA {
    */
   path(properties, includeSearch) {
     let str = properties.path;
-    if (properties) {
-      if (includeSearch && properties.search) {
-        str += properties.search;
-      }
+    if (properties && includeSearch && properties.search) {
+      str += properties.search;
     }
     return str;
   }
@@ -788,7 +788,7 @@ export default class GA {
    * @param  {} products
    */
   getProductPosition(item, products) {
-    const { position } = item.properties;
+    const { position, product_id: productId } = item.properties;
 
     if (
       typeof position !== 'undefined' &&
@@ -798,13 +798,7 @@ export default class GA {
       return position;
     }
 
-    return (
-      products
-        .map(x => {
-          return x.product_id;
-        })
-        .indexOf(item.properties.product_id) + 1
-    );
+    return products.map(x => x.product_id).indexOf(productId) + 1;
   }
 
   /**

@@ -7,7 +7,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { RudderEventType } from '../types/plugins';
-import { DEFAULT_QUEUE_OPTIONS } from './constants';
+import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
 import { DESTINATION_EVENT_FORWARDING_ERROR } from '../utilities/logMessages';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
@@ -72,7 +72,7 @@ const sendEventToDestination = (
   } catch (err) {
     errorHandler?.onError(
       err,
-      'NativeDestinationQueue',
+      NATIVE_DESTINATION_QUEUE_PLUGIN,
       DESTINATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
     );
   }

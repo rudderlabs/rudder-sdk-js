@@ -130,6 +130,15 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.loaded.value).toBeTruthy();
       expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
     });
+    it('should dispatch RSA initialised event', () => {
+      const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
+      state.loadOptions.value.onLoaded = jest.fn();
+      analytics.onInitialized();
+      expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
+        analyticsInstance: undefined,
+      });
+    });
   });
 
   describe('onDestinationsReady', () => {
@@ -182,6 +191,15 @@ describe('Core - Analytics', () => {
       expect(callback).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.readyCallbacksArray.value).toStrictEqual([]);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+    });
+    it('should dispatch RSA ready event', () => {
+      const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
+      analytics.onReady();
+
+      expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
+        analyticsInstance: undefined,
+      });
     });
   });
 

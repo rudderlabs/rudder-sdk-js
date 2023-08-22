@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.5",
   "private": true,
   "description": "RudderStack Javascript SDK device mode integrations",
   "main": "modern/cjs/index.js",
@@ -41,7 +41,7 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-integrations/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo",
     "start": "npm run build && npm run serve",
@@ -87,7 +87,7 @@
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/each": "2.0.1",
     "@ndhoule/extend": "2.0.0",
-    "@rudderstack/analytics-js-common": "^3.0.0",
+    "@rudderstack/analytics-js-common": "3.0.0-beta.5",
     "component-each": "0.2.6",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",

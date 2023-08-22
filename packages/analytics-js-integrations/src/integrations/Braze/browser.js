@@ -6,7 +6,7 @@ import Storage from '@rudderstack/analytics-js-common/v1.1/utils/storage/index';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
-import { load } from './nativeSdkLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -39,7 +39,8 @@ class Braze {
     this.name = NAME;
     this.supportDedup = config.supportDedup || false;
     ({
-      areTransformationsConnected: this.areTransformationsConnected,
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
 
@@ -48,7 +49,7 @@ class Braze {
 
   init() {
     logger.debug('===in init Braze===');
-    load();
+    loadNativeSdk();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,

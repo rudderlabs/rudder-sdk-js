@@ -67,8 +67,8 @@
       var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
+        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
         cookieConsentManager: {
           oneTrust: {
             enabled: true,
@@ -88,6 +88,9 @@
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
+
+      window.userWriteKey = '__FEATURE_EVENT_FILTERING_WRITE_KEY__';
+      window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
       rel="stylesheet"

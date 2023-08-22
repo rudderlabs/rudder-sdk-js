@@ -16,19 +16,30 @@ class Lotame {
     this.dspUrlSettingsPixel = config.dspUrlSettingsPixel;
     this.dspUrlSettingsIframe = config.dspUrlSettingsIframe;
     this.mappings = {};
-    config.mappings.forEach(mapping => {
+    config?.mappings?.forEach(mapping => {
       const { key } = mapping;
       const { value } = mapping;
       this.mappings[key] = value;
     });
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===in init Lotame===');
     window.LOTAME_SYNCH_CALLBACK = () => {};
+  }
+
+  isLoaded() {
+    logger.debug('in Lotame isLoaded');
+    return true;
+  }
+
+  isReady() {
+    return true;
   }
 
   addPixel(source, width, height) {
@@ -90,24 +101,22 @@ class Lotame {
   }
 
   compileUrl(map, url) {
+    let compiledUrl = url;
     Object.keys(map).forEach(key => {
-      if (map.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(map, key)) {
+        const value = map[key];
         const replaceKey = `{{${key}}}`;
         const regex = new RegExp(replaceKey, 'gi');
-        url = url.replace(regex, map[key]);
+        compiledUrl = compiledUrl.replace(regex, value);
       }
     });
-    return url;
+    return compiledUrl;
   }
 
   identify(rudderElement) {
     logger.debug('in Lotame identify');
     const { userId } = rudderElement.message;
     this.syncPixel(userId);
-  }
-
-  track(rudderElement) {
-    logger.debug('track not supported for lotame');
   }
 
   page(rudderElement) {
@@ -151,15 +160,6 @@ class Lotame {
 
     const difference = Math.floor((currentTime - lastSynchedTime) / (1000 * 3600 * 24));
     return difference >= 7;
-  }
-
-  isLoaded() {
-    logger.debug('in Lotame isLoaded');
-    return true;
-  }
-
-  isReady() {
-    return true;
   }
 }
 

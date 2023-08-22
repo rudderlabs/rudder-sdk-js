@@ -9,6 +9,8 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { API_CALLBACK_INVOKE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { HttpClient } from '../../services/HttpClient';
 import { state } from '../../state';
 import { IEventRepository } from './types';
@@ -75,9 +77,41 @@ class EventRepository implements IEventRepository {
     // Start the queue once the client destinations are ready
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
-        this.destinationsEventsQueue.start();
+        this.destinationsEventsQueue?.start();
       }
     });
+
+    // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
+    // However, events will be enqueued for now.
+    // At the time of processing the events, the integrations config data from destinations
+    // is merged into the event object
+    let timeoutId: number;
+    effect(() => {
+      const shouldBufferDpEvents =
+        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
+        state.nativeDestinations.clientDestinationsReady.value === false;
+
+      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
+        (dest: Destination) => isHybridModeDestination(dest),
+      );
+
+      if (
+        (hybridDestExist === false || shouldBufferDpEvents === false) &&
+        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
+      ) {
+        (globalThis as typeof window).clearTimeout(timeoutId);
+        this.dataplaneEventsQueue?.start();
+      }
+    });
+
+    // Force start the data plane events queue processing after a timeout
+    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
+      timeoutId = (globalThis as typeof window).setTimeout(() => {
+        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+          this.dataplaneEventsQueue?.start();
+        }
+      }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
+    }
   }
 
   /**
@@ -86,37 +120,6 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
-    // However, events will be enqueued for now.
-    // At the time of processing the events, the integrations config data from destinations
-    // is merged into the event object
-    effect(() => {
-      const shouldBufferDpEvents =
-        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
-        state.nativeDestinations.clientDestinationsReady.value === false;
-
-      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(dest =>
-        isHybridModeDestination(dest),
-      );
-
-      if (
-        hybridDestExist === false ||
-        (shouldBufferDpEvents === false &&
-          this.dataplaneEventsQueue?.scheduleTimeoutActive !== true)
-      ) {
-        this.dataplaneEventsQueue?.start();
-      }
-    });
-
-    // Force start the data plane events queue processing after a timeout
-    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
-      (globalThis as typeof window).setTimeout(() => {
-        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
-          this.dataplaneEventsQueue?.start();
-        }
-      }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
-    }
-
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
@@ -143,7 +146,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(dpQEvent);
     } catch (error) {
-      this.onError(error, 'API Callback Invocation Failed');
+      this.onError(error, API_CALLBACK_INVOKE_ERROR);
     }
   }
 

@@ -1,15 +1,15 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.5",
   "private": true,
-  "description": "",
+  "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "lerna:version": "lerna version --exact --conventional-commits --no-push -y",
     "lerna:publish": "lerna publish from-package --no-private -y --create-release github",
-    "bump-version:monorepo": "npm version minor --git-tag-version false",
+    "bump-version:monorepo": "npm version prerelease --no-git-tag-version",
     "setup": "npx lerna@6 bootstrap && lerna link",
     "setup:ci": "npx lerna@6 bootstrap --ci && lerna link",
     "clean": "lerna clean --yes && lerna run --concurrency 1 clean && git clean -xdf node_modules",
@@ -26,7 +26,7 @@
     "build:package": "lerna run build:package",
     "package": "lerna run package",
     "build:integrations": "cd packages/analytics-js-integrations && npm run build:modern && npm run build",
-    "test": "lerna run --concurrency 1 test",
+    "test": "lerna run test",
     "test:ci": "lerna run --concurrency 1 test:ci",
     "check:lint": "lerna run check:lint",
     "check:lint:dev": "lerna run check:lint:dev",
@@ -41,7 +41,7 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky install",
-    "pre-commit": "npm run test -- --concurrency 1 --scope \"@rudderstack/analytics-js\" --scope \"@rudderstack/analytics-js-plugins\" && npm run check:size:build && npx lint-staged",
+    "pre-commit": "npm run test && npm run check:size:build && npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
     "release": "npx standard-version",
@@ -56,7 +56,7 @@
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js#readme",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
@@ -187,9 +187,12 @@
   },
   "overrides": {
     "@xmldom/xmldom": "0.8.5",
+    "conventional-changelog": "3.1.25",
     "debug": "4.3.4",
     "decode-uri-component": "0.4.1",
     "dot-prop": "5.3.0",
+    "gh-got": "9.0.0",
+    "git-semver-tags": "4.1.1",
     "http-cache-semantics": "4.1.1",
     "semver-regex": "3.1.4",
     "trim-newlines": "3.0.1",

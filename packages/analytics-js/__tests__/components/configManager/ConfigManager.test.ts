@@ -5,7 +5,7 @@ import { ConfigManager } from '@rudderstack/analytics-js/components/configManage
 import { state } from '@rudderstack/analytics-js/state';
 import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { rest } from 'msw';
-import { DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
 import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
@@ -69,7 +69,7 @@ describe('ConfigManager', () => {
       state.loadOptions.value.lockIntegrationsVersion = false;
       state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
       state.loadOptions.value.logLevel = LogLevel.Error;
-      state.loadOptions.value.configUrl = getSourceConfigURL();
+      state.loadOptions.value.configUrl = DEFAULT_CONFIG_BE_URL;
     });
   };
 

@@ -7,11 +7,11 @@ import {
   identifyArgumentsToCallOptions,
   isFunction,
   isHybridModeDestination,
-  isUndefined,
   mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/index';
+import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,
   DeviceModeDestination,
@@ -23,7 +23,7 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
@@ -63,7 +63,6 @@ const createDestinationInstance = (
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-  logger?: ILogger,
 ) => {
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
@@ -142,35 +141,6 @@ const isDestinationReady = (dest: Destination) =>
   });
 
 /**
- * Converts the common names of the destinations to their display names
- * @param intgOptions Load or API integration options
- */
-const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): IntegrationOpts => {
-  const normalizedIntegrationOptions: IntegrationOpts = {};
-  if (intgOptions) {
-    Object.keys(intgOptions).forEach(key => {
-      const destOpts = clone(intgOptions[key]);
-      if (key === 'All') {
-        normalizedIntegrationOptions[key] = Boolean(destOpts);
-      } else {
-        const displayName = destCNamesToDisplayNamesMap[key];
-        if (displayName) {
-          normalizedIntegrationOptions[displayName] = destOpts;
-        } else {
-          normalizedIntegrationOptions[key] = destOpts;
-        }
-      }
-    });
-  }
-
-  if (isUndefined(normalizedIntegrationOptions.All)) {
-    normalizedIntegrationOptions.All = true;
-  }
-
-  return normalizedIntegrationOptions;
-};
-
-/**
  * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
  * @param intgOpts Integration options object
  * @param destinations Destinations array
@@ -179,16 +149,16 @@ const normalizeIntegrationOptions = (intgOptions?: IntegrationOpts): Integration
 const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
   const allOptVal = intgOpts.All;
   return destinations.filter(dest => {
-    const dispName = dest.displayName;
+    const destDisplayName = dest.displayName;
     let isDestEnabled;
     if (allOptVal) {
       isDestEnabled = true;
-      if (isDestIntgConfigFalsy(intgOpts[dispName])) {
+      if (isDestIntgConfigFalsy(intgOpts[destDisplayName])) {
         isDestEnabled = false;
       }
     } else {
       isDestEnabled = false;
-      if (isDestIntgConfigTruthy(intgOpts[dispName])) {
+      if (isDestIntgConfigTruthy(intgOpts[destDisplayName])) {
         isDestEnabled = true;
       }
     }
@@ -207,19 +177,20 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
 const getCumulativeIntegrationsConfig = (
   dest: Destination,
   curDestIntgConfig: IntegrationOpts,
-  logger?: ILogger,
+  errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject(),
+        normalizeIntegrationOptions(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
-      logger?.error(
-        DESTINATION_INTEGRATIONS_DATA_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
+      errorHandler?.onError(
         err,
+        DEVICE_MODE_DESTINATIONS_PLUGIN,
+        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
       );
     }
   }
@@ -231,17 +202,12 @@ const initializeDestination = (
   state: ApplicationState,
   destSDKIdentifier: string,
   sdkTypeName: string,
+  errorHandler?: IErrorHandler,
   logger?: ILogger,
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const destInstance = createDestinationInstance(
-      destSDKIdentifier,
-      sdkTypeName,
-      dest,
-      state,
-      logger,
-    );
+    const destInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, dest, state);
     initializedDestination.instance = destInstance;
 
     destInstance.init();
@@ -253,7 +219,7 @@ const initializeDestination = (
           state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
             initializedDestination,
             state.nativeDestinations.integrationsConfig.value,
-            logger,
+            errorHandler,
           );
         }
 
@@ -272,9 +238,10 @@ const initializeDestination = (
         ];
       });
   } catch (err) {
-    logger?.error(
-      DESTINATION_INIT_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.userFriendlyId),
+    errorHandler?.onError(
       err,
+      DEVICE_MODE_DESTINATIONS_PLUGIN,
+      DESTINATION_INIT_ERROR(dest.userFriendlyId),
     );
 
     state.nativeDestinations.failedDestinations.value = [
@@ -289,7 +256,6 @@ export {
   wait,
   createDestinationInstance,
   isDestinationReady,
-  normalizeIntegrationOptions,
   filterDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,

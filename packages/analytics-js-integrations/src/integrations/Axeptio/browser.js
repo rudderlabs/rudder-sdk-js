@@ -1,9 +1,10 @@
+/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Axeptio/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import Logger from '../../utils/logger';
 import makeACall from './utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -16,27 +17,16 @@ class Axeptio {
     this.name = NAME;
     this.clientId = config.clientId;
     this.toggleToActivateCallback = config.toggleToActivateCallback;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
-  }
-
-  loadScript() {
-    window.axeptioSettings = {
-      clientId: this.clientId,
-    };
-    (function (d, s) {
-      var t = d.getElementsByTagName(s)[0],
-        e = d.createElement(s);
-      e.async = true;
-      e.src = '//static.axept.io/sdk.js';
-      e.setAttribute('data-loader', LOAD_ORIGIN), t.parentNode.insertBefore(e, t);
-    })(document, 'script');
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===In init Axeptio===');
-    this.loadScript();
+    loadNativeSdk(this.clientId);
   }
 
   isLoaded() {
@@ -55,7 +45,7 @@ class Axeptio {
   // this function is used to record the triggered axeptio events through callback
   recordAxeptioEvents() {
     window._axcb = window._axcb || [];
-    window._axcb.push(function () {
+    window._axcb.push(() => {
       window.__axeptioSDK.on(
         'cookies:*',
         function (payload, event) {

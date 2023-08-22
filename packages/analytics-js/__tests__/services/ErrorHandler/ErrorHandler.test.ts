@@ -183,7 +183,11 @@ describe('ErrorHandler', () => {
     errorHandlerInstance.leaveBreadcrumb('breadcrumb');
 
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
-    expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'errorReporting.breadcrumb');
+    expect(onErrorSpy).toHaveBeenCalledWith(
+      expect.any(Error),
+      'ErrorHandler',
+      'errorReporting.breadcrumb',
+    );
     onErrorSpy.mockRestore();
   });
 

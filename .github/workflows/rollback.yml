@@ -28,7 +28,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build and sync files to S3
+      - name: Build release artifacts
         env:
           HUSKY: 0
         run: |

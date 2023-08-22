@@ -3,10 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { removeTrailingSlashes } from '../../../utils/utils';
-import { createPayload } from './util';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { removeTrailingSlashes } from '../../../utils/utils';
+import { createPayload } from './util';
 
 const timeout = 10 * 1000;
 const EVENT_CHECK_INTERVAL = 100;
@@ -29,9 +29,10 @@ class TransformationsHandler {
   }
 
   // Enqueue the events and callbacks
-  enqueue(event, cb) {
+  enqueue(event, destinationIds, cb) {
     this.queue.push({
       event,
+      destinationIds,
       cb,
     });
   }
@@ -61,67 +62,67 @@ class TransformationsHandler {
               const { status } = xhr;
               let { response } = xhr;
 
-              if (status === 200) {
-                if (response && typeof response === 'string') {
+              switch (status) {
+                case 200: {
                   response = JSON.parse(response);
-                } else {
-                  reject(`[Transformation]:: Transformation failed. Invalid response from server.`);
+                  /**
+                   * Sample Response format:
+                   * {
+                      "transformedBatch" :[
+                        {
+                          "id": "destination-id",
+                          "payload": [
+                            {
+                              "orderNo":1,
+                              "status": "200",
+                              "event": {
+                                "message": { ...}
+                            }]
+                        }]
+                      }
+                  */
+                  resolve({
+                    status,
+                    transformedPayload: response.transformedBatch,
+                  });
                   return;
                 }
-                /**
-                 * Sample Response format:
-                 * {
-                    "transformedBatch" :[
-                      {
-                        "id": "destination-id",
-                        "payload": [
-                          {
-                            "orderNo":1,
-                            "status": "200",
-                            "event": {
-                              "message": { ...}
-                          }]
-                      }]
-                    }
-                */
-                resolve({
-                  transformedPayload: response.transformedBatch,
-                  transformationServerAccess: true,
-                });
-                return;
-              }
-              if (status === 400) {
-                const errorMessage = response
-                  ? `[Transformation]:: ${response}`
-                  : `[Transformation]:: Invalid request payload`;
-                reject(errorMessage);
-                return;
-              }
-              if (status === 404) {
-                resolve({
-                  transformedPayload: payload.batch,
-                  transformationServerAccess: false,
-                });
-                return;
-              }
 
-              // If the request is not successful
-              // one or more transformation is unsuccessfull
-              // retry till the retryAttempt is exhausted
-              if (retryAttempt > 0) {
-                const newRetryAttempt = retryAttempt - 1;
-                setTimeout(
-                  () =>
-                    this.sendEventForTransformation(payload, newRetryAttempt)
-                      .then(resolve)
-                      .catch(reject),
-                  RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
-                );
-              } else {
-                // Even after all the retries event transformation
-                // is not successful, ignore the event
-                reject(`[Transformation]:: Transformation failed with status ${status}`);
-                return;
+                case 400: {
+                  const errorMessage = response ? `${response}` : `Invalid request payload`;
+                  resolve({
+                    status,
+                    errorMessage,
+                  });
+                  return;
+                }
+                case 404: {
+                  resolve({
+                    status,
+                  });
+                  return;
+                }
+                default: {
+                  // If the request is not successful
+                  // retry till the retryAttempt is exhausted
+                  if (retryAttempt > 0) {
+                    const newRetryAttempt = retryAttempt - 1;
+                    setTimeout(
+                      () =>
+                        this.sendEventForTransformation(payload, newRetryAttempt)
+                          .then(resolve)
+                          .catch(reject),
+                      RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
+                    );
+                  } else {
+                    // Even after all the retries event transformation
+                    // is not successful, return the response with a flag retryExhausted
+                    resolve({
+                      status,
+                      errorMessage: 'Retries exhausted',
+                    });
+                  }
+                }
               }
             } catch (err) {
               reject(err);
@@ -149,7 +150,7 @@ class TransformationsHandler {
   process() {
     this.isTransformationProcessing = true;
     const firstElement = this.queue.shift();
-    const payload = createPayload(firstElement.event, this.authToken);
+    const payload = createPayload(firstElement.event, firstElement.destinationIds, this.authToken);
 
     // Send event for transformation with payload, writekey and retryAttempt
     this.sendEventForTransformation(payload, this.retryAttempt)
@@ -165,8 +166,8 @@ class TransformationsHandler {
           handleError(err.message);
         }
         this.isTransformationProcessing = false;
-        // send null as response in case of error or retry fail
-        firstElement.cb({ transformedPayload: null });
+        // send only status as response in case of unhandled error occurs
+        firstElement.cb({ status: 0 });
         this.checkQueueLengthAndProcess();
       });
   }

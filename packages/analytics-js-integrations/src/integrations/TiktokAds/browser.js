@@ -1,6 +1,4 @@
-/* eslint-disable*/
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
@@ -8,12 +6,12 @@ import {
   eventNameMapping,
 } from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
 import {
-  getHashFromArrayWithDuplicate,
-  getDestinationExternalID,
   isDefinedAndNotNull,
+  getDestinationExternalID,
+  getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { getTrackResponse } from './util';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 // Docs : https://ads.tiktok.com/gateway/docs/index
 class TiktokAds {
@@ -25,59 +23,16 @@ class TiktokAds {
     this.analytics = analytics;
     this.eventsToStandard = config.eventsToStandard;
     this.pixelCode = config.pixelCode;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===In init Tiktok Ads===');
-    !(function (w, d, t) {
-      w.TiktokAnalyticsObject = t;
-      var ttq = (w[t] = w[t] || []);
-      (ttq.methods = [
-        'page',
-        'track',
-        'identify',
-        'instances',
-        'debug',
-        'on',
-        'off',
-        'once',
-        'ready',
-        'alias',
-        'group',
-        'enableCookie',
-        'disableCookie',
-      ]),
-        (ttq.setAndDefer = function (t, e) {
-          t[e] = function () {
-            t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-          };
-        });
-      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
-      (ttq.instance = function (t) {
-        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++)
-          ttq.setAndDefer(e, ttq.methods[n]);
-        return e;
-      }),
-        (ttq.load = function (e, n) {
-          var i = 'https://analytics.tiktok.com/i18n/pixel/events.js';
-          (ttq._i = ttq._i || {}),
-            (ttq._i[e] = []),
-            (ttq._i[e]._u = i),
-            (ttq._t = ttq._t || {}),
-            (ttq._t[e] = +new Date()),
-            (ttq._o = ttq._o || {}),
-            (ttq._o[e] = n || {});
-          var o = document.createElement('script');
-          o.setAttribute('data-loader', LOAD_ORIGIN);
-          (o.type = 'text/javascript'), (o.async = !0), (o.src = i + '?sdkid=' + e + '&lib=' + t);
-          var a = document.getElementsByTagName('script')[0];
-          a.parentNode.insertBefore(o, a);
-        });
-    })(window, document, 'ttq');
-    ttq.load(this.pixelCode);
+    loadNativeSdk(this.pixelCode);
   }
 
   isLoaded() {
@@ -137,7 +92,7 @@ class TiktokAds {
       });
     } else {
       event = eventNameMapping[event];
-      const updatedProperties = getTrackResponse(message, Config, event);
+      const updatedProperties = getTrackResponse(message);
       window.ttq.track(event, updatedProperties);
     }
   }

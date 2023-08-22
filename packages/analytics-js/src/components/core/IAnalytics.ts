@@ -93,9 +93,14 @@ export interface IAnalytics {
   loadPlugins(): void;
 
   /**
-   * Trigger onLoaded callback if any is provided in config
+   * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized(): void;
+
+  /**
+   * Emit ready event
+   */
+  onReady(): void;
 
   /**
    * Consume preloaded events buffer

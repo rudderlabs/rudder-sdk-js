@@ -55,7 +55,8 @@ import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
-import { READY_API_CALLBACK_ERROR } from '../../constants/logMessages';
+import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
+import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { IAnalytics } from './IAnalytics';
 
 /*
@@ -102,6 +103,7 @@ class Analytics implements IAnalytics {
     this.processBufferedEvents = this.processBufferedEvents.bind(this);
     this.loadDestinations = this.loadDestinations.bind(this);
     this.onDestinationsReady = this.onDestinationsReady.bind(this);
+    this.onReady = this.onReady.bind(this);
     this.ready = this.ready.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -196,6 +198,7 @@ class Analytics implements IAnalytics {
             this.onDestinationsReady();
             break;
           case LifecycleStatus.Ready:
+            this.onReady();
             break;
           default:
             break;
@@ -312,7 +315,7 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Trigger onLoaded callback if any is provided in config
+   * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized() {
     // Process any preloaded events
@@ -332,6 +335,32 @@ class Analytics implements IAnalytics {
     });
 
     this.initialized = true;
+
+    // Emit an event to use as substitute to the onLoaded callback
+    const initializedEvent = new CustomEvent('RSA_Initialised', {
+      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+
+    (globalThis as typeof window).document.dispatchEvent(initializedEvent);
+  }
+
+  /**
+   * Emit ready event
+   */
+  // eslint-disable-next-line class-methods-use-this
+  onReady() {
+    // Emit an event to use as substitute to the ready callback
+    const readyEvent = new CustomEvent('RSA_Ready', {
+      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+
+    (globalThis as typeof window).document.dispatchEvent(readyEvent);
   }
 
   /**
@@ -357,6 +386,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.setActiveDestinations',
       state,
       this.pluginsManager,
+      this.errorHandler,
       this.logger,
     );
 
@@ -372,6 +402,7 @@ class Analytics implements IAnalytics {
       'nativeDestinations.load',
       state,
       this.externalSrcLoader,
+      this.errorHandler,
       this.logger,
     );
 
@@ -397,7 +428,13 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onDestinationsReady() {
-    state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
+    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
+      try {
+        callback();
+      } catch (err) {
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+      }
+    });
     state.lifecycle.status.value = LifecycleStatus.Ready;
   }
   // End lifecycle methods
@@ -423,7 +460,11 @@ class Analytics implements IAnalytics {
      * will be executed after loading completes
      */
     if (state.lifecycle.status.value === LifecycleStatus.Ready) {
-      callback();
+      try {
+        callback();
+      } catch (err) {
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+      }
     } else {
       state.eventBuffer.readyCallbacksArray.value.push(callback);
     }
@@ -451,6 +492,7 @@ class Analytics implements IAnalytics {
     // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
     // Send automatic ad blocked page event if adblockers are detected on the page
+    // Check page category to avoid infinite loop
     if (
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY
