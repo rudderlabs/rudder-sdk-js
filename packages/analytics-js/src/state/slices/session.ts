@@ -11,7 +11,7 @@ const defaultSessionInfo: SessionInfo = {
 const sessionState: SessionState = {
   userId: signal(undefined),
   userTraits: signal(undefined),
-  anonymousUserId: signal(undefined),
+  anonymousId: signal(undefined),
   groupId: signal(undefined),
   groupTraits: signal(undefined),
   initialReferrer: signal(undefined),

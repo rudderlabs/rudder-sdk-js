@@ -1,7 +1,7 @@
 export enum UserSessionKeys {
   userId = 'userId',
   userTraits = 'userTraits',
-  anonymousUserId = 'anonymousId',
+  anonymousId = 'anonymousId',
   groupId = 'groupId',
   groupTraits = 'groupTraits',
   initialReferrer = 'initialReferrer',

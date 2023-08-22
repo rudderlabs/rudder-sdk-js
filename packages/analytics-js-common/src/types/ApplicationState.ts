@@ -123,7 +123,7 @@ export type ReportingState = {
 export type SessionState = {
   readonly userId: Signal<Nullable<string> | undefined>;
   readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
-  readonly anonymousUserId: Signal<string | undefined>;
+  readonly anonymousId: Signal<string | undefined>;
   readonly groupId: Signal<Nullable<string> | undefined>;
   readonly groupTraits: Signal<Nullable<ApiObject> | undefined>;
   readonly initialReferrer: Signal<string | undefined>;
@@ -136,7 +136,7 @@ export type SourceConfigState = Signal<Source | undefined>;
 export type Entries = {
   [UserSessionKeys.userId]: StorageType;
   [UserSessionKeys.userTraits]: StorageType;
-  [UserSessionKeys.anonymousUserId]: StorageType;
+  [UserSessionKeys.anonymousId]: StorageType;
   [UserSessionKeys.groupId]: StorageType;
   [UserSessionKeys.groupTraits]: StorageType;
   [UserSessionKeys.initialReferrer]: StorageType;

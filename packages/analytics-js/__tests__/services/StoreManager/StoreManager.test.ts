@@ -59,7 +59,7 @@ describe('StoreManager', () => {
         { enabled: true },
       );
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
     });
 
     it('should not initialize if already initialized', () => {
@@ -82,7 +82,7 @@ describe('StoreManager', () => {
 
       storeManager.initClientDataStore();
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
     });
 
     it('should initialize client data store using local storage', () => {
@@ -97,7 +97,7 @@ describe('StoreManager', () => {
 
       storeManager.initClientDataStore();
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+      expect(storeManager.stores).toHaveProperty('clientDataInLocalStorage');
     });
 
     describe('Stores', () => {

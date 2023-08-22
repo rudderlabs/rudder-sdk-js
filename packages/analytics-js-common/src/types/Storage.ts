@@ -14,6 +14,8 @@ export type StorageType =
   | 'sessionStorage'
   | 'none';
 
+export type StorageTypeWithStore = 'localStorage' | 'memoryStorage' | 'cookieStorage';
+
 export const SUPPORTED_STORAGE_TYPES = [
   'localStorage',
   'memoryStorage',
@@ -23,6 +25,7 @@ export const SUPPORTED_STORAGE_TYPES = [
 ];
 
 export const DEFAULT_STORAGE_TYPE = 'cookieStorage';
+export type MigrationStorageType = 'cookieStorage' | 'localStorage';
 
 export type StorageEncryption = {
   version: StorageEncryptionVersion;
@@ -40,7 +43,7 @@ export type StorageOpts = {
     [UserSessionKeys.userTraits]?: {
       type: StorageType;
     };
-    [UserSessionKeys.anonymousUserId]?: {
+    [UserSessionKeys.anonymousId]?: {
       type: StorageType;
     };
     [UserSessionKeys.groupId]?: {
@@ -60,3 +63,5 @@ export type StorageOpts = {
     };
   };
 };
+
+export type UserSessionKeysType = keyof typeof UserSessionKeys;

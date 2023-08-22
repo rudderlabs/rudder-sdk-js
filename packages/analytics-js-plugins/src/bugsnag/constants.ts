@@ -32,7 +32,6 @@ const APP_STATE_EXCLUDE_KEYS = [
   'anonymousId',
   'config',
   'instance', // destination instance objects
-  'anonymousUserId',
   'eventBuffer', // pre-load event buffer (may contain PII)
   'traits',
 ];

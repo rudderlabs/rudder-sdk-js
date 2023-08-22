@@ -24,7 +24,7 @@ describe('RudderEventFactory', () => {
 
   beforeEach(() => {
     batch(() => {
-      state.session.anonymousUserId.value = 'anon_id';
+      state.session.anonymousId.value = 'anon_id';
       state.session.userTraits.value = { test: 'test' };
       state.session.userId.value = 'user_id';
       state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;

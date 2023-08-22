@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { LogLevel } from './Logger';
 import { ResidencyServerRegion } from './DataResidency';
 import { Nullable } from './Nullable';

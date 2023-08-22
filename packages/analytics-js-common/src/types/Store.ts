@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { IErrorHandler } from './ErrorHandler';
 import { ILogger } from './Logger';
 import { IPluginsManager } from './PluginsManager';
