@@ -1,3 +1,7 @@
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
 import { getDataFromSource } from '../../utils/utils';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
 
@@ -10,6 +14,17 @@ const ITEMS_MAPPING = [
   { src: 'image_url', dest: 'imageUrl' },
   { src: 'url', dest: 'url' },
 ];
+
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 function getMappingObject(properties, mappings) {
   let itemsObject = {};
@@ -74,8 +89,9 @@ function existsInMapping(mappedEvents, event) {
  * @returns
  */
 const extractJWT = integrations => {
-  if (integrations?.ITERABLE) {
-    const { jwt_token: jwtToken } = integrations.ITERABLE;
+  const iterableIntgConfig = getDestinationOptions(integrations);
+  if (iterableIntgConfig) {
+    const { jwt_token: jwtToken } = iterableIntgConfig;
     return isDefinedAndNotNull(jwtToken) ? jwtToken : undefined;
   }
   return undefined;

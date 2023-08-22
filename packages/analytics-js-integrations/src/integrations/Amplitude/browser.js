@@ -3,9 +3,8 @@
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
-
 import { loadNativeSdk } from './nativeSdkLoader';
-import { getTraitsToSetOnce, getTraitsToIncrement } from './utils';
+import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
 
 const logger = new Logger(NAME);
 
@@ -219,7 +218,8 @@ class Amplitude {
     this.setDeviceId(rudderElement);
 
     const { properties, name, category, integrations } = rudderElement.message;
-    const useNewPageEventNameFormat = integrations?.AM?.useNewPageEventNameFormat || false;
+    const amplitudeIntgConfig = getDestinationOptions(integrations);
+    const useNewPageEventNameFormat = amplitudeIntgConfig?.useNewPageEventNameFormat || false;
     // all pages
     if (this.trackAllPages) {
       const event = 'Loaded a page';
