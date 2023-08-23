@@ -56,7 +56,6 @@ import { EventRepository } from '../eventRepository';
 import { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
-import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { IAnalytics } from './IAnalytics';
 
 /*
