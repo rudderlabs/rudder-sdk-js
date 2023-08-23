@@ -54,7 +54,7 @@ class Logger implements ILogger {
     if (this.minLogLevel <= LOG_LEVEL_MAP[logMethod]) {
       this.logProvider[
         logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>
-      ](...this.formatLogData(data));
+      ]?.(...this.formatLogData(data));
     }
   }
 
