@@ -120,7 +120,6 @@ class TransformationsHandler {
                       status,
                       errorMessage: 'Retries exhausted',
                     });
-                    
                   }
                 }
               }

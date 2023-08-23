@@ -26,7 +26,6 @@ class CustomerIO {
     logger.debug('===in init Customer IO init===');
     const { siteID, datacenterEU } = this;
     loadNativeSdk(siteID, datacenterEU);
-
   }
 
   identify(rudderElement) {
