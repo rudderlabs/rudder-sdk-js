@@ -27,6 +27,7 @@ import {
   isStorageAvailable,
 } from './detection';
 import { detectAdBlockers } from './detection/adBlockers';
+import { DEBOUNCED_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
@@ -144,7 +145,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isOnline.value = true;
     });
 
-    // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value
+    globalThis.addEventListener('resize', () => {
+      // Adding a timeout as resize event can fire frequently
+      setTimeout(() => {
+        state.context.screen.value = getScreenDetails();
+      }, DEBOUNCED_TIMEOUT_MS);
+    });
   }
 
   /**
