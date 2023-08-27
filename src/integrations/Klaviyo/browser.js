@@ -141,10 +141,9 @@ class Klaviyo {
 
   track(rudderElement) {
     const { message } = rudderElement;
-    let { event } = message;
     const properties = message?.properties || {};
 
-    event = event ? event.trim().toLowerCase() : event;
+    const event = message.event ? message.event.trim().toLowerCase() : message.event;
     if (this.ecomEvents.includes(event)) {
       let payload = ecommEventPayload(this.eventNameMapping[event], message);
       const eventName = this.eventNameMapping[event];
