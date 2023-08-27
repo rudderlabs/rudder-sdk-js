@@ -3,7 +3,7 @@ import {
   IInMemoryStorageOptions,
   ILocalStorageOptions,
 } from '@rudderstack/analytics-js-common/types/Store';
-import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import { DEFAULT_COOKIE_MAX_AGE_MS } from '../../../constants/timeouts';
 import { domain } from '../top-domain';
 

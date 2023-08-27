@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-cycle
-import { CookieOptions } from './Store';
 import { UserSessionKeys } from './userSessionStorageKeys';
 
 export enum StorageEncryptionVersion {
@@ -31,37 +29,33 @@ export type StorageEncryption = {
   version: StorageEncryptionVersion;
 };
 
+export type LoadOptionStorageEntry = {
+  type: StorageType;
+};
+
 export type StorageOpts = {
   encryption?: StorageEncryption;
   migrate?: boolean;
   type?: StorageType;
   cookie?: CookieOptions;
   entries?: {
-    [UserSessionKeys.userId]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.userTraits]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.anonymousId]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.groupId]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.groupTraits]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.initialReferrer]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.initialReferringDomain]?: {
-      type: StorageType;
-    };
-    [UserSessionKeys.sessionInfo]?: {
-      type: StorageType;
-    };
+    [key in UserSessionKeys]?: LoadOptionStorageEntry;
   };
 };
 
 export type UserSessionKeysType = keyof typeof UserSessionKeys;
+
+export type CookieOptions = {
+  maxage?: number;
+  expires?: Date;
+  path?: string;
+  domain?: string;
+  samesite?: string;
+  secure?: boolean;
+};
+
+export enum CookieSameSite {
+  Strict = 'Strict',
+  Lax = 'Lax',
+  None = 'None',
+}

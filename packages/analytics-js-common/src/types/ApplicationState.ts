@@ -1,7 +1,7 @@
 import { Signal } from '@preact/signals-core';
 import { PluginName } from './PluginsManager';
 import { Nullable } from './Nullable';
-import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
 import { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import { BufferedEvent } from './Event';
 import { LifecycleStatus } from './ApplicationLifecycle';
@@ -13,8 +13,7 @@ import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentInfo } from './Consent';
-import { StorageType } from './Storage';
-import { CookieOptions } from './Store';
+import { StorageType, CookieOptions } from './Storage';
 import { UserSessionKeys } from './userSessionStorageKeys';
 
 export type CapabilitiesState = {
@@ -121,15 +120,12 @@ export type SessionState = {
 
 export type SourceConfigState = Signal<Source | undefined>;
 
-export type Entries = {
-  [UserSessionKeys.userId]: StorageType;
-  [UserSessionKeys.userTraits]: StorageType;
-  [UserSessionKeys.anonymousId]: StorageType;
-  [UserSessionKeys.groupId]: StorageType;
-  [UserSessionKeys.groupTraits]: StorageType;
-  [UserSessionKeys.initialReferrer]: StorageType;
-  [UserSessionKeys.initialReferringDomain]: StorageType;
-  [UserSessionKeys.sessionInfo]: StorageType;
+export type StorageEntry = {
+  storage: StorageType;
+  key: string;
+};
+export type UserSessionEntries = {
+  [key in UserSessionKeys]: StorageEntry;
 };
 
 export type StorageState = {
@@ -137,7 +133,8 @@ export type StorageState = {
   migrate: Signal<boolean>;
   type: Signal<StorageType | undefined>;
   cookie: Signal<CookieOptions | undefined>;
-  entries: Signal<Entries>;
+  entries: Signal<UserSessionEntries>;
+  trulyAnonymousTracking: Signal<boolean>;
 };
 
 export interface ApplicationState {

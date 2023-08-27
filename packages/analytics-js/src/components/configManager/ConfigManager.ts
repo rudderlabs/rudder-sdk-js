@@ -127,7 +127,7 @@ class ConfigManager implements IConfigManager {
 
       // set storage type in state
       state.storage.type.value = storageType;
-      // set storage type in state
+      // set cookie options in state
       state.storage.cookie.value = state.loadOptions.value.storage?.cookie;
     });
 

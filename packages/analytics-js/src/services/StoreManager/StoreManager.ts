@@ -16,23 +16,13 @@ import {
   UserSessionKeysType,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { clone } from 'ramda';
+import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
+import { UserSessionStorageKeysType } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
-import { StoreManagerOptions } from './types';
+import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
-import {
-  CLIENT_DATA_STORE_NAME,
-  CLIENT_DATA_STORE_COOKIE,
-  CLIENT_DATA_STORE_LS,
-  CLIENT_DATA_STORE_MEMORY,
-} from '../../constants/storage';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
-
-const storageClientDataStoreNameMap = {
-  [COOKIE_STORAGE as string]: CLIENT_DATA_STORE_COOKIE,
-  [LOCAL_STORAGE as string]: CLIENT_DATA_STORE_LS,
-  [MEMORY_STORAGE as string]: CLIENT_DATA_STORE_MEMORY,
-};
 
 /**
  * A service to manage stores & available storage client configurations
@@ -95,9 +85,11 @@ class StoreManager implements IStoreManager {
       storageTypesRequiringInitialization.push(COOKIE_STORAGE);
     }
 
+    let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
     Object.keys(state.storage.entries.value).forEach(entry => {
       const key = entry as UserSessionKeysType;
+      const storageKey = entry as UserSessionStorageKeysType;
       const providedStorageType = entries ? entries[key]?.type : undefined;
       const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
@@ -128,19 +120,33 @@ class StoreManager implements IStoreManager {
           STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType),
         );
       }
+      if (finalStorageType !== NO_STORAGE) {
+        trulyAnonymousTracking = false;
+      }
       const clonedStorageState = clone(state.storage.entries.value);
-      state.storage.entries.value = { ...clonedStorageState, [entry]: finalStorageType };
+      state.storage.entries.value = {
+        ...clonedStorageState,
+        [entry]: {
+          storage: finalStorageType,
+          key: userSessionStorageKeys[storageKey],
+        },
+      };
     });
+
+    state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
 
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    storageTypesRequiringInitialization.forEach(each => {
+
+    // Initializing all the enabled store because previous user data might be in different storage
+    // that needs auto migration
+    storageTypesRequiringInitialization.forEach(storage => {
       this.setStore({
-        id: storageClientDataStoreNameMap[each],
-        name: CLIENT_DATA_STORE_NAME,
+        id: storageClientDataStoreNameMap[storage],
+        name: storageClientDataStoreNameMap[storage],
         isEncrypted: true,
         noCompoundKey: true,
-        type: each as StorageType,
+        type: storage as StorageType,
       });
     });
   }

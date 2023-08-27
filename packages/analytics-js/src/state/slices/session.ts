@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals-core';
 import { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { defaultUserSessionValues } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 
 const defaultSessionInfo: SessionInfo = {
@@ -9,14 +10,14 @@ const defaultSessionInfo: SessionInfo = {
 };
 
 const sessionState: SessionState = {
-  userId: signal(undefined),
-  userTraits: signal(undefined),
-  anonymousId: signal(undefined),
-  groupId: signal(undefined),
-  groupTraits: signal(undefined),
-  initialReferrer: signal(undefined),
-  initialReferringDomain: signal(undefined),
-  sessionInfo: signal({ ...defaultSessionInfo }),
+  userId: signal(defaultUserSessionValues.userId),
+  userTraits: signal(defaultUserSessionValues.userTraits),
+  anonymousId: signal(defaultUserSessionValues.anonymousId),
+  groupId: signal(defaultUserSessionValues.groupId),
+  groupTraits: signal(defaultUserSessionValues.groupTraits),
+  initialReferrer: signal(defaultUserSessionValues.initialReferrer),
+  initialReferringDomain: signal(defaultUserSessionValues.initialReferringDomain),
+  sessionInfo: signal(defaultUserSessionValues.sessionInfo),
 };
 
 export { sessionState, defaultSessionInfo };

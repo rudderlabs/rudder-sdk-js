@@ -1,4 +1,4 @@
-import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
@@ -6,9 +6,6 @@ import { userSessionStorageKeys } from './userSessionStorageKeys';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
-  cookieStorage?: IStore;
-  localStorage?: IStore;
-  memoryStorage?: IStore;
   init(storeManager: IStoreManager | undefined): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;

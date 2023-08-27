@@ -66,14 +66,38 @@ describe('User session manager', () => {
     sessionInfo: 'none',
   };
   const sampleEntriesWithOnlyCookieStorage = {
-    userId: 'cookieStorage',
-    userTraits: 'cookieStorage',
-    anonymousId: 'cookieStorage',
-    groupId: 'cookieStorage',
-    groupTraits: 'cookieStorage',
-    initialReferrer: 'cookieStorage',
-    initialReferringDomain: 'cookieStorage',
-    sessionInfo: 'cookieStorage',
+    userId: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.userId,
+    },
+    userTraits: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.userTraits,
+    },
+    anonymousId: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.anonymousId,
+    },
+    groupId: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.groupId,
+    },
+    groupTraits: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.groupTraits,
+    },
+    initialReferrer: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.initialReferrer,
+    },
+    initialReferringDomain: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.initialReferringDomain,
+    },
+    sessionInfo: {
+      storage: 'cookieStorage',
+      key: userSessionStorageKeys.sessionInfo,
+    },
   };
   const sampleEntriesWithOnlyNoStorage = {
     userId: 'none',
