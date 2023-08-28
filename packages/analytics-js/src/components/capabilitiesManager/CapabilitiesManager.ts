@@ -10,7 +10,6 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEBOUNCED_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';
