@@ -15,25 +15,31 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-import { defaultSessionInfo } from '../../state/slices/session';
-import { state } from '../../state';
-import { getStorageEngine } from '../../services/StoreManager/storages';
+import {
+  DEFAULT_SESSION_TIMEOUT_MS,
+  MIN_SESSION_TIMEOUT_MS,
+} from '@rudderstack/analytics-js/constants/timeouts';
+import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
+import { state } from '@rudderstack/analytics-js/state';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import {
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
-} from '../../constants/logMessages';
+} from '@rudderstack/analytics-js/constants/logMessages';
 import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
-} from './utils';
-import { getReferringDomain } from '../utilities/url';
-import { getReferrer } from '../utilities/page';
-import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
-import { IUserSessionManager } from './types';
-import { isPositiveInteger } from '../utilities/number';
+} from '@rudderstack/analytics-js/components/userSessionManager/utils';
+import { getReferringDomain } from '@rudderstack/analytics-js/components/utilities/url';
+import { getReferrer } from '@rudderstack/analytics-js/components/utilities/page';
+import {
+  defaultUserSessionValues,
+  userSessionStorageKeys,
+} from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
+import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { isPositiveInteger } from '@rudderstack/analytics-js/components/utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
   store?: IStore;

@@ -2,9 +2,9 @@
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
 import get from 'get-value';
-import { logger } from '../logUtil';
-import { Cookie } from './cookie';
-import { Store } from './store';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { Cookie } from '@rudderstack/analytics-js-common/utilsV1/storage/cookie';
+import { Store } from '@rudderstack/analytics-js-common/utilsV1/storage/store';
 
 const defaults = {
   user_storage_key: 'rl_user_id',

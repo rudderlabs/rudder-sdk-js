@@ -4,9 +4,9 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
-import { cookie } from '../component-cookie';
-import { getDefaultCookieOptions } from './defaultOptions';
+import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
+import { cookie } from '@rudderstack/analytics-js/services/StoreManager/component-cookie';
+import { getDefaultCookieOptions } from '@rudderstack/analytics-js/services/StoreManager/storages/defaultOptions';
 
 /**
  * A storage utility to persist values in cookies via Storage interface

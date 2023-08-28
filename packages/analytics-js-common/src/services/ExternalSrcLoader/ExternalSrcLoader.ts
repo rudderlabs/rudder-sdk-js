@@ -1,10 +1,13 @@
-import { EXTERNAL_SRC_LOADER } from '../../constants/loggerContexts';
-import { DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS } from '../../constants/timeouts';
-import { isFunction } from '../../utilities/checks';
-import { IErrorHandler } from '../../types/ErrorHandler';
-import { ILogger } from '../../types/Logger';
-import { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
-import { jsFileLoader } from './jsFileLoader';
+import { EXTERNAL_SRC_LOADER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS } from '@rudderstack/analytics-js-common/constants/timeouts';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import {
+  IExternalSourceLoadConfig,
+  IExternalSrcLoader,
+} from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { jsFileLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/jsFileLoader';
 
 /**
  * Service to load external resources/files

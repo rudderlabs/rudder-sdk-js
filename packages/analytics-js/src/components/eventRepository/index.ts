@@ -1,1 +1,1 @@
-export { EventRepository } from './EventRepository';
+export { EventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';

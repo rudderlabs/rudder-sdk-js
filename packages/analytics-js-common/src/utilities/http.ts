@@ -1,4 +1,4 @@
-import { ResponseDetails } from '../types/HttpClient';
+import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 
 const isErrRetryable = (details?: ResponseDetails) => {
   let isRetryableNWFailure = false;

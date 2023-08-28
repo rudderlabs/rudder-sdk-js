@@ -1,5 +1,9 @@
 import { clone, mergeDeepWith, path, pickBy } from 'ramda';
-import { isDefined, isDefinedAndNotNull, isNull } from './checks';
+import {
+  isDefined,
+  isDefinedAndNotNull,
+  isNull,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 
 const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   const pathParts = keyPath.split('.');

@@ -15,13 +15,21 @@ import {
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
   validateEventPayloadSize,
-} from '../utilities/queue';
-import { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure } from './utilities';
-import { DoneCallback, IQueue } from '../types/plugins';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
-import { XHRQueueItem } from './types';
-import { EVENT_PAYLOAD_PREPARATION_ERROR } from '../utilities/logMessages';
+} from '@rudderstack/analytics-js-plugins/utilities/queue';
+import {
+  getNormalizedQueueOptions,
+  getDeliveryUrl,
+  logErrorOnFailure,
+} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+import { DoneCallback, IQueue } from '@rudderstack/analytics-js-plugins/types/plugins';
+import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
+import {
+  QUEUE_NAME,
+  REQUEST_TIMEOUT_MS,
+  XHR_QUEUE_PLUGIN,
+} from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
+import { XHRQueueItem } from '@rudderstack/analytics-js-plugins/xhrQueue/types';
+import { EVENT_PAYLOAD_PREPARATION_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 
 const pluginName = 'XhrQueue';
 

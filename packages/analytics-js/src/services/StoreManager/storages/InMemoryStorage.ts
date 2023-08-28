@@ -1,8 +1,8 @@
 import { IInMemoryStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { defaultLogger } from '../../Logger';
-import { getDefaultInMemoryStorageOptions } from './defaultOptions';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { getDefaultInMemoryStorageOptions } from '@rudderstack/analytics-js/services/StoreManager/storages/defaultOptions';
 
 /**
  * A storage utility to retain values in memory via Storage interface

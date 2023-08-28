@@ -6,6 +6,7 @@
         "cacheableOperations": [
           "build:browser",
           "build:browser:modern",
+          "build:browser:test",
           "build:npm",
           "build:npm:modern",
           "test",
@@ -15,5 +16,10 @@
       }
     }
   },
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "targetDefaults": {
+    "test": {
+      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    }
+  }
 }

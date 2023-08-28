@@ -1,4 +1,4 @@
-import { IS_LEGACY_BUILD } from './app';
+import { IS_LEGACY_BUILD } from '@rudderstack/analytics-js/constants/app';
 
 const BUILD_TYPE = IS_LEGACY_BUILD ? 'legacy' : 'modern';
 const SDK_CDN_BASE_URL = 'https://cdn.rudderlabs.com';

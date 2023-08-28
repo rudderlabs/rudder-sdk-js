@@ -2,8 +2,11 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
+import { BugsnagLib } from '@rudderstack/analytics-js-plugins/types/plugins';
+import {
+  BUGSNAG_SDK_LOAD_ERROR,
+  BUGSNAG_SDK_LOAD_TIMEOUT_ERROR,
+} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -17,7 +20,7 @@ import {
   MAX_WAIT_FOR_SDK_LOAD_MS,
   SDK_FILE_NAME_PREFIXES,
   SDK_LOAD_POLL_INTERVAL_MS,
-} from './constants';
+} from '@rudderstack/analytics-js-plugins/bugsnag/constants';
 
 const isValidVersion = (globalLibInstance: any) => {
   // For version 7

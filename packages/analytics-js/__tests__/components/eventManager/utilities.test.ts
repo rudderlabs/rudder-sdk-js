@@ -1,20 +1,5 @@
 import * as R from 'ramda';
-import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import {
-  checkForReservedElements,
-  checkForReservedElementsInObject,
-  getContextPageProperties,
-  getMergedContext,
-  processOptions,
-  updateTopLevelEventElements,
-  getUpdatedPageProperties,
-  getEnrichedEvent,
-} from '@rudderstack/analytics-js/components/eventManager/utilities';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -27,6 +12,21 @@ import {
 } from '@rudderstack/analytics-js-common/types/EventContext';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { state } from '@rudderstack/analytics-js/state';
+import {
+  checkForReservedElements,
+  checkForReservedElementsInObject,
+  getContextPageProperties,
+  getMergedContext,
+  processOptions,
+  updateTopLevelEventElements,
+  getUpdatedPageProperties,
+  getEnrichedEvent,
+} from '@rudderstack/analytics-js/components/eventManager/utilities';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),

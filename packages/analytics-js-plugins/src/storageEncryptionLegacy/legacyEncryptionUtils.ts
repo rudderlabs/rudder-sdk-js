@@ -1,6 +1,9 @@
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
-import { ENCRYPTION_PREFIX_V1, ENCRYPTION_KEY_V1 } from './constants';
+import {
+  ENCRYPTION_PREFIX_V1,
+  ENCRYPTION_KEY_V1,
+} from '@rudderstack/analytics-js-plugins/storageEncryptionLegacy/constants';
 
 const encrypt = (value: string): string =>
   `${ENCRYPTION_PREFIX_V1}${AES.encrypt(value, ENCRYPTION_KEY_V1).toString()}`;

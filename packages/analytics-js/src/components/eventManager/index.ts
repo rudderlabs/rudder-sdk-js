@@ -1,1 +1,1 @@
-export { EventManager } from './EventManager';
+export { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';

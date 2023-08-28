@@ -8,12 +8,19 @@ import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { isDestinationSDKMounted, filterDestinations, initializeDestination } from './utils';
-import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
+import {
+  isDestinationSDKMounted,
+  initializeDestination,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  SCRIPT_LOAD_TIMEOUT_MS,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import {
   DESTINATION_NOT_SUPPORTED_ERROR,
   DESTINATION_SDK_LOAD_ERROR,
-} from '../utilities/logMessages';
+} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+import { filterDestinations } from '@rudderstack/analytics-js-plugins/utilities/destination';
 
 const pluginName = 'DeviceModeDestinations';
 

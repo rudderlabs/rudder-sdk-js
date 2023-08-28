@@ -1,10 +1,10 @@
-import { getMutatedError } from '../../utilities/errors';
-import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '../../constants/htmlAttributes';
+import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js-common/constants/htmlAttributes';
 import {
   SCRIPT_ALREADY_EXISTS_ERROR,
   SCRIPT_LOAD_ERROR,
   SCRIPT_LOAD_TIMEOUT_ERROR,
-} from '../../constants/logMessages';
+} from '@rudderstack/analytics-js-common/constants/logMessages';
 
 /**
  * Create the DOM element to load a script marked as RS SDK originated

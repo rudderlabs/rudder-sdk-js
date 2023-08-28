@@ -73,7 +73,7 @@ import {
   OlarkDisplayNameToDirNameMap,
   LemniskDisplayNameToDirNameMap,
   TiktokAdsDisplayNameToDirNameMap,
-} from './destinationNames';
+} from '@rudderstack/analytics-js-common/constants/destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
 const destDisplayNamesToFileNamesMap: Record<string, string> = {

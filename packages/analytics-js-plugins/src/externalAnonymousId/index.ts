@@ -4,8 +4,8 @@ import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { getSegmentAnonymousId } from './util';
-import { externallyLoadedSessionStorageKeys } from './constants';
+import { getSegmentAnonymousId } from '@rudderstack/analytics-js-plugins/externalAnonymousId/util';
+import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js-plugins/externalAnonymousId/constants';
 
 const pluginName = 'ExternalAnonymousId';
 

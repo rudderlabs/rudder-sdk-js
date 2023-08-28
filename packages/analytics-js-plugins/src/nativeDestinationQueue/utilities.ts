@@ -6,9 +6,12 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { RudderEventType } from '../types/plugins';
-import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
-import { DESTINATION_EVENT_FORWARDING_ERROR } from '../utilities/logMessages';
+import { RudderEventType } from '@rudderstack/analytics-js-plugins/types/plugins';
+import {
+  DEFAULT_QUEUE_OPTIONS,
+  NATIVE_DESTINATION_QUEUE_PLUGIN,
+} from '@rudderstack/analytics-js-plugins/nativeDestinationQueue/constants';
+import { DESTINATION_EVENT_FORWARDING_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);

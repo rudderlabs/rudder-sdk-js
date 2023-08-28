@@ -12,8 +12,8 @@ import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
-} from '../../../constants/storage';
-import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '../../../constants/logMessages';
+} from '@rudderstack/analytics-js/constants/storage';
+import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '@rudderstack/analytics-js/constants/logMessages';
 
 const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
   const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED']; // [everything except Firefox, Firefox]

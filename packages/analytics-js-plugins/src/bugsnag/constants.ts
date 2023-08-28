@@ -14,6 +14,7 @@ const BUGSNAG_VALID_MAJOR_VERSION = '6';
 const SDK_LOAD_POLL_INTERVAL_MS = 100; // ms
 const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 
+// TODO: can we avoid the destDisplayNamesToFileNamesMap if we check for js-integrations/ path instead of filename in SDK_FILE_NAME_PREFIXES?
 // Errors from the below scripts are NOT allowed to reach Bugsnag
 const SDK_FILE_NAME_PREFIXES = (): string[] => [
   'rsa', // Prefix for all the SDK scripts including plugins

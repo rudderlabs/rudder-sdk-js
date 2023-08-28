@@ -1,5 +1,8 @@
-import { ExtensionPlugin, IPluginEngine } from './PluginEngine';
-import { Nullable } from './Nullable';
+import {
+  ExtensionPlugin,
+  IPluginEngine,
+} from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export interface IPluginsManager {
   engine: IPluginEngine;

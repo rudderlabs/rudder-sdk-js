@@ -1,4 +1,4 @@
-import { IStorage } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 
 describe('InMemoryStorage', () => {

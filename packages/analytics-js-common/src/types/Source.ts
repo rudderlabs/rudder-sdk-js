@@ -1,4 +1,7 @@
-import { RegionDetails, ResidencyServerRegion } from './DataResidency';
+import {
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js-common/types/DataResidency';
 
 export type StatsCollection = {
   errors: {

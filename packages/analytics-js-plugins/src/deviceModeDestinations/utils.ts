@@ -24,14 +24,16 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { DeviceModeDestinationsAnalyticsInstance } from './types';
-import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
-import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
+import { DeviceModeDestinationsAnalyticsInstance } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/types';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  READY_CHECK_TIMEOUT_MS,
+} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
-} from '../utilities/logMessages';
+} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -141,32 +143,6 @@ const isDestinationReady = (dest: Destination) =>
   });
 
 /**
- * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
- * @param intgOpts Integration options object
- * @param destinations Destinations array
- * @returns Destinations array filtered based on the integration options
- */
-const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
-  const allOptVal = intgOpts.All;
-  return destinations.filter(dest => {
-    const destDisplayName = dest.displayName;
-    let isDestEnabled;
-    if (allOptVal) {
-      isDestEnabled = true;
-      if (isDestIntgConfigFalsy(intgOpts[destDisplayName])) {
-        isDestEnabled = false;
-      }
-    } else {
-      isDestEnabled = false;
-      if (isDestIntgConfigTruthy(intgOpts[destDisplayName])) {
-        isDestEnabled = true;
-      }
-    }
-    return isDestEnabled;
-  });
-};
-
-/**
  * Extracts the integration config, if any, from the given destination
  * and merges it with the current integrations config
  * @param dest Destination object
@@ -256,7 +232,6 @@ export {
   wait,
   createDestinationInstance,
   isDestinationReady,
-  filterDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,
 };

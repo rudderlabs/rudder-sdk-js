@@ -7,14 +7,14 @@ import { v4 as uuid } from '@lukeed/uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
-import { IAnalytics } from './IAnalytics';
+import { IAnalytics } from '@rudderstack/analytics-js-service-worker/IAnalytics';
 import {
   ApiCallback,
   ApiObject,
   ConstructorOptions,
   FlushOverrideMessage,
   IntegrationOptions,
-} from './types';
+} from '@rudderstack/analytics-js-service-worker/types';
 
 const version = '__PACKAGE_VERSION__';
 

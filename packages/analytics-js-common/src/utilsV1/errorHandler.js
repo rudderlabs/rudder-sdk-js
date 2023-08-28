@@ -1,7 +1,13 @@
-import { logger } from './logUtil';
-import { notifyError } from './notifyError';
-import { isInstanceOfEvent, stringifyWithoutCircularV1 } from './ObjectUtils';
-import { ERROR_MESSAGES_TO_BE_FILTERED, LOAD_ORIGIN } from './constants';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { notifyError } from '@rudderstack/analytics-js-common/utilsV1/notifyError';
+import {
+  isInstanceOfEvent,
+  stringifyWithoutCircularV1,
+} from '@rudderstack/analytics-js-common/utilsV1/ObjectUtils';
+import {
+  ERROR_MESSAGES_TO_BE_FILTERED,
+  LOAD_ORIGIN,
+} from '@rudderstack/analytics-js-common/utilsV1/constants';
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
   let errorMessage;

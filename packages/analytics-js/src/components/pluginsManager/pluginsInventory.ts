@@ -1,8 +1,8 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { PluginMap } from './types';
-import { legacyBuildPluginImports } from './legacyBuildPluginImports';
-import { modernBuildPluginImports } from './modernBuildPluginImports';
+import { PluginMap } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { legacyBuildPluginImports } from '@rudderstack/analytics-js/components/pluginsManager/legacyBuildPluginImports';
+import { modernBuildPluginImports } from '@rudderstack/analytics-js/components/pluginsManager/modernBuildPluginImports';
 
 /**
  * Map of mandatory plugin names and direct imports

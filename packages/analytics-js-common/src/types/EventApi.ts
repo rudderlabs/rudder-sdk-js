@@ -1,6 +1,6 @@
-import { IntegrationOpts } from './Integration';
-import { Nullable } from './Nullable';
-import { ApiObject } from './ApiObject';
+import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 
 // TODO: should we take the types from IdentifyTrait instead of any string key?
 //  https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits

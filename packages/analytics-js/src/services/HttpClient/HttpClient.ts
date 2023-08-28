@@ -9,10 +9,13 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { defaultErrorHandler } from '../ErrorHandler';
-import { defaultLogger } from '../Logger';
-import { responseTextToJson } from './xhr/xhrResponseHandler';
-import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { responseTextToJson } from '@rudderstack/analytics-js/services/HttpClient/xhr/xhrResponseHandler';
+import {
+  createXhrRequestOptions,
+  xhrRequest,
+} from '@rudderstack/analytics-js/services/HttpClient/xhr/xhrRequestHandler';
 
 // TODO: should we add any debug level loggers?
 

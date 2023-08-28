@@ -1,4 +1,4 @@
-import { ILogger } from '../../types/Logger';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 export interface IExternalSourceLoadConfig {
   url: string;

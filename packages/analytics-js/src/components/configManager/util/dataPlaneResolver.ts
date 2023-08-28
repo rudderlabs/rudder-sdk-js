@@ -4,8 +4,8 @@ import {
 } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING } from '../../../constants/logMessages';
-import { isValidUrl } from '../../utilities/url';
+import { UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
+import { isValidUrl } from '@rudderstack/analytics-js/components/utilities/url';
 
 const DEFAULT_REGION = 'US';
 

@@ -1,8 +1,11 @@
-import { Nullable } from './Nullable';
-import { ApiCallback, ApiOptions } from './EventApi';
-import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
-import { ApiObject } from './ApiObject';
-import { ILogger } from './Logger';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import {
+  AnonymousIdOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 export type AnalyticsIdentifyMethod = {
   (

@@ -5,13 +5,16 @@ import {
   CDN_PLUGINS_DIR,
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
-} from '../../../constants/urls';
+} from '@rudderstack/analytics-js/constants/urls';
 import {
   INTG_CDN_BASE_URL_ERROR,
   PLUGINS_CDN_BASE_URL_ERROR,
-} from '../../../constants/logMessages';
-import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
-import { getSDKUrl } from './commonUtil';
+} from '@rudderstack/analytics-js/constants/logMessages';
+import {
+  isValidUrl,
+  removeTrailingSlashes,
+} from '@rudderstack/analytics-js/components/utilities/url';
+import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 
 /**
  * A function that determines integration SDK loading path

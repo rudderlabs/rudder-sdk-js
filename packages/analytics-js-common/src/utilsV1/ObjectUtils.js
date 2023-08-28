@@ -1,4 +1,4 @@
-import { logger } from './logUtil';
+import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 
 const getCircularReplacer = excludeNull => {
   const ancestors = [];

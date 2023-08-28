@@ -3,10 +3,17 @@ import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/St
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
-import { BeaconQueueItem } from './types';
-import { getDeliveryPayload } from './utilities';
-import { DEFAULT_BEACON_QUEUE_OPTIONS, MAX_BATCH_PAYLOAD_SIZE_BYTES } from './constants';
+import {
+  IQueue,
+  QueueItem,
+  QueueProcessCallback,
+} from '@rudderstack/analytics-js-plugins/types/plugins';
+import { BeaconQueueItem } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+import { getDeliveryPayload } from '@rudderstack/analytics-js-plugins/beaconQueue/utilities';
+import {
+  DEFAULT_BEACON_QUEUE_OPTIONS,
+  MAX_BATCH_PAYLOAD_SIZE_BYTES,
+} from '@rudderstack/analytics-js-plugins/beaconQueue/constants';
 
 export type BeaconQueueTimeouts = {
   flushQueueTimeOutInterval: number;
@@ -109,7 +116,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
 
     // Send events that existed in the queue if totaling more max payload size
     const isExceededMaxPayloadSize = Boolean(
-      batchData && batchData.length > MAX_BATCH_PAYLOAD_SIZE_BYTES,
+      batchData && batchData.size > MAX_BATCH_PAYLOAD_SIZE_BYTES,
     );
     if (isExceededMaxPayloadSize) {
       // Flush all previous items

@@ -3,10 +3,7 @@ import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/use
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import {
-  MIN_SESSION_TIMEOUT_MS,
-  DEFAULT_SESSION_TIMEOUT_MS,
-} from '@rudderstack/analytics-js/constants/timeouts';
+import { DEFAULT_SESSION_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';

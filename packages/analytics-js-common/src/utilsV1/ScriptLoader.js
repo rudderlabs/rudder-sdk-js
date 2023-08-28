@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
-import { handleError } from './errorHandler';
-import { LOAD_ORIGIN } from './constants';
+import { handleError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 
 const defaultAsyncState = true;
 

@@ -1,4 +1,4 @@
-import { Nullable } from './Nullable';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export interface ExtensionPoint {
   [lifeCycleName: string]: (...args: any[]) => unknown;

@@ -11,9 +11,12 @@ import {
   QueueItemData,
   DoneCallback,
   QueueProcessCallback,
-} from '../../types/plugins';
-import { Schedule, ScheduleModes } from './Schedule';
-import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
+} from '@rudderstack/analytics-js-plugins/types/plugins';
+import {
+  Schedule,
+  ScheduleModes,
+} from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
+import { RETRY_QUEUE_PROCESS_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 
 export interface QueueOptions {
   maxItems?: number;

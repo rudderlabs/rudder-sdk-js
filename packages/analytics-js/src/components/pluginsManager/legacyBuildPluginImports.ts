@@ -15,7 +15,7 @@ import {
   KetchConsentManager,
   Bugsnag,
 } from '@rudderstack/analytics-js-plugins/index';
-import { PluginMap } from './types';
+import { PluginMap } from '@rudderstack/analytics-js/components/pluginsManager/types';
 
 /**
  * Map plugin names to direct code imports from plugins package

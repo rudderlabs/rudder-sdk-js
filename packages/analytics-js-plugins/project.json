@@ -1,0 +1,47 @@
+{
+  "name": "@rudderstack/analytics-js-plugins",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/analytics-js-plugins/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/analytics-js-plugins/jest.config.ts",
+        "passWithNoTests": true,
+        "codeCoverage": true,
+        "watchAll": false,
+        "forceExit": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "main",
+        "preset": "conventional",
+        "tagPrefix": "${projectName}@"
+      }
+    },
+    "github": {
+      "executor": "@jscutlery/semver:github",
+      "options": {
+        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.3",
+        "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    }
+  }
+}

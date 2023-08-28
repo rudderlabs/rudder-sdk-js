@@ -10,9 +10,9 @@ import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/Applica
 import {
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   DEFAULT_SESSION_TIMEOUT_MS,
-} from '../../constants/timeouts';
-import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
-import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
+} from '@rudderstack/analytics-js/constants/timeouts';
+import { DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '@rudderstack/analytics-js/components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
   logLevel: LogLevel.Error,

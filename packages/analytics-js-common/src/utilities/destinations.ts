@@ -1,4 +1,7 @@
-import { Destination, DestinationConnectionMode } from '../types/Destination';
+import {
+  Destination,
+  DestinationConnectionMode,
+} from '@rudderstack/analytics-js-common/types/Destination';
 
 /**
  * A function to filter and return non cloud mode destinations

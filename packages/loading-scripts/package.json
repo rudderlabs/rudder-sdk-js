@@ -1,5 +1,5 @@
 {
-  "name": "@rudderstack/analytics-js-loading-script",
+  "name": "@rudderstack/analytics-js-loading-scripts",
   "version": "3.0.0-beta.3",
   "private": true,
   "description": "Loading script for RudderStack Javascript SDK",
@@ -26,8 +26,8 @@
     "build:browser:modern": "exit 0",
     "build:browser:minified": "rollup -c --environment UGLIFY",
     "build:browser": "rollup -c && npm run build:browser:minified",
-    "test": "exit 0",
-    "test:ci": "exit 0",
+    "test": "nx test --maxWorkers=50%",
+    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",

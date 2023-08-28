@@ -1,3 +1,4 @@
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import {
   getSDKUrl,
@@ -5,7 +6,6 @@ import {
   updateStorageState,
 } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');

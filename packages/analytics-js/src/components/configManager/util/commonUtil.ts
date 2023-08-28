@@ -2,25 +2,25 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { state } from '../../../state';
+import { state } from '@rudderstack/analytics-js/state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
-} from '../../../constants/logMessages';
+} from '@rudderstack/analytics-js/constants/logMessages';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
   getErrorReportingProviderNameFromConfig,
-} from '../../utilities/statsCollection';
-import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse } from '../types';
+} from '@rudderstack/analytics-js/components/utilities/statsCollection';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
+import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
-} from '../constants';
+} from '@rudderstack/analytics-js/components/configManager/constants';
 
 /**
  * Determines the SDK url

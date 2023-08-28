@@ -10,13 +10,15 @@ import {
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
-import { StoreManagerOptions } from './types';
-import { state } from '../../state';
-import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
-import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
-import { Store } from './Store';
+import { STORAGE_UNAVAILABLE_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
+import { StoreManagerOptions } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { state } from '@rudderstack/analytics-js/state';
+import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
+import {
+  configureStorageEngines,
+  getStorageEngine,
+} from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 
 /**
  * A service to manage stores & available storage client configurations

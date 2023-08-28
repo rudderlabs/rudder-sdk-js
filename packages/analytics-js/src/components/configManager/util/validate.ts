@@ -7,8 +7,8 @@ import {
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-} from '../../../constants/logMessages';
-import { isValidUrl } from '../../utilities/url';
+} from '@rudderstack/analytics-js/constants/logMessages';
+import { isValidUrl } from '@rudderstack/analytics-js/components/utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
   if (!isString(writeKey) || (writeKey as string).trim().length === 0) {

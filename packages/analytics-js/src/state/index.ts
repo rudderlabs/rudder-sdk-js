@@ -1,19 +1,19 @@
 import { clone } from 'ramda';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { loadOptionsState } from './slices/loadOptions';
-import { sessionState } from './slices/session';
-import { capabilitiesState } from './slices/capabilities';
-import { reportingState } from './slices/reporting';
-import { sourceConfigState } from './slices/source';
-import { lifecycleState } from './slices/lifecycle';
-import { consentsState } from './slices/consents';
-import { metricsState } from './slices/metrics';
-import { contextState } from './slices/context';
-import { nativeDestinationsState } from './slices/nativeDestinations';
-import { eventBufferState } from './slices/eventBuffer';
-import { pluginsState } from './slices/plugins';
-import { pagePropertiesState } from './slices/page';
-import { storageState } from './slices/storage';
+import { loadOptionsState } from '@rudderstack/analytics-js/state/slices/loadOptions';
+import { sessionState } from '@rudderstack/analytics-js/state/slices/session';
+import { capabilitiesState } from '@rudderstack/analytics-js/state/slices/capabilities';
+import { reportingState } from '@rudderstack/analytics-js/state/slices/reporting';
+import { sourceConfigState } from '@rudderstack/analytics-js/state/slices/source';
+import { lifecycleState } from '@rudderstack/analytics-js/state/slices/lifecycle';
+import { consentsState } from '@rudderstack/analytics-js/state/slices/consents';
+import { metricsState } from '@rudderstack/analytics-js/state/slices/metrics';
+import { contextState } from '@rudderstack/analytics-js/state/slices/context';
+import { nativeDestinationsState } from '@rudderstack/analytics-js/state/slices/nativeDestinations';
+import { eventBufferState } from '@rudderstack/analytics-js/state/slices/eventBuffer';
+import { pluginsState } from '@rudderstack/analytics-js/state/slices/plugins';
+import { pagePropertiesState } from '@rudderstack/analytics-js/state/slices/page';
+import { storageState } from '@rudderstack/analytics-js/state/slices/storage';
 
 const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,

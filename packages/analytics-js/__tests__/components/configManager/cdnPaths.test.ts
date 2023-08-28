@@ -6,9 +6,9 @@ import {
   SDK_CDN_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
 
-jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
+jest.mock('@rudderstack/analytics-js/components/configManager/util/commonUtil.ts', () => {
   const originalModule = jest.requireActual(
-    '../../../src/components/configManager/util/commonUtil.ts',
+    '@rudderstack/analytics-js/components/configManager/util/commonUtil.ts',
   );
 
   return {

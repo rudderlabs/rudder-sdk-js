@@ -1,6 +1,9 @@
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { getReferringDomain, getUrlWithoutHash } from './url';
+import {
+  getReferringDomain,
+  getUrlWithoutHash,
+} from '@rudderstack/analytics-js/components/utilities/url';
 
 /**
  * Get the referrer URL

@@ -1,0 +1,41 @@
+{
+  "name": "@rudderstack/analytics-js-loading-scripts",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/loading-scripts/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/loading-scripts/jest.config.ts",
+        "passWithNoTests": true,
+        "codeCoverage": true,
+        "watchAll": false,
+        "forceExit": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "main",
+        "preset": "conventional",
+        "tagPrefix": "${projectName}@"
+      }
+    },
+    "github": {
+      "executor": "@jscutlery/semver:github",
+      "options": {
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.3",
+        "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
+      }
+    }
+  }
+}

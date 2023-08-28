@@ -9,9 +9,15 @@ import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
 import {
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,
-} from '../utilities/logMessages';
-import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
-import { KetchConsentCookieData, KetchConsentData } from './types';
+} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+import {
+  KETCH_CONSENT_COOKIE_NAME_V1,
+  KETCH_CONSENT_MANAGER_PLUGIN,
+} from '@rudderstack/analytics-js-plugins/ketchConsentManager/constants';
+import {
+  KetchConsentCookieData,
+  KetchConsentData,
+} from '@rudderstack/analytics-js-plugins/ketchConsentManager/types';
 
 /**
  * Gets the consent data from the Ketch's consent cookie

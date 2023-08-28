@@ -1,7 +1,7 @@
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { crc32 } from './crc32';
-import { USER_INTERFACE } from './userLib';
-import { decode } from './base64Decoder';
+import { crc32 } from '@rudderstack/analytics-js-plugins/googleLinker/crc32';
+import { USER_INTERFACE } from '@rudderstack/analytics-js-plugins/googleLinker/userLib';
+import { decode } from '@rudderstack/analytics-js-plugins/googleLinker/base64Decoder';
 
 const KEY_VALIDATOR = /^[\w.-]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;

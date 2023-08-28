@@ -9,15 +9,15 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { API_CALLBACK_INVOKE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { HttpClient } from '../../services/HttpClient';
-import { state } from '../../state';
-import { IEventRepository } from './types';
+import { API_CALLBACK_INVOKE_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { state } from '@rudderstack/analytics-js/state';
+import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
-} from './constants';
+} from '@rudderstack/analytics-js/components/eventRepository/constants';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery

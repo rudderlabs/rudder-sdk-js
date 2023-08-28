@@ -1,6 +1,6 @@
+import { batch } from '@preact/signals-core';
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
 import { state } from '@rudderstack/analytics-js/state';
-import { batch } from '@preact/signals-core';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
