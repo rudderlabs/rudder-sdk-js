@@ -2,8 +2,8 @@
 /* eslint-disable class-methods-use-this */
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Rockerbox/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
 import { getHashFromArray } from '../../utils/commonUtils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Rockerbox {
   constructor(config, analytics, destinationInfo) {
@@ -26,32 +26,7 @@ class Rockerbox {
 
   init() {
     logger.debug('=== In init Rockerbox ===');
-    const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
-    const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-    (function (d, RB) {
-      if (!window.RB) {
-        window.RB = RB;
-        RB.queue = RB.queue || [];
-        RB.track =
-          RB.track ||
-          function () {
-            RB.queue.push(Array.prototype.slice.call(arguments));
-          };
-        RB.initialize = function (s) {
-          RB.source = s;
-        };
-        const a = d.createElement('script');
-        a.type = 'text/javascript';
-        a.async = !0;
-        a.src = `https://${host}/assets/${library}.js`;
-        a.dataset.loader = LOAD_ORIGIN;
-        const f = d.getElementsByTagName('script')[0];
-        f.parentNode.insertBefore(a, f);
-      }
-    })(document, window.RB || {});
-    window.RB.disablePushState = true;
-    window.RB.queue = [];
-    window.RB.initialize(this.clientAuthId);
+    loadNativeSdk(this.customDomain, this.enableCookieSync, this.clientAuthId);
   }
 
   isLoaded() {

@@ -16,6 +16,7 @@
     "__fixtures__/**/*.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
-    "../analytics-js-common/src/**/*"
+    "../analytics-js-common/src/**/*",
+    "../analytics-js/src/**/*"
   ]
 }

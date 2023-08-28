@@ -1,3 +1,1 @@
-import Olark from './browser';
-
-export { Olark };
+export { default as Olark } from './browser';

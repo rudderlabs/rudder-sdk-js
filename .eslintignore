@@ -12,10 +12,10 @@ cdnSDKv3.js
 *.md
 *.d.ts
 *.config.js
-examples/chrome-extension/background-script/rudderAnalytics.js
-examples/chrome-extension/background-script-websockets/rudderAnalytics.js
-examples/chrome-extension/content-script/foreground.js
+examples/chrome-extension/**/rudderAnalytics.js
+examples/chrome-extension/**/foreground.js
 testBookSuites/
 tsconfig.build.tsbuildinfo
 nativeSdkLoader.js
 nativeSdkLoader.ts
+assets/

@@ -2,10 +2,53 @@ import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import {
-  isDefinedAndNotNull,
   isNotEmpty,
+  isDefinedAndNotNull,
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
+
+const orderIdKey = 'properties.order_id';
+const itemIdKey = 'properties.item_ids';
+const productsKey = 'properties.products';
+const productIdKey = 'properties.product_id';
+const productIdNotPresentMessage = 'product_id is not present';
+
+const eventSpecificPayloadMap = {
+  'order completed': {
+    itemIdsKey: productsKey,
+    transactionIdKey: orderIdKey,
+  },
+  'checkout started': {
+    itemIdsKey: productsKey,
+    transactionIdKey: orderIdKey,
+  },
+  'product added': {
+    itemIdsKey: productIdKey,
+  },
+  'payment info entered': {
+    itemIdsKey: itemIdKey,
+    transactionIdKey: 'properties.checkout_id',
+  },
+  'promotion clicked': {
+    itemIdsKey: itemIdKey,
+  },
+  'promotion viewed': {
+    itemIdsKey: itemIdKey,
+  },
+  'product added to wishlist': {
+    itemIdsKey: productIdKey,
+  },
+  'product viewed': {
+    itemIdsKey: productIdKey,
+  },
+  'product list viewed': {
+    itemIdsKey: productsKey,
+  },
+  'products searched': {
+    itemIdsKey: itemIdKey,
+    searchStringKey: 'properties.query',
+  },
+};
 
 const sendEvent = (event, payload) => {
   if (isNotEmpty(payload)) {
@@ -53,154 +96,89 @@ const getCommonEventPayload = (message, deduplicationKey, enableDeduplication) =
 
 const eventPayload = (message, deduplicationKey, enableDeduplication) => {
   let payload = getCommonEventPayload(message, deduplicationKey, enableDeduplication);
-  payload.item_ids = get(message, 'properties.item_ids');
+  payload.item_ids = get(message, itemIdKey);
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const ecommEventPayload = (event, message, deduplicationKey, enableDeduplication) => {
-  let payload = getCommonEventPayload(message, deduplicationKey, enableDeduplication);
-  switch (event.toLowerCase().trim()) {
-    case 'order completed': {
-      let itemIds = [];
-      const products = get(message, 'properties.products');
-      if (products && Array.isArray(products)) {
-        products.forEach((element, index) => {
-          const pId = element.product_id;
-          if (pId) {
-            itemIds.push(pId);
-          } else {
-            logger.debug(`product_id not present for product at index ${index}`);
-          }
-        });
+/**
+ * Returns productIds
+ * @param {*} message
+ * @returns
+ */
+const getItemIds = message => {
+  let itemIds = [];
+  const products = get(message, productsKey);
+  if (products && Array.isArray(products)) {
+    products.forEach((element, index) => {
+      const productId = element.product_id;
+      if (productId) {
+        itemIds.push(productId);
       } else {
-        itemIds = null;
+        logger.debug(`product_id not present for product at index ${index}`);
       }
-      payload = {
-        ...payload,
-        transaction_id: get(message, 'properties.order_id'),
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'checkout started': {
-      let itemIds = [];
-      const products = get(message, 'properties.products');
-      if (products && Array.isArray(products)) {
-        products.forEach((element, index) => {
-          const pId = element.product_id;
-          if (pId) {
-            itemIds.push(pId);
-          } else {
-            logger.debug(`product_id not present for product at index ${index}`);
-          }
-        });
-      } else {
-        itemIds = null;
-      }
-      payload = {
-        ...payload,
-        transaction_id: get(message, 'properties.order_id'),
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'product added': {
-      let itemIds = [];
-      const pId = get(message, 'properties.product_id');
-      if (isDefinedAndNotNull(pId)) {
-        itemIds.push(pId);
-      } else {
-        logger.debug('product_id is not present');
-        itemIds = null;
-      }
-      payload = {
-        ...payload,
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'payment info entered':
-      payload = {
-        ...payload,
-        transaction_id: get(message, 'properties.checkout_id'),
-        item_ids: get(message, 'properties.item_ids'),
-      };
-      break;
-    case 'promotion clicked':
-      payload = {
-        ...payload,
-        item_ids: get(message, 'properties.item_ids'),
-      };
-      break;
-    case 'promotion viewed':
-      payload = {
-        ...payload,
-        item_ids: get(message, 'properties.item_ids'),
-      };
-      break;
-    case 'product added to wishlist': {
-      let itemIds = [];
-      const pId = get(message, 'properties.product_id');
-      if (isDefinedAndNotNull(pId)) {
-        itemIds.push(pId);
-      } else {
-        logger.debug('product_id is not present');
-        itemIds = null;
-      }
-      payload = {
-        ...payload,
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'product viewed': {
-      let itemIds = [];
-      const pId = get(message, 'properties.product_id');
-      if (pId) {
-        itemIds.push(pId);
-      } else {
-        logger.debug('product_id is not present');
-        itemIds = null;
-      }
-      payload = {
-        ...payload,
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'product list viewed': {
-      let itemIds = [];
-      const products = get(message, 'properties.products');
-      if (products && Array.isArray(products)) {
-        products.forEach((element, index) => {
-          const pId = get(element, 'product_id');
-          if (pId) {
-            itemIds.push(pId);
-          } else {
-            logger.debug(`product_id not present for product at index ${index}`);
-          }
-        });
-      } else {
-        itemIds = null;
-      }
-      payload = {
-        ...payload,
-        item_ids: itemIds,
-      };
-      break;
-    }
-    case 'products searched':
-      payload = {
-        ...payload,
-        search_string: get(message, 'properties.query'),
-        item_ids: get(message, 'properties.item_ids'),
-      };
-      break;
-    default:
-      break;
+    });
+  } else {
+    itemIds = null;
   }
+  return itemIds;
+};
 
+/**
+ * Returns productId
+ * @param {*} message
+ * @returns
+ */
+const getItemId = message => {
+  let itemIds = [];
+  const productId = get(message, productIdKey);
+  if (isDefinedAndNotNull(productId)) {
+    itemIds.push(productId);
+  } else {
+    logger.debug(productIdNotPresentMessage);
+    itemIds = null;
+  }
+  return itemIds;
+};
+
+/**
+ * Returns ecom events payload
+ * @param {*} event
+ * @param {*} message
+ * @param {*} deduplicationKey
+ * @param {*} enableDeduplication
+ * @returns
+ */
+const ecommEventPayload = (event, message, deduplicationKey, enableDeduplication) => {
+  const eventName = event.toLowerCase().trim();
+  const specificPayload = eventSpecificPayloadMap[eventName];
+  let payload = getCommonEventPayload(message, deduplicationKey, enableDeduplication);
+
+  if (specificPayload) {
+    const { itemIdsKey, transactionIdKey, searchStringKey } = specificPayload;
+    let itemIds = [];
+
+    if (itemIdsKey === productsKey) {
+      itemIds = getItemIds(message);
+    } else if (itemIdsKey === productIdKey) {
+      itemIds = getItemId(message);
+    } else {
+      itemIds = get(message, itemIdsKey);
+    }
+
+    payload = {
+      ...payload,
+      item_ids: itemIds,
+    };
+
+    if (transactionIdKey) {
+      payload.transaction_id = get(message, transactionIdKey);
+    }
+
+    if (searchStringKey) {
+      payload.search_string = get(message, searchStringKey);
+    }
+  }
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };

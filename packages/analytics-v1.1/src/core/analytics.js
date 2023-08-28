@@ -1354,13 +1354,14 @@ class Analytics {
         !String.prototype.includes ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
-        !Array.prototype.at ||
         typeof window.URL !== 'function' ||
         typeof Promise === 'undefined' ||
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
-        !this.isDatasetAvailable())
+        !this.isDatasetAvailable() ||
+        typeof TextDecoder !== 'function' ||
+        typeof Uint8Array !== 'function')
     );
   }
 
@@ -1469,7 +1470,9 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      isNonNativeSDK: true,
+    });
   }
 
   /**

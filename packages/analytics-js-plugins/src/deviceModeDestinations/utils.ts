@@ -205,25 +205,25 @@ const initializeDestination = (
         ];
       })
       .catch(err => {
-        // The error message is already formatted in the isDestinationReady function
-        logger?.error(err);
-
         state.nativeDestinations.failedDestinations.value = [
           ...state.nativeDestinations.failedDestinations.value,
           dest,
         ];
+
+        // The error message is already formatted in the isDestinationReady function
+        logger?.error(err);
       });
   } catch (err) {
+    state.nativeDestinations.failedDestinations.value = [
+      ...state.nativeDestinations.failedDestinations.value,
+      dest,
+    ];
+
     errorHandler?.onError(
       err,
       DEVICE_MODE_DESTINATIONS_PLUGIN,
       DESTINATION_INIT_ERROR(dest.userFriendlyId),
     );
-
-    state.nativeDestinations.failedDestinations.value = [
-      ...state.nativeDestinations.failedDestinations.value,
-      dest,
-    ];
   }
 };
 

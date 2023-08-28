@@ -1,5 +1,7 @@
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
+/* eslint-disable func-names */
+/* eslint-disable compat/compat */
 import { generateUUID } from '../../utils/utils';
 
 class Shynet {
@@ -42,9 +44,7 @@ class Shynet {
             idempotency: this.idempotency,
             referrer: referrerName,
             location: url,
-            loadTime:
-              window.performance.timing.domContentLoadedEventEnd -
-              window.performance.timing.navigationStart,
+            loadTime: window.performance.now(),
           });
           xhr.send(payloadBody);
         } catch (exp) {
@@ -60,7 +60,7 @@ class Shynet {
         // taking default as 5 sec as used in shynet doc
         this.heartBeatTaskId = setInterval(
           this.sendHeartBeat,
-          parseInt(heartBeatFrequencyInMs || 5000),
+          parseInt(heartBeatFrequencyInMs || 5000, 10),
         );
         this.sendHeartBeat(referrer, url);
       },

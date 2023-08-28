@@ -6,7 +6,7 @@ const defaults = {
 
 class LotameStorage {
   constructor() {
-    this.storage = Storage; // new Storage();
+    this.storage = Storage;
   }
 
   setLotameSynchTime(value) {

@@ -1,4 +1,4 @@
-import createUser from '../../../src/integrations/LaunchDarkly/utils';
+import { createUser } from '../../../src/integrations/LaunchDarkly/utils';
 import { mockAnonymousUsersSharedKey, mockTraits, mockUserId } from './__fixtures__/data';
 
 afterAll(() => {

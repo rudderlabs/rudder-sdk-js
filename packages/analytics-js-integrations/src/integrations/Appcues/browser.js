@@ -17,7 +17,6 @@ class Appcues {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    // this.sendToAllDestinations = config.sendToAll;
   }
 
   init() {

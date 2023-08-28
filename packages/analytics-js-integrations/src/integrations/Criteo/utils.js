@@ -1,20 +1,27 @@
 import md5 from 'md5';
-import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 
+/**
+ * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
+ * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825
+ * @param {*} rudderElement
+ * @param {*} hashMethod
+ * @returns
+ */
 const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;
-  const { properties } = message;
+  const { properties, userId, anonymousId } = message;
 
   const setEmail = {};
   const setZipcode = {};
 
   const finalRequest = [
-    { event: 'setCustomerId', id: md5(message.userId) },
-    { event: 'setRetailerVisitorId', id: md5(message.anonymousId) },
+    { event: 'setCustomerId', id: md5(userId).toString() },
+    { event: 'setRetailerVisitorId', id: md5(anonymousId).toString() },
   ];
 
-  if (properties && properties.email) {
+  if (properties?.email) {
     const email = properties.email.trim().toLowerCase();
     setEmail.event = 'setEmail';
     setEmail.hash_method = hashMethod;
@@ -22,7 +29,7 @@ const handleCommonFields = (rudderElement, hashMethod) => {
     finalRequest.push(setEmail);
   }
 
-  if (properties && properties.zipCode) {
+  if (properties?.zipCode) {
     setZipcode.event = 'setZipcode';
     setZipcode.zipCode = properties.zipCode || properties.zip;
     finalRequest.push(setZipcode);
@@ -87,46 +94,114 @@ const handleProductView = (message, finalPayload) => {
   // );
 };
 
-const handlingEventDuo = (message, finalPayload) => {
-  const { event, properties } = message;
-  const eventType = event.toLowerCase().trim();
+/**
+ * Validates product properties
+ * @param {*} product
+ * @param {*} index
+ * @returns
+ */
+const validateProduct = (product, index) => {
+  if (product.product_id && product.price && product.quantity) {
+    const elementaryProduct = {
+      id: String(product.product_id),
+      price: parseFloat(product.price),
+      quantity: parseInt(product.quantity, 10),
+    };
+    return !Number.isNaN(elementaryProduct.price) && !Number.isNaN(elementaryProduct.quantity);
+  }
+  logger.debug(`[Criteo] product at index ${index} is skipped for insufficient information`);
+  return false;
+};
+
+/**
+ * Returns transformed products array
+ * @param {*} properties
+ * @returns
+ */
+const getProductInfo = properties => {
   const productInfo = [];
-  let elementaryProduct;
-  if (properties && properties.products && properties.products.length > 0) {
+
+  if (properties?.products && properties.products.length > 0) {
     properties.products.forEach((product, index) => {
-      if (product.product_id && product.price && product.quantity) {
-        elementaryProduct = {
+      if (validateProduct(product, index)) {
+        productInfo.push({
           id: String(product.product_id),
           price: parseFloat(product.price),
           quantity: parseInt(product.quantity, 10),
-        };
-        if (
-          !Number.isNaN(parseFloat(elementaryProduct.price)) &&
-          !Number.isNaN(parseInt(elementaryProduct.quantity, 10))
-        ) {
-          // all the above fields are mandatory
-          productInfo.push(elementaryProduct);
-        }
-      } else {
-        logger.debug(`[Criteo] product at index ${index} is skipped for insufficient information`);
+        });
       }
     });
-    if (productInfo.length === 0) {
-      logger.debug(
-        '[Criteo] None of the products had sufficient information or information is wrongly formatted',
-      );
-      return;
-    }
   } else {
     logger.debug('[Criteo] Payload should consist of at least one product information');
+  }
+
+  return productInfo;
+};
+
+/**
+ * Adds order completed event to finalPayload
+ * @param {*} properties
+ * @param {*} finalPayload
+ * @param {*} productInfo
+ * @returns
+ */
+const processCompletedOrderEvent = (properties, finalPayload, productInfo) => {
+  const trackTransactionObject = {
+    event: 'trackTransaction',
+    id: String(properties.order_id),
+    item: productInfo,
+  };
+
+  if (!trackTransactionObject.id) {
+    logger.debug('[Criteo] order_id (Transaction Id) is a mandatory field');
     return;
   }
+
+  if (properties.new_customer === 1 || properties.new_customer === 0) {
+    trackTransactionObject.new_customer = properties.new_customer;
+  }
+
+  if (properties.deduplication === 1 || properties.deduplication === 0) {
+    trackTransactionObject.deduplication = properties.deduplication;
+  }
+
+  finalPayload.push(trackTransactionObject);
+};
+
+/**
+ * Adds view cart event to finalPayload
+ * @param {*} properties
+ * @param {*} finalPayload
+ * @param {*} productInfo
+ */
+const processViewedCartEvent = (finalPayload, productInfo) => {
+  const viewBasketObject = {
+    event: 'viewBasket',
+    item: productInfo,
+  };
+  finalPayload.push(viewBasketObject);
+};
+
+/**
+ * Handles events
+ * @param {*} message
+ * @param {*} finalPayload
+ * @returns
+ */
+const handlingEventDuo = (message, finalPayload) => {
+  const { event, properties } = message;
+  const eventType = event.toLowerCase().trim();
+  const productInfo = getProductInfo(properties);
+
+  if (productInfo.length === 0) {
+    logger.debug(
+      '[Criteo] None of the products had sufficient information or information is wrongly formatted',
+    );
+    return;
+  }
+
   if (eventType === 'cart viewed') {
-    const viewBasketObject = {
-      event: 'viewBasket',
-      item: productInfo,
-    };
-    finalPayload.push(viewBasketObject);
+    processViewedCartEvent(finalPayload, productInfo);
     // final example payload supported by the destination
     // window.criteo_q.push(
     //   { event: "setAccount", account: YOUR_PARTNER_ID},
@@ -154,23 +229,7 @@ const handlingEventDuo = (message, finalPayload) => {
   }
 
   if (eventType === 'order completed') {
-    const trackTransactionObject = {
-      event: 'trackTransaction',
-      id: String(properties.order_id),
-      item: productInfo,
-    };
-    if (!trackTransactionObject.id) {
-      logger.debug('[Criteo] order_id (Transaction Id) is a mandatory field');
-      return;
-    }
-    if (properties.new_customer === 1 || properties.new_customer === 0) {
-      trackTransactionObject.new_customer = properties.new_customer;
-    }
-    if (properties.deduplication === 1 || properties.deduplication === 0) {
-      trackTransactionObject.deduplication = properties.deduplication;
-    }
-    finalPayload.push(trackTransactionObject);
-
+    processCompletedOrderEvent(properties, finalPayload, productInfo);
     // final example payload supported by destination
     //   window.criteo_q.push(
     //     { event: "setAccount", account: YOUR_PARTNER_ID},
@@ -193,12 +252,37 @@ const handlingEventDuo = (message, finalPayload) => {
   }
 };
 
+/**
+ * Returns filterArray
+ * @param {*} properties
+ * @param {*} OPERATOR_LIST
+ * @returns
+ */
+const getFilterArray = (properties, OPERATOR_LIST) => {
+  const filterArray = [];
+  const FILTER_FIELDS = ['name', 'value'];
+  if (properties.filters) {
+    properties.filters.forEach(filter => {
+      const filterObject = {};
+      Object.keys(filter).forEach(key => {
+        if (
+          FILTER_FIELDS.includes(key) ||
+          (key === 'operator' && OPERATOR_LIST.includes(filter.operator))
+        ) {
+          filterObject[key] = filter[key];
+        }
+      });
+      filterArray.push(filterObject);
+    });
+  }
+
+  return filterArray;
+};
+
 const handleListView = (message, finalPayload, OPERATOR_LIST) => {
   const { properties } = message;
   const productIdList = [];
-  const filterArray = [];
   const viewListObj = {};
-  const FILTER_FIELDS = ['name', 'value'];
 
   if (properties.products && properties.products.length > 0) {
     properties.products.forEach(product => {
@@ -223,30 +307,37 @@ const handleListView = (message, finalPayload, OPERATOR_LIST) => {
     viewListObj.page_number = parseInt(properties.page_number, 10);
   }
 
-  if (properties.filters) {
-    properties.filters.forEach(filter => {
-      const filterObject = {};
-      Object.keys(filter).forEach(key => {
-        if (
-          FILTER_FIELDS.includes(key) ||
-          (key === 'operator' && OPERATOR_LIST.includes(filter.operator))
-        ) {
-          filterObject[key] = filter[key];
-        }
-      });
-      filterArray.push(filterObject);
-    });
-  }
+  const filterArray = getFilterArray(properties, OPERATOR_LIST);
   if (filterArray.length > 0) {
     viewListObj.filters = filterArray;
   }
   finalPayload.push(viewListObj);
 };
 
+/**
+ * Returns device type
+ * @param {*} userAgent
+ * @returns
+ */
+const getDeviceType = userAgent => {
+  let deviceType;
+
+  if (/iPad/.test(userAgent)) {
+    deviceType = 't';
+  } else if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(userAgent)) {
+    deviceType = 'm';
+  } else {
+    deviceType = 'd';
+  }
+
+  return deviceType;
+};
+
 export {
-  handleCommonFields,
-  generateExtraData,
-  handleProductView,
-  handlingEventDuo,
+  getDeviceType,
   handleListView,
+  handlingEventDuo,
+  handleProductView,
+  generateExtraData,
+  handleCommonFields,
 };

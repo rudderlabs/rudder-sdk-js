@@ -77,21 +77,15 @@ class EventRepository implements IEventRepository {
     // Start the queue once the client destinations are ready
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
-        this.destinationsEventsQueue.start();
+        this.destinationsEventsQueue?.start();
       }
     });
-  }
 
-  /**
-   * Enqueues the event for processing
-   * @param event RudderEvent object
-   * @param callback API callback function
-   */
-  enqueue(event: RudderEvent, callback?: ApiCallback): void {
     // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations
     // is merged into the event object
+    let timeoutId: number;
     effect(() => {
       const shouldBufferDpEvents =
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
@@ -102,23 +96,30 @@ class EventRepository implements IEventRepository {
       );
 
       if (
-        hybridDestExist === false ||
-        (shouldBufferDpEvents === false &&
-          this.dataplaneEventsQueue?.scheduleTimeoutActive !== true)
+        (hybridDestExist === false || shouldBufferDpEvents === false) &&
+        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
+        (globalThis as typeof window).clearTimeout(timeoutId);
         this.dataplaneEventsQueue?.start();
       }
     });
 
     // Force start the data plane events queue processing after a timeout
     if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
-      (globalThis as typeof window).setTimeout(() => {
+      timeoutId = (globalThis as typeof window).setTimeout(() => {
         if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
           this.dataplaneEventsQueue?.start();
         }
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
+  }
 
+  /**
+   * Enqueues the event for processing
+   * @param event RudderEvent object
+   * @param callback API callback function
+   */
+  enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const dpQEvent = clone(event);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,

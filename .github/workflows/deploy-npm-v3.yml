@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
     steps:
-      - name: Checkout source branch
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Get new version number
@@ -93,7 +93,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK 1.1 NPM Package'
+          PROJECT_NAME: 'JS SDK v1.1 NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix/')
     steps:
-      - name: Checkout source branch
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

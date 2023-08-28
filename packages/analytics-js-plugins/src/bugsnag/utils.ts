@@ -127,6 +127,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
       id: state.lifecycle.writeKey.value,
     },
     logger,
+    networkBreadcrumbsEnabled: false,
   };
 
   const client: BugsnagLib.Client = globalBugsnagLibInstance(clientConfig);

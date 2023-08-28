@@ -2,9 +2,9 @@
 
 Please include a summary of the change along with the relevant motivation and context.
 
-## Notion ticket
+## Linear task (optional)
 
-Ticket link
+Linear task link
 
 ## Cross Browser Tests
 

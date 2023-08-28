@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';

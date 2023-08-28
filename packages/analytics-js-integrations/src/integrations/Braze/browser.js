@@ -6,7 +6,7 @@ import { Storage } from '@rudderstack/analytics-js-common/utilsV1/storage';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
-import { load } from './nativeSdkLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 
@@ -49,7 +49,7 @@ class Braze {
 
   init() {
     logger.debug('===in init Braze===');
-    load();
+    loadNativeSdk();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,

@@ -15,7 +15,7 @@ import { identifyExcludeFields } from '@rudderstack/analytics-js-common/constant
 function getDestinationExternalID(message, type) {
   let externalIdArray = null;
   let destinationExternalId = null;
-  if (message.context && message.context.externalId) {
+  if (message?.context?.externalId) {
     externalIdArray = message.context.externalId;
   }
   if (externalIdArray) {
@@ -66,5 +66,4 @@ const refinePayload = (attributes, identifyFlag = false) => {
   return payload;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { getDestinationExternalID, refinePayload };

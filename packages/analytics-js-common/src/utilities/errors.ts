@@ -1,5 +1,5 @@
-import { isTypeOfError } from './checks';
-import { stringifyWithoutCircular } from './json';
+import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 
 /**
  * Get mutated error with issue prepended to error message

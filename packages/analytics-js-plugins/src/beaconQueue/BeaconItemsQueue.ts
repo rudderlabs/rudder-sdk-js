@@ -8,7 +8,7 @@ import {
   QueueItem,
   QueueProcessCallback,
 } from '@rudderstack/analytics-js-plugins/types/plugins';
-import { BeaconQueueItem } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+import { BeaconQueueItemData } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
 import { getDeliveryPayload } from '@rudderstack/analytics-js-plugins/beaconQueue/utilities';
 import {
   DEFAULT_BEACON_QUEUE_OPTIONS,
@@ -21,10 +21,10 @@ export type BeaconQueueTimeouts = {
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
-class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
+class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
   name: string;
   id: string;
-  processQueueCb: QueueProcessCallback<QueueItem<BeaconQueueItem>[]>;
+  processQueueCb: QueueProcessCallback<QueueItem<BeaconQueueItemData>[]>;
   store: IStore;
   storeManager: IStoreManager;
   maxItems: number;
@@ -76,11 +76,11 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
     });
   }
 
-  getQueue(name?: string): QueueItem<BeaconQueueItem>[] {
+  getQueue(name?: string): QueueItem<BeaconQueueItemData>[] {
     return this.store.get(name ?? this.name) ?? [];
   }
 
-  setQueue(name?: string, value?: QueueItem<BeaconQueueItem>[]) {
+  setQueue(name?: string, value?: QueueItem<BeaconQueueItemData>[]) {
     this.store.set(name ?? this.name, value ?? []);
   }
 
@@ -102,7 +102,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
     }
   }
 
-  enqueue(entry: QueueItem<BeaconQueueItem>) {
+  enqueue(entry: QueueItem<BeaconQueueItemData>) {
     let queue = this.getQueue();
 
     // Get max items from the queue minus one
@@ -138,16 +138,16 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItem> {
     this.start();
   }
 
-  addItem(item: BeaconQueueItem) {
+  addItem(itemData: BeaconQueueItemData) {
     this.enqueue({
-      item,
+      item: itemData,
       attemptNumber: 0,
       time: Date.now(),
       id: generateUUID(),
     });
   }
 
-  flushQueue(queueItems?: QueueItem<BeaconQueueItem>[]) {
+  flushQueue(queueItems?: QueueItem<BeaconQueueItemData>[]) {
     if (!this.flushInProgress) {
       this.flushInProgress = true;
       const batchItems = queueItems ?? this.getQueue();

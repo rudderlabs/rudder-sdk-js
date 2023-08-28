@@ -3,7 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# 2.40.0 (2023-08-04)
+### [2.40.4](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.3...v2.40.4) (2023-08-21)
+
+### [2.40.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.2...v2.40.3) (2023-08-18)
+
+
+### Bug Fixes
+
+* add support for EU region specific script ([#1305](https://github.com/rudderlabs/rudder-sdk-js/issues/1305)) ([66092d3](https://github.com/rudderlabs/rudder-sdk-js/commit/66092d357ffa87c8a39ffa05a1cd4c57085c7d47))
+* **INT-183:** resolve sonar issues and move integration script to separate file ([#1249](https://github.com/rudderlabs/rudder-sdk-js/issues/1249)) ([7afcc16](https://github.com/rudderlabs/rudder-sdk-js/commit/7afcc168de223c9765b13398c5bd1a78d9344333)), closes [#1195](https://github.com/rudderlabs/rudder-sdk-js/issues/1195)
+
+### [2.40.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.1...v2.40.2) (2023-08-16)
+
+
+### Bug Fixes
+
+* persisted data decryption for v3 ([#1309](https://github.com/rudderlabs/rudder-sdk-js/issues/1309)) ([76b6075](https://github.com/rudderlabs/rudder-sdk-js/commit/76b60759ec37afb371d18590348572ca8e822070))
+
+### [2.40.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.0...v2.40.1) (2023-08-16)
+
+
+### Bug Fixes
+
+* ad blocked page request filtering ([00e0bae](https://github.com/rudderlabs/rudder-sdk-js/commit/00e0bae11535faee737a7c656bf4dd6a76e0fa59))
+* integration data values resolution ([#1302](https://github.com/rudderlabs/rudder-sdk-js/issues/1302)) ([d52dfe6](https://github.com/rudderlabs/rudder-sdk-js/commit/d52dfe6c8373ae070903919f3d37c0b5b96b8c7d))
+
+## [2.40.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.39.0...v2.40.0) (2023-08-04)
 
 
 ### Features

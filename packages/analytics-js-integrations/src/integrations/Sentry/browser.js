@@ -1,7 +1,4 @@
-/* eslint-disable object-shorthand */
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable no-unused-expressions */
 import get from 'get-value';
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
@@ -109,7 +106,7 @@ class Sentry {
 
     const payload = {
       id: userId,
-      email: email,
+      email,
       username: name,
       ip_address: ipAddress,
       ...traits,

@@ -15,21 +15,22 @@ import {
   validateEventPayloadSize,
 } from '@rudderstack/analytics-js-plugins/utilities/queue';
 import {
-  BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
-  BEACON_QUEUE_SEND_ERROR,
-  BEACON_QUEUE_DELIVERY_ERROR,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
   getDeliveryPayload,
 } from '@rudderstack/analytics-js-plugins/beaconQueue/utilities';
 import { BeaconItemsQueue } from '@rudderstack/analytics-js-plugins/beaconQueue/BeaconItemsQueue';
+
 import {
   BEACON_QUEUE_PLUGIN,
   QUEUE_NAME,
 } from '@rudderstack/analytics-js-plugins/beaconQueue/constants';
-import { BeaconQueueItem } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+import { BeaconQueueItemData } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+import {
+  BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
+  BEACON_QUEUE_SEND_ERROR,
+  BEACON_QUEUE_DELIVERY_ERROR,
+} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
 
 const pluginName = 'BeaconQueue';
 
@@ -65,7 +66,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
       );
 
       const queueProcessCallback = (
-        queueItems: QueueItem<BeaconQueueItem>[],
+        queueItems: QueueItem<BeaconQueueItemData>[],
         done: DoneCallback,
       ) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
@@ -125,7 +126,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
       eventsQueue.addItem({
         event,
-      } as BeaconQueueItem);
+      } as BeaconQueueItemData);
     },
   },
 });
