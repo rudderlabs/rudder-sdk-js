@@ -124,7 +124,7 @@ export type StorageEntry = {
   storage: StorageType;
   key: string;
 };
-export type UserSessionEntries = {
+export type StorageEntries = {
   [key in UserSessionKeys]: StorageEntry;
 };
 
@@ -133,7 +133,7 @@ export type StorageState = {
   migrate: Signal<boolean>;
   type: Signal<StorageType | undefined>;
   cookie: Signal<CookieOptions | undefined>;
-  entries: Signal<UserSessionEntries>;
+  entries: Signal<StorageEntries>;
   trulyAnonymousTracking: Signal<boolean>;
 };
 

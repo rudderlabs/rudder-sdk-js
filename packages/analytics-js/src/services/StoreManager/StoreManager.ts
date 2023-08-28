@@ -90,7 +90,7 @@ class StoreManager implements IStoreManager {
 
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
-    Object.keys(state.storage.entries.value).forEach(entry => {
+    Object.keys(state.storage?.entries.value).forEach(entry => {
       const key = entry as UserSessionKeysType;
       const storageKey = entry as UserSessionStorageKeysType;
       const providedStorageType = entries ? entries[key]?.type : undefined;
@@ -126,9 +126,9 @@ class StoreManager implements IStoreManager {
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
       }
-      const clonedStorageState = clone(state.storage.entries.value);
+      const storageState = state.storage.entries.value;
       state.storage.entries.value = {
-        ...clonedStorageState,
+        ...storageState,
         [entry]: {
           storage: finalStorageType,
           key: userSessionStorageKeys[storageKey],
@@ -143,13 +143,13 @@ class StoreManager implements IStoreManager {
 
     // Initializing all the enabled store because previous user data might be in different storage
     // that needs auto migration
-    storageTypesRequiringInitialization.forEach(storage => {
+    storageTypesRequiringInitialization.forEach(storageType => {
       this.setStore({
-        id: storageClientDataStoreNameMap[storage],
-        name: storageClientDataStoreNameMap[storage],
+        id: storageClientDataStoreNameMap[storageType],
+        name: storageClientDataStoreNameMap[storageType],
         isEncrypted: true,
         noCompoundKey: true,
-        type: storage as StorageType,
+        type: storageType as StorageType,
       });
     });
   }

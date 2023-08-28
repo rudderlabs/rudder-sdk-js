@@ -97,7 +97,7 @@ class ConfigManager implements IConfigManager {
     updateStorageState(this.logger);
 
     let storageType = state.loadOptions.value.storage?.type;
-    if (!isValidStorageType(storageType)) {
+    if (storageType && !isValidStorageType(storageType)) {
       this.logger?.warn(
         STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
       );

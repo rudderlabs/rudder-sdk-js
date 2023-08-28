@@ -1,12 +1,12 @@
 import { signal } from '@preact/signals-core';
 import {
-  UserSessionEntries,
+  StorageEntries,
   StorageState,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 
-const defaultEntries: UserSessionEntries = {
+const defaultEntries: StorageEntries = {
   userId: {
     storage: DEFAULT_STORAGE_TYPE,
     key: userSessionStorageKeys.userId,
