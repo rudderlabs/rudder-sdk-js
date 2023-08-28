@@ -27,7 +27,7 @@
     "package": "lerna run package",
     "build:integrations": "cd packages/analytics-js-integrations && npm run build:modern && npm run build",
     "test": "nx run-many -t test",
-    "test:ci": "nx run-many -t test --parallel=false --configuration=ci -- --forceExit --coverage",
+    "test:ci": "nx run-many -t test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "lerna run check:lint",
     "check:lint:dev": "lerna run check:lint:dev",
     "check:size": "lerna run check:size",
