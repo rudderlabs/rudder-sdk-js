@@ -140,3 +140,5 @@ export interface ApplicationState {
   source: SourceConfigState;
   storage: StorageState;
 }
+
+export type DebouncedFunction = (...args: any[]) => void;
