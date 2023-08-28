@@ -4,6 +4,7 @@ import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Ve
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
+import { getDestinationOptions } from './utils';
 
 class Vero {
   constructor(config, analytics, destinationInfo) {
@@ -45,17 +46,18 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    const { integrations } = message;
-    if (integrations && integrations[NAME]) {
-      const { tags } = integrations[NAME];
+    const { integrations, anonymousId, userId } = message;
+    const veroIntgConfig = getDestinationOptions(integrations);
+    if (veroIntgConfig) {
+      const { tags } = veroIntgConfig;
       if (isDefinedAndNotNull(tags)) {
-        const userId = message.userId || message.anonymousId;
+        const id = userId || anonymousId;
         const addTags = Array.isArray(tags.add) ? tags.add : [];
         const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
         window._veroq.push([
           'tags',
           {
-            id: userId,
+            id,
             add: addTags,
             remove: removeTags,
           },
@@ -97,18 +99,18 @@ class Vero {
     logger.debug('=== In Vero track ===');
 
     const { message } = rudderElement;
-    const { event, properties } = message;
+    const { event, properties, anonymousId, userId } = message;
     if (!event) {
       logger.error('[Vero]: Event name from track call is missing!!===');
       return;
     }
-    const userId = message.userId || message.anonymousId;
+    const id = userId || anonymousId;
     switch (event.toLowerCase()) {
       case 'unsubscribe':
-        window._veroq.push(['unsubscribe', userId]);
+        window._veroq.push(['unsubscribe', id]);
         break;
       case 'resubscribe':
-        window._veroq.push(['resubscribe', userId]);
+        window._veroq.push(['resubscribe', id]);
         break;
       default:
         window._veroq.push(['track', event, properties]);

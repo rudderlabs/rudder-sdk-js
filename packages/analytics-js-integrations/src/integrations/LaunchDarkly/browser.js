@@ -1,9 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import get from 'get-value';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/LaunchDarkly/constants';
-import createUser from './utils';
+import { createUser, getDestinationOptions } from './utils';
 
 class LaunchDarkly {
   constructor(config, analytics, destinationInfo) {
@@ -44,8 +43,8 @@ class LaunchDarkly {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    const anonymousUsersSharedKey =
-      get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
+    const launchDarklyIntgConfig = getDestinationOptions(message.integrations);
+    const anonymousUsersSharedKey = launchDarklyIntgConfig?.key || this.anonymousUsersSharedKey;
     this.launchDarklyUser = createUser(message, anonymousUsersSharedKey);
 
     if (window.ldclient) {

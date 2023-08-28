@@ -47,7 +47,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**', 'public/**'],
+      include: ['src/**'],
     },
     external: [
       /rudderAnalyticsRemotePlugins\/.*/,

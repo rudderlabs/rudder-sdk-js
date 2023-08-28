@@ -1,3 +1,1 @@
-import Klaviyo from './browser';
-
-export { Klaviyo };
+export { default as Klaviyo } from './browser';

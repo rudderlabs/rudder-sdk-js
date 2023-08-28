@@ -125,7 +125,7 @@ const getCopyTargets = () => {
 
 const getBuildConfig = (featureName) => ({
   watch: {
-    include: ['src/**', 'public/**', '__mocks__/**', '__fixtures__/**'],
+    include: ['src/**'],
   },
   external: [],
   onwarn(warning, warn) {

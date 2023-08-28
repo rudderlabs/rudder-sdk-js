@@ -217,5 +217,19 @@ describe('utilities - page', () => {
         tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
       });
     });
+
+    it('should get current page details', () => {
+      documentSpy.mockRestore();
+
+      expect(getDefaultPageProperties()).toEqual({
+        url: 'http://www.test-host.com/',
+        path: '/',
+        search: '',
+        title: '',
+        referrer: '$direct',
+        referring_domain: '',
+        tab_url: 'http://www.test-host.com/',
+      });
+    });
   });
 });

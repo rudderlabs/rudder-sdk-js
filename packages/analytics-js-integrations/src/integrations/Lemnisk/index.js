@@ -1,3 +1,1 @@
-import Lemnisk from './browser';
-
-export { Lemnisk };
+export { default as Lemnisk } from './browser';

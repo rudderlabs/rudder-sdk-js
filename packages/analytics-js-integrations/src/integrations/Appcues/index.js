@@ -1,3 +1,1 @@
-import Appcues from './browser';
-
-export { Appcues };
+export { default as Appcues } from './browser';

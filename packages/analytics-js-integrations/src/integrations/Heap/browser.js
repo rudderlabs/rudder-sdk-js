@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Heap/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import processHeapProperties from './util';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
@@ -25,40 +25,7 @@ class Heap {
    */
 
   init() {
-    (window.heap = window.heap || []),
-      (heap.load = function (e, t) {
-        (window.heap.appid = e), (window.heap.config = t = t || {});
-        const r = document.createElement('script');
-        (r.type = 'text/javascript'),
-          (r.async = !0),
-          r.setAttribute('data-loader', LOAD_ORIGIN),
-          (r.src = `https://cdn.heapanalytics.com/js/heap-${e}.js`);
-        const a = document.getElementsByTagName('script')[0];
-        a.parentNode.insertBefore(r, a);
-        for (
-          let n = function (e) {
-              return function () {
-                heap.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-              };
-            },
-            p = [
-              'addEventProperties',
-              'addUserProperties',
-              'clearEventProperties',
-              'identify',
-              'resetIdentity',
-              'removeEventProperty',
-              'setEventProperties',
-              'track',
-              'unsetEventProperty',
-            ],
-            o = 0;
-          o < p.length;
-          o++
-        )
-          heap[p[o]] = n(p[o]);
-      });
-    window.heap.load(this.appId);
+    loadNativeSdk(this.appId);
   }
 
   /**

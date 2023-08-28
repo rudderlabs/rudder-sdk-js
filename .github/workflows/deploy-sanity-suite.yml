@@ -18,7 +18,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
-      - name: Checkout source branch
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Node

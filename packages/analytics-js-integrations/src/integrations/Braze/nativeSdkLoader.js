@@ -1,7 +1,7 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { BrazeOperationString } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
 
-const load = () => {
+const loadNativeSdk = () => {
   // load braze
   +(function (a, p, P, b, y) {
     a.braze = {};
@@ -32,4 +32,4 @@ const load = () => {
   })(window, document, 'script');
 };
 
-export { load };
+export { loadNativeSdk };

@@ -15,7 +15,7 @@ const shouldUglify = process.env.UGLIFY === 'true';
 export function getDefaultConfig(distName) {
   return {
     watch: {
-      include: ['src/**', 'public/**'],
+      include: ['src/**'],
     },
     external: [],
     onwarn(warning, warn) {

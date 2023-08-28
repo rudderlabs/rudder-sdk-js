@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 import { getHashFromArray } from '../../utils/commonUtils';
 

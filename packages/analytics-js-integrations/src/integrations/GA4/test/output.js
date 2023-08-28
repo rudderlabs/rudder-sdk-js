@@ -1,4 +1,6 @@
 const gtag = [];
+const itemListName = "What's New";
+const affiliation = 'Apple Store';
 
 gtag('event', 'search', { search_term: 'HDMI cable' });
 
@@ -12,7 +14,7 @@ gtag('event', 'view_item_list', {
       index: 2,
       item_category: 'Games and Entertainment',
       item_list_id: 'list1',
-      item_list_name: "What's New",
+      item_list_name: itemListName,
     },
     {
       item_id: '343344ff5567ff3',
@@ -21,10 +23,10 @@ gtag('event', 'view_item_list', {
       index: 21,
       item_category: 'Card Games',
       item_list_id: 'list1',
-      item_list_name: "What's New",
+      item_list_name: itemListName,
     },
   ],
-  item_list_name: "What's New",
+  item_list_name: itemListName,
 });
 
 gtag('event', 'Product List Filtered', {
@@ -190,7 +192,7 @@ window.gtag('event', 'begin_checkout', {
       price: 14,
       quantity: 1,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
@@ -200,12 +202,12 @@ window.gtag('event', 'begin_checkout', {
       price: 3.45,
       quantity: 2,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
   ],
-  affiliation: 'Apple Store',
+  affiliation,
   shipping: 22,
   tax: 1,
   coupon: 'ImagePro',
@@ -231,7 +233,7 @@ window.gtag('event', 'purchase', {
       price: 14,
       quantity: 1,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
@@ -241,12 +243,12 @@ window.gtag('event', 'purchase', {
       price: 3.45,
       quantity: 2,
       item_category: 'Games',
-      affiliation: 'Apple Store',
+      affiliation,
       coupon: 'ImagePro',
       currency: 'USD',
     },
   ],
-  affiliation: 'Apple Store',
+  affiliation,
   value: 20,
   shipping: 22,
   tax: 1,
