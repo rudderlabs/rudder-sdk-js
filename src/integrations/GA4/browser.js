@@ -240,7 +240,7 @@ export default class GA4 {
   }
 
   addSendToAndMeasurementIdToPayload(params, rudderElement) {
-    const message = rudderElement;
+    const { message } = rudderElement;
     const { integrations, userId } = message;
     const parameters = params;
     parameters.send_to = this.measurementId;
