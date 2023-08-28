@@ -18,12 +18,10 @@ import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
-  CLIENT_DATA_STORE_MEMORY,
 } from '@rudderstack/analytics-js/constants/storage';
 import {
   MigrationStorageType,
   StorageType,
-  StorageTypeWithStore,
   UserSessionKeysType,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import {
@@ -271,11 +269,10 @@ class UserSessionManager implements IUserSessionManager {
     const entries = state.storage.entries?.value;
     const { storage, key } = entries[sessionKey];
     if (this.isStorageTypeValidForStoringData(storage)) {
-      const curStorageType = storage as StorageTypeWithStore;
-      const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[curStorageType]);
+      const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
       if ((value && isString(value)) || isNonEmptyObject(value)) {
         curStore?.set(key, value);
-        if (previousStorageType && curStorageType !== previousStorageType) {
+        if (previousStorageType && storage !== previousStorageType) {
           const previousStore = this.storeManager?.getStore(
             storageClientDataStoreNameMap[previousStorageType],
           );

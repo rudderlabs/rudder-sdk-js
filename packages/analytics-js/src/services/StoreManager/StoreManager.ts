@@ -18,6 +18,7 @@ import {
 import { clone } from 'ramda';
 import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 import { UserSessionStorageKeysType } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/index';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
@@ -63,7 +64,9 @@ class StoreManager implements IStoreManager {
     };
 
     configureStorageEngines(
-      removeUndefinedValues(config.cookieOptions),
+      removeUndefinedValues(
+        mergeDeepRight(config.cookieOptions || {}, state.storage.cookie?.value || {}),
+      ),
       removeUndefinedValues(config.localStorageOptions),
       removeUndefinedValues(config.inMemoryStorageOptions),
     );

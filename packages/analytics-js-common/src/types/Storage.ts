@@ -5,14 +5,7 @@ export enum StorageEncryptionVersion {
   V3 = 'v3', // default
 }
 
-export type StorageType =
-  | 'localStorage'
-  | 'memoryStorage'
-  | 'cookieStorage'
-  | 'sessionStorage'
-  | 'none';
-
-export type StorageTypeWithStore = 'localStorage' | 'memoryStorage' | 'cookieStorage';
+export type StorageType = MigrationStorageType | 'memoryStorage' | 'sessionStorage' | 'none';
 
 export const SUPPORTED_STORAGE_TYPES = [
   'localStorage',
