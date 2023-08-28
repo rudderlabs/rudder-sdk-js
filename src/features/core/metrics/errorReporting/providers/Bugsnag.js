@@ -200,6 +200,7 @@ class BugsnagProvider {
       enabledBreadcrumbTypes: ['error', 'log', 'user'],
       maxEvents: 100,
       releaseStage: getReleaseStage(),
+      networkBreadcrumbsEnabled: false,
     });
 
     this.onClientReady();
