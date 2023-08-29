@@ -254,7 +254,7 @@ export default class GA4 {
 
   getDataForIntegrationsObject() {
     return {
-      'Google Analytics 4': {
+      'Google Analytics 4 (GA4)': {
         clientId: this.clientId,
         sessionId: this.sessionId,
         sessionNumber: this.sessionNumber,
