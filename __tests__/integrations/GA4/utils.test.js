@@ -1,9 +1,9 @@
 import {
   getItem,
-  sendUserId,
   getItemList,
   getItemsArray,
   extractLastKey,
+  shouldSendUserId,
   getExclusionFields,
   removeInvalidParams,
   isReservedEventName,
@@ -27,17 +27,17 @@ import {
 describe('Google Analytics 4 utilities tests', () => {
   describe('sendUserIdToGA4 function tests', () => {
     test('Default integrationsObj', () => {
-      const sendUserIdToGA4 = sendUserId({ All: true });
+      const sendUserIdToGA4 = shouldSendUserId({ All: true });
       expect(sendUserIdToGA4).toEqual(true);
     });
 
     test('IntegrationsObj with GA4 and without sendUserId property', () => {
-      const sendUserIdToGA4 = sendUserId({ All: true, GA4: { sessionId: '1782034567' } });
+      const sendUserIdToGA4 = shouldSendUserId({ All: true, GA4: { sessionId: '1782034567' } });
       expect(sendUserIdToGA4).toEqual(true);
     });
 
     test('IntegrationsObj with GA4 and sendUserId set to true', () => {
-      const sendUserIdToGA4 = sendUserId({
+      const sendUserIdToGA4 = shouldSendUserId({
         All: true,
         GA4: { sessionId: '1782034567', sendUserId: true },
       });
@@ -45,7 +45,7 @@ describe('Google Analytics 4 utilities tests', () => {
     });
 
     test('IntegrationsObj with GA4 and sendUserId set to false', () => {
-      const sendUserIdToGA4 = sendUserId({
+      const sendUserIdToGA4 = shouldSendUserId({
         All: true,
         GA4: { sessionId: '1782034567', sendUserId: false },
       });
