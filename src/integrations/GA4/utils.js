@@ -20,7 +20,7 @@ const extractLastKey = (key) => key.split('.').pop();
  * Validates weather to send userId property to GA4 or not
  * @param {*} integrations
  */
-const sendUserId = (integrations) => integrations?.GA4?.sendUserId ?? true;
+const shouldSendUserId = (integrations) => integrations?.GA4?.sendUserId ?? true;
 
 /**
  * Reserved event names cannot be used
@@ -316,10 +316,10 @@ const prepareParamsAndEventName = (message, eventName) => {
 
 export {
   getItem,
-  sendUserId,
   getItemList,
   getItemsArray,
   extractLastKey,
+  shouldSendUserId,
   getExclusionFields,
   isReservedEventName,
   getCustomParameters,

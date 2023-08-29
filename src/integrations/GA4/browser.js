@@ -6,7 +6,7 @@ import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
 import { Cookie } from '../../utils/storage/cookie';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
-import { sendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
+import { shouldSendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -18,6 +18,7 @@ export default class GA4 {
     this.sessionId = '';
     this.sessionNumber = '';
     this.cookie = Cookie;
+    this.sendUserId = true;
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.debugView = config.debugView || false;
@@ -47,7 +48,8 @@ export default class GA4 {
     }
 
     // Setting the userId as part of the configuration
-    if (sendUserId(this.analytics.loadOnlyIntegrations) && this.analytics.getUserId()) {
+    this.sendUserId = shouldSendUserId(this.analytics.loadOnlyIntegrations);
+    if (this.sendUserId && this.analytics.getUserId()) {
       gtagParameterObject.user_id = this.analytics.getUserId();
     }
 
@@ -153,7 +155,7 @@ export default class GA4 {
     const { traits } = message.context;
     window.gtag('set', 'user_properties', flattenJsonPayload(traits));
 
-    if (sendUserId(message.integrations) && message?.userId) {
+    if (this.sendUserId && message.userId) {
       const { userId } = message;
       window.gtag('config', this.measurementId, { user_id: userId });
     }
@@ -241,10 +243,10 @@ export default class GA4 {
 
   addSendToAndMeasurementIdToPayload(params, rudderElement) {
     const { message } = rudderElement;
-    const { integrations, userId } = message;
+    const { userId } = message;
     const parameters = params;
     parameters.send_to = this.measurementId;
-    if (sendUserId(integrations) && userId) {
+    if (this.sendUserId && userId) {
       parameters.user_id = userId;
     }
     return parameters;
