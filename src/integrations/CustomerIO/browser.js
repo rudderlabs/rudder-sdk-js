@@ -34,6 +34,7 @@ class CustomerIO {
     const { traits } = context || {};
     if(!userId){
       logger.error('userId is required for Identify call.');
+      return;
     }
     const createAt = traits.createdAt;
     if (createAt) {
