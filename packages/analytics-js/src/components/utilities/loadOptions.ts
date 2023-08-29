@@ -104,6 +104,10 @@ const normalizeLoadOptions = (
   }
   if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage?.cookie)) {
     delete normalizedLoadOpts.storage?.cookie;
+  } else {
+    (normalizedLoadOpts.storage as StorageOpts).cookie = removeUndefinedAndNullValues(
+      normalizedLoadOpts.storage?.cookie,
+    );
   }
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);

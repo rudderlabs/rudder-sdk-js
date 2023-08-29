@@ -230,35 +230,35 @@ const dummySourceConfigResponse: SourceConfigResponse = {
 
 const sampleEntriesWithOnlyCookieStorage = {
   userId: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.userId,
   },
   userTraits: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.userTraits,
   },
   anonymousId: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.anonymousId,
   },
   groupId: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.groupId,
   },
   groupTraits: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.groupTraits,
   },
   initialReferrer: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.initialReferrer,
   },
   initialReferringDomain: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.initialReferringDomain,
   },
   sessionInfo: {
-    storage: 'cookieStorage',
+    type: 'cookieStorage',
     key: userSessionStorageKeys.sessionInfo,
   },
 };

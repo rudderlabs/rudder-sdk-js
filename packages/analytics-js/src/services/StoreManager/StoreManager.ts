@@ -90,10 +90,10 @@ class StoreManager implements IStoreManager {
 
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
-    Object.keys(UserSessionKeys).forEach(key => {
-      const sessionKey = key as UserSessionKeysType;
-      const storageKey = key as UserSessionStorageKeysType;
-      const providedStorageType = entries?.[sessionKey]?.type;
+    Object.keys(UserSessionKeys).forEach(sessionKey => {
+      const key = sessionKey as UserSessionKeysType;
+      const storageKey = sessionKey as UserSessionStorageKeysType;
+      const providedStorageType = entries?.[key]?.type;
       const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
@@ -129,8 +129,8 @@ class StoreManager implements IStoreManager {
       const storageState = state.storage.entries.value;
       state.storage.entries.value = {
         ...storageState,
-        [key]: {
-          storage: finalStorageType,
+        [sessionKey]: {
+          type: finalStorageType,
           key: userSessionStorageKeys[storageKey],
         },
       };

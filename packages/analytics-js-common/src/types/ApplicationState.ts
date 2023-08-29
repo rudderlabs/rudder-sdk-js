@@ -121,7 +121,7 @@ export type SessionState = {
 export type SourceConfigState = Signal<Source | undefined>;
 
 export type StorageEntry = {
-  storage: StorageType;
+  type: StorageType;
   key: string;
 };
 export type StorageEntries = {

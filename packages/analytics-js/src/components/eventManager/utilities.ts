@@ -266,7 +266,7 @@ const getEnrichedEvent = (
     userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
-  if (state.storage.entries.value.anonymousId?.storage === NO_STORAGE) {
+  if (state.storage.entries.value.anonymousId?.type === NO_STORAGE) {
     // Generate new anonymous id for each request
     commonEventData.anonymousId = generateUUID();
   } else {
@@ -281,7 +281,7 @@ const getEnrichedEvent = (
 
   if (rudderEvent.type === RudderEventType.Identify) {
     (commonEventData.context as RudderContext).traits =
-      state.storage.entries.value.userTraits?.storage !== NO_STORAGE
+      state.storage.entries.value.userTraits?.type !== NO_STORAGE
         ? clone(state.session.userTraits.value)
         : (rudderEvent.context as RudderContext).traits;
   }
@@ -293,7 +293,7 @@ const getEnrichedEvent = (
 
     if (rudderEvent.traits || state.session.groupTraits.value) {
       commonEventData.traits =
-        state.storage.entries.value.groupTraits?.storage !== NO_STORAGE
+        state.storage.entries.value.groupTraits?.type !== NO_STORAGE
           ? clone(state.session.groupTraits.value)
           : rudderEvent.traits;
     }

@@ -132,14 +132,14 @@ class UserSessionManager implements IUserSessionManager {
 
   isPersistanceEnabledForStorageEntry(entryName: UserSessionKeysType): boolean {
     const entries = state.storage.entries.value;
-    return this.isStorageTypeValidForStoringData(entries[entryName]?.storage as StorageType);
+    return this.isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
   }
 
   migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
-      const currentStorage = entries[key]?.storage as StorageType;
+      const currentStorage = entries[key]?.type as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
       const storages = [COOKIE_STORAGE, LOCAL_STORAGE];
 
@@ -266,7 +266,7 @@ class UserSessionManager implements IUserSessionManager {
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.storage as StorageType;
+    const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
     if (this.isStorageTypeValidForStoringData(storage)) {
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
@@ -345,7 +345,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
-    const storage: StorageType = state.storage.entries.value.anonymousId?.storage as StorageType;
+    const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
     if (this.isStorageTypeValidForStoringData(storage)) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
@@ -372,7 +372,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns anonymousId
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
-    const storage: StorageType = state.storage.entries.value.anonymousId?.storage as StorageType;
+    const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
     const key: string = state.storage.entries.value.anonymousId?.key as string;
     let persistedAnonymousId;
     // fetch the anonymousId from storage
@@ -395,7 +395,7 @@ class UserSessionManager implements IUserSessionManager {
 
   getItem(sessionKey: UserSessionKeysType) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.storage as StorageType;
+    const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
     if (this.isStorageTypeValidForStoringData(storage)) {
       const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
