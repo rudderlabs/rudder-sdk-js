@@ -27,6 +27,7 @@ import {
   isStorageAvailable,
 } from './detection';
 import { detectAdBlockers } from './detection/adBlockers';
+import { debounce } from '../utilities/globals';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
@@ -159,7 +160,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isOnline.value = true;
     });
 
-    // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value
+    globalThis.addEventListener(
+      'resize',
+      debounce(() => {
+        state.context.screen.value = getScreenDetails();
+      }, this),
+    );
   }
 
   /**
