@@ -19,11 +19,7 @@ import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
 } from '@rudderstack/analytics-js/constants/storage';
-import {
-  MigrationStorageType,
-  StorageType,
-  UserSessionKeysType,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import { StorageType, UserSessionKeysType } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
@@ -145,7 +141,7 @@ class UserSessionManager implements IUserSessionManager {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.storage as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
-      const storages: MigrationStorageType[] = [COOKIE_STORAGE, LOCAL_STORAGE];
+      const storages = [COOKIE_STORAGE, LOCAL_STORAGE];
 
       storages.forEach(storage => {
         const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
