@@ -125,7 +125,7 @@ export type StorageEntry = {
   key: string;
 };
 export type StorageEntries = {
-  [key in UserSessionKeys]: StorageEntry;
+  [key in UserSessionKeys]?: StorageEntry;
 };
 
 export type StorageState = {

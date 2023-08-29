@@ -1,5 +1,6 @@
 import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import { DestinationConnectionMode } from '@rudderstack/analytics-js-common/types/Destination';
+import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 
 const identifyRequestPayload = {
   userId: '123456',
@@ -227,15 +228,50 @@ const dummySourceConfigResponse: SourceConfigResponse = {
   },
 };
 
+const sampleEntriesWithOnlyCookieStorage = {
+  userId: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    storage: 'cookieStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
   pageRequestPayload,
   screenRequestPayload,
-  groupRequestPayload,
   aliasRequestPayload,
   dummyWriteKey,
   dummyInitOptions,
   dummyDataplaneHost,
   dummySourceConfigResponse,
+  sampleEntriesWithOnlyCookieStorage,
 };

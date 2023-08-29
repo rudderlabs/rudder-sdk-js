@@ -15,10 +15,10 @@ import {
   StorageType,
   UserSessionKeysType,
 } from '@rudderstack/analytics-js-common/types/Storage';
-import { clone } from 'ramda';
 import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 import { UserSessionStorageKeysType } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
@@ -90,10 +90,10 @@ class StoreManager implements IStoreManager {
 
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
-    Object.keys(state.storage?.entries.value).forEach(entry => {
-      const key = entry as UserSessionKeysType;
-      const storageKey = entry as UserSessionStorageKeysType;
-      const providedStorageType = entries ? entries[key]?.type : undefined;
+    Object.keys(UserSessionKeys).forEach(key => {
+      const sessionKey = key as UserSessionKeysType;
+      const storageKey = key as UserSessionStorageKeysType;
+      const providedStorageType = entries?.[sessionKey]?.type;
       const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
@@ -129,7 +129,7 @@ class StoreManager implements IStoreManager {
       const storageState = state.storage.entries.value;
       state.storage.entries.value = {
         ...storageState,
-        [entry]: {
+        [key]: {
           storage: finalStorageType,
           key: userSessionStorageKeys[storageKey],
         },
