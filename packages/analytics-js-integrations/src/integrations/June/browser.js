@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/June/constants';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { getDestinationExternalID } from '../../utils/commonUtils';
 
 class June {

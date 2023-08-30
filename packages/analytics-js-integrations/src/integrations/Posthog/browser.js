@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
 import { removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';

@@ -3,8 +3,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { handleError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
-import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/utilsV1/ObjectUtils';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
 

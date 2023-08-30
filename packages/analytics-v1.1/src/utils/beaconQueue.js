@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { Store } from '@rudderstack/analytics-js-common/utilsV1/storage/store';
-import { handleError } from '@rudderstack/analytics-js-common/utilsV1/errorHandler';
-import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/utilsV1/ObjectUtils';
+import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 
 const defaults = {
   queue: 'queue',

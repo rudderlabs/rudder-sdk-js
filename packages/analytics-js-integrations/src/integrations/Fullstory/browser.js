@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
 import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';

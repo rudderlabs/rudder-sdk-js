@@ -1,5 +1,8 @@
 import { clone } from 'ramda';
-import { isInstanceOfEvent, stringifyWithoutCircularV1 } from '../../src/utilsV1/ObjectUtils';
+import {
+  isInstanceOfEvent,
+  stringifyWithoutCircularV1,
+} from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',

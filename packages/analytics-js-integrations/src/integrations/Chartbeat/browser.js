@@ -2,11 +2,11 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import onBody from 'on-body';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '@rudderstack/analytics-js-common/utilsV1/constants';
+} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Chartbeat/constants';
 import { loadNativeSdk } from './nativeSdkLoader';
 

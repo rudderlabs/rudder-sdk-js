@@ -1,4 +1,4 @@
-import { Storage } from '@rudderstack/analytics-js-common/utilsV1/storage';
+import { Storage } from 'packages/analytics-js-common/src/v1.1/utils/storage';
 
 const defaults = {
   lotame_synch_time_key: 'lt_synch_timestamp',

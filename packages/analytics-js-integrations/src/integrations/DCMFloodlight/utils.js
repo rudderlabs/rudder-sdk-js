@@ -3,7 +3,7 @@ import {
   DISPLAY_NAME,
   NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {
   isNotEmpty,

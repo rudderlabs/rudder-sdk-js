@@ -7,7 +7,7 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';

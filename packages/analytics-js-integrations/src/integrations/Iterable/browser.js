@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
 import Logger from '../../utils/logger';
 import {

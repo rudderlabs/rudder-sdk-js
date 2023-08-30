@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/utilsV1/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import * as utils from './util';
 import * as ecommUtils from './eCommHandle';
 import * as heartbeatUtils from './heartbeatHandle';

@@ -1,4 +1,4 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
 function loadNativeSdk(projectId, brandId) {
   const projectIdFormatted = projectId.replace(/_/g, '').toLowerCase().trim();

@@ -1,4 +1,4 @@
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
 import {

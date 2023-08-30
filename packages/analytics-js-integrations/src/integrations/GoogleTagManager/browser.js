@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleTagManager/constants';
 import { loadNativeSdk } from './nativeSdkLoader';
 

@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
 import _difference from 'lodash.difference';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   DISPLAY_NAME,

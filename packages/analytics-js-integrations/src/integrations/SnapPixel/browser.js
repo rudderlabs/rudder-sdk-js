@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { Storage } from '@rudderstack/analytics-js-common/utilsV1/storage';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { Storage } from 'packages/analytics-js-common/src/v1.1/utils/storage';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
 import {
   getEventMappingFromConfig,

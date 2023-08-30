@@ -8,13 +8,7 @@
     "require": "./umd/index.js",
     "import": "./esm/index.js"
   },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "index.d.ts"
-      ]
-    }
-  },
+  "types": "./index.d.ts",
   "publishConfig": {
     "directory": "dist/npm",
     "access": "public"

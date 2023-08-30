@@ -1,4 +1,4 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
 function loadNativeSdk(fs_debug_mode, fs_host, fs_org) {
   window._fs_debug = fs_debug_mode;

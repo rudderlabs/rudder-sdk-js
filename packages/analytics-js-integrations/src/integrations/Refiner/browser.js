@@ -1,4 +1,4 @@
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Refiner/constants';
 /* eslint-disable no-underscore-dangle */
 import { loadNativeSdk } from './nativeSdkLoader';

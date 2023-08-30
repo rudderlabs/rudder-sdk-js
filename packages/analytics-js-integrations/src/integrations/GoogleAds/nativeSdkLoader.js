@@ -1,5 +1,5 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 function loadNativeSdk(sourceUrl) {
   (function (id, src, document) {

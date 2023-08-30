@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Heap/constants';
-import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import processHeapProperties from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 

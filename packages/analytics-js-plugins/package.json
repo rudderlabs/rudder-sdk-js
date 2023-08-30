@@ -16,13 +16,7 @@
       "import": "./dist/npm/legacy/esm/index.js"
     }
   },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "dist/npm/index.d.ts"
-      ]
-    }
-  },
+  "types": "./dist/npm/index.d.ts",
   "publishConfig": {
     "access": "public"
   },

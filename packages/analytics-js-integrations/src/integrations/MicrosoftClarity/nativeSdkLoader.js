@@ -1,4 +1,4 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/utilsV1/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
 function loadNativeSdk(cookieConsent, projectId) {
   (function (c, l, a, r, i, t, y) {
