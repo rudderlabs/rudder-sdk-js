@@ -40,9 +40,14 @@ const parse = (str: string): Record<string, string | undefined> => {
     return obj;
   }
 
+  // TODO: Decode only the cookies that are needed by the SDK
   pairs.forEach(pairItem => {
     pair = pairItem.split('=');
-    obj[decode(pair[0]) as string] = decode(pair[1]);
+    const keyName = decode(pair[0]);
+
+    if (keyName) {
+      obj[keyName] = decode(pair[1]);
+    }
   });
 
   return obj;
