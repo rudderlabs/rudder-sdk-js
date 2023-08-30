@@ -246,6 +246,7 @@ class Analytics implements IAnalytics {
       this.errorHandler,
       this.logger,
       this.pluginsManager,
+      this.storeManager,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,
@@ -285,7 +286,7 @@ class Analytics implements IAnalytics {
 
     // Initialize storage
     this.storeManager?.init();
-    this.userSessionManager?.init(this.storeManager);
+    this.userSessionManager?.init();
 
     // Initialize consent manager
     if (state.consents.activeConsentManagerPluginName.value) {

@@ -80,14 +80,6 @@ class StoreManager implements IStoreManager {
    */
   initClientDataStore() {
     const globalStorageType = state.storage.type.value;
-    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
-    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
-    }
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
-    }
-
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
     Object.keys(UserSessionKeys).forEach(sessionKey => {
@@ -143,6 +135,13 @@ class StoreManager implements IStoreManager {
 
     // Initializing all the enabled store because previous user data might be in different storage
     // that needs auto migration
+    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
+    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
+    }
+    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
+    }
     storageTypesRequiringInitialization.forEach(storageType => {
       this.setStore({
         id: storageClientDataStoreNameMap[storageType],

@@ -60,6 +60,7 @@ describe('User session manager', () => {
       defaultErrorHandler,
       defaultLogger,
       defaultPluginsManager,
+      defaultStoreManager,
     );
   });
 
@@ -75,7 +76,7 @@ describe('User session manager', () => {
     };
     setCustomValuesInStorage(customData);
     state.storage.entries.value = entriesWithOnlyCookieStorage;
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     expect(state.session.userId.value).toBe(customData.rl_user_id);
     expect(state.session.userTraits.value).toStrictEqual(customData.rl_trait);
     expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
@@ -96,7 +97,7 @@ describe('User session manager', () => {
       rl_page_init_referring_domain: '',
     };
     state.storage.entries.value = entriesWithOnlyCookieStorage;
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     expect(state.session.userId.value).toBe(customData.rl_user_id);
     expect(state.session.userTraits.value).toStrictEqual(customData.rl_trait);
     expect(typeof state.session.anonymousId.value).toBe('string');
@@ -113,7 +114,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newAnonymousId = 'new-dummy-anonymous-id';
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setAnonymousId(newAnonymousId);
     expect(state.session.anonymousId.value).toBe(newAnonymousId);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -122,7 +123,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newUserId = 'new-dummy-user-id';
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setUserId(newUserId);
     expect(state.session.userId.value).toBe(newUserId);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -131,7 +132,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newUserTraits = { key1: 'value1', key2: 'value2' };
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setUserTraits(newUserTraits);
     expect(state.session.userTraits.value).toStrictEqual(newUserTraits);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -140,7 +141,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newGroupId = 'new-dummy-group-id';
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setGroupId(newGroupId);
     expect(state.session.groupId.value).toBe(newGroupId);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -149,7 +150,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newGroupTraits = { key1: 'value1', key2: 'value2' };
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setGroupTraits(newGroupTraits);
     expect(state.session.groupTraits.value).toStrictEqual(newGroupTraits);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -158,7 +159,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newReferrer = 'new-dummy-referrer-1';
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setInitialReferrer(newReferrer);
     expect(state.session.initialReferrer.value).toBe(newReferrer);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -167,7 +168,7 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     clientDataStoreCookie.set = jest.fn();
     const newReferrer = 'new-dummy-referrer-2';
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setInitialReferringDomain(newReferrer);
     expect(state.session.initialReferringDomain.value).toBe(newReferrer);
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
@@ -179,7 +180,7 @@ describe('User session manager', () => {
       rl_anonymous_id: dummyAnonymousId,
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualAnonymousId = userSessionManager.getAnonymousId();
     expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
   });
@@ -194,7 +195,7 @@ describe('User session manager', () => {
       },
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualAnonymousId = userSessionManager.getAnonymousId(option);
     expect(actualAnonymousId).toBe(customData.ajs_anonymous_id);
   });
@@ -203,7 +204,7 @@ describe('User session manager', () => {
       rl_user_id: 'dummy-userId-12345678',
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualUserId = userSessionManager.getUserId();
     expect(actualUserId).toBe(customData.rl_user_id);
   });
@@ -212,7 +213,7 @@ describe('User session manager', () => {
       rl_trait: { key1: 'value1', random: '123456789' },
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualUserTraits = userSessionManager.getUserTraits();
     expect(actualUserTraits).toStrictEqual(customData.rl_trait);
   });
@@ -221,7 +222,7 @@ describe('User session manager', () => {
       rl_group_id: 'dummy-groupId-12345678',
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualGroupId = userSessionManager.getGroupId();
     expect(actualGroupId).toBe(customData.rl_group_id);
   });
@@ -230,7 +231,7 @@ describe('User session manager', () => {
       rl_group_trait: { key1: 'value1', random: '123456789' },
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualGroupTraits = userSessionManager.getGroupTraits();
     expect(actualGroupTraits).toStrictEqual(customData.rl_group_trait);
   });
@@ -239,7 +240,7 @@ describe('User session manager', () => {
       rl_page_init_referrer: 'dummy-url-1234',
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualInitialReferrer = userSessionManager.getInitialReferrer();
     expect(actualInitialReferrer).toBe(customData.rl_page_init_referrer);
   });
@@ -248,14 +249,14 @@ describe('User session manager', () => {
       rl_page_init_referring_domain: 'dummy-url-287654',
     };
     setCustomValuesInStorage(customData);
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
     expect(actualInitialReferringDomain).toBe(customData.rl_page_init_referring_domain);
   });
   it('initializeSessionTracking: should be called during initialization of user session', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.initializeSessionTracking = jest.fn();
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     expect(userSessionManager.initializeSessionTracking).toHaveBeenCalled();
   });
   it('initializeSessionTracking: should call startAutoTracking if auto tracking is not disabled', () => {
@@ -287,7 +288,7 @@ describe('User session manager', () => {
     );
   });
   it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     state.session.sessionInfo.value = {};
     userSessionManager.refreshSession();
     expect(state.session.sessionInfo.value).toStrictEqual({});
@@ -312,7 +313,7 @@ describe('User session manager', () => {
   });
   it('refreshSession: should return session id and sessionStart when manual tracking is enabled', () => {
     const manualTrackingSessionId = 1029384756;
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.start(manualTrackingSessionId);
     userSessionManager.refreshSession();
     expect(state.session.sessionInfo.value).toEqual({
@@ -322,7 +323,7 @@ describe('User session manager', () => {
     });
   });
   it('refreshSession: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const pastTimestamp = Date.now() - 5000;
     state.session.sessionInfo.value = {
       autoTrack: true,
@@ -354,7 +355,7 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.sessionStart).toBe(false);
   });
   it('startAutoTracking: should create a new session in case of invalid session', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
@@ -372,7 +373,7 @@ describe('User session manager', () => {
     });
   });
   it('startAutoTracking: should not create a new session in case of valid session', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     state.session.sessionInfo.value = {
       autoTrack: true,
       timeout: 10 * 60 * 1000,
@@ -391,7 +392,7 @@ describe('User session manager', () => {
   });
   it('startManualTracking: should create a new manual session', () => {
     const manualTrackingSessionId = 1029384756;
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.start(manualTrackingSessionId);
     expect(state.session.sessionInfo.value).toEqual({
       manualTrack: true,
@@ -400,7 +401,7 @@ describe('User session manager', () => {
     });
   });
   it('startManualTracking: should create a new manual session even id session id is not provided', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.start();
     expect(state.session.sessionInfo.value).toEqual({
       manualTrack: true,
@@ -409,13 +410,13 @@ describe('User session manager', () => {
     });
   });
   it('endSessionTracking: should clear session info', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.end();
     expect(state.session.sessionInfo.value).toEqual({});
   });
   it('reset: should reset user session to the initial value except anonymousId', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset();
@@ -432,13 +433,13 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
   it('reset: should clear anonymousId with first parameter set to true', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     userSessionManager.reset(true);
     expect(state.session.anonymousId.value).toEqual('');
   });
   it('reset: should not start a new session with second parameter set to true', () => {
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset(true, true);
     expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
@@ -468,7 +469,7 @@ describe('User session manager', () => {
     const invokeSpy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     const extentionPoint = 'storage.migrate';
 
-    userSessionManager.init(defaultStoreManager);
+    userSessionManager.init();
 
     expect(invokeSpy).toHaveBeenCalledWith(
       extentionPoint,

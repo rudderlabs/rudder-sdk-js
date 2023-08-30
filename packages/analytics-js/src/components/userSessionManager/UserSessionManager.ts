@@ -41,6 +41,7 @@ import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
+  isStorageTypeValidForStoringData,
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
@@ -71,10 +72,7 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    * @param store Selected store
    */
-  init(storeManager: IStoreManager) {
-    this.storeManager = storeManager;
-    this.logger?.debug(state.storage.entries.value);
-
+  init() {
     this.migrateStorageIfNeeded();
     this.migrateDataFromPreviousStorage();
 
@@ -122,17 +120,9 @@ class UserSessionManager implements IUserSessionManager {
     this.registerEffects();
   }
 
-  isStorageTypeValidForStoringData(storage: StorageType): boolean {
-    return !!(
-      storage === COOKIE_STORAGE ||
-      storage === LOCAL_STORAGE ||
-      storage === MEMORY_STORAGE
-    );
-  }
-
   isPersistanceEnabledForStorageEntry(entryName: UserSessionKeysType): boolean {
     const entries = state.storage.entries.value;
-    return this.isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
+    return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
   }
 
   migrateDataFromPreviousStorage() {
@@ -146,13 +136,13 @@ class UserSessionManager implements IUserSessionManager {
       storages.forEach(storage => {
         const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
         if (storage !== currentStorage && store) {
-          const value = store?.get(userSessionStorageKeys[key]);
-          if (value) {
-            if (curStore) {
+          if (curStore) {
+            const value = store?.get(userSessionStorageKeys[key]);
+            if (value) {
               curStore?.set(userSessionStorageKeys[key], value);
             }
-            store?.remove(userSessionStorageKeys[key]);
           }
+          store?.remove(userSessionStorageKeys[key]);
         }
       });
     });
@@ -168,27 +158,29 @@ class UserSessionManager implements IUserSessionManager {
     Object.keys(userSessionStorageKeys).forEach(storageEntryKey => {
       const key = storageEntryKey as UserSessionStorageKeysType;
       const storageEntry = userSessionStorageKeys[key];
-      let migratedVal;
       if (cookieStorage) {
-        migratedVal = this.pluginsManager?.invokeSingle(
+        const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
           cookieStorage?.engine,
           this.errorHandler,
           this.logger,
         );
+        if (migratedVal) {
+          cookieStorage.set(storageEntry, migratedVal);
+        }
       }
-      if (!migratedVal && localStorage) {
-        migratedVal = this.pluginsManager?.invokeSingle(
+      if (localStorage) {
+        const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
           localStorage?.engine,
           this.errorHandler,
           this.logger,
         );
-      }
-      if (migratedVal) {
-        this.syncValueToStorage(UserSessionKeys[key], migratedVal);
+        if (migratedVal) {
+          localStorage.set(storageEntry, migratedVal);
+        }
       }
     });
   }
@@ -268,7 +260,7 @@ class UserSessionManager implements IUserSessionManager {
     const entries = state.storage.entries.value;
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
-    if (this.isStorageTypeValidForStoringData(storage)) {
+    if (isStorageTypeValidForStoringData(storage)) {
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
       if ((value && isString(value)) || isNonEmptyObject(value)) {
         curStore?.set(key, value);
@@ -346,7 +338,7 @@ class UserSessionManager implements IUserSessionManager {
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
     const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    if (this.isStorageTypeValidForStoringData(storage)) {
+    if (isStorageTypeValidForStoringData(storage)) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
           'userSession.anonymousIdGoogleLinker',
@@ -376,7 +368,7 @@ class UserSessionManager implements IUserSessionManager {
     const key: string = state.storage.entries.value.anonymousId?.key as string;
     let persistedAnonymousId;
     // fetch the anonymousId from storage
-    if (this.isStorageTypeValidForStoringData(storage)) {
+    if (isStorageTypeValidForStoringData(storage)) {
       const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
       persistedAnonymousId = store?.get(key);
       if (!persistedAnonymousId && options) {
@@ -397,11 +389,11 @@ class UserSessionManager implements IUserSessionManager {
     const entries = state.storage.entries.value;
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
-    if (this.isStorageTypeValidForStoringData(storage)) {
+    if (isStorageTypeValidForStoringData(storage)) {
       const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
       return store?.get(key) ?? null;
     }
-    return undefined;
+    return null;
   }
 
   /**

@@ -6,7 +6,7 @@ import { userSessionStorageKeys } from './userSessionStorageKeys';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
-  init(storeManager: IStoreManager | undefined): void;
+  init(): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;
   refreshSession(): void;
