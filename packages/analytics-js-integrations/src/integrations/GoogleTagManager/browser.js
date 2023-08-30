@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleTagManager/constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class GoogleTagManager {
   constructor(config, analytics, destinationInfo) {
@@ -22,23 +22,7 @@ class GoogleTagManager {
   init() {
     logger.debug('===in init GoogleTagManager===');
 
-    const defaultUrl = `https://www.googletagmanager.com`;
-
-    // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
-
-    window.finalUrl = this.serverUrl ? this.serverUrl : defaultUrl;
-
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      const f = d.getElementsByTagName(s)[0];
-      const j = d.createElement(s);
-      const dl = l !== 'dataLayer' ? `&l=${l}` : '';
-      j.setAttribute('data-loader', LOAD_ORIGIN);
-      j.async = true;
-      j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', this.containerID);
+    loadNativeSdk(this.containerID, this.serverUrl);
   }
 
   identify(rudderElement) {

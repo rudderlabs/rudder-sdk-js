@@ -10,17 +10,18 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
+import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
-  getDeliveryPayload,
-  getFinalEventForDeliveryMutator,
-  validateEventPayloadSize,
-} from '../utilities/queue';
-import { getNormalizedQueueOptions, getDeliveryUrl, logErrorOnFailure } from './utilities';
-import { DoneCallback, IQueue } from '../types/plugins';
+  getNormalizedQueueOptions,
+  getDeliveryUrl,
+  logErrorOnFailure,
+  getRequestInfo,
+} from './utilities';
+import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QUEUE_NAME, REQUEST_TIMEOUT_MS, XHR_QUEUE_PLUGIN } from './constants';
-import { XHRQueueItem } from './types';
-import { EVENT_PAYLOAD_PREPARATION_ERROR } from '../utilities/logMessages';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 
 const pluginName = 'XhrQueue';
 
@@ -59,51 +60,52 @@ const XhrQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (
-          item: XHRQueueItem,
+          itemData: QueueItemData,
           done: DoneCallback,
           attemptNumber?: number,
           maxRetryAttempts?: number,
           willBeRetried?: boolean,
         ) => {
-          const { url, event, headers } = item;
-          const finalEvent = getFinalEventForDeliveryMutator(event, state);
+          const { data, url, headers } = getRequestInfo(
+            itemData as XHRRetryQueueItemData,
+            state,
+            logger,
+          );
 
-          const data = getDeliveryPayload(finalEvent);
+          httpClient.getAsyncData({
+            url,
+            options: {
+              method: 'POST',
+              headers,
+              data: data as string,
+              sendRawData: true,
+            },
+            isRawResponse: true,
+            timeout: REQUEST_TIMEOUT_MS,
+            callback: (result, details) => {
+              // null means item will not be requeued
+              const queueErrResp = isErrRetryable(details) ? details : null;
 
-          if (data) {
-            httpClient.getAsyncData({
-              url,
-              options: {
-                method: 'POST',
-                headers,
-                data,
-                sendRawData: true,
-              },
-              isRawResponse: true,
-              timeout: REQUEST_TIMEOUT_MS,
-              callback: (result, details) => {
-                // null means item will not be requeued
-                const queueErrResp = isErrRetryable(details) ? details : null;
+              logErrorOnFailure(
+                details,
+                url,
+                willBeRetried,
+                attemptNumber,
+                maxRetryAttempts,
+                logger,
+              );
 
-                logErrorOnFailure(
-                  details,
-                  item,
-                  willBeRetried,
-                  attemptNumber,
-                  maxRetryAttempts,
-                  logger,
-                );
-
-                done(queueErrResp, result);
-              },
-            });
-          } else {
-            logger?.error(EVENT_PAYLOAD_PREPARATION_ERROR(XHR_QUEUE_PLUGIN));
-            // Mark the item as done so that it can be removed from the queue
-            done(null);
-          }
+              done(queueErrResp, result);
+            },
+          });
         },
         storeManager,
+        LOCAL_STORAGE,
+        logger,
+        (itemData: XHRQueueItemData[]): number => {
+          const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          return (getBatchDeliveryPayload(events, logger) as string)?.length;
+        },
       );
 
       return eventsQueue;
@@ -143,7 +145,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         url,
         headers,
         event,
-      } as XHRQueueItem);
+      } as XHRRetryQueueItemData);
     },
   },
 });

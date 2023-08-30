@@ -53,17 +53,11 @@ const DESTINATION_CONSENT_STATUS_ERROR = `Failed to determine the consent status
 const STORAGE_MIGRATION_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for ${key} from storage.`;
 
-const EVENT_STRINGIFY_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to convert event object to string.`;
-
 const RETRY_QUEUE_PROCESS_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Process function threw an error.`;
 
-const EVENT_PAYLOAD_PREPARATION_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to prepare the event payload for delivery. The event will be dropped.`;
-
 const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, url: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event to ${url}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to ${url}.`;
 
 const BUGSNAG_API_KEY_VALIDATION_ERROR = (apiKey: string): string =>
   `The Bugsnag API key (${apiKey}) is invalid or not provided.`;
@@ -106,11 +100,9 @@ export {
   ONETRUST_ACCESS_ERROR,
   DESTINATION_CONSENT_STATUS_ERROR,
   STORAGE_MIGRATION_ERROR,
-  EVENT_STRINGIFY_ERROR,
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
   RETRY_QUEUE_PROCESS_ERROR,
-  EVENT_PAYLOAD_PREPARATION_ERROR,
   EVENT_DELIVERY_FAILURE_ERROR_PREFIX,
   BUGSNAG_API_KEY_VALIDATION_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,

@@ -12,7 +12,6 @@ import { contextState } from './slices/context';
 import { nativeDestinationsState } from './slices/nativeDestinations';
 import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
-import { pagePropertiesState } from './slices/page';
 import { storageState } from './slices/storage';
 
 const defaultStateValues: ApplicationState = {
@@ -28,7 +27,6 @@ const defaultStateValues: ApplicationState = {
   reporting: reportingState,
   session: sessionState,
   source: sourceConfigState,
-  page: pagePropertiesState,
   storage: storageState,
 };
 
@@ -49,7 +47,6 @@ const resetState = () => {
   state.reporting = clone(defaultStateValues.reporting);
   state.session = clone(defaultStateValues.session);
   state.source = clone(defaultStateValues.source);
-  state.page = clone(defaultStateValues.page);
   state.storage = clone(defaultStateValues.storage);
 };
 

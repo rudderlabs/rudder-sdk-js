@@ -105,14 +105,12 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
       }
 
-      if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
-          state.loadOptions.value.configUrl,
-          state.lifecycle.writeKey.value as string,
-          lockIntegrationsVersion,
-          this.logger,
-        );
-      }
+      state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
+        state.loadOptions.value.configUrl,
+        state.lifecycle.writeKey.value as string,
+        lockIntegrationsVersion,
+        this.logger,
+      );
 
       // Set consent manager plugin name in state
       state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;

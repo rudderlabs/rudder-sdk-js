@@ -1,7 +1,7 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import { mapRudderPropsToOptimizelyProps } from './utils';
 
 class Optimizely {
   constructor(config, analytics, destinationInfo) {
@@ -34,6 +34,14 @@ class Optimizely {
     this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }
 
+  isLoaded() {
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+  }
+
   referrerOverride = referrer => {
     if (referrer) {
       window.optimizelyEffectiveReferrer = referrer;
@@ -44,10 +52,9 @@ class Optimizely {
 
   sendDataToRudder = campaignState => {
     logger.debug(campaignState);
-    const { experiment } = campaignState;
-    const { variation } = campaignState;
+    const { experiment, variation } = campaignState;
     const context = { integrations: { All: true } };
-    const { audiences } = campaignState;
+    const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
 
     // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
     const audiencesMap = {};
@@ -55,20 +62,24 @@ class Optimizely {
       audiencesMap[audience.id] = audience.name;
     });
 
-    const audienceIds = Object.keys(audiencesMap).sort().join();
-    const audienceNames = Object.values(audiencesMap).sort().join(', ');
+    const audienceIds = Object.keys(audiencesMap)
+      .sort((a, b) => a.localeCompare(b))
+      .join();
+    const audienceNames = Object.values(audiencesMap)
+      .sort((a, b) => a.localeCompare(b))
+      .join(', ');
 
     if (this.sendExperimentTrack) {
-      const props = {
-        campaignName: campaignState.campaignName,
-        campaignId: campaignState.id,
+      let props = {
+        campaignName,
+        campaignId: id,
         experimentId: experiment.id,
         experimentName: experiment.name,
         variationName: variation.name,
         variationId: variation.id,
         audienceId: audienceIds, // eg. '7527562222,7527111138'
         audienceName: audienceNames, // eg. 'Peaky Blinders, Trust Tree'
-        isInCampaignHoldback: campaignState.isInCampaignHoldback,
+        isInCampaignHoldback,
       };
 
       // If this was a redirect experiment and the effective referrer is different from document.referrer,
@@ -82,20 +93,10 @@ class Optimizely {
       // For Google's nonInteraction flag
       if (this.sendExperimentTrackAsNonInteractive) props.nonInteraction = 1;
 
-      // If customCampaignProperties is provided overide the props with it.
+      // If customCampaignProperties is provided override the props with it.
       // If valid customCampaignProperties present it will override existing props.
       // const data = window.optimizely && window.optimizely.get("data");
-      const data = campaignState;
-      if (data && this.customCampaignProperties.length > 0) {
-        for (let index = 0; index < this.customCampaignProperties.length; index += 1) {
-          const rudderProp = this.customCampaignProperties[index].from;
-          const optimizelyProp = this.customCampaignProperties[index].to;
-          if (typeof props[optimizelyProp] !== 'undefined') {
-            props[rudderProp] = props[optimizelyProp];
-            delete props[optimizelyProp];
-          }
-        }
-      }
+      props = mapRudderPropsToOptimizelyProps(props, campaignState, this.customCampaignProperties);
 
       // Send to Rudder
       this.analytics.track('Experiment Viewed', props, context);
@@ -111,7 +112,7 @@ class Optimizely {
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const activeCampaigns = state.getCampaignStates({
           isActive: true,
@@ -123,7 +124,7 @@ class Optimizely {
     };
 
     const checkReferrer = () => {
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
 
@@ -152,7 +153,7 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      const state = window.optimizely.get && window.optimizely.get('state');
+      const state = window?.optimizely?.get('state');
       if (state) {
         const referrer = checkReferrer();
         const activeCampaigns = state.getCampaignStates({
@@ -205,35 +206,24 @@ class Optimizely {
 
   page(rudderElement) {
     logger.debug('in Optimizely web page');
-    const { category } = rudderElement.message.properties;
-    const { name } = rudderElement.message;
-    /* const contextOptimizely = {
-      integrations: { All: false, Optimizely: true },
-    }; */
+
+    const clonedRudderElement = rudderElement;
+    const { category } = clonedRudderElement.message.properties;
+    const { name } = clonedRudderElement.message;
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
-      // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
-      rudderElement.message.event = `Viewed ${category} page`;
-      rudderElement.message.type = 'track';
-      this.track(rudderElement);
+      clonedRudderElement.message.event = `Viewed ${category} page`;
+      clonedRudderElement.message.type = 'track';
+      this.track(clonedRudderElement);
     }
 
     // named pages
     if (name && this.trackNamedPages) {
-      // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
-      rudderElement.message.event = `Viewed ${name} page`;
-      rudderElement.message.type = 'track';
-      this.track(rudderElement);
+      clonedRudderElement.message.event = `Viewed ${name} page`;
+      clonedRudderElement.message.type = 'track';
+      this.track(clonedRudderElement);
     }
-  }
-
-  isLoaded() {
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-  }
-
-  isReady() {
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 }
 

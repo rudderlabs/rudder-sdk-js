@@ -1,6 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable camelcase */
 /* eslint-disable class-methods-use-this */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
@@ -59,17 +56,13 @@ class AdobeAnalytics {
   }
 
   initAdobeAnalyticsClient() {
-    const { s } = window;
+    const { s, Visitor } = window;
     s.trackingServer = s.trackingServer || this.trackingServerUrl;
     s.trackingServerSecure = s.trackingServerSecure || this.trackingServerSecureUrl;
-    if (
-      this.marketingCloudOrgId &&
-      window.Visitor &&
-      typeof window.Visitor.getInstance === 'function'
-    ) {
-      s.visitor = window.Visitor.getInstance(this.marketingCloudOrgId, {
-        trackingServer: window.s.trackingServer || this.trackingServerUrl,
-        trackingServerSecure: window.s.trackingServerSecure || this.trackingServerSecureUrl,
+    if (this.marketingCloudOrgId && Visitor && typeof Visitor.getInstance === 'function') {
+      s.visitor = Visitor.getInstance(this.marketingCloudOrgId, {
+        trackingServer: s.trackingServer || this.trackingServerUrl,
+        trackingServerSecure: s.trackingServerSecure || this.trackingServerSecureUrl,
       });
     }
   }

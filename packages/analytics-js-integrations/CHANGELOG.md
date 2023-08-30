@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.4...@rudderstack/analytics-js-integrations@3.0.0-beta.5) (2023-08-21)
+
+**Note:** Version bump only for package @rudderstack/analytics-js-integrations
+
+
+
+
+
+# [3.0.0-beta.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.3...@rudderstack/analytics-js-integrations@3.0.0-beta.4) (2023-08-17)
+
+
+### Bug Fixes
+
+* **analytics-js-integrations:** fix rollup alias config ([e8960dc](https://github.com/rudderlabs/rudder-sdk-js/commit/e8960dc65bc29f70e5d04c3ed89bce3fb4b6f369))
+
+
+
+
+
 # [3.0.0-beta.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.2...@rudderstack/analytics-js-integrations@3.0.0-beta.3) (2023-08-10)
 
 **Note:** Version bump only for package @rudderstack/analytics-js-integrations

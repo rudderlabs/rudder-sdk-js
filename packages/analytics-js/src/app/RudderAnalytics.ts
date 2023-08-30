@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prefer-export-from */
-import { clone, isEmpty } from 'ramda';
+import { clone } from 'ramda';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,

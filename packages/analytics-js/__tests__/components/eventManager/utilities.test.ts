@@ -70,20 +70,7 @@ const defaultContext = {
   userAgent: 'defaultUA',
 } as RudderContext;
 
-const resetPageState = () => {
-  batch(() => {
-    state.page.referrer.value = '';
-    state.page.referring_domain.value = '';
-    state.page.search.value = '';
-    state.page.title.value = '';
-    state.page.url.value = '';
-    state.page.path.value = '';
-    state.page.tab_url.value = '';
-  });
-};
-
 const resetApplicationState = () => {
-  resetPageState();
   batch(() => {
     state.session.initialReferrer.value = undefined;
     state.session.initialReferringDomain.value = undefined;
@@ -128,7 +115,6 @@ describe('Event Manager - Utilities', () => {
         initial_referring_domain: 'www.google.com',
         anonymousId: defaultAnonId,
       } as ApiObject;
-      resetPageState();
     });
 
     it('should return the input page properties if options is invalid', () => {
@@ -205,7 +191,6 @@ describe('Event Manager - Utilities', () => {
       batch(() => {
         state.session.initialReferrer.value = 'https://www.google.com/test3';
         state.session.initialReferringDomain.value = 'www.google3.com';
-        state.page.tab_url.value = 'https://www.rudderlabs.com/test3';
       });
 
       // Reset the page properties
@@ -234,7 +219,7 @@ describe('Event Manager - Utilities', () => {
         title: pageProperties.title,
         url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
-        tab_url: state.page.tab_url.value,
+        tab_url: 'http://www.test-host.com/',
         initial_referrer: state.session.initialReferrer.value,
         initial_referring_domain: state.session.initialReferringDomain.value,
         anonymousId: pageProperties.anonymousId,
@@ -263,22 +248,11 @@ describe('Event Manager - Utilities', () => {
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
-        state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
         state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
         state.context.locale.value = 'en-US';
         state.context.userAgent.value = 'test';
         state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
         state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
-
-        state.page.referrer.value = 'https://sample.com/Page';
-        state.page.referring_domain.value = 'https://sample.com';
-        state.page.search.value = '?a=1&b=2&utm_campaign=test&utm_source=test';
-        state.page.title.value = 'title';
-        state.page.url.value =
-          'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
-        state.page.path.value = '/Page';
-        state.page.tab_url.value =
-          'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
       });
 
       // @ts-ignore
@@ -321,10 +295,7 @@ describe('Event Manager - Utilities', () => {
             name: 'test',
             version: '1.0',
           },
-          campaign: {
-            name: 'test',
-            source: 'test',
-          },
+          campaign: {},
           library: {
             name: 'test',
             version: '1.0',
@@ -351,11 +322,11 @@ describe('Event Manager - Utilities', () => {
           page: {
             path: '/test',
             referrer: 'https://www.google.com/test',
-            referring_domain: 'https://sample.com',
-            search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-            title: 'title',
-            url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-            tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+            referring_domain: '',
+            search: '',
+            title: '',
+            url: 'http://www.test-host.com/',
+            tab_url: 'http://www.test-host.com/',
             initial_referrer: 'https://test.com/page',
             initial_referring_domain: 'https://test.com',
           },
@@ -626,12 +597,6 @@ describe('Event Manager - Utilities', () => {
     });
 
     it('should return page properties from state if some input page parameters are not defined', () => {
-      // Set some specific page properties in state
-      batch(() => {
-        state.page.path.value = 'https://www.google.com/test3.html';
-        state.page.search.value = '?asdf=1234';
-      });
-
       // Reset the input page properties
       pageProperties.path = undefined;
       pageProperties.search = undefined;
@@ -639,9 +604,9 @@ describe('Event Manager - Utilities', () => {
       const updatedPageProperties = getContextPageProperties(pageProperties);
 
       expect(updatedPageProperties).toEqual({
-        path: state.page.path.value,
+        path: '/',
         referrer: pageProperties.referrer,
-        search: state.page.search.value,
+        search: '',
         title: pageProperties.title,
         url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
@@ -977,7 +942,7 @@ describe('Event Manager - Utilities', () => {
   });
 
   describe('getEnrichedEvent', () => {
-    let pageProperties: ApiObject = {
+    const pageProperties: ApiObject = {
       path: '/test',
       referrer: 'https://www.google.com/test',
       search: '?test=true',
@@ -1006,7 +971,6 @@ describe('Event Manager - Utilities', () => {
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
-        state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
         state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
         state.context.locale.value = 'en-US';
         state.context.userAgent.value = 'test';
@@ -1048,10 +1012,7 @@ describe('Event Manager - Utilities', () => {
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
           },
-          campaign: {
-            name: 'test',
-            source: 'test',
-          },
+          campaign: {},
           library: {
             name: 'test',
             version: '1.0',
@@ -1059,8 +1020,8 @@ describe('Event Manager - Utilities', () => {
           locale: 'en-US',
           userAgent: 'test',
           screen: {
-            width: 100,
             height: 100,
+            width: 100,
           },
           os: {
             name: 'test',

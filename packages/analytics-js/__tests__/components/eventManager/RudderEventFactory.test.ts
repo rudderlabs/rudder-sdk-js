@@ -37,22 +37,11 @@ describe('RudderEventFactory', () => {
 
       state.context['ua-ch'].value = { mobile: true } as UADataValues;
       state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
-      state.context.campaign.value = { name: 'test', source: 'test' } as UTMParameters;
       state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
       state.context.locale.value = 'en-US';
       state.context.userAgent.value = 'test';
       state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
       state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
-
-      state.page.referrer.value = 'https://sample.com/Page';
-      state.page.referring_domain.value = 'https://sample.com';
-      state.page.search.value = '?a=1&b=2&utm_campaign=test&utm_source=test';
-      state.page.title.value = 'title';
-      state.page.url.value =
-        'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
-      state.page.path.value = '/Page';
-      state.page.tab_url.value =
-        'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test';
     });
   });
 
@@ -86,10 +75,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -117,10 +103,10 @@ describe('RudderEventFactory', () => {
           path: '/NewPage',
           referrer: 'https://sample.com/NewPage',
           referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -134,10 +120,10 @@ describe('RudderEventFactory', () => {
         path: '/NewPage',
         referrer: 'https://sample.com/NewPage',
         referring_domain: 'https://sample.com',
-        search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-        title: 'title',
-        url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-        tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+        search: '',
+        title: '',
+        url: 'http://www.test-host.com/',
+        tab_url: 'http://www.test-host.com/',
         initial_referrer: 'https://test.com/page',
         initial_referring_domain: 'https://test.com',
       },
@@ -174,10 +160,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -202,13 +185,13 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
         },
         page: {
-          path: '/Page',
-          referrer: 'https://sample.com/Page',
-          referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          path: '/',
+          referrer: '$direct',
+          referring_domain: '',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -249,10 +232,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -277,13 +257,13 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
         },
         page: {
-          path: '/Page',
-          referrer: 'https://sample.com/Page',
-          referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          path: '/',
+          referrer: '$direct',
+          referring_domain: '',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -334,10 +314,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -365,13 +342,13 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
         },
         page: {
-          path: '/Page',
-          referrer: 'https://sample.com/Page',
-          referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          path: '/',
+          referrer: '$direct',
+          referring_domain: '',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -405,10 +382,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -433,13 +407,13 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
         },
         page: {
-          path: '/Page',
-          referrer: 'https://sample.com/Page',
-          referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          path: '/',
+          referrer: '$direct',
+          referring_domain: '',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -486,10 +460,7 @@ describe('RudderEventFactory', () => {
           name: 'test',
           version: '1.0',
         },
-        campaign: {
-          name: 'test',
-          source: 'test',
-        },
+        campaign: {},
         library: {
           name: 'test',
           version: '1.0',
@@ -514,13 +485,13 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
         },
         page: {
-          path: '/Page',
-          referrer: 'https://sample.com/Page',
-          referring_domain: 'https://sample.com',
-          search: '?a=1&b=2&utm_campaign=test&utm_source=test',
-          title: 'title',
-          url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
-          tab_url: 'https://testwebsite.com/Page?a=1&b=2&utm_campaign=test&utm_source=test',
+          path: '/',
+          referrer: '$direct',
+          referring_domain: '',
+          search: '',
+          title: '',
+          url: 'http://www.test-host.com/',
+          tab_url: 'http://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },

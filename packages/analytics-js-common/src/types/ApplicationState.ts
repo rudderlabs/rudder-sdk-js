@@ -46,7 +46,6 @@ export type ContextState = {
   locale: Signal<Nullable<string>>;
   screen: Signal<ScreenInfo>;
   'ua-ch': Signal<UADataValues | undefined>;
-  campaign: Signal<UTMParameters>;
 };
 
 export type EventBufferState = {
@@ -92,17 +91,6 @@ export type NativeDestinationsState = {
   integrationsConfig: Signal<IntegrationOpts>;
 };
 
-export type PagePropertiesState = {
-  readonly path: Signal<string>;
-  readonly referrer: Signal<string>;
-  readonly referring_domain: Signal<string>;
-  readonly search: Signal<string>;
-  readonly title: Signal<string>;
-  readonly url: Signal<string>;
-  readonly tab_url: Signal<string>;
-  readonly [index: string]: Signal<string | undefined>;
-};
-
 export type PluginsState = {
   ready: Signal<boolean>;
   loadedPlugins: Signal<string[]>;
@@ -146,10 +134,11 @@ export interface ApplicationState {
   loadOptions: LoadOptionsState;
   metrics: MetricsState;
   nativeDestinations: NativeDestinationsState;
-  page: PagePropertiesState;
   plugins: PluginsState;
   reporting: ReportingState;
   session: SessionState;
   source: SourceConfigState;
   storage: StorageState;
 }
+
+export type DebouncedFunction = (...args: any[]) => void;
