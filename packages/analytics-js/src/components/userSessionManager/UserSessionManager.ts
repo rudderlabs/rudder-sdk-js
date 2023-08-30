@@ -10,7 +10,7 @@ import {
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
@@ -112,14 +112,14 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferringDomain(getReferringDomain(referrer));
     }
     // Initialize session tracking
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.sessionInfo)) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.sessionInfo)) {
       this.initializeSessionTracking();
     }
     // Register the effect to sync with storage
     this.registerEffects();
   }
 
-  isPersistanceEnabledForStorageEntry(entryName: UserSessionKeysType): boolean {
+  isPersistenceEnabledForStorageEntry(entryName: UserSessionKeysType): boolean {
     const entries = state.storage.entries.value;
     return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
   }
@@ -153,34 +153,28 @@ class UserSessionManager implements IUserSessionManager {
     }
     const cookieStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_COOKIE);
     const localStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_LS);
-
+    const stores: IStore[] = [];
+    if (cookieStorage) {
+      stores.push(cookieStorage);
+    }
+    if (localStorage) {
+      stores.push(localStorage);
+    }
     Object.keys(userSessionStorageKeys).forEach(storageEntryKey => {
       const key = storageEntryKey as UserSessionStorageKeysType;
       const storageEntry = userSessionStorageKeys[key];
-      if (cookieStorage) {
+      stores.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
-          cookieStorage?.engine,
+          store.engine,
           this.errorHandler,
           this.logger,
         );
         if (migratedVal) {
-          cookieStorage.set(storageEntry, migratedVal);
+          store.set(storageEntry, migratedVal);
         }
-      }
-      if (localStorage) {
-        const migratedVal = this.pluginsManager?.invokeSingle(
-          'storage.migrate',
-          storageEntry,
-          localStorage?.engine,
-          this.errorHandler,
-          this.logger,
-        );
-        if (migratedVal) {
-          localStorage.set(storageEntry, migratedVal);
-        }
-      }
+      });
     });
   }
 
@@ -510,7 +504,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.userId)) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.userId)) {
       state.session.userId.value = userId;
     }
   }
@@ -520,7 +514,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.userTraits) && traits) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.userTraits) && traits) {
       state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
@@ -530,7 +524,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.groupId)) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupId)) {
       state.session.groupId.value = groupId;
     }
   }
@@ -540,7 +534,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.groupTraits) && traits) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupTraits) && traits) {
       state.session.groupTraits.value = mergeDeepRight(
         state.session.groupTraits.value ?? {},
         traits,
@@ -553,7 +547,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferrer(referrer?: string) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.initialReferrer)) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.initialReferrer)) {
       state.session.initialReferrer.value = referrer;
     }
   }
@@ -563,7 +557,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferringDomain(referringDomain?: string) {
-    if (this.isPersistanceEnabledForStorageEntry(UserSessionKeys.initialReferringDomain)) {
+    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.initialReferringDomain)) {
       state.session.initialReferringDomain.value = referringDomain;
     }
   }
