@@ -42,10 +42,10 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
   });
 
-  it('should not auto set the default analytics key if analytics instances exist', () => {
+  it('should auto set the default analytics key if analytics instances exist', () => {
     rudderAnalytics.setDefaultInstanceKey('writeKey2');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey2');
   });
 
   it('should return an existing analytics instance', () => {
