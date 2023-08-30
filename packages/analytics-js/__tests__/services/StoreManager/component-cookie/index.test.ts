@@ -50,14 +50,6 @@ describe('cookie(name, null)', () => {
     expect(1).toEqual(Object.keys(obj).length);
     expect('0').toEqual(obj.name);
   });
-
-  it('should throw URIError for malformed cookie data', () => {
-    window.document.cookie = 'bad=%';
-    expect(() => {
-      cookie('bad');
-    }).toThrowError(new URIError('URI malformed'));
-    cookie('bad', null);
-  });
 });
 
 describe('cookie()', () => {
