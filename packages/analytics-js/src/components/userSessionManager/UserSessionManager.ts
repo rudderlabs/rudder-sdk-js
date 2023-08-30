@@ -5,7 +5,10 @@ import {
   isNonEmptyObject,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefinedNotNullAndNotEmptyString,
+  isString,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -20,11 +23,7 @@ import {
   CLIENT_DATA_STORE_LS,
 } from '@rudderstack/analytics-js/constants/storage';
 import { StorageType, UserSessionKeysType } from '@rudderstack/analytics-js-common/types/Storage';
-import {
-  COOKIE_STORAGE,
-  LOCAL_STORAGE,
-  MEMORY_STORAGE,
-} from '@rudderstack/analytics-js-common/constants/storages';
+import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { storageClientDataStoreNameMap } from '@rudderstack/analytics-js/services/StoreManager/types';
@@ -138,7 +137,7 @@ class UserSessionManager implements IUserSessionManager {
         if (storage !== currentStorage && store) {
           if (curStore) {
             const value = store?.get(userSessionStorageKeys[key]);
-            if (value) {
+            if (isDefinedNotNullAndNotEmptyString(value)) {
               curStore?.set(userSessionStorageKeys[key], value);
             }
           }

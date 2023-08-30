@@ -20,8 +20,8 @@ export type StoreManagerOptions = {
   inMemoryStorageOptions?: Partial<IInMemoryStorageOptions>;
 };
 
-export const storageClientDataStoreNameMap = {
-  [COOKIE_STORAGE as string]: CLIENT_DATA_STORE_COOKIE,
-  [LOCAL_STORAGE as string]: CLIENT_DATA_STORE_LS,
-  [MEMORY_STORAGE as string]: CLIENT_DATA_STORE_MEMORY,
+export const storageClientDataStoreNameMap: Record<string, string> = {
+  [COOKIE_STORAGE]: CLIENT_DATA_STORE_COOKIE,
+  [LOCAL_STORAGE]: CLIENT_DATA_STORE_LS,
+  [MEMORY_STORAGE]: CLIENT_DATA_STORE_MEMORY,
 };
