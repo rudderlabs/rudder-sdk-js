@@ -9,38 +9,25 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
-import {
-  isValidSourceConfig,
-  isValidStorageType,
-  validateLoadArgs,
-} from '@rudderstack/analytics-js/components/configManager/util/validate';
+import { isValidSourceConfig, isValidStorageType, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
-import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
-import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
-import { APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { state } from '@rudderstack/analytics-js/state';
-import { resolveDataPlaneUrl } from '@rudderstack/analytics-js/components/configManager/util/dataPlaneResolver';
-import {
-  getIntegrationsCDNPath,
-  getPluginsCDNPath,
-} from '@rudderstack/analytics-js/components/configManager/util/cdnPaths';
-import {
-  IConfigManager,
-  SourceConfigResponse,
-} from '@rudderstack/analytics-js/components/configManager/types';
-import { getUserSelectedConsentManager } from '@rudderstack/analytics-js/components/utilities/consent';
-import {
-  updateReportingState,
-  updateStorageState,
-} from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { ConsentManagersToPluginNameMap } from '@rudderstack/analytics-js/components/configManager/constants';
+} from '../../constants/logMessages';
+import { getSourceConfigURL } from '../utilities/loadOptions';
+import { filterEnabledDestination } from '../utilities/destinations';
+import { removeTrailingSlashes } from '../utilities/url';
+import { APP_VERSION } from '../../constants/app';
+import { state } from '../../state';
+import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
+import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
+import { IConfigManager, SourceConfigResponse } from './types';
+import { getUserSelectedConsentManager } from '../utilities/consent';
+import { updateReportingState, updateStorageState } from './util/commonUtil';
+import { ConsentManagersToPluginNameMap } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;

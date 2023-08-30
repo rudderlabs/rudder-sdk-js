@@ -1,5 +1,5 @@
-import { ConfigResponseDestinationItem } from '@rudderstack/analytics-js/components/configManager/types';
-import { filterEnabledDestination } from '@rudderstack/analytics-js/components/utilities/destinations';
+import { ConfigResponseDestinationItem } from '../../../src/components/configManager/types';
+import { filterEnabledDestination } from '../../../src/components/utilities/destinations';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
   {

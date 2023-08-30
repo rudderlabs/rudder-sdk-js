@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/loading-scripts/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.tsbuildinfo && rimraf -rf ./reports",
+    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch",
     "build": "npm run build:browser",
     "build:browser:modern": "exit 0",
@@ -36,9 +36,6 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "build:modern": "npm run build:browser:modern"
-  },
-  "engines": {
-    "node": ">=v16"
   },
   "devDependencies": {},
   "overrides": {},

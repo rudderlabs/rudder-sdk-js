@@ -7,10 +7,10 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { decrypt as decryptLegacy } from '@rudderstack/analytics-js-plugins/storageEncryptionLegacy/legacyEncryptionUtils';
-import { decrypt } from '@rudderstack/analytics-js-plugins/storageEncryption/encryptionUtils';
-import { STORAGE_MIGRATION_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import { STORAGE_MIGRATOR_PLUGIN } from '@rudderstack/analytics-js-plugins/storageMigrator/constants';
+import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
+import { decrypt } from '../storageEncryption/encryptionUtils';
+import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
+import { STORAGE_MIGRATOR_PLUGIN } from './constants';
 
 const pluginName = 'StorageMigrator';
 

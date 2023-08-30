@@ -12,19 +12,12 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEn
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { clone } from 'ramda';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
-import { DoneCallback, IQueue } from '@rudderstack/analytics-js-plugins/types/plugins';
-import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
-import {
-  getNormalizedQueueOptions,
-  isEventDenyListed,
-  sendEventToDestination,
-} from '@rudderstack/analytics-js-plugins/nativeDestinationQueue/utilities';
-import {
-  NATIVE_DESTINATION_QUEUE_PLUGIN,
-  QUEUE_NAME,
-} from '@rudderstack/analytics-js-plugins/nativeDestinationQueue/constants';
-import { DESTINATION_EVENT_FILTERING_WARNING } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import { filterDestinations } from '@rudderstack/analytics-js-plugins/utilities/destination';
+import { DoneCallback, IQueue } from '../types/plugins';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
+import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
+import { DESTINATION_EVENT_FILTERING_WARNING } from '../utilities/logMessages';
+import { filterDestinations } from '../utilities/destination';
 
 const pluginName = 'NativeDestinationQueue';
 

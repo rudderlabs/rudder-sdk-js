@@ -7,10 +7,7 @@ import {
   RudderEventType,
 } from '@rudderstack/analytics-js-common/types/EventApi';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import {
-  getEnrichedEvent,
-  getUpdatedPageProperties,
-} from '@rudderstack/analytics-js/components/eventManager/utilities';
+import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {
   logger?: ILogger;

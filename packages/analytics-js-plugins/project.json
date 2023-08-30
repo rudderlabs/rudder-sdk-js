@@ -5,6 +5,61 @@
   "projectType": "library",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "build-browser": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser"
+      }
+    },
+    "build-browser-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:modern"
+      }
+    },
+    "build-npm": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:npm"
+      }
+    },
+    "build-npm-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:npm:modern"
+      }
+    },
+    "build-package": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      },
+      "dependsOn": ["build-browser-modern"]
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "package"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -33,7 +88,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.3",
+        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.5",
         "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
       }
     },

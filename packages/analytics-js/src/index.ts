@@ -15,5 +15,6 @@ export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 export { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 export { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-export { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
-export { type IRudderStackGlobals } from '@rudderstack/analytics-js/app/IRudderStackGlobals';
+export { RudderAnalytics } from './app/RudderAnalytics';
+export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
+export { type PreloadedEventCall } from './components/preloadBuffer/types';

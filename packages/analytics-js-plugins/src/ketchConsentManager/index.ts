@@ -7,13 +7,10 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { DESTINATION_CONSENT_STATUS_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import { KETCH_CONSENT_MANAGER_PLUGIN } from '@rudderstack/analytics-js-plugins/ketchConsentManager/constants';
-import { KetchConsentData } from '@rudderstack/analytics-js-plugins/ketchConsentManager/types';
-import {
-  getKetchConsentData,
-  updateConsentStateFromData,
-} from '@rudderstack/analytics-js-plugins/ketchConsentManager/utils';
+import { DESTINATION_CONSENT_STATUS_ERROR } from '../utilities/logMessages';
+import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
+import { KetchConsentData } from './types';
+import { getKetchConsentData, updateConsentStateFromData } from './utils';
 
 const pluginName = 'KetchConsentManager';
 

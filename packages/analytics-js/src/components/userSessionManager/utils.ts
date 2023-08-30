@@ -1,12 +1,9 @@
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEFAULT_SESSION_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
-import { INVALID_SESSION_ID_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
-import {
-  hasMinLength,
-  isPositiveInteger,
-} from '@rudderstack/analytics-js/components/utilities/number';
+import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
+import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
+import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
 

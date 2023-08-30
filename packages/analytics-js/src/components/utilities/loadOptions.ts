@@ -15,12 +15,12 @@ import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { INVALID_CONFIG_URL_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
-import { APP_VERSION, MODULE_TYPE } from '@rudderstack/analytics-js/constants/app';
-import { defaultOptionalPluginsList } from '@rudderstack/analytics-js/components/pluginsManager/defaultPluginsList';
-import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
-import { isNumber } from '@rudderstack/analytics-js/components/utilities/number';
-import { removeTrailingSlashes } from '@rudderstack/analytics-js/components/utilities/url';
+import { INVALID_CONFIG_URL_WARNING } from '../../constants/logMessages';
+import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
+import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
+import { isNumber } from './number';
+import { removeTrailingSlashes } from './url';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,

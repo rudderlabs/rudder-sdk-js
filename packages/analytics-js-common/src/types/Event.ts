@@ -1,15 +1,9 @@
-import { RudderEventType, Traits } from '@rudderstack/analytics-js-common/types/EventApi';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ConsentManagement } from '@rudderstack/analytics-js-common/types/Consent';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  ScreenInfo,
-  UTMParameters,
-} from '@rudderstack/analytics-js-common/types/EventContext';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { RudderEventType, Traits } from './EventApi';
+import { Nullable } from './Nullable';
+import { ConsentManagement } from './Consent';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import { IntegrationOpts } from './Integration';
+import { ApiObject } from './ApiObject';
 
 // TODO: fix type
 export type BufferedEvent = any[];

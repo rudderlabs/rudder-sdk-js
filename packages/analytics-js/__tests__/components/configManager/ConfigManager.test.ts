@@ -1,18 +1,18 @@
 import { batch, effect, signal } from '@preact/signals-core';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { rest } from 'msw';
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
-import { state } from '@rudderstack/analytics-js/state';
-import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
+import { ConfigManager } from '../../../src/components/configManager';
+import { state } from '../../../src/state';
+import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
+import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '../../../src/constants/urls';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 
-jest.mock('@rudderstack/analytics-js/services/Logger', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/Logger');
+jest.mock('../../../src/services/Logger', () => {
+  const originalModule = jest.requireActual('../../../src/services/Logger');
 
   return {
     __esModule: true,
@@ -25,8 +25,8 @@ jest.mock('@rudderstack/analytics-js/services/Logger', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/services/ErrorHandler', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/ErrorHandler');
+jest.mock('../../../src/services/ErrorHandler', () => {
+  const originalModule = jest.requireActual('../../../src/services/ErrorHandler');
 
   return {
     __esModule: true,
@@ -37,9 +37,9 @@ jest.mock('@rudderstack/analytics-js/services/ErrorHandler', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/components/configManager/util/commonUtil.ts', () => {
+jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
   const originalModule = jest.requireActual(
-    '@rudderstack/analytics-js/components/configManager/util/commonUtil.ts',
+    '../../../src/components/configManager/util/commonUtil.ts',
   );
 
   return {

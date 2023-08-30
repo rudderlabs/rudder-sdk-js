@@ -33,7 +33,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-sanity-suite@3.0.0-beta.3",
+        "tag": "@rudderstack/analytics-js-sanity-suite@3.0.0-beta.5",
         "notesFile": "./packages/sanity-suite/CHANGELOG_LATEST.md"
       }
     },

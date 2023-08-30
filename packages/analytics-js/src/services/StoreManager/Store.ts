@@ -8,15 +8,15 @@ import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsM
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
+import { defaultLogger } from '../Logger';
+import { defaultErrorHandler } from '../ErrorHandler';
+import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,
   STORE_DATA_SAVE_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
+} from '../../constants/logMessages';
+import { getStorageEngine } from './storages/storageEngine';
 
 /**
  * Store Implementation with dedicated storage

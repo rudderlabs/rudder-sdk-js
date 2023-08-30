@@ -1,10 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import {
-  decrypt,
-  encrypt,
-} from '@rudderstack/analytics-js-plugins/storageEncryption/encryptionUtils';
+import { decrypt, encrypt } from './encryptionUtils';
 
 const pluginName = 'StorageEncryption';
 

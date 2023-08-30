@@ -9,14 +9,11 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 import {
   NOTIFY_FAILURE_ERROR,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
-import { state } from '@rudderstack/analytics-js/state';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import {
-  isAllowedToBeNotified,
-  processError,
-} from '@rudderstack/analytics-js/services/ErrorHandler/processError';
+} from '../../constants/logMessages';
+import { state } from '../../state';
+import { defaultPluginEngine } from '../PluginEngine';
+import { defaultLogger } from '../Logger';
+import { isAllowedToBeNotified, processError } from './processError';
 
 /**
  * A service to handle errors

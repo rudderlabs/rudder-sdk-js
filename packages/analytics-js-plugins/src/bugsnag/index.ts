@@ -4,15 +4,10 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { BugsnagLib } from '@rudderstack/analytics-js-plugins/types/plugins';
-import { BUGSNAG_API_KEY_VALIDATION_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import { API_KEY } from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import {
-  initBugsnagClient,
-  loadBugsnagSDK,
-  isApiKeyValid,
-  getAppStateForMetadata,
-} from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+import { BugsnagLib } from '../types/plugins';
+import { BUGSNAG_API_KEY_VALIDATION_ERROR } from '../utilities/logMessages';
+import { API_KEY } from './constants';
+import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';
 
 const pluginName = 'Bugsnag';
 

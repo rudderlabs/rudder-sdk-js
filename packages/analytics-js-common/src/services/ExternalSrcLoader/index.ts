@@ -1,1 +1,1 @@
-export { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/ExternalSrcLoader';
+export { ExternalSrcLoader } from './ExternalSrcLoader';

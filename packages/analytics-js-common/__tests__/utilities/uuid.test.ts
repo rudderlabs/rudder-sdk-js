@@ -1,8 +1,8 @@
-import { hasCrypto } from '@rudderstack/analytics-js-common/utilities/crypto';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
+import { hasCrypto } from '../../src/utilities/crypto';
+import { generateUUID } from '../../src/utilities/uuId';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/crypto', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js-common/utilities/crypto');
+jest.mock('../../src/utilities/crypto', () => {
+  const originalModule = jest.requireActual('../../src/utilities/crypto');
 
   return {
     __esModule: true,

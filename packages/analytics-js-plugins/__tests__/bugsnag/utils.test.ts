@@ -3,7 +3,7 @@ import { signal } from '@preact/signals-core';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
+import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
   getGlobalBugsnagLibInstance,
@@ -15,7 +15,7 @@ import {
   loadBugsnagSDK,
   onError,
   getAppStateForMetadata,
-} from '@rudderstack/analytics-js-plugins/bugsnag/utils';
+} from '../../src/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {

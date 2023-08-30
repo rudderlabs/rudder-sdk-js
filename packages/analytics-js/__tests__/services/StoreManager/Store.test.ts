@@ -1,6 +1,6 @@
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
+import { Store } from '../../../src/services/StoreManager/Store';
+import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
 
 describe('Store', () => {
   let store: Store;

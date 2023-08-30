@@ -1,1 +1,1 @@
-export { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
+export { ConfigManager } from './ConfigManager';

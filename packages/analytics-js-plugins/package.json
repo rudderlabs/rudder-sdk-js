@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-plugins/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "build": "npm run build:browser",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
@@ -60,7 +60,7 @@
     "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build:browser:modern && npm run build:package",
+    "check:size:build": "npm run build:browser:modern && npm run build:package",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -72,9 +72,6 @@
     "build:modern": "npm run build:browser:modern",
     "package": "npm pack",
     "release": "npm publish"
-  },
-  "engines": {
-    "node": ">=v16"
   },
   "dependencies": {
     "@bugsnag/js": "6.5.2",

@@ -4,8 +4,8 @@ import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   MIN_SESSION_ID_LENGTH,
-} from '@rudderstack/analytics-js/components/userSessionManager/utils';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+} from '../../../src/components/userSessionManager/utils';
+import { defaultLogger } from '../../../src/services/Logger';
 
 describe('Utility: User session manager', () => {
   describe('hasSessionExpired:', () => {

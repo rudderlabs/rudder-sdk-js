@@ -7,13 +7,13 @@ import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+} from '../utilities/logMessages';
 import {
   BEACON_QUEUE_PLUGIN,
   DATA_PLANE_API_VERSION,
   DEFAULT_BEACON_QUEUE_OPTIONS,
-} from '@rudderstack/analytics-js-plugins/beaconQueue/constants';
-import { BeaconBatchData } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+} from './constants';
+import { BeaconBatchData } from './types';
 
 /**
  * Utility to get the stringified event payload as Blob

@@ -32,42 +32,32 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { state } from '@rudderstack/analytics-js/state';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
-import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
-import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { normalizeLoadOptions } from '@rudderstack/analytics-js/components/utilities/loadOptions';
-import {
-  consumePreloadBufferedEvent,
-  retrievePreloadBufferEvents,
-} from '@rudderstack/analytics-js/components/preloadBuffer';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
-import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
-import { IEventRepository } from '@rudderstack/analytics-js/components/eventRepository/types';
-import {
-  ADBLOCK_PAGE_CATEGORY,
-  ADBLOCK_PAGE_NAME,
-  ADBLOCK_PAGE_PATH,
-} from '@rudderstack/analytics-js/constants/app';
-import {
-  READY_API_CALLBACK_ERROR,
-  READY_CALLBACK_INVOKE_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
-import { CLIENT_DATA_STORE_NAME } from '@rudderstack/analytics-js/constants/storage';
-import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
+import { defaultLogger } from '../../services/Logger';
+import { defaultErrorHandler } from '../../services/ErrorHandler';
+import { defaultPluginEngine } from '../../services/PluginEngine';
+import { PluginsManager } from '../pluginsManager';
+import { defaultHttpClient } from '../../services/HttpClient';
+import { Store, StoreManager } from '../../services/StoreManager';
+import { state } from '../../state';
+import { ConfigManager } from '../configManager/ConfigManager';
+import { ICapabilitiesManager } from '../capabilitiesManager/types';
+import { CapabilitiesManager } from '../capabilitiesManager';
+import { IEventManager } from '../eventManager/types';
+import { EventManager } from '../eventManager';
+import { UserSessionManager } from '../userSessionManager/UserSessionManager';
+import { IUserSessionManager } from '../userSessionManager/types';
+import { IConfigManager } from '../configManager/types';
+import { setExposedGlobal } from '../utilities/globals';
+import { normalizeLoadOptions } from '../utilities/loadOptions';
+import { consumePreloadBufferedEvent, retrievePreloadBufferEvents } from '../preloadBuffer';
+import { PreloadedEventCall } from '../preloadBuffer/types';
+import { BufferQueue } from './BufferQueue';
+import { EventRepository } from '../eventRepository';
+import { IEventRepository } from '../eventRepository/types';
+import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
+import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
+import { IAnalytics } from './IAnalytics';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events

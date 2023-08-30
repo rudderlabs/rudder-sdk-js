@@ -6,8 +6,8 @@ import {
   isDestinationReady,
   createDestinationInstance,
   isDestinationSDKMounted,
-} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/utils';
-import * as dmdConstants from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
+} from '../../src/deviceModeDestinations/utils';
+import * as dmdConstants from '../../src/deviceModeDestinations/constants';
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {

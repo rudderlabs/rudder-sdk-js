@@ -4,7 +4,7 @@ import {
   identifyArgumentsToCallOptions,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+} from '../../src/utilities/eventMethodOverloads';
 
 describe('Core - Event Method Overloads', () => {
   const callbackMock = jest.fn();
@@ -167,7 +167,9 @@ describe('Core - Event Method Overloads', () => {
       traits: { traits: {} },
       options: { options: {} },
     });
-    expect(identifyArgumentsToCallOptions(undefined, { traits: {} }, { options: {} })).toStrictEqual({
+    expect(
+      identifyArgumentsToCallOptions(undefined, { traits: {} }, { options: {} }),
+    ).toStrictEqual({
       traits: { traits: {} },
       options: { options: {} },
     });

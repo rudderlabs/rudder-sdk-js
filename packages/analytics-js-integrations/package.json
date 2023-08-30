@@ -47,12 +47,11 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-integrations/README.md",
   "scripts": {
-    "clean": "rimraf -rf ./dist  && rimraf -rf ./node_modules/.cache",
+    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "npm run build && npm run serve",
     "build": "npm run build:browser",
     "build:browser:modern": "npm run build:integration:all:modern",
     "build:browser": "npm run build:integration:all",
-    "build:browser:dev": "npm run build:browser",
     "build:npm": "exit 0",
     "build:npm:modern": "exit 0",
     "build:package": "exit 0",
@@ -60,7 +59,7 @@
     "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:dev": "eslint --ext .js,.ts src",
     "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
-    "check:size:build": "npm run clean && npm run build",
+    "check:size:build": "npm run build",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -83,9 +82,6 @@
     "build:integration:all:modern": "BROWSERSLIST_ENV=modern npm run build:integration:all",
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
-  },
-  "engines": {
-    "node": ">=v16"
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",

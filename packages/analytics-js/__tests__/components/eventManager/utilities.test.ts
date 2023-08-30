@@ -8,11 +8,10 @@ import {
   LibraryInfo,
   OSInfo,
   ScreenInfo,
-  UTMParameters,
 } from '@rudderstack/analytics-js-common/types/EventContext';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { state } from '@rudderstack/analytics-js/state';
+import { state } from '../../../src/state';
 import {
   checkForReservedElements,
   checkForReservedElementsInObject,
@@ -22,11 +21,11 @@ import {
   updateTopLevelEventElements,
   getUpdatedPageProperties,
   getEnrichedEvent,
-} from '@rudderstack/analytics-js/components/eventManager/utilities';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+} from '../../../src/components/eventManager/utilities';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
+import { defaultLogger } from '../../../src/services/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),

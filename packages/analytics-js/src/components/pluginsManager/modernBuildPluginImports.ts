@@ -1,7 +1,7 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { PluginMap } from '@rudderstack/analytics-js/components/pluginsManager/types';
-import { remotePluginNames } from '@rudderstack/analytics-js/components/pluginsManager/pluginNames';
+import { PluginMap } from './types';
+import { remotePluginNames } from './pluginNames';
 
 /**
  * Get the lazy loaded dynamic import for a plugin name

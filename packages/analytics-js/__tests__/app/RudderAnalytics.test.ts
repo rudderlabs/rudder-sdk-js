@@ -1,8 +1,8 @@
 import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
+import { RudderAnalytics } from '../../src/app/RudderAnalytics';
+import { Analytics } from '../../src/components/core/Analytics';
 
-jest.mock('@rudderstack/analytics-js/components/core/Analytics');
+jest.mock('../../src/components/core/Analytics');
 
 describe('Core - Rudder Analytics Facade', () => {
   let analyticsInstanceMock: Analytics;

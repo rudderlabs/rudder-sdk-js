@@ -5,6 +5,36 @@
   "projectType": "library",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "build-browser": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser"
+      }
+    },
+    "build-browser-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:modern"
+      }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -33,7 +63,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.3",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.5",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

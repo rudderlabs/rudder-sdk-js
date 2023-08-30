@@ -1,6 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
-import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
@@ -8,6 +6,8 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
+import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,

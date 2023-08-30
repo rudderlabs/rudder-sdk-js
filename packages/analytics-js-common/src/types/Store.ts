@@ -1,9 +1,9 @@
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { CookieSameSite } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { IErrorHandler } from './ErrorHandler';
+import { ILogger } from './Logger';
+import { IPluginsManager } from './PluginsManager';
+import { Nullable } from './Nullable';
+import { CookieSameSite } from './LoadOptions';
+import { StorageType } from './Storage';
 
 export type StoreId = string;
 

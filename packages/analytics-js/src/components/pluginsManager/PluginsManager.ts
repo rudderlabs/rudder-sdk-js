@@ -10,20 +10,20 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { state } from '@rudderstack/analytics-js/state';
+import { setExposedGlobal } from '../utilities/globals';
+import { state } from '../../state';
 import {
   ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
-} from '@rudderstack/analytics-js/components/configManager/constants';
-import { UNSUPPORTED_BEACON_API_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
-import { remotePluginNames } from '@rudderstack/analytics-js/components/pluginsManager/pluginNames';
+} from '../configManager/constants';
+import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
+import { remotePluginNames } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
   remotePluginsInventory,
-} from '@rudderstack/analytics-js/components/pluginsManager/pluginsInventory';
+} from './pluginsInventory';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins

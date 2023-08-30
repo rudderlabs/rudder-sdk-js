@@ -1,4 +1,4 @@
-import { isFunction, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction, isNullOrUndefined } from './checks';
 
 const hasCrypto = (): boolean =>
   !isNullOrUndefined(globalThis.crypto) && isFunction(globalThis.crypto.getRandomValues);

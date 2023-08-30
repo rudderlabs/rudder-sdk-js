@@ -11,10 +11,10 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { CookieStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/CookieStorage';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultInMemoryStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/InMemoryStorage';
-import { defaultLocalStorage } from '@rudderstack/analytics-js/services/StoreManager/storages/LocalStorage';
+import { defaultLogger } from '../../Logger';
+import { CookieStorage } from './CookieStorage';
+import { defaultInMemoryStorage } from './InMemoryStorage';
+import { defaultLocalStorage } from './LocalStorage';
 
 // TODO: create session storage client (similar to localstorage if needed)
 

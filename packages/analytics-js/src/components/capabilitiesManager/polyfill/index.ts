@@ -1,4 +1,4 @@
-import { legacyJSEngineRequiredPolyfills } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/dom';
+import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
 
 const POLYFILL_URL = `https://polyfill.io/v3/polyfill.min.js?features=${Object.keys(
   legacyJSEngineRequiredPolyfills,

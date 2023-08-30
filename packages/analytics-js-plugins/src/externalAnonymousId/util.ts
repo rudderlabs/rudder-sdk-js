@@ -1,7 +1,7 @@
 import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { externallyLoadedSessionStorageKeys } from '@rudderstack/analytics-js-plugins/externalAnonymousId/constants';
+import { externallyLoadedSessionStorageKeys } from './constants';
 
 const getSegmentAnonymousId = (getStorageEngine: (type?: StorageType) => IStorage) => {
   let anonymousId;

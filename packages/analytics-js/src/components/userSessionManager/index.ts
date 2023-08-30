@@ -1,1 +1,1 @@
-export { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
+export { UserSessionManager } from './UserSessionManager';

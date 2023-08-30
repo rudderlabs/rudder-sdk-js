@@ -1,12 +1,5 @@
-import {
-  Conversion,
-  EventFilteringOption,
-  EventMapping,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
-import {
-  OneTrustCookieCategory,
-  KetchConsentPurpose,
-} from '@rudderstack/analytics-js-common/types/Consent';
+import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
+import { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
 
 export enum DestinationConnectionMode {
   Hybrid = 'hybrid',

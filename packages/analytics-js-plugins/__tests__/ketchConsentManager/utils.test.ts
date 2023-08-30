@@ -1,12 +1,12 @@
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
 import {
   updateConsentStateFromData,
   getConsentData,
   getKetchConsentData,
-} from '@rudderstack/analytics-js-plugins/ketchConsentManager/utils';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
+} from '../../src/ketchConsentManager/utils';
 
 describe('KetchConsentManager - Utils', () => {
   const mockLogger = {

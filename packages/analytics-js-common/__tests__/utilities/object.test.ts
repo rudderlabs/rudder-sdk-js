@@ -7,7 +7,7 @@ import {
   isObjectLiteralAndNotNull,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
-} from '@rudderstack/analytics-js-common/utilities/object';
+} from '../../src/utilities/object';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',

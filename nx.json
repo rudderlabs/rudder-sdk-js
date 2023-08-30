@@ -4,14 +4,16 @@
       "runner": "nx/tasks-runners/default",
       "options": {
         "cacheableOperations": [
-          "build:browser",
-          "build:browser:modern",
-          "build:browser:test",
-          "build:npm",
-          "build:npm:modern",
-          "test",
+          "build",
+          "build-browser",
+          "build-browser-modern",
+          "build-npm",
+          "build-npm-modern",
+          "build-worker",
+          "build-package",
+          "build-check-size",
           "check:size:build",
-          "check:size"
+          "test"
         ]
       }
     }

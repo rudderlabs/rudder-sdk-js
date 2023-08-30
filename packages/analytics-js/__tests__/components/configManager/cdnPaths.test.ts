@@ -1,14 +1,10 @@
-import { getIntegrationsCDNPath } from '@rudderstack/analytics-js/components/configManager/util/cdnPaths';
-import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import {
-  CDN_INT_DIR,
-  DEST_SDK_BASE_URL,
-  SDK_CDN_BASE_URL,
-} from '@rudderstack/analytics-js/constants/urls';
+import { getIntegrationsCDNPath } from '../../../src/components/configManager/util/cdnPaths';
+import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
+import { CDN_INT_DIR, DEST_SDK_BASE_URL, SDK_CDN_BASE_URL } from '../../../src/constants/urls';
 
-jest.mock('@rudderstack/analytics-js/components/configManager/util/commonUtil.ts', () => {
+jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
   const originalModule = jest.requireActual(
-    '@rudderstack/analytics-js/components/configManager/util/commonUtil.ts',
+    '../../../src/components/configManager/util/commonUtil.ts',
   );
 
   return {

@@ -13,19 +13,16 @@ import {
   QueueItemData,
   QueueBatchItemsSizeCalculatorCallback,
   QueueProcessCallback,
-} from '@rudderstack/analytics-js-plugins/types/plugins';
-import {
-  Schedule,
-  ScheduleModes,
-} from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
-import { RETRY_QUEUE_PROCESS_ERROR } from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+} from '../../types/plugins';
+import { Schedule, ScheduleModes } from './Schedule';
+import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
 import {
   QueueTimeouts,
   QueueBackoff,
   BatchOptions,
   QueueOptions,
   InProgressQueueItem,
-} from '@rudderstack/analytics-js-plugins/utilities/retryQueue/types';
+} from './types';
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,
@@ -39,7 +36,7 @@ import {
   DEFAULT_RECLAIM_TIMER_MS,
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_WAIT_MS,
-} from '@rudderstack/analytics-js-plugins/utilities/retryQueue/constants';
+} from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 

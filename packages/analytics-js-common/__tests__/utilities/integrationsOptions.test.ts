@@ -1,4 +1,4 @@
-import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
+import { normalizeIntegrationOptions } from '../../src/utilities/integrationsOptions';
 
 describe('normalizeIntegrationOptions', () => {
   it('should return integration options with all keys set with destination display names', () => {

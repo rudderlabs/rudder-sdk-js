@@ -8,29 +8,19 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { DoneCallback, IQueue, QueueItem } from '@rudderstack/analytics-js-plugins/types/plugins';
+import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 // TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
-import {
-  getFinalEventForDeliveryMutator,
-  validateEventPayloadSize,
-} from '@rudderstack/analytics-js-plugins/utilities/queue';
-import {
-  getNormalizedBeaconQueueOptions,
-  getDeliveryUrl,
-  getDeliveryPayload,
-} from '@rudderstack/analytics-js-plugins/beaconQueue/utilities';
-import { BeaconItemsQueue } from '@rudderstack/analytics-js-plugins/beaconQueue/BeaconItemsQueue';
+import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
+import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
+import { BeaconItemsQueue } from './BeaconItemsQueue';
 
-import {
-  BEACON_QUEUE_PLUGIN,
-  QUEUE_NAME,
-} from '@rudderstack/analytics-js-plugins/beaconQueue/constants';
-import { BeaconQueueItemData } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
+import { BEACON_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
+import { BeaconQueueItemData } from './types';
 import {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_SEND_ERROR,
   BEACON_QUEUE_DELIVERY_ERROR,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+} from '../utilities/logMessages';
 
 const pluginName = 'BeaconQueue';
 

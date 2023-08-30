@@ -24,16 +24,13 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { DeviceModeDestinationsAnalyticsInstance } from '@rudderstack/analytics-js-plugins/deviceModeDestinations/types';
-import {
-  DEVICE_MODE_DESTINATIONS_PLUGIN,
-  READY_CHECK_TIMEOUT_MS,
-} from '@rudderstack/analytics-js-plugins/deviceModeDestinations/constants';
+import { DeviceModeDestinationsAnalyticsInstance } from './types';
+import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+} from '../utilities/logMessages';
 
 /**
  * Determines if the destination SDK code is evaluated

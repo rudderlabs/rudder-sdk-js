@@ -7,12 +7,9 @@ import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEn
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { OneTrustCookieCategory } from '@rudderstack/analytics-js-common/types/Consent';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import {
-  DESTINATION_CONSENT_STATUS_ERROR,
-  ONETRUST_ACCESS_ERROR,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
-import { ONETRUST_CONSENT_MANAGER_PLUGIN } from '@rudderstack/analytics-js-plugins/oneTrustConsentManager/constants';
-import { OneTrustGroup } from '@rudderstack/analytics-js-plugins/oneTrustConsentManager/types';
+import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from '../utilities/logMessages';
+import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
+import { OneTrustGroup } from './types';
 
 const pluginName = 'OneTrustConsentManager';
 

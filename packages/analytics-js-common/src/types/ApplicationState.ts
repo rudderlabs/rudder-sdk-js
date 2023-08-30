@@ -1,29 +1,19 @@
 import { Signal } from '@preact/signals-core';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  ScreenInfo,
-  UTMParameters,
-} from '@rudderstack/analytics-js-common/types/EventContext';
-import {
-  ApiCallback,
-  ReadyCallback,
-  Traits,
-} from '@rudderstack/analytics-js-common/types/EventApi';
-import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
-import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { Source } from '@rudderstack/analytics-js-common/types/Source';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { PluginName } from './PluginsManager';
+import { Nullable } from './Nullable';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
+import { ApiCallback, ReadyCallback, Traits } from './EventApi';
+import { BufferedEvent } from './Event';
+import { LifecycleStatus } from './ApplicationLifecycle';
+import { LogLevel } from './Logger';
+import { LoadOptions } from './LoadOptions';
+import { Destination } from './Destination';
+import { IntegrationOpts } from './Integration';
+import { SessionInfo } from './Session';
+import { Source } from './Source';
+import { ApiObject } from './ApiObject';
+import { ConsentInfo } from './Consent';
+import { StorageType } from './Storage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;

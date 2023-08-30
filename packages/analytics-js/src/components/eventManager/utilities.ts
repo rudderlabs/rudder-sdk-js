@@ -18,21 +18,21 @@ import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/logger
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { state } from '@rudderstack/analytics-js/state';
+import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
-} from '@rudderstack/analytics-js/constants/logMessages';
+} from '../../constants/logMessages';
 import {
   CHANNEL,
   CONTEXT_RESERVED_ELEMENTS,
   DEFAULT_INTEGRATIONS_CONFIG,
   RESERVED_ELEMENTS,
   TOP_LEVEL_ELEMENTS,
-} from '@rudderstack/analytics-js/components/eventManager/constants';
-import { getDefaultPageProperties } from '@rudderstack/analytics-js/components/utilities/page';
-import { getScreenDetails } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
-import { extractUTMParameters } from '@rudderstack/analytics-js/components/utilities/url';
+} from './constants';
+import { getDefaultPageProperties } from '../utilities/page';
+import { getScreenDetails } from '../capabilitiesManager/detection/screen';
+import { extractUTMParameters } from '../utilities/url';
 
 /**
  * To get the page properties for context object

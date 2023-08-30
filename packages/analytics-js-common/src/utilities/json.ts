@@ -1,10 +1,7 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import {
-  CIRCULAR_REFERENCE_WARNING,
-  JSON_STRINGIFY_WARNING,
-} from '@rudderstack/analytics-js-common/constants/logMessages';
+import { ILogger } from '../types/Logger';
+import { Nullable } from '../types/Nullable';
+import { isNull, isNullOrUndefined } from './checks';
+import { CIRCULAR_REFERENCE_WARNING, JSON_STRINGIFY_WARNING } from '../constants/logMessages';
 
 const JSON_STRINGIFY = 'JSONStringify';
 

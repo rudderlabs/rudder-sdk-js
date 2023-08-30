@@ -1,7 +1,7 @@
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js/constants/errors';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '../../constants/errors';
 
 /**
  * Utility method to normalise errors

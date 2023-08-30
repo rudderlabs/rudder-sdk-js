@@ -8,11 +8,11 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from '@rudderstack/analytics-js-plugins/utilities/constants';
+import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
-} from '@rudderstack/analytics-js-plugins/utilities/logMessages';
+} from './logMessages';
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 

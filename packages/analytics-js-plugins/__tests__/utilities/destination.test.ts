@@ -1,4 +1,4 @@
-import { filterDestinations } from '@rudderstack/analytics-js-plugins/utilities/destination';
+import { filterDestinations } from '../../src/utilities/destination';
 
 describe('Destination Utilities', () => {
   describe('filterDestinations', () => {

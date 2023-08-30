@@ -10,16 +10,12 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { getLanguage, getUserAgent } from '@rudderstack/analytics-js/components/utilities/page';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { state } from '@rudderstack/analytics-js/state';
-import { getUserAgentClientHint } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/clientHint';
-import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import {
-  POLYFILL_LOAD_TIMEOUT,
-  POLYFILL_SCRIPT_ID,
-  POLYFILL_URL,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/polyfill';
+import { getLanguage, getUserAgent } from '../utilities/page';
+import { getStorageEngine } from '../../services/StoreManager/storages';
+import { state } from '../../state';
+import { getUserAgentClientHint } from './detection/clientHint';
+import { ICapabilitiesManager } from './types';
+import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {
   getScreenDetails,
   hasBeacon,
@@ -28,8 +24,8 @@ import {
   isIE11,
   isLegacyJSEngine,
   isStorageAvailable,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { detectAdBlockers } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
+} from './detection';
+import { detectAdBlockers } from './detection/adBlockers';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {

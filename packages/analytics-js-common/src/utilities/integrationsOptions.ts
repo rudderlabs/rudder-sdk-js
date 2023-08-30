@@ -1,7 +1,7 @@
 import { clone } from 'ramda';
-import { destCNamesToDisplayNamesMap } from '@rudderstack/analytics-js-common/constants/destCNamesToDisplayNames';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { destCNamesToDisplayNamesMap } from '../constants/destCNamesToDisplayNames';
+import { IntegrationOpts } from '../types/Integration';
+import { isUndefined } from './checks';
 
 /**
  * Converts the common names of the destinations to their display names

@@ -2,7 +2,7 @@ import {
   createExposedGlobals,
   getExposedGlobal,
   setExposedGlobal,
-} from '@rudderstack/analytics-js/components/utilities/globals';
+} from '../../../src/components/utilities/globals';
 
 describe('Common Utils - Globals', () => {
   afterEach(() => {

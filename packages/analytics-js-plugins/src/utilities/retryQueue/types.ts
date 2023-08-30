@@ -1,4 +1,4 @@
-import { DoneCallback } from '@rudderstack/analytics-js-plugins/types/plugins';
+import { DoneCallback } from '../../types/plugins';
 
 export type BatchOptions = {
   maxItems?: number;

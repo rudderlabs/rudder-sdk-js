@@ -7,20 +7,17 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+import { PreloadedEventCall } from './types';
 import {
   QUERY_PARAM_ANONYMOUS_ID_KEY,
   QUERY_PARAM_PROPERTY_PREFIX,
   QUERY_PARAM_TRACK_EVENT_NAME_KEY,
   QUERY_PARAM_TRAIT_PREFIX,
   QUERY_PARAM_USER_ID_KEY,
-} from '@rudderstack/analytics-js/constants/queryParams';
-import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-import {
-  getExposedGlobal,
-  setExposedGlobal,
-} from '@rudderstack/analytics-js/components/utilities/globals';
-import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
+} from '../../constants/queryParams';
+import { IAnalytics } from '../core/IAnalytics';
+import { getExposedGlobal, setExposedGlobal } from '../utilities/globals';
+import { GLOBAL_PRELOAD_BUFFER } from '../../constants/app';
 
 /**
  * Parse query string params into object values for keys that start with a defined prefix

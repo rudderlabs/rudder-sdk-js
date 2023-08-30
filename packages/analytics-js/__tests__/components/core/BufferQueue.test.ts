@@ -1,4 +1,4 @@
-import { BufferQueue } from '@rudderstack/analytics-js/components/core/BufferQueue';
+import { BufferQueue } from '../../../src/components/core/BufferQueue';
 
 describe('Core - BufferQueue', () => {
   let bufferQueue: BufferQueue<number>;

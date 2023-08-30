@@ -1,13 +1,13 @@
-import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
-import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { DEFAULT_SESSION_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
+import { UserSessionManager } from '../../../src/components/userSessionManager';
+import { userSessionStorageKeys } from '../../../src/components/userSessionManager/userSessionStorageKeys';
+import { StoreManager } from '../../../src/services/StoreManager';
+import { Store } from '../../../src/services/StoreManager/Store';
+import { state, resetState } from '../../../src/state';
+import { DEFAULT_SESSION_TIMEOUT_MS } from '../../../src/constants/timeouts';
+import { defaultLogger } from '../../../src/services/Logger';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),

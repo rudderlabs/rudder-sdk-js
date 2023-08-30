@@ -1,19 +1,10 @@
 import { clone } from 'ramda';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import {
-  isObjectLiteralAndNotNull,
-  mergeDeepRight,
-} from '@rudderstack/analytics-js-common/utilities/object';
-import {
-  isDefined,
-  isDefinedAndNotNull,
-  isFunction,
-  isNull,
-  isString,
-} from '@rudderstack/analytics-js-common/utilities/checks';
-import { tryStringify } from '@rudderstack/analytics-js-common/utilities/string';
+import { ApiObject } from '../types/ApiObject';
+import { ApiCallback, ApiOptions } from '../types/EventApi';
+import { Nullable } from '../types/Nullable';
+import { isObjectLiteralAndNotNull, mergeDeepRight } from './object';
+import { isDefined, isDefinedAndNotNull, isFunction, isNull, isString } from './checks';
+import { tryStringify } from './string';
 
 export type PageCallOptions = {
   category?: string;

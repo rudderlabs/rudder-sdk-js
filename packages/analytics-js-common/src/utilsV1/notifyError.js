@@ -1,4 +1,4 @@
-import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '@rudderstack/analytics-js-common/utilsV1/constants';
+import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
 
 /**
  * This function is to send handled errors to available error reporting client

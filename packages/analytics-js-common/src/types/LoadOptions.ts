@@ -1,12 +1,12 @@
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
-import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { CookieConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
+import { LogLevel } from './Logger';
+import { ResidencyServerRegion } from './DataResidency';
+import { Nullable } from './Nullable';
+import { PluginName } from './PluginsManager';
+import { IntegrationOpts } from './Integration';
+import { ApiOptions } from './EventApi';
+import { CookieConsentOptions } from './Consent';
+import { ApiObject } from './ApiObject';
+import { StorageOpts } from './Storage';
 
 export enum UaChTrackLevel {
   None = 'none',

@@ -2,7 +2,7 @@ import {
   getNonCloudDestinations,
   isNonCloudDestination,
   isHybridModeDestination,
-} from '@rudderstack/analytics-js-common/utilities/destinations';
+} from '../../src/utilities/destinations';
 import { dummySourceConfigResponse } from '../../__fixtures__/fixtures';
 
 describe('Config manager util - filterEnabledDestination', () => {

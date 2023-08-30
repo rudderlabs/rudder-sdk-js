@@ -1,13 +1,11 @@
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
-import { resetState, state } from '@rudderstack/analytics-js/state';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
+import { Analytics } from '../../../src/components/core/Analytics';
+import { resetState, state } from '../../../src/state';
+import { setExposedGlobal } from '../../../src/components/utilities/globals';
 
-jest.mock('@rudderstack/analytics-js/components/utilities/globals', () => {
-  const originalModule = jest.requireActual(
-    '@rudderstack/analytics-js/components/utilities/globals',
-  );
+jest.mock('../../../src/components/utilities/globals', () => {
+  const originalModule = jest.requireActual('../../../src/components/utilities/globals');
 
   return {
     __esModule: true,

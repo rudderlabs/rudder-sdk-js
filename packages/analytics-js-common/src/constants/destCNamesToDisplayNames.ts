@@ -145,7 +145,7 @@ import {
   LemniskDisplayName,
   TiktokAdsCNameMapping,
   TiktokAdsDisplayName,
-} from '@rudderstack/analytics-js-common/constants/destinationNames';
+} from './destinationNames';
 
 const replaceValuesWithDisplayName = (
   CNameMapping: Record<string, string>,

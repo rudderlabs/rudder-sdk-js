@@ -5,7 +5,7 @@ import {
   LOG_MSG_STYLE,
   LOG_LEVEL_MAP,
   Logger,
-} from '@rudderstack/analytics-js/services/Logger/Logger';
+} from '../../../src/services/Logger/Logger';
 
 import SpyInstance = jest.SpyInstance;
 

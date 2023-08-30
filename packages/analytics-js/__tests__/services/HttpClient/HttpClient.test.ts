@@ -1,12 +1,12 @@
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 
-jest.mock('@rudderstack/analytics-js/services/Logger', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/Logger');
+jest.mock('../../../src/services/Logger', () => {
+  const originalModule = jest.requireActual('../../../src/services/Logger');
 
   return {
     __esModule: true,
@@ -18,8 +18,8 @@ jest.mock('@rudderstack/analytics-js/services/Logger', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/services/ErrorHandler', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/ErrorHandler');
+jest.mock('../../../src/services/ErrorHandler', () => {
+  const originalModule = jest.requireActual('../../../src/services/ErrorHandler');
 
   return {
     __esModule: true,

@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { advanceTo } from 'jest-date-mock';
-import { Analytics } from '@rudderstack/analytics-js-service-worker/index';
+import { Analytics } from '../src/Analytics';
 import { server } from './__fixtures__/msw.server';
 import {
   aliasRequestPayload,

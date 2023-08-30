@@ -1,8 +1,4 @@
-import {
-  ApiCallback,
-  ApiObject,
-  IntegrationOptions,
-} from '@rudderstack/analytics-js-service-worker/types';
+import { ApiCallback, ApiObject, IntegrationOptions } from './types';
 
 export interface IAnalytics {
   /**

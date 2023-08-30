@@ -3,17 +3,10 @@ import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/St
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import {
-  IQueue,
-  QueueItem,
-  QueueProcessCallback,
-} from '@rudderstack/analytics-js-plugins/types/plugins';
-import { BeaconQueueItemData } from '@rudderstack/analytics-js-plugins/beaconQueue/types';
-import { getDeliveryPayload } from '@rudderstack/analytics-js-plugins/beaconQueue/utilities';
-import {
-  DEFAULT_BEACON_QUEUE_OPTIONS,
-  MAX_BATCH_PAYLOAD_SIZE_BYTES,
-} from '@rudderstack/analytics-js-plugins/beaconQueue/constants';
+import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
+import { BeaconQueueItemData } from './types';
+import { getDeliveryPayload } from './utilities';
+import { DEFAULT_BEACON_QUEUE_OPTIONS, MAX_BATCH_PAYLOAD_SIZE_BYTES } from './constants';
 
 export type BeaconQueueTimeouts = {
   flushQueueTimeOutInterval: number;

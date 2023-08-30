@@ -1,6 +1,6 @@
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import { v4 as uuid } from '@lukeed/uuid';
-import { hasCrypto } from '@rudderstack/analytics-js-common/utilities/crypto';
+import { hasCrypto } from './crypto';
 
 const generateUUID = (): string => {
   if (hasCrypto()) {

@@ -1,7 +1,4 @@
-import {
-  ExposedGlobals,
-  IRudderStackGlobals,
-} from '@rudderstack/analytics-js/app/IRudderStackGlobals';
+import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
 
 /**
  * Create globally accessible RudderStackGlobals object

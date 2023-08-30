@@ -1,6 +1,6 @@
-import { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { IPluginEngine } from './PluginEngine';
+import { ILogger } from './Logger';
+import { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
 export type SDKError = unknown;
 

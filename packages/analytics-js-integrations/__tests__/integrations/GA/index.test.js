@@ -1,5 +1,5 @@
 import { logger } from '@rudderstack/analytics-js-common/utilsV1/logUtil';
-import GA from '@rudderstack/analytics-js-integrations/integrations/GA/browser';
+import GA from '../../../src/integrations/GA/browser';
 
 beforeAll(() => {});
 

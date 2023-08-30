@@ -4,7 +4,7 @@ import {
   tryStringify,
   toBase64,
   fromBase64,
-} from '@rudderstack/analytics-js-common/utilities/string';
+} from '../../src/utilities/string';
 
 describe('Common Utils - String', () => {
   it('should trim string', () => {

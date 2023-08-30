@@ -19,13 +19,13 @@ import {
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { Store } from '@rudderstack/analytics-js/services/StoreManager';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { BufferQueue } from '@rudderstack/analytics-js/components/core//BufferQueue';
+import { Store } from '../../services/StoreManager';
+import { IUserSessionManager } from '../userSessionManager/types';
+import { IConfigManager } from '../configManager/types';
+import { IEventManager } from '../eventManager/types';
+import { ICapabilitiesManager } from '../capabilitiesManager/types';
+import { PreloadedEventCall } from '../preloadBuffer/types';
+import { BufferQueue } from './BufferQueue';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;

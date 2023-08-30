@@ -12,30 +12,17 @@ import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import {
-  getBatchDeliveryPayload,
-  validateEventPayloadSize,
-} from '@rudderstack/analytics-js-plugins/utilities/queue';
+import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
   logErrorOnFailure,
   getRequestInfo,
-} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
-import {
-  DoneCallback,
-  IQueue,
-  QueueItemData,
-} from '@rudderstack/analytics-js-plugins/types/plugins';
-import { RetryQueue } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/RetryQueue';
-import {
-  QUEUE_NAME,
-  REQUEST_TIMEOUT_MS,
-} from '@rudderstack/analytics-js-plugins/xhrQueue/constants';
-import {
-  XHRRetryQueueItemData,
-  XHRQueueItemData,
-} from '@rudderstack/analytics-js-plugins/xhrQueue/types';
+} from './utilities';
+import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
+import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 
 const pluginName = 'XhrQueue';
 

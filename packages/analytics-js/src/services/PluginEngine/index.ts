@@ -1,4 +1,1 @@
-export {
-  PluginEngine,
-  defaultPluginEngine,
-} from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
+export { PluginEngine, defaultPluginEngine } from './PluginEngine';

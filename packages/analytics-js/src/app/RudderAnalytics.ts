@@ -17,17 +17,14 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { GLOBAL_PRELOAD_BUFFER } from '@rudderstack/analytics-js/constants/app';
-import { getPreloadedLoadEvent } from '@rudderstack/analytics-js/components/preloadBuffer';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
-import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
-import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger/Logger';
-import {
-  EMPTY_GROUP_CALL_ERROR,
-  WRITE_KEY_NOT_A_STRING_ERROR,
-} from '@rudderstack/analytics-js/constants/logMessages';
+import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
+import { getPreloadedLoadEvent } from '../components/preloadBuffer';
+import { PreloadedEventCall } from '../components/preloadBuffer/types';
+import { setExposedGlobal } from '../components/utilities/globals';
+import { IAnalytics } from '../components/core/IAnalytics';
+import { Analytics } from '../components/core/Analytics';
+import { defaultLogger } from '../services/Logger/Logger';
+import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -132,11 +129,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   // eslint-disable-next-line class-methods-use-this
   getPreloadBuffer() {
-    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-      (globalThis as typeof window).rudderanalytics,
-    )
-      ? (globalThis as typeof window).rudderanalytics
-      : [];
+    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
 
     // Expose buffer to global objects
     setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
@@ -146,11 +141,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Trigger load event in buffer queue if exists
    */
   triggerBufferedLoadEvent() {
-    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-      (globalThis as typeof window).rudderanalytics,
-    )
-      ? (globalThis as typeof window).rudderanalytics
-      : [];
+    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
 
     // Get any load method call that is buffered if any
     const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);

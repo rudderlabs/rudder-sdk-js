@@ -1,4 +1,4 @@
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiObject } from './ApiObject';
 
 export type DestinationIntgConfig = boolean | undefined | ApiObject;
 

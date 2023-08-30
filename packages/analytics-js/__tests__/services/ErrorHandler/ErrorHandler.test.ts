@@ -1,12 +1,12 @@
 import { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { state } from '@rudderstack/analytics-js/state';
+import { defaultLogger } from '../../../src/services/Logger';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
+import { ErrorHandler } from '../../../src/services/ErrorHandler';
+import { state } from '../../../src/state';
 
-jest.mock('@rudderstack/analytics-js/services/Logger', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/Logger');
+jest.mock('../../../src/services/Logger', () => {
+  const originalModule = jest.requireActual('../../../src/services/Logger');
 
   return {
     __esModule: true,
@@ -17,8 +17,8 @@ jest.mock('@rudderstack/analytics-js/services/Logger', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/services/PluginEngine', () => {
-  const originalModule = jest.requireActual('@rudderstack/analytics-js/services/PluginEngine');
+jest.mock('../../../src/services/PluginEngine', () => {
+  const originalModule = jest.requireActual('../../../src/services/PluginEngine');
 
   return {
     __esModule: true,
@@ -29,10 +29,8 @@ jest.mock('@rudderstack/analytics-js/services/PluginEngine', () => {
   };
 });
 
-jest.mock('@rudderstack/analytics-js/services/ErrorHandler/processError', () => {
-  const originalModule = jest.requireActual(
-    '@rudderstack/analytics-js/services/ErrorHandler/processError',
-  );
+jest.mock('../../../src/services/ErrorHandler/processError', () => {
+  const originalModule = jest.requireActual('../../../src/services/ErrorHandler/processError');
 
   return {
     __esModule: true,

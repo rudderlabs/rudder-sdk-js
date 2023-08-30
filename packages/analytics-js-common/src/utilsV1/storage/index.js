@@ -1,4 +1,4 @@
-import { Storage as StorageFactory } from '@rudderstack/analytics-js-common/utilsV1/storage/storage';
+import { Storage as StorageFactory } from './storage';
 
 const Storage = new StorageFactory();
 
