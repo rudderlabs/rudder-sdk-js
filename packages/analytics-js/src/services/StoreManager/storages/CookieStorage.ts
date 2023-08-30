@@ -40,7 +40,7 @@ class CookieStorage implements IStorage {
   }
 
   setItem(key: string, value: Nullable<string>): boolean {
-    cookie(key, value, this.options);
+    cookie(key, value, this.options, this.logger);
     this.length = Object.keys(cookie()).length;
     return true;
   }
