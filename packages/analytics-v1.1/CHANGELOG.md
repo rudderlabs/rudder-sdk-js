@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.41.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.40.0...rudder-sdk-js@2.41.0) (2023-08-30)
+
+
+### Features
+
+* add callback for polyfill load ([#1335](https://github.com/rudderlabs/rudder-sdk-js/issues/1335)) ([6ba9329](https://github.com/rudderlabs/rudder-sdk-js/commit/6ba932918dd03c110c92cd5837a2f8ca0f9cf192))
+
+
+
+
+
 ### [2.40.4](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.3...v2.40.4) (2023-08-21)
 
 ### [2.40.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.2...v2.40.3) (2023-08-18)
