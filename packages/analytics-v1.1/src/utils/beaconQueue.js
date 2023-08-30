@@ -87,24 +87,27 @@ class BeaconQueue {
   }
 
   flushQueue(batch) {
-    batch.forEach(event => {
-      event.sentAt = new Date().toISOString();
-    });
-    const data = { batch };
-    const payload = stringifyWithoutCircular(data, true);
-    const blob = new Blob([payload], { type: 'text/plain' });
-    const targetUrl = `${this.url}?writeKey=${this.writekey}`;
-    try {
-      if (typeof navigator.sendBeacon !== 'function') {
-        handleError(new Error('Beacon API is not supported by browser'));
+    // check batch payload has data before flushing
+    if (batch && batch.length > 0) {
+      batch.forEach(event => {
+        event.sentAt = new Date().toISOString();
+      });
+      const data = { batch };
+      const payload = stringifyWithoutCircular(data, true);
+      const blob = new Blob([payload], { type: 'text/plain' });
+      const targetUrl = `${this.url}?writeKey=${this.writekey}`;
+      try {
+        if (typeof navigator.sendBeacon !== 'function') {
+          handleError(new Error('Beacon API is not supported by browser'));
+        }
+        const isPushed = navigator.sendBeacon(targetUrl, blob);
+        if (!isPushed) {
+          handleError(new Error("Unable to queue data to browser's beacon queue"));
+        }
+      } catch (e) {
+        e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
+        handleError(e);
       }
-      const isPushed = navigator.sendBeacon(targetUrl, blob);
-      if (!isPushed) {
-        handleError(new Error("Unable to queue data to browser's beacon queue"));
-      }
-    } catch (e) {
-      e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
-      handleError(e);
     }
     this.setQueue([]);
     this.clearTimer();
