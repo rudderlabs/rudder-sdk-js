@@ -43,5 +43,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build
-          script: npm i -g nx@16 && nx run-many -t check:size:json --parallel=false --all --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
+          script: npx nx run-many -t check:size:json --parallel=false --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
           is_monorepo: true
