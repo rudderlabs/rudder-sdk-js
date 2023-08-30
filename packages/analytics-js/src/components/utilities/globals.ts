@@ -1,3 +1,5 @@
+import { DEBOUNCED_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
+import { DebouncedFunction } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
 
 /**
@@ -33,4 +35,16 @@ const getExposedGlobal = (
   return (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId][keyName];
 };
 
-export { createExposedGlobals, setExposedGlobal, getExposedGlobal };
+function debounce(func: DebouncedFunction, thisArg: any, delay: number = DEBOUNCED_TIMEOUT_MS) {
+  let timeoutId: number;
+
+  return (...args: any[]) => {
+    (globalThis as typeof window).clearTimeout(timeoutId);
+
+    timeoutId = (globalThis as typeof window).setTimeout(() => {
+      func.apply(thisArg, args);
+    }, delay);
+  };
+}
+
+export { createExposedGlobals, setExposedGlobal, getExposedGlobal, debounce };

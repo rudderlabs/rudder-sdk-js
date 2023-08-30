@@ -121,7 +121,7 @@ export function getDefaultConfig(distName) {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
             __CONFIG_SERVER_HOST__:
-              process.env.CONFIG_SERVER_HOST,
+              process.env.CONFIG_SERVER_HOST || '',
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
           },
         }),

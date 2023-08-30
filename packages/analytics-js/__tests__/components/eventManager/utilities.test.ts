@@ -305,11 +305,8 @@ describe('Event Manager - Utilities', () => {
             version: '1.0',
           },
           screen: {
-            height: 0,
-            width: 0,
-            density: 1,
-            innerHeight: 1024,
-            innerWidth: 1680,
+            height: 100,
+            width: 100,
           },
           traits: {
             test: 'test',
@@ -1022,11 +1019,8 @@ describe('Event Manager - Utilities', () => {
           locale: 'en-US',
           userAgent: 'test',
           screen: {
-            height: 0,
-            width: 0,
-            density: 1,
-            innerHeight: 1024,
-            innerWidth: 1680,
+            height: 100,
+            width: 100,
           },
           os: {
             name: 'test',
