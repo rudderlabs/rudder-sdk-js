@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "setup": "npm i",
-    "setup:ci": "npm ci",
+    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu",
     "clean": "nx run-many -t clean & git clean -xdf node_modules && nx reset",
     "clean:cache": "rimraf -rf ./node_modules/.cache",
     "start": "nx run-many --targets=start --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",
