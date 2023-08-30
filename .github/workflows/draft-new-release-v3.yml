@@ -75,19 +75,19 @@ jobs:
           echo "Current version: $CURRENT_VERSION_VALUE"
           echo "New version: $NEW_VERSION_VALUE"
           git fetch --no-tags --prune --depth=100 origin main
-          npm run lerna:version
+          npm run release
+          ./scripts/sync-tags-in-nx-projects.sh
+          ./scripts/generate-last-release-changelog.sh
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
-          git add sonar-project.properties
-          git add package-lock.json
-          git add package.json
+          git add .
           git commit -m "chore: sync versions and generate release logs" -n
 
       - name: Push new version in release branch
         run: |
           git push --follow-tags
 
-      - name: Create pull request into production
+      - name: Create pull request into main
         uses: repo-sync/pull-request@v2
         with:
           source_branch: ${{ steps.create-release.outputs.branch_name }}

@@ -5,6 +5,18 @@
   "projectType": "library",
   "tags": [],
   "targets": {
+    "start": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "start"
+      }
+    },
+    "start-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "start:modern"
+      }
+    },
     "build": {
       "executor": "nx:run-script",
       "options": {

@@ -49,6 +49,7 @@
   "scripts": {
     "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "npm run build && npm run serve",
+    "start:modern": "npm run build:modern && npm run serve",
     "build": "npm run build:browser",
     "build:browser:modern": "npm run build:integration:all:modern",
     "build:browser": "npm run build:integration:all",
@@ -67,7 +68,6 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "start:modern": "npm run build:modern && npm run serve",
     "build:modern": "npm run build:browser:modern",
     "serve": "npx serve ./dist -p 3005 --cors",
     "package": "exit 0",

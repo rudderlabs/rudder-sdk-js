@@ -50,6 +50,7 @@
   "scripts": {
     "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
+    "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build": "npm run build:browser",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
@@ -68,7 +69,6 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build:modern": "npm run build:browser:modern",
     "package": "npm pack",
     "release": "npm publish"

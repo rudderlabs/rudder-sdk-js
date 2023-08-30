@@ -29,19 +29,6 @@
         "preset": "conventional",
         "tagPrefix": "${projectName}@"
       }
-    },
-    "github": {
-      "executor": "@jscutlery/semver:github",
-      "options": {
-        "tag": "@rudderstack/analytics-js-sanity-suite@3.0.0-beta.5",
-        "notesFile": "./packages/sanity-suite/CHANGELOG_LATEST.md"
-      }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public"
-      }
     }
   }
 }
