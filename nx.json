@@ -1,4 +1,8 @@
 {
+  "workspaceLayout": {
+    "appsDir": "packages",
+    "libsDir": "packages"
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
@@ -22,6 +26,11 @@
   "targetDefaults": {
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    }
+  },
+  "generators": {
+    "@nx/js:library": {
+      "buildable": true
     }
   }
 }
