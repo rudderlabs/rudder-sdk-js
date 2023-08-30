@@ -228,7 +228,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
   },
 };
 
-const sampleEntriesWithOnlyCookieStorage = {
+const entriesWithOnlyCookieStorage = {
   userId: {
     type: 'cookieStorage',
     key: userSessionStorageKeys.userId,
@@ -263,6 +263,138 @@ const sampleEntriesWithOnlyCookieStorage = {
   },
 };
 
+const entriesWithOnlyLocalStorage = {
+  userId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const entriesWithOnlyNoStorage = {
+  userId: {
+    type: 'none',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'none',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'none',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'none',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'none',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'none',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'none',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const entriesWithMixStorage = {
+  userId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const loadOptionWithEntry = {
+  userId: {
+    type: 'cookieStorage',
+  },
+  userTraits: {
+    type: 'localStorage',
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+  },
+  sessionInfo: {
+    type: 'none',
+  },
+};
+
+const loadOptionWithInvalidEntry = {
+  userId: {
+    type: 'test',
+  },
+  userTraits: {
+    type: 'sample',
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
@@ -273,5 +405,10 @@ export {
   dummyInitOptions,
   dummyDataplaneHost,
   dummySourceConfigResponse,
-  sampleEntriesWithOnlyCookieStorage,
+  entriesWithOnlyCookieStorage,
+  entriesWithOnlyLocalStorage,
+  entriesWithOnlyNoStorage,
+  entriesWithMixStorage,
+  loadOptionWithEntry,
+  loadOptionWithInvalidEntry,
 };
