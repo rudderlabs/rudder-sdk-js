@@ -1,8 +1,11 @@
-/* eslint-disable camelcase */
+/* eslint-disable func-names */
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
+import { getAction } from './utils';
 
 class TVSquared {
   constructor(config, analytics, destinationInfo) {
@@ -32,69 +35,48 @@ class TVSquared {
     ScriptLoader('TVSquared-integration', `${url}tv2track.js`);
   }
 
-  isLoaded = () => {
+  isLoaded() {
     logger.debug('in TVSqaured isLoaded');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
-  };
+  }
 
-  isReady = () => {
+  isReady() {
     logger.debug('in TVSqaured isReady');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
-  };
+  }
 
-  page = () => {
+  page(rudderElement) {
     window._tvq.push([
       function () {
         this.deleteCustomVariable(5, 'page');
       },
     ]);
     window._tvq.push(['trackPageView']);
-  };
+  }
 
   track(rudderElement) {
-    const { event, userId, anonymousId } = rudderElement.message;
-    const { revenue, productType, category, order_id, promotion_id } =
-      rudderElement.message.properties;
-    let i;
-    let j;
-    let whitelist = this.eventWhiteList.slice();
-    whitelist = whitelist.filter(wl => {
-      return wl.event !== '';
-    });
-    for (i = 0; i < whitelist.length; i += 1) {
-      if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
-        break;
-      }
-      if (i === whitelist.length - 1) {
-        return;
-      }
+    const { message } = rudderElement;
+    const { event, userId, anonymousId } = message;
+
+    const whitelistEvents = this.eventWhiteList.filter(wl => wl.event !== '');
+
+    const isEventInWhiteList = whitelistEvents.some(
+      whitelistEvent => whitelistEvent.event.toUpperCase() === event.toUpperCase(),
+    );
+
+    if (!isEventInWhiteList) {
+      return;
     }
 
     const session = { user: userId || anonymousId || '' };
-    const action = {
-      rev: revenue ? this.formatRevenue(revenue) : '',
-      prod: category || productType || '',
-      id: order_id || '',
-      promo: promotion_id || '',
-    };
-    let customMetrics = this.customMetrics.slice();
-    customMetrics = customMetrics.filter(cm => {
-      return cm.propertyName !== '';
-    });
-    if (customMetrics.length) {
-      for (j = 0; j < customMetrics.length; j += 1) {
-        const key = customMetrics[j].propertyName;
-        const value = rudderElement.message.properties[key];
-        if (value) {
-          action[key] = value;
-        }
-      }
-    }
+    const action = getAction(message, this.customMetrics);
+
     window._tvq.push([
       function () {
         this.setCustomVariable(5, 'session', JSON.stringify(session), 'visit');
       },
     ]);
+
     if (event.toUpperCase() !== 'RESPONSE') {
       window._tvq.push([
         function () {
@@ -110,11 +92,5 @@ class TVSquared {
       ]);
     }
   }
-
-  formatRevenue = revenue => {
-    let rev = revenue;
-    rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ''));
-    return rev;
-  };
 }
 export default TVSquared;

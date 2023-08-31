@@ -192,6 +192,11 @@ const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
 
+const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
+  `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
+
+const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
+
 // DEBUG
 
 export {
@@ -241,4 +246,6 @@ export {
   READY_CALLBACK_INVOKE_ERROR,
   API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
+  POLYFILL_SCRIPT_LOAD_ERROR,
+  COOKIE_DATA_ENCODING_ERROR,
 };

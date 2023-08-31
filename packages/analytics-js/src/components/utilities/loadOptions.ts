@@ -130,27 +130,34 @@ const getSourceConfigURL = (
   let searchParams = defSearchParams;
   let pathname = '/sourceConfig/';
   let hash = '';
-  try {
-    const configUrlInstance = new URL(configUrl);
-    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
-      configUrlInstance.pathname = `${
-        removeTrailingSlashes(configUrlInstance.pathname) as string
-      }/sourceConfig/`;
-    }
-    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
-
-    defSearchParams.forEach((value, key) => {
-      if (configUrlInstance.searchParams.get(key) === null) {
-        configUrlInstance.searchParams.set(key, value);
+  // Ideally, this check is not required but URL polyfill
+  // doesn't seem to throw errors for empty URLs
+  // TODO: Need to improve this check to find out if the URL is valid or not
+  if (configUrl) {
+    try {
+      const configUrlInstance = new URL(configUrl);
+      if (
+        !(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')
+      ) {
+        configUrlInstance.pathname = `${
+          removeTrailingSlashes(configUrlInstance.pathname) as string
+        }/sourceConfig/`;
       }
-    });
+      configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
 
-    origin = configUrlInstance.origin;
-    pathname = configUrlInstance.pathname;
-    searchParams = configUrlInstance.searchParams;
-    hash = configUrlInstance.hash;
-  } catch (err) {
-    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+      defSearchParams.forEach((value, key) => {
+        if (configUrlInstance.searchParams.get(key) === null) {
+          configUrlInstance.searchParams.set(key, value);
+        }
+      });
+
+      origin = configUrlInstance.origin;
+      pathname = configUrlInstance.pathname;
+      searchParams = configUrlInstance.searchParams;
+      hash = configUrlInstance.hash;
+    } catch (err) {
+      logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+    }
   }
 
   return `${origin}${pathname}?${searchParams}${hash}`;

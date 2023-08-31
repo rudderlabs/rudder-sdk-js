@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import { getHashFromArray } from '../../utils/commonUtils';
 
 const integrationContext = {
@@ -57,9 +58,9 @@ function recordingLiveChatEvents(
       'availability_changed',
       'customer_status_changed',
       'rich_message_button_clicked',
-    ].forEach(function (eventName) {
+    ].forEach(eventName => {
       if (userDefinedEventsList.includes(eventName)) {
-        api.on(eventName, function (payload) {
+        api.on(eventName, () => {
           makeACall(standardEventsMap, eventName, updateEventNames, analytics);
         });
       }

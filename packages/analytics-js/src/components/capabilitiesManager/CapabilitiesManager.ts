@@ -10,8 +10,8 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { POLYFILL_SCRIPT_LOAD_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
-import { extractUTMParameters } from '../utilities/url';
 import { getUserAgentClientHint } from './detection/clientHint';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import { state } from '../../state';
@@ -27,6 +27,7 @@ import {
   isStorageAvailable,
 } from './detection';
 import { detectAdBlockers } from './detection/adBlockers';
+import { debounce } from '../utilities/globals';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
@@ -109,22 +110,37 @@ class CapabilitiesManager implements ICapabilitiesManager {
    */
   prepareBrowserCapabilities() {
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
-    const polyfillUrl = state.loadOptions.value.polyfillURL ?? POLYFILL_URL;
+    let polyfillUrl = state.loadOptions.value.polyfillURL ?? POLYFILL_URL;
     const shouldLoadPolyfill =
       state.loadOptions.value.polyfillIfRequired &&
       state.capabilities.isLegacyDOM.value &&
       Boolean(polyfillUrl);
 
     if (shouldLoadPolyfill) {
-      // TODO: check if polyfill has been evaluated via polling or
-      //  with the callback param in its url and an exposed function
-      const onPolyfillLoad = (scriptId?: string) => Boolean(scriptId) && this.onReady();
+      const isDefaultPolyfillService = polyfillUrl !== state.loadOptions.value.polyfillURL;
+      if (isDefaultPolyfillService) {
+        const polyfillCallback = (): void => this.onReady();
+
+        // write key specific callback
+        // NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
+        const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
+        (globalThis as any)[polyfillCallbackName] = polyfillCallback;
+
+        polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
+      }
+
       this.externalSrcLoader?.loadJSFile({
-        url: state.loadOptions.value.polyfillURL ?? POLYFILL_URL,
+        url: polyfillUrl,
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
-        callback: onPolyfillLoad,
+        callback: (scriptId?: string) => {
+          if (!scriptId) {
+            this.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)));
+          } else if (!isDefaultPolyfillService) {
+            this.onReady();
+          }
+        },
       });
     } else {
       this.onReady();
@@ -144,7 +160,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isOnline.value = true;
     });
 
-    // TODO: add debounced listener for globalThis.onResize event and update state.context.screen.value
+    globalThis.addEventListener(
+      'resize',
+      debounce(() => {
+        state.context.screen.value = getScreenDetails();
+      }, this),
+    );
   }
 
   /**

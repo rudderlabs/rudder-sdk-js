@@ -1,5 +1,6 @@
 import {
   NAME,
+  DISPLAY_NAME,
   excludeReservedTraits,
   excludePageProperties,
 } from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
@@ -9,6 +10,17 @@ import {
   removeUndefinedAndNullValues,
   isNotEmpty,
 } from '../../utils/commonUtils';
+
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 // FIRSTNAME, LASTNAME, SMS are the default created contact attributes in sendinblue
 const prepareDefaultContactAttributes = message => {
@@ -74,8 +86,9 @@ const prepareTrackEventData = message => {
   let eventData = {};
   if (isNotEmpty(properties)) {
     let id;
-    if (integrations && integrations[NAME]) {
-      const key = integrations[NAME]?.propertiesIdKey;
+    const sendInBlueIntgConfig = getDestinationOptions(integrations);
+    if (sendInBlueIntgConfig) {
+      const key = sendInBlueIntgConfig.propertiesIdKey;
       if (key) {
         id = properties[key];
       }
@@ -94,8 +107,8 @@ const refinePageProperties = properties => {
 };
 
 const preparePagePayload = message => {
-  const { properties } = message;
-  const { page } = message.context;
+  const { properties, context } = message;
+  const { page } = context;
 
   const title = properties?.title || page?.title;
   const url = properties?.url || page?.url;
@@ -113,4 +126,4 @@ const preparePagePayload = message => {
   return removeUndefinedAndNullValues(payload);
 };
 
-export { prepareUserTraits, prepareTrackEventData, preparePagePayload };
+export { prepareUserTraits, prepareTrackEventData, preparePagePayload, getDestinationOptions };

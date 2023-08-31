@@ -1,10 +1,12 @@
+/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
 import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';
+/* eslint-disable no-underscore-dangle */
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -24,13 +26,12 @@ class Fullstory {
   }
 
   static getFSProperties(properties) {
-    const FS_properties = {};
-    Object.keys(properties).map(function (key, index) {
-      FS_properties[
-        key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)
-      ] = properties[key];
+    const fsProperties = {};
+    Object.keys(properties).forEach(key => {
+      fsProperties[key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)] =
+        properties[key];
     });
-    return FS_properties;
+    return fsProperties;
   }
 
   static camelCaseField(fieldName) {
@@ -57,82 +58,21 @@ class Fullstory {
     return camelcase(fieldName);
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   init() {
     logger.debug('===in init FULLSTORY===');
-    window._fs_debug = this.fs_debug_mode;
-    window._fs_host = this.fs_host;
-    window._fs_script = 'edge.fullstory.com/s/fs.js';
-    window._fs_org = this.fs_org;
-    window._fs_namespace = 'FS';
-    (function (m, n, e, t, l, o, g, y) {
-      if (e in m) {
-        if (m.console && m.console.log) {
-          m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');
-        }
-        return;
-      }
-      g = m[e] = function (a, b, s) {
-        g.q ? g.q.push([a, b, s]) : g._api(a, b, s);
-      };
-      g.q = [];
-      o = n.createElement(t);
-      o.async = 1;
-      o.crossOrigin = 'anonymous';
-      o.src = `https://${_fs_script}`;
-      o.setAttribute('data-loader', LOAD_ORIGIN);
-      y = n.getElementsByTagName(t)[0];
-      y.parentNode.insertBefore(o, y);
-      g.identify = function (i, v, s) {
-        g(l, { uid: i }, s);
-        if (v) g(l, v, s);
-      };
-      g.setUserVars = function (v, s) {
-        g(l, v, s);
-      };
-      g.event = function (i, v, s) {
-        g('event', { n: i, p: v }, s);
-      };
-      g.shutdown = function () {
-        g('rec', !1);
-      };
-      g.restart = function () {
-        g('rec', !0);
-      };
-      g.log = function (a, b) {
-        g('log', [a, b]);
-      };
-      g.consent = function (a) {
-        g('consent', !arguments.length || a);
-      };
-      g.identifyAccount = function (i, v) {
-        o = 'account';
-        v = v || {};
-        v.acctId = i;
-        g(o, v);
-      };
-      g.clearUserCookie = function () {};
-      g._w = {};
-      y = 'XMLHttpRequest';
-      g._w[y] = m[y];
-      y = 'fetch';
-      g._w[y] = m[y];
-      if (m[y])
-        m[y] = function () {
-          return g._w[y].apply(this, arguments);
-        };
-    })(window, document, window._fs_namespace, 'script', 'user');
-
+    loadNativeSdk(this.fs_debug_mode, this.fs_host, this.fs_org);
     const fullstoryIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     // Checking if crossDomainSupport is their or not.
     if (fullstoryIntgConfig?.crossDomainSupport === true) {
       // This function will check if the customer hash is available or not in localStorage
       window._fs_identity = function () {
         if (window.localStorage) {
-          const { tata_customer_hash } = window.localStorage;
-          if (tata_customer_hash) {
+          const { tata_customer_hash: tataCustomerHash } = window.localStorage;
+          if (tataCustomerHash) {
             return {
-              uid: tata_customer_hash,
-              displayName: tata_customer_hash,
+              uid: tataCustomerHash,
+              displayName: tataCustomerHash,
             };
           }
         } else {
@@ -145,7 +85,7 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            console.error('FullStory unavailable, window["_fs_namespace"] must be defined');
+            logger.error('FullStory unavailable, window["_fs_namespace"] must be defined');
             return undefined;
           }
           return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
@@ -159,10 +99,8 @@ class Fullstory {
               return;
             }
             delay = Math.min(delay * 2, 1024);
-            if (totalTime > timeout) {
-              if (timeoutFn) {
-                timeoutFn();
-              }
+            if (totalTime > timeout && timeoutFn) {
+              timeoutFn();
             }
             totalTime += delay;
             setTimeout(resultFn, delay);
@@ -191,6 +129,11 @@ class Fullstory {
     }
   }
 
+  isLoaded() {
+    logger.debug('in FULLSTORY isLoaded');
+    return !!window.FS;
+  }
+
   page(rudderElement) {
     logger.debug('in FULLSORY page');
     const rudderMessage = rudderElement.message;
@@ -205,10 +148,12 @@ class Fullstory {
 
   identify(rudderElement) {
     logger.debug('in FULLSORY identify');
-    let { userId } = rudderElement.message;
-    const { traits } = rudderElement.message.context;
-    if (!userId) userId = rudderElement.message.anonymousId;
 
+    let { userId } = rudderElement.message;
+    const { context, anonymousId } = rudderElement.message;
+    const { traits } = context;
+
+    if (!userId) userId = anonymousId;
     if (Object.keys(traits).length === 0 && traits.constructor === Object)
       window.FS.identify(userId);
     else window.FS.identify(userId, Fullstory.getFSProperties(traits));
@@ -220,11 +165,6 @@ class Fullstory {
       rudderElement.message.event,
       Fullstory.getFSProperties(rudderElement.message.properties),
     );
-  }
-
-  isLoaded() {
-    logger.debug('in FULLSTORY isLoaded');
-    return !!window.FS;
   }
 }
 

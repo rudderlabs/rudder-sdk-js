@@ -141,43 +141,41 @@ class Klaviyo {
 
   track(rudderElement) {
     const { message } = rudderElement;
-    if (message.properties) {
-      // ecomm events
-      let event = get(message, 'event');
-      event = event ? event.trim().toLowerCase() : event;
-      if (this.ecomEvents.includes(event)) {
-        let payload = ecommEventPayload(this.eventNameMapping[event], message);
-        const eventName = this.eventNameMapping[event];
-        let customProperties = {};
-        customProperties = extractCustomFields(
-          message,
-          customProperties,
-          ['properties'],
-          this.ecomExclusionKeys,
-        );
-        if (isNotEmpty(customProperties)) {
-          payload = { ...payload, ...customProperties };
-        }
-        if (isNotEmpty(payload)) {
-          window._learnq.push(['track', eventName, payload]);
-        }
-      } else {
-        const propsPayload = message.properties;
-        if (propsPayload.revenue) {
-          propsPayload.$value = propsPayload.revenue;
-          delete propsPayload.revenue;
-        }
-        window._learnq.push(['track', message.event, propsPayload]);
+    const properties = message?.properties || {};
+
+    const event = message.event ? message.event.trim().toLowerCase() : message.event;
+    if (this.ecomEvents.includes(event)) {
+      let payload = ecommEventPayload(this.eventNameMapping[event], message);
+      const eventName = this.eventNameMapping[event];
+      const customProperties = extractCustomFields(
+        message,
+        {},
+        ['properties'],
+        this.ecomExclusionKeys,
+      );
+      if (isNotEmpty(customProperties)) {
+        payload = { ...payload, ...customProperties };
       }
-    } else window._learnq.push(['track', message.event]);
+      if (isNotEmpty(payload)) {
+        window._learnq.push(['track', eventName, payload]);
+      }
+    } else {
+      const propsPayload = properties;
+      if (propsPayload.revenue) {
+        propsPayload.$value = propsPayload.revenue;
+        delete propsPayload.revenue;
+      }
+      window._learnq.push(['track', event, propsPayload]);
+    }
   }
 
   page(rudderElement) {
     const { message } = rudderElement;
+    const properties = message?.properties || {};
     if (this.sendPageAsTrack) {
       let eventName;
-      if (message.properties && message.properties.category && message.name) {
-        eventName = `Viewed ${message.properties.category} ${message.name} page`;
+      if (properties?.category && message.name) {
+        eventName = `Viewed ${properties.category} ${message.name} page`;
       } else if (message.name) {
         eventName = `Viewed ${message.name} page`;
       } else {

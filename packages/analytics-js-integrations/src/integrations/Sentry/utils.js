@@ -1,14 +1,14 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
 import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
-const convertObjectToArray = (objectInput, propertyName) => {
-  return objectInput
+const convertObjectToArray = (objectInput, propertyName) =>
+  objectInput
     .map(objectItem => objectItem[propertyName])
     .filter(e => isDefinedAndNotNullAndNotEmpty(e));
-};
 
 const SentryScriptLoader = (id, src, integrity) => {
   logger.debug(`in script loader=== ${id}`);
@@ -55,30 +55,13 @@ const sentryInit = (
     ignoreErrors: formattedIgnoreErrors,
   };
 
-  let includePaths = [];
-
   if (formattedIncludePaths.length > 0) {
-    // eslint-disable-next-line func-names
-    includePaths = formattedIncludePaths.map(function (path) {
-      let regex;
-      try {
-        regex = new RegExp(path);
-      } catch (e) {
-        // ignored
-      }
-      return regex;
-    });
-  }
-
-  if (includePaths.length > 0) {
-    sentryConfig.integrations = [];
-    sentryConfig.integrations.push(
+    sentryConfig.integrations = [
       new window.Sentry.Integrations.RewriteFrames({
-        iteratee: function (frame) {
-          // eslint-disable-next-line no-restricted-syntax
-          for (const path of includePaths) {
+        iteratee(frame) {
+          for (const path of formattedIncludePaths) {
             try {
-              if (frame.filename.match(path)) {
+              if (frame.filename.match(new RegExp(path))) {
                 frame.in_app = true;
                 return frame;
               }
@@ -90,7 +73,7 @@ const sentryInit = (
           return frame;
         },
       }),
-    );
+    ];
   }
   return sentryConfig;
 };

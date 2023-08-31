@@ -1,3 +1,1 @@
-import GA from './browser';
-
-export { GA };
+export { default as GA } from './browser';

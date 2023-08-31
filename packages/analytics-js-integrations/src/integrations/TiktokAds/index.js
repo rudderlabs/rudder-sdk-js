@@ -1,3 +1,1 @@
-import TiktokAds from './browser';
-
-export { TiktokAds };
+export { default as TiktokAds } from './browser';

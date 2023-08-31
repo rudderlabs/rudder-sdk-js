@@ -52,12 +52,95 @@ describe('Queue', () => {
     jest.useRealTimers();
   });
 
+  it('should add an item to the queue', () => {
+    queue.addItem('a');
+
+    expect(queue.getQueue('queue')).toEqual([
+      {
+        item: 'a',
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+  });
+
+  it('should add an item to the batch queue in batch mode', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { maxItems: 10 } },
+      jest.fn(),
+      defaultStoreManager,
+    );
+
+    batchQueue.addItem('a');
+
+    expect(batchQueue.getQueue('batchQueue')).toEqual([
+      {
+        item: 'a',
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+
+    expect(batchQueue.getQueue('queue')).toEqual([]);
+  });
+
+  it('should dispatch batch items to main queue when length criteria is met', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { maxItems: 2 } },
+      jest.fn(),
+      defaultStoreManager,
+    );
+
+    batchQueue.addItem('a');
+    batchQueue.addItem('b');
+
+    expect(batchQueue.getQueue('batchQueue')).toEqual([]);
+
+    expect(batchQueue.getQueue('queue')).toEqual([
+      {
+        item: ['a', 'b'],
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+  });
+
+  it('should dispatch batch items to main queue when size criteria is met', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { maxSize: 2 } },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      undefined,
+      (items: []) => items.length,
+    );
+
+    batchQueue.addItem('a');
+    batchQueue.addItem('b');
+
+    expect(batchQueue.getQueue('batchQueue')).toEqual([]);
+
+    expect(batchQueue.getQueue('queue')).toEqual([
+      {
+        item: ['a', 'b'],
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+  });
+
   it('should run a task', () => {
     queue.start();
 
     queue.addItem('a');
 
-    expect(queue.processQueueCb).toHaveBeenCalled();
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
   });
 
@@ -147,6 +230,8 @@ describe('Queue', () => {
   });
 
   it('should respect maxItems', () => {
+    expect(queue.enableBatching).toBe(false);
+
     queue.maxItems = 100;
 
     for (let i = 0; i < 105; i = i + 1) {
@@ -180,12 +265,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -211,15 +296,101 @@ describe('Queue', () => {
     });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+  });
+
+  it('should take over a batch queued task if a queue is abandoned', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { maxItems: 2 } },
+      jest.fn(),
+      defaultStoreManager,
+    );
+
+    // a wild queue of interest appears
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+      {
+        item: 'b',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
+
+    // wait for the queue to expire
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
+
+    batchQueue.start();
+
+    // wait long enough for the other queue to expire and be reclaimed
+    jest.advanceTimersByTime(
+      batchQueue.timeouts.reclaimTimer + batchQueue.timeouts.reclaimWait * 2,
+    );
+
+    expect(batchQueue.processQueueCb).toHaveBeenCalledWith(
+      ['a', 'b'],
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
+  });
+
+  it('should take over a batch queued task to main queue if a queue is abandoned', () => {
+    // a wild queue of interest appears
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+      {
+        item: 'b',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
+
+    // wait for the queue to expire
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
+
+    queue.start();
+
+    // wait long enough for the other queue to expire and be reclaimed
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
+
+    expect(queue.processQueueCb).nthCalledWith(1, 'a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).nthCalledWith(2, 'b', expect.any(Function), 0, Infinity, true);
   });
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
@@ -249,12 +420,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -287,18 +458,56 @@ describe('Queue', () => {
     });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
   });
 
-  it('should deduplicate ids when reclaiming abandoned in-progress and queue tasks', () => {
+  it('should deduplicate ids when reclaiming abandoned batch queue tasks', () => {
+    // set up a fake queue
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+        id: '123',
+      },
+      {
+        item: 'b',
+        time: 0,
+        attemptNumber: 0,
+        id: '123',
+      },
+    ]);
+
+    // wait for the queue to expire
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
+
+    queue.start();
+
+    // wait long enough for the other queue to expire and be reclaimed
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
+
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+  });
+
+  it('should deduplicate ids when reclaiming abandoned batch, in-progress and queue tasks', () => {
     // set up a fake queue
     const foundQueue = new Store(
       {
@@ -339,15 +548,31 @@ describe('Queue', () => {
       },
     ]);
 
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+      {
+        item: 'c',
+        time: 0,
+        attemptNumber: 0,
+        id: '789',
+      },
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+        id: '123',
+      },
+    ]);
+
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
   });
@@ -390,12 +615,12 @@ describe('Queue', () => {
     ]);
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
@@ -426,18 +651,26 @@ describe('Queue', () => {
         attemptNumber: 0,
       },
     });
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, {
+      'task-id2': {
+        item: 'c',
+        time: 1,
+        attemptNumber: 0,
+      },
+    });
 
     // wait for the queue to expire
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+    jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
   });
 
   describe('while using in memory engine', () => {
@@ -465,12 +698,12 @@ describe('Queue', () => {
       ]);
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
@@ -502,12 +735,12 @@ describe('Queue', () => {
       });
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
@@ -546,12 +779,12 @@ describe('Queue', () => {
       });
 
       // wait for the queue to expire
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
 
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
       expect(queue.processQueueCb).toHaveBeenCalledWith(
@@ -647,6 +880,106 @@ describe('Queue', () => {
     // items should now be in progress
     expect(size(queue).queue).toEqual(0);
     expect(size(queue).inProgress).toEqual(queue.maxItems);
+  });
+
+  it('should configure batch mode as per options', () => {
+    let batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {},
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(false);
+    expect(batchQueue.batch).toEqual({});
+
+    batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {
+          maxSize: 1024,
+          maxItems: '1',
+        },
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batch).toEqual({
+      maxSize: 1024,
+      maxItems: 1,
+    });
+
+    batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {
+          maxSize: '3',
+          maxItems: 20,
+        },
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batch).toEqual({
+      maxSize: 3,
+      maxItems: 20,
+    });
+
+    batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {
+          maxItems: 30,
+        },
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batch).toEqual({
+      maxItems: 30,
+    });
+
+    batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {
+          maxSize: 1000,
+        },
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batch).toEqual({
+      maxSize: 1000,
+    });
+
+    batchQueue = new RetryQueue(
+      'batchQueue',
+      {
+        batch: {
+          maxItems: 30,
+          maxSize: 1000,
+        },
+      },
+      () => {},
+      defaultStoreManager,
+    );
+
+    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batch).toEqual({
+      maxItems: 30,
+      maxSize: 1000,
+    });
   });
 });
 

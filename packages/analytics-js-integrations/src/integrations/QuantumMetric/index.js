@@ -1,3 +1,1 @@
-import QuantumMetric from './browser';
-
-export { QuantumMetric };
+export { default as QuantumMetric } from './browser';

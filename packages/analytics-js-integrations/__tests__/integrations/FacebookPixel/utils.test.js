@@ -491,7 +491,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: 'true',
           },
         },
@@ -501,7 +501,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       lastName: 'Doe',
@@ -525,7 +525,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: 'true',
           },
         },
@@ -535,7 +535,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       BlacklistPiiPropertyHashTrue: 'should not be hashed',
@@ -557,7 +557,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: 'true',
           },
         },
@@ -567,7 +567,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       whitelistNonDefaultPiiProperties: 'should not be hashed',
@@ -589,7 +589,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: 'true',
           },
         },
@@ -599,7 +599,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       email: 'acb@gmail.com',
@@ -622,7 +622,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: false,
           },
         },
@@ -632,7 +632,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       lastName: 'fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7',
@@ -656,7 +656,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: false,
           },
         },
@@ -666,7 +666,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       BlacklistPiiPropertyHashTrue:
@@ -689,7 +689,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: false,
           },
         },
@@ -699,7 +699,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       whitelistNonDefaultPiiProperties: 'should not be hashed',
@@ -721,7 +721,7 @@ describe('buildPayLoad_function', () => {
         },
         integrations: {
           All: true,
-          fbpixel: {
+          FACEBOOK_PIXEL: {
             hashed: false,
           },
         },
@@ -731,7 +731,7 @@ describe('buildPayLoad_function', () => {
       rudderElement,
       whitelistPiiPropertiesMock,
       blacklistPiiPropertiesMock,
-      getHashedStatus(rudderElement.message, 'fbpixel'),
+      getHashedStatus(rudderElement.message),
     );
     expect(payload).toEqual({
       email: 'acb@gmail.com',

@@ -97,7 +97,7 @@ const trigger = (userDefinedEventsMapping, userDefinedEventsList, analytics) => 
   ];
   standardEventsList.forEach(events => {
     if (userDefinedEventsList.includes(events)) {
-      window.addEventListener(events, function (event) {
+      window.addEventListener(events, event => {
         makeACall(standardEventsMap, event.type, event.detail, analytics);
       });
     }

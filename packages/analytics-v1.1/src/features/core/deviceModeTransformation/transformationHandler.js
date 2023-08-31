@@ -3,10 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { removeTrailingSlashes } from '../../../utils/utils';
-import { createPayload } from './util';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { removeTrailingSlashes } from '../../../utils/utils';
+import { createPayload } from './util';
 
 const timeout = 10 * 1000;
 const EVENT_CHECK_INTERVAL = 100;
@@ -121,7 +121,6 @@ class TransformationsHandler {
                       status,
                       errorMessage: 'Retries exhausted',
                     });
-                    return;
                   }
                 }
               }
