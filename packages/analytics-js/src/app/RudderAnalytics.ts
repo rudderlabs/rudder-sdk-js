@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prefer-export-from */
-import { clone, isEmpty } from 'ramda';
+import { clone } from 'ramda';
 import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
@@ -86,7 +86,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    if (isEmpty(this.analyticsInstances)) {
+    if (writeKey) {
       this.defaultAnalyticsKey = writeKey;
     }
   }
