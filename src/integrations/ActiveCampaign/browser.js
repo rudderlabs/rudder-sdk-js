@@ -1,8 +1,7 @@
-/* eslint-disable camelcase */
 /* eslint-disable class-methods-use-this */
-
-import logger from '../../utils/logUtil';
 import { NAME } from './constants';
+import logger from '../../utils/logUtil';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class ActiveCampaign {
   constructor(config, analytics, destinationInfo) {
@@ -18,16 +17,6 @@ class ActiveCampaign {
     } = destinationInfo ?? {});
   }
 
-  loadScript() {
-    // START-NO-SONAR-SCAN
-    (function(e,t,o,n,p,r,i){e.visitorGlobalObjectAlias=n;e[e.visitorGlobalObjectAlias]=e[e.visitorGlobalObjectAlias]||function(){(e[e.visitorGlobalObjectAlias].q=e[e.visitorGlobalObjectAlias].q||[]).push(arguments)};e[e.visitorGlobalObjectAlias].l=(new Date).getTime();r=t.createElement("script");r.src=o;r.async=true;i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i)})
-    (window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
-    window.vgo('setAccount', this.actId);
-    window.vgo('setTrackByDefault', true);
-    window.vgo('process');
-    // END-NO-SONAR-SCAN
-  }
-
   init() {
     logger.debug('===In init ActiveCampaign===');
 
@@ -35,7 +24,7 @@ class ActiveCampaign {
       logger.debug('actId missing');
       return;
     }
-    this.loadScript();
+    loadNativeSdk(this.actId);
   }
 
   isLoaded() {
