@@ -1,22 +1,10 @@
 {
-  "name": "@rudderstack/analytics-js-integrations",
+  "name": "@rudderstack/analytics-js-loading-scripts",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/analytics-js-integrations/src",
+  "sourceRoot": "packages/loading-scripts/src",
   "projectType": "library",
   "tags": [],
   "targets": {
-    "start": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start"
-      }
-    },
-    "start-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start:modern"
-      }
-    },
     "build": {
       "executor": "nx:run-script",
       "options": {
@@ -29,16 +17,16 @@
         "script": "build:browser"
       }
     },
+    "build-browser-minified": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:minified"
+      }
+    },
     "build-browser-modern": {
       "executor": "nx:run-script",
       "options": {
         "script": "build:browser:modern"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
       }
     },
     "clean": {
@@ -51,7 +39,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js-integrations/jest.config.ts",
+        "jestConfig": "packages/loading-scripts/jest.config.ts",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -75,8 +63,8 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.6",
-        "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.6",
+        "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }
   }

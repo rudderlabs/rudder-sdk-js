@@ -1,0 +1,59 @@
+{
+  "name": "@rudderstack/analytics-js-loading-scripts",
+  "version": "3.0.0-beta.6",
+  "private": true,
+  "description": "Loading script for RudderStack Javascript SDK",
+  "main": "./src/index.js",
+  "keywords": [
+    "analytics",
+    "rudder"
+  ],
+  "author": "RudderStack",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
+    "directory": "packages/loading-scripts"
+  },
+  "bugs": {
+    "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
+  },
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/loading-scripts/README.md",
+  "scripts": {
+    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "start": "rollup -c --watch",
+    "build": "npm run build:browser",
+    "build:browser:modern": "exit 0",
+    "build:browser:minified": "rollup -c --environment UGLIFY",
+    "build:browser": "rollup -c && npm run build:browser:minified",
+    "test": "nx test --maxWorkers=50%",
+    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "check:lint:dev": "eslint --ext .js,.ts src",
+    "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
+    "check:circular": "madge --circular --extensions js,ts src || exit 0",
+    "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
+    "check:support:modern": "exit 0",
+    "check:duplicates": "jscpd src",
+    "check:security": "npm audit --recursive --audit-level=high",
+    "build:modern": "npm run build:browser:modern"
+  },
+  "devDependencies": {},
+  "overrides": {},
+  "browserslist": {
+    "production": [
+      "defaults",
+      "Edge >= 80",
+      "Firefox >= 47",
+      "IE >= 11",
+      "Chrome >= 54",
+      "Safari >= 7",
+      "Opera >= 43"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 edge version",
+      "last 1 safari version"
+    ]
+  }
+}

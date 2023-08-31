@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.0.0-beta.5",
+  "version": "3.0.0-beta.6",
   "description": "RudderStack Javascript SDK plugins",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -71,7 +71,7 @@
     "@bugsnag/js": "6.5.2",
     "@lukeed/uuid": "2.0.1",
     "@preact/signals-core": "1.4.0",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.5",
+    "@rudderstack/analytics-js-common": "3.0.0-beta.6",
     "crypto-js": "4.1.1",
     "ramda": "0.29.0"
   },
