@@ -6,7 +6,7 @@
 /* eslint-disable unicorn/consistent-destructuring */
 
 /* Loading snippet start */
-const sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/v3';
+const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
 const sdkName = 'rsa.min.js';
 const asyncScript = true;
 window.rudderAnalyticsBuildType = 'legacy';

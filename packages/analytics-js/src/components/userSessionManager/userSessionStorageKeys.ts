@@ -1,7 +1,7 @@
 const userSessionStorageKeys = {
   userId: 'rl_user_id',
   userTraits: 'rl_trait',
-  anonymousUserId: 'rl_anonymous_id',
+  anonymousId: 'rl_anonymous_id',
   groupId: 'rl_group_id',
   groupTraits: 'rl_group_trait',
   initialReferrer: 'rl_page_init_referrer',
@@ -12,7 +12,7 @@ const userSessionStorageKeys = {
 const defaultUserSessionValues = {
   userId: '',
   userTraits: {},
-  anonymousUserId: '',
+  anonymousId: '',
   groupId: '',
   groupTraits: {},
   initialReferrer: '',

@@ -1,5 +1,6 @@
 import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import { DestinationConnectionMode } from '@rudderstack/analytics-js-common/types/Destination';
+import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 
 const identifyRequestPayload = {
   userId: '123456',
@@ -227,15 +228,187 @@ const dummySourceConfigResponse: SourceConfigResponse = {
   },
 };
 
+const entriesWithOnlyCookieStorage = {
+  userId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const entriesWithOnlyLocalStorage = {
+  userId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const entriesWithOnlyNoStorage = {
+  userId: {
+    type: 'none',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'none',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'none',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'none',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'none',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'none',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'none',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const entriesWithMixStorage = {
+  userId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'memoryStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
+const loadOptionWithEntry = {
+  userId: {
+    type: 'cookieStorage',
+  },
+  userTraits: {
+    type: 'localStorage',
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+  },
+  sessionInfo: {
+    type: 'none',
+  },
+};
+
+const loadOptionWithInvalidEntry = {
+  userId: {
+    type: 'test',
+  },
+  userTraits: {
+    type: 'sample',
+  },
+  anonymousId: {
+    type: 'cookieStorage',
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
   pageRequestPayload,
   screenRequestPayload,
-  groupRequestPayload,
   aliasRequestPayload,
   dummyWriteKey,
   dummyInitOptions,
   dummyDataplaneHost,
   dummySourceConfigResponse,
+  entriesWithOnlyCookieStorage,
+  entriesWithOnlyLocalStorage,
+  entriesWithOnlyNoStorage,
+  entriesWithMixStorage,
+  loadOptionWithEntry,
+  loadOptionWithInvalidEntry,
 };

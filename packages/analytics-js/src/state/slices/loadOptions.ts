@@ -1,12 +1,9 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
-import {
-  CookieSameSite,
-  LoadOptions,
-  UaChTrackLevel,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { LoadOptions, UaChTrackLevel } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   DEFAULT_SESSION_TIMEOUT_MS,

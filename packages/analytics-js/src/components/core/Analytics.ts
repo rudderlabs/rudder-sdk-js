@@ -56,7 +56,6 @@ import { EventRepository } from '../eventRepository';
 import { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
-import { CLIENT_DATA_STORE_NAME } from '../../constants/storage';
 import { IAnalytics } from './IAnalytics';
 
 /*
@@ -247,6 +246,7 @@ class Analytics implements IAnalytics {
       this.errorHandler,
       this.logger,
       this.pluginsManager,
+      this.storeManager,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,
@@ -286,8 +286,7 @@ class Analytics implements IAnalytics {
 
     // Initialize storage
     this.storeManager?.init();
-    this.clientDataStore = this.storeManager?.getStore(CLIENT_DATA_STORE_NAME) as Store | undefined;
-    this.userSessionManager?.init(this.clientDataStore);
+    this.userSessionManager?.init();
 
     // Initialize consent manager
     if (state.consents.activeConsentManagerPluginName.value) {
