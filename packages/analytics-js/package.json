@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md",
   "scripts": {
-    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build": "npm run build:browser && npm run build:package",

@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-common/README.md",
   "scripts": {
-    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "exit 0",
     "build": "npm run build:browser && npm run build:package",
     "copy:src": "rsync -r src/ dist/npm",

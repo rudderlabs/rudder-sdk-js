@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md",
   "scripts": {
-    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment PROD_DEBUG",
     "build": "npm run build:package",
     "build:browser:modern": "exit 0",

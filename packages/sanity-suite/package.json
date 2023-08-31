@@ -5,7 +5,7 @@
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/cdn/v3/testBook.js",
   "scripts": {
-    "clean": "rimraf -rf ../../node_modules/.cache && rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "npm run build:v1.1 && npm run build:v3 && npm run start:local",
     "build": "rollup -c --environment TEST_PACKAGE:local",
     "build:v1.1": "cd ../analytics-v1.1 && npm run build:browser",
