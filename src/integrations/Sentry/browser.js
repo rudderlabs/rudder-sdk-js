@@ -1,8 +1,4 @@
-/* eslint-disable object-shorthand */
-/* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable no-unused-expressions */
-
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { SentryScriptLoader, sentryInit } from './utils';
@@ -28,9 +24,11 @@ class Sentry {
     this.release = config.release;
     this.customVersionProperty = config.customVersionProperty;
     this.serverName = config.serverName;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -108,7 +106,7 @@ class Sentry {
 
     const payload = {
       id: userId,
-      email: email,
+      email,
       username: name,
       ip_address: ipAddress,
       ...traits,

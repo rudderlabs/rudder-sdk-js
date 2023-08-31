@@ -1,8 +1,8 @@
-/* eslint-disable class-methods-use-this,prefer-rest-params, no-param-reassign */
+/* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getHashFromArray } from '../../utils/commonUtils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Rockerbox {
   constructor(config, analytics, destinationInfo) {
@@ -15,40 +15,17 @@ class Rockerbox {
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
     this.connectionMode = config.connectionMode;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('=== In init Rockerbox ===');
-    const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
-    const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-    (function (d, RB) {
-      if (!window.RB) {
-        window.RB = RB;
-        RB.queue = RB.queue || [];
-        RB.track =
-          RB.track ||
-          function () {
-            RB.queue.push(Array.prototype.slice.call(arguments));
-          };
-        RB.initialize = function (s) {
-          RB.source = s;
-        };
-        const a = d.createElement('script');
-        a.type = 'text/javascript';
-        a.async = !0;
-        a.src = `https://${host}/assets/${library}.js`;
-        a.dataset.loader = LOAD_ORIGIN;
-        const f = d.getElementsByTagName('script')[0];
-        f.parentNode.insertBefore(a, f);
-      }
-    })(document, window.RB || {});
-    window.RB.disablePushState = true;
-    window.RB.queue = [];
-    window.RB.initialize(this.clientAuthId);
+    loadNativeSdk(this.customDomain, this.enableCookieSync, this.clientAuthId);
   }
 
   isLoaded() {

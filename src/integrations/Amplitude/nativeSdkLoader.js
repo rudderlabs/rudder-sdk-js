@@ -1,8 +1,6 @@
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
-// START-NO-SONAR-SCAN
-/* eslint-disable */
 
-function loader(e, t) {
+function loadNativeSdk(e, t) {
   var n = e.amplitude || { _q: [], _iq: {} };
   var r = t.createElement('script');
   r.type = 'text/javascript';
@@ -110,7 +108,5 @@ function loader(e, t) {
   e.amplitude = n;
 }
 window, document;
-/* eslint-enable */
-// END-NO-SONAR-SCAN
 
-export { loader };
+export { loadNativeSdk };

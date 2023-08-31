@@ -1,19 +1,12 @@
+/* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
+import { NAME } from './constants';
+import { eventsConfig } from './config';
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
-
-import {
-  isReservedName,
-  sendUserIdToGA4,
-  getPageViewProperty,
-  hasRequiredParameters,
-  getDestinationEventName,
-  getDestinationEventProperties,
-  getDestinationItemProperties,
-} from './utils';
-import { NAME } from './constants';
 import { Cookie } from '../../utils/storage/cookie';
-import { type, flattenJsonPayload } from '../../utils/utils';
+import { constructPayload, flattenJsonPayload } from '../../utils/utils';
+import { shouldSendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -25,16 +18,19 @@ export default class GA4 {
     this.sessionId = '';
     this.sessionNumber = '';
     this.cookie = Cookie;
+    this.sendUserId = true;
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.extendPageViewParams = config.extendPageViewParams || false;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript(measurementId) {
@@ -42,7 +38,6 @@ export default class GA4 {
     window.gtag =
       window.gtag ||
       function gt() {
-        // eslint-disable-next-line prefer-rest-params
         window.dataLayer.push(arguments);
       };
     window.gtag('js', new Date());
@@ -51,8 +46,10 @@ export default class GA4 {
     if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
-    // Setting the userId as a part of configuration
-    if (sendUserIdToGA4(this.analytics.loadOnlyIntegrations) && this.analytics.getUserId()) {
+
+    // Setting the userId as part of the configuration
+    this.sendUserId = shouldSendUserId(this.analytics.loadOnlyIntegrations);
+    if (this.sendUserId && this.analytics.getUserId()) {
       gtagParameterObject.user_id = this.analytics.getUserId();
     }
 
@@ -106,9 +103,10 @@ export default class GA4 {
       window.gtag('config', measurementId, gtagParameterObject);
     }
 
-    // If userTraits available, setting it as a part of global gtag object
-    if (this.analytics.getUserTraits()) {
-      window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
+    // Set user traits as part of global gtag object
+    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
+    if (Object.keys(userTraits).length > 0) {
+      window.gtag('set', 'user_properties', userTraits);
     }
 
     /**
@@ -135,8 +133,6 @@ export default class GA4 {
     this.loadScript(this.measurementId);
   }
 
-  /* utility functions ---Start here ---  */
-
   /**
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
@@ -148,92 +144,21 @@ export default class GA4 {
     return this.isLoaded();
   }
 
-  /* utility functions --- Ends here ---  */
-
   /**
-   * Function to get destination properties for both event parameters and items array if present
-   * For top level properties, include only those properties that are in the includeList
-   * @param {*} properties
-   * @param {*} hasItem
-   * @param {*} products
-   * @param {*} includeList
+   *
+   * @param {*} rudderElement
    */
-  getdestinationProperties(properties, hasItem, products, includeList) {
-    let destinationProperties = {};
-    destinationProperties = getDestinationEventProperties(
-      properties,
-      includeList,
-      'properties',
-      hasItem,
-    );
+  identify(rudderElement) {
+    logger.debug('In Google Analytics 4 Identify');
 
-    if (hasItem) {
-      // only for events where GA requires an items array to be sent
-      // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
-      if (products && type(products) !== 'array') {
-        logger.debug("Event payload doesn't have products array");
-      }
-      destinationProperties.items = getDestinationItemProperties(
-        products || properties,
-        destinationProperties.items,
-      );
-    }
+    const { message } = rudderElement;
+    const { traits } = message.context;
+    window.gtag('set', 'user_properties', flattenJsonPayload(traits));
 
-    return destinationProperties;
-  }
-
-  /**
-   * Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
-   * @param {*} params
-   * @param {*} properties
-   */
-  getIncludedParameters(params, properties) {
-    const destinationProperties = {};
-    if (type(params) === 'object') {
-      const { defaults, mappings } = params;
-      if (type(defaults) === 'object') {
-        Object.keys(defaults).forEach((key) => {
-          destinationProperties[key] = defaults[key];
-        });
-      }
-      if (type(mappings) === 'object') {
-        Object.keys(mappings).forEach((key) => {
-          destinationProperties[mappings[key]] = properties[key];
-        });
-      }
+    if (this.sendUserId && message.userId) {
+      const { userId } = message;
+      window.gtag('config', this.measurementId, { user_id: userId });
     }
-    return destinationProperties;
-  }
-
-  sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj, integrations) {
-    if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
-      throw Error('Payload must have required parameters..');
-    }
-    const params = { ...parameters };
-    params.send_to = this.measurementId;
-    if (sendUserIdToGA4(integrations) && this.analytics.getUserId()) {
-      params.user_id = this.analytics.getUserId();
-    }
-    window.gtag('event', event, params);
-  }
-
-  handleEventMapper(eventMappingObj, properties, products, integrations) {
-    let destinationProperties = {};
-    const event = eventMappingObj.dest;
-    if (eventMappingObj.onlyIncludeParams) {
-      /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
-       */
-      const includeParams = eventMappingObj.onlyIncludeParams;
-      destinationProperties = this.getIncludedParameters(includeParams, properties);
-    } else {
-      destinationProperties = this.getdestinationProperties(
-        properties,
-        eventMappingObj.hasItem,
-        products,
-        eventMappingObj.includeList,
-      );
-    }
-    this.sendGAEvent(event, destinationProperties, true, eventMappingObj, integrations);
   }
 
   /**
@@ -246,95 +171,90 @@ export default class GA4 {
       return;
     }
 
-    logger.debug('In GoogleAnalyticsManager Track');
-    const { event } = rudderElement.message;
-    const { properties, integrations } = rudderElement.message;
-    const { products } = properties;
-    if (!event || isReservedName(event)) {
-      throw Error('Cannot call un-named/reserved named track event');
+    logger.debug('In Google Analytics 4 Track');
+
+    const { message } = rudderElement;
+
+    const eventName = formatAndValidateEventName(message?.event);
+    if (!eventName) {
+      logger.error('Event name is required');
+      return;
     }
-    // get GA4 event name and corresponding configs defined to add properties to that event
-    const eventMappingArray = getDestinationEventName(event);
-    if (eventMappingArray && eventMappingArray.length > 0) {
-      eventMappingArray.forEach((events) => {
-        this.handleEventMapper(events, properties, products, integrations);
-      });
-    } else {
-      this.sendGAEvent(event, flattenJsonPayload(properties), false, {}, integrations);
+
+    const data = prepareParamsAndEventName(message, eventName);
+    if (!data) {
+      return;
     }
+
+    const { params, event } = data;
+    const parameters = this.addSendToAndMeasurementIdToPayload(params, rudderElement);
+
+    window.gtag('event', event, parameters);
   }
 
-  identify(rudderElement) {
-    logger.debug('In GoogleAnalyticsManager Identify');
-
-    window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.getUserTraits()));
-    // Setting the userId as a part of configuration
-    if (sendUserIdToGA4(rudderElement.message.integrations) && rudderElement.message.userId) {
-      const { userId } = rudderElement.message;
-      if (this.capturePageView === 'rs') {
-        window.gtag('config', this.measurementId, {
-          user_id: userId,
-          send_page_view: false,
-        });
-      } else {
-        window.gtag('config', this.measurementId, {
-          user_id: userId,
-        });
-      }
-    }
-  }
-
+  /**
+   *
+   * @param {*} rudderElement
+   */
   page(rudderElement) {
-    logger.debug('In GoogleAnalyticsManager Page');
+    logger.debug('In Google Analytics 4 Page');
 
     if (this.capturePageView === 'rs') {
-      let pageProps = rudderElement.message.properties;
-      if (!pageProps) return;
-      pageProps = flattenJsonPayload(pageProps);
-      const properties = { ...getPageViewProperty(pageProps) };
-      properties.send_to = this.measurementId;
-      if (sendUserIdToGA4(rudderElement.message.integrations) && this.analytics.getUserId()) {
-        properties.user_id = this.analytics.getUserId();
-      }
+      const { message } = rudderElement;
+      const { properties } = message;
+
+      let payload = constructPayload(message, eventsConfig.PAGE.mapping);
+      payload = this.addSendToAndMeasurementIdToPayload(payload, rudderElement);
+
       if (this.extendPageViewParams) {
         window.gtag('event', 'page_view', {
-          ...pageProps,
-          ...properties,
+          ...flattenJsonPayload(properties),
+          ...payload,
         });
       } else {
-        window.gtag('event', 'page_view', properties);
+        window.gtag('event', 'page_view', payload);
       }
     }
   }
 
+  /**
+   *
+   * @param {*} rudderElement
+   * @returns
+   */
   group(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
       return;
     }
 
-    logger.debug('In GoogleAnalyticsManager Group');
-    const { groupId } = rudderElement.message;
-    const { traits, integrations } = rudderElement.message;
-    traits.send_to = this.measurementId;
+    logger.debug('In Google Analytics 4 Group');
 
-    getDestinationEventName(rudderElement.message.type).forEach((events) => {
-      this.sendGAEvent(
-        events.dest,
-        {
-          group_id: groupId,
-          ...traits,
-        },
-        false,
-        {},
-        integrations,
-      );
-    });
+    const { groupId, traits } = rudderElement.message;
+    let payload = traits;
+    payload = this.addSendToAndMeasurementIdToPayload(payload, rudderElement);
+
+    const eventData = {
+      group_id: groupId,
+      ...payload,
+    };
+
+    window.gtag('event', 'join_group', eventData);
+  }
+
+  addSendToAndMeasurementIdToPayload(params, rudderElement) {
+    const { message } = rudderElement;
+    const { userId } = message;
+    const parameters = params;
+    parameters.send_to = this.measurementId;
+    if (this.sendUserId && userId) {
+      parameters.user_id = userId;
+    }
+    return parameters;
   }
 
   getDataForIntegrationsObject() {
     return {
-      'Google Analytics 4': {
+      'Google Analytics 4 (GA4)': {
         clientId: this.clientId,
         sessionId: this.sessionId,
         sessionNumber: this.sessionNumber,

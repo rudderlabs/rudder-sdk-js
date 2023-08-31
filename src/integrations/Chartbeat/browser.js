@@ -1,3 +1,5 @@
+/* eslint-disable compat/compat */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import onBody from 'on-body';
 import logger from '../../utils/logUtil';
@@ -6,7 +8,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '../../utils/constants';
 import { NAME } from './constants';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class Chartbeat {
   constructor(config, analytics, destinationInfo) {
@@ -14,10 +16,11 @@ class Chartbeat {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
-    this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
+    window._sf_async_config = window._sf_async_config || {};
     window._sf_async_config.useCanonical = true;
     window._sf_async_config.uid = config.uid;
     window._sf_async_config.domain = config.domain;
+    this._sf_async_config = window._sf_async_config;
     this.isVideo = !!config.video;
     this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
     this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
@@ -25,21 +28,31 @@ class Chartbeat {
     this.failed = false;
     this.isFirstPageCallMade = false;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===in init Chartbeat===');
   }
 
-  identify(rudderElement) {
-    logger.debug('in Chartbeat identify');
+  isLoaded() {
+    logger.debug('in Chartbeat isLoaded');
+    if (!this.isFirstPageCallMade) {
+      return true;
+    }
+    return !!window.pSUPERFLY;
   }
 
-  track(rudderElement) {
-    logger.debug('in Chartbeat track');
+  isFailed() {
+    return this.failed;
+  }
+
+  isReady() {
+    return !!window.pSUPERFLY;
   }
 
   page(rudderElement) {
@@ -66,22 +79,6 @@ class Chartbeat {
     }
   }
 
-  isLoaded() {
-    logger.debug('in Chartbeat isLoaded');
-    if (!this.isFirstPageCallMade) {
-      return true;
-    }
-    return !!window.pSUPERFLY;
-  }
-
-  isFailed() {
-    return this.failed;
-  }
-
-  isReady() {
-    return !!window.pSUPERFLY;
-  }
-
   loadConfig(rudderElement) {
     const { properties } = rudderElement.message;
     const category = properties ? properties.category : undefined;
@@ -95,29 +92,24 @@ class Chartbeat {
     if (author) window._sf_async_config.authors = author;
     if (title) window._sf_async_config.title = title;
 
-    const _cbq = (window._cbq = window._cbq || []);
+    window._cbq = window._cbq || [];
+    const { _cbq } = window;
 
-    for (const key in properties) {
-      if (!properties.hasOwnProperty(key)) continue;
-      if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+    Object.keys(properties)
+      .filter(
+        (key) =>
+          Object.prototype.hasOwnProperty.call(properties, key) &&
+          this.subscriberEngagementKeys.includes(key),
+      )
+      .forEach((key) => {
         _cbq.push([key, properties[key]]);
-      }
-    }
+      });
   }
 
   initAfterPage() {
     onBody(() => {
       const script = this.isVideo ? 'chartbeat_video.js' : 'chartbeat.js';
-      function loadChartbeat() {
-        const e = document.createElement('script');
-        const n = document.getElementsByTagName('script')[0];
-        e.type = 'text/javascript';
-        e.async = true;
-        e.src = `//static.chartbeat.com/js/${script}`;
-        e.setAttribute('data-loader', LOAD_ORIGIN);
-        n.parentNode.insertBefore(e, n);
-      }
-      loadChartbeat();
+      loadNativeSdk(script);
     });
 
     this._isReady(this).then((instance) => {
@@ -139,16 +131,16 @@ class Chartbeat {
       if (this.isLoaded()) {
         this.failed = false;
         logger.debug('===chartbeat loaded successfully===');
-        return resolve(instance);
+        resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
         logger.debug('===chartbeat failed===');
-        return resolve(instance);
+        resolve(instance);
       }
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>
+        this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve),
+      );
     });
   }
 }

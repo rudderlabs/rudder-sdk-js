@@ -13,9 +13,11 @@ class Vero {
     this.analytics = analytics;
     this.apiKey = config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -43,17 +45,17 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    const { integrations } = message;
-    if (integrations && integrations[NAME]) {
+    const { integrations, anonymousId, userId } = message;
+    if (integrations?.[NAME]) {
       const { tags } = integrations[NAME];
       if (isDefinedAndNotNull(tags)) {
-        const userId = message.userId || message.anonymousId;
+        const id = userId || anonymousId;
         const addTags = Array.isArray(tags.add) ? tags.add : [];
         const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
         window._veroq.push([
           'tags',
           {
-            id: userId,
+            id,
             add: addTags,
             remove: removeTags,
           },
@@ -95,18 +97,18 @@ class Vero {
     logger.debug('=== In Vero track ===');
 
     const { message } = rudderElement;
-    const { event, properties } = message;
+    const { event, properties, anonymousId, userId } = message;
     if (!event) {
       logger.error('[Vero]: Event name from track call is missing!!===');
       return;
     }
-    const userId = message.userId || message.anonymousId;
+    const id = userId || anonymousId;
     switch (event.toLowerCase()) {
       case 'unsubscribe':
-        window._veroq.push(['unsubscribe', userId]);
+        window._veroq.push(['unsubscribe', id]);
         break;
       case 'resubscribe':
-        window._veroq.push(['resubscribe', userId]);
+        window._veroq.push(['resubscribe', id]);
         break;
       default:
         window._veroq.push(['track', event, properties]);

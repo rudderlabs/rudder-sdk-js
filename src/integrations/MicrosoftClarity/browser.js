@@ -1,7 +1,8 @@
-/* eslint-disable */
+/* eslint-disable class-methods-use-this */
+
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class MicrosoftClarity {
@@ -13,28 +14,15 @@ class MicrosoftClarity {
     this.name = NAME;
     this.projectId = config.projectId;
     this.cookieConsent = config.cookieConsent;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {
-    (function (c, l, a, r, i, t, y) {
-      c[a] =
-        c[a] ||
-        function () {
-          (c[a].q = c[a].q || []).push(arguments);
-        };
-      t = l.createElement(r);
-      t.async = 1;
-      t.src = 'https://www.clarity.ms/tag/' + i;
-      t.setAttribute('data-loader', LOAD_ORIGIN);
-      y = l.getElementsByTagName(r)[0];
-      y.parentNode.insertBefore(t, y);
-    })(window, document, 'clarity', 'script', this.projectId);
-    if (this.cookieConsent) {
-      window.clarity('consent');
-    }
+    loadNativeSdk(this.cookieConsent, this.projectId);
   }
 
   init() {

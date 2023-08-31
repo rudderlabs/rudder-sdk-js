@@ -2,10 +2,10 @@
 /* eslint-disable class-methods-use-this */
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { recordingLiveChatEvents } from './utils';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { getDefinedTraits } from '../../utils/utils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(NAME);
 class Olark {
@@ -20,37 +20,15 @@ class Olark {
     this.standardToEvent = config.standardToEvent;
     this.updateEventNames = config.updateEventNames;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {
-    (function (o, l, a, r, k, y) {
-      if (o.olark) return;
-      r = 'script';
-      y = l.createElement(r);
-      r = l.getElementsByTagName(r)[0];
-      y.async = 1;
-      y.src = '//' + a;
-      y.setAttribute('data-loader', LOAD_ORIGIN);
-      r.parentNode.insertBefore(y, r);
-      y = o.olark = function () {
-        k.s.push(arguments);
-        k.t.push(+new Date());
-      };
-      y.extend = function (i, j) {
-        y('extend', i, j);
-      };
-      y.identify = function (i) {
-        y('identify', (k.i = i));
-      };
-      y.configure = function (i, j) {
-        y('configure', i, j);
-        k.c[i] = j;
-      };
-      k = y._ = { s: [], t: [+new Date()], c: {}, l: a };
-    })(window, document, 'static.olark.com/jsclient/loader.js');
+    loadNativeSdk();
     /* custom configuration goes here (www.olark.com/documentation) */
     window.olark.identify(this.siteId);
 

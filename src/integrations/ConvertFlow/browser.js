@@ -16,9 +16,11 @@ class ConvertFlow {
     this.eventsList = config.eventsList;
     this.eventsMappping = config.eventsMappping;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -42,7 +44,6 @@ class ConvertFlow {
     return !!window.convertflow;
   }
 
-  // identify call to Convertflow
   identify(rudderElement) {
     logger.debug('===In convertflow Identify===');
     const { message } = rudderElement;

@@ -63,6 +63,7 @@ import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 import { getUserAgentClientHint } from '../utils/clientHint';
 import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
+import { isNonEmptyObject } from '../utils/ObjectUtils';
 
 /**
  * class responsible for handling core
@@ -256,7 +257,10 @@ class Analytics {
             name: destination.destinationDefinition.name,
             config: destination.config,
             destinationInfo: {
-              areTransformationsConnected: destination.areTransformationsConnected || false,
+              shouldApplyDeviceModeTransformation:
+                destination.shouldApplyDeviceModeTransformation || false,
+              propagateEventsUntransformedOnError:
+                destination.propagateEventsUntransformedOnError || false,
               destinationId: destination.id,
             },
           });
@@ -396,57 +400,100 @@ class Analytics {
     }
   }
 
+  /**
+   * A function that gets the transformed event and
+   * depending on the response either send the transformed/untransformed event to destination or just log error.
+   * @param {Array} destWithTransformation   List of device mode destination that has transformation connected
+   * @param {Object} rudderElement           Rudder event
+   * @param {string} methodName              Type of event page/track/identify etc.
+   */
   sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName) {
     try {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
-
+      const destinationIds = destWithTransformation.map((e) => e.destinationId);
       // Process Transformation
       this.transformationHandler.enqueue(
         rudderElement,
-        ({ transformedPayload, transformationServerAccess }) => {
-          if (transformedPayload) {
-            destWithTransformation.forEach((intg) => {
-              try {
-                let transformedEvents = [];
-                if (transformationServerAccess) {
-                  // filter the transformed event for that destination
+        destinationIds,
+        ({ status, transformedPayload, errorMessage }) => {
+          destWithTransformation.forEach((intg) => {
+            try {
+              switch (status) {
+                // The transformation request is successful
+                case 200: {
+                  // filter destination specific transformed payload
                   const destTransformedResult = transformedPayload.find(
                     (e) => e.id === intg.destinationId,
                   );
-                  if (!destTransformedResult) {
-                    logger.error(
-                      `[DMT]::Transformed data for destination "${intg.name}" was not sent from the server`,
-                    );
-                    return;
-                  }
-
+                  const eventsToSend = [];
                   destTransformedResult?.payload.forEach((tEvent) => {
+                    // Transformation successful
+                    // event level status is 200
                     if (tEvent.status === '200') {
-                      transformedEvents.push(tEvent);
+                      // push transformed event to the queue
+                      eventsToSend.push(tEvent);
                     } else {
-                      logger.error(
-                        `[DMT]::Event transformation unsuccessful for destination "${intg.name}". Dropping the event. Status: "${tEvent.status}". Error Message: "${tEvent.error}"`,
-                      );
+                      const msgPrefix = `[DMT]:: Event transformation unsuccessful for destination "${intg.name}". Reason: `;
+
+                      let reason = 'Unknown';
+                      if (tEvent.status === '410') {
+                        reason = 'Transformation is not available';
+                      }
+
+                      let action = 'Dropping the event';
+                      let logMethod = logger.error;
+                      if (intg.propagateEventsUntransformedOnError === true) {
+                        action = 'Sending untransformed event to the destination';
+                        logMethod = logger.warn;
+                        eventsToSend.push({ event: rudderElement.message });
+                      }
+
+                      const logMsg = `${msgPrefix} ${reason}. ${action}.`;
+                      logMethod(logMsg);
                     }
                   });
-                } else {
-                  transformedEvents = transformedPayload;
+                  // send events to destination
+                  eventsToSend?.forEach((tEvent) => {
+                    // send only if the event is not null/undefined/empty object
+                    if (isNonEmptyObject(tEvent.event)) {
+                      this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                    }
+                  });
+                  break;
                 }
-                // send transformed event to destination
-                transformedEvents?.forEach((tEvent) => {
-                  if (tEvent.event) {
-                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                // Transformation server access denied
+                case 404: {
+                  logger.warn(
+                    `[DMT]:: Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`,
+                  );
+                  // send untransformed event to destination
+                  this.sendDataToDestination(intg, rudderElement, methodName);
+                  break;
+                }
+                // For any other cases
+                default: {
+                  if (intg.propagateEventsUntransformedOnError === true) {
+                    logger.warn(
+                      `[DMT]::[Destination: ${intg.name}] :: Transformation request failed with status: ${status} ${errorMessage}. Sending untransformed event.`,
+                    );
+                    // send untransformed event to destination
+                    this.sendDataToDestination(intg, rudderElement, methodName);
+                  } else {
+                    logger.error(
+                      `[DMT]::[Destination: ${intg.name}] :: Transformation request failed with status: ${status} ${errorMessage}. Dropping the event.`,
+                    );
                   }
-                });
-              } catch (e) {
-                if (e instanceof Error) {
-                  e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+                  break;
                 }
-                handleError(e);
               }
-            });
-          }
+            } catch (e) {
+              if (e instanceof Error) {
+                e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+              }
+              handleError(e);
+            }
+          });
         },
       );
     } catch (e) {
@@ -474,7 +521,7 @@ class Analytics {
 
       // Block the event if it is blacklisted for the device-mode destination
       if (sendEvent) {
-        if (intg.areTransformationsConnected) {
+        if (intg.shouldApplyDeviceModeTransformation) {
           destWithTransformation.push(intg);
         } else {
           destWithoutTransformation.push(intg);
@@ -1309,7 +1356,9 @@ class Analytics {
         !Object.entries ||
         !Object.values ||
         !String.prototype.replaceAll ||
-        !this.isDatasetAvailable())
+        !this.isDatasetAvailable() ||
+        typeof TextDecoder !== 'function' ||
+        typeof Uint8Array !== 'function')
     );
   }
 
@@ -1418,7 +1467,9 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      isNonNativeSDK: true,
+    });
   }
 
   /**

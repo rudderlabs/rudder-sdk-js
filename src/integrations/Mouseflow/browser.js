@@ -13,9 +13,11 @@ class Mouseflow {
     this.analytics = analytics;
     this.websiteId = config.websiteId;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -48,9 +50,10 @@ class Mouseflow {
   identify(rudderElement) {
     logger.debug('===In mouseflow Identify===');
     const { message } = rudderElement;
-    const { traits } = message.context;
-    const email = message.context.traits?.email || message.traits?.email;
-    const userId = message.userId || email || message.anonymousId;
+    const { context, traits: rootLevelTraits, anonymousId } = message;
+    const { traits } = context;
+    const email = traits?.email || rootLevelTraits?.email;
+    const userId = message?.userId || email || anonymousId;
     window._mfq.push(['stop']);
     if (userId) window.mouseflow.identify(userId);
     window.mouseflow.start();

@@ -1,7 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class CustomerIO {
   constructor(config, analytics, destinationInfo) {
@@ -11,46 +12,30 @@ class CustomerIO {
     this.analytics = analytics;
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
+    this.datacenterEU = config.datacenterEU;
+    this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===in init Customer IO init===');
-    window._cio = window._cio || [];
-    const { siteID } = this;
-    (function () {
-      let a;
-      let b;
-      let c;
-      a = function (f) {
-        return function () {
-          window._cio.push([f].concat(Array.prototype.slice.call(arguments, 0)));
-        };
-      };
-      b = ['load', 'identify', 'sidentify', 'track', 'page'];
-      for (c = 0; c < b.length; c++) {
-        window._cio[b[c]] = a(b[c]);
-      }
-      const t = document.createElement('script');
-      const s = document.getElementsByTagName('script')[0];
-      t.async = true;
-      t.setAttribute('data-loader', LOAD_ORIGIN);
-      t.id = 'cio-tracker';
-      t.setAttribute('data-site-id', siteID);
-      t.src = 'https://assets.customer.io/assets/track.js';
-      s.parentNode.insertBefore(t, s);
-    })();
+    const { siteID, datacenterEU } = this;
+    loadNativeSdk(siteID, datacenterEU);
   }
 
   identify(rudderElement) {
     logger.debug('in Customer IO identify');
-    const userId = rudderElement.message.userId
-      ? rudderElement.message.userId
-      : rudderElement.message.anonymousId;
-    const traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
+    const { userId, context } = rudderElement.message;
+    const { traits } = context || {};
+    if(!userId){
+      logger.error('userId is required for Identify call.');
+      return;
+    }
     const createAt = traits.createdAt;
     if (createAt) {
       traits.created_at = Math.floor(new Date(createAt).getTime() / 1000);
@@ -69,9 +54,12 @@ class CustomerIO {
 
   page(rudderElement) {
     logger.debug('in Customer IO page');
-
-    const name = rudderElement.message.name || rudderElement.message.properties.url;
-    window._cio.page(name, rudderElement.message.properties);
+    if (this.sendPageNameInSDK === false) {
+      window._cio.page(rudderElement.message.properties);
+    } else {
+      const name = rudderElement.message.name || rudderElement.message.properties.url;
+      window._cio.page(name, rudderElement.message.properties);
+    }
   }
 
   isLoaded() {

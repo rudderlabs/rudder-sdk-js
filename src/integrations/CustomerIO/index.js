@@ -1,3 +1,1 @@
-import { CustomerIO } from './browser';
-
-export { CustomerIO };
+export { CustomerIO } from './browser';

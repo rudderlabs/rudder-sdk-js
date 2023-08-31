@@ -5,6 +5,7 @@ import get from 'get-value';
 import logger from '../logUtil';
 import { Cookie } from './cookie';
 import { Store } from './store';
+import { fromBase64 } from './v3DecryptionUtils';
 
 const defaults = {
   user_storage_key: 'rl_user_id',
@@ -17,6 +18,7 @@ const defaults = {
   session_info: 'rl_session',
   auth_token: 'rl_auth_token',
   prefix: 'RudderEncrypt:',
+  prefixV3: 'RS_ENC_v3_', // prefix for v3 encryption
   key: 'Rudder',
 };
 
@@ -64,6 +66,11 @@ function decryptValue(value) {
   }
   if (value.substring(0, defaults.prefix.length) === defaults.prefix) {
     return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
+  }
+
+  // Try if it is v3 encrypted value
+  if (value.substring(0, defaults.prefixV3.length) === defaults.prefixV3) {
+    return fromBase64(value.substring(defaults.prefixV3.length));
   }
   return value;
 }

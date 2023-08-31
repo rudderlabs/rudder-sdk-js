@@ -1,16 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable prefer-spread */
-/* eslint-disable no-multi-assign */
-/* eslint-disable func-names */
-/* eslint-disable no-var */
-/* eslint-disable vars-on-top */
-/* eslint-disable no-unused-expressions */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -21,29 +14,17 @@ class RedditPixel {
     this.advertiserId = config.advertiserId;
     this.name = NAME;
     this.eventMappingFromConfig = config.eventMappingFromConfig;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
     logger.debug('===In init RedditPixel===');
 
-    !(function (w, d) {
-      if (!w.rdt) {
-        var p = (w.rdt = function () {
-          p.sendEvent ? p.sendEvent.apply(p, arguments) : p.callQueue.push(arguments);
-        });
-        p.callQueue = [];
-        var t = d.createElement('script');
-        (t.src = 'https://www.redditstatic.com/ads/pixel.js'), (t.async = !0);
-        t.setAttribute('data-loader', LOAD_ORIGIN);
-        var s = d.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(t, s);
-      }
-    })(window, document);
-
-    window.rdt('init', this.advertiserId);
+    loadNativeSdk(this.advertiserId);
   }
 
   isLoaded() {

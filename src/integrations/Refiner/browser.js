@@ -1,7 +1,7 @@
-/* eslint-disable */
+/* eslint-disable no-underscore-dangle */
 import logger from '../../utils/logUtil';
-import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { loadNativeSdk } from './nativeSdkLoader';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
 
 class Refiner {
@@ -14,26 +14,15 @@ class Refiner {
     this.apiKey = config.webClientApiKey;
     this.userAttributesMapping = config.userAttributesMapping;
     this.accountAttributesMapping = config.accountAttributesMapping;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   loadScript() {
-    window._refinerQueue = window._refinerQueue || [];
-    this._refiner = function () {
-      window._refinerQueue.push(arguments);
-    };
-    (function () {
-      var a = document.createElement('script');
-      a.setAttribute('data-loader', LOAD_ORIGIN);
-      a.type = 'text/javascript';
-      a.async = !0;
-      a.src = 'https://js.refiner.io/v001/client.js';
-      var b = document.getElementsByTagName('script')[0];
-      b.parentNode.insertBefore(a, b);
-    })();
-    this._refiner('setProject', this.apiKey);
+    loadNativeSdk(this.apiKey);
   }
 
   init() {
@@ -55,7 +44,7 @@ class Refiner {
     logger.debug('===In Refiner Identify===');
     const { message } = rudderElement;
     const { userId, traits, context } = message;
-    const email = message.traits?.email || message.context?.traits?.email;
+    const email = traits?.email || context?.traits?.email;
     if (!userId && !email) {
       logger.error('either one userId or email is required');
       return;
@@ -75,14 +64,25 @@ class Refiner {
   track(rudderElement) {
     logger.debug('===In Refiner track===');
     const { event } = rudderElement.message;
+
+    if (!event) {
+      logger.error('Event name not present');
+      return;
+    }
+
+    if (typeof event !== 'string') {
+      logger.error('Event name should be string');
+      return;
+    }
+
     this._refiner('trackEvent', event);
   }
 
   group(rudderElement) {
     logger.debug('===In Refiner Group===');
     const { message } = rudderElement;
-    const { userId, groupId, traits } = message;
-    const userEmail = message.context?.traits?.email;
+    const { userId, groupId, traits, context } = message;
+    const userEmail = context?.traits?.email;
     if (!userId && !userEmail) {
       logger.error('either one userId or email is required');
       return;

@@ -1,3 +1,5 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
@@ -30,9 +32,11 @@ class Podsights {
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -94,9 +98,9 @@ class Podsights {
     let events = [];
     const customEvent = eventsMappingFromCustomEvents[trimmedEvent] || [];
     const standardEvents = eventMappingFromStandardEvents[trimmedEvent] || [];
-    if (customEvent.length !== 0) {
+    if (customEvent.length > 0) {
       events = customEvent;
-    } else if (standardEvents.length !== 0) {
+    } else if (standardEvents.length > 0) {
       events = standardEvents;
     } else {
       logger.error(`===No Podsights Pixel mapped event found. Aborting!===`);
@@ -155,9 +159,9 @@ class Podsights {
    * @param {Page} page
    */
   page(rudderElement) {
-    const { properties } = rudderElement.message;
+    const { properties, context } = rudderElement.message;
     logger.debug('===In Podsights Page===');
-    const { page } = rudderElement.message.context;
+    const { page } = context;
     let payload = properties;
     if (page) {
       payload = {

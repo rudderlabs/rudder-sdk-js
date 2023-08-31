@@ -21,9 +21,11 @@ class Adroll {
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
     this.eventsMap = config.eventsMap || [];
-    this.areTransformationsConnected =
-      destinationInfo && destinationInfo.areTransformationsConnected;
-    this.destinationId = destinationInfo && destinationInfo.destinationId;
+    ({
+      shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
+      propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
+      destinationId: this.destinationId,
+    } = destinationInfo ?? {});
   }
 
   init() {
@@ -81,7 +83,7 @@ class Adroll {
       data.adroll_segments = segmentId;
       window.__adroll.record_user(data);
     } else {
-      logger.error(`The event ${message.event} is not mapped to any segmentId. Aborting!`);
+      logger.error(`The event ${event} is not mapped to any segmentId. Aborting!`);
     }
   }
   // record_user fires the correct pixel in accordance with the event configured in the dashboard
