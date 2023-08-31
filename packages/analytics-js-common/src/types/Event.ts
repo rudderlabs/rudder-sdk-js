@@ -30,6 +30,7 @@ export type RudderContext = {
   locale: Nullable<string>;
   screen: ScreenInfo;
   campaign?: UTMParameters;
+  trulyAnonymousTracking?: boolean;
 };
 
 export type RudderEvent = {

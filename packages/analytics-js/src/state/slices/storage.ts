@@ -5,6 +5,9 @@ const storageState: StorageState = {
   encryptionPluginName: signal(undefined),
   migrate: signal(false),
   type: signal(undefined),
+  cookie: signal(undefined),
+  entries: signal({}),
+  trulyAnonymousTracking: signal(false),
 };
 
 export { storageState };

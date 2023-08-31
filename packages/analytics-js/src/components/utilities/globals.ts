@@ -1,5 +1,5 @@
-import { DEBOUNCED_TIMEOUT_MS } from '@rudderstack/analytics-js/constants/timeouts';
 import { DebouncedFunction } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { DEBOUNCED_TIMEOUT_MS } from '../../constants/timeouts';
 import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
 
 /**

@@ -10,7 +10,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { POLYFILL_SCRIPT_LOAD_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { POLYFILL_SCRIPT_LOAD_ERROR } from '../../constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import { state } from '../../state';

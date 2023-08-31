@@ -1,11 +1,12 @@
-import { IStore } from '@rudderstack/analytics-js-common/types/Store';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { userSessionStorageKeys } from './userSessionStorageKeys';
 
 export interface IUserSessionManager {
-  store?: IStore;
-  init(store: IStore | undefined): void;
+  storeManager?: IStoreManager;
+  init(): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;
   refreshSession(): void;
@@ -20,5 +21,6 @@ export interface IUserSessionManager {
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
   start(sessionId?: number): void;
   end(): void;
-  clearUserSessionStorage(resetAnonymousId?: boolean): void;
 }
+
+export type UserSessionStorageKeysType = keyof typeof userSessionStorageKeys;
