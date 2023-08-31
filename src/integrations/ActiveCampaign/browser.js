@@ -44,8 +44,8 @@ class ActiveCampaign {
     return !!window.vgo;
   }
 
-  page(rudderElement) {
-    window.vgo('process')
+  page() {
+    window.vgo('process');
   }
 }
 
