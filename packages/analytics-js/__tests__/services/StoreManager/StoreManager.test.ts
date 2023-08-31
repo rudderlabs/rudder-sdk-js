@@ -2,7 +2,7 @@ import {
   configureStorageEngines,
   getStorageEngine,
 } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
-import { state } from '@rudderstack/analytics-js/state';
+import { state, resetState } from '@rudderstack/analytics-js/state';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
@@ -10,6 +10,19 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import {
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  NO_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
+import {
+  entriesWithOnlyCookieStorage,
+  entriesWithOnlyLocalStorage,
+  entriesWithOnlyNoStorage,
+  entriesWithMixStorage,
+  loadOptionWithEntry,
+  loadOptionWithInvalidEntry,
+} from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
   __esModule: true,
@@ -33,6 +46,7 @@ describe('StoreManager', () => {
   );
 
   beforeEach(() => {
+    resetState();
     errorHandler = { onError: jest.fn() };
     logger = { error: jest.fn(), warn: jest.fn() };
     storeManager = new StoreManager(defaultPluginsManager, errorHandler, logger);
@@ -59,7 +73,7 @@ describe('StoreManager', () => {
         { enabled: true },
       );
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
     });
 
     it('should not initialize if already initialized', () => {
@@ -70,34 +84,77 @@ describe('StoreManager', () => {
   });
 
   describe('initClientDataStore', () => {
-    it('should initialize client data store using cookie storage', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: type === 'cookieStorage',
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
+    it('should initialize client data store for cookie,LS,memory storage', () => {
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
 
       storeManager.initClientDataStore();
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
+      expect(storeManager.stores).toHaveProperty('clientDataInLocalStorage');
+      expect(storeManager.stores).toHaveProperty('clientDataInMemory');
     });
 
-    it('should initialize client data store using local storage', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: type === 'localStorage',
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
-
+    it('should construct the storage entry state with default storage type if entries or global storage type not provided as load option', () => {
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
       storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
+    });
 
-      expect(storeManager.stores).toHaveProperty('clientData');
+    it('should construct the storage entry state with global storage type if only global storage type is provided as load option', () => {
+      state.storage.type.value = LOCAL_STORAGE;
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+      storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithOnlyLocalStorage);
+    });
+
+    it('should enable truly anonymous tracking if all the persisted data have storage type none', () => {
+      state.storage.type.value = NO_STORAGE;
+      storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithOnlyNoStorage);
+      expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+    });
+
+    it('should construct the storage entry state with global type and load option', () => {
+      state.storage.type.value = MEMORY_STORAGE;
+      state.loadOptions.value.storage.entries = loadOptionWithEntry;
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+      storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithMixStorage);
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+
+    it('should construct the valid storage entry state if invalid storage entry in load option', () => {
+      state.loadOptions.value.storage.entries = loadOptionWithInvalidEntry;
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+      storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
+      expect(logger.warn).toHaveBeenCalled();
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
 
     describe('Stores', () => {

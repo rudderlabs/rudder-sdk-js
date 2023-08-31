@@ -1,6 +1,12 @@
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
@@ -75,10 +81,18 @@ const generateManualTrackingSession = (id?: number, logger?: ILogger): SessionIn
   };
 };
 
+const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
+  !!(
+    storageType === COOKIE_STORAGE ||
+    storageType === LOCAL_STORAGE ||
+    storageType === MEMORY_STORAGE
+  );
+
 export {
   hasSessionExpired,
   generateSessionId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
   MIN_SESSION_ID_LENGTH,
+  isStorageTypeValidForStoringData,
 };

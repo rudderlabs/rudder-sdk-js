@@ -1,6 +1,6 @@
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
+import { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_DATA_ENCODING_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 

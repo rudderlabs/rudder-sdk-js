@@ -235,7 +235,7 @@ describe('Event Manager - Utilities', () => {
     it('should return processed event if the event processor plugin is registered', () => {
       defaultPluginsManager.registerLocalPlugins();
       batch(() => {
-        state.session.anonymousUserId.value = 'anon_id';
+        state.session.anonymousId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
         state.session.userId.value = 'user_id';
         state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
@@ -960,7 +960,7 @@ describe('Event Manager - Utilities', () => {
 
     it('should return common event data using the data in state', () => {
       batch(() => {
-        state.session.anonymousUserId.value = 'anon_id';
+        state.session.anonymousId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
         state.session.userId.value = 'user_id';
         state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;

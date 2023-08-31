@@ -2,8 +2,7 @@ import { IErrorHandler } from './ErrorHandler';
 import { ILogger } from './Logger';
 import { IPluginsManager } from './PluginsManager';
 import { Nullable } from './Nullable';
-import { CookieSameSite } from './LoadOptions';
-import { StorageType } from './Storage';
+import { StorageType, CookieOptions, CookieSameSite } from './Storage';
 
 export type StoreId = string;
 
@@ -76,12 +75,3 @@ export interface ILocalStorageOptions {
 export interface IInMemoryStorageOptions {
   enabled?: boolean;
 }
-
-export type CookieOptions = {
-  maxage?: number;
-  expires?: Date;
-  path?: string;
-  domain?: string;
-  samesite?: string;
-  secure?: boolean;
-};

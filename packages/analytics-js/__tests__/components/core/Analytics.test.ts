@@ -3,6 +3,7 @@ import { resetState, state } from '@rudderstack/analytics-js/state';
 import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import { entriesWithOnlyCookieStorage } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -318,6 +319,7 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
     });
     it('should sent events if loaded', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
@@ -374,15 +376,10 @@ describe('Core - Analytics', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
-      const clearUserSessionStorageSpy = jest.spyOn(
-        analytics.userSessionManager,
-        'clearUserSessionStorage',
-      );
 
       analytics.reset(true);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
-      expect(clearUserSessionStorageSpy).toHaveBeenCalledTimes(0);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['reset', true]]);
     });
     it('should reset session if loaded', () => {
