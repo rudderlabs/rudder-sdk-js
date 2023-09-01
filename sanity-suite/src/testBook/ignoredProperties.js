@@ -134,15 +134,15 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: `message.integrations.Google Analytics 4.sessionId`,
+    key: `message.integrations.Google Analytics 4 (GA4).sessionId`,
     type: 'number',
   },
   {
-    key: `message.integrations.Google Analytics 4.clientId`,
+    key: `message.integrations.Google Analytics 4 (GA4).clientId`,
     type: 'string',
   },
   {
-    key: `message.integrations.Google Analytics 4.sessionNumber`,
+    key: `message.integrations.Google Analytics 4 (GA4).sessionNumber`,
     type: 'number',
   },
 ];
