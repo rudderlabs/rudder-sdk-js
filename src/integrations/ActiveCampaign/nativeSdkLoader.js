@@ -1,3 +1,5 @@
+import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+
 function loadNativeSdk(actId) {
   (function (e, t, o, n, p, r, i) {
     e.visitorGlobalObjectAlias = n;
@@ -10,6 +12,7 @@ function loadNativeSdk(actId) {
     r = t.createElement('script');
     r.src = o;
     r.async = true;
+    r.setAttribute('data-loader', LOAD_ORIGIN);
     i = t.getElementsByTagName('script')[0];
     i.parentNode.insertBefore(r, i);
   })(window, document, 'https://diffuser-cdn.app-us1.com/diffuser/diffuser.js', 'vgo');
