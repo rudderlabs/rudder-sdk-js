@@ -2,6 +2,7 @@
 import { NAME } from './constants';
 import logger from '../../utils/logUtil';
 import { loadNativeSdk } from './nativeSdkLoader';
+import get from "get-value";
 
 class ActiveCampaign {
   constructor(config, analytics, destinationInfo) {
@@ -37,7 +38,13 @@ class ActiveCampaign {
     return !!window.vgo;
   }
 
-  page() {
+  page(rudderElement) {
+    const { message } = rudderElement;
+    const email = get(message, 'context.traits.email') || get(message, 'traits.email');
+
+    if (email) {
+      window.vgo('setEmail', email);
+    }
     window.vgo('process');
   }
 }
