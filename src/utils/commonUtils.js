@@ -13,7 +13,7 @@ const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
 const removeNullValues = (obj) => _pickBy(obj, isNotNull);
 const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
 const removeUndefinedAndNullAndEmptyValues = (obj) => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
-const isBlank = (value) => _isEmpty(_toString(value));
+const isBlank = (value) => _isEmpty(_toString(value).trim());
 const pick = (argObj, argArr) => _pick(argObj, argArr);
 
 /**
@@ -74,12 +74,10 @@ const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = 
  * @param  {} timestamp
  * @param  {} return iso format of date
  */
-const toIso = (timestamp) => {
-  return new Date(timestamp).toISOString();
-};
+const toIso = (timestamp) => new Date(timestamp).toISOString();
 
 // function to flatten a json
-function flattenJson(data) {
+function flattenJson(data, separator = '.', mode = 'normal') {
   const result = {};
   let l;
 
@@ -90,7 +88,11 @@ function flattenJson(data) {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
       for (i = 0, l = cur.length; i < l; i += 1) {
-        recurse(cur[i], `${prop}[${i}]`);
+        if (mode === 'strict') {
+          recurse(cur[i], `${prop}${separator}${i}`);
+        } else {
+          recurse(cur[i], `${prop}[${i}]`);
+        }
       }
       if (l === 0) {
         result[prop] = [];
@@ -99,7 +101,7 @@ function flattenJson(data) {
       let isEmptyFlag = true;
       Object.keys(cur).forEach((key) => {
         isEmptyFlag = false;
-        recurse(cur[key], prop ? `${prop}.${key}` : key);
+        recurse(cur[key], prop ? `${prop}${separator}${key}` : key);
       });
       if (isEmptyFlag && prop) result[prop] = {};
     }
@@ -161,15 +163,14 @@ function getDestinationExternalID(message, type) {
  * @param {*} value 123
  * @returns yes
  */
-const isDefinedNotNullNotEmpty = (value) => {
-  return !(
+const isDefinedNotNullNotEmpty = (value) =>
+  !(
     value === undefined ||
     value === null ||
     Number.isNaN(value) ||
     (typeof value === 'object' && Object.keys(value).length === 0) ||
     (typeof value === 'string' && value.trim().length === 0)
   );
-};
 
 const validateEmail = (email) => {
   const regex =

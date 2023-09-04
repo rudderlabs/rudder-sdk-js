@@ -21,7 +21,7 @@ const clientToServerNames = {
   OPTIMIZELY: 'Optimizely Web',
   FULLSTORY: 'Fullstory',
   TVSQUARED: 'TVSquared',
-  GA4: 'Google Analytics 4',
+  GA4: 'Google Analytics 4 (GA4)',
   MOENGAGE: 'MoEngage',
   AM: 'Amplitude',
   PENDO: 'Pendo',
@@ -72,6 +72,7 @@ const clientToServerNames = {
   OLARK: 'Olark',
   LEMNISK: "Lemnisk",
   TIKTOK_ADS: "TikTok Ads",
+  ACTIVE_CAMPAIGN :"ActiveCampaign",
 };
 
 export { clientToServerNames };

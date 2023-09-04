@@ -1345,20 +1345,20 @@ class Analytics {
         ? options.polyfillIfRequired
         : true;
     return (
-      (polyfillIfRequired &&
-        (!String.prototype.endsWith ||
-          !String.prototype.startsWith ||
-          !String.prototype.includes ||
-          !Array.prototype.find ||
-          !Array.prototype.includes ||
-          typeof window.URL !== 'function' ||
-          typeof Promise === 'undefined' ||
-          !Object.entries ||
-          !Object.values ||
-          !String.prototype.replaceAll ||
-          !this.isDatasetAvailable() ||
-          typeof TextDecoder !== 'function' ||
-          typeof Uint8Array !== 'function'))
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        typeof window.URL !== 'function' ||
+        typeof Promise === 'undefined' ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable() ||
+        typeof TextDecoder !== 'function' ||
+        typeof Uint8Array !== 'function')
     );
   }
 
