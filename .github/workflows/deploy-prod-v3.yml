@@ -24,7 +24,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Checkout source branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get new version number
         run: |
