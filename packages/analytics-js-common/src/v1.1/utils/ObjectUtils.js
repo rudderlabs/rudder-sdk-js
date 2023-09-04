@@ -55,6 +55,19 @@ const isInstanceOfEvent = value => typeof value === 'object' && value !== null &
 
 const isNonEmptyObject = value => isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
 
+/**
+ * Returns true for empty object {}
+ * @param {*} obj
+ * @returns
+ */
+const isEmptyObject = obj => {
+  if (!obj) {
+    logger.warn('input is undefined or null');
+    return true;
+  }
+  return Object.keys(obj).length === 0;
+};
+
 export {
   mergeDeepRightObjectArrays,
   mergeDeepRight,
@@ -63,4 +76,5 @@ export {
   isInstanceOfEvent,
   isObjectLiteralAndNotNull,
   isNonEmptyObject,
+  isEmptyObject,
 };

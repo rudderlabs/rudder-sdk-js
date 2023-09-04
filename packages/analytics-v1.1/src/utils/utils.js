@@ -1,4 +1,3 @@
-import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import { commonNames } from '@rudderstack/analytics-js-common/v1.1/utils/integration_cname';
@@ -42,14 +41,6 @@ function generateUUID() {
  */
 function getCurrentTimeFormatted() {
   const curDateTime = new Date().toISOString();
-  // Keeping same as iso string
-  /* let curDate = curDateTime.split("T")[0];
-  let curTimeExceptMillis = curDateTime
-    .split("T")[1]
-    .split("Z")[0]
-    .split(".")[0];
-  let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
-  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis; */
   return curDateTime;
 }
 
@@ -68,10 +59,10 @@ function getJSON(url, wrappers, isLoaded, callback) {
 
   xhr.open('GET', url, false);
   xhr.onload = function () {
-    const { status } = xhr;
-    if (status == 200) {
+    const { status, responseText } = xhr;
+    if (status === 200) {
       // logger.debug("status 200");
-      callback(null, xhr.responseText, wrappers, isLoaded);
+      callback(null, responseText, wrappers, isLoaded);
     } else {
       callback(status);
     }
@@ -88,7 +79,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
  */
 function getJSONTrimmed(context, url, writeKey, callback) {
   // server-side integration, XHR is node module
-  const cb_ = callback.bind(context);
+  const cb = callback.bind(context);
 
   const xhr = new XMLHttpRequest();
 
@@ -99,14 +90,15 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
   );
 
+  // eslint-disable-next-line func-names
   xhr.onload = function () {
-    const { status } = xhr;
-    if (status == 200) {
+    const { status, responseText } = xhr;
+    if (status === 200) {
       // logger.debug("status 200 " + "calling callback");
-      cb_(200, xhr.responseText);
+      cb(200, responseText);
     } else {
       handleError(new Error(`${FAILED_REQUEST_ERR_MSG_PREFIX} ${status} for url: ${url}`));
-      cb_(status);
+      cb(status);
     }
   };
   xhr.send();
@@ -114,15 +106,17 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 
 function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach(key => {
+    // eslint-disable-next-line no-prototype-builtins
     if (integrationObject.hasOwnProperty(key)) {
       if (namesObj[key]) {
         integrationObject[namesObj[key]] = integrationObject[key];
       }
-      if (key != 'All') {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (namesObj[key] != undefined && namesObj[key] != key) {
-          delete integrationObject[key];
-        }
+      if (
+        key !== 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        namesObj[key] !== undefined &&
+        namesObj[key] !== key
+      ) {
+        delete integrationObject[key];
       }
     }
   });
@@ -217,13 +211,12 @@ function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
 }
 /**
  * Check if a reserved keyword is present in properties/traits
- * @param {*} properties
- * @param {*} reservedKeywords
- * @param {*} type
+ * @param {*} message
+ * @param {*} messageType
  */
 function checkReservedKeywords(message, messageType) {
   //  properties, traits, contextualTraits are either undefined or object
-  const { properties, traits } = message;
+  const { properties, traits, context } = message;
   if (properties) {
     Object.keys(properties).forEach(property => {
       if (RESERVED_KEYS.indexOf(property.toLowerCase()) >= 0) {
@@ -242,7 +235,7 @@ function checkReservedKeywords(message, messageType) {
       }
     });
   }
-  const contextualTraits = message.context.traits;
+  const contextualTraits = context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach(contextTrait => {
       if (RESERVED_KEYS.indexOf(contextTrait.toLowerCase()) >= 0) {
@@ -258,18 +251,17 @@ const isDefined = x => x !== undefined;
 const isNotNull = x => x !== null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 
-const getConfigUrl = writeKey => {
-  return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
+const getConfigUrl = writeKey =>
+  CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
     writeKey ? `writeKey=${writeKey}` : '',
   );
-};
 
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
-  for (let i = 0; i < scripts.length; i += 1) {
-    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
+  for (const script of scripts) {
+    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
@@ -282,20 +274,15 @@ const getSDKUrlInfo = () => {
   return { sdkURL, isStaging };
 };
 
-const countDigits = number => {
-  return number ? number.toString().length : 0;
-};
+const countDigits = number => (number ? number.toString().length : 0);
 
 /**
  * A function to convert non-string IDs to string format
  * @param {any} id
  * @returns
  */
-const getStringId = id => {
-  return typeof id === 'string' || typeof id === 'undefined' || id === null
-    ? id
-    : JSON.stringify(id);
-};
+const getStringId = id =>
+  typeof id === 'string' || typeof id === 'undefined' || id === null ? id : JSON.stringify(id);
 
 /**
  * A function to validate and return Residency server input
@@ -313,12 +300,7 @@ const getResidencyServer = options => {
   return undefined;
 };
 
-const isValidServerUrl = serverUrl => {
-  if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length === 0) {
-    return false;
-  }
-  return true;
-};
+const isValidServerUrl = serverUrl => typeof serverUrl === 'string' && serverUrl.trim().length > 0;
 
 /**
  * A function to get url from source config response
@@ -327,7 +309,7 @@ const isValidServerUrl = serverUrl => {
  */
 const getDefaultUrlofRegion = urls => {
   let url;
-  if (Array.isArray(urls) && urls.length) {
+  if (Array.isArray(urls) && urls.length > 0) {
     const obj = urls.find(elem => elem.default === true);
     if (obj && isValidServerUrl(obj.url)) {
       return obj.url;
@@ -345,7 +327,7 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
   try {
     const dataPlanes = response.source.dataplanes || {};
     // Check if dataPlanes object is present in source config
-    if (Object.keys(dataPlanes).length) {
+    if (Object.keys(dataPlanes).length > 0) {
       const inputRegion = getResidencyServer(options);
       const regionUrlArr = dataPlanes[inputRegion] || dataPlanes[DEFAULT_REGION];
 
@@ -415,11 +397,9 @@ export {
   transformToServerNames,
   checkReservedKeywords,
   isDefinedAndNotNull,
-  commonNames,
   removeTrailingSlashes,
   getConfigUrl,
   getSDKUrlInfo,
-  get,
   countDigits,
   getStringId,
   resolveDataPlaneUrl,

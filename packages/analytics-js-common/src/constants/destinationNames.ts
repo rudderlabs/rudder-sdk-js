@@ -363,3 +363,8 @@ export {
   DISPLAY_NAME as TiktokAdsDisplayName,
   DISPLAY_NAME_TO_DIR_NAME_MAP as TiktokAdsDisplayNameToDirNameMap,
 } from './integrations/TiktokAds/constants';
+export {
+  CNameMapping as ActiveCampaignCNameMapping,
+  DISPLAY_NAME as ActiveCampaignDisplayName,
+  DISPLAY_NAME_TO_DIR_NAME_MAP as ActiveCampaignDisplayNameToDirNameMap,
+} from './integrations/ActiveCampaign/constants';

@@ -71,6 +71,7 @@ import * as Sendinblue from './Sendinblue';
 import * as Olark from './Olark';
 import * as Lemnisk from './Lemnisk';
 import * as TiktokAds from './TiktokAds';
+import * as ActiveCampaign from './ActiveCampaign';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -148,6 +149,7 @@ const integrations = {
   OLARK: Olark.default,
   LEMNISK: Lemnisk.default,
   TIKTOK_ADS: TiktokAds.default,
+  ACTIVE_CAMPAIGN: ActiveCampaign.default,
 };
 
 export { integrations };

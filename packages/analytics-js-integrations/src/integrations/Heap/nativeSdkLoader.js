@@ -2,7 +2,7 @@ import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constan
 
 function loadNativeSdk(appId) {
   (window.heap = window.heap || []),
-    (heap.load = function (e, t) {
+    (window.heap.load = function (e, t) {
       (window.heap.appid = e), (window.heap.config = t = t || {});
       const r = document.createElement('script');
       (r.type = 'text/javascript'),
@@ -14,7 +14,7 @@ function loadNativeSdk(appId) {
       for (
         let n = function (e) {
             return function () {
-              heap.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+              window.heap.push([e].concat(Array.prototype.slice.call(arguments, 0)));
             };
           },
           p = [
