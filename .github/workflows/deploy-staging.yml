@@ -14,7 +14,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/tags/bugbash') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/')
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_STAGING_ACCOUNT_ID }}:role/${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
           aws-region: us-east-1
