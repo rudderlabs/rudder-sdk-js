@@ -2,7 +2,7 @@
 import isEqual from 'lodash.isequal';
 import { isEmpty } from 'ramda';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
-import { Storage } from 'packages/analytics-js-common/src/v1.1/utils/storage';
+import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
