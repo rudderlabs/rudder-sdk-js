@@ -28,7 +28,7 @@ const methods: string[] = [
 ];
 
 for (let i = 0; i < methods.length; i++) {
-  const method: string = methods[i];
+  const method = methods[i];
   window.rudderanalytics[method] = (methodName =>
     function () {
       window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));

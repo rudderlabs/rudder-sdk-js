@@ -7,3 +7,4 @@ export * as logMessages from './logMessages';
 export * as QueueStatuses from './QueueStatuses';
 export * as storages from './storages';
 export * as timeouts from './timeouts';
+export * as urls from './urls';
