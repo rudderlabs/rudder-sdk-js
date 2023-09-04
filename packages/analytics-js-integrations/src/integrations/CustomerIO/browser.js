@@ -30,10 +30,12 @@ class CustomerIO {
 
   identify(rudderElement) {
     logger.debug('in Customer IO identify');
-    const userId = rudderElement.message.userId
-      ? rudderElement.message.userId
-      : rudderElement.message.anonymousId;
-    const traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
+    const { userId, context } = rudderElement.message;
+    const { traits } = context || {};
+    if (!userId) {
+      logger.error('userId is required for Identify call.');
+      return;
+    }
     const createAt = traits.createdAt;
     if (createAt) {
       traits.created_at = Math.floor(new Date(createAt).getTime() / 1000);

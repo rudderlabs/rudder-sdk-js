@@ -49,13 +49,20 @@ class Sendinblue {
     const { message } = rudderElement;
     const { email, phone } = getDefinedTraits(message);
 
-    if (!email || !validateEmail(email)) {
+    if (!email) {
       logger.error('[Sendinblue]:: email is missing');
       return;
     }
 
+    if (!validateEmail(email)) {
+      logger.error('[Sendinblue]:: provided email is invalid');
+      return;
+    }
+
     if (phone && !validatePhoneWithCountryCode(phone)) {
-      logger.error('[Sendinblue]:: provided phone number is invalid');
+      logger.error(
+        '[Sendinblue]:: provided phone number is invalid. Please provide valid phone number with country code',
+      );
       return;
     }
 
@@ -78,7 +85,9 @@ class Sendinblue {
     if (this.sendTraitsInTrack) {
       const { phone } = getDefinedTraits(message);
       if (phone && !validatePhoneWithCountryCode(phone)) {
-        logger.error('[Sendinblue]:: provided phone number is invalid');
+        logger.error(
+          '[Sendinblue]:: provided phone number is invalid. Please provide valid phone number with country code',
+        );
         return;
       }
       userTraits = this.sendTraitsInTrack

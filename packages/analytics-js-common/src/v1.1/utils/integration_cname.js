@@ -71,6 +71,7 @@ import { CNameMapping as Sendinblue } from '../../constants/integrations/Sendinb
 import { CNameMapping as Olark } from '../../constants/integrations/Olark/constants';
 import { CNameMapping as Lemnisk } from '../../constants/integrations/Lemnisk/constants';
 import { CNameMapping as TiktokAds } from '../../constants/integrations/TiktokAds/constants';
+import { CNameMapping as ActiveCampaign } from '../../constants/integrations/ActiveCampaign/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -149,6 +150,7 @@ const commonNames = {
   ...Olark,
   ...Lemnisk,
   ...TiktokAds,
+  ...ActiveCampaign,
 };
 
 export { commonNames };

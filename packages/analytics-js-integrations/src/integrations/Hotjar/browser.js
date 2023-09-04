@@ -53,10 +53,10 @@ class Hotjar {
   track(rudderElement) {
     logger.debug('===In Hotjar track===');
 
-    const { event } = rudderElement.message;
+    let { event } = rudderElement.message;
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error('Event name is not present');
       return;
     }
 
@@ -67,7 +67,14 @@ class Hotjar {
 
     // event name must not exceed 750 characters and can only contain alphanumeric, underscores, and dashes.
     // Ref - https://help.hotjar.com/hc/en-us/articles/4405109971095#the-events-api-call
-    window.hj('event', event.replace(/\s\s+/g, ' ').substring(0, 750).replaceAll(' ', '_'));
+    if (event.length > 750) {
+      event = event.substring(0, 750);
+    }
+    event = event.replace(/ /g, '_');
+
+    if (event) {
+      window.hj('event', event);
+    }
   }
 
   page() {

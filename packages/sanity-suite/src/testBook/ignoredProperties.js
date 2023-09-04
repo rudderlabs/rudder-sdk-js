@@ -134,17 +134,11 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: `message.integrations.Google Analytics 4`, // TODO: remove optional after we implement device mode destinations
-    type: 'object',
-    optional: true,
-  },
-  {
-    key: `message.integrations.Google Analytics 4.sessionId`, // TODO: remove optional after we implement device mode destinations
+    key: `message.integrations.Google Analytics 4 (GA4).sessionId`,
     type: 'number',
-    optional: true,
   },
   {
-    key: `message.integrations.Google Analytics 4.clientId`, // TODO: remove optional after we implement device mode destinations
+    key: `message.integrations.Google Analytics 4 (GA4).clientId`,
     type: 'string',
     optional: true,
   },
@@ -154,7 +148,7 @@ const ignoredProperties = [
     optional: true,
   },
   {
-    key: `message.integrations.Google Analytics 4.sessionNumber`,
+    key: `message.integrations.Google Analytics 4 (GA4).sessionNumber`,
     type: 'number',
   },
 ];

@@ -73,6 +73,7 @@ const configToIntNames = {
   OLARK: 'Olark',
   LEMNISK: 'Lemnisk',
   TIKTOK_ADS: 'TiktokAds',
+  ACTIVE_CAMPAIGN: 'ActiveCampaign',
 };
 
 export { configToIntNames };

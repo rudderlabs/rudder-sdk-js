@@ -11,6 +11,8 @@ const CNameMapping = {
   'Google Analytics4': NAME,
   'Google analytics4': NAME,
   'google analytics4': NAME,
+  'Google Analytics 4 (GA4)': NAME,
+  'google analytics 4 (ga4)': NAME,
   GoogleAnalytics4: NAME,
 };
 

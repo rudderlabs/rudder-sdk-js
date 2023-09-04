@@ -32,4 +32,17 @@ const stringifyWithoutCircularV1 = (obj, excludeNull) =>
 
 const isInstanceOfEvent = value => typeof value === 'object' && value !== null && 'target' in value;
 
-export { getCircularReplacer, stringifyWithoutCircularV1, isInstanceOfEvent };
+/**
+ * Returns true for empty object {}
+ * @param {*} obj
+ * @returns
+ */
+const isEmptyObject = obj => {
+  if (!obj) {
+    logger.warn('input is undefined or null');
+    return true;
+  }
+  return Object.keys(obj).length === 0;
+};
+
+export { getCircularReplacer, stringifyWithoutCircularV1, isInstanceOfEvent, isEmptyObject };

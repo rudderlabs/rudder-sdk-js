@@ -1,8 +1,7 @@
-// import * as XMLHttpRequestNode from "Xmlhttprequest";
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '@rudderstack/analytics-js-common/v1.1/utils/integration_cname';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 /**
  * Utility method to remove '/' at the end of URL
@@ -26,79 +25,36 @@ function generateUUID() {
 }
 
 function getCurrency(val) {
-  if (!val) return;
+  if (!val) {
+    return null;
+  }
+
   if (typeof val === 'number') {
     return val;
   }
-  if (typeof val !== 'string') {
-    return;
+
+  if (typeof val === 'string') {
+    const parsedValue = parseFloat(val.replace(/\$/g, ''));
+
+    if (!Number.isNaN(parsedValue)) {
+      return parsedValue;
+    }
   }
 
-  val = val.replace(/\$/g, '');
-  val = parseFloat(val);
-
-  if (!isNaN(val)) {
-    return val;
-  }
+  return null;
 }
 
 function getRevenue(properties, eventName) {
   let { revenue } = properties;
+  const { total } = properties;
   const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
-    revenue = properties.total;
+    revenue = total;
   }
 
   return getCurrency(revenue);
-}
-
-/**
- * reject all null values from array/object
- * @param  {} obj
- * @param  {} fn
- */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
-
-/**
- * particular case when rejecting an array
- * @param  {} arr
- * @param  {} fn
- */
-var rejectarray = function (arr, fn) {
-  const ret = [];
-
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-  }
-
-  return ret;
-};
-
-/**
- * Rejecting null from any object other than arrays
- * @param  {} obj
- * @param  {} fn
- *
- */
-var rejectobject = function (obj, fn) {
-  const ret = {};
-
-  for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
-    }
-  }
-
-  return ret;
-};
-
-function compact(value) {
-  return value == null;
 }
 
 /**
@@ -117,6 +73,7 @@ function type(val) {
       return 'arguments';
     case '[object Array]':
       return 'array';
+    default:
   }
 
   if (val === null) return 'null';
@@ -124,6 +81,41 @@ function type(val) {
   if (val === Object(val)) return 'object';
 
   return typeof val;
+}
+
+function compact(value) {
+  return value == null;
+}
+
+/**
+ * particular case when rejecting an array
+ * @param  {} arr
+ * @param  {} fn
+ */
+const rejectArray = (arr, fn) => arr.filter((value, index) => !fn(value, index));
+
+/**
+ * Rejecting null from any object other than arrays
+ * @param  {} obj
+ * @param  {} fn
+ *
+ */
+const rejectObject = (obj, fn) =>
+  Object.entries(obj).reduce((acc, [key, value]) => {
+    if (!fn(value, key)) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
+function rejectArr(obj, fn) {
+  fn = fn || compact;
+  return type(obj) === 'array' ? rejectArray(obj, fn) : rejectObject(obj, fn);
 }
 
 /* ------- Start FlattenJson -----------
@@ -160,7 +152,7 @@ function flattenJsonPayload(data, property = '') {
 /**
  *
  * @param {*} message
- * @param {*} destination
+ * @param {*} dest
  * @param {*} keys
  * @param {*} exclusionFields
  * Extract fields from message with exclusions
@@ -185,29 +177,35 @@ function flattenJsonPayload(data, property = '') {
  *
  */
 
-function extractCustomFields(message, destination, keys, exclusionFields) {
-  keys.map(key => {
-    const messageContext = get(message, key);
-    if (messageContext) {
-      const objKeys = [];
-      Object.keys(messageContext).map(k => {
-        if (exclusionFields.indexOf(k) < 0) {
-          objKeys.push(k);
-        }
-      });
-      objKeys.map(k => {
-        if (!(typeof messageContext[k] === 'undefined')) {
-          if (destination) {
-            destination[k] = get(messageContext, k);
-          } else {
-            destination = {
-              k: get(messageContext, k),
-            };
+function extractCustomFields(message, dest, keys, exclusionFields) {
+  const mappingKeys = [];
+  const destination = dest || {};
+  if (Array.isArray(keys)) {
+    keys.forEach(key => {
+      const messageContext = get(message, key);
+      if (messageContext) {
+        Object.keys(messageContext).forEach(k => {
+          if (!exclusionFields.includes(k)) mappingKeys.push(k);
+        });
+        mappingKeys.forEach(mappingKey => {
+          if (!(typeof messageContext[mappingKey] === 'undefined')) {
+            destination[mappingKey] = get(messageContext, mappingKey);
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
+  } else if (keys === 'root') {
+    Object.keys(message).forEach(k => {
+      if (!exclusionFields.includes(k)) mappingKeys.push(k);
+    });
+    mappingKeys.forEach(mappingKey => {
+      if (!(typeof message[mappingKey] === 'undefined')) {
+        destination[mappingKey] = get(message, mappingKey);
+      }
+    });
+  } else {
+    logger.debug('unable to parse keys');
+  }
   return destination;
 }
 /**
@@ -263,16 +261,25 @@ function getDefinedTraits(message) {
 /**
  * To check if a variable is storing object or not
  */
-const isObject = obj => {
-  return type(obj) === 'object';
+const isObject = obj => type(obj) === 'object';
+
+/**
+ * Returns true for empty object {}
+ * @param {*} obj
+ * @returns
+ */
+const isEmptyObject = obj => {
+  if (!obj) {
+    logger.warn('input is undefined or null');
+    return true;
+  }
+  return Object.keys(obj).length === 0;
 };
 
 /**
  * To check if a variable is storing array or not
  */
-const isArray = obj => {
-  return type(obj) === 'array';
-};
+const isArray = obj => type(obj) === 'array';
 
 const isDefined = x => x !== undefined;
 const isNotNull = x => x !== null;
@@ -281,9 +288,9 @@ const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
+    for (const element of src) {
+      if (properties[element]) {
+        data[dest] = properties[element];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -291,55 +298,252 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  } else if (typeof src === 'string') {
-    if (properties[src]) {
-      data[dest] = properties[src];
-    }
+  } else if (typeof src === 'string' && properties[src]) {
+    data[dest] = properties[src];
   }
   return data;
 };
 
 /**
- * Using this function we can create a payload from a mapping object.
- * @param {*} object = {
-   traits:{
-     name: "abcd efgh",
-     address: {
-       city: "xyz"
-     }
-   }
-  }
- * @param {*} mapper = [
-  {
-    destKey: "userName",
-    sourceKeys: "traits.name",
-  },
-  {
-    destKey: "city",
-    sourceKeys: "traits.address.city",
-  },
-]
- * @returns {
-   userName : "abcd efgh",
-   city : "xyz"
- }
+ * This method handles the operations between two keys from the sourceKeys. One of the possible
+ * Use case is to calculate the value from the "price" and "quantity"
+ * Definition of the operation object is as follows
+ * {
+ *    "operation": "multiplication",
+ *    "args": [
+ *      {
+ *        "sourceKeys": "properties.price"
+ *      },
+ *      {
+ *        "sourceKeys": "properties.quantity",
+ *        "defaultVal": 1
+ *      }
+ *    ]
+ *  }
+ *  Supported operations are "addition", "multiplication"
+ * @param {*} param0
+ * @returns
+ */
+const handleSourceKeysOperation = ({ message, operationObject }) => {
+  const { operation, args } = operationObject;
 
-*/
-const constructPayload = (object, mapper) => {
-  const payload = {};
-  if (object)
-    mapper.forEach(element => {
-      if (!Array.isArray(element.sourceKeys)) {
-        payload[element.destKey] = get(object, element.sourceKeys);
-      } else {
-        for (let i = 0; i < element.sourceKeys.length; i += 1) {
-          if (get(object, element.sourceKeys[i])) {
-            payload[element.destKey] = get(object, element.sourceKeys[i]);
-            break;
-          }
+  // populate the values from the arguments
+  // in the same order it is populated
+  const argValues = args.map(arg => {
+    const { sourceKeys, defaultVal } = arg;
+    const val = get(message, sourceKeys);
+    if (val || val === false || val === 0) {
+      return val;
+    }
+    return defaultVal;
+  });
+
+  // quick sanity check for the undefined values in the list.
+  // if there is any undefined values, return null
+  // without going further for operations
+  const isAllDefined = argValues.every(value => isDefinedAndNotNull(value));
+  if (!isAllDefined) {
+    return null;
+  }
+
+  // start handling operations
+  let result = null;
+  switch (operation) {
+    case 'multiplication':
+      result = 1;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const v of argValues) {
+        if (typeof v === 'number') {
+          result *= v;
+        } else {
+          // if there is a non number argument simply return null
+          // non numbers can't be operated arithmatically
+          return null;
         }
       }
+      return result.toFixed(2);
+    case 'addition':
+      result = 0;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const v of argValues) {
+        if (typeof v === 'number') {
+          result += v;
+        } else {
+          // if there is a non number argument simply return null
+          // non numbers can't be operated arithmatically
+          return null;
+        }
+      }
+      return result.toFixed(2);
+    default:
+      return null;
+  }
+};
+
+/**
+ * Handle type and format
+ * @param {*} formattedVal
+ * @param {*} formattingType
+ * @returns
+ */
+const formatValues = (formattedVal, formattingType) => {
+  let curFormattedVal = formattedVal;
+
+  const formattingFunctions = {
+    jsonStringify: () => {
+      curFormattedVal = JSON.stringify(formattedVal);
+    },
+    jsonStringifyOnObject: () => {
+      if (typeof formattedVal !== 'string') {
+        curFormattedVal = JSON.stringify(formattedVal);
+      }
+    },
+    toString: () => {
+      curFormattedVal = String(formattedVal);
+    },
+    toNumber: () => {
+      curFormattedVal = Number(formattedVal);
+    },
+    toFloat: () => {
+      curFormattedVal = parseFloat(formattedVal);
+    },
+    toInt: () => {
+      curFormattedVal = parseInt(formattedVal, 10);
+    },
+    toLower: () => {
+      curFormattedVal = formattedVal.toString().toLowerCase();
+    },
+    trim: () => {
+      if (typeof formattedVal === 'string') {
+        curFormattedVal = formattedVal.trim();
+      }
+    },
+    IsBoolean: () => {
+      curFormattedVal = true;
+      if (!(typeof formattedVal === 'boolean')) {
+        logger.debug('Boolean value missing, so dropping it');
+        curFormattedVal = false;
+      }
+    },
+  };
+
+  if (formattingType in formattingFunctions) {
+    const formattingFunction = formattingFunctions[formattingType];
+    formattingFunction();
+  }
+
+  return curFormattedVal;
+};
+
+/**
+ * format the value as per the metadata values
+ * Expected metadata keys are: (according to precedence)
+ * type, typeFormat: expected data type
+ * @param {*} value
+ * @param {*} metadata
+ * @returns
+ */
+const handleMetadataForValue = (value, metadata) => {
+  if (!metadata) {
+    return value;
+  }
+
+  const { type: valFormat, defaultValue } = metadata;
+
+  // if value is null and defaultValue is supplied - use that
+  if (!isDefinedAndNotNull(value)) {
+    return defaultValue || value;
+  }
+
+  // we've got a correct value. start processing
+  let formattedVal = value;
+  if (valFormat) {
+    if (Array.isArray(valFormat)) {
+      valFormat.forEach(eachType => {
+        formattedVal = formatValues(formattedVal, eachType);
+      });
+    } else {
+      formattedVal = formatValues(formattedVal, valFormat);
+    }
+  }
+
+  return formattedVal;
+};
+
+/**
+ * Finds and returns the value of key from message
+ * @param {*} message
+ * @param {*} sourceKeys
+ * @returns
+ */
+const getValueFromMessage = (message, sourceKeys) => {
+  if (Array.isArray(sourceKeys) && sourceKeys.length > 0) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const sourceKey of sourceKeys) {
+      let val;
+      if (typeof sourceKey === 'object') {
+        val = handleSourceKeysOperation({
+          message,
+          operationObject: sourceKey,
+        });
+      } else {
+        val = get(message, sourceKey);
+      }
+      if (val || val === false || val === 0) {
+        // return only if the value is valid.
+        // else look for next possible source in precedence
+        return val;
+      }
+    }
+    return null;
+  }
+
+  if (typeof sourceKeys === 'object') {
+    // if the sourceKey is an object we expect it to be a operation
+    return handleSourceKeysOperation({ message, operationObject: sourceKeys });
+  }
+
+  return get(message, sourceKeys);
+};
+
+/**
+ * Using this function we can create a payload from a mapping object.
+ * @param {*} message = {
+     traits:{
+       name: "abcd efgh",
+       address: {
+        city: "xyz"
+       }
+     }
+   }
+ * @param {*} mapper = [
+     {
+       destKey: "userName",
+       sourceKeys: "traits.name",
+     },
+     {
+       destKey: "city",
+       sourceKeys: "traits.address.city",
+     },
+   ]
+ * @returns {
+     userName : "abcd efgh",
+     city : "xyz"
+  }
+ */
+const constructPayload = (message, mapper) => {
+  const payload = {};
+  // Mapping JSON should be an array
+  if (Array.isArray(mapper) && mapper.length > 0) {
+    mapper.forEach(mapping => {
+      const { sourceKeys, destKey, metadata } = mapping;
+      const value = handleMetadataForValue(getValueFromMessage(message, sourceKeys), metadata);
+      if ((value || value === 0 || value === false) && destKey) {
+        // set the value only if correct
+        payload[destKey] = value;
+      }
     });
+  }
   return payload;
 };
 
@@ -355,8 +559,7 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  commonNames,
   removeTrailingSlashes,
   constructPayload,
-  get,
+  isEmptyObject,
 };
