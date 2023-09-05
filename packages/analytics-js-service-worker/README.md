@@ -21,7 +21,8 @@
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#@rudderstack-analytics-js-service-worker)@rudderstack/analytics-js-service-worker
 
-RudderStack Javascript SDK service worker that can be used in browser extensions.
+RudderStack Javascript SDK service worker that can be used in browser extensions and serverless runtimes.
+It exposes the same interface and features as the [nodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
@@ -37,7 +38,7 @@ To install the package via npm, run the following command:
 npm install @rudderstack/analytics-js-service-worker --save
 ```
 
-**Note that this NPM module is only meant to be used for a browser installation**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
+**Note that this NPM module is only meant to be used for a service worker usage**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
 
 ## Usage in Chrome Extensions
 
@@ -45,7 +46,16 @@ RudderStack JS SDK service worker can be used in Chrome Extensions with manifest
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#how-to-build-the-sdk)How to build the SDK
+## Usage in Serverless runtimes
+
+RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
+
+For examples and specific details look into:
+
+- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#Cloudflare-Worker)
+- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#Vercel-Edge)
+
+## [How to build the SDK](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#how-to-build-the-sdk)
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
