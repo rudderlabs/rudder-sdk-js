@@ -102,12 +102,19 @@ const normalizeLoadOptions = (
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
   }
+
   if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage?.cookie)) {
     delete normalizedLoadOpts.storage?.cookie;
   } else {
     (normalizedLoadOpts.storage as StorageOpts).cookie = removeUndefinedAndNullValues(
       normalizedLoadOpts.storage?.cookie,
     );
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.preConsent)) {
+    delete normalizedLoadOpts.preConsent;
+  } else {
+    normalizedLoadOpts.preConsent = removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);
   }
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
