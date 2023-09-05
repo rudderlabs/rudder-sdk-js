@@ -30,7 +30,9 @@ to integrate the sdk:
       }
     );
 
-You can then utilise the RudderStack JS SDK within the fetch methods as usual:
+You can then utilise the RudderStack JS SDK within the fetch methods with promisified flush:
+
+    const flush = () => new Promise((resolve) => rudderClient.flush(resolve));
 
     rudderClient.track({
       userId: '123456',
@@ -39,8 +41,10 @@ You can then utilise the RudderStack JS SDK within the fetch methods as usual:
         data: {
           url: 'test cloudflare worker',
         },
-      }
+      },
     });
+
+    await flush();
 
 See relevant [example](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/cloudflare-worker)
 

@@ -10,9 +10,7 @@
 
 import { Analytics } from '@rudderstack/analytics-js-service-worker';
 
-const rudderClient = new Analytics('<writeKey>', '<dataplaneUrl>/v1/batch', {
-	flushAt: 1,
-});
+const rudderClient = new Analytics('<writeKey>', '<dataplaneUrl>/v1/batch');
 
 export default {
 	async fetch(request, env, ctx) {
@@ -29,6 +27,8 @@ export default {
 		}
 
 		try {
+			const flush = () => new Promise((resolve) => rudderClient.flush(resolve));
+
 			rudderClient.track({
 				userId: '123456',
 				event: 'test cloudflare worker',
@@ -38,6 +38,9 @@ export default {
 					},
 				},
 			});
+
+			// this both flushes and ensures completion
+			await flush();
 
 			return new Response('Hello world', {
 				headers: corsHeaders,
