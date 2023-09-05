@@ -129,11 +129,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   // eslint-disable-next-line class-methods-use-this
   getPreloadBuffer() {
-    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-      (globalThis as typeof window).rudderanalytics,
-    )
-      ? (globalThis as typeof window).rudderanalytics
-      : [];
+    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
 
     // Expose buffer to global objects
     setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
@@ -143,11 +141,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Trigger load event in buffer queue if exists
    */
   triggerBufferedLoadEvent() {
-    const preloadedEventsArray: PreloadedEventCall[] = Array.isArray(
-      (globalThis as typeof window).rudderanalytics,
-    )
-      ? (globalThis as typeof window).rudderanalytics
-      : [];
+    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
 
     // Get any load method call that is buffered if any
     const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);

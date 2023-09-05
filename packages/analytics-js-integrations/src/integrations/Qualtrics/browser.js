@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-expressions */
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
 /* eslint-disable class-methods-use-this */
 import { loadNativeSdk } from './nativeSdkLoader';

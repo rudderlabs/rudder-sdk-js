@@ -1,11 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import {
-  isValidSourceConfig,
-  isValidStorageType,
-  validateLoadArgs,
-} from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
@@ -14,6 +9,7 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
+import { isValidSourceConfig, isValidStorageType, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,

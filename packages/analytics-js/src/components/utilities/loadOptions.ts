@@ -11,7 +11,7 @@ import { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/ty
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { INVALID_CONFIG_URL_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
+import { INVALID_CONFIG_URL_WARNING } from '../../constants/logMessages';
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';

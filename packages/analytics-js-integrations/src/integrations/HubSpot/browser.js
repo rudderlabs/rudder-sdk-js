@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
 import { getDefinedTraits } from '../../utils/utils';
 

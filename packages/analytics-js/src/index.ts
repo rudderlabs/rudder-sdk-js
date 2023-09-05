@@ -17,3 +17,4 @@ export { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { RudderAnalytics } from './app/RudderAnalytics';
 export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
+export { type PreloadedEventCall } from './components/preloadBuffer/types';

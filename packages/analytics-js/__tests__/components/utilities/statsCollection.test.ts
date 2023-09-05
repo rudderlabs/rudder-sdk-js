@@ -2,7 +2,7 @@ import {
   isErrorReportingEnabled,
   getErrorReportingProviderNameFromConfig,
   isMetricsReportingEnabled,
-} from '@rudderstack/analytics-js/components/utilities/statsCollection';
+} from '../../../src/components/utilities/statsCollection';
 
 describe('Stats Collection Utilities', () => {
   describe('isErrorReportingEnabled', () => {

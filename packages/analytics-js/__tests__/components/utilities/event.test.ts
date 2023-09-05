@@ -1,4 +1,4 @@
-import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
+import { isEvent } from '../../../src/components/utilities/event';
 
 describe('Common Utils - Event', () => {
   it('should check if is Event or Error', () => {

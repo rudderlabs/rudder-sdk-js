@@ -1,0 +1,110 @@
+{
+  "name": "rudder-sdk-js",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/analytics-v1.1/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "build-browser": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser"
+      }
+    },
+    "build-browser-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:modern"
+      }
+    },
+    "build-npm": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:npm"
+      }
+    },
+    "build-worker": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:worker"
+      }
+    },
+    "build-package": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      },
+      "dependsOn": ["build-browser"]
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "package"
+      }
+    },
+    "prepare-test-mocks": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js > packages/analytics-v1.1/__mocks__/cdnSDK.js"
+      },
+      "dependsOn": ["build-browser"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/analytics-v1.1/jest.config.ts",
+        "passWithNoTests": true,
+        "codeCoverage": true,
+        "watchAll": false,
+        "forceExit": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      },
+      "dependsOn": ["prepare-test-mocks"]
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "main",
+        "preset": "conventional",
+        "tagPrefix": "${projectName}@"
+      }
+    },
+    "github": {
+      "executor": "@jscutlery/semver:github",
+      "options": {
+        "tag": "rudder-sdk-js@2.40.5",
+        "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    }
+  }
+}

@@ -5,12 +5,12 @@ import {
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
   identifyArgumentsToCallOptions,
-  isFunction,
-  isHybridModeDestination,
-  mergeDeepRight,
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js-common/index';
+} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,
@@ -26,7 +26,6 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
-import { isDestIntgConfigFalsy, isDestIntgConfigTruthy } from '../utilities/destination';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
@@ -141,32 +140,6 @@ const isDestinationReady = (dest: Destination) =>
   });
 
 /**
- * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
- * @param intgOpts Integration options object
- * @param destinations Destinations array
- * @returns Destinations array filtered based on the integration options
- */
-const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
-  const allOptVal = intgOpts.All;
-  return destinations.filter(dest => {
-    const destDisplayName = dest.displayName;
-    let isDestEnabled;
-    if (allOptVal) {
-      isDestEnabled = true;
-      if (isDestIntgConfigFalsy(intgOpts[destDisplayName])) {
-        isDestEnabled = false;
-      }
-    } else {
-      isDestEnabled = false;
-      if (isDestIntgConfigTruthy(intgOpts[destDisplayName])) {
-        isDestEnabled = true;
-      }
-    }
-    return isDestEnabled;
-  });
-};
-
-/**
  * Extracts the integration config, if any, from the given destination
  * and merges it with the current integrations config
  * @param dest Destination object
@@ -256,7 +229,6 @@ export {
   wait,
   createDestinationInstance,
   isDestinationReady,
-  filterDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,
 };

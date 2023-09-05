@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { getUserAgentClientHint } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/clientHint';
+import { getUserAgentClientHint } from '../../../../src/components/capabilitiesManager/detection/clientHint';
 
 describe('User Agent Client Hint Utilities', () => {
   const chromeDefaultUACH = {

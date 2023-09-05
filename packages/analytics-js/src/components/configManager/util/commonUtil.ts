@@ -43,7 +43,6 @@ const getSDKUrl = (): string | undefined => {
     return false;
   });
 
-  // TODO: Return the URL object instead of the plain URL string
   return sdkURL;
 };
 

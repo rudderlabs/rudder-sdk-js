@@ -3,8 +3,8 @@ import {
   getPreloadedLoadEvent,
   retrieveEventsFromQueryString,
   retrievePreloadBufferEvents,
-} from '@rudderstack/analytics-js/components/preloadBuffer';
-import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+} from '../../../src/components/preloadBuffer';
+import { PreloadedEventCall } from '../../../src/components/preloadBuffer/types';
 
 describe('Preload Buffer', () => {
   const originalWindowLocation = window.location;

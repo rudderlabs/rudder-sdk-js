@@ -54,7 +54,7 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx lerna@6 publish from-package --no-private --contents dist/npm
+          npm run deploy:npm -- --base=$last_version --head=$current_version
 
       - name: Send message to Slack channel for v3
         id: slack

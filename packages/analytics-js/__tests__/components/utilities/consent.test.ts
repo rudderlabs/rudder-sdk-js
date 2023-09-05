@@ -1,4 +1,4 @@
-import { getUserSelectedConsentManager } from '@rudderstack/analytics-js/components/utilities/consent';
+import { getUserSelectedConsentManager } from '../../../src/components/utilities/consent';
 
 describe('Common Utils - getUserSelectedConsentManager', () => {
   it('should return the name of the consent manager if provided in load option', () => {

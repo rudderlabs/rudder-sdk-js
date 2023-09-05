@@ -1,14 +1,12 @@
-import { detectAdBlockers } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
-import { state, resetState } from '@rudderstack/analytics-js/state';
 import { effect } from '@preact/signals-core';
+import { detectAdBlockers } from '../../../../src/components/capabilitiesManager/detection/adBlockers';
+import { state, resetState } from '../../../../src/state';
 
 let errObj;
 let xhrObj;
 
-jest.mock('@rudderstack/analytics-js/services/HttpClient/HttpClient', () => {
-  const originalModule = jest.requireActual(
-    '@rudderstack/analytics-js/services/HttpClient/HttpClient',
-  );
+jest.mock('../../../../src/services/HttpClient/HttpClient', () => {
+  const originalModule = jest.requireActual('../../../../src/services/HttpClient/HttpClient');
 
   return {
     __esModule: true,

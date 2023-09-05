@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   NAME,
   supportedEvents,

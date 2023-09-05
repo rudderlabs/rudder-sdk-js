@@ -1,4 +1,4 @@
-import { generateUUID } from '@rudderstack/analytics-js-common/index';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
@@ -109,7 +109,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
 
     // Send events that existed in the queue if totaling more max payload size
     const isExceededMaxPayloadSize = Boolean(
-      batchData && batchData.length > MAX_BATCH_PAYLOAD_SIZE_BYTES,
+      batchData && batchData.size > MAX_BATCH_PAYLOAD_SIZE_BYTES,
     );
     if (isExceededMaxPayloadSize) {
       // Flush all previous items

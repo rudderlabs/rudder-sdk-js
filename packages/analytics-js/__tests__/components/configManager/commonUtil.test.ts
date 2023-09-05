@@ -1,11 +1,11 @@
-import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { SourceConfigResponse } from '../../../src/components/configManager/types';
 import {
   getSDKUrl,
   updateReportingState,
   updateStorageState,
-} from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+} from '../../../src/components/configManager/util/commonUtil';
+import { state, resetState } from '../../../src/state';
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');

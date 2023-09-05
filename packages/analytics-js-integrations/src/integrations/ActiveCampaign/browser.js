@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/ActiveCampaign/constants';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import get from 'get-value';
 import { loadNativeSdk } from './nativeSdkLoader';
 

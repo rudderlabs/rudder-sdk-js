@@ -1,23 +1,27 @@
 {
   "references": [
-    { "path": "./packages/analytics-v1.1/tsconfig.json" },
     { "path": "./packages/analytics-js/tsconfig.json" },
-    { "path": "./packages/analytics-js-service-worker/tsconfig.json" },
-    { "path": "./packages/analytics-js-plugins/tsconfig.json" },
+    { "path": "./packages/analytics-js-common/tsconfig.json" },
     { "path": "./packages/analytics-js-integrations/tsconfig.json" },
-    { "path": "./packages/analytics-js-common/tsconfig.json" }
+    { "path": "./packages/analytics-js-plugins/tsconfig.json" },
+    { "path": "./packages/analytics-js-service-worker/tsconfig.json" },
+    { "path": "./packages/analytics-v1.1/tsconfig.json" },
+    { "path": "./packages/loading-scripts/tsconfig.json" },
+    { "path": "./packages/sanity-suite/tsconfig.json" }
   ],
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "rudder-sdk-js/*": ["./packages/analytics-v1.1/src/*"],
       "@rudderstack/analytics-js/*": ["./packages/analytics-js/src/*"],
+      "@rudderstack/analytics-js-common/*": ["./packages/analytics-js-common/src/*"],
+      "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"],
+      "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"],
       "@rudderstack/analytics-js-service-worker/*": [
         "./packages/analytics-js-service-worker/src/*"
       ],
-      "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"],
-      "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"],
-      "@rudderstack/analytics-js-common/*": ["./packages/analytics-js-common/src/*"]
+      "rudder-sdk-js/*": ["./packages/analytics-v1.1/src/*"],
+      "@rudderstack/analytics-js-loading-script/*": ["./packages/loading-scripts/src/*"],
+      "@rudderstack/analytics-js-sanity-suite/*": ["./packages/sanity-suite/src/*"]
     }
   }
 }

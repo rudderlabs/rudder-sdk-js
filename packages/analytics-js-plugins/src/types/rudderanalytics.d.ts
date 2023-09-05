@@ -1,8 +1,12 @@
-import type { RudderAnalytics, IRudderStackGlobals } from '@rudderstack/analytics-js-common';
+import type {
+  IRudderStackGlobals,
+  RudderAnalytics,
+  PreloadedEventCall,
+} from '@rudderstack/analytics-js';
 
 declare global {
   interface Window {
-    rudderanalytics: RudderAnalytics;
+    rudderanalytics: RudderAnalytics | PreloadedEventCall[];
     RudderStackGlobals: IRudderStackGlobals;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';

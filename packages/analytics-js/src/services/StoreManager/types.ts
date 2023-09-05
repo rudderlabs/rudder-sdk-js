@@ -12,7 +12,7 @@ import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
   CLIENT_DATA_STORE_MEMORY,
-} from '@rudderstack/analytics-js/constants/storage';
+} from '../../constants/storage';
 
 export type StoreManagerOptions = {
   cookieOptions?: Partial<ICookieStorageOptions>;

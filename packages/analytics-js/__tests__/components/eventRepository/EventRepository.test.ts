@@ -1,11 +1,4 @@
-import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository';
-import { state, resetState } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {
   Destination,
@@ -15,6 +8,13 @@ import {
 import { RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { EventRepository } from '../../../src/components/eventRepository';
+import { state, resetState } from '../../../src/state';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
+import { StoreManager } from '../../../src/services/StoreManager';
 
 describe('EventRepository', () => {
   const defaultPluginsManager = new PluginsManager(

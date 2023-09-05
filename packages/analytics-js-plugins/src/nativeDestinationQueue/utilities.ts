@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/index';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { DestinationsQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';

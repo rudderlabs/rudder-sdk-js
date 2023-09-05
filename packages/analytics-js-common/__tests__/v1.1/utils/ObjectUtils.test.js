@@ -1,14 +1,5 @@
-import merge from 'lodash.merge';
 import { clone } from 'ramda';
-import {
-  isInstanceOfEvent,
-  isObjectLiteralAndNotNull,
-  mergeDeepRight,
-  mergeDeepRightObjectArrays,
-  stringifyWithoutCircular,
-} from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
-
-class DummyObj {}
+import { isInstanceOfEvent, stringifyWithoutCircularV1 } from '../../../src/v1.1/utils/ObjectUtils';
 
 const identifyTraitsPayloadMock = {
   firstName: 'Dummy Name',
@@ -53,100 +44,14 @@ const identifyTraitsPayloadMock = {
   ],
 };
 
-const trackTraitsOverridePayloadMock = {
-  address: [
-    {
-      label: 'Head office',
-      city: 'NYC',
-    },
-    {
-      label: 'home',
-      city: 'Kolkata',
-      country: 'India',
-      nested: {
-        type: 'detached house',
-        rooms: [
-          {
-            name: 'bath',
-          },
-          {
-            name: 'living room',
-            size: 'extra large',
-          },
-        ],
-      },
-    },
-  ],
-};
-
-const expectedMergedTraitsPayload = {
-  firstName: 'Dummy Name',
-  phone: '1234567890',
-  email: 'dummy@email.com',
-  custom_flavor: 'chocolate',
-  custom_date: new Date(2022, 1, 21, 0, 0, 0),
-  address: [
-    {
-      label: 'Head office',
-      city: 'NYC',
-      country: 'Belgium',
-    },
-    {
-      label: 'home',
-      city: 'Kolkata',
-      country: 'India',
-      nested: {
-        type: 'detached house',
-        rooms: [
-          {
-            name: 'bath',
-            size: 'small',
-          },
-          {
-            name: 'living room',
-            size: 'extra large',
-          },
-          {
-            name: 'bedroom',
-            size: 'large',
-          },
-        ],
-      },
-    },
-    {
-      label: 'work',
-      city: 'Kolkata',
-      country: 'India',
-    },
-  ],
-};
-
 const circularReferenceNotice = '[Circular Reference]';
 
 describe('Object utilities', () => {
-  it('should merge right object array items', () => {
-    const mergedArray = mergeDeepRightObjectArrays(
-      identifyTraitsPayloadMock.address,
-      trackTraitsOverridePayloadMock.address,
-    );
-    expect(mergedArray).toEqual(expectedMergedTraitsPayload.address);
-  });
-
-  it('should merge right nested object properties', () => {
-    const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
-    expect(mergedArray).toEqual(expectedMergedTraitsPayload);
-  });
-
-  it('should merge right nested object properties like lodash merge', () => {
-    const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
-    expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
-  });
-
   it('should stringify json with circular references', () => {
     const objWithCircular = clone(identifyTraitsPayloadMock);
     objWithCircular.myself = objWithCircular;
 
-    const json = stringifyWithoutCircular(objWithCircular);
+    const json = stringifyWithoutCircularV1(objWithCircular);
     expect(json).toContain(circularReferenceNotice);
   });
 
@@ -156,7 +61,7 @@ describe('Object utilities', () => {
     objWithCircular.keyToExclude = null;
     objWithCircular.keyToNotExclude = '';
 
-    const json = stringifyWithoutCircular(objWithCircular, true);
+    const json = stringifyWithoutCircularV1(objWithCircular, true);
     expect(json).toContain(circularReferenceNotice);
     expect(json).not.toContain('keyToExclude');
     expect(json).toContain('keyToNotExclude');
@@ -166,28 +71,8 @@ describe('Object utilities', () => {
     const objWithoutCircular = clone(identifyTraitsPayloadMock);
     objWithoutCircular.myself = {};
 
-    const json = stringifyWithoutCircular(objWithoutCircular);
+    const json = stringifyWithoutCircularV1(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);
-  });
-
-  it('should detect if value is an Object literal and not null', () => {
-    const nullCheck = isObjectLiteralAndNotNull(null);
-    const objCheck = isObjectLiteralAndNotNull({});
-    const classInstanceCheck = isObjectLiteralAndNotNull(new DummyObj());
-    const arrayCheck = isObjectLiteralAndNotNull([]);
-    const functionCheck = isObjectLiteralAndNotNull(() => {});
-    const dateCheck = isObjectLiteralAndNotNull(new Date());
-    const errorCheck = isObjectLiteralAndNotNull(new Error('error'));
-    // eslint-disable-next-line prefer-regex-literals
-    const regExpCheck = isObjectLiteralAndNotNull(new RegExp(/^a/));
-    expect(nullCheck).toBeFalsy();
-    expect(objCheck).toBeTruthy();
-    expect(classInstanceCheck).toBeTruthy();
-    expect(arrayCheck).toBeFalsy();
-    expect(functionCheck).toBeFalsy();
-    expect(dateCheck).toBeFalsy();
-    expect(errorCheck).toBeFalsy();
-    expect(regExpCheck).toBeFalsy();
   });
 
   it('should stringify json with out circular references and reused objects', () => {
@@ -200,7 +85,7 @@ describe('Object utilities', () => {
     objWithoutCircular.reusedObjAgain = { reused: reusableObject };
     objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
 
-    const json = stringifyWithoutCircular(objWithoutCircular);
+    const json = stringifyWithoutCircularV1(objWithoutCircular);
     expect(json).not.toContain(circularReferenceNotice);
   });
 
@@ -212,7 +97,7 @@ describe('Object utilities', () => {
     objWithoutCircular.reusedObjAgainWithItself = { reused: reusableObject };
     objWithoutCircular.objWithCircular = objWithCircular;
 
-    const json = stringifyWithoutCircular(objWithoutCircular);
+    const json = stringifyWithoutCircularV1(objWithoutCircular);
     expect(json).toContain(circularReferenceNotice);
   });
 

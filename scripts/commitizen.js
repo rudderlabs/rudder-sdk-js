@@ -7,7 +7,7 @@ module.exports = custom({
   skipScope: false,
   defaultType: 'chore',
   defaultScope: 'monorepo',
-  jiraPrefix: '',
+  jiraPrefix: 'SDK',
   jiraAppend: '',
   scopes: [
     'release',

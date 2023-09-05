@@ -65,9 +65,6 @@ jobs:
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/sonar/results-report.xml
 
-          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/loading-scripts/reports/eslint.json
-          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/sanity-suite/reports/eslint.json
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

@@ -1,7 +1,7 @@
 import {
   isDatasetAvailable,
   isLegacyJSEngine,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/dom';
+} from '../../../../src/components/capabilitiesManager/detection/dom';
 
 describe('Capabilities Detection - DOM', () => {
   it('should detect dataset', () => {

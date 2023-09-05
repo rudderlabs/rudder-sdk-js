@@ -1,6 +1,6 @@
-import { ErrorReporting } from '@rudderstack/analytics-js-plugins/errorReporting';
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
+import { ErrorReporting } from '../../src/errorReporting';
 
 describe('Plugin - ErrorReporting', () => {
   const originalState = {

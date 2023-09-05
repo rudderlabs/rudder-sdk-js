@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { configToIntNames } from '@rudderstack/analytics-js-common/v1.1/utils/config_to_integration_names';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
   MAX_WAIT_FOR_INTEGRATION_LOAD,

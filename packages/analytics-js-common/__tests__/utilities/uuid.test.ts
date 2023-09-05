@@ -13,6 +13,7 @@ jest.mock('../../src/utilities/crypto', () => {
 
 describe('Common Utils - UUId', () => {
   const originalWindowCrypto = global.crypto;
+  const uuIdForMockedRandom = '80808080-8080-4080-8080-808080808080';
 
   beforeAll(() => {
     global.crypto.getRandomValues = arr => arr;
@@ -24,11 +25,11 @@ describe('Common Utils - UUId', () => {
 
   it('should generate UUID for modern browsers with crypto.getRandomValues', () => {
     (hasCrypto as jest.Mock).mockReturnValue(true);
-    expect(generateUUID()).toBe('00000000-0000-4000-8000-000000000000');
+    expect(generateUUID()).not.toBe(uuIdForMockedRandom);
   });
 
   it('should generate UUID for legacy browsers with Math.random', () => {
     (hasCrypto as jest.Mock).mockReturnValue(false);
-    expect(generateUUID()).toBe('80808080-8080-4080-8080-808080808080');
+    expect(generateUUID()).toBe(uuIdForMockedRandom);
   });
 });

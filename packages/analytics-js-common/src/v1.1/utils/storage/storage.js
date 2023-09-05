@@ -2,7 +2,7 @@
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
 import get from 'get-value';
-import logger from '../logUtil';
+import { logger } from '../logUtil';
 import { Cookie } from './cookie';
 import { Store } from './store';
 import { fromBase64 } from './v3DecryptionUtils';

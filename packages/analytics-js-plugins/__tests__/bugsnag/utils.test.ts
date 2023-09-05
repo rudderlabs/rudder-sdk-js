@@ -1,4 +1,9 @@
 /* eslint-disable max-classes-per-file */
+import { signal } from '@preact/signals-core';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
   getGlobalBugsnagLibInstance,
@@ -10,12 +15,7 @@ import {
   loadBugsnagSDK,
   onError,
   getAppStateForMetadata,
-} from '@rudderstack/analytics-js-plugins/bugsnag/utils';
-import { signal } from '@preact/signals-core';
-import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/index';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+} from '../../src/bugsnag/utils';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -120,8 +120,9 @@ describe('Bugsnag utilities', () => {
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
       ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
-      ['https://invalid-domain.com/Amplitude.min.js', true],
-      ['https://invalid-domain.com/Qualaroo.min.js', true],
+      ['https://invalid-domain.com/Amplitude.min.js', false],
+      ['https://invalid-domain.com/js-integrations/Amplitude.min.js', true],
+      ['https://invalid-domain.com/js-integrations/Qualaroo.min.js', true],
       ['https://invalid-domain.com/test.js', false],
       ['https://invalid-domain.com/rsa.css', false],
       [undefined, false],

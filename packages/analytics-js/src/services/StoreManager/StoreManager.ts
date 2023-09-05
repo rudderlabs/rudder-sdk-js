@@ -9,16 +9,18 @@ import {
   MEMORY_STORAGE,
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { removeUndefinedValues } from '@rudderstack/analytics-js-common/utilities/object';
+import {
+  mergeDeepRight,
+  removeUndefinedValues,
+} from '@rudderstack/analytics-js-common/utilities/object';
 import {
   DEFAULT_STORAGE_TYPE,
   StorageType,
   UserSessionKeysType,
 } from '@rudderstack/analytics-js-common/types/Storage';
-import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
-import { UserSessionStorageKeysType } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/index';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
+import { UserSessionStorageKeysType } from '../../components/userSessionManager/types';
+import { userSessionStorageKeys } from '../../components/userSessionManager/userSessionStorageKeys';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';

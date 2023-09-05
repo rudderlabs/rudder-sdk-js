@@ -1,13 +1,3 @@
-import {
-  configureStorageEngines,
-  getStorageEngine,
-} from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
@@ -15,6 +5,16 @@ import {
   MEMORY_STORAGE,
   NO_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
+import {
+  configureStorageEngines,
+  getStorageEngine,
+} from '../../../src/services/StoreManager/storages/storageEngine';
+import { state, resetState } from '../../../src/state';
+import { StoreManager } from '../../../src/services/StoreManager';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
 import {
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,

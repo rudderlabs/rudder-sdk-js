@@ -1,25 +1,4 @@
-import * as R from 'ramda';
-import logger from './logUtil';
-
-const mergeDeepRightObjectArrays = (leftValue, rightValue) => {
-  if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
-    return R.clone(rightValue);
-  }
-
-  const mergedArray = R.clone(leftValue);
-  rightValue.forEach((value, index) => {
-    // eslint-disable-next-line no-use-before-define
-    mergedArray[index] = mergeDeepRight(mergedArray[index], value);
-  });
-
-  return mergedArray;
-};
-
-const mergeDeepRight = (leftObject, rightObject) =>
-  R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
-
-const isObjectLiteralAndNotNull = value =>
-  value !== null && Object.prototype.toString.call(value) === '[object Object]';
+import { logger } from './logUtil';
 
 const getCircularReplacer = excludeNull => {
   const ancestors = [];
@@ -48,12 +27,10 @@ const getCircularReplacer = excludeNull => {
   };
 };
 
-const stringifyWithoutCircular = (obj, excludeNull) =>
+const stringifyWithoutCircularV1 = (obj, excludeNull) =>
   JSON.stringify(obj, getCircularReplacer(excludeNull));
 
 const isInstanceOfEvent = value => typeof value === 'object' && value !== null && 'target' in value;
-
-const isNonEmptyObject = value => isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
 
 /**
  * Returns true for empty object {}
@@ -68,13 +45,4 @@ const isEmptyObject = obj => {
   return Object.keys(obj).length === 0;
 };
 
-export {
-  mergeDeepRightObjectArrays,
-  mergeDeepRight,
-  getCircularReplacer,
-  stringifyWithoutCircular,
-  isInstanceOfEvent,
-  isObjectLiteralAndNotNull,
-  isNonEmptyObject,
-  isEmptyObject,
-};
+export { getCircularReplacer, stringifyWithoutCircularV1, isInstanceOfEvent, isEmptyObject };

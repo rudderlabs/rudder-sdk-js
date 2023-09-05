@@ -1,4 +1,4 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/QuoraPixel/constants';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 /* eslint-disable class-methods-use-this */

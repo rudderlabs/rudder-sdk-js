@@ -18,15 +18,12 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
-  CLIENT_DATA_STORE_COOKIE,
-  CLIENT_DATA_STORE_LS,
-} from '@rudderstack/analytics-js/constants/storage';
 import { StorageType, UserSessionKeysType } from '@rudderstack/analytics-js-common/types/Storage';
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { storageClientDataStoreNameMap } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { CLIENT_DATA_STORE_COOKIE, CLIENT_DATA_STORE_LS } from '../../constants/storage';
+import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';

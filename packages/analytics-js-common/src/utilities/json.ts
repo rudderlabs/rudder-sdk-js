@@ -1,10 +1,7 @@
 import { ILogger } from '../types/Logger';
 import { Nullable } from '../types/Nullable';
 import { isNull, isNullOrUndefined } from './checks';
-import {
-  CIRCULAR_REFERENCE_WARNING,
-  JSON_STRINGIFY_WARNING,
-} from '../constants/logMessages';
+import { CIRCULAR_REFERENCE_WARNING, JSON_STRINGIFY_WARNING } from '../constants/logMessages';
 
 const JSON_STRINGIFY = 'JSONStringify';
 

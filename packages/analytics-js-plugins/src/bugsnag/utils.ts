@@ -1,7 +1,8 @@
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/index';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { BugsnagLib } from '../types/plugins';
 import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
 import {
@@ -47,9 +48,15 @@ const isRudderSDKError = (event: any) => {
     return false;
   }
 
+  // Prefix folder for all the destination SDK scripts
+  const isDestinationIntegrationBundle = errorOrigin.includes(CDN_INT_DIR);
   const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
-  return SDK_FILE_NAME_PREFIXES().some(
-    prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
+
+  return (
+    isDestinationIntegrationBundle ||
+    SDK_FILE_NAME_PREFIXES().some(
+      prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
+    )
   );
 };
 

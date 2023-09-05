@@ -1,8 +1,8 @@
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { KetchConsentManager } from '@rudderstack/analytics-js-plugins/ketchConsentManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
+import { KetchConsentManager } from '../../src/ketchConsentManager';
 
 describe('Plugin - KetchConsentManager', () => {
   beforeEach(() => {

@@ -22,9 +22,9 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import Storage from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   getJSONTrimmed,

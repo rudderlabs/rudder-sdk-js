@@ -1,6 +1,6 @@
-import logger from './logUtil';
+import { logger } from './logUtil';
 import { notifyError } from './notifyError';
-import { isInstanceOfEvent, stringifyWithoutCircular } from './ObjectUtils';
+import { isInstanceOfEvent, stringifyWithoutCircularV1 } from './ObjectUtils';
 import { ERROR_MESSAGES_TO_BE_FILTERED, LOAD_ORIGIN } from './constants';
 
 const normalizeError = (error, customMessage, analyticsInstance) => {
@@ -11,7 +11,7 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
     } else if (error instanceof Error) {
       errorMessage = error.message;
     } else {
-      errorMessage = error.message ? error.message : stringifyWithoutCircular(error);
+      errorMessage = error.message ? error.message : stringifyWithoutCircularV1(error);
     }
   } catch (e) {
     errorMessage = '';
@@ -70,7 +70,7 @@ const handleError = (error, customMessage, analyticsInstance) => {
     errorMessage = normalizeError(error, customMessage, analyticsInstance);
   } catch (err) {
     logger.error('[handleError] Exception:: ', err);
-    logger.error('[handleError] Original error:: ', stringifyWithoutCircular(error));
+    logger.error('[handleError] Original error:: ', stringifyWithoutCircularV1(error));
     notifyError(err);
   }
 

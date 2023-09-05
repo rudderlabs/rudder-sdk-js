@@ -1,8 +1,8 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
-import Storage from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,

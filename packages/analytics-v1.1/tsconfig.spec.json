@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "noEmit": true,
+    "sourceMap": true,
+    "inlineSourceMap": true,
+    "isolatedModules": true,
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "jest.config.ts",
+    "__tests__/**/*.ts",
+    "__mocks__/**/*.ts",
+    "__fixtures__/**/*.ts",
+    "__tests__/**/*.js",
+    "__mocks__/**/*.js",
+    "__fixtures__/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.d.ts"
+  ]
+}

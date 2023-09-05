@@ -1,11 +1,11 @@
+import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   LOG_MSG_PREFIX,
   LOG_MSG_PREFIX_STYLE,
   LOG_MSG_STYLE,
   LOG_LEVEL_MAP,
   Logger,
-} from '@rudderstack/analytics-js/services/Logger/Logger';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+} from '../../../src/services/Logger/Logger';
 
 import SpyInstance = jest.SpyInstance;
 

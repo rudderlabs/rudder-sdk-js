@@ -19,7 +19,6 @@ import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
-import copy from "rollup-plugin-copy";
 
 dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
@@ -110,15 +109,6 @@ export function getDefaultConfig(distName) {
         name: modName,
         filename: remotePluginsExportsFilename,
         exposes: pluginsMap,
-      }),
-      !isLegacyBuild && isNpmPackageBuild &&
-      copy({
-        targets: [
-          { src: 'package.json', dest: outDirNpmRoot },
-          { src: 'README.md', dest: outDirNpmRoot },
-          { src: 'CHANGELOG.md', dest: outDirNpmRoot },
-          { src: 'LICENSE', dest: outDirNpmRoot },
-        ],
       }),
       process.env.UGLIFY === 'true' &&
       terser({
@@ -222,6 +212,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-plugins',
               replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-common',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
             }
           ]
         }),

@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals-core';
-import { Bugsnag } from '@rudderstack/analytics-js-plugins/bugsnag';
-import * as bugsnagConstants from '@rudderstack/analytics-js-plugins/bugsnag/constants';
 import { clone } from 'ramda';
+import { Bugsnag } from '../../src/bugsnag';
+import * as bugsnagConstants from '../../src/bugsnag/constants';
 
 describe('Plugin - Bugsnag', () => {
   const originalState = {

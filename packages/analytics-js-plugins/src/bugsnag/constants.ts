@@ -1,5 +1,3 @@
-import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
-
 const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and below
 const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';
 const GLOBAL_LIBRARY_OBJECT_NAMES = [
@@ -16,8 +14,7 @@ const MAX_WAIT_FOR_SDK_LOAD_MS = 100 * SDK_LOAD_POLL_INTERVAL_MS; // ms
 
 // Errors from the below scripts are NOT allowed to reach Bugsnag
 const SDK_FILE_NAME_PREFIXES = (): string[] => [
-  'rsa', // Prefix for all the SDK scripts including plugins
-  ...Object.values(destDisplayNamesToFileNamesMap), // Prefixes for all the destination SDK scripts
+  'rsa', // Prefix for all the SDK scripts including plugins and module federated chunks
 ];
 
 const DEV_HOSTS = ['www.test-host.com', 'localhost', '127.0.0.1', '[::1]'];

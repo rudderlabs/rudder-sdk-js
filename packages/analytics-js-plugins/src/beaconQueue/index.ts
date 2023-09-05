@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/index';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
@@ -13,6 +13,7 @@ import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
 import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
 import { BeaconItemsQueue } from './BeaconItemsQueue';
+
 import { BEACON_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { BeaconQueueItemData } from './types';
 import {
