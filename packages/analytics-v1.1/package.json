@@ -2,40 +2,46 @@
   "name": "rudder-sdk-js",
   "version": "2.41.0",
   "description": "RudderStack Javascript SDK",
-  "main": "index.js",
-  "module": "index.es.js",
+  "main": "dist/npm/index.js",
+  "module": "dist/npm/index.es.js",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "import": "./index.es.js",
-      "require": "./index.js"
+      "types": "./dist/npm/index.d.ts",
+      "import": "./dist/npm/index.es.js",
+      "require": "./dist/npm/index.js"
     },
     "./service-worker": {
-      "types": "./service-worker/index.d.ts",
-      "import": "./service-worker/index.es.js",
-      "require": "./service-worker/index.js"
+      "types": "./dist/npm/service-worker/index.d.ts",
+      "import": "./dist/npm/service-worker/index.es.js",
+      "require": "./dist/npm/service-worker/index.js"
     },
     "./service-worker/index.es": {
-      "types": "./service-worker/index.d.ts",
-      "import": "./service-worker/index.es.js"
+      "types": "./dist/npm/service-worker/index.d.ts",
+      "import": "./dist/npm/service-worker/index.es.js"
     }
   },
   "typesVersions": {
     "*": {
       ".": [
-        "index.d.ts"
+        "dist/npm/index.d.ts"
       ],
       "service-worker": [
-        "service-worker/index.d.ts"
+        "dist/npm/service-worker/index.d.ts"
       ],
       "service-worker/index.es": [
-        "service-worker/index.d.ts"
+        "dist/npm/service-worker/index.d.ts"
       ]
     }
   },
   "publishConfig": {
-    "directory": "dist/npm"
+    "access": "public"
   },
+  "files": [
+    "dist/npm",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup --config rollup-configs/rollup.sdk.browser.mjs --watch --environment DEV_SERVER,PROD_DEBUG:inline",
