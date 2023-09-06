@@ -1,7 +1,7 @@
 # Serverless Usage
 
 RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
-It exposes the same interface and features as the [nodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
+It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 
 ## Table of contents
 
