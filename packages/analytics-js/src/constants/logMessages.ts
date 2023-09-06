@@ -5,6 +5,7 @@ import {
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
@@ -197,6 +198,24 @@ const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
 
 const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
 
+const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
+  context: string,
+  selectedStrategy: StorageStrategy | undefined,
+  defaultStrategy: StorageStrategy,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "${Object.values(
+    StorageStrategy,
+  )}". The default storage strategy "${defaultStrategy}" will be used instead.`;
+
+const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
+  context: string,
+  selectedDeliveryType: DeliveryType | undefined,
+  defaultDeliveryType: DeliveryType,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported delivery types: "${Object.values(
+    DeliveryType,
+  )}". The default delivery type "${defaultDeliveryType}" will be used instead.`;
+
 // DEBUG
 
 export {
@@ -248,4 +267,6 @@ export {
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   COOKIE_DATA_ENCODING_ERROR,
+  UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
+  UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
 };

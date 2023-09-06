@@ -96,9 +96,10 @@ export type PreConsentEventsOptions = {
 };
 
 export type PreConsentOptions = {
-  storage: PreConsentStorageOptions;
-  events: PreConsentEventsOptions;
-  trackConsent: boolean;
+  enabled: boolean;
+  storage?: PreConsentStorageOptions;
+  events?: PreConsentEventsOptions;
+  trackConsent?: boolean;
 };
 
 /**

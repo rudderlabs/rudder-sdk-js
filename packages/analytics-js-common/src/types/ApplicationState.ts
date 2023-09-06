@@ -6,7 +6,7 @@ import { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import { BufferedEvent } from './Event';
 import { LifecycleStatus } from './ApplicationLifecycle';
 import { LogLevel } from './Logger';
-import { LoadOptions } from './LoadOptions';
+import { LoadOptions, PreConsentOptions } from './LoadOptions';
 import { Destination } from './Destination';
 import { IntegrationOpts } from './Integration';
 import { SessionInfo } from './Session';
@@ -34,6 +34,7 @@ export type CapabilitiesState = {
 export type ConsentsState = {
   data: Signal<ConsentInfo>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
+  preConsentOptions: Signal<PreConsentOptions>;
 };
 
 export type ContextState = {
