@@ -1,0 +1,18 @@
+{
+	"name": "example-cloudflare-worker",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"start": "wrangler dev"
+	},
+	"devDependencies": {
+		"wrangler": "^3.0.0"
+	},
+	"dependencies": {
+		"@rudderstack/analytics-js-service-worker": "^3.0.0-beta.6",
+		"@vespaiach/axios-fetch-adapter": "^0.3.1",
+		"host-proxy": "^1.0.2",
+		"http-forward": "^0.1.3"
+	}
+}

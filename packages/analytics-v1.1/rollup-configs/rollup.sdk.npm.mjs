@@ -32,11 +32,7 @@ const buildConfig = {
 buildConfig.plugins.push(
   copy({
     targets: [
-      { src: 'types/index.d.ts', dest: npmPackageOutDir },
-      { src: 'package.json', dest: npmPackageOutDir },
-      { src: 'README.md', dest: npmPackageOutDir },
-      { src: 'CHANGELOG.md', dest: npmPackageOutDir },
-      { src: 'LICENSE', dest: npmPackageOutDir },
+      { src: 'types/index.d.ts', dest: npmPackageOutDir }
     ],
   }),
 );
