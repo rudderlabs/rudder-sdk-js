@@ -1,7 +1,7 @@
 # Chrome Extension Usage
 
 RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script
-service worker.
+service worker. It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 
 ## Table of contents
 
@@ -16,7 +16,7 @@ that contains a minimal Chrome/Chromium extension using the newest version of th
 
 ## Background Script
 
-RuderStack npm package JS SDK service worker export can be used as background script. In order to do so you will need to
+RudderStack npm package JS SDK service worker export can be used as background script. In order to do so you will need to
 place it in your Chrome extension resources, either by copying the file from node modules, and have it as part of the
 resources, or by using a JS bundler and bundle it as part of you service worker script.
 
@@ -76,7 +76,7 @@ Sample background script:
 
 ## Content Script
 
-RuderStack JS SDK can be used as content script. In order to do so you will need to place it in your Chrome extension
+RudderStack JS SDK can be used as content script. In order to do so you will need to place it in your Chrome extension
 resources, either by downloading the file and have it as part of the resources or by using a JS bundler and bundle it as
 part of you content script.
 

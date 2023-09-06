@@ -304,6 +304,17 @@ service worker.
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
+### Usage in Serverless runtimes
+
+RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
+
+For examples and specific details look into:
+
+- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
+- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
+
+https://vercel.com/docs/functions/edge-functions/quickstart
+
 ## Contribute
 
 We would love to see you contribute to this project. Get more information on how to contribute [**here**](./CONTRIBUTING.md).

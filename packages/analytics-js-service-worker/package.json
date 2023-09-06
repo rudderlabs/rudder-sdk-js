@@ -6,7 +6,8 @@
   "module": "esm/index.js",
   "exports": {
     "require": "./umd/index.js",
-    "import": "./esm/index.js"
+    "import": "./esm/index.js",
+    "types": "./index.d.ts"
   },
   "types": "./index.d.ts",
   "publishConfig": {
