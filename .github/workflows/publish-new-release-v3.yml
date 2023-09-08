@@ -7,6 +7,9 @@ on:
     types:
       - closed
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   release:
     name: Publish new release v3

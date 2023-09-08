@@ -5,6 +5,9 @@ on:
     branches: ['develop', 'main', 'v3-hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   build:
     name: Build & Code Quality Checks v3

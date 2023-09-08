@@ -7,6 +7,9 @@ permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
   contents: read # This is required for actions/checkout
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   deploy-tag:
     name: Deploy BETA/BugBash Feature v1.1
