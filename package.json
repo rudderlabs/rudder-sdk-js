@@ -8,9 +8,10 @@
   ],
   "scripts": {
     "setup": "npm i",
-    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && nx run-many -t clean --parallel=false",
-    "clean": "nx run-many -t clean --parallel=false && nx reset && git clean -xdf node_modules",
+    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu",
+    "clean": "npm run clean:output && nx reset && git clean -xdf node_modules",
     "clean:cache": "rimraf -rf ./node_modules/.cache",
+    "clean:output": "nx run-many -t clean --parallel=false",
     "start": "nx run-many --targets=start --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",
     "start:modern": "nx run-many --targets=start-modern --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",
     "build": "nx run-many -t build --parallel=false",
