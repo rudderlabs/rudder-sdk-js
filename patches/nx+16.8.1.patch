@@ -1,9 +1,9 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-index 0f92f37..5b625b1 100644
+index 857b809..1c18464 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 @@ -150,6 +150,10 @@ function withRunManyOptions(yargs) {
-         describe: '[deprecated] Run the target on all projects in the workspace',
+         describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
          type: 'boolean',
          default: true,
 +    })
@@ -14,7 +14,7 @@ index 0f92f37..5b625b1 100644
  }
  exports.withRunManyOptions = withRunManyOptions;
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index a9e8197..c6a9430 100644
+index a9e8197..985e89a 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 @@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
@@ -35,7 +35,7 @@ index a9e8197..c6a9430 100644
 +        if (this.args.silent) {
 +            return;
 +        }
-+        
++
          output_1.output.addNewline();
          if (this.failedTasks.length === 0) {
              output_1.output.addVerticalSeparatorWithoutNewLines('green');
