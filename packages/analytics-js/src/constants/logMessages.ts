@@ -205,16 +205,16 @@ const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "${Object.values(
     StorageStrategy,
-  )}". The default storage strategy "${defaultStrategy}" will be used instead.`;
+  )}". The default strategy "${defaultStrategy}" will be used instead.`;
 
 const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   context: string,
   selectedDeliveryType: DeliveryType | undefined,
   defaultDeliveryType: DeliveryType,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported delivery types: "${Object.values(
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "${Object.values(
     DeliveryType,
-  )}". The default delivery type "${defaultDeliveryType}" will be used instead.`;
+  )}". The default type "${defaultDeliveryType}" will be used instead.`;
 
 // DEBUG
 

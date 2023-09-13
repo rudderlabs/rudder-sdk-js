@@ -186,7 +186,7 @@ const updateConsentsState = (logger?: ILogger): void => {
     logger?.warn(
       UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
         CONFIG_MANAGER,
-        storageStrategy,
+        preConsentOpts?.storage?.strategy,
         DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
       ),
     );
@@ -200,7 +200,7 @@ const updateConsentsState = (logger?: ILogger): void => {
     logger?.warn(
       UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE(
         CONFIG_MANAGER,
-        eventsDeliveryType,
+        preConsentOpts?.events?.delivery,
         DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
       ),
     );

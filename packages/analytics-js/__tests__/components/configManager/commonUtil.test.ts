@@ -4,6 +4,7 @@ import {
   getSDKUrl,
   updateReportingState,
   updateStorageState,
+  updateConsentsState,
 } from '../../../src/components/configManager/util/commonUtil';
 import { state, resetState } from '../../../src/state';
 
@@ -21,6 +22,11 @@ const removeScriptElement = () => {
 };
 
 describe('Config Manager Common Utilities', () => {
+  const mockLogger = {
+    warn: jest.fn(),
+    error: jest.fn(),
+  } as unknown as ILogger;
+
   describe('getSDKUrl', () => {
     afterEach(() => {
       removeScriptElement();
@@ -72,13 +78,9 @@ describe('Config Manager Common Utilities', () => {
   });
 
   describe('updateReportingState', () => {
-    afterEach(() => {
+    beforeEach(() => {
       resetState();
     });
-
-    const mockLogger = {
-      warn: jest.fn(),
-    } as unknown as ILogger;
 
     it('should update reporting state with the data from source config', () => {
       const mockSourceConfig = {
@@ -161,10 +163,6 @@ describe('Config Manager Common Utilities', () => {
   });
 
   describe('updateStorageState', () => {
-    const mockLogger = {
-      warn: jest.fn(),
-    } as unknown as ILogger;
-
     beforeEach(() => {
       resetState();
     });
@@ -248,6 +246,117 @@ describe('Config Manager Common Utilities', () => {
       expect(state.storage.migrate.value).toBe(false);
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
+      );
+    });
+  });
+
+  describe('updateConsentsState', () => {
+    beforeEach(() => {
+      resetState();
+    });
+
+    it('should update consents state with the data from load options', () => {
+      state.loadOptions.value.cookieConsentManager = {
+        oneTrust: {
+          enabled: true,
+        },
+      };
+
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: true,
+      };
+
+      updateConsentsState();
+
+      expect(state.consents.activeConsentManagerPluginName.value).toBe('OneTrustConsentManager');
+      expect(state.consents.preConsentOptions.value).toStrictEqual({
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: true,
+      });
+    });
+
+    it('should log an error if the specified consent manager is not supported', () => {
+      state.loadOptions.value.cookieConsentManager = {
+        randomManager: {
+          enabled: true,
+        },
+      };
+
+      updateConsentsState(mockLogger);
+
+      expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "oneTrust,ketch".',
+      );
+    });
+
+    it('should log a warning if the specified storage strategy is not supported', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'random-strategy',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      };
+
+      updateConsentsState(mockLogger);
+
+      expect(state.consents.preConsentOptions.value).toStrictEqual({
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: false,
+      });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The pre-consent storage strategy "random-strategy" is not supported. Please choose one of the following supported strategies: "none,session,anonymousId". The default strategy "none" will be used instead.',
+      );
+    });
+
+    it('should log a warning if the specified events delivery type is not supported', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'random-delivery',
+        },
+        trackConsent: 'random',
+      };
+
+      updateConsentsState(mockLogger);
+
+      expect(state.consents.preConsentOptions.value).toStrictEqual({
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: false,
+      });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The pre-consent events delivery type "random-delivery" is not supported. Please choose one of the following supported types: "immediate,buffer". The default type "immediate" will be used instead.',
       );
     });
   });
