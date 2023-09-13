@@ -12,18 +12,24 @@ const getFederatedModuleImport = (
   switch (pluginName) {
     case PluginName.BeaconQueue:
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
-    case PluginName.DeviceModeTransformation:
-      return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
+    case PluginName.Bugsnag:
+      return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     case PluginName.DeviceModeDestinations:
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
+    case PluginName.DeviceModeTransformation:
+      return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
     case PluginName.ErrorReporting:
       return () => import('rudderAnalyticsRemotePlugins/ErrorReporting');
     case PluginName.ExternalAnonymousId:
       return () => import('rudderAnalyticsRemotePlugins/ExternalAnonymousId');
     case PluginName.GoogleLinker:
       return () => import('rudderAnalyticsRemotePlugins/GoogleLinker');
+    case PluginName.KetchConsentManager:
+      return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
     case PluginName.NativeDestinationQueue:
       return () => import('rudderAnalyticsRemotePlugins/NativeDestinationQueue');
+    case PluginName.OneTrustConsentManager:
+      return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
     case PluginName.StorageEncryption:
       return () => import('rudderAnalyticsRemotePlugins/StorageEncryption');
     case PluginName.StorageEncryptionLegacy:
@@ -32,12 +38,6 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
     case PluginName.XhrQueue:
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
-    case PluginName.OneTrustConsentManager:
-      return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
-    case PluginName.KetchConsentManager:
-      return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
-    case PluginName.Bugsnag:
-      return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     default:
       return undefined;
   }

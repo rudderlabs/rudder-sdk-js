@@ -13,17 +13,17 @@ export interface IPluginsManager {
 
 export enum PluginName {
   BeaconQueue = 'BeaconQueue',
+  Bugsnag = 'Bugsnag',
   DeviceModeDestinations = 'DeviceModeDestinations',
   DeviceModeTransformation = 'DeviceModeTransformation',
   ErrorReporting = 'ErrorReporting',
   ExternalAnonymousId = 'ExternalAnonymousId',
   GoogleLinker = 'GoogleLinker',
+  KetchConsentManager = 'KetchConsentManager',
   NativeDestinationQueue = 'NativeDestinationQueue',
+  OneTrustConsentManager = 'OneTrustConsentManager',
   StorageEncryption = 'StorageEncryption',
   StorageEncryptionLegacy = 'StorageEncryptionLegacy',
   StorageMigrator = 'StorageMigrator',
   XhrQueue = 'XhrQueue',
-  OneTrustConsentManager = 'OneTrustConsentManager',
-  KetchConsentManager = 'KetchConsentManager',
-  Bugsnag = 'Bugsnag',
 }

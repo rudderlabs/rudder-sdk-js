@@ -8,6 +8,9 @@ on:
     branches: ['production', 'production-staging', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   build:
     name: 'Unit Tests, Coverage & Sonar'
