@@ -94,7 +94,7 @@ const STORAGE_TYPE_VALIDATION_WARNING = (
   storageType: any,
   defaultStorageType: StorageType,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported storage types: "${SUPPORTED_STORAGE_TYPES}". The default storage "${defaultStorageType}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default type "${defaultStorageType}" will be used instead.`;
 
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,

@@ -98,7 +98,7 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
 const updateStorageState = (logger?: ILogger): void => {
   const storageOptsFromLoad = state.loadOptions.value.storage;
   let storageType = storageOptsFromLoad?.type;
-  if (storageType && !isValidStorageType(storageType)) {
+  if (isDefined(storageType) && !isValidStorageType(storageType)) {
     logger?.warn(
       STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
     );

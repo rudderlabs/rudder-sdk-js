@@ -175,12 +175,16 @@ describe('Config Manager Common Utilities', () => {
           version: 'v3',
         },
         migrate: true,
+        cookie: {
+          domain: 'rudderstack.com',
+        },
       };
 
       updateStorageState();
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(state.storage.migrate.value).toBe(true);
+      expect(state.storage.cookie.value).toStrictEqual({ domain: 'rudderstack.com' });
     });
 
     it('should update storage state with the data even if encryption version is not specified', () => {
@@ -189,6 +193,19 @@ describe('Config Manager Common Utilities', () => {
       updateStorageState(mockLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
+    });
+
+    it('should log a warning if the specified storage type is not valid', () => {
+      state.loadOptions.value.storage = {
+        type: 'random-type',
+      };
+
+      updateStorageState(mockLogger);
+
+      expect(state.storage.type.value).toBe('cookieStorage');
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "cookieStorage" will be used instead.',
+      );
     });
 
     it('should log a warning if the encryption version is not supported', () => {
