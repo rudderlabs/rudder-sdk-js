@@ -9,7 +9,7 @@ export interface IUserSessionManager {
   init(): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;
-  refreshSession(): void;
+  refreshSession(updateSessionStartStatus?: boolean): void;
   getGroupId(): Nullable<string>;
   getUserId(): Nullable<string>;
   setUserId(userId?: null | string): void;

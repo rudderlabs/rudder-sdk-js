@@ -445,10 +445,13 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to update current session info after each event call
    */
-  refreshSession(): void {
+  refreshSession(updateSessionStartStatus?: boolean): void {
     if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
       if (state.session.sessionInfo.value.autoTrack) {
         this.startOrRenewAutoTracking();
+      }
+      if (!updateSessionStartStatus) {
+        return;
       }
       if (state.session.sessionInfo.value.sessionStart === undefined) {
         state.session.sessionInfo.value = {

@@ -380,7 +380,7 @@ describe('User session manager', () => {
   it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
     userSessionManager.init();
     state.session.sessionInfo.value = {};
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value).toStrictEqual({});
   });
   it('refreshSession: should return session id and sessionStart when auto tracking is enabled', () => {
@@ -392,7 +392,7 @@ describe('User session manager', () => {
       id: 1683613729115,
       sessionStart: true,
     };
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value).toEqual({
       autoTrack: true,
       timeout: 10 * 60 * 1000,
@@ -405,7 +405,7 @@ describe('User session manager', () => {
     const manualTrackingSessionId = 1029384756;
     userSessionManager.init();
     userSessionManager.start(manualTrackingSessionId);
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value).toEqual({
       id: manualTrackingSessionId,
       sessionStart: true,
@@ -422,7 +422,7 @@ describe('User session manager', () => {
       id: 1683613729115,
       sessionStart: false,
     };
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value).toEqual({
       autoTrack: true,
       timeout: 10 * 60 * 1000,
@@ -433,16 +433,21 @@ describe('User session manager', () => {
   });
   it('refreshSession: should return only session id from the second event of the auto session tracking', () => {
     userSessionManager.initializeSessionTracking();
-    userSessionManager.refreshSession(); // sessionInfo For First Event
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true); // sessionInfo For First Event
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value.sessionStart).toBe(false);
   });
   it('refreshSession: should return only session id from the second event of the manual session tracking', () => {
     const manualTrackingSessionId = 1029384756;
     userSessionManager.start(manualTrackingSessionId);
-    userSessionManager.refreshSession(); // sessionInfo For First Event
-    userSessionManager.refreshSession();
+    userSessionManager.refreshSession(true); // sessionInfo For First Event
+    userSessionManager.refreshSession(true);
     expect(state.session.sessionInfo.value.sessionStart).toBe(false);
+  });
+  it('refreshSession: should not update sessionStart  status if the flag is not passed', () => {
+    userSessionManager.initializeSessionTracking();
+    userSessionManager.refreshSession(); // sessionInfo For First Event
+    expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
   it('startAutoTracking: should create a new session in case of invalid session', () => {
     userSessionManager.init();
