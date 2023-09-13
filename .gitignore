@@ -8,6 +8,7 @@
 
 # testing
 reports/
+stats/
 
 # production
 *.tgz

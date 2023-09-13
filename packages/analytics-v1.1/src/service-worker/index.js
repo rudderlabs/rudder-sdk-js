@@ -322,7 +322,7 @@ class Analytics {
    * Flush the current queue
    *
    * @param {Function} [callback] (optional)
-   * @return {Analytics}
+   * @return
    */
 
   flush(callback) {
@@ -374,6 +374,11 @@ class Analytics {
       });
       callback(err, data);
     };
+
+    if (data.batch.length === 0) {
+      this.logger.debug('batch is empty, nothing to flush');
+      return setImmediate(callback);
+    }
 
     // Don't set the user agent if we're not on a browser. The latest spec allows
     // the User-Agent header (see https://fetch.spec.whatwg.org/#terminology-headers

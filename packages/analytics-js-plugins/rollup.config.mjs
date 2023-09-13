@@ -43,12 +43,12 @@ const pluginsMap = {
   './ErrorReporting': './src/errorReporting/index.ts',
   './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
   './GoogleLinker': './src/googleLinker/index.ts',
+  './KetchConsentManager': './src/ketchConsentManager/index.ts',
   './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
   './OneTrustConsentManager': './src/oneTrustConsentManager/index.ts',
-  './KetchConsentManager': './src/ketchConsentManager/index.ts',
   './StorageEncryption': './src/storageEncryption/index.ts',
-  './StorageMigrator': './src/storageMigrator/index.ts',
   './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
+  './StorageMigrator': './src/storageMigrator/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 
