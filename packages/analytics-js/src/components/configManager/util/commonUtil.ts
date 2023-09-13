@@ -89,11 +89,9 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
       );
     }
 
-    batch(() => {
-      state.reporting.errorReportingProviderPluginName.value =
-        errReportingProviderPlugin ??
-        ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
-    });
+    state.reporting.errorReportingProviderPluginName.value =
+      errReportingProviderPlugin ??
+      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
   }
 };
 
