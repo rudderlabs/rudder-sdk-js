@@ -61,6 +61,11 @@ jobs:
           npm run build:browser
           npm run build:browser:modern
 
+      - name: Sync file to S3 adobe-analytics-js assets folder
+        run: |
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
+
 #      - name: Sync files to S3 v1.1 folder
 #        run: |
 #          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
