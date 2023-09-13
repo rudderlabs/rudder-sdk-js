@@ -6,19 +6,19 @@ export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
 // Not using the analytics-js package enums to avoid generation of another shared bundle
 export type PluginName =
   | 'BeaconQueue'
+  | 'Bugsnag'
   | 'DeviceModeDestinations'
   | 'DeviceModeTransformation'
   | 'ErrorReporting'
   | 'ExternalAnonymousId'
   | 'GoogleLinker'
+  | 'KetchConsentManager'
   | 'NativeDestinationQueue'
+  | 'OneTrustConsentManager'
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
   | 'StorageMigrator'
-  | 'XhrQueue'
-  | 'OneTrustConsentManager'
-  | 'KetchConsentManager'
-  | 'Bugsnag';
+  | 'XhrQueue';
 
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
@@ -40,7 +40,7 @@ export type QueueItemData =
   | number[];
 
 /**
- * @callback processFunc
+ * @callback QueueProcessCallback
  * @param {any} item The item added to the queue to process
  * @param {Function} done A function to call when processing is completed.
  * @param {Number} retryAttemptNumber The number of times this item has been attempted to retry
@@ -58,7 +58,7 @@ export type QueueProcessCallback<T = any> = (
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;
 
 /**
- * @callback doneCallback
+ * @callback DoneCallback
  * @param {Error} Optional error parameter if the processing failed
  * @param {Response} Optional response parameter to emit for async handling
  */
