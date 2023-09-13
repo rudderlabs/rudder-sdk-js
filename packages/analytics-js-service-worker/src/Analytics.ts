@@ -399,7 +399,7 @@ class Analytics implements IAnalytics {
    * Flush the current queue
    *
    * @param {Function} [callback] (optional)
-   * @return {Analytics}
+   * @return {any}
    */
 
   flush(callback?: ApiCallback): any {
@@ -470,6 +470,11 @@ class Analytics implements IAnalytics {
 
     const reqTimeout =
       typeof this.timeout === 'string' ? parseInt(ms(this.timeout), 10) : this.timeout;
+
+    if (data.batch.length === 0) {
+      this.logger.debug('batch is empty, nothing to flush');
+      return setImmediate(callback);
+    }
 
     if (this.flushOverride) {
       this.flushOverride({
