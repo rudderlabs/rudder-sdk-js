@@ -8,3 +8,4 @@ export * as QueueStatuses from './QueueStatuses';
 export * as storages from './storages';
 export * as timeouts from './timeouts';
 export * as urls from './urls';
+export * as consent from './consent';
