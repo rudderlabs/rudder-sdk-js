@@ -1,11 +1,22 @@
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import {
+  DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
+  DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
+} from '@rudderstack/analytics-js-common/constants/consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
+  STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
+  UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
+  UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
 } from '../../../constants/logMessages';
 import {
@@ -16,11 +27,14 @@ import {
 import { removeTrailingSlashes } from '../../utilities/url';
 import { SourceConfigResponse } from '../types';
 import {
+  ConsentManagersToPluginNameMap,
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
+import { isValidStorageType } from './validate';
+import { getUserSelectedConsentManager } from '../../utilities/consent';
 
 /**
  * Determines the SDK url
@@ -82,7 +96,16 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
 };
 
 const updateStorageState = (logger?: ILogger): void => {
-  let storageEncryptionVersion = state.loadOptions.value.storage?.encryption?.version;
+  const storageOptsFromLoad = state.loadOptions.value.storage;
+  let storageType = storageOptsFromLoad?.type;
+  if (isDefined(storageType) && !isValidStorageType(storageType)) {
+    logger?.warn(
+      STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
+    );
+    storageType = DEFAULT_STORAGE_TYPE;
+  }
+
+  let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;
   const encryptionPluginName =
     storageEncryptionVersion && StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
 
@@ -101,28 +124,102 @@ const updateStorageState = (logger?: ILogger): void => {
     storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
   }
 
+  // Allow migration only if the configured encryption version is the default encryption version
+  const configuredMigrationValue = storageOptsFromLoad?.migrate;
+  const finalMigrationVal =
+    (configuredMigrationValue as boolean) &&
+    storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
+
+  if (
+    configuredMigrationValue === true &&
+    state.storage.migrate.value !== configuredMigrationValue
+  ) {
+    logger?.warn(
+      STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
+        CONFIG_MANAGER,
+        storageEncryptionVersion,
+        DEFAULT_STORAGE_ENCRYPTION_VERSION,
+      ),
+    );
+  }
+
   batch(() => {
+    state.storage.type.value = storageType;
+    state.storage.cookie.value = storageOptsFromLoad?.cookie;
+
     state.storage.encryptionPluginName.value =
       StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
 
-    // Allow migration only if the configured encryption version is the default encryption version
-    const configuredMigrationValue = state.loadOptions.value.storage?.migrate;
-    state.storage.migrate.value =
-      (configuredMigrationValue as boolean) &&
-      storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
-    if (
-      configuredMigrationValue === true &&
-      state.storage.migrate.value !== configuredMigrationValue
-    ) {
-      logger?.warn(
-        STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
-          CONFIG_MANAGER,
-          storageEncryptionVersion,
-          DEFAULT_STORAGE_ENCRYPTION_VERSION,
-        ),
-      );
-    }
+    state.storage.migrate.value = finalMigrationVal;
   });
 };
 
-export { getSDKUrl, updateReportingState, updateStorageState };
+const updateConsentsState = (logger?: ILogger): void => {
+  // Get the consent manager if provided as load option
+  const selectedConsentManager = getUserSelectedConsentManager(
+    state.loadOptions.value.cookieConsentManager,
+  );
+
+  let consentManagerPluginName: PluginName | undefined;
+  if (selectedConsentManager) {
+    // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+    consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
+    if (!consentManagerPluginName) {
+      logger?.error(
+        UNSUPPORTED_CONSENT_MANAGER_ERROR(
+          CONFIG_MANAGER,
+          selectedConsentManager,
+          ConsentManagersToPluginNameMap,
+        ),
+      );
+    }
+  }
+
+  // Pre-consent
+  const preConsentOpts = state.loadOptions.value.preConsent;
+
+  let storageStrategy: StorageStrategy =
+    preConsentOpts?.storage?.strategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+  if (isDefined(storageStrategy) && !Object.values(StorageStrategy).includes(storageStrategy)) {
+    storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+
+    logger?.warn(
+      UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
+        CONFIG_MANAGER,
+        preConsentOpts?.storage?.strategy,
+        DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
+      ),
+    );
+  }
+
+  let eventsDeliveryType: DeliveryType =
+    preConsentOpts?.events?.delivery ?? DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;
+  if (isDefined(eventsDeliveryType) && !Object.values(DeliveryType).includes(eventsDeliveryType)) {
+    eventsDeliveryType = DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;
+
+    logger?.warn(
+      UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE(
+        CONFIG_MANAGER,
+        preConsentOpts?.events?.delivery,
+        DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
+      ),
+    );
+  }
+
+  batch(() => {
+    state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+
+    state.consents.preConsentOptions.value = {
+      enabled: state.loadOptions.value.preConsent?.enabled === true,
+      storage: {
+        strategy: storageStrategy,
+      },
+      events: {
+        delivery: eventsDeliveryType,
+      },
+      trackConsent: state.loadOptions.value.preConsent?.trackConsent === true,
+    };
+  });
+};
+
+export { getSDKUrl, updateReportingState, updateStorageState, updateConsentsState };

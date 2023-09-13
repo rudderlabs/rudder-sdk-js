@@ -92,7 +92,6 @@ const getUpdatedPageProperties = (
 /**
  * Utility to check for reserved keys in the input object
  * @param obj Generic object
- * @param eventType Rudder event type
  * @param parentKeyPath Object's parent key path
  * @param logger Logger instance
  */
