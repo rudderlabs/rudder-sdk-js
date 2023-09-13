@@ -51,7 +51,7 @@ class EventManager implements IEventManager {
    * @param event Incoming event data
    */
   addEvent(event: APIEvent) {
-    this.userSessionManager.refreshSession(true);
+    this.userSessionManager.refreshSession();
     const rudderEvent = this.eventFactory.create(event);
     if (rudderEvent) {
       this.eventRepository.enqueue(rudderEvent, event.callback);
