@@ -223,7 +223,7 @@ describe('xhrQueue Plugin Utilities', () => {
         headers: {
           AnonymousId: 'anonymous-id',
         },
-        data: '{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z","integrations":{"All":true}}',
+        data: '{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z"}',
       });
     });
 
@@ -264,7 +264,7 @@ describe('xhrQueue Plugin Utilities', () => {
         headers: {
           AnonymousId: 'anonymous-id1',
         },
-        data: '{"batch":[{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z","integrations":{"All":true}},{"type":"track","properties":{"prop2":"value2"},"sentAt":"2021-01-01T00:00:00.000Z","integrations":{"All":true}}]}',
+        data: '{"batch":[{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z"},{"type":"track","properties":{"prop2":"value2"},"sentAt":"2021-01-01T00:00:00.000Z"}]}',
       });
     });
   });
