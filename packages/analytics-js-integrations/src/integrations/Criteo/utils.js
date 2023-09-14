@@ -1,5 +1,5 @@
 import md5 from 'md5';
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 
 /**

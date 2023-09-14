@@ -3,6 +3,9 @@ name: Draft new release v1.1
 on:
   workflow_dispatch:
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   draft-new-release:
     name: Draft a new release v1.1

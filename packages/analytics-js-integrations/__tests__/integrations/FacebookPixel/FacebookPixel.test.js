@@ -32,13 +32,10 @@ describe('FacebookPixel init tests', () => {
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
     expect(facebookPixel.userPayload).toStrictEqual({
-      db: undefined,
       em: 'abce@rudderstack.com',
       external_id: 'd06773e1bf4b8a96a4786fbb8e3444092438ad29401769613ae9e0e3e1e08a84',
       fn: 'rudder',
-      ge: undefined,
       ln: 'stack',
-      ph: undefined,
     });
   });
 
@@ -56,11 +53,7 @@ describe('FacebookPixel init tests', () => {
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
     expect(facebookPixel.userPayload).toStrictEqual({
-      db: undefined,
-      em: undefined,
       external_id: 'd4e669b42293a60cc65b22830a922824e6e9c7736c6058fbbb3de780d2f4a17f',
-      ge: undefined,
-      ph: undefined,
     });
   });
 

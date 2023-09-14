@@ -1,25 +1,17 @@
 /* eslint-disable class-methods-use-this */
 import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import {
-  isValidSourceConfig,
-  isValidStorageType,
-  validateLoadArgs,
-} from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
+import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
-  STORAGE_TYPE_VALIDATION_WARNING,
-  UNSUPPORTED_CONSENT_MANAGER_ERROR,
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
@@ -29,9 +21,7 @@ import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import { IConfigManager, SourceConfigResponse } from './types';
-import { getUserSelectedConsentManager } from '../utilities/consent';
-import { updateReportingState, updateStorageState } from './util/commonUtil';
-import { ConsentManagersToPluginNameMap } from './constants';
+import { updateConsentsState, updateReportingState, updateStorageState } from './util/commonUtil';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -60,7 +50,6 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    let consentManagerPluginName: PluginName | undefined;
     this.attachEffects();
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
 
@@ -75,26 +64,8 @@ class ConfigManager implements IConfigManager {
     // determine the path to fetch remote plugins from
     const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
 
-    // Get the consent manager if provided as load option
-    const selectedConsentManager = getUserSelectedConsentManager(
-      state.loadOptions.value.cookieConsentManager,
-    );
-
-    if (selectedConsentManager) {
-      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-      consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
-      if (!consentManagerPluginName) {
-        this.logger?.error(
-          UNSUPPORTED_CONSENT_MANAGER_ERROR(
-            CONFIG_MANAGER,
-            selectedConsentManager,
-            ConsentManagersToPluginNameMap,
-          ),
-        );
-      }
-    }
-
     updateStorageState(this.logger);
+    updateConsentsState(this.logger);
 
     // set application lifecycle state in global state
     batch(() => {
@@ -111,20 +82,6 @@ class ConfigManager implements IConfigManager {
         lockIntegrationsVersion,
         this.logger,
       );
-
-      // Set consent manager plugin name in state
-      state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
-
-      // set storage type in state
-      const storageType = state.loadOptions.value.storage?.type;
-      if (!isValidStorageType(storageType)) {
-        this.logger?.warn(
-          STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
-        );
-        state.storage.type.value = DEFAULT_STORAGE_TYPE;
-      } else {
-        state.storage.type.value = storageType;
-      }
     });
 
     this.getConfig();
@@ -172,6 +129,9 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
+    // set the values in state for reporting slice
+    updateReportingState(res, this.logger);
+
     // determine the dataPlane url
     const dataPlaneUrl = resolveDataPlaneUrl(
       res.source.dataplanes,
@@ -197,9 +157,6 @@ class ConfigManager implements IConfigManager {
 
       // set device mode destination related information in state
       state.nativeDestinations.configuredDestinations.value = nativeDestinations;
-
-      // set the values in state for reporting slice
-      updateReportingState(res, this.logger);
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];

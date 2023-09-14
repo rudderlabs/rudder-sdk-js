@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 import { batch } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
@@ -11,17 +10,17 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { generateUUID } from '@rudderstack/analytics-js-common/index';
-import { Schedule } from '@rudderstack/analytics-js-plugins/utilities/retryQueue/Schedule';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { XhrQueue } from '../../src/xhrQueue';
+import { Schedule } from '../../src/utilities/retryQueue/Schedule';
 
-jest.mock('@rudderstack/analytics-js-common/utilities', () => ({
-  ...jest.requireActual('@rudderstack/analytics-js-common/utilities'),
+jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
 }));
 
-jest.mock('@rudderstack/analytics-js-common/index', () => ({
-  ...jest.requireActual('@rudderstack/analytics-js-common/index'),
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
   generateUUID: jest.fn(() => 'sample_uuid'),
 }));
 

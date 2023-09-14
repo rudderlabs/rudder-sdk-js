@@ -49,6 +49,14 @@ const isDefined = (value: any): boolean => !isUndefined(value);
 const isDefinedAndNotNull = (value: any): boolean => !isNullOrUndefined(value);
 
 /**
+ * A function to check given value is defined and not null
+ * @param value input value
+ * @returns boolean
+ */
+const isDefinedNotNullAndNotEmptyString = (value: any): boolean =>
+  isDefinedAndNotNull(value) && value !== '';
+
+/**
  * Determines if the input is an instance of Error
  * @param obj input value
  * @returns true if the input is an instance of Error and false otherwise
@@ -64,4 +72,5 @@ export {
   isTypeOfError,
   isDefined,
   isDefinedAndNotNull,
+  isDefinedNotNullAndNotEmptyString,
 };

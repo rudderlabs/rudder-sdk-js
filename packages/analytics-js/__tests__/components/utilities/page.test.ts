@@ -4,7 +4,7 @@ import {
   getUserAgent,
   getDefaultPageProperties,
   getReferrer,
-} from '@rudderstack/analytics-js/components/utilities/page';
+} from '../../../src/components/utilities/page';
 
 describe('utilities - page', () => {
   let windowSpy: any;

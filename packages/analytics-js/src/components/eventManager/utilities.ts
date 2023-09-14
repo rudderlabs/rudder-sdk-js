@@ -92,7 +92,6 @@ const getUpdatedPageProperties = (
 /**
  * Utility to check for reserved keys in the input object
  * @param obj Generic object
- * @param eventType Rudder event type
  * @param parentKeyPath Object's parent key path
  * @param logger Logger instance
  */
@@ -266,18 +265,22 @@ const getEnrichedEvent = (
     userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
-  if (state.storage.type.value === NO_STORAGE) {
+  if (state.storage.entries.value.anonymousId?.type === NO_STORAGE) {
     // Generate new anonymous id for each request
     commonEventData.anonymousId = generateUUID();
-    (commonEventData.context as RudderContext).anonymousTracking = true;
   } else {
     // Type casting to string as the user session manager will take care of initializing the value
-    commonEventData.anonymousId = state.session.anonymousUserId.value as string;
+    commonEventData.anonymousId = state.session.anonymousId.value as string;
+  }
+
+  // set truly anonymous tracking flag
+  if (state.storage.trulyAnonymousTracking.value) {
+    (commonEventData.context as RudderContext).trulyAnonymousTracking = true;
   }
 
   if (rudderEvent.type === RudderEventType.Identify) {
     (commonEventData.context as RudderContext).traits =
-      state.storage.type.value !== NO_STORAGE
+      state.storage.entries.value.userTraits?.type !== NO_STORAGE
         ? clone(state.session.userTraits.value)
         : (rudderEvent.context as RudderContext).traits;
   }
@@ -289,7 +292,7 @@ const getEnrichedEvent = (
 
     if (rudderEvent.traits || state.session.groupTraits.value) {
       commonEventData.traits =
-        state.storage.type.value !== NO_STORAGE
+        state.storage.entries.value.groupTraits?.type !== NO_STORAGE
           ? clone(state.session.groupTraits.value)
           : rudderEvent.traits;
     }

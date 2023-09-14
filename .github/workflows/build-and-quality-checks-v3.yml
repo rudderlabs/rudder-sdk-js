@@ -5,6 +5,9 @@ on:
     branches: ['develop', 'main', 'v3-hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   build:
     name: Build & Code Quality Checks v3
@@ -42,6 +45,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
-          build_script: check:size:build -- --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js'
-          script: npx lerna@6 exec --loglevel=silent --concurrency 1 --scope '@rudderstack/analytics-js' --scope '@rudderstack/analytics-js-common' --scope '@rudderstack/analytics-js-plugins' --scope '@rudderstack/analytics-js-service-worker' --scope 'rudder-sdk-js' -- npm run check:size:json --silent
+          build_script: check:size:build
+          clean_script: clean:output
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
           is_monorepo: true

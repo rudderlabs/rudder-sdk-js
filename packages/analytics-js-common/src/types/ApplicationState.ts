@@ -1,19 +1,20 @@
 import { Signal } from '@preact/signals-core';
 import { PluginName } from './PluginsManager';
 import { Nullable } from './Nullable';
-import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
 import { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import { BufferedEvent } from './Event';
 import { LifecycleStatus } from './ApplicationLifecycle';
 import { LogLevel } from './Logger';
-import { LoadOptions } from './LoadOptions';
+import { LoadOptions, PreConsentOptions } from './LoadOptions';
 import { Destination } from './Destination';
 import { IntegrationOpts } from './Integration';
 import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentInfo } from './Consent';
-import { StorageType } from './Storage';
+import { StorageType, CookieOptions } from './Storage';
+import { UserSessionKeys } from './userSessionStorageKeys';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -33,6 +34,7 @@ export type CapabilitiesState = {
 export type ConsentsState = {
   data: Signal<ConsentInfo>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
+  preConsentOptions: Signal<PreConsentOptions>;
 };
 
 export type ContextState = {
@@ -109,7 +111,7 @@ export type ReportingState = {
 export type SessionState = {
   readonly userId: Signal<Nullable<string> | undefined>;
   readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
-  readonly anonymousUserId: Signal<string | undefined>;
+  readonly anonymousId: Signal<string | undefined>;
   readonly groupId: Signal<Nullable<string> | undefined>;
   readonly groupTraits: Signal<Nullable<ApiObject> | undefined>;
   readonly initialReferrer: Signal<string | undefined>;
@@ -119,10 +121,21 @@ export type SessionState = {
 
 export type SourceConfigState = Signal<Source | undefined>;
 
+export type StorageEntry = {
+  type: StorageType;
+  key: string;
+};
+export type StorageEntries = {
+  [key in UserSessionKeys]?: StorageEntry;
+};
+
 export type StorageState = {
   encryptionPluginName: Signal<PluginName | undefined>;
   migrate: Signal<boolean>;
   type: Signal<StorageType | undefined>;
+  cookie: Signal<CookieOptions | undefined>;
+  entries: Signal<StorageEntries>;
+  trulyAnonymousTracking: Signal<boolean>;
 };
 
 export interface ApplicationState {

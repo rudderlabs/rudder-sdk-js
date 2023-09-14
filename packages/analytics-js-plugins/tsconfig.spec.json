@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "noEmit": true,
+    "sourceMap": true,
+    "inlineSourceMap": true,
+    "isolatedModules": true,
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "jest.config.ts",
+    "__tests__/**/*.ts",
+    "__mocks__/**/*.ts",
+    "__fixtures__/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "../analytics-js-common/src/**/*",
+    "../analytics-js/src/**/*"
+  ]
+}

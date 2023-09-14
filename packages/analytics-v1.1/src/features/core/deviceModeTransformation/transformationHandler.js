@@ -4,7 +4,7 @@
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
 
@@ -129,7 +129,7 @@ class TransformationsHandler {
             }
           }
         };
-        xhr.send(stringifyWithoutCircular(payload, true));
+        xhr.send(stringifyWithoutCircularV1(payload, true));
       } catch (error) {
         reject(error);
       }

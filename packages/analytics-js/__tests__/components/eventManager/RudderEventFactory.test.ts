@@ -1,6 +1,4 @@
-import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
-import { RudderEventFactory } from '@rudderstack/analytics-js/components/eventManager/RudderEventFactory';
 import { APIEvent, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import {
@@ -8,8 +6,9 @@ import {
   LibraryInfo,
   OSInfo,
   ScreenInfo,
-  UTMParameters,
 } from '@rudderstack/analytics-js-common/types/EventContext';
+import { state } from '../../../src/state';
+import { RudderEventFactory } from '../../../src/components/eventManager/RudderEventFactory';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -24,7 +23,7 @@ describe('RudderEventFactory', () => {
 
   beforeEach(() => {
     batch(() => {
-      state.session.anonymousUserId.value = 'anon_id';
+      state.session.anonymousId.value = 'anon_id';
       state.session.userTraits.value = { test: 'test' };
       state.session.userId.value = 'user_id';
       state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;

@@ -1,14 +1,13 @@
-import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
-import { state } from '@rudderstack/analytics-js/state';
-import { getSDKUrl } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { rest } from 'msw';
-import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { batch, effect, signal } from '@preact/signals-core';
-import { getSourceConfigURL } from '@rudderstack/analytics-js/components/utilities/loadOptions';
 import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import { rest } from 'msw';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
+import { ConfigManager } from '../../../src/components/configManager';
+import { state } from '../../../src/state';
+import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
+import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '../../../src/constants/urls';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 

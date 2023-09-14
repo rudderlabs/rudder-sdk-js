@@ -3,7 +3,7 @@ import {
   isBrowser,
   isNode,
   hasUAClientHints,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
+} from '../../../../src/components/capabilitiesManager/detection/browser';
 
 describe('Capabilities Detection - Browser', () => {
   it('should detect browser', () => {

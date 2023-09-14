@@ -6,9 +6,9 @@ export {
   type QueueOpts,
   type BeaconQueueOpts,
   type DestinationsQueueOpts,
-  CookieSameSite,
   UaChTrackLevel,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+export { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
@@ -17,3 +17,4 @@ export { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { RudderAnalytics } from './app/RudderAnalytics';
 export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
+export { type PreloadedEventCall } from './components/preloadBuffer/types';

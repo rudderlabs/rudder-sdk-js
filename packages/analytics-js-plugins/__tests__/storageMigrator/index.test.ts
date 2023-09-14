@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals-core';
-import { StorageMigrator } from '@rudderstack/analytics-js-plugins/storageMigrator';
 import { clone } from 'ramda';
+import { StorageMigrator } from '../../src/storageMigrator';
 
 describe('Plugin - Storage Migrator', () => {
   const originalState = {

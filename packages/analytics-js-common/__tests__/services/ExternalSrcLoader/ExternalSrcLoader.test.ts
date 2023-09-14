@@ -1,8 +1,8 @@
-import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
+import { ExternalSrcLoader } from '../../../src/services/ExternalSrcLoader';
 import {
   createScriptElement,
   insertScript,
-} from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/jsFileLoader';
+} from '../../../src/services/ExternalSrcLoader/jsFileLoader';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted, toBase64 } from '@rudderstack/analytics-js-common/index';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';

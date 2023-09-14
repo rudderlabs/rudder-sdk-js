@@ -1,11 +1,8 @@
 import {
   isStorageQuotaExceeded,
   isStorageAvailable,
-} from '@rudderstack/analytics-js/components/capabilitiesManager/detection/storage';
-import {
-  CookieStorage,
-  InMemoryStorage,
-} from '@rudderstack/analytics-js/services/StoreManager/storages';
+} from '../../../../src/components/capabilitiesManager/detection/storage';
+import { CookieStorage, InMemoryStorage } from '../../../../src/services/StoreManager/storages';
 
 describe('Capabilities Detection - Storage', () => {
   it('should detect localstorage size limit errors', () => {

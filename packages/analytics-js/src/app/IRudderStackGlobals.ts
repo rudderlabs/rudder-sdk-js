@@ -9,6 +9,7 @@ export type ExposedGlobals = {
   state?: ApplicationState;
   preloadedEventsBuffer?: PreloadedEventCall[];
   pluginsCDNPath?: string;
+  [key: string]: any;
 };
 
 /**

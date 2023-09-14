@@ -1,6 +1,6 @@
-import { RudderAnalytics } from '@rudderstack/analytics-js/app/RudderAnalytics';
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
 import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { RudderAnalytics } from '../../src/app/RudderAnalytics';
+import { Analytics } from '../../src/components/core/Analytics';
 
 jest.mock('../../src/components/core/Analytics');
 
@@ -42,10 +42,10 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
   });
 
-  it('should not auto set the default analytics key if analytics instances exist', () => {
+  it('should auto set the default analytics key if analytics instances exist', () => {
     rudderAnalytics.setDefaultInstanceKey('writeKey2');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey2');
   });
 
   it('should return an existing analytics instance', () => {

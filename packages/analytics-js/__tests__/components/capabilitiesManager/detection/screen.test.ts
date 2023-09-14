@@ -1,4 +1,4 @@
-import { getScreenDetails } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
+import { getScreenDetails } from '../../../../src/components/capabilitiesManager/detection/screen';
 
 describe('Capabilities Detection - Screen', () => {
   it('should get screen details', () => {

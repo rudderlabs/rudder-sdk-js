@@ -1,4 +1,4 @@
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 
 function loadNativeSdk(accountId) {
   window._dcq = window._dcq || [];

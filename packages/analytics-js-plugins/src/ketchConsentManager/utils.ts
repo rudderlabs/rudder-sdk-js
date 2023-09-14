@@ -2,7 +2,8 @@
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { fromBase64, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities';
+import { fromBase64 } from '@rudderstack/analytics-js-common/utilities/string';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
 import {

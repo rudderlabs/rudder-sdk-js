@@ -1,0 +1,116 @@
+{
+  "name": "@rudderstack/analytics-js-plugins",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/analytics-js-plugins/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "start": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "start"
+      }
+    },
+    "start-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "start:modern"
+      }
+    },
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "build-browser": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser"
+      }
+    },
+    "build-browser-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:modern"
+      }
+    },
+    "build-npm": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:npm"
+      }
+    },
+    "build-npm-modern": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:npm:modern"
+      }
+    },
+    "build-package": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:package"
+      },
+      "dependsOn": ["build-browser-modern"]
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "package"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/analytics-js-plugins/jest.config.ts",
+        "passWithNoTests": true,
+        "codeCoverage": true,
+        "watchAll": false,
+        "forceExit": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "main",
+        "preset": "conventional",
+        "tagPrefix": "{projectName}@",
+        "trackDeps": true
+      }
+    },
+    "github": {
+      "executor": "@jscutlery/semver:github",
+      "options": {
+        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.6",
+        "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "tag": "beta",
+        "access": "public"
+      }
+    }
+  }
+}

@@ -8,6 +8,9 @@ on:
     branches: ['main', 'develop', 'v3-hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
+env:
+  NODE_OPTIONS: "--no-warnings"
+
 jobs:
   build:
     name: 'Unit Tests, Coverage & Sonar v3'
@@ -64,9 +67,6 @@ jobs:
           sed -i 's+home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/coverage/lcov.info
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/eslint.json
           sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/analytics-v1.1/reports/sonar/results-report.xml
-
-          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/loading-scripts/reports/eslint.json
-          sed -i 's+/home/runner/work/rudder-sdk-js/rudder-sdk-js+/github/workspace+g' packages/sanity-suite/reports/eslint.json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

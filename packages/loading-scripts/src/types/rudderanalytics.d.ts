@@ -1,8 +1,8 @@
-import type { RudderAnalytics, IRudderStackGlobals } from '@rudderstack/analytics-js';
+import type { IRudderStackGlobals } from '@rudderstack/analytics-js';
 
 declare global {
   interface Window {
-    rudderanalytics: RudderAnalytics;
+    rudderanalytics: any | any[];
     RudderStackGlobals: IRudderStackGlobals;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';

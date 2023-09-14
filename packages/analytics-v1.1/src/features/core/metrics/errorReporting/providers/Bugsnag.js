@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { configToIntNames } from '@rudderstack/analytics-js-common/v1.1/utils/config_to_integration_names';
-import ScriptLoader from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
 } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { get } from '../../../../../utils/utils';
+import get from 'get-value';
 
 // Using the Bugsnag integration version to avoid version issues
 const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
@@ -198,6 +198,7 @@ class BugsnagProvider {
       enabledBreadcrumbTypes: ['error', 'log', 'user'],
       maxEvents: 100,
       releaseStage: getReleaseStage(),
+      networkBreadcrumbsEnabled: false,
     });
 
     this.onClientReady();

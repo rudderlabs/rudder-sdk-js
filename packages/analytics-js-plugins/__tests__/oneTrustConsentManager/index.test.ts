@@ -1,5 +1,5 @@
-import { OneTrustConsentManager } from '@rudderstack/analytics-js-plugins/oneTrustConsentManager';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { OneTrustConsentManager } from '../../src/oneTrustConsentManager';
 
 describe('Plugin - OneTrustConsentManager', () => {
   beforeEach(() => {

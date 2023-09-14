@@ -1,4 +1,4 @@
-import { sortObjectArrayByProp } from '@rudderstack/analytics-js/components/utilities/sort';
+import { sortObjectArrayByProp } from '../../../src/components/utilities/sort';
 
 describe('Common Utils - Sort', () => {
   const objArray = [{ order: 3 }, { order: 1 }, { order: 2 }];

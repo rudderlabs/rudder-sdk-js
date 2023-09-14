@@ -1,0 +1,44 @@
+{
+  "workspaceLayout": {
+    "appsDir": "packages",
+    "libsDir": "packages"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "build-browser",
+          "build-browser-modern",
+          "build-npm",
+          "build-npm-modern",
+          "build-worker",
+          "build-package",
+          "build-check-size",
+          "check:size:build",
+          "test"
+        ]
+      }
+    }
+  },
+  "defaultBase": "main",
+  "targetDefaults": {
+    "test": {
+      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    }
+  },
+  "targetDependencies": {
+    "version": [
+      {
+        "target": "version",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "generators": {
+    "@nx/js:library": {
+      "buildable": true
+    }
+  }
+}

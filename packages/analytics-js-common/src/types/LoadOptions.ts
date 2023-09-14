@@ -6,7 +6,7 @@ import { IntegrationOpts } from './Integration';
 import { ApiOptions } from './EventApi';
 import { CookieConsentOptions } from './Consent';
 import { ApiObject } from './ApiObject';
-import { StorageOpts } from './Storage';
+import { StorageOpts, CookieSameSite } from './Storage';
 
 export enum UaChTrackLevel {
   None = 'none',
@@ -51,12 +51,6 @@ export type BeaconQueueOpts = {
   flushQueueInterval?: number;
 };
 
-export enum CookieSameSite {
-  Strict = 'Strict',
-  Lax = 'Lax',
-  None = 'None',
-}
-
 /**
  * Represents the queue options parameter in loadOptions type
  */
@@ -81,6 +75,32 @@ export type DestinationsQueueOpts = {
 };
 
 export type OnLoadedCallback = (analytics: any) => void;
+
+export enum DeliveryType {
+  Immediate = 'immediate',
+  Buffer = 'buffer',
+}
+
+export enum StorageStrategy {
+  None = 'none',
+  Session = 'session',
+  AnonymousId = 'anonymousId',
+}
+
+export type PreConsentStorageOptions = {
+  strategy: StorageStrategy;
+};
+
+export type PreConsentEventsOptions = {
+  delivery: DeliveryType;
+};
+
+export type PreConsentOptions = {
+  enabled: boolean;
+  storage?: PreConsentStorageOptions;
+  events?: PreConsentEventsOptions;
+  trackConsent?: boolean;
+};
 
 /**
  * Represents the options parameter in the load API
@@ -117,4 +137,5 @@ export type LoadOptions = {
   bufferDataPlaneEventsUntilReady?: boolean;
   dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
+  preConsent?: PreConsentOptions;
 };

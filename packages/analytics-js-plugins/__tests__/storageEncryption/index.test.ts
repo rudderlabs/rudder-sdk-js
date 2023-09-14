@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals-core';
-import { StorageEncryption } from '@rudderstack/analytics-js-plugins/storageEncryption';
 import { clone } from 'ramda';
+import { StorageEncryption } from '../../src/storageEncryption';
 
 describe('Plugin - Storage Encryption', () => {
   const originalState = {

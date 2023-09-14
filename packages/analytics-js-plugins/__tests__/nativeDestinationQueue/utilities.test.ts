@@ -1,5 +1,5 @@
-import { isEventDenyListed } from '@rudderstack/analytics-js-plugins/nativeDestinationQueue/utilities';
 import { clone } from 'ramda';
+import { isEventDenyListed } from '../../src/nativeDestinationQueue/utilities';
 
 describe('nativeDestinationQueue Plugin - utilities', () => {
   describe('isEventDenyListed', () => {

@@ -1,6 +1,6 @@
-import logger from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
 /* eslint-disable class-methods-use-this */
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
 import { refinePayload, getDestinationExternalID } from './utils';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';

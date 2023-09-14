@@ -6,16 +6,12 @@ import {
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
-import {
-  CookieSameSite,
-  LoadOptions,
-  UaChTrackLevel,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { StorageOpts } from '@rudderstack/analytics-js-common/types/Storage';
+import { LoadOptions, UaChTrackLevel } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { INVALID_CONFIG_URL_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
+import { INVALID_CONFIG_URL_WARNING } from '../../constants/logMessages';
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
@@ -105,6 +101,20 @@ const normalizeLoadOptions = (
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage?.cookie)) {
+    delete normalizedLoadOpts.storage?.cookie;
+  } else {
+    (normalizedLoadOpts.storage as StorageOpts).cookie = removeUndefinedAndNullValues(
+      normalizedLoadOpts.storage?.cookie,
+    );
+  }
+
+  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.preConsent)) {
+    delete normalizedLoadOpts.preConsent;
+  } else {
+    normalizedLoadOpts.preConsent = removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);
   }
 
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);

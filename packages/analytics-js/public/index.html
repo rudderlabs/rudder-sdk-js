@@ -2,12 +2,25 @@
 <html>
   <head>
     <script>
-      var sdkBaseUrl = 'https://cdn.rudderlabs.com/beta/3.0.0-beta';
+      var sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
       var sdkName = 'rsa.min.js';
       var asyncScript = true;
       window.rudderAnalyticsBuildType = 'legacy';
       window.rudderanalytics = [];
-      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession" ];
+      var methods = [
+        'setDefaultInstanceKey',
+        'load',
+        'ready',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'reset',
+        'setAnonymousId',
+        'startSession',
+        'endSession',
+      ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         window.rudderanalytics[method] = (function (methodName) {
@@ -71,8 +84,28 @@
           // encryption: {
           //   version: 'v3'
           // },
+          // cookie: {
+          //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          //   path: '/',
+          //   samesite: 'Lax',
+          //   secure: true,
+          // },
           // migrate: true,
-          // type: 'memoryStorage',
+          // type: 'localStorage',
+          // entries: {
+          //   userId: {
+          //     type: 'cookieStorage',
+          //   },
+          //   userTraits: {
+          //     type: 'localStorage',
+          //   },
+          //   groupId: {
+          //     type: 'none',
+          //   },
+          //   anonymousId: {
+          //     type: 'cookieStorage',
+          //   },
+          // },
         },
       };
 
@@ -95,7 +128,7 @@
         },
         function (message) {
           console.log('in identify call', message);
-        }
+        },
       );
 
       rudderanalytics.page(
@@ -110,7 +143,7 @@
         },
         function (message) {
           console.log('in page call', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -122,7 +155,7 @@
         },
         function (message) {
           console.log('in track call 1', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -134,7 +167,7 @@
         },
         function (message) {
           console.log('in track call 2', message);
-        }
+        },
       );
 
       rudderanalytics.track(
@@ -146,7 +179,7 @@
         },
         function (message) {
           console.log('in track call 3', message);
-        }
+        },
       );
 
       rudderanalytics.ready(function () {
@@ -155,11 +188,11 @@
 
       document.addEventListener('RSA_Initialised', function (e) {
         console.log('RSA_Initialised', e.detail.analyticsInstance);
-      })
+      });
 
       document.addEventListener('RSA_Ready', function (e) {
         console.log('RSA_Ready', e.detail.analyticsInstance);
-      })
+      });
     </script>
   </head>
   <body>
@@ -191,7 +224,7 @@
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
@@ -216,7 +249,7 @@
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
@@ -232,7 +265,7 @@
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
 
@@ -255,7 +288,7 @@
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          }
+          },
         );
       }
     </script>

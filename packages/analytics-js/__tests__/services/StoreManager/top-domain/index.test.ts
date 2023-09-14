@@ -1,6 +1,7 @@
-import { Nullable } from '@rudderstack/analytics-js/types';
-import { domain } from '@rudderstack/analytics-js/services/StoreManager/top-domain';
-import { cookie, CookieOptions } from '../../../../src/services/StoreManager/component-cookie';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
+import { domain } from '../../../../src/services/StoreManager/top-domain';
+import { cookie } from '../../../../src/services/StoreManager/component-cookie';
 
 let cookies: Record<string, any> = {};
 

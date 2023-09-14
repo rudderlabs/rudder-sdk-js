@@ -11,8 +11,8 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { CookieStorage } from './CookieStorage';
 import { defaultLogger } from '../../Logger';
+import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 

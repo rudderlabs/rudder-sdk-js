@@ -1,7 +1,7 @@
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { RejectionDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
 
@@ -124,7 +124,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: RejectionDetails) => {
+    const callback = (response: any, reject: ResponseDetails) => {
       const errResult = new Error(
         'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
@@ -154,7 +154,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: RejectionDetails) => {
+    const callback = (response: any, reject: ResponseDetails) => {
       const errResult = new Error(
         'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );

@@ -4,6 +4,7 @@ import { ConsentsState } from '@rudderstack/analytics-js-common/types/Applicatio
 const consentsState: ConsentsState = {
   data: signal({ initialized: false }),
   activeConsentManagerPluginName: signal(undefined),
+  preConsentOptions: signal({ enabled: false }),
 };
 
 export { consentsState };

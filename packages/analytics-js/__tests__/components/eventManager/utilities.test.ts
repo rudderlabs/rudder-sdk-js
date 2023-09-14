@@ -1,6 +1,17 @@
 import * as R from 'ramda';
-import { state } from '@rudderstack/analytics-js/state';
 import { batch } from '@preact/signals-core';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import {
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  ScreenInfo,
+} from '@rudderstack/analytics-js-common/types/EventContext';
+import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { state } from '../../../src/state';
 import {
   checkForReservedElements,
   checkForReservedElementsInObject,
@@ -10,23 +21,11 @@ import {
   updateTopLevelEventElements,
   getUpdatedPageProperties,
   getEnrichedEvent,
-} from '@rudderstack/analytics-js/components/eventManager/utilities';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import {
-  AppInfo,
-  LibraryInfo,
-  OSInfo,
-  ScreenInfo,
-  UTMParameters,
-} from '@rudderstack/analytics-js-common/types/EventContext';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+} from '../../../src/components/eventManager/utilities';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
+import { defaultLogger } from '../../../src/services/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -235,7 +234,7 @@ describe('Event Manager - Utilities', () => {
     it('should return processed event if the event processor plugin is registered', () => {
       defaultPluginsManager.registerLocalPlugins();
       batch(() => {
-        state.session.anonymousUserId.value = 'anon_id';
+        state.session.anonymousId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
         state.session.userId.value = 'user_id';
         state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
@@ -960,7 +959,7 @@ describe('Event Manager - Utilities', () => {
 
     it('should return common event data using the data in state', () => {
       batch(() => {
-        state.session.anonymousUserId.value = 'anon_id';
+        state.session.anonymousId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
         state.session.userId.value = 'user_id';
         state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;

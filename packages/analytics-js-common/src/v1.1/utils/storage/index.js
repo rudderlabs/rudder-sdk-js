@@ -1,3 +1,5 @@
-import { Storage } from './storage';
+import { Storage as StorageFactory } from './storage';
 
-export default new Storage();
+const Storage = new StorageFactory();
+
+export { Storage };

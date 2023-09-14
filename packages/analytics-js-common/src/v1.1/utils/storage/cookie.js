@@ -1,8 +1,8 @@
 import cookie from 'rudder-component-cookie';
 import defaults from '@ndhoule/defaults';
 import topDomain from '@segment/top-domain';
-import * as R from 'ramda';
-import logger from '../logUtil';
+import { clone } from 'ramda';
+import { logger } from '../logUtil';
 
 /**
  * An object utility to persist values in cookies
@@ -42,7 +42,7 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      cookie(key, value, R.clone(this.cOpts));
+      cookie(key, value, clone(this.cOpts));
       return true;
     } catch (e) {
       logger.error(e);
@@ -64,7 +64,7 @@ class CookieLocal {
    */
   remove(key) {
     try {
-      cookie(key, null, R.clone(this.cOpts));
+      cookie(key, null, clone(this.cOpts));
       return true;
     } catch (e) {
       return false;
