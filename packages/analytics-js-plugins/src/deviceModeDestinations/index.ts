@@ -33,7 +33,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     ): void {
       // Normalize the integration options from the load API call
       state.nativeDestinations.loadOnlyIntegrations.value =
-        clone(state.loadOptions.value.integrations) || DEFAULT_INTEGRATIONS_CONFIG;
+        clone(state.loadOptions.value.integrations) ?? DEFAULT_INTEGRATIONS_CONFIG;
 
       state.nativeDestinations.loadIntegration.value = state.loadOptions.value
         .loadIntegration as boolean;

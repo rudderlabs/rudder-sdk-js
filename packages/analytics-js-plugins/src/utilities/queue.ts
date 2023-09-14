@@ -7,12 +7,12 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
-import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 
@@ -87,7 +87,7 @@ const getFinalEventForDeliveryMutator = (
 
   // Merge the destination specific integrations config with the event's integrations config
   // In general, the preference is given to the event's integrations config
-  const eventIntgConfig = event.integrations || DEFAULT_INTEGRATIONS_CONFIG;
+  const eventIntgConfig = event.integrations ?? DEFAULT_INTEGRATIONS_CONFIG;
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
   const overriddenIntgOpts = getOverriddenIntegrationOptions(
     eventIntgConfig,
