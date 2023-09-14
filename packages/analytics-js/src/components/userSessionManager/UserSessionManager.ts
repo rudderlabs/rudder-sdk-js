@@ -443,6 +443,21 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * If session is active it returns the sessionId
+   * @returns
+   */
+  getSessionId(): Nullable<number> {
+    if (
+      (state.session.sessionInfo.value.autoTrack &&
+        !hasSessionExpired(state.session.sessionInfo.value.expiresAt)) ||
+      state.session.sessionInfo.value.manualTrack
+    ) {
+      return state.session.sessionInfo.value.id || null;
+    }
+    return null;
+  }
+
+  /**
    * A function to update current session info after each event call
    */
   refreshSession(): void {

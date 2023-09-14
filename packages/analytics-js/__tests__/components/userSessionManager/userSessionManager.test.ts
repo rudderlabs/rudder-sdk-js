@@ -444,6 +444,32 @@ describe('User session manager', () => {
     userSessionManager.refreshSession();
     expect(state.session.sessionInfo.value.sessionStart).toBe(false);
   });
+  it('getSessionId: should return session id for active session', () => {
+    const futureTimestamp = Date.now() + 10000;
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: futureTimestamp,
+      id: 1683613729115,
+      sessionStart: false,
+    };
+    const sessionId = userSessionManager.getSessionId();
+    expect(typeof sessionId).toBe('number');
+    expect(sessionId.toString().length).toBeGreaterThan(0);
+  });
+  it('getSessionId: should return session id for active session', () => {
+    const pastTimestamp = Date.now() - 5000;
+    state.session.sessionInfo.value = {
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: pastTimestamp,
+      id: 1683613729115,
+      sessionStart: false,
+    };
+    const sessionId = userSessionManager.getSessionId();
+    expect(typeof sessionId).toBe('object');
+    expect(sessionId).toBe(null);
+  });
   it('startAutoTracking: should create a new session in case of invalid session', () => {
     userSessionManager.init();
     state.session.sessionInfo.value = {
