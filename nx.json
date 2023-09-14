@@ -28,6 +28,14 @@
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
     }
   },
+  "targetDependencies": {
+    "version": [
+      {
+        "target": "version",
+        "projects": "dependencies"
+      }
+    ]
+  },
   "generators": {
     "@nx/js:library": {
       "buildable": true
