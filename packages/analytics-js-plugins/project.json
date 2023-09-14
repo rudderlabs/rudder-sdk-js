@@ -108,9 +108,9 @@
     "deploy": {
       "executor": "ngx-deploy-npm:deploy",
       "options": {
-        "tag": "beta",
         "access": "public",
-        "distFolderPath": "packages/analytics-js-plugins/dist"
+        "distFolderPath": "packages/analytics-js-plugins",
+        "noBuild": true
       }
     }
   }
