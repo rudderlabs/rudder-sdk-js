@@ -102,7 +102,9 @@
     "on-body": "0.0.1",
     "ramda": "0.29.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ngx-deploy-npm": "^7.0.1"
+  },
   "overrides": {},
   "browserslist": {
     "production": [
