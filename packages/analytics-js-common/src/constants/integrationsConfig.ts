@@ -1,0 +1,5 @@
+const DEFAULT_INTEGRATIONS_CONFIG = {
+  All: true,
+};
+
+export { DEFAULT_INTEGRATIONS_CONFIG };
