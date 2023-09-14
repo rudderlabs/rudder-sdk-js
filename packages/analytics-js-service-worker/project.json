@@ -84,7 +84,8 @@
       "executor": "ngx-deploy-npm:deploy",
       "options": {
         "tag": "beta",
-        "access": "public"
+        "access": "public",
+        "distFolderPath": "packages/analytics-js-service-worker/dist"
       }
     }
   }
