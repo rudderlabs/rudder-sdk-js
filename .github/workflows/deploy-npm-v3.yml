@@ -18,7 +18,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
     steps:
       - name: Checkout source branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get new version number
         run: |
