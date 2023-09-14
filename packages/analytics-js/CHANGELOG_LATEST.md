@@ -1,12 +1,13 @@
-# [3.0.0-beta.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.5...@rudderstack/analytics-js@3.0.0-beta.6) (2023-08-30)
+## [3.0.0-beta.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.6...@rudderstack/analytics-js@3.0.0-beta.7) (2023-09-14)
 
-### Bug Fixes
-
-- forward only supported calls to the log provider ([#1333](https://github.com/rudderlabs/rudder-sdk-js/issues/1333)) ([a4c0743](https://github.com/rudderlabs/rudder-sdk-js/commit/a4c07434a35a778c81088475726f100f06abb7b0))
-- handle errors for cookies data URI encode and decode ([#1350](https://github.com/rudderlabs/rudder-sdk-js/issues/1350)) ([b25ff6c](https://github.com/rudderlabs/rudder-sdk-js/commit/b25ff6c7f392d85ef9eb77293bfdf39b96207c51))
 
 ### Features
 
-- add batching support to xhr plugin ([#1301](https://github.com/rudderlabs/rudder-sdk-js/issues/1301)) ([0421663](https://github.com/rudderlabs/rudder-sdk-js/commit/04216637a00dc5339cf466a586137415b46b6b49))
-- add callback for polyfill load ([#1335](https://github.com/rudderlabs/rudder-sdk-js/issues/1335)) ([6ba9329](https://github.com/rudderlabs/rudder-sdk-js/commit/6ba932918dd03c110c92cd5837a2f8ca0f9cf192))
-- add resize event handler to update screen info ([#1336](https://github.com/rudderlabs/rudder-sdk-js/issues/1336)) ([be05226](https://github.com/rudderlabs/rudder-sdk-js/commit/be0522668f44667d7d3a8082db89a7e4cad316c8))
+* granular control of persisted data storing with auto migration ([#1329](https://github.com/rudderlabs/rudder-sdk-js/issues/1329)) ([b709edc](https://github.com/rudderlabs/rudder-sdk-js/commit/b709edcbf9314d26fb9cd0af5fa8790330853d9c))
+* new load options for pre-consent configuration ([#1363](https://github.com/rudderlabs/rudder-sdk-js/issues/1363)) ([363a524](https://github.com/rudderlabs/rudder-sdk-js/commit/363a5242b607ed7bcb21f2847d15c6b399d0b6a9))
+
+
+### Bug Fixes
+
+* getsessionid updating the sessionstart status ([#1370](https://github.com/rudderlabs/rudder-sdk-js/issues/1370)) ([510bb06](https://github.com/rudderlabs/rudder-sdk-js/commit/510bb0604c559f7f5d98f721e79c106243fe542f))
+
