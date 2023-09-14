@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.6",
+  "version": "3.0.0-beta.7",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
