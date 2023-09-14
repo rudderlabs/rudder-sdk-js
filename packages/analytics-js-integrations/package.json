@@ -103,7 +103,6 @@
     "ramda": "0.29.0"
   },
   "devDependencies": {
-    "ngx-deploy-npm": "^7.0.1"
   },
   "overrides": {},
   "browserslist": {
