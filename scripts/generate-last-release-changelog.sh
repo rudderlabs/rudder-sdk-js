@@ -12,7 +12,7 @@ for projectFolder in "${projectFolderNames[@]}"; do
   packageName=$(jq -r .name package.json)
   echo "Generate github release notes file: ${packageName}, $packageVersion"
   awk -v ver="$packageVersion" '
-   /^(#|###) \[?[0-9]+.[0-9]+.[0-9]+/ {
+   /^(#|##|###) \[?[0-9]+.[0-9]+.[0-9]+/ {
       if (p) { exit };
       if (index($2, "[")) {
           split($2, a, "[");

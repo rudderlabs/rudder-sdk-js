@@ -90,20 +90,14 @@
       "options": {
         "baseBranch": "main",
         "preset": "conventional",
-        "tagPrefix": "${projectName}@"
+        "tagPrefix": "{projectName}@"
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.40.5",
+        "tag": "rudder-sdk-js@2.41.0",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
-      }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public"
       }
     }
   }
