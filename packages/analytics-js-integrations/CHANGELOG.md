@@ -1,7 +1,21 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
+
+## 0.1.0 (2023-09-14)
+
+
+### Features
+
+* refactor apis ([#1240](https://github.com/rudderlabs/rudder-sdk-js/issues/1240)) ([4f25a03](https://github.com/rudderlabs/rudder-sdk-js/commit/4f25a0377ef438a4e4b5dcad6f2504ec5da5f7a3))
+
+
+### Bug Fixes
+
+* **analytics-js-integrations:** fix rollup alias config ([e8960dc](https://github.com/rudderlabs/rudder-sdk-js/commit/e8960dc65bc29f70e5d04c3ed89bce3fb4b6f369))
+* config url deduction ([#1282](https://github.com/rudderlabs/rudder-sdk-js/issues/1282)) ([658dc24](https://github.com/rudderlabs/rudder-sdk-js/commit/658dc24e077035898871888bfd4c72e88f16deb2))
+* use destination display name throughout the app ([#1269](https://github.com/rudderlabs/rudder-sdk-js/issues/1269)) ([6e6a18c](https://github.com/rudderlabs/rudder-sdk-js/commit/6e6a18c5248654963130e24d94191350292a5f58))
+* use utility to determine destination specific integration options ([#1330](https://github.com/rudderlabs/rudder-sdk-js/issues/1330)) ([e4fce0d](https://github.com/rudderlabs/rudder-sdk-js/commit/e4fce0dd4b77c5b15459594bab3c9874a5549010))
 
 # [3.0.0-beta.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.5...@rudderstack/analytics-js-integrations@3.0.0-beta.6) (2023-08-30)
 
