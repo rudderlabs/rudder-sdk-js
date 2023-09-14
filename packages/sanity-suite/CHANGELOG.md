@@ -1,7 +1,8 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
+
+## [3.0.0-beta.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.6...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.7) (2023-09-14)
 
 # [3.0.0-beta.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.5...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.6) (2023-08-30)
 
