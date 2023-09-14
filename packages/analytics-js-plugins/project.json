@@ -94,7 +94,7 @@
       "options": {
         "baseBranch": "main",
         "preset": "conventional",
-        "tagPrefix": "${projectName}@"
+        "tagPrefix": "{projectName}@"
       }
     },
     "github": {
@@ -107,6 +107,7 @@
     "deploy": {
       "executor": "ngx-deploy-npm:deploy",
       "options": {
+        "tag": "beta",
         "access": "public"
       }
     }
