@@ -12,7 +12,7 @@ class Appcues {
     this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
-    this.proxyUrl = config.proxyUrl;
+    this.nativeSdkUrl = config.nativeSdkUrl;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -25,10 +25,17 @@ class Appcues {
     logger.debug('===in init Appcues===');
 
     let url = `https://fast.appcues.com/${this.accountId}.js`;
-    if (isDefinedAndNotNullAndNotEmpty(this.proxyUrl) && typeof this.proxyUrl === 'string') {
-      url = this.proxyUrl.includes(`${this.accountId}.js`)
-        ? this.proxyUrl
-        : `${this.proxyUrl}/${this.accountId}.js`;
+    if (
+      isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
+      typeof this.nativeSdkUrl === 'string'
+    ) {
+      if (this.nativeSdkUrl.endsWith('.js')) {
+        url = this.nativeSdkUrl;
+      } else if (this.nativeSdkUrl.endsWith('/')) {
+        url = `${this.nativeSdkUrl}${this.accountId}.js`;
+      } else {
+        url = `${this.nativeSdkUrl}/${this.accountId}.js`;
+      }
     }
     ScriptLoader('appcues-id', url);
   }
