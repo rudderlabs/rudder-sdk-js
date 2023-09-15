@@ -58,6 +58,7 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm run setup:ci
+          npm i ngx-deploy-npm
 
       - name: Publish package to NPM
         env:
