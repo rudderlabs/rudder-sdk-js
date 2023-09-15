@@ -1,8 +1,16 @@
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-index f5e810b..90e45c6 100644
+index f5e810b..8a4fee8 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-@@ -855,12 +855,12 @@ function prodExposePlugin(options) {
+@@ -289,7 +289,6 @@ const NAME_CHAR_REG = new RegExp("[0-9a-zA-Z@_-]+");
+ const EXPOSES_MAP = /* @__PURE__ */ new Map();
+ const EXPOSES_KEY_MAP = /* @__PURE__ */ new Map();
+ const SHARED = "shared";
+-const DYNAMIC_LOADING_CSS = "dynamicLoadingCss";
+ const DYNAMIC_LOADING_CSS_PREFIX = "__v__css__";
+ const DEFAULT_ENTRY_FILENAME = "remoteEntry.js";
+ const builderInfo = {
+@@ -855,12 +854,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -11,13 +19,37 @@ index f5e810b..90e45c6 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
-       ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
    let viteConfigResolved;
    return {
-@@ -995,7 +995,7 @@ function prodExposePlugin(options) {
+@@ -870,23 +868,6 @@ function prodExposePlugin(options) {
+       const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
+       let moduleMap = {${moduleMap}}
+     const seen = {}
+-    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths) => {
+-      const metaUrl = import.meta.url
+-      if (typeof metaUrl == 'undefined') {
+-        console.warn('The remote style takes effect only when the build.target option in the vite.config.ts file is higher than that of "es2020".')
+-        return
+-      }
+-      const curUrl = metaUrl.substring(0, metaUrl.lastIndexOf('${options.filename}'))
+-
+-      cssFilePaths.forEach(cssFilePath => {
+-        const href = curUrl + cssFilePath
+-        if (href in seen) return
+-        seen[href] = true
+-        const element = document.head.appendChild(document.createElement('link'))
+-        element.href = href
+-        element.rel = 'stylesheet'
+-      })
+-    };
+     async function __federation_import(name) {
+         return import(name);
+     };
+@@ -995,7 +976,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -27,10 +59,18 @@ index f5e810b..90e45c6 100644
              );
            }
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-index 250f7cc..e065949 100644
+index 250f7cc..3c81391 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-@@ -838,12 +838,12 @@ function prodExposePlugin(options) {
+@@ -272,7 +272,6 @@ const NAME_CHAR_REG = new RegExp("[0-9a-zA-Z@_-]+");
+ const EXPOSES_MAP = /* @__PURE__ */ new Map();
+ const EXPOSES_KEY_MAP = /* @__PURE__ */ new Map();
+ const SHARED = "shared";
+-const DYNAMIC_LOADING_CSS = "dynamicLoadingCss";
+ const DYNAMIC_LOADING_CSS_PREFIX = "__v__css__";
+ const DEFAULT_ENTRY_FILENAME = "remoteEntry.js";
+ const builderInfo = {
+@@ -838,12 +837,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -39,13 +79,37 @@ index 250f7cc..e065949 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
-       ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
    let viteConfigResolved;
    return {
-@@ -978,7 +978,7 @@ function prodExposePlugin(options) {
+@@ -853,23 +851,6 @@ function prodExposePlugin(options) {
+       const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
+       let moduleMap = {${moduleMap}}
+     const seen = {}
+-    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths) => {
+-      const metaUrl = import.meta.url
+-      if (typeof metaUrl == 'undefined') {
+-        console.warn('The remote style takes effect only when the build.target option in the vite.config.ts file is higher than that of "es2020".')
+-        return
+-      }
+-      const curUrl = metaUrl.substring(0, metaUrl.lastIndexOf('${options.filename}'))
+-
+-      cssFilePaths.forEach(cssFilePath => {
+-        const href = curUrl + cssFilePath
+-        if (href in seen) return
+-        seen[href] = true
+-        const element = document.head.appendChild(document.createElement('link'))
+-        element.href = href
+-        element.rel = 'stylesheet'
+-      })
+-    };
+     async function __federation_import(name) {
+         return import(name);
+     };
+@@ -978,7 +959,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
