@@ -1,4 +1,3 @@
-export * as destCNamesToDisplayNames from './destCNamesToDisplayNames';
 export * as destDisplayNamesToFileNamesMap from './destDisplayNamesToFileNamesMap';
 export * as destinationNames from './destinationNames';
 export * as htmlAttributes from './htmlAttributes';
@@ -9,3 +8,4 @@ export * as storages from './storages';
 export * as timeouts from './timeouts';
 export * as urls from './urls';
 export * as consent from './consent';
+export * as integrationsConfig from './integrationsConfig';

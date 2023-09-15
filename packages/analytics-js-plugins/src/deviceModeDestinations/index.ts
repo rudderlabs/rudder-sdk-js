@@ -5,9 +5,10 @@ import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ex
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
-import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { clone } from 'ramda';
+import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import {
@@ -31,9 +32,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): void {
       // Normalize the integration options from the load API call
-      state.nativeDestinations.loadOnlyIntegrations.value = normalizeIntegrationOptions(
-        state.loadOptions.value.integrations,
-      );
+      state.nativeDestinations.loadOnlyIntegrations.value =
+        clone(state.loadOptions.value.integrations) ?? DEFAULT_INTEGRATIONS_CONFIG;
 
       state.nativeDestinations.loadIntegration.value = state.loadOptions.value
         .loadIntegration as boolean;

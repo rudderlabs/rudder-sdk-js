@@ -37,9 +37,8 @@ describe('EventRepository', () => {
     invokeSingle: (extPoint: string) => {
       if (extPoint === 'destinationsEventsQueue.init') {
         return mockDestinationsEventsQueue;
-      } else {
-        return mockDataplaneEventsQueue;
       }
+      return mockDataplaneEventsQueue;
     },
   } as IPluginsManager;
 
@@ -201,7 +200,10 @@ describe('EventRepository', () => {
       'dataplaneEventsQueue.enqueue',
       state,
       mockDataplaneEventsQueue,
-      testEvent,
+      {
+        ...testEvent,
+        integrations: { All: true },
+      },
       undefined,
       undefined,
     );
@@ -227,7 +229,10 @@ describe('EventRepository', () => {
     eventRepository.enqueue(testEvent, mockEventCallback);
 
     expect(mockEventCallback).toBeCalledTimes(1);
-    expect(mockEventCallback).toBeCalledWith(testEvent);
+    expect(mockEventCallback).toBeCalledWith({
+      ...testEvent,
+      integrations: { All: true },
+    });
   });
 
   it('should handle error if event callback function throws', () => {
