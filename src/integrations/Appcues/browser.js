@@ -24,9 +24,12 @@ class Appcues {
   init() {
     logger.debug('===in init Appcues===');
 
-    const url = isDefinedAndNotNullAndNotEmpty(this.proxyUrl)
-      ? this.proxyUrl
-      : `https://fast.appcues.com/${this.accountId}.js`;
+    let url = `https://fast.appcues.com/${this.accountId}.js`;
+    if (isDefinedAndNotNullAndNotEmpty(this.proxyUrl) && typeof this.proxyUrl === 'string') {
+      url = this.proxyUrl.includes(`${this.accountId}.js`)
+        ? this.proxyUrl
+        : `${this.proxyUrl}/${this.accountId}.js`;
+    }
     ScriptLoader('appcues-id', url);
   }
 
