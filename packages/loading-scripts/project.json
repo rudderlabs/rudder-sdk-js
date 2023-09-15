@@ -64,7 +64,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.6",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.7",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

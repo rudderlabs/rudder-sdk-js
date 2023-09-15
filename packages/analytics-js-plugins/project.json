@@ -101,7 +101,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.6",
+        "tag": "@rudderstack/analytics-js-plugins@3.0.0-beta.7",
         "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
       }
     },
