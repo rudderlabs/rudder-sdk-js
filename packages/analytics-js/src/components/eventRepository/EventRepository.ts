@@ -18,6 +18,7 @@ import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
 } from './constants';
+import { getFinalEvent } from './utils';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -120,7 +121,7 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    const dpQEvent = clone(event);
+    const dpQEvent = getFinalEvent(event, state);
     this.pluginsManager.invokeSingle(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
       state,

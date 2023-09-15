@@ -68,7 +68,7 @@ const getRequestInfo = (
   let url: string;
   if (Array.isArray(itemData)) {
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
-      getFinalEventForDeliveryMutator(queueItemData.event, state),
+      getFinalEventForDeliveryMutator(queueItemData.event),
     );
     data = getBatchDeliveryPayload(finalEvents, logger);
     headers = {
@@ -77,7 +77,7 @@ const getRequestInfo = (
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
-    const finalEvent = getFinalEventForDeliveryMutator(event, state);
+    const finalEvent = getFinalEventForDeliveryMutator(event);
 
     data = getDeliveryPayload(finalEvent, logger);
     headers = { ...eventHeaders };

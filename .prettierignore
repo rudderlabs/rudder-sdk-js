@@ -6,6 +6,7 @@ assets/
 cdnSDK.js
 cdnSDKv3.js
 CHANGELOG.md
+CHANGELOG_LATEST.md
 CONTRIBUTING.md
 
 examples/chrome-extension/**/rudderAnalytics.js

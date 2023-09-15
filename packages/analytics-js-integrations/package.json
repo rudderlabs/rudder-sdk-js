@@ -102,8 +102,7 @@
     "on-body": "0.0.1",
     "ramda": "0.29.0"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
