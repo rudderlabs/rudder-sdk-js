@@ -2,6 +2,7 @@
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
 import { NAME } from './constants';
+import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 class Appcues {
   constructor(config, analytics, destinationInfo) {
@@ -11,6 +12,7 @@ class Appcues {
     this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
+    this.proxyUrl = config.proxyUrl;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -21,7 +23,11 @@ class Appcues {
 
   init() {
     logger.debug('===in init Appcues===');
-    ScriptLoader('appcues-id', `https://fast.appcues.com/${this.accountId}.js`);
+
+    const url = isDefinedAndNotNullAndNotEmpty(this.proxyUrl)
+      ? this.proxyUrl
+      : `https://fast.appcues.com/${this.accountId}.js`;
+    ScriptLoader('appcues-id', url);
   }
 
   isLoaded() {
