@@ -1,7 +1,6 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
 ## [2.41.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.40.5...v2.41.0) (2023-09-01)
 

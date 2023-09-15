@@ -69,13 +69,14 @@
       "options": {
         "baseBranch": "main",
         "preset": "conventional",
-        "tagPrefix": "{projectName}@"
+        "tagPrefix": "{projectName}@",
+        "trackDeps": true
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.6",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.7",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

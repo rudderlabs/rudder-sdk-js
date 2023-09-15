@@ -27,6 +27,7 @@ dist
 !next-env.d.ts
 *.bkp
 *.dtmp
+*.original
 
 npm-debug.log*
 

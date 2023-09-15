@@ -23,6 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Get the two latest monorepo versions
+        run: |
+          CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
+          LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $LAST_VERSION"
+
+          echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
+          echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
       - name: Get new version number
         run: |
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
@@ -31,7 +43,6 @@ jobs:
           echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_SW_VALUE=$current_version_sw" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -57,7 +68,8 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npm run deploy:npm -- --base=$last_version --head=$current_version
+          npm run build:package
+          npm run deploy:npm -- --base=$last_monorepo_version --head=$current_monorepo_version
 
       - name: Send message to Slack channel for v3
         id: slack
