@@ -92,14 +92,6 @@ class Schedule {
     Object.values(this.tasks).forEach(this.clock.clearTimeout);
     this.tasks = {};
   }
-
-  setClock(newClock: ScheduleClock) {
-    this.clock = newClock;
-  }
-
-  resetClock() {
-    this.clock = DEFAULT_CLOCK;
-  }
 }
 
 export { Schedule, DEFAULT_CLOCK, DEFAULT_CLOCK_LATE_FACTOR };

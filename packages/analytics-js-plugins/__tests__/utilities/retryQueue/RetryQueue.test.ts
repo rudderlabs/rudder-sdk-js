@@ -43,7 +43,6 @@ describe('Queue', () => {
 
   afterEach(() => {
     queue.stop();
-    schedule.resetClock();
     jest.setSystemTime(0);
     jest.clearAllTimers();
   });
