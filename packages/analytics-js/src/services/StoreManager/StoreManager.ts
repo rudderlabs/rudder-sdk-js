@@ -13,13 +13,8 @@ import {
   mergeDeepRight,
   removeUndefinedValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import {
-  DEFAULT_STORAGE_TYPE,
-  StorageType,
-  UserSessionKeysType,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
-import { UserSessionStorageKeysType } from '../../components/userSessionManager/types';
 import { userSessionStorageKeys } from '../../components/userSessionManager/userSessionStorageKeys';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
@@ -84,9 +79,19 @@ class StoreManager implements IStoreManager {
     const globalStorageType = state.storage.type.value;
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
-    Object.keys(UserSessionKeys).forEach(sessionKey => {
-      const key = sessionKey as UserSessionKeysType;
-      const storageKey = sessionKey as UserSessionStorageKeysType;
+    const userSessionKeyValues: UserSessionKeys[] = [
+      'userId',
+      'userTraits',
+      'anonymousId',
+      'groupId',
+      'groupTraits',
+      'initialReferrer',
+      'initialReferringDomain',
+      'sessionInfo',
+    ];
+    userSessionKeyValues.forEach(sessionKey => {
+      const key = sessionKey;
+      const storageKey = sessionKey;
       const providedStorageType = entries?.[key]?.type;
       const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;

@@ -42,8 +42,8 @@ const sourceConfigWithEUDataPlane: Record<ResidencyServerRegion, RegionDetails[]
 };
 const sourceConfigWithEmptyDataPlanes = undefined;
 
-const validResidencyServerUS = ResidencyServerRegion.US;
-const validResidencyServerEU = ResidencyServerRegion.EU;
+const validResidencyServerUS = 'US';
+const validResidencyServerEU = 'EU';
 
 const testCaseData = [
   {
