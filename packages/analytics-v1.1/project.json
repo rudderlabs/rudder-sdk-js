@@ -100,6 +100,14 @@
         "tag": "rudder-sdk-js@2.41.0",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public",
+        "distFolderPath": "packages/analytics-v1.1",
+        "noBuild": true
+      }
     }
   }
 }
