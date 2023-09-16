@@ -13,8 +13,9 @@ class ResultsAssertions {
       if (resultData.message) {
         ignoredProperties.forEach(property => {
           if (
-            typeof objectPath.get(resultData, property.key) === property.type ||
-            property.optional === true
+            typeof objectPath.get(expectedResultData, property.key) !== 'undefined' &&
+            (typeof objectPath.get(resultData, property.key) === property.type ||
+              property.optional === true)
           ) {
             objectPath.set(
               resultData,
@@ -42,7 +43,7 @@ class ResultsAssertions {
       const expectedObj = JSON.parse(expected);
       const comparisonDiff = diff(expectedObj, resultObj);
       const isEqual = Object.keys(comparisonDiff).length === 0;
-      if(!isEqual) {
+      if (!isEqual) {
         console.log(`Error: Comparison diff: `, comparisonDiff);
       }
       return isEqual ? 'success' : 'danger';
