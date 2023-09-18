@@ -17,7 +17,7 @@ const PARTNER_NAME = 'RudderStack';
 const trackMapping = [
   {
     destKey: 'event_id',
-    sourceKeys: 'properties.eventId',
+    sourceKeys: ['properties.eventId', 'properties.event_id', 'messageId'],
   },
   {
     destKey: 'test_event_code',

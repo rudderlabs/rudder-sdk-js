@@ -13,6 +13,7 @@ class CustomerIO {
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
     this.datacenterEU = config.datacenterEU;
+    this.datacenter = config.datacenter;
     this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
     ({
@@ -24,8 +25,8 @@ class CustomerIO {
 
   init() {
     logger.debug('===in init Customer IO init===');
-    const { siteID, datacenterEU } = this;
-    loadNativeSdk(siteID, datacenterEU);
+    const { siteID, datacenter, datacenterEU } = this;
+    loadNativeSdk(siteID, datacenter, datacenterEU);
   }
 
   identify(rudderElement) {
