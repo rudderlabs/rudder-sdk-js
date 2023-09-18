@@ -85,12 +85,21 @@ const formatAndValidateEventName = eventName => {
  * @param {*} params
  * @returns
  */
-const removeInvalidParams = params =>
-  Object.fromEntries(
-    Object.entries(params).filter(
-      ([key, value]) => key === 'items' || (typeof value !== 'object' && !isBlank(value)),
-    ),
-  );
+const removeInvalidParams = params => {
+  const validParams = {};
+
+  if (typeof params === 'object' && !Array.isArray(params)) {
+    const keys = Object.keys(params);
+    keys.forEach(key => {
+      const value = params[key];
+      if (key === 'items' || (typeof value !== 'object' && !isBlank(value))) {
+        validParams[key] = value;
+      }
+    });
+    return validParams;
+  }
+  return params;
+};
 
 /**
  * Returns custom parameters for ga4 event payload

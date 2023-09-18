@@ -2,6 +2,7 @@
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Appcues/constants';
+import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 class Appcues {
   constructor(config, analytics, destinationInfo) {
@@ -11,6 +12,7 @@ class Appcues {
     this.analytics = analytics;
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
+    this.nativeSdkUrl = config.nativeSdkUrl;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -21,7 +23,21 @@ class Appcues {
 
   init() {
     logger.debug('===in init Appcues===');
-    ScriptLoader('appcues-id', `https://fast.appcues.com/${this.accountId}.js`);
+
+    let url = `https://fast.appcues.com/${this.accountId}.js`;
+    if (
+      isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
+      typeof this.nativeSdkUrl === 'string'
+    ) {
+      if (this.nativeSdkUrl.endsWith('.js')) {
+        url = this.nativeSdkUrl;
+      } else if (this.nativeSdkUrl.endsWith('/')) {
+        url = `${this.nativeSdkUrl}${this.accountId}.js`;
+      } else {
+        url = `${this.nativeSdkUrl}/${this.accountId}.js`;
+      }
+    }
+    ScriptLoader('appcues-id', url);
   }
 
   isLoaded() {

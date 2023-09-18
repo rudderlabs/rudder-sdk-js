@@ -129,6 +129,7 @@ describe('TiktokAds Track event', () => {
     expect(window.ttq.track.mock.calls[0][1]).toEqual({
       value: 35.0,
       currency: 'GBP',
+      event_id: 'purchaseId',
       partner_name: 'RudderStack',
       contents: [
         {
@@ -197,6 +198,7 @@ describe('TiktokAds Track event', () => {
     expect(window.ttq.track.mock.calls[0][1]).toEqual({
       value: 35.0,
       currency: 'GBP',
+      event_id: 'purchaseId',
       partner_name: 'RudderStack',
       contents: [
         {

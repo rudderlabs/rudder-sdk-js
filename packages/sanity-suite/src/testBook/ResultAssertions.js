@@ -42,7 +42,7 @@ class ResultsAssertions {
       const expectedObj = JSON.parse(expected);
       const comparisonDiff = diff(expectedObj, resultObj);
       const isEqual = Object.keys(comparisonDiff).length === 0;
-      if(!isEqual) {
+      if (!isEqual) {
         console.log(`Error: Comparison diff: `, comparisonDiff);
       }
       return isEqual ? 'success' : 'danger';
