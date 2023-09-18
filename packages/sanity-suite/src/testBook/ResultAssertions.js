@@ -13,9 +13,8 @@ class ResultsAssertions {
       if (resultData.message) {
         ignoredProperties.forEach(property => {
           if (
-            typeof objectPath.get(expectedResultData, property.key) !== 'undefined' &&
-            (typeof objectPath.get(resultData, property.key) === property.type ||
-              property.optional === true)
+            typeof objectPath.get(resultData, property.key) === property.type ||
+            property.optional === true
           ) {
             objectPath.set(
               resultData,
