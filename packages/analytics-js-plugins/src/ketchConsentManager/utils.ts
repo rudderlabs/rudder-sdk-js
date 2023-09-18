@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { fromBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
+import { storages } from '../shared-chunks';
 import {
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,
@@ -29,7 +29,7 @@ const getKetchConsentData = (
     const dataStore = storeManager?.setStore({
       id: KETCH_CONSENT_MANAGER_PLUGIN,
       name: KETCH_CONSENT_MANAGER_PLUGIN,
-      type: COOKIE_STORAGE,
+      type: storages.COOKIE_STORAGE,
     });
     rawConsentCookieData = dataStore?.engine.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
   } catch (err) {

@@ -9,7 +9,7 @@ import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { storages } from '../shared-chunks';
 import { clone } from 'ramda';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
@@ -93,7 +93,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           done(null);
         },
         storeManager,
-        MEMORY_STORAGE,
+        storages.MEMORY_STORAGE,
       );
 
       // TODO: This seems to not work as expected. Need to investigate

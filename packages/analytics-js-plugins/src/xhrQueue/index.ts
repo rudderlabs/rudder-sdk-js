@@ -11,7 +11,7 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { storages } from '../shared-chunks';
 import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
@@ -101,7 +101,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        LOCAL_STORAGE,
+        storages.LOCAL_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);

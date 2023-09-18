@@ -6,7 +6,7 @@ import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/St
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { storages } from '../../shared-chunks';
 import {
   IQueue,
   QueueItem,
@@ -74,7 +74,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     options: QueueOptions,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
-    storageType: StorageType = LOCAL_STORAGE,
+    storageType: StorageType = storages.LOCAL_STORAGE,
     logger?: ILogger,
     queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback,
   ) {
@@ -400,7 +400,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       id,
       name: this.name,
       validKeys: QueueStatuses,
-      type: LOCAL_STORAGE,
+      type: storages.LOCAL_STORAGE,
     });
     const our = {
       queue: (this.getQueue(QueueStatuses.QUEUE) ?? []) as QueueItem[],
@@ -573,7 +573,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             id: parts[1],
             name,
             validKeys: QueueStatuses,
-            type: LOCAL_STORAGE,
+            type: storages.LOCAL_STORAGE,
           }),
         );
       }

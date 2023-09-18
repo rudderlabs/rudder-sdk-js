@@ -1,7 +1,7 @@
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { storages } from '../shared-chunks';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItemData } from './types';
@@ -32,7 +32,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
     options: BeaconQueueOpts,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
-    storageType: StorageType = MEMORY_STORAGE,
+    storageType: StorageType = storages.MEMORY_STORAGE,
   ) {
     this.storeManager = storeManager;
     this.name = name;
