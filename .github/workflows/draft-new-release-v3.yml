@@ -83,7 +83,7 @@ jobs:
           ./scripts/generate-last-release-changelog.sh
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
-          npm run setup:ci
+          npm run setup
           git add .
           git commit -m "chore: sync versions and generate release logs" -n
 
