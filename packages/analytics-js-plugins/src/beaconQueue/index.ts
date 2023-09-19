@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
@@ -8,6 +7,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { timestamp } from '../shared-chunks/eventsDelivery';
 import { DoneCallback, IQueue, QueueItem } from '../types/plugins';
 // TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
 import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
@@ -111,7 +111,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = getCurrentTimeFormatted();
+      event.sentAt = timestamp.getCurrentTimeFormatted();
       validateEventPayloadSize(event, logger);
 
       eventsQueue.addItem({

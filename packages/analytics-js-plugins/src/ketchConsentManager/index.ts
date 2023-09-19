@@ -4,9 +4,9 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';
@@ -40,7 +40,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
       // retrieve consent data and update the state
       let ketchConsentData;
-      if (!isUndefined((globalThis as any).ketchConsent)) {
+      if (!checks.isUndefined((globalThis as any).ketchConsent)) {
         ketchConsentData = (globalThis as any).ketchConsent;
       } else {
         ketchConsentData = getKetchConsentData(storeManager, logger);

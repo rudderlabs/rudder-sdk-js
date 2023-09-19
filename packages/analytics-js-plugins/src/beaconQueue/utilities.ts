@@ -1,9 +1,8 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { json, url } from '../shared-chunks/eventsDelivery';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
@@ -27,7 +26,7 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
   };
 
   try {
-    const blobPayload = stringifyWithoutCircular(data, true);
+    const blobPayload = json.stringifyWithoutCircular(data, true);
     const blobOptions: BlobPropertyBag = { type: 'text/plain' };
 
     if (blobPayload) {
@@ -47,7 +46,7 @@ const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueu
 const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    removeDuplicateSlashes(
+    url.removeDuplicateSlashes(
       [
         dpUrl.pathname,
         '/',

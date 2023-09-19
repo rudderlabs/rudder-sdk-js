@@ -1,12 +1,11 @@
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { storages } from '../../shared-chunks';
+import { checks, storages } from '../../shared-chunks/common';
+import { uuId } from '../../shared-chunks/eventsDelivery';
 import {
   IQueue,
   QueueItem,
@@ -80,7 +79,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   ) {
     this.storeManager = storeManager;
     this.name = name;
-    this.id = generateUUID();
+    this.id = uuId.generateUUID();
     this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
@@ -131,15 +130,15 @@ class RetryQueue implements IQueue<QueueItemData> {
   configureBatchingOptions(options: QueueOptions) {
     if (this.enableBatching) {
       this.batch = options.batch as BatchOptions;
-      if (isDefined(this.batch.maxSize)) {
+      if (checks.isDefined(this.batch.maxSize)) {
         this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
       }
-      if (isDefined(this.batch.maxItems)) {
+      if (checks.isDefined(this.batch.maxItems)) {
         this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
       }
 
       // if both maxSize and maxItems are undefined, disable batching
-      if (isUndefined(this.batch.maxSize) && isUndefined(this.batch.maxItems)) {
+      if (!checks.isDefined(this.batch.maxSize) && !checks.isDefined(this.batch.maxItems)) {
         this.enableBatching = false;
       }
     }
@@ -263,7 +262,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       item: itemData,
       attemptNumber: 0,
       time: this.schedule.now(),
-      id: generateUUID(),
+      id: uuId.generateUUID(),
     };
   }
 
@@ -281,7 +280,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         item: itemData,
         attemptNumber,
         time: this.schedule.now() + this.getDelay(attemptNumber),
-        id: id || generateUUID(),
+        id: id || uuId.generateUUID(),
       });
     } else {
       // Discard item
@@ -290,7 +289,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   isBatchReadyToDispatch(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
-    if (isDefined(this.batch?.maxItems)) {
+    if (checks.isDefined(this.batch?.maxItems)) {
       lengthCriteriaMet = batchItems.length >= (this.batch?.maxItems as number);
     }
 
@@ -299,7 +298,10 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     let sizeCriteriaMet = false;
-    if (isDefined(this.batch?.maxSize) && isDefined(this.queueBatchItemsSizeCalculatorCb)) {
+    if (
+      checks.isDefined(this.batch?.maxSize) &&
+      checks.isDefined(this.queueBatchItemsSizeCalculatorCb)
+    ) {
       const curBatchSize = (
         this.queueBatchItemsSizeCalculatorCb as QueueBatchItemsSizeCalculatorCallback
       )(batchItems.map(queueItem => queueItem.item));
@@ -347,7 +349,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     while (queue.length > 0 && queue[0].time <= now && inProgressSize++ < this.maxItems) {
       const el = queue.shift();
       if (el) {
-        const id = generateUUID();
+        const id = uuId.generateUUID();
 
         // Save this to the in progress map
         inProgress[id] = {
@@ -417,7 +419,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       incrementAttemptNumberBy: number,
     ) => {
       const concatIterator = (el: QueueItem | Record<string, any>) => {
-        const id = el.id || generateUUID();
+        const id = el.id || uuId.generateUUID();
 
         if (trackMessageIds.includes(id)) {
           // duplicated event
@@ -445,7 +447,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Process batch queue items
     if (this.enableBatching) {
       their.batchQueue.forEach((el: QueueItem) => {
-        const id = el.id || generateUUID();
+        const id = el.id || uuId.generateUUID();
         if (trackMessageIds.includes(id)) {
           // duplicated event
         } else {

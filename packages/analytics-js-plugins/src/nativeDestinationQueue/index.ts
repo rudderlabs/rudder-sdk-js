@@ -9,7 +9,7 @@ import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { storages } from '../shared-chunks';
+import { storages } from '../shared-chunks/common';
 import { clone } from 'ramda';
 import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';

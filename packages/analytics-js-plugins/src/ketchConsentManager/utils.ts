@@ -1,11 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { fromBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
-import { storages } from '../shared-chunks';
+import { string } from '../shared-chunks/eventsDelivery';
+import { checks, storages } from '../shared-chunks/common';
 import { KETCH_CONSENT_COOKIE_PARSE_ERROR, KETCH_CONSENT_COOKIE_READ_ERROR } from './logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
@@ -34,14 +33,14 @@ const getKetchConsentData = (
     return undefined;
   }
 
-  if (isNullOrUndefined(rawConsentCookieData)) {
+  if (checks.isNullOrUndefined(rawConsentCookieData)) {
     return undefined;
   }
 
   // Decode and parse the cookie data to JSON
   let consentCookieData: KetchConsentCookieData;
   try {
-    consentCookieData = JSON.parse(fromBase64(rawConsentCookieData as string));
+    consentCookieData = JSON.parse(string.fromBase64(rawConsentCookieData as string));
   } catch (err) {
     logger?.error(KETCH_CONSENT_COOKIE_PARSE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
     return undefined;

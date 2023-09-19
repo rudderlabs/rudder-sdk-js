@@ -1,8 +1,8 @@
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { storages } from '../shared-chunks';
+import { storages } from '../shared-chunks/common';
+import { uuId } from '../shared-chunks/eventsDelivery';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItemData } from './types';
 import { getDeliveryPayload } from './utilities';
@@ -36,7 +36,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
   ) {
     this.storeManager = storeManager;
     this.name = name;
-    this.id = generateUUID();
+    this.id = uuId.generateUUID();
     this.processQueueCb = queueProcessCb;
     this.maxItems = options.maxItems ?? DEFAULT_BEACON_QUEUE_OPTIONS.maxItems;
     this.timeouts = {
@@ -136,7 +136,7 @@ class BeaconItemsQueue implements IQueue<BeaconQueueItemData> {
       item: itemData,
       attemptNumber: 0,
       time: Date.now(),
-      id: generateUUID(),
+      id: uuId.generateUUID(),
     });
   }
 

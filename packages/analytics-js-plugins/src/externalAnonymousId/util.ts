@@ -1,6 +1,6 @@
 import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { storages } from '../shared-chunks';
+import { storages } from '../shared-chunks/common';
 import { externallyLoadedSessionStorageKeys } from './constants';
 
 const getSegmentAnonymousId = (getStorageEngine: (type?: StorageType) => IStorage) => {

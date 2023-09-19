@@ -1,11 +1,10 @@
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
-import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { http, url } from '../shared-chunks/eventsDelivery';
+import { checks } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
@@ -21,7 +20,9 @@ const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
 const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    removeDuplicateSlashes([dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpoint].join('')),
+    url.removeDuplicateSlashes(
+      [dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpoint].join(''),
+    ),
     dpUrl,
   ).href;
 };
@@ -36,11 +37,11 @@ const logErrorOnFailure = (
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (isUndefined(details?.error) || isUndefined(logger)) {
+  if (checks.isUndefined(details?.error) || checks.isUndefined(logger)) {
     return;
   }
 
-  const isRetryableFailure = isErrRetryable(details);
+  const isRetryableFailure = http.isErrRetryable(details);
   let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {

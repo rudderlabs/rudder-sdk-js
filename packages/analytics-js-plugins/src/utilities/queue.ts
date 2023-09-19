@@ -1,10 +1,9 @@
 import { clone } from 'ramda';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { timestamp, json } from '../shared-chunks/eventsDelivery';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
@@ -26,10 +25,10 @@ const QUEUE_UTILITIES = 'QueueUtilities';
  * @returns stringified event payload. Empty string if error occurs.
  */
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
-  stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
+  json.stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
 
 const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
-  stringifyWithoutCircular({ batch: events }, true, undefined, logger);
+  json.stringifyWithoutCircular({ batch: events }, true, undefined, logger);
 
 /**
  * Utility to validate final payload size before sending to server
@@ -65,7 +64,7 @@ const getFinalEventForDeliveryMutator = (event: RudderEvent): RudderEvent => {
   const finalEvent = clone(event);
 
   // Update sentAt timestamp to the latest timestamp
-  finalEvent.sentAt = getCurrentTimeFormatted();
+  finalEvent.sentAt = timestamp.getCurrentTimeFormatted();
 
   return finalEvent;
 };

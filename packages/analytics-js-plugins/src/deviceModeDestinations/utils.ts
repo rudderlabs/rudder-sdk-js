@@ -1,16 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import {
-  aliasArgumentsToCallOptions,
-  groupArgumentsToCallOptions,
-  identifyArgumentsToCallOptions,
-  pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions,
-} from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import {
   Destination,
   DeviceModeDestination,
@@ -23,6 +14,8 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { checks } from '../shared-chunks/common';
+import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import {
@@ -78,31 +71,51 @@ const createDestinationInstance = (
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
       ) =>
-        analytics.page(pageArgumentsToCallOptions(category, name, properties, options, callback)),
+        analytics.page(
+          eventMethodOverloads.pageArgumentsToCallOptions(
+            category,
+            name,
+            properties,
+            options,
+            callback,
+          ),
+        ),
       track: (
         event: string,
         properties?: Nullable<ApiObject> | ApiCallback,
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
-      ) => analytics.track(trackArgumentsToCallOptions(event, properties, options, callback)),
+      ) =>
+        analytics.track(
+          eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
+        ),
       identify: (
         userId?: string | number | Nullable<ApiObject>,
         traits?: Nullable<ApiObject> | ApiCallback,
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
-      ) => analytics.identify(identifyArgumentsToCallOptions(userId, traits, options, callback)),
+      ) =>
+        analytics.identify(
+          eventMethodOverloads.identifyArgumentsToCallOptions(userId, traits, options, callback),
+        ),
       alias: (
         to?: Nullable<string> | ApiCallback,
         from?: string | Nullable<ApiOptions> | ApiCallback,
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
-      ) => analytics.alias(aliasArgumentsToCallOptions(to, from, options, callback)),
+      ) =>
+        analytics.alias(
+          eventMethodOverloads.aliasArgumentsToCallOptions(to, from, options, callback),
+        ),
       group: (
         groupId: string | number | Nullable<ApiObject> | ApiCallback,
         traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
-      ) => analytics.group(groupArgumentsToCallOptions(groupId, traits, options, callback)),
+      ) =>
+        analytics.group(
+          eventMethodOverloads.groupArgumentsToCallOptions(groupId, traits, options, callback),
+        ),
       getAnonymousId: () => analytics.getAnonymousId(),
       getUserId: () => analytics.getUserId(),
       getUserTraits: () => analytics.getUserTraits(),
@@ -152,7 +165,7 @@ const getCumulativeIntegrationsConfig = (
   errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
-  if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
+  if (checks.isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
@@ -187,7 +200,7 @@ const initializeDestination = (
     isDestinationReady(initializedDestination)
       .then(() => {
         // Collect the integrations data for the hybrid mode destinations
-        if (isHybridModeDestination(initializedDestination)) {
+        if (destinations.isHybridModeDestination(initializedDestination)) {
           state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
             initializedDestination,
             state.nativeDestinations.integrationsConfig.value,

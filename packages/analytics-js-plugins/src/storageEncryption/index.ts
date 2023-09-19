@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { encryptionUtils } from '../shared-chunks';
+import { encrypt, decrypt } from './encryptionUtils';
 
 const pluginName = 'StorageEncryption';
 
@@ -12,10 +12,10 @@ const StorageEncryption = (): ExtensionPlugin => ({
   },
   storage: {
     encrypt(value: any): string {
-      return encryptionUtils.encrypt(value);
+      return encrypt(value);
     },
     decrypt(value: string): string {
-      return encryptionUtils.decrypt(value);
+      return decrypt(value);
     },
   },
 });

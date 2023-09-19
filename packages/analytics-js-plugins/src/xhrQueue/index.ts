@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
@@ -10,8 +8,8 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
-import { storages } from '../shared-chunks';
+import { http, timestamp, string } from '../shared-chunks/eventsDelivery';
+import { storages } from '../shared-chunks/common';
 import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
@@ -85,7 +83,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              const queueErrResp = http.isErrRetryable(details) ? details : null;
 
               logErrorOnFailure(
                 details,
@@ -130,7 +128,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = getCurrentTimeFormatted();
+      event.sentAt = timestamp.getCurrentTimeFormatted();
       validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
@@ -139,7 +137,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       // Auth header is added during initialization
       const headers = {
         // TODO: why do we need this header value?
-        AnonymousId: toBase64(event.anonymousId),
+        AnonymousId: string.toBase64(event.anonymousId),
       };
 
       eventsQueue.addItem({
