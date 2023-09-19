@@ -260,8 +260,9 @@ const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
-  for (const script of scripts) {
-    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
+  // eslint-disable-next-line unicorn/no-for-loop
+  for (let i = 0; i < scripts.length; i += 1) {
+    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
