@@ -26,9 +26,7 @@
   "targetDefaults": {
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
-    }
-  },
-  "targetDependencies": {
+    },
     "version": [
       {
         "target": "version",

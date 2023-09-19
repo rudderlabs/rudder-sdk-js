@@ -69,11 +69,7 @@
   },
   "dependencies": {
     "@bugsnag/js": "6.5.2",
-    "@lukeed/uuid": "2.0.1",
-    "@preact/signals-core": "1.4.0",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.8",
-    "crypto-js": "4.1.1",
-    "ramda": "0.29.0"
+    "@rudderstack/analytics-js-common": "*"
   },
   "devDependencies": {},
   "overrides": {},
