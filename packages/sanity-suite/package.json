@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "3.0.0-beta.7",
+  "version": "3.0.0-beta.8",
   "private": true,
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/cdn/v3/testBook.js",
@@ -55,10 +55,10 @@
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
-    "@rudderstack/analytics-js": "3.0.0-beta.7",
+    "@rudderstack/analytics-js": "3.0.0-beta.8",
     "deep-object-diff": "1.1.9",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "2.41.0"
+    "rudder-sdk-js": "2.42.0"
   },
   "devDependencies": {},
   "overrides": {},
