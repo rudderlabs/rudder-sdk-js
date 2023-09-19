@@ -199,7 +199,7 @@ const getBuildConfig = featureName => ({
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
-          `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
+          `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}` || '',
         __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',
         __FEATURE__: featureName,
       },
