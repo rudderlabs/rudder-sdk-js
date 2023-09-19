@@ -73,6 +73,8 @@ jobs:
           echo "New version: $NEW_VERSION_VALUE"
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           git add sonar-project.properties
+          npm run clean
+          npm run setup
           npx standard-version -a --skip.tag
 
       - name: Push new version in release branch
