@@ -70,7 +70,7 @@ const getDestinationsURL = () => {
       versionPath = process.env.CDN_VERSION_PATH || defaultVersion;
 
       if (process.env.STAGING) {
-        versionPath = '/staging/latest/' + versionPath;
+        versionPath = 'staging/latest/' + versionPath;
       }
       return `${prodCDNURL}/${versionPath}/js-integrations/`;
     case 'npm':
