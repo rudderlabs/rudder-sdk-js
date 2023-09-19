@@ -7,7 +7,7 @@ import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
-} from '../utilities/logMessages';
+} from './logMessages';
 import {
   BEACON_QUEUE_PLUGIN,
   DATA_PLANE_API_VERSION,

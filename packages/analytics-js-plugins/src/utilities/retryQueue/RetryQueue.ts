@@ -15,7 +15,7 @@ import {
   QueueProcessCallback,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
-import { RETRY_QUEUE_PROCESS_ERROR } from '../logMessages';
+import { RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
 import {
   QueueTimeouts,
   QueueBackoff,

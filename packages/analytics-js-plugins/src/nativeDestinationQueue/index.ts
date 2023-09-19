@@ -15,7 +15,7 @@ import { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
-import { DESTINATION_EVENT_FILTERING_WARNING } from '../utilities/logMessages';
+import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
 import { filterDestinations } from '../utilities/destination';
 
 const pluginName = 'NativeDestinationQueue';

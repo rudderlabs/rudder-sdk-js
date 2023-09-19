@@ -9,7 +9,7 @@ import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/ch
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { decrypt } from '../storageEncryption/encryptionUtils';
-import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
+import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
 
 const pluginName = 'StorageMigrator';

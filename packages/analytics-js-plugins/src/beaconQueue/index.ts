@@ -20,7 +20,7 @@ import {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_SEND_ERROR,
   BEACON_QUEUE_DELIVERY_ERROR,
-} from '../utilities/logMessages';
+} from './logMessages';
 
 const pluginName = 'BeaconQueue';
 

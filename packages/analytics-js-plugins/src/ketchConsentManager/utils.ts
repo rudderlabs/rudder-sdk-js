@@ -6,10 +6,7 @@ import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/ch
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
 import { storages } from '../shared-chunks';
-import {
-  KETCH_CONSENT_COOKIE_PARSE_ERROR,
-  KETCH_CONSENT_COOKIE_READ_ERROR,
-} from '../utilities/logMessages';
+import { KETCH_CONSENT_COOKIE_PARSE_ERROR, KETCH_CONSENT_COOKIE_READ_ERROR } from './logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentCookieData, KetchConsentData } from './types';
 

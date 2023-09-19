@@ -8,7 +8,7 @@ import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
-import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from '../utilities/logMessages';
+import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 import {
   getBatchDeliveryPayload,
   getDeliveryPayload,

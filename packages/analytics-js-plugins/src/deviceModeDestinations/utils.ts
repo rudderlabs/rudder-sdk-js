@@ -29,7 +29,7 @@ import {
   DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
-} from '../utilities/logMessages';
+} from './logMessages';
 
 /**
  * Determines if the destination SDK code is evaluated

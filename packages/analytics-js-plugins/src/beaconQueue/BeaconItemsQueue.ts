@@ -1,8 +1,8 @@
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { storages } from '../shared-chunks';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { storages } from '../shared-chunks';
 import { IQueue, QueueItem, QueueProcessCallback } from '../types/plugins';
 import { BeaconQueueItemData } from './types';
 import { getDeliveryPayload } from './utilities';

@@ -4,7 +4,7 @@ import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ex
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
+import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from './logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
