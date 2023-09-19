@@ -71,13 +71,15 @@
         "baseBranch": "main",
         "preset": "conventional",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true
+        "trackDeps": true,
+        "releaseAs": "prerelease",
+        "preid": "beta"
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.7",
+        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.8",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     },

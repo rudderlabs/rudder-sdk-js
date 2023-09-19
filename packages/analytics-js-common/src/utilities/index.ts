@@ -4,7 +4,6 @@ export * as destinations from './destinations';
 export * as errors from './errors';
 export * as eventMethodOverloads from './eventMethodOverloads';
 export * as http from './http';
-export * as integrationsOptions from './integrationsOptions';
 export * as json from './json';
 export * as object from './object';
 export * as string from './string';

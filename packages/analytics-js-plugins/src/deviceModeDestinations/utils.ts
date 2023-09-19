@@ -11,7 +11,6 @@ import {
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
-import { normalizeIntegrationOptions } from '@rudderstack/analytics-js-common/utilities/integrationsOptions';
 import {
   Destination,
   DeviceModeDestination,
@@ -157,7 +156,7 @@ const getCumulativeIntegrationsConfig = (
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        normalizeIntegrationOptions(dest.instance?.getDataForIntegrationsObject()),
+        dest.instance?.getDataForIntegrationsObject(),
       );
     } catch (err) {
       errorHandler?.onError(

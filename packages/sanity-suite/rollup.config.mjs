@@ -33,7 +33,7 @@ const getDistPath = () => {
   return `dist${distPath}`;
 };
 
-const getHTMLSource = (featureName) => {
+const getHTMLSource = featureName => {
   const versionPath = isV3 ? '/v3/' : '/v1.1/';
   const folderPath = featureName ? `public${versionPath}${featureName}/` : `public${versionPath}`;
 
@@ -106,24 +106,24 @@ const getCopyTargets = () => {
           ]
         : [
             {
-              src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js',
+              src: '../analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js',
               dest: getDistPath(),
               rename: 'rudder-analytics.min.js',
             },
             {
-              src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js.map',
+              src: '../analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map',
               dest: getDistPath(),
               rename: 'rudder-analytics.min.js.map',
             },
             {
-              src: '../analytics-v1.1/dist/legacy/js-integrations/*',
+              src: '../analytics-v1.1/dist/cdn/legacy/js-integrations/*',
               dest: `${getDistPath()}/js-integrations`,
             },
           ];
   }
 };
 
-const getBuildConfig = (featureName) => ({
+const getBuildConfig = featureName => ({
   watch: {
     include: ['src/**'],
   },
@@ -151,7 +151,9 @@ const getBuildConfig = (featureName) => ({
       APP_DEST_SDK_BASE_URL: getDestinationsURL(),
       REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
       CDN_VERSION_PATH:
-        `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
+        `${process.env.CDN_VERSION_PATH || defaultVersion}/${
+          process.env.STAGING ? 'staging/' : ''
+        }` || '',
       STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
       FEATURE: featureName,
     }),
@@ -199,7 +201,9 @@ const getBuildConfig = (featureName) => ({
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
-          `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
+          `${process.env.CDN_VERSION_PATH || defaultVersion}/${
+            process.env.STAGING ? 'staging/' : ''
+          }` || '',
         __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',
         __FEATURE__: featureName,
       },
@@ -236,7 +240,7 @@ const getBuildConfig = (featureName) => ({
 
 const buildConfigs = [
   getBuildConfig(),
-  ...featuresList.map((featureName) => getBuildConfig(featureName)),
+  ...featuresList.map(featureName => getBuildConfig(featureName)),
 ];
 
 export default buildConfigs;

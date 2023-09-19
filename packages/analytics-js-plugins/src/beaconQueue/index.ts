@@ -61,7 +61,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
       ) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const finalEvents = queueItems.map(queueItem =>
-          getFinalEventForDeliveryMutator(queueItem.item.event, state),
+          getFinalEventForDeliveryMutator(queueItem.item.event),
         );
         const data = getDeliveryPayload(finalEvents);
 
