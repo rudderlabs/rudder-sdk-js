@@ -146,11 +146,11 @@ const ignoredProperties = [
     type: 'number',
   },
   {
-    key: `connections.liveEventsConfig.eventUploadTS`,
+    key: `source.liveEventsConfig.eventUploadTS`,
     type: 'number',
   },
   {
-    key: `connections.updatedAt`,
+    key: `source.updatedAt`,
     type: 'string',
   },
 ];

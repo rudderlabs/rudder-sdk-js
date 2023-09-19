@@ -70,7 +70,7 @@ const getDestinationsURL = () => {
       versionPath = process.env.CDN_VERSION_PATH || defaultVersion;
 
       if (process.env.STAGING) {
-        versionPath += '/staging';
+        versionPath = '/staging/latest/' + versionPath;
       }
       return `${prodCDNURL}/${versionPath}/js-integrations/`;
     case 'npm':
@@ -151,9 +151,7 @@ const getBuildConfig = featureName => ({
       APP_DEST_SDK_BASE_URL: getDestinationsURL(),
       REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
       CDN_VERSION_PATH:
-        `${process.env.CDN_VERSION_PATH || defaultVersion}/${
-          process.env.STAGING ? 'staging/' : ''
-        }` || '',
+        `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
       STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
       FEATURE: featureName,
     }),
@@ -201,9 +199,7 @@ const getBuildConfig = featureName => ({
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
-          `${process.env.CDN_VERSION_PATH || defaultVersion}/${
-            process.env.STAGING ? 'staging/' : ''
-          }` || '',
+          `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
         __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',
         __FEATURE__: featureName,
       },

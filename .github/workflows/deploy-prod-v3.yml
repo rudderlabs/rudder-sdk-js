@@ -33,7 +33,7 @@ jobs:
         run: |
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
           current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 

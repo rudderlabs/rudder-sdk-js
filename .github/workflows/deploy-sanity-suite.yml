@@ -2,6 +2,14 @@ name: Deploy Sanity Suite
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: What sanity suite environment to deploy (pre-release checks done on staging)
+        required: true
+        options:
+          - production
+          - staging
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -36,7 +44,22 @@ jobs:
         run: |
           npm run setup:ci
 
-      - name: Build
+      - name: Build staging artifacts
+        if: inputs.environment == 'staging'
+        env:
+          WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
+          FEATURE_PRELOAD_BUFFER_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_PRELOAD_BUFFER_WRITE_KEY }}
+          FEATURE_EVENT_FILTERING_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_EVENT_FILTERING_WRITE_KEY }}
+          FEATURE_DATA_RESIDENCY_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_DATA_RESIDENCY_WRITE_KEY }}
+          DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
+          CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
+          HUSKY: 0
+        run: |
+          npm run build:package
+          npm run build:sanity:staging
+
+      - name: Build production artifacts
+        if: inputs.environment == 'production'
         env:
           WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
           FEATURE_PRELOAD_BUFFER_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_PRELOAD_BUFFER_WRITE_KEY }}
