@@ -13,6 +13,7 @@ class CustomerIO {
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
     this.datacenterEU = config.datacenterEU;
+    this.datacenter = config.datacenter;
     this.sendPageNameInSDK = config.sendPageNameInSDK;
     this.name = NAME;
     ({
@@ -24,15 +25,15 @@ class CustomerIO {
 
   init() {
     logger.debug('===in init Customer IO init===');
-    const { siteID, datacenterEU } = this;
-    loadNativeSdk(siteID, datacenterEU);
+    const { siteID, datacenter, datacenterEU } = this;
+    loadNativeSdk(siteID, datacenter, datacenterEU);
   }
 
   identify(rudderElement) {
     logger.debug('in Customer IO identify');
     const { userId, context } = rudderElement.message;
     const { traits } = context || {};
-    if(!userId){
+    if (!userId) {
       logger.error('userId is required for Identify call.');
       return;
     }
