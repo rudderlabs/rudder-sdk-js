@@ -8,7 +8,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
 
 jobs:
   deploy-tag:
@@ -34,7 +34,6 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci --no-audit
           npm run setup:ci
 
       - name: Build
@@ -47,6 +46,7 @@ jobs:
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
           HUSKY: 0
         run: |
+          npm run build:package
           npm run build:sanity
 
       - name: Sync files to S3
