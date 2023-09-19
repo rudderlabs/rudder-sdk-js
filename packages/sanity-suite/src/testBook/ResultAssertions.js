@@ -1,28 +1,39 @@
 import objectPath from 'object-path';
 import { diff } from 'deep-object-diff';
 import { ignoredProperties } from './ignoredProperties';
+import { sourceConfigIgnoredProperties } from './sourceConfigIgnoredProperties';
 
 class ResultsAssertions {
   // Do NOT check different value on these properties if they have value and is of correct type
   // as they are time sensitive, random ids, or they depend on client instance
+  static resultDataIgnoredPropertiesMutator(resultData, expectedResultData, ignoredPropertyList) {
+    ignoredPropertyList.forEach(property => {
+      if (
+        typeof objectPath.get(resultData, property.key) === property.type ||
+        property.optional === true
+      ) {
+        objectPath.set(resultData, property.key, objectPath.get(expectedResultData, property.key));
+      }
+    });
+  }
+
   static sanitizeResultData(result, expectedResult) {
     try {
       const resultData = JSON.parse(result);
       const expectedResultData = JSON.parse(expectedResult);
 
       if (resultData.message) {
-        ignoredProperties.forEach(property => {
-          if (
-            typeof objectPath.get(resultData, property.key) === property.type ||
-            property.optional === true
-          ) {
-            objectPath.set(
-              resultData,
-              property.key,
-              objectPath.get(expectedResultData, property.key),
-            );
-          }
-        });
+        ResultsAssertions.resultDataIgnoredPropertiesMutator(
+          resultData,
+          expectedResultData,
+          ignoredProperties,
+        );
+      } else if (resultData.source) {
+        ResultsAssertions.resultDataIgnoredPropertiesMutator(
+          resultData,
+          expectedResultData,
+          sourceConfigIgnoredProperties,
+        );
       }
 
       return JSON.stringify(resultData, undefined, 2);
