@@ -35,6 +35,7 @@ import {
   DEFAULT_RECLAIM_TIMER_MS,
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_WAIT_MS,
+  DEFAULT_BATCH_FLUSH_INTERVAL,
 } from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -66,6 +67,8 @@ class RetryQueue implements IQueue<QueueItemData> {
   logger?: ILogger;
   enableBatching: boolean;
   batch?: BatchOptions;
+  flushQueueTimeout?: number;
+  batchDispatchInProgress: boolean;
   queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
@@ -87,6 +90,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
     this.configureBatchingOptions(options);
+    this.batchDispatchInProgress = false;
 
     this.logger = logger;
 
@@ -123,6 +127,9 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.ack = this.ack.bind(this);
     this.checkReclaim = this.checkReclaim.bind(this);
     this.processHead = this.processHead.bind(this);
+    this.flushQueue = this.flushQueue.bind(this);
+
+    this.attachListeners();
 
     this.scheduleTimeoutActive = false;
   }
@@ -130,18 +137,32 @@ class RetryQueue implements IQueue<QueueItemData> {
   configureBatchingOptions(options: QueueOptions) {
     if (this.enableBatching) {
       this.batch = options.batch as BatchOptions;
+      this.enableBatching = false;
       if (checks.isDefined(this.batch.maxSize)) {
         this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
-      }
-      if (checks.isDefined(this.batch.maxItems)) {
-        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
+        this.enableBatching = true;
       }
 
-      // if both maxSize and maxItems are undefined, disable batching
-      if (!checks.isDefined(this.batch.maxSize) && !checks.isDefined(this.batch.maxItems)) {
-        this.enableBatching = false;
+      if (checks.isDefined(this.batch.maxItems)) {
+        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
+        this.enableBatching = true;
+      }
+
+      if (checks.isDefined(this.batch.flushInterval)) {
+        this.batch.flushInterval =
+          +(this.batch.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL;
+        this.attachListeners();
+        this.enableBatching = true;
       }
     }
+  }
+
+  attachListeners() {
+    (globalThis as typeof window).addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.flushQueue();
+      }
+    });
   }
 
   getQueue(name?: string): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
@@ -161,6 +182,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    */
   stop() {
     this.schedule.cancelAll();
+    (globalThis as typeof window).clearTimeout(this.flushQueueTimeout);
     this.scheduleTimeoutActive = false;
   }
 
@@ -173,9 +195,39 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     this.scheduleTimeoutActive = true;
+    this.configureFlushTimeoutHandler();
     this.ack();
     this.checkReclaim();
     this.processHead();
+  }
+
+  private configureFlushTimeoutHandler() {
+    if (this.enableBatching && this.batch?.flushInterval) {
+      (globalThis as typeof window).clearTimeout(this.flushQueueTimeout);
+      this.flushQueueTimeout = (globalThis as typeof window).setTimeout(
+        this.flushQueue,
+        this.batch?.flushInterval,
+      );
+    }
+  }
+
+  flushQueue() {
+    if (!this.batchDispatchInProgress) {
+      this.batchDispatchInProgress = true;
+      let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+      if (batchQueue.length > 0) {
+        batchQueue = batchQueue.slice(-batchQueue.length);
+
+        const batchItems = batchQueue.map(queueItem => queueItem.item);
+        const batchEntry = this.generateQueueItem(batchItems);
+
+        this.setQueue(QueueStatuses.BATCH_QUEUE, []);
+
+        this.pushToMainQueue(batchEntry);
+      }
+      this.batchDispatchInProgress = false;
+      this.configureFlushTimeoutHandler();
+    }
   }
 
   /**
@@ -216,16 +268,32 @@ class RetryQueue implements IQueue<QueueItemData> {
     let curEntry: QueueItem<QueueItemData> | undefined;
     if (this.enableBatching) {
       let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
-      batchQueue = batchQueue.slice(-batchQueue.length);
-      batchQueue.push(entry);
+      if (!this.batchDispatchInProgress) {
+        this.batchDispatchInProgress = true;
+        batchQueue = batchQueue.slice(-batchQueue.length);
+        batchQueue.push(entry);
 
-      // if batch criteria is met, queue the batch events to the main queue and clear batch queue
-      if (this.isBatchReadyToDispatch(batchQueue)) {
-        const batchItems = batchQueue.map(queueItem => queueItem.item);
-        curEntry = this.generateQueueItem(batchItems);
-        batchQueue = [];
+        const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
+        // if batch criteria is met, queue the batch events to the main queue and clear batch queue
+        if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
+          let batchItems;
+          if (batchDispatchInfo.criteriaExceeded) {
+            batchItems = batchQueue
+              .slice(0, batchQueue.length - 1)
+              .map(queueItem => queueItem.item);
+            batchQueue = [entry];
+          } else {
+            batchItems = batchQueue.map(queueItem => queueItem.item);
+            batchQueue = [];
+          }
+          curEntry = this.generateQueueItem(batchItems);
+        }
+        this.batchDispatchInProgress = false;
+
+        this.configureFlushTimeoutHandler();
+      } else {
+        batchQueue.push(entry);
       }
-
       this.setQueue(QueueStatuses.BATCH_QUEUE, batchQueue);
     } else {
       curEntry = entry;
@@ -233,18 +301,21 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     // when batching is enabled, `curEntry` could be `undefined` if the batch criteria is not met
     if (curEntry) {
-      let queue =
-        (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+      this.pushToMainQueue(curEntry);
+    }
+  }
 
-      queue = queue.slice(-(this.maxItems - 1));
-      queue.push(curEntry);
-      queue = queue.sort(sortByTime);
+  private pushToMainQueue(curEntry: QueueItem<QueueItemData>) {
+    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
-      this.setQueue(QueueStatuses.QUEUE, queue);
+    queue = queue.slice(-(this.maxItems - 1));
+    queue.push(curEntry);
+    queue = queue.sort(sortByTime);
 
-      if (this.scheduleTimeoutActive) {
-        this.processHead();
-      }
+    this.setQueue(QueueStatuses.QUEUE, queue);
+
+    if (this.scheduleTimeoutActive) {
+      this.processHead();
     }
   }
 
@@ -287,17 +358,16 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
   }
 
-  isBatchReadyToDispatch(batchItems: QueueItem[]) {
+  getBatchDispatchInfo(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
+    let lengthCriteriaExceeded = false;
     if (checks.isDefined(this.batch?.maxItems)) {
-      lengthCriteriaMet = batchItems.length >= (this.batch?.maxItems as number);
-    }
-
-    if (lengthCriteriaMet) {
-      return true;
+      lengthCriteriaMet = batchItems.length === (this.batch?.maxItems as number);
+      lengthCriteriaExceeded = batchItems.length > (this.batch?.maxItems as number);
     }
 
     let sizeCriteriaMet = false;
+    let sizeCriteriaExceeded = false;
     if (
       checks.isDefined(this.batch?.maxSize) &&
       checks.isDefined(this.queueBatchItemsSizeCalculatorCb)
@@ -306,9 +376,14 @@ class RetryQueue implements IQueue<QueueItemData> {
         this.queueBatchItemsSizeCalculatorCb as QueueBatchItemsSizeCalculatorCallback
       )(batchItems.map(queueItem => queueItem.item));
 
-      sizeCriteriaMet = curBatchSize >= (this.batch?.maxSize as number);
+      sizeCriteriaMet = curBatchSize === (this.batch?.maxSize as number);
+      sizeCriteriaExceeded = curBatchSize > (this.batch?.maxSize as number);
     }
-    return sizeCriteriaMet;
+
+    return {
+      criteriaMet: lengthCriteriaMet || sizeCriteriaMet,
+      criteriaExceeded: lengthCriteriaExceeded || sizeCriteriaExceeded,
+    };
   }
 
   processHead() {

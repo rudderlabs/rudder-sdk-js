@@ -3,6 +3,7 @@ import { DoneCallback } from '../../types/plugins';
 export type BatchOptions = {
   maxItems?: number;
   maxSize?: number;
+  flushInterval?: number;
 };
 
 export interface QueueOptions {
