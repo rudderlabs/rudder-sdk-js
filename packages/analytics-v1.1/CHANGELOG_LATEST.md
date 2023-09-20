@@ -2,4 +2,4 @@
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-common` updated to version `2.42.1`
+* `@rudderstack/analytics-js-common` updated to version `3.0.0-beta.9`
