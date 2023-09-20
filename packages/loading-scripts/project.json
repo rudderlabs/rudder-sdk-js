@@ -52,6 +52,24 @@
         }
       }
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/loading-scripts/src/**/*.{ts,js}",
+          "packages/loading-scripts/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/loading-scripts/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -67,6 +85,8 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.8",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.8",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.8",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

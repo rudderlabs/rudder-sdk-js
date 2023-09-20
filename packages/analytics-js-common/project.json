@@ -65,6 +65,24 @@
         }
       }
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-js-common/src/**/*.{ts,js}",
+          "packages/analytics-js-common/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-js-common/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -80,15 +98,9 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "@rudderstack/analytics-js-common@3.0.0-beta.8",
+        "title": "@rudderstack/analytics-js-common@3.0.0-beta.8",
+        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.8",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
-      }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public",
-        "distFolderPath": "packages/analytics-js-common",
-        "noBuild": true
       }
     }
   }

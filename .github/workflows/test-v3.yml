@@ -40,7 +40,7 @@ jobs:
 
       - name: Execute linting check
         run: |
-          npm run check:lint
+          npm run check:lint:ci
 
       - name: Fix filesystem paths in generated reports
         run: |

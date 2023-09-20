@@ -64,6 +64,24 @@
         }
       }
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-js-integrations/src/**/*.{ts,js}",
+          "packages/analytics-js-integrations/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-js-integrations/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -79,6 +97,8 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.8",
+        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.8",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.8",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }
