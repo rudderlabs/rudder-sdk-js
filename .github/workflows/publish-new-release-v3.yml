@@ -53,7 +53,7 @@ jobs:
       - name: Create Monorepo Release Tag
         id: create_monorepo_release
         run: |
-          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore: release v${{ steps.extract-version.outputs.release_version }}"
+          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
       - name: Get the two latest versions
@@ -74,7 +74,7 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm run release:github -- --base=$last_version --head=$current_version
+          npm run release:github -- --base=$LAST_VERSION --head=$CURRENT_VERSION
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
