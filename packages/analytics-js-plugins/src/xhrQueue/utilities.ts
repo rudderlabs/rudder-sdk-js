@@ -3,16 +3,23 @@ import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { http, url } from '../shared-chunks/eventsDelivery';
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { clone } from 'ramda';
+import {
+  http,
+  url,
+  json,
+  getFinalEventForDeliveryMutator,
+  getDeliveryPayload,
+} from '../shared-chunks/eventsDelivery';
 import { checks } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
-import {
-  getBatchDeliveryPayload,
-  getDeliveryPayload,
-  getFinalEventForDeliveryMutator,
-} from '../utilities/queue';
+
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
+  json.stringifyWithoutCircular({ batch: events }, true, undefined, logger);
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
@@ -72,16 +79,14 @@ const getRequestInfo = (
       getFinalEventForDeliveryMutator(queueItemData.event),
     );
     data = getBatchDeliveryPayload(finalEvents, logger);
-    headers = {
-      ...itemData[0].headers,
-    };
+    headers = clone(itemData[0].headers);
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
     const finalEvent = getFinalEventForDeliveryMutator(event);
 
     data = getDeliveryPayload(finalEvent, logger);
-    headers = { ...eventHeaders };
+    headers = clone(eventHeaders);
     url = eventUrl;
   }
   return { data, headers, url };
@@ -93,4 +98,5 @@ export {
   logErrorOnFailure,
   getBatchDeliveryUrl,
   getRequestInfo,
+  getBatchDeliveryPayload,
 };

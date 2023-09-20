@@ -8,14 +8,14 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { http, timestamp, string } from '../shared-chunks/eventsDelivery';
+import { http, timestamp, string, validateEventPayloadSize } from '../shared-chunks/eventsDelivery';
 import { storages } from '../shared-chunks/common';
-import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
   logErrorOnFailure,
   getRequestInfo,
+  getBatchDeliveryPayload,
 } from './utilities';
 import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';

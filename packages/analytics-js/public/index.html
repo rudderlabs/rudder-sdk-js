@@ -68,6 +68,11 @@
         destSDKBaseURL:
           '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+        // queueOptions: {
+        //   batch: {
+        //     maxSize: 5 * 1024, // 5KB
+        //   },
+        // },
         // cookieConsentManager: {
         //   // oneTrust: {
         //   //   enabled: true,
@@ -76,11 +81,11 @@
         //     enabled: true,
         //   }
         // }
-        // useBeacon: true,
-        // beaconQueueOptions: {
-        //   flushQueueInterval: 60 * 1000,
-        // }
-        storage: {
+        useBeacon: true,
+        beaconQueueOptions: {
+          flushQueueInterval: 10 * 1000,
+        },
+        // storage: {
           // encryption: {
           //   version: 'v3'
           // },
@@ -106,7 +111,7 @@
           //     type: 'cookieStorage',
           //   },
           // },
-        },
+        // },
         // plugins: [
         //   'StorageEncryption',
         //   'XhrQueue'

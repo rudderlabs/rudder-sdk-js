@@ -20,7 +20,7 @@ import { BeaconBatchData } from './types';
  * @param logger Logger instance
  * @returns stringified events payload as Blob, undefined if error occurs.
  */
-const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
   const data: BeaconBatchData = {
     batch: events,
   };
@@ -36,7 +36,6 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
   } catch (err) {
     logger?.error(BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN), err);
   }
-
   return undefined;
 };
 
@@ -61,4 +60,4 @@ const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   ).href;
 };
 
-export { getDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };
+export { getBatchDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

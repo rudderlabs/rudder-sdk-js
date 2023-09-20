@@ -32,11 +32,15 @@ const DEFAULT_CLOCK: ScheduleClock = {
 };
 
 class Schedule {
-  tasks: Record<string, number> = {};
+  tasks: Record<string, number>;
+  nextId;
+  clock: ScheduleClock;
 
-  nextId = 1;
-
-  clock: ScheduleClock = DEFAULT_CLOCK;
+  constructor() {
+    this.tasks = {};
+    this.nextId = 1;
+    this.clock = DEFAULT_CLOCK;
+  }
 
   now(): number {
     return +new this.clock.Date();

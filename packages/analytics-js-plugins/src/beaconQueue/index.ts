@@ -7,11 +7,17 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { timestamp } from '../shared-chunks/eventsDelivery';
+import {
+  timestamp,
+  getFinalEventForDeliveryMutator,
+  validateEventPayloadSize,
+} from '../shared-chunks/eventsDelivery';
 import { DoneCallback, IQueue } from '../types/plugins';
-// TODO: move this to its own utilities file to avoid network request for common bundle if it can be avoided
-import { getFinalEventForDeliveryMutator, validateEventPayloadSize } from '../utilities/queue';
-import { getNormalizedBeaconQueueOptions, getDeliveryUrl, getDeliveryPayload } from './utilities';
+import {
+  getNormalizedBeaconQueueOptions,
+  getDeliveryUrl,
+  getBatchDeliveryPayload,
+} from './utilities';
 import { storages } from '../shared-chunks/common';
 
 import { BEACON_QUEUE_PLUGIN, MAX_BATCH_PAYLOAD_SIZE_BYTES, QUEUE_NAME } from './constants';
@@ -62,7 +68,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
           getFinalEventForDeliveryMutator(queueItemData.event),
         );
-        const data = getDeliveryPayload(finalEvents, logger);
+        const data = getBatchDeliveryPayload(finalEvents, logger);
 
         if (data) {
           try {
