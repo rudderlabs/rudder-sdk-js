@@ -52,6 +52,10 @@
         "project": "./tsconfig.json"
       },
       "rules": {
+        "compat/compat": [
+          "warn",
+          "defaults,Edge >= 80,Firefox >= 47,IE >= 11,Chrome >= 54,Safari >= 7,Opera >= 43"
+        ],
         "import/prefer-default-export": "off",
         "unicorn/filename-case": [
           "error",
@@ -81,10 +85,6 @@
         "sonarjs/no-nested-template-literals": "off",
         "sonarjs/max-switch-cases": "off",
         "sonarjs/cognitive-complexity": ["error", 40],
-        "compat/compat": [
-          "warn",
-          "defaults,Edge >= 80,Firefox >= 47,IE >= 11,Chrome >= 54,Safari >= 7,Opera >= 43"
-        ],
         "@typescript-eslint/lines-between-class-members": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -102,7 +102,32 @@
         "@typescript-eslint/no-useless-constructor": ["error"],
         "no-console": "off",
         "no-plusplus": "off",
-        "import/no-extraneous-dependencies": "off"
+        "import/no-extraneous-dependencies": "off",
+        "@nx/enforce-module-boundaries": [
+          "error",
+          {
+            "allow": [],
+            "banTransitiveDependencies": true,
+            "depConstraints": [
+              {
+                "sourceTag": "type:lib",
+                "onlyDependOnLibsWithTags": ["type:lib"]
+              },
+              {
+                "sourceTag": "type:sdk",
+                "onlyDependOnLibsWithTags": ["type:lib"]
+              },
+              {
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": ["type:sdk"]
+              },
+              {
+                "sourceTag": "scope:shared",
+                "onlyDependOnLibsWithTags": ["scope:shared"]
+              }
+            ]
+          }
+        ]
       }
     },
     {
