@@ -103,6 +103,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          // type casting to string as we know that the event has already been validated prior to enqueue
           return (getBatchDeliveryPayload(events, logger) as string)?.length;
         },
       );

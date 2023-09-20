@@ -102,6 +102,11 @@ const BeaconQueue = (): ExtensionPlugin => ({
         storeManager,
         storages.MEMORY_STORAGE,
         logger,
+        (itemData: BeaconQueueItemData[]): number => {
+          const events = itemData.map((queueItemData: BeaconQueueItemData) => queueItemData.event);
+          // type casting to Blob as we know that the event has already been validated prior to enqueue
+          return (getBatchDeliveryPayload(events, logger) as Blob).size;
+        },
       );
 
       return eventsQueue;
