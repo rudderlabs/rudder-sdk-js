@@ -35,7 +35,7 @@ import {
   DEFAULT_RECLAIM_TIMER_MS,
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_WAIT_MS,
-  DEFAULT_BATCH_FLUSH_INTERVAL,
+  DEFAULT_BATCH_FLUSH_INTERVAL_MS,
 } from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -150,7 +150,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
       if (checks.isDefined(this.batch.flushInterval)) {
         this.batch.flushInterval =
-          +(this.batch.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL;
+          +(this.batch.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL_MS;
         this.attachListeners();
         this.enableBatching = true;
       }
