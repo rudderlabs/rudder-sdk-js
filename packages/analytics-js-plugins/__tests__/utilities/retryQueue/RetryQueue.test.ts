@@ -229,11 +229,11 @@ describe('Queue', () => {
   });
 
   it('should respect maxItems', () => {
-    expect(queue.enableBatching).toBe(false);
+    expect(queue.enableBatching).toBe(undefined);
 
     queue.maxItems = 100;
 
-    for (let i = 0; i < 105; i = i + 1) {
+    for (let i = 0; i < 105; i += 1) {
       jest.advanceTimersByTime(1);
       queue.addItem(i);
     }

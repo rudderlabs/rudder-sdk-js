@@ -59,16 +59,15 @@ class RetryQueue implements IQueue<QueueItemData> {
   maxItems: number;
   timeouts: QueueTimeouts;
   scheduleTimeoutActive: boolean;
-
   maxAttempts: number;
   backoff: QueueBackoff;
   schedule: Schedule;
   processId: string;
   logger?: ILogger;
-  enableBatching: boolean;
+  enableBatching?: boolean;
   batch?: BatchOptions;
   flushQueueTimeout?: number;
-  batchDispatchInProgress: boolean;
+  batchDispatchInProgress?: boolean;
   queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
@@ -81,18 +80,17 @@ class RetryQueue implements IQueue<QueueItemData> {
     queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback,
   ) {
     this.storeManager = storeManager;
+    this.logger = logger;
     this.name = name;
     this.id = uuId.generateUUID();
+
     this.processQueueCb = queueProcessCb;
+    this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
+
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
-    this.enableBatching = isObjectLiteralAndNotNull(options.batch);
 
-    this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
     this.configureBatchingOptions(options);
-    this.batchDispatchInProgress = false;
-
-    this.logger = logger;
 
     this.backoff = {
       minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
@@ -129,31 +127,38 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead = this.processHead.bind(this);
     this.flushQueue = this.flushQueue.bind(this);
 
-    this.attachListeners();
-
     this.scheduleTimeoutActive = false;
   }
 
   configureBatchingOptions(options: QueueOptions) {
-    if (this.enableBatching) {
-      this.batch = options.batch as BatchOptions;
-      this.enableBatching = false;
-      if (checks.isDefined(this.batch.maxSize)) {
-        this.batch.maxSize = +(this.batch.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
-        this.enableBatching = true;
-      }
+    this.batchDispatchInProgress = false;
 
-      if (checks.isDefined(this.batch.maxItems)) {
-        this.batch.maxItems = +(this.batch.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
-        this.enableBatching = true;
-      }
+    if (!isObjectLiteralAndNotNull(options.batch)) {
+      return;
+    }
 
-      if (checks.isDefined(this.batch.flushInterval)) {
-        this.batch.flushInterval =
-          +(this.batch.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL_MS;
-        this.attachListeners();
-        this.enableBatching = true;
-      }
+    const batchOptions = options.batch as BatchOptions;
+
+    this.batch = {};
+    this.enableBatching = false;
+
+    if (checks.isDefined(batchOptions.maxSize)) {
+      this.batch.maxSize = +(batchOptions.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
+      this.enableBatching = true;
+    }
+
+    if (checks.isDefined(batchOptions.maxItems)) {
+      this.batch.maxItems = +(batchOptions.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
+      this.enableBatching = true;
+    }
+
+    if (checks.isDefined(batchOptions.flushInterval)) {
+      this.batch.flushInterval =
+        +(batchOptions.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL_MS;
+      this.enableBatching = true;
+
+      // Attach visibility change listener to flush the queue
+      this.attachListeners();
     }
   }
 
@@ -203,7 +208,9 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   private configureFlushTimeoutHandler() {
     if (this.enableBatching && this.batch?.flushInterval) {
+      // Clear the previous timeout handlers
       (globalThis as typeof window).clearTimeout(this.flushQueueTimeout);
+
       this.flushQueueTimeout = (globalThis as typeof window).setTimeout(
         this.flushQueue,
         this.batch?.flushInterval,
