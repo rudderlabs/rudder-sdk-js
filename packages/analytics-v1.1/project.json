@@ -97,7 +97,7 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.42.0",
+        "tag": "rudder-sdk-js@2.42.1",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     },

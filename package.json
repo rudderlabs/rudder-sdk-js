@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.8",
+  "version": "3.0.0-beta.9",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
@@ -45,11 +45,12 @@
     "build:integrations": "nx run-many --targets=build-browser,build-browser-modern --parallel=false --projects=@rudderstack/analytics-js-integrations",
     "build:v3": "nx run-many -t build --parallel=false --exclude=rudder-sdk-js,@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-integrations",
     "build:v1.1": "nx run-many -t build --parallel=false --projects=rudder-sdk-js",
-    "build:sanity": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all,build:all:staging --parallel=false --projects=@rudderstack/analytics-js-sanity-suite",
+    "build:sanity": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all --parallel=false --projects=@rudderstack/analytics-js-sanity-suite",
+    "build:sanity:staging": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all:staging --parallel=false --projects=@rudderstack/analytics-js-sanity-suite",
     "bump-version:monorepo": "npm version prerelease --git-tag-version false",
-    "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore",
-    "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore",
-    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore"
+    "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
   "author": "RudderStack",
   "license": "MIT",
