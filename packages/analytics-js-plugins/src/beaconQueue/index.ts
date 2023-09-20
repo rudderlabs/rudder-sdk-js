@@ -92,10 +92,10 @@ const BeaconQueue = (): ExtensionPlugin => ({
       const eventsQueue = new RetryQueue(
         `${QUEUE_NAME}_${writeKey}`,
         {
-          maxItems: finalQOpts.maxItems,
           batch: {
             flushInterval: finalQOpts.flushQueueInterval,
             maxSize: MAX_BATCH_PAYLOAD_SIZE_BYTES,
+            maxItems: finalQOpts.maxItems,
           },
         } as QueueOptions,
         queueProcessCallback,
