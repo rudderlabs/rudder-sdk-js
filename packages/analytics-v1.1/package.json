@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.42.1",
+  "version": "2.42.2",
   "description": "RudderStack Javascript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -87,7 +87,7 @@
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.8",
+    "@rudderstack/analytics-js-common": "3.0.0-beta.9",
     "@segment/localstorage-retry": "1.3.0",
     "@segment/loosely-validate-event": "2.0.0",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
