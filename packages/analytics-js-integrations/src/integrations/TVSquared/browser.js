@@ -64,7 +64,7 @@ class TVSquared {
       whitelistEvent => whitelistEvent.event.toUpperCase() === event.toUpperCase(),
     );
 
-    if (!isEventInWhiteList) {
+    if (!isEventInWhiteList && whitelistEvents.length > 0) {
       return;
     }
 
