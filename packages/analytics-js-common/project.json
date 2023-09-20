@@ -80,6 +80,8 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "@rudderstack/analytics-js-common@3.0.0-beta.8",
+        "title": "@rudderstack/analytics-js-common@3.0.0-beta.8",
+        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.8",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     },
