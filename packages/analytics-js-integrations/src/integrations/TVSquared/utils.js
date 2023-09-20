@@ -35,6 +35,7 @@ const getAction = (message, metrics) => {
       action[key] = value;
     }
   });
+  return action;
 };
 
 export { getAction, formatRevenue };
