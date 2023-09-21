@@ -229,7 +229,7 @@ describe('Queue', () => {
   });
 
   it('should respect maxItems', () => {
-    expect(queue.enableBatching).toBe(undefined);
+    expect(queue.batchModeEnabled).toBe(undefined);
 
     queue.maxItems = 100;
 
@@ -891,7 +891,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(false);
+    expect(batchQueue.batchModeEnabled).toEqual(false);
     expect(batchQueue.batch).toEqual({});
 
     batchQueue = new RetryQueue(
@@ -906,7 +906,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batchModeEnabled).toEqual(true);
     expect(batchQueue.batch).toEqual({
       maxSize: 1024,
       maxItems: 1,
@@ -924,7 +924,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batchModeEnabled).toEqual(true);
     expect(batchQueue.batch).toEqual({
       maxSize: 3,
       maxItems: 20,
@@ -941,7 +941,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batchModeEnabled).toEqual(true);
     expect(batchQueue.batch).toEqual({
       maxItems: 30,
     });
@@ -957,7 +957,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batchModeEnabled).toEqual(true);
     expect(batchQueue.batch).toEqual({
       maxSize: 1000,
     });
@@ -974,7 +974,7 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
+    expect(batchQueue.batchModeEnabled).toEqual(true);
     expect(batchQueue.batch).toEqual({
       maxItems: 30,
       maxSize: 1000,
