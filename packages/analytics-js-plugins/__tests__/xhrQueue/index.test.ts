@@ -221,6 +221,7 @@ describe('XhrQueue', () => {
         maxAttempts: 10,
         maxItems: 100,
         batch: {
+          enabled: true,
           maxSize: 1024,
           maxItems: 2,
         },

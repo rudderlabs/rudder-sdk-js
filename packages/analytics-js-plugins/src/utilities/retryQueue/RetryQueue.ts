@@ -4,6 +4,7 @@ import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/St
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { checks, storages } from '../../shared-chunks/common';
 import { uuId } from '../../shared-chunks/eventsDelivery';
 import {
@@ -15,13 +16,7 @@ import {
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
-import {
-  QueueTimeouts,
-  QueueBackoff,
-  BatchOptions,
-  QueueOptions,
-  InProgressQueueItem,
-} from './types';
+import { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,
@@ -64,15 +59,14 @@ class RetryQueue implements IQueue<QueueItemData> {
   schedule: Schedule;
   processId: string;
   logger?: ILogger;
-  batchModeEnabled?: boolean;
-  batch?: BatchOptions;
+  batch: BatchOpts;
   flushBatchTaskId?: string;
   batchingInProgress?: boolean;
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
     name: string,
-    options: QueueOptions,
+    options: QueueOpts,
     queueProcessCb: QueueProcessCallback,
     storeManager: IStoreManager,
     storageType: StorageType = storages.LOCAL_STORAGE,
@@ -90,6 +84,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
 
+    this.batch = { enabled: false };
     this.configureBatchMode(options);
 
     this.backoff = {
@@ -133,26 +128,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.scheduleTimeoutActive = false;
   }
 
-  configureBatchMode(options: QueueOptions) {
+  configureBatchMode(options: QueueOpts) {
     this.batchingInProgress = false;
 
     if (!isObjectLiteralAndNotNull(options.batch)) {
       return;
     }
 
-    const batchOptions = options.batch as BatchOptions;
+    const batchOptions = options.batch as BatchOpts;
 
-    this.batch = {};
-    this.batchModeEnabled = false;
+    this.batch.enabled = batchOptions.enabled === true;
 
     if (checks.isDefined(batchOptions.maxSize)) {
       this.batch.maxSize = +(batchOptions.maxSize as number) || DEFAULT_MAX_BATCH_SIZE_BYTES;
-      this.batchModeEnabled = true;
     }
 
     if (checks.isDefined(batchOptions.maxItems)) {
       this.batch.maxItems = +(batchOptions.maxItems as number) || DEFAULT_MAX_BATCH_ITEMS;
-      this.batchModeEnabled = true;
     }
 
     if (checks.isDefined(batchOptions.flushInterval)) {
@@ -163,7 +155,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   attachListeners() {
-    if (this.batchModeEnabled) {
+    if (this.batch.enabled) {
       (globalThis as typeof window).addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
           this.flushBatch();
@@ -211,7 +203,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Configures the timeout handler for flushing the batch queue
    */
   scheduleFlushBatch() {
-    if (this.batchModeEnabled && this.batch?.flushInterval) {
+    if (this.batch.enabled && this.batch?.flushInterval) {
       if (this.flushBatchTaskId) {
         this.schedule.cancel(this.flushBatchTaskId);
       }
@@ -283,7 +275,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   enqueue(entry: QueueItem<QueueItemData>) {
     let curEntry: QueueItem<QueueItemData> | undefined;
-    if (this.batchModeEnabled) {
+    if (this.batch.enabled) {
       curEntry = this.handleNewItemForBatch(entry);
     } else {
       curEntry = entry;
@@ -567,7 +559,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     addConcatQueue(their.queue, 0);
 
     // Process batch queue items
-    if (this.batchModeEnabled) {
+    if (this.batch.enabled) {
       their.batchQueue.forEach((el: QueueItem) => {
         const id = el.id || uuId.generateUUID();
         if (trackMessageIds.includes(id)) {
