@@ -150,7 +150,15 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (checks.isDefined(batchOptions.flushInterval)) {
       this.batch.flushInterval =
         +(batchOptions.flushInterval as number) || DEFAULT_BATCH_FLUSH_INTERVAL_MS;
-      this.batchModeEnabled = true;
+    }
+
+    // Set upper cap on the batch size
+    if (this.batch.enabled) {
+      let maxSize = this.batch?.maxSize || DEFAULT_MAX_BATCH_SIZE_BYTES;
+      if (maxSize > DEFAULT_MAX_BATCH_SIZE_BYTES) {
+        maxSize = DEFAULT_MAX_BATCH_SIZE_BYTES;
+      }
+      this.batch.maxSize = maxSize;
     }
   }
 
