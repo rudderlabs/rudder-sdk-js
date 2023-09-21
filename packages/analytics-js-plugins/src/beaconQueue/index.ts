@@ -92,8 +92,9 @@ const BeaconQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         {
           batch: {
+            enabled: true,
             flushInterval: finalQOpts.flushQueueInterval,
-            maxSize: MAX_BATCH_PAYLOAD_SIZE_BYTES,
+            maxSize: MAX_BATCH_PAYLOAD_SIZE_BYTES, // set the hard limit
             maxItems: finalQOpts.maxItems,
           },
         } as QueueOpts,
