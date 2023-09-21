@@ -14,7 +14,7 @@ import {
   QueueProcessCallback,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
-import { RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
+import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
 import {
   QueueTimeouts,
   QueueBackoff,
@@ -66,9 +66,9 @@ class RetryQueue implements IQueue<QueueItemData> {
   logger?: ILogger;
   batchModeEnabled?: boolean;
   batch?: BatchOptions;
-  flushBatchTimeoutCbId?: number;
-  batchDispatchInProgress?: boolean;
-  queueBatchItemsSizeCalculatorCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
+  flushBatchTaskId?: string;
+  batchingInProgress?: boolean;
+  batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
 
   constructor(
     name: string,
@@ -85,7 +85,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.id = uuId.generateUUID();
 
     this.processQueueCb = queueProcessCb;
-    this.queueBatchItemsSizeCalculatorCb = queueBatchItemsSizeCalculatorCb;
+    this.batchSizeCalcCb = queueBatchItemsSizeCalculatorCb;
 
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
@@ -134,7 +134,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   configureBatchMode(options: QueueOptions) {
-    this.batchDispatchInProgress = false;
+    this.batchingInProgress = false;
 
     if (!isObjectLiteralAndNotNull(options.batch)) {
       return;
@@ -189,7 +189,6 @@ class RetryQueue implements IQueue<QueueItemData> {
    */
   stop() {
     this.schedule.cancelAll();
-    (globalThis as typeof window).clearTimeout(this.flushBatchTimeoutCbId);
     this.scheduleTimeoutActive = false;
   }
 
@@ -202,7 +201,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     this.scheduleTimeoutActive = true;
-    this.configureFlushBatchTimeoutHandler();
+    this.scheduleFlushBatch();
     this.ack();
     this.checkReclaim();
     this.processHead();
@@ -211,14 +210,16 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Configures the timeout handler for flushing the batch queue
    */
-  configureFlushBatchTimeoutHandler() {
+  scheduleFlushBatch() {
     if (this.batchModeEnabled && this.batch?.flushInterval) {
-      // Clear the previous timeout handlers
-      (globalThis as typeof window).clearTimeout(this.flushBatchTimeoutCbId);
+      if (this.flushBatchTaskId) {
+        this.schedule.cancel(this.flushBatchTaskId);
+      }
 
-      this.flushBatchTimeoutCbId = (globalThis as typeof window).setTimeout(
+      this.flushBatchTaskId = this.schedule.run(
         this.flushBatch,
-        this.batch?.flushInterval,
+        this.batch.flushInterval,
+        ScheduleModes.ASAP,
       );
     }
   }
@@ -227,23 +228,22 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Flushes the batch queue
    */
   flushBatch() {
-    if (!this.batchDispatchInProgress) {
-      this.batchDispatchInProgress = true;
+    if (!this.batchingInProgress) {
+      this.batchingInProgress = true;
       let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
       if (batchQueue.length > 0) {
         batchQueue = batchQueue.slice(-batchQueue.length);
 
-        const batchItems = batchQueue.map(queueItem => queueItem.item);
-        const batchEntry = this.generateQueueItem(batchItems);
+        const batchEntry = this.genQueueItem(batchQueue.map(queueItem => queueItem.item));
 
         this.setQueue(QueueStatuses.BATCH_QUEUE, []);
 
         this.pushToMainQueue(batchEntry);
       }
-      this.batchDispatchInProgress = false;
+      this.batchingInProgress = false;
 
-      // re-attach the timeout handler
-      this.configureFlushBatchTimeoutHandler();
+      // Re-schedule the flush task
+      this.scheduleFlushBatch();
     }
   }
 
@@ -304,12 +304,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     let curEntry: QueueItem<QueueItemData> | undefined;
     let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
 
-    if (!this.batchDispatchInProgress) {
-      this.batchDispatchInProgress = true;
+    if (!this.batchingInProgress) {
+      this.batchingInProgress = true;
       batchQueue = batchQueue.slice(-batchQueue.length);
       batchQueue.push(entry);
 
-      const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
+      const batchDispatchInfo = this.getBatchDispInfo(batchQueue);
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
         let batchItems;
@@ -321,12 +321,12 @@ class RetryQueue implements IQueue<QueueItemData> {
           batchQueue = [];
         }
 
-        curEntry = this.generateQueueItem(batchItems);
+        curEntry = this.genQueueItem(batchItems);
 
         // re-attach the timeout handler
-        this.configureFlushBatchTimeoutHandler();
+        this.scheduleFlushBatch();
       }
-      this.batchDispatchInProgress = false;
+      this.batchingInProgress = false;
     } else {
       batchQueue.push(entry);
     }
@@ -356,7 +356,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Object} itemData The item to process
    */
   addItem(itemData: QueueItemData) {
-    this.enqueue(this.generateQueueItem(itemData));
+    this.enqueue(this.genQueueItem(itemData));
   }
 
   /**
@@ -364,7 +364,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param itemData Queue item data
    * @returns Queue item
    */
-  generateQueueItem(itemData: QueueItemData): QueueItem<QueueItemData> {
+  genQueueItem(itemData: QueueItemData): QueueItem<QueueItemData> {
     return {
       item: itemData,
       attemptNumber: 0,
@@ -399,7 +399,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param batchItems Prospective batch items
    * @returns Batch dispatch info
    */
-  getBatchDispatchInfo(batchItems: QueueItem[]) {
+  getBatchDispInfo(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
     let lengthCriteriaExceeded = false;
     const configuredBatchMaxItems = this.batch?.maxItems as number;
@@ -418,13 +418,10 @@ class RetryQueue implements IQueue<QueueItemData> {
     let sizeCriteriaMet = false;
     let sizeCriteriaExceeded = false;
     const configuredBatchMaxSize = this.batch?.maxSize as number;
-    if (
-      checks.isDefined(configuredBatchMaxSize) &&
-      checks.isDefined(this.queueBatchItemsSizeCalculatorCb)
-    ) {
-      const curBatchSize = (
-        this.queueBatchItemsSizeCalculatorCb as QueueBatchItemsSizeCalculatorCallback
-      )(batchItems.map(queueItem => queueItem.item));
+    if (checks.isDefined(configuredBatchMaxSize) && checks.isDefined(this.batchSizeCalcCb)) {
+      const curBatchSize = (this.batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback)(
+        batchItems.map(queueItem => queueItem.item),
+      );
 
       sizeCriteriaMet = curBatchSize === (configuredBatchMaxSize as number);
       sizeCriteriaExceeded = curBatchSize > (configuredBatchMaxSize as number);
@@ -593,23 +590,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.setQueue(QueueStatuses.QUEUE, our.queue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
-    try {
-      this.clearOtherQueue(other, 1);
-    } catch (e) {
-      const isLocalStorageBusy =
-        (e as any).name === 'NS_ERROR_STORAGE_BUSY' ||
-        (e as any).code === 'NS_ERROR_STORAGE_BUSY' ||
-        (e as any).code === 0x80630001;
-      if (isLocalStorageBusy) {
-        try {
-          this.clearOtherQueue(other, 40);
-        } catch (retryError) {
-          this.logger?.error(retryError);
-        }
-      } else {
-        this.logger?.error(e);
-      }
-    }
+    this.clearOtherQueue(other, 1);
 
     // process the new items we claimed
     this.processHead();
@@ -617,24 +598,41 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   // eslint-disable-next-line class-methods-use-this
   clearOtherQueue(other: IStore, localStorageBackoff: number) {
+    this.removeStorageEntry(other, 0, localStorageBackoff);
+  }
+
+  removeStorageEntry(store: IStore, entryIdx: number, backoff: number, attempt = 1) {
+    const maxAttempts = 2;
     (globalThis as typeof window).setTimeout(() => {
-      other.remove(QueueStatuses.BATCH_QUEUE);
-      (globalThis as typeof window).setTimeout(() => {
-        other.remove(QueueStatuses.IN_PROGRESS);
-        (globalThis as typeof window).setTimeout(() => {
-          other.remove(QueueStatuses.QUEUE);
-          (globalThis as typeof window).setTimeout(() => {
-            other.remove(QueueStatuses.RECLAIM_START);
-            (globalThis as typeof window).setTimeout(() => {
-              other.remove(QueueStatuses.RECLAIM_END);
-              (globalThis as typeof window).setTimeout(() => {
-                other.remove(QueueStatuses.ACK);
-              }, localStorageBackoff);
-            }, localStorageBackoff);
-          }, localStorageBackoff);
-        }, localStorageBackoff);
-      }, localStorageBackoff);
-    }, localStorageBackoff);
+      const queueEntryKeys = Object.keys(QueueStatuses);
+      const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
+      try {
+        store.remove(entry);
+
+        // clear the next entry
+        if (entryIdx + 1 < queueEntryKeys.length) {
+          this.removeStorageEntry(store, entryIdx + 1, backoff);
+        }
+      } catch (err) {
+        const storageBusyErr = 'NS_ERROR_STORAGE_BUSY';
+        const isLocalStorageBusy =
+          (err as any).name === storageBusyErr ||
+          (err as any).code === storageBusyErr ||
+          (err as any).code === 0x80630001;
+
+        if (isLocalStorageBusy && attempt < maxAttempts) {
+          // Try clearing the same entry again with some extra delay
+          this.removeStorageEntry(store, entryIdx, backoff + 40, attempt + 1);
+        } else {
+          this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, entry, attempt), err);
+        }
+
+        // clear the next entry
+        if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
+          this.removeStorageEntry(store, entryIdx + 1, backoff);
+        }
+      }
+    }, backoff);
   }
 
   checkReclaim() {
