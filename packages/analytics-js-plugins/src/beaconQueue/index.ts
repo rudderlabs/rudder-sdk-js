@@ -4,7 +4,7 @@ import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { BeaconQueueOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import {
@@ -28,7 +28,6 @@ import {
   BEACON_QUEUE_DELIVERY_ERROR,
 } from './logMessages';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { QueueOptions } from '../utilities/retryQueue/types';
 
 const pluginName = 'BeaconQueue';
 
@@ -97,7 +96,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             maxSize: MAX_BATCH_PAYLOAD_SIZE_BYTES,
             maxItems: finalQOpts.maxItems,
           },
-        } as QueueOptions,
+        } as QueueOpts,
         queueProcessCallback,
         storeManager,
         storages.MEMORY_STORAGE,
