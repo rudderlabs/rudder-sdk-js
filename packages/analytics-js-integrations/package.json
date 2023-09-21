@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.0.0-beta.8",
+  "version": "3.0.0-beta.10",
   "private": true,
   "description": "RudderStack Javascript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -81,7 +81,7 @@
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/each": "2.0.1",
     "@ndhoule/extend": "2.0.0",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.8",
+    "@rudderstack/analytics-js-common": "3.0.0-beta.9",
     "component-each": "0.2.6",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",

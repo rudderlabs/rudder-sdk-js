@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
+import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MoEngage/constants';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 // custom traits mapping context.traits --> moengage properties

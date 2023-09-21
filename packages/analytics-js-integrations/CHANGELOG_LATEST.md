@@ -1,7 +1,7 @@
-## [3.0.0-beta.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.7...@rudderstack/analytics-js-integrations@3.0.0-beta.8) (2023-09-18)
+## [3.0.0-beta.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.9...@rudderstack/analytics-js-integrations@3.0.0-beta.10) (2023-09-20)
 
 
-### Features
+### Bug Fixes
 
-* deprecate support of common names for integrations ([#1374](https://github.com/rudderlabs/rudder-sdk-js/issues/1374)) ([f1d097d](https://github.com/rudderlabs/rudder-sdk-js/commit/f1d097d9976f6c9d2ad0f1d81d469148f8c7c197))
+* **analytics-js-integrations:** path to moengage name import ([25b9ec7](https://github.com/rudderlabs/rudder-sdk-js/commit/25b9ec73331b57d41b97a6a760419b8cf9e822e7))
 

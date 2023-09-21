@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-common",
-  "version": "3.0.0-beta.8",
+  "version": "3.0.0-beta.9",
   "description": "RudderStack Javascript SDK common code",
   "module": "dist/npm/index.js",
   "types": "./dist/npm/index.d.ts",
