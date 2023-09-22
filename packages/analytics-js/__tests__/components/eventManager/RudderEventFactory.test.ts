@@ -1,5 +1,5 @@
 import { batch } from '@preact/signals-core';
-import { APIEvent, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import {
   AppInfo,
@@ -46,7 +46,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a page event if page event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.Page,
+      type: 'page',
       category: 'category',
       name: 'name',
       properties: {
@@ -135,7 +135,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a track event if track event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.Track,
+      type: 'track',
       name: 'Sample event',
       properties: {
         key1: 'value1',
@@ -210,7 +210,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a track event if track event data is provided even without event name', () => {
     const apiEvent = {
-      type: RudderEventType.Track,
+      type: 'track',
       properties: {
         key1: 'value1',
         key2: 'value2',
@@ -281,7 +281,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate an identify event if identify event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.Identify,
+      type: 'identify',
       userId: 'new_user_id',
       traits: {
         key1: 'value1',
@@ -363,7 +363,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate an alias event if alias event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.Alias,
+      type: 'alias',
       from: 'user_id',
       to: 'new_user_id',
     } as APIEvent;
@@ -429,7 +429,7 @@ describe('RudderEventFactory', () => {
 
   it('should generate a group event if group event data is provided', () => {
     const apiEvent = {
-      type: RudderEventType.Group,
+      type: 'group',
       groupId: 'overridden_group_id',
       traits: {
         key4: 'value4',

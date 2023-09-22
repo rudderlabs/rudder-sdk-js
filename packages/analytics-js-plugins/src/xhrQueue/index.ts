@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
@@ -10,14 +8,14 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { getBatchDeliveryPayload, validateEventPayloadSize } from '../utilities/queue';
+import { http, timestamp, string, validateEventPayloadSize } from '../shared-chunks/eventsDelivery';
+import { storages } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
   logErrorOnFailure,
   getRequestInfo,
+  getBatchDeliveryPayload,
 } from './utilities';
 import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
@@ -85,7 +83,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              const queueErrResp = http.isErrRetryable(details) ? details : null;
 
               logErrorOnFailure(
                 details,
@@ -101,10 +99,11 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        LOCAL_STORAGE,
+        storages.LOCAL_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          // type casting to string as we know that the event has already been validated prior to enqueue
           return (getBatchDeliveryPayload(events, logger) as string)?.length;
         },
       );
@@ -130,7 +129,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = getCurrentTimeFormatted();
+      event.sentAt = timestamp.getCurrentTimeFormatted();
       validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
@@ -139,7 +138,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       // Auth header is added during initialization
       const headers = {
         // TODO: why do we need this header value?
-        AnonymousId: toBase64(event.anonymousId),
+        AnonymousId: string.toBase64(event.anonymousId),
       };
 
       eventsQueue.addItem({

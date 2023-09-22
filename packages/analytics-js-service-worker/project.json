@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-service-worker/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:sdk", "scope:service-worker"],
   "targets": {
     "build": {
       "executor": "nx:run-script",
@@ -61,6 +61,24 @@
         "ci": {
           "ci": true,
           "codeCoverage": true
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-js-service-worker/src/**/*.{ts,js}",
+          "packages/analytics-js-service-worker/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-js-service-worker/reports/eslint.json",
+          "format": "json"
         }
       }
     },

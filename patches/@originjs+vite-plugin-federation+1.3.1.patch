@@ -1,8 +1,8 @@
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-index f5e810b..90e45c6 100644
+index f54ce2e..83002b7 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-@@ -855,12 +855,12 @@ function prodExposePlugin(options) {
+@@ -880,12 +880,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -11,13 +11,13 @@ index f5e810b..90e45c6 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
-       ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
-   let viteConfigResolved;
    return {
-@@ -995,7 +995,7 @@ function prodExposePlugin(options) {
+     name: "originjs:expose-production",
+@@ -1021,7 +1020,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -27,10 +27,10 @@ index f5e810b..90e45c6 100644
              );
            }
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-index 250f7cc..e065949 100644
+index b97a7ae..01cb2f9 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-@@ -838,12 +838,12 @@ function prodExposePlugin(options) {
+@@ -863,12 +863,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -39,13 +39,13 @@ index 250f7cc..e065949 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
-       ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
-   let viteConfigResolved;
    return {
-@@ -978,7 +978,7 @@ function prodExposePlugin(options) {
+     name: "originjs:expose-production",
+@@ -1004,7 +1003,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(

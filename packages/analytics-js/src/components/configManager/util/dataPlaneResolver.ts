@@ -29,10 +29,8 @@ const validateResidencyServerRegion = (
   residencyServerRegion?: ResidencyServerRegion,
   logger?: ILogger,
 ) => {
-  if (
-    residencyServerRegion &&
-    !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
-  ) {
+  const residencyServerRegions = ['US', 'EU'];
+  if (residencyServerRegion && !residencyServerRegions.includes(residencyServerRegion)) {
     logger?.warn(
       UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING(
         CONFIG_MANAGER,

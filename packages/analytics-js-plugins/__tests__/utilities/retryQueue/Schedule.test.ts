@@ -18,7 +18,6 @@ describe('Schedule', () => {
   });
 
   afterEach(() => {
-    schedule.resetClock();
     jest.setSystemTime(0);
     jest.clearAllTimers();
   });

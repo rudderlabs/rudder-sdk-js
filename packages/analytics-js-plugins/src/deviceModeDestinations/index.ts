@@ -11,10 +11,7 @@ import { clone } from 'ramda';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
-import {
-  DESTINATION_NOT_SUPPORTED_ERROR,
-  DESTINATION_SDK_LOAD_ERROR,
-} from '../utilities/logMessages';
+import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
 import { filterDestinations } from '../utilities/destination';
 
 const pluginName = 'DeviceModeDestinations';

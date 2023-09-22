@@ -1,7 +1,6 @@
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import {
@@ -174,7 +173,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   // eslint-disable-next-line class-methods-use-this
   onReady() {
     this.detectBrowserCapabilities();
-    state.lifecycle.status.value = LifecycleStatus.BrowserCapabilitiesReady;
+    state.lifecycle.status.value = 'browserCapabilitiesReady';
   }
 
   /**

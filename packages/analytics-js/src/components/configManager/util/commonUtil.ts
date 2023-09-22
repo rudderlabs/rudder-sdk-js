@@ -130,10 +130,7 @@ const updateStorageState = (logger?: ILogger): void => {
     (configuredMigrationValue as boolean) &&
     storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
 
-  if (
-    configuredMigrationValue === true &&
-    state.storage.migrate.value !== configuredMigrationValue
-  ) {
+  if (configuredMigrationValue === true && finalMigrationVal !== configuredMigrationValue) {
     logger?.warn(
       STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
         CONFIG_MANAGER,
@@ -180,7 +177,8 @@ const updateConsentsState = (logger?: ILogger): void => {
 
   let storageStrategy: StorageStrategy =
     preConsentOpts?.storage?.strategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
-  if (isDefined(storageStrategy) && !Object.values(StorageStrategy).includes(storageStrategy)) {
+  const StorageStrategies = ['none', 'session', 'anonymousId'];
+  if (isDefined(storageStrategy) && !StorageStrategies.includes(storageStrategy)) {
     storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
 
     logger?.warn(
@@ -194,7 +192,8 @@ const updateConsentsState = (logger?: ILogger): void => {
 
   let eventsDeliveryType: DeliveryType =
     preConsentOpts?.events?.delivery ?? DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;
-  if (isDefined(eventsDeliveryType) && !Object.values(DeliveryType).includes(eventsDeliveryType)) {
+  const deliveryTypes = ['immediate', 'buffer'];
+  if (isDefined(eventsDeliveryType) && !deliveryTypes.includes(eventsDeliveryType)) {
     eventsDeliveryType = DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;
 
     logger?.warn(

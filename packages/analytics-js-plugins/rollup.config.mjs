@@ -178,6 +178,13 @@ const outputFilesCdn = [
     generatedCode: {
       preset: isLegacyBuild ? 'es5' : 'es2015',
     },
+    // This will merge generated code chunks for common code based on provided logic
+    manualChunks: function (id) {
+      if (id.includes('shared-chunks')) {
+        // file name without extension
+        return path.basename(id).split('.')[0];
+      }
+    }
   },
 ];
 

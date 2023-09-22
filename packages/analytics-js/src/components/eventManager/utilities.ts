@@ -6,7 +6,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiOptions, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
@@ -278,14 +278,14 @@ const getEnrichedEvent = (
     (commonEventData.context as RudderContext).trulyAnonymousTracking = true;
   }
 
-  if (rudderEvent.type === RudderEventType.Identify) {
+  if (rudderEvent.type === 'identify') {
     (commonEventData.context as RudderContext).traits =
       state.storage.entries.value.userTraits?.type !== NO_STORAGE
         ? clone(state.session.userTraits.value)
         : (rudderEvent.context as RudderContext).traits;
   }
 
-  if (rudderEvent.type === RudderEventType.Group) {
+  if (rudderEvent.type === 'group') {
     if (rudderEvent.groupId || state.session.groupId.value) {
       commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
     }
@@ -310,7 +310,6 @@ const getEnrichedEvent = (
   }
 
   processOptions(processedEvent, options);
-  // TODO: We might not need this check altogether
   checkForReservedElements(processedEvent, logger);
 
   // Update the integrations config for the event

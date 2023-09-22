@@ -43,7 +43,6 @@ describe('Queue', () => {
 
   afterEach(() => {
     queue.stop();
-    schedule.resetClock();
     jest.setSystemTime(0);
     jest.clearAllTimers();
   });
@@ -68,7 +67,7 @@ describe('Queue', () => {
   it('should add an item to the batch queue in batch mode', () => {
     const batchQueue = new RetryQueue(
       'test',
-      { batch: { maxItems: 10 } },
+      { batch: { maxItems: 10, enabled: true } },
       jest.fn(),
       defaultStoreManager,
     );
@@ -90,7 +89,7 @@ describe('Queue', () => {
   it('should dispatch batch items to main queue when length criteria is met', () => {
     const batchQueue = new RetryQueue(
       'test',
-      { batch: { maxItems: 2 } },
+      { batch: { enabled: true, maxItems: 2 } },
       jest.fn(),
       defaultStoreManager,
     );
@@ -113,7 +112,7 @@ describe('Queue', () => {
   it('should dispatch batch items to main queue when size criteria is met', () => {
     const batchQueue = new RetryQueue(
       'test',
-      { batch: { maxSize: 2 } },
+      { batch: { enabled: true, maxSize: 2 } },
       jest.fn(),
       defaultStoreManager,
       undefined,
@@ -230,11 +229,11 @@ describe('Queue', () => {
   });
 
   it('should respect maxItems', () => {
-    expect(queue.enableBatching).toBe(false);
+    expect(queue.batch.enabled).toBe(false);
 
     queue.maxItems = 100;
 
-    for (let i = 0; i < 105; i = i + 1) {
+    for (let i = 0; i < 105; i += 1) {
       jest.advanceTimersByTime(1);
       queue.addItem(i);
     }
@@ -310,7 +309,7 @@ describe('Queue', () => {
   it('should take over a batch queued task if a queue is abandoned', () => {
     const batchQueue = new RetryQueue(
       'test',
-      { batch: { maxItems: 2 } },
+      { batch: { maxItems: 2, enabled: true } },
       jest.fn(),
       defaultStoreManager,
     );
@@ -892,13 +891,13 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(false);
-    expect(batchQueue.batch).toEqual({});
+    expect(batchQueue.batch).toEqual({ enabled: false });
 
     batchQueue = new RetryQueue(
       'batchQueue',
       {
         batch: {
+          enabled: true,
           maxSize: 1024,
           maxItems: '1',
         },
@@ -907,8 +906,8 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
     expect(batchQueue.batch).toEqual({
+      enabled: true,
       maxSize: 1024,
       maxItems: 1,
     });
@@ -917,6 +916,7 @@ describe('Queue', () => {
       'batchQueue',
       {
         batch: {
+          enabled: true,
           maxSize: '3',
           maxItems: 20,
         },
@@ -925,8 +925,8 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
     expect(batchQueue.batch).toEqual({
+      enabled: true,
       maxSize: 3,
       maxItems: 20,
     });
@@ -935,6 +935,7 @@ describe('Queue', () => {
       'batchQueue',
       {
         batch: {
+          enabled: true,
           maxItems: 30,
         },
       },
@@ -942,15 +943,17 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
     expect(batchQueue.batch).toEqual({
+      enabled: true,
       maxItems: 30,
+      maxSize: 524288,
     });
 
     batchQueue = new RetryQueue(
       'batchQueue',
       {
         batch: {
+          enabled: true,
           maxSize: 1000,
         },
       },
@@ -958,8 +961,8 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
     expect(batchQueue.batch).toEqual({
+      enabled: true,
       maxSize: 1000,
     });
 
@@ -967,6 +970,7 @@ describe('Queue', () => {
       'batchQueue',
       {
         batch: {
+          enabled: true,
           maxItems: 30,
           maxSize: 1000,
         },
@@ -975,8 +979,8 @@ describe('Queue', () => {
       defaultStoreManager,
     );
 
-    expect(batchQueue.enableBatching).toEqual(true);
     expect(batchQueue.batch).toEqual({
+      enabled: true,
       maxItems: 30,
       maxSize: 1000,
     });

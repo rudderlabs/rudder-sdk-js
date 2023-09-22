@@ -22,14 +22,14 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
-      - name: Checkout source branch
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Get new version number
         run: |
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
           current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
@@ -56,6 +56,11 @@ jobs:
         run: |
           npm run build:browser
           npm run build:browser:modern
+
+      - name: Sync file to S3 adobe-analytics-js assets folder
+        run: |
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
 
       - name: Sync files to S3 v1.1 folder
         run: |
@@ -103,7 +108,7 @@ jobs:
         run: |
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 pc packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/list_integration_sdks.html --cache-control max-age=3600
           aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js.map --cache-control max-age=3600
@@ -149,7 +154,7 @@ jobs:
             }
 
       - name: Send message to Slack channel
-        id: slack-v1dot1
+        id: slackv1
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

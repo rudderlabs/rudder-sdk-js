@@ -11,19 +11,18 @@ export interface IPluginsManager {
   register(plugins: ExtensionPlugin[]): void;
 }
 
-export enum PluginName {
-  BeaconQueue = 'BeaconQueue',
-  Bugsnag = 'Bugsnag',
-  DeviceModeDestinations = 'DeviceModeDestinations',
-  DeviceModeTransformation = 'DeviceModeTransformation',
-  ErrorReporting = 'ErrorReporting',
-  ExternalAnonymousId = 'ExternalAnonymousId',
-  GoogleLinker = 'GoogleLinker',
-  KetchConsentManager = 'KetchConsentManager',
-  NativeDestinationQueue = 'NativeDestinationQueue',
-  OneTrustConsentManager = 'OneTrustConsentManager',
-  StorageEncryption = 'StorageEncryption',
-  StorageEncryptionLegacy = 'StorageEncryptionLegacy',
-  StorageMigrator = 'StorageMigrator',
-  XhrQueue = 'XhrQueue',
-}
+export type PluginName =
+  | 'BeaconQueue'
+  | 'Bugsnag'
+  | 'DeviceModeDestinations'
+  | 'DeviceModeTransformation'
+  | 'ErrorReporting'
+  | 'ExternalAnonymousId'
+  | 'GoogleLinker'
+  | 'KetchConsentManager'
+  | 'NativeDestinationQueue'
+  | 'OneTrustConsentManager'
+  | 'StorageEncryption'
+  | 'StorageEncryptionLegacy'
+  | 'StorageMigrator'
+  | 'XhrQueue';
