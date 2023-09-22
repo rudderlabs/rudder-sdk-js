@@ -47,6 +47,19 @@ export type BeaconQueueOpts = {
   flushQueueInterval?: number;
 };
 
+export type EventsTransportMode = 'xhr' | 'beacon';
+
+export type BatchOpts = {
+  // Whether to enable batching
+  enabled: boolean;
+  // Maximum number of events in a batch
+  maxItems?: number;
+  // Maximum size of a batch request in bytes
+  maxSize?: number;
+  // Time in milliseconds to flush the queue automatically
+  flushInterval?: number;
+};
+
 /**
  * Represents the queue options parameter in loadOptions type
  */
@@ -57,10 +70,14 @@ export type QueueOpts = {
   minRetryDelay?: number;
   // Exponential base
   backoffFactor?: number;
+  // Jitter to be applied to the delay
+  backoffJitter?: number;
   // Maximum number of attempts
   maxAttempts?: number;
-  // Maximum number of events in storage
+  // Maximum number of events/events batch in storage
   maxItems?: number;
+  // Options for batched requests
+  batch?: BatchOpts;
 };
 
 /**
@@ -127,4 +144,6 @@ export type LoadOptions = {
   dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
+  // transport mechanism to be used for sending batched requests
+  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
 };

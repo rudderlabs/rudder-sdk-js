@@ -20,5 +20,6 @@ module.exports = custom({
     'rudder-sdk-js',
     'analytics-js-sanity-suite',
     'analytics-js-loading-script',
+    'deps',
   ],
 });

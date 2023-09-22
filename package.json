@@ -81,6 +81,7 @@
     "component-emitter": "1.3.0",
     "component-querystring": "2.0.1",
     "component-url": "0.2.1",
+    "crypto-es": "2.0.4",
     "crypto-js": "4.1.1",
     "deep-object-diff": "1.1.9",
     "get-value": "3.0.1",
