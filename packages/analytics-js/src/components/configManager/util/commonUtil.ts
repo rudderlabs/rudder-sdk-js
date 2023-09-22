@@ -130,10 +130,7 @@ const updateStorageState = (logger?: ILogger): void => {
     (configuredMigrationValue as boolean) &&
     storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
 
-  if (
-    configuredMigrationValue === true &&
-    state.storage.migrate.value !== configuredMigrationValue
-  ) {
+  if (configuredMigrationValue === true && finalMigrationVal !== configuredMigrationValue) {
     logger?.warn(
       STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
         CONFIG_MANAGER,
