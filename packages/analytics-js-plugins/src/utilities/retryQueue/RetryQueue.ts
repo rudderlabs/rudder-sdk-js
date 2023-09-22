@@ -154,7 +154,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     // Set upper cap on the batch size
     if (this.batch.enabled) {
-      let maxSize = this.batch?.maxSize || DEFAULT_MAX_BATCH_SIZE_BYTES;
+      let maxSize = this.batch?.maxSize ?? DEFAULT_MAX_BATCH_SIZE_BYTES;
       if (maxSize > DEFAULT_MAX_BATCH_SIZE_BYTES) {
         maxSize = DEFAULT_MAX_BATCH_SIZE_BYTES;
       }
@@ -387,7 +387,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         item: itemData,
         attemptNumber,
         time: this.schedule.now() + this.getDelay(attemptNumber),
-        id: id || uuId.generateUUID(),
+        id: id ?? uuId.generateUUID(),
       });
     } else {
       // Discard item
@@ -423,8 +423,8 @@ class RetryQueue implements IQueue<QueueItemData> {
         batchItems.map(queueItem => queueItem.item),
       );
 
-      sizeCriteriaMet = curBatchSize === (configuredBatchMaxSize as number);
-      sizeCriteriaExceeded = curBatchSize > (configuredBatchMaxSize as number);
+      sizeCriteriaMet = curBatchSize === configuredBatchMaxSize;
+      sizeCriteriaExceeded = curBatchSize > configuredBatchMaxSize;
     }
 
     return {
@@ -541,7 +541,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       incrementAttemptNumberBy: number,
     ) => {
       const concatIterator = (el: QueueItem | Record<string, any>) => {
-        const id = el.id || uuId.generateUUID();
+        const id = el.id ?? uuId.generateUUID();
 
         if (trackMessageIds.includes(id)) {
           // duplicated event
@@ -569,7 +569,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Process batch queue items
     if (this.batch.enabled) {
       their.batchQueue.forEach((el: QueueItem) => {
-        const id = el.id || uuId.generateUUID();
+        const id = el.id ?? uuId.generateUUID();
         if (trackMessageIds.includes(id)) {
           // duplicated event
         } else {

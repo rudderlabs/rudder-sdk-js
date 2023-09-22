@@ -156,5 +156,5 @@ export type LoadOptions = {
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
   // transport mechanism to be used for sending batched requests
-  transportMode?: EventsTransportMode; // TODO: Unused for now. This will deprecate the useBeacon and beaconQueueOptions
+  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
 };
