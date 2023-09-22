@@ -1,9 +1,7 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
-import { LoadOptions, UaChTrackLevel } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   DEFAULT_SESSION_TIMEOUT_MS,
@@ -12,14 +10,14 @@ import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
 import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
-  logLevel: LogLevel.Error,
+  logLevel: 'ERROR',
   configUrl: DEFAULT_CONFIG_BE_URL,
   loadIntegration: true,
   sessions: {
     autoTrack: true,
     timeout: DEFAULT_SESSION_TIMEOUT_MS,
   },
-  sameSiteCookie: CookieSameSite.Lax,
+  sameSiteCookie: 'Lax',
   polyfillIfRequired: true,
   integrations: { All: true },
   useBeacon: false,
@@ -27,7 +25,7 @@ const defaultLoadOptions: LoadOptions = {
   destinationsQueueOptions: {},
   queueOptions: {},
   lockIntegrationsVersion: false,
-  uaChTrackLevel: UaChTrackLevel.None,
+  uaChTrackLevel: 'none',
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
   bufferDataPlaneEventsUntilReady: false,

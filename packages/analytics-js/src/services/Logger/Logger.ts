@@ -3,15 +3,15 @@ import { ILogger, LogLevel } from '@rudderstack/analytics-js-common/types/Logger
 import { LoggerProvider } from './types';
 
 const LOG_LEVEL_MAP: Record<LogLevel, number> = {
-  [LogLevel.Log]: 0,
-  [LogLevel.Info]: 1,
-  [LogLevel.Debug]: 2,
-  [LogLevel.Warn]: 3,
-  [LogLevel.Error]: 4,
-  [LogLevel.None]: 5,
+  LOG: 0,
+  INFO: 1,
+  DEBUG: 2,
+  WARN: 3,
+  ERROR: 4,
+  NONE: 5,
 };
 
-const DEFAULT_LOG_LEVEL = LogLevel.Error;
+const DEFAULT_LOG_LEVEL = 'ERROR';
 const LOG_MSG_PREFIX = 'RS SDK';
 const LOG_MSG_PREFIX_STYLE = 'font-weight: bold; background: black; color: white;';
 const LOG_MSG_STYLE = 'font-weight: normal;';
@@ -31,29 +31,29 @@ class Logger implements ILogger {
   }
 
   log(...data: any[]) {
-    this.outputLog(LogLevel.Log, data);
+    this.outputLog('LOG', data);
   }
 
   info(...data: any[]) {
-    this.outputLog(LogLevel.Info, data);
+    this.outputLog('INFO', data);
   }
 
   debug(...data: any[]) {
-    this.outputLog(LogLevel.Debug, data);
+    this.outputLog('DEBUG', data);
   }
 
   warn(...data: any[]) {
-    this.outputLog(LogLevel.Warn, data);
+    this.outputLog('WARN', data);
   }
 
   error(...data: any[]) {
-    this.outputLog(LogLevel.Error, data);
+    this.outputLog('ERROR', data);
   }
 
   outputLog(logMethod: LogLevel, data: any[]) {
     if (this.minLogLevel <= LOG_LEVEL_MAP[logMethod]) {
       this.logProvider[
-        logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>
+        logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<'NONE'>>
       ]?.(...this.formatLogData(data));
     }
   }

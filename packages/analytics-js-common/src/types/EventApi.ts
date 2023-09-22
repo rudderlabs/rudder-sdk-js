@@ -40,12 +40,6 @@ export type APIEvent = {
   groupId?: Nullable<string>;
 };
 
-export enum RudderEventType {
-  Page = 'page',
-  Track = 'track',
-  Identify = 'identify',
-  Alias = 'alias',
-  Group = 'group',
-}
+export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type ReadyCallback = () => void;

@@ -1,4 +1,4 @@
-import { Destination, DestinationConnectionMode } from '../types/Destination';
+import { Destination } from '../types/Destination';
 
 /**
  * A function to filter and return non cloud mode destinations
@@ -8,14 +8,14 @@ import { Destination, DestinationConnectionMode } from '../types/Destination';
  */
 const isNonCloudDestination = (destination: Destination): boolean =>
   Boolean(
-    destination.config.connectionMode !== DestinationConnectionMode.Cloud ||
+    destination.config.connectionMode !== 'cloud' ||
       destination.config.useNativeSDKToSend === true || // this is the older flag for hybrid mode destinations
       destination.config.useNativeSDK === true,
   );
 
 const isHybridModeDestination = (destination: Destination): boolean =>
   Boolean(
-    destination.config.connectionMode === DestinationConnectionMode.Hybrid ||
+    destination.config.connectionMode === 'hybrid' ||
       destination.config.useNativeSDKToSend === true,
   );
 

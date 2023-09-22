@@ -6,7 +6,4 @@ export type RegionDetails = {
 /**
  * Represents residency server input the options
  */
-export enum ResidencyServerRegion {
-  US = 'US',
-  EU = 'EU',
-}
+export type ResidencyServerRegion = 'US' | 'EU';

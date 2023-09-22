@@ -1,11 +1,6 @@
 import { batch } from '@preact/signals-core';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import {
-  Destination,
-  DestinationConfig,
-  DestinationConnectionMode,
-} from '@rudderstack/analytics-js-common/types/Destination';
-import { RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { Destination, DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { EventRepository } from '../../../src/components/eventRepository';
@@ -43,7 +38,7 @@ describe('EventRepository', () => {
   } as IPluginsManager;
 
   const testEvent = {
-    type: RudderEventType.Track,
+    type: 'track',
     event: 'test-event',
     userId: 'test-user',
     properties: {
@@ -56,7 +51,7 @@ describe('EventRepository', () => {
       id: 'test-destination',
       displayName: 'Test Destination',
       config: {
-        connectionMode: DestinationConnectionMode.Hybrid,
+        connectionMode: 'hybrid',
       } as unknown as DestinationConfig,
     } as Destination,
     {
@@ -64,7 +59,7 @@ describe('EventRepository', () => {
       displayName: 'Test Destination 2',
       config: {
         useNativeSDK: false,
-        connectionMode: DestinationConnectionMode.Cloud,
+        connectionMode: 'cloud',
       } as unknown as DestinationConfig,
     } as Destination,
   ];
@@ -120,7 +115,7 @@ describe('EventRepository', () => {
         displayName: 'Test Destination',
         config: {
           useNativeSDK: true,
-          connectionMode: DestinationConnectionMode.Device,
+          connectionMode: 'device',
         } as unknown as DestinationConfig,
       } as Destination,
       {
@@ -128,7 +123,7 @@ describe('EventRepository', () => {
         displayName: 'Test Destination 2',
         config: {
           useNativeSDK: false,
-          connectionMode: DestinationConnectionMode.Cloud,
+          connectionMode: 'cloud',
         } as unknown as DestinationConfig,
       } as Destination,
     ];

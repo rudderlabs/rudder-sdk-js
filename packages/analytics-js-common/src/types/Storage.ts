@@ -1,9 +1,6 @@
 import { UserSessionKeys } from './userSessionStorageKeys';
 
-export enum StorageEncryptionVersion {
-  Legacy = 'legacy',
-  V3 = 'v3', // default
-}
+export type StorageEncryptionVersion = 'legacy' | 'v3'; // default is v3
 
 export type StorageType =
   | 'cookieStorage'
@@ -40,8 +37,6 @@ export type StorageOpts = {
   };
 };
 
-export type UserSessionKeysType = keyof typeof UserSessionKeys;
-
 export type CookieOptions = {
   maxage?: number;
   expires?: Date;
@@ -51,8 +46,4 @@ export type CookieOptions = {
   secure?: boolean;
 };
 
-export enum CookieSameSite {
-  Strict = 'Strict',
-  Lax = 'Lax',
-  None = 'None',
-}
+export type CookieSameSite = 'Strict' | 'Lax' | 'None';

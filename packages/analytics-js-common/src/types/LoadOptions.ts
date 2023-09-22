@@ -8,11 +8,7 @@ import { CookieConsentOptions } from './Consent';
 import { ApiObject } from './ApiObject';
 import { StorageOpts, CookieSameSite } from './Storage';
 
-export enum UaChTrackLevel {
-  None = 'none',
-  Default = 'default',
-  Full = 'full',
-}
+export type UaChTrackLevel = 'none' | 'default' | 'full';
 
 /**
  * Represents the options parameter for anonymousId
@@ -26,7 +22,7 @@ export type AnonymousIdOptions = {
 
 export type SessionOpts = {
   autoTrack?: boolean; // Defaults to true
-  timeout?: number; // Defaults to 30 mins
+  timeout?: number; // Defaults to 30 minutes
 };
 
 export type EventMapping = {
@@ -76,16 +72,9 @@ export type DestinationsQueueOpts = {
 
 export type OnLoadedCallback = (analytics: any) => void;
 
-export enum DeliveryType {
-  Immediate = 'immediate',
-  Buffer = 'buffer',
-}
+export type DeliveryType = 'immediate' | 'buffer';
 
-export enum StorageStrategy {
-  None = 'none',
-  Session = 'session',
-  AnonymousId = 'anonymousId',
-}
+export type StorageStrategy = 'none' | 'session' | 'anonymousId';
 
 export type PreConsentStorageOptions = {
   strategy: StorageStrategy;

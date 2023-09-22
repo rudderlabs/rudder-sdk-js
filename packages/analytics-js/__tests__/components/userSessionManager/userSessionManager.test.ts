@@ -1,4 +1,3 @@
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import {
   defaultUserSessionValues,
@@ -106,32 +105,16 @@ describe('User session manager', () => {
   it('should return true/false depending on the selected storage type for persisted data', () => {
     state.storage.entries.value = entriesWithMixStorage;
     userSessionManager.init();
-    expect(userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.userId)).toBe(
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('userId')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('userTraits')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('groupId')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('groupTraits')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('anonymousId')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('initialReferrer')).toBe(true);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('initialReferringDomain')).toBe(
       true,
     );
-    expect(userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.userTraits)).toBe(
-      true,
-    );
-    expect(userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupId)).toBe(
-      true,
-    );
-    expect(
-      userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupTraits),
-    ).toBe(true);
-    expect(
-      userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.anonymousId),
-    ).toBe(true);
-    expect(
-      userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.initialReferrer),
-    ).toBe(true);
-    expect(
-      userSessionManager.isPersistenceEnabledForStorageEntry(
-        UserSessionKeys.initialReferringDomain,
-      ),
-    ).toBe(true);
-    expect(
-      userSessionManager.isPersistenceEnabledForStorageEntry(UserSessionKeys.sessionInfo),
-    ).toBe(false);
+    expect(userSessionManager.isPersistenceEnabledForStorageEntry('sessionInfo')).toBe(false);
   });
 
   it('should set persisted data in storage if the selected store type is cookie/ls/memory', () => {
@@ -139,8 +122,8 @@ describe('User session manager', () => {
     const sampleSessionInfo = { key: 'value' };
     state.storage.entries.value = entriesWithMixStorage;
     userSessionManager.init();
-    userSessionManager.syncValueToStorage(UserSessionKeys.userId, sampleUserId);
-    userSessionManager.syncValueToStorage(UserSessionKeys.sessionInfo, sampleSessionInfo);
+    userSessionManager.syncValueToStorage('userId', sampleUserId);
+    userSessionManager.syncValueToStorage('sessionInfo', sampleSessionInfo);
     expect(userSessionManager.getUserId()).toBe(sampleUserId);
     expect(userSessionManager.getSessionFromStorage()).toBe(null);
   });

@@ -1,11 +1,7 @@
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import {
-  APIEvent,
-  ApiOptions,
-  RudderEventType,
-} from '@rudderstack/analytics-js-common/types/EventApi';
+import { APIEvent, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
@@ -40,7 +36,7 @@ class RudderEventFactory {
       properties: props,
       name,
       category,
-      type: RudderEventType.Page,
+      type: 'page',
     };
 
     return getEnrichedEvent(pageEvent, options, props, this.logger);
@@ -60,7 +56,7 @@ class RudderEventFactory {
     const trackEvent: Partial<RudderEvent> = {
       properties,
       event,
-      type: RudderEventType.Track,
+      type: 'track',
     };
 
     return getEnrichedEvent(trackEvent, options, undefined, this.logger);
@@ -68,6 +64,8 @@ class RudderEventFactory {
 
   /**
    * Generate an 'identify' event based on the user-input fields
+   * @param userId New user ID
+   * @param traits new traits
    * @param options API options
    */
   generateIdentifyEvent(
@@ -77,7 +75,7 @@ class RudderEventFactory {
   ): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
       userId,
-      type: RudderEventType.Identify,
+      type: 'identify',
       context: {
         traits,
       } as RudderContext,
@@ -99,7 +97,7 @@ class RudderEventFactory {
   ): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
       previousId: from,
-      type: RudderEventType.Alias,
+      type: 'alias',
     };
 
     const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, this.logger);
@@ -110,6 +108,8 @@ class RudderEventFactory {
 
   /**
    * Generate a 'group' event based on the user-input fields
+   * @param groupId New group ID
+   * @param traits new group traits
    * @param options API options
    */
   generateGroupEvent(
@@ -118,7 +118,7 @@ class RudderEventFactory {
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
-      type: RudderEventType.Group,
+      type: 'group',
     };
 
     if (groupId) {
@@ -140,7 +140,7 @@ class RudderEventFactory {
   create(event: APIEvent): RudderEvent | undefined {
     let eventObj: RudderEvent | undefined;
     switch (event.type) {
-      case RudderEventType.Page:
+      case 'page':
         eventObj = this.generatePageEvent(
           event.category,
           event.name,
@@ -148,16 +148,16 @@ class RudderEventFactory {
           event.options,
         );
         break;
-      case RudderEventType.Track:
+      case 'track':
         eventObj = this.generateTrackEvent(event.name as string, event.properties, event.options);
         break;
-      case RudderEventType.Identify:
+      case 'identify':
         eventObj = this.generateIdentifyEvent(event.userId, event.traits, event.options);
         break;
-      case RudderEventType.Alias:
+      case 'alias':
         eventObj = this.generateAliasEvent(event.to as Nullable<string>, event.from, event.options);
         break;
-      case RudderEventType.Group:
+      case 'group':
         eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);
         break;
       default:
