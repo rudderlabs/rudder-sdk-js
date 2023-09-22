@@ -1,0 +1,56 @@
+diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
+index f54ce2e..83002b7 100644
+--- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
++++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
+@@ -880,12 +880,11 @@ function prodExposePlugin(options) {
+     EXPOSES_MAP.set(item[0], exposeFilepath);
+     EXPOSES_KEY_MAP.set(
+       item[0],
+-      `__federation_expose_${removeNonRegLetter(item[0], NAME_CHAR_REG)}`
++      `remote-${removeNonRegLetter(item[0], NAME_CHAR_REG)}`
+     );
+     moduleMap += `
+ "${item[0]}":()=>{
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
++      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
+   }
+   return {
+     name: "originjs:expose-production",
+@@ -1021,7 +1020,7 @@ function prodExposePlugin(options) {
+             );
+             const slashPath = fileRelativePath.replace(/\\/g, "/");
+             remoteEntryChunk.code = remoteEntryChunk.code.replace(
+-              `\${__federation_expose_${expose[0]}}`,
++              `\${remote-${expose[0]}}`,
+               `./${slashPath}`
+             );
+           }
+diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
+index b97a7ae..01cb2f9 100644
+--- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
++++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
+@@ -863,12 +863,11 @@ function prodExposePlugin(options) {
+     EXPOSES_MAP.set(item[0], exposeFilepath);
+     EXPOSES_KEY_MAP.set(
+       item[0],
+-      `__federation_expose_${removeNonRegLetter(item[0], NAME_CHAR_REG)}`
++      `remote-${removeNonRegLetter(item[0], NAME_CHAR_REG)}`
+     );
+     moduleMap += `
+ "${item[0]}":()=>{
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
++      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
+   }
+   return {
+     name: "originjs:expose-production",
+@@ -1004,7 +1003,7 @@ function prodExposePlugin(options) {
+             );
+             const slashPath = fileRelativePath.replace(/\\/g, "/");
+             remoteEntryChunk.code = remoteEntryChunk.code.replace(
+-              `\${__federation_expose_${expose[0]}}`,
++              `\${remote-${expose[0]}}`,
+               `./${slashPath}`
+             );
+           }
