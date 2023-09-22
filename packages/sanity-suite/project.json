@@ -2,8 +2,8 @@
   "name": "@rudderstack/analytics-js-sanity-suite",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/sanity-suite/src",
-  "projectType": "library",
-  "tags": [],
+  "projectType": "application",
+  "tags": ["type:app", "scope:sanity"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
@@ -19,6 +19,24 @@
         "ci": {
           "ci": true,
           "codeCoverage": true
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/sanity-suite/src/**/*.{ts,js}",
+          "packages/sanity-suite/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/sanity-suite/reports/eslint.json",
+          "format": "json"
         }
       }
     },

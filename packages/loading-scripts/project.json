@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/loading-scripts/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:sdk", "scope:snippet"],
   "targets": {
     "build": {
       "executor": "nx:run-script",
@@ -49,6 +49,24 @@
         "ci": {
           "ci": true,
           "codeCoverage": true
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/loading-scripts/src/**/*.{ts,js}",
+          "packages/loading-scripts/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/loading-scripts/reports/eslint.json",
+          "format": "json"
         }
       }
     },
