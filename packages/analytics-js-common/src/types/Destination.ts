@@ -1,11 +1,7 @@
 import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
 import { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
 
-export enum DestinationConnectionMode {
-  Hybrid = 'hybrid',
-  Cloud = 'cloud',
-  Device = 'device',
-}
+export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 
 export type DestinationEvent = {
   eventName: string;

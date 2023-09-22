@@ -3,7 +3,6 @@ import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/t
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
@@ -164,7 +163,7 @@ class ConfigManager implements IConfigManager {
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined
       state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
-      state.lifecycle.status.value = LifecycleStatus.Configured;
+      state.lifecycle.status.value = 'configured';
     });
   }
 

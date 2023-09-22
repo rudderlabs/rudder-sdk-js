@@ -31,6 +31,7 @@ const generateSessionId = (): number => Date.now();
 /**
  * Function to validate user provided sessionId
  * @param {number} sessionId
+ * @param logger logger
  * @returns
  */
 const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
@@ -82,10 +83,10 @@ const generateManualTrackingSession = (id?: number, logger?: ILogger): SessionIn
 };
 
 const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
-  !!(
+  Boolean(
     storageType === COOKIE_STORAGE ||
-    storageType === LOCAL_STORAGE ||
-    storageType === MEMORY_STORAGE
+      storageType === LOCAL_STORAGE ||
+      storageType === MEMORY_STORAGE,
   );
 
 export {
