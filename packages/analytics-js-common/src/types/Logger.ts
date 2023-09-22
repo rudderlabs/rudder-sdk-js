@@ -1,5 +1,5 @@
 export type LoggerProvider = Record<
-  Exclude<Lowercase<LogLevel>, Lowercase<LogLevel.None>>,
+  Exclude<Lowercase<LogLevel>, Lowercase<'NONE'>>,
   (...data: any[]) => void
 >;
 
@@ -16,11 +16,4 @@ export interface ILogger {
   setMinLogLevel(logLevel: LogLevel): void;
 }
 
-export enum LogLevel {
-  Log = 'LOG',
-  Info = 'INFO',
-  Debug = 'DEBUG',
-  Warn = 'WARN',
-  Error = 'ERROR',
-  None = 'NONE',
-}
+export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';

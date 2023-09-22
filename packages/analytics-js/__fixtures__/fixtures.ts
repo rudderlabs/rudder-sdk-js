@@ -1,5 +1,4 @@
 import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
-import { DestinationConnectionMode } from '@rudderstack/analytics-js-common/types/Destination';
 import { userSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/userSessionStorageKeys';
 
 const identifyRequestPayload = {
@@ -95,7 +94,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
     destinations: [
       {
         config: {
-          connectionMode: DestinationConnectionMode.Hybrid,
+          connectionMode: 'hybrid',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
@@ -128,7 +127,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
       },
       {
         config: {
-          connectionMode: DestinationConnectionMode.Device,
+          connectionMode: 'device',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
@@ -161,7 +160,7 @@ const dummySourceConfigResponse: SourceConfigResponse = {
       },
       {
         config: {
-          connectionMode: DestinationConnectionMode.Cloud,
+          connectionMode: 'cloud',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [

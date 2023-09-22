@@ -7,7 +7,6 @@ import { getNonCloudDestinations } from '@rudderstack/analytics-js-common/utilit
 import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { setExposedGlobal } from '../utilities/globals';
@@ -45,7 +44,7 @@ class PluginsManager implements IPluginsManager {
    * Orchestrate the plugin loading and registering
    */
   init() {
-    state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+    state.lifecycle.status.value = 'pluginsLoading';
     // Expose pluginsCDNPath to global object, so it can be used in the promise that determines
     // remote plugin cdn path to support proxied plugin remotes
     if (!__BUNDLE_ALL_PLUGINS__) {
@@ -73,7 +72,7 @@ class PluginsManager implements IPluginsManager {
           state.plugins.ready.value = true;
           // TODO: decide what to do if a plugin fails to load for any reason.
           //  Should we stop here or should we progress?
-          state.lifecycle.status.value = LifecycleStatus.PluginsReady;
+          state.lifecycle.status.value = 'pluginsReady';
         });
       }
     });
@@ -107,7 +106,7 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName === PluginName.ErrorReporting ||
+            pluginName === 'ErrorReporting' ||
             supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
@@ -116,7 +115,7 @@ class PluginsManager implements IPluginsManager {
     // dataplane events delivery plugins
     if (state.loadOptions.value.useBeacon === true && state.capabilities.isBeaconAvailable.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.XhrQueue,
+        pluginName => pluginName !== 'XhrQueue',
       );
     } else {
       if (state.loadOptions.value.useBeacon === true) {
@@ -124,7 +123,7 @@ class PluginsManager implements IPluginsManager {
       }
 
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.BeaconQueue,
+        pluginName => pluginName !== 'BeaconQueue',
       );
     }
 
@@ -136,9 +135,9 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           ![
-            PluginName.DeviceModeDestinations,
-            PluginName.DeviceModeTransformation,
-            PluginName.NativeDestinationQueue,
+            'DeviceModeDestinations',
+            'DeviceModeTransformation',
+            'NativeDestinationQueue',
           ].includes(pluginName),
       );
     }
@@ -168,7 +167,7 @@ class PluginsManager implements IPluginsManager {
     // Storage migrator related plugins
     if (!state.storage.migrate.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.StorageMigrator,
+        pluginName => pluginName !== 'StorageMigrator',
       );
     }
 

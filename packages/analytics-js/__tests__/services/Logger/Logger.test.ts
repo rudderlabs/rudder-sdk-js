@@ -44,7 +44,7 @@ describe('Logger', () => {
   });
 
   Object.keys(LOG_LEVEL_MAP).forEach(logLevelName => {
-    if (logLevelName !== LogLevel.None) {
+    if (logLevelName !== 'NONE') {
       it(`should log ${logLevelName} for string value if minimum logLevel is set for ${logLevelName} level`, () => {
         loggerInstance = new Logger(logLevelName, 'dummy scope');
         const lowerCaseLogLevelName = logLevelName.toLowerCase();
@@ -60,7 +60,7 @@ describe('Logger', () => {
   });
 
   Object.keys(LOG_LEVEL_MAP).forEach(logLevelName => {
-    if (logLevelName !== LogLevel.None) {
+    if (logLevelName !== 'NONE') {
       it(`should log ${logLevelName} for non string value if minimum logLevel is set for ${logLevelName} level`, () => {
         loggerInstance = new Logger(logLevelName, 'dummy scope');
         const lowerCaseLogLevelName = logLevelName.toLowerCase();
@@ -77,9 +77,9 @@ describe('Logger', () => {
   });
 
   Object.keys(LOG_LEVEL_MAP).forEach(logLevelName => {
-    if (logLevelName !== LogLevel.None) {
+    if (logLevelName !== 'NONE') {
       it(`should log ${logLevelName} if minimum logLevel is set for lower level`, () => {
-        loggerInstance = new Logger(LogLevel.Log);
+        loggerInstance = new Logger('LOG');
         const lowerCaseLogLevelName = logLevelName.toLowerCase();
         loggerInstance[lowerCaseLogLevelName]('dummy msg');
         expect(console[lowerCaseLogLevelName]).toHaveBeenCalledTimes(1);
@@ -93,10 +93,10 @@ describe('Logger', () => {
   });
 
   Object.keys(LOG_LEVEL_MAP).forEach(logLevelName => {
-    if (logLevelName !== LogLevel.None) {
+    if (logLevelName !== 'NONE') {
       it(`should not log ${logLevelName} if minimum logLevel is set for higher level`, () => {
         const lowerCaseLogLevelName = logLevelName.toLowerCase();
-        loggerInstance = new Logger(LogLevel.None);
+        loggerInstance = new Logger('NONE');
         loggerInstance[lowerCaseLogLevelName]('dummy msg');
         expect(console[lowerCaseLogLevelName]).toHaveBeenCalledTimes(0);
       });
@@ -104,13 +104,13 @@ describe('Logger', () => {
   });
 
   it(`should not log if minimum logLevel is set to none`, () => {
-    loggerInstance = new Logger(LogLevel.None);
+    loggerInstance = new Logger('NONE');
     loggerInstance.log('dummy msg');
     expect(console.log).toHaveBeenCalledTimes(0);
   });
 
   it(`should log with scope if set`, () => {
-    loggerInstance = new Logger(LogLevel.Log);
+    loggerInstance = new Logger('LOG');
     loggerInstance.setScope('dummy scope');
     loggerInstance.log('dummy msg');
     expect(console.log).toHaveBeenCalledWith(
@@ -122,7 +122,7 @@ describe('Logger', () => {
 
   it(`should log all types of messages above the set min log level`, () => {
     loggerInstance = new Logger();
-    loggerInstance.setMinLogLevel(LogLevel.Log);
+    loggerInstance.setMinLogLevel('LOG');
 
     loggerInstance.log('dummy log msg');
     expect(console.log).toHaveBeenCalledWith(
@@ -162,7 +162,7 @@ describe('Logger', () => {
 
   it(`should not log any messages below the set min log level`, () => {
     loggerInstance = new Logger();
-    loggerInstance.setMinLogLevel(LogLevel.Warn);
+    loggerInstance.setMinLogLevel('WARN');
 
     loggerInstance.log('dummy log msg');
     expect(console.log).not.toHaveBeenCalled();

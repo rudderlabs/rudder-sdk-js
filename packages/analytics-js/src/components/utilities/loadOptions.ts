@@ -1,6 +1,5 @@
 import { clone } from 'ramda';
 import {
-  getObjectValues,
   isObjectLiteralAndNotNull,
   mergeDeepRight,
   removeUndefinedAndNullValues,
@@ -29,17 +28,15 @@ const normalizeLoadOptions = (
     delete normalizedLoadOpts.setCookieDomain;
   }
 
-  if (
-    !getObjectValues(CookieSameSite).includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)
-  ) {
+  const cookieSameSiteValues = ['Strict', 'Lax', 'None'];
+  if (!cookieSameSiteValues.includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)) {
     delete normalizedLoadOpts.sameSiteCookie;
   }
 
   normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
 
-  if (
-    !getObjectValues(UaChTrackLevel).includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)
-  ) {
+  const uaChTrackLevels = ['none', 'default', 'full'];
+  if (!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)) {
     delete normalizedLoadOpts.uaChTrackLevel;
   }
 
