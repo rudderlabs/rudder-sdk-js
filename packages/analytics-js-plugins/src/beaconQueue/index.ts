@@ -100,7 +100,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         } as QueueOpts,
         queueProcessCallback,
         storeManager,
-        storages.MEMORY_STORAGE,
+        storages.LOCAL_STORAGE,
         logger,
         (itemData: BeaconQueueItemData[]): number => {
           const events = itemData.map((queueItemData: BeaconQueueItemData) => queueItemData.event);
