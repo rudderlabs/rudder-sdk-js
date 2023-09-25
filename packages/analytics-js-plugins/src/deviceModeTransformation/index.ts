@@ -7,6 +7,7 @@ import { Destination } from '@rudderstack/analytics-js-common/types/Destination'
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { createPayload } from './utilities';
 
 const pluginName = 'DeviceModeTransformation';
 
@@ -21,18 +22,21 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
       state: ApplicationState,
       pluginsManager: IPluginsManager,
       event: RudderEvent,
-      destination: Destination,
+      destinations: Destination[],
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ) {
       // TODO: Implement DMT logic here
+
+      const destinationIds = destinations.map(d => d.id);
+      const payload = createPayload(event, destinationIds, state.session.authToken.value);
 
       // TODO: for now this is a pass through
       pluginsManager.invokeSingle(
         'destinationsEventsQueue.enqueueEventToDestination',
         state,
         event,
-        destination,
+        destinations,
         errorHandler,
         logger,
       );
