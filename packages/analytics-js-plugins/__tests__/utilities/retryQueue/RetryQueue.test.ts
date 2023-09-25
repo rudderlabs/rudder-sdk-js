@@ -909,7 +909,8 @@ describe('Queue', () => {
     expect(batchQueue.batch).toEqual({
       enabled: true,
       maxSize: 1024,
-      maxItems: 1,
+      maxItems: '1',
+      flushInterval: 60000,
     });
 
     batchQueue = new RetryQueue(
@@ -927,8 +928,9 @@ describe('Queue', () => {
 
     expect(batchQueue.batch).toEqual({
       enabled: true,
-      maxSize: 3,
+      maxSize: '3',
       maxItems: 20,
+      flushInterval: 60000,
     });
 
     batchQueue = new RetryQueue(
@@ -947,6 +949,7 @@ describe('Queue', () => {
       enabled: true,
       maxItems: 30,
       maxSize: 524288,
+      flushInterval: 60000,
     });
 
     batchQueue = new RetryQueue(
@@ -964,6 +967,8 @@ describe('Queue', () => {
     expect(batchQueue.batch).toEqual({
       enabled: true,
       maxSize: 1000,
+      flushInterval: 60000,
+      maxItems: 100,
     });
 
     batchQueue = new RetryQueue(
@@ -983,6 +988,7 @@ describe('Queue', () => {
       enabled: true,
       maxItems: 30,
       maxSize: 1000,
+      flushInterval: 60000,
     });
   });
 });
