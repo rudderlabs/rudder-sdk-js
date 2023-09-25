@@ -61,26 +61,26 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = 'configured';
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsLoading';
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(initSpy).toHaveBeenCalledTimes(2);
+      expect(initSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('ready');
 
       state.lifecycle.status.value = 'initialized';
-      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
+      expect(onInitializedSpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe('ready');
 
       state.lifecycle.status.value = 'loaded';
-      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe('ready');
 
       state.lifecycle.status.value = 'destinationsReady';
-      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe('ready');
     });
   });
