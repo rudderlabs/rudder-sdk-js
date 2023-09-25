@@ -7,19 +7,13 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import {
-  timestamp,
-  getFinalEventForDeliveryMutator,
-  validateEventPayloadSize,
-} from '../shared-chunks/eventsDelivery';
 import { DoneCallback, IQueue } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
   getBatchDeliveryPayload,
 } from './utilities';
-import { storages } from '../shared-chunks/common';
-
+import { eventsDelivery, timestamp, storages } from '../shared-chunks/common';
 import { BEACON_QUEUE_PLUGIN, MAX_BATCH_PAYLOAD_SIZE_BYTES, QUEUE_NAME } from './constants';
 import { BeaconQueueBatchItemData, BeaconQueueItemData } from './types';
 import {
@@ -65,7 +59,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
       const queueProcessCallback = (itemData: BeaconQueueBatchItemData, done: DoneCallback) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
-          getFinalEventForDeliveryMutator(queueItemData.event),
+          eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event),
         );
         const data = getBatchDeliveryPayload(finalEvents, logger);
 
@@ -131,7 +125,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = timestamp.getCurrentTimeFormatted();
-      validateEventPayloadSize(event, logger);
+      eventsDelivery.validateEventPayloadSize(event, logger);
 
       eventsQueue.addItem({
         event,

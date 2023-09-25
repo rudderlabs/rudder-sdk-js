@@ -86,17 +86,17 @@
         //   flushQueueInterval: 10 * 1000,
         //   maxItems: 5,
         // },
-        // storage: {
-          // encryption: {
-          //   version: 'v3'
-          // },
+        storage: {
+          encryption: {
+            version: 'v3'
+          },
+          migrate: true,
           // cookie: {
           //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           //   path: '/',
           //   samesite: 'Lax',
           //   secure: true,
           // },
-          // migrate: true,
           // type: 'localStorage',
           // entries: {
           //   userId: {
@@ -112,9 +112,10 @@
           //     type: 'cookieStorage',
           //   },
           // },
-        // },
+        },
         // plugins: [
         //   'StorageEncryption',
+        //   'StorageMigrator',
         //   'XhrQueue'
         // ]
       };

@@ -8,8 +8,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { http, timestamp, string, validateEventPayloadSize } from '../shared-chunks/eventsDelivery';
-import { storages } from '../shared-chunks/common';
+import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -130,14 +129,15 @@ const XhrQueue = (): ExtensionPlugin => ({
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = timestamp.getCurrentTimeFormatted();
-      validateEventPayloadSize(event, logger);
+      eventsDelivery.validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization
       const headers = {
-        // TODO: why do we need this header value?
+        // To maintain event ordering while using the HTTP API as per is documentation,
+        // make sure to include anonymousId as a header
         AnonymousId: string.toBase64(event.anonymousId),
       };
 

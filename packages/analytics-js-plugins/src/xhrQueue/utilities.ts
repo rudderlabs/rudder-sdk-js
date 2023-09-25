@@ -6,14 +6,7 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
-import {
-  http,
-  url,
-  json,
-  getFinalEventForDeliveryMutator,
-  getDeliveryPayload,
-} from '../shared-chunks/eventsDelivery';
-import { checks } from '../shared-chunks/common';
+import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
@@ -76,16 +69,16 @@ const getRequestInfo = (
   let url: string;
   if (Array.isArray(itemData)) {
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
-      getFinalEventForDeliveryMutator(queueItemData.event),
+      eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event),
     );
     data = getBatchDeliveryPayload(finalEvents, logger);
     headers = clone(itemData[0].headers);
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
-    const finalEvent = getFinalEventForDeliveryMutator(event);
+    const finalEvent = eventsDelivery.getFinalEventForDeliveryMutator(event);
 
-    data = getDeliveryPayload(finalEvent, logger);
+    data = eventsDelivery.getDeliveryPayload(finalEvent, logger);
     headers = clone(eventHeaders);
     url = eventUrl;
   }
