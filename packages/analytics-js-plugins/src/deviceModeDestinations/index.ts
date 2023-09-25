@@ -12,7 +12,7 @@ import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/co
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
-import { filterDestinations } from '../utilities/destination';
+import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 
 const pluginName = 'DeviceModeDestinations';
 
@@ -50,7 +50,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Filter destinations that are disabled through load options
-      const destinationsToLoad = filterDestinations(
+      const destinationsToLoad = destinationUtils.filterDestinations(
         state.nativeDestinations.loadOnlyIntegrations.value,
         configSupportedDestinations,
       );

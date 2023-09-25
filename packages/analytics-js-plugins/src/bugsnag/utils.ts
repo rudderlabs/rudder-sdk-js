@@ -2,7 +2,7 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
-import { json } from '../shared-chunks/eventsDelivery';
+import { json } from '../shared-chunks/common';
 import { BugsnagLib } from '../types/plugins';
 import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from './logMessages';
 import {

@@ -1,11 +1,11 @@
-import { string } from '../shared-chunks/eventsDelivery';
+import { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { ENCRYPTION_PREFIX_V3 } from './constants';
 
-const encrypt = (value: string): string => `${ENCRYPTION_PREFIX_V3}${string.toBase64(value)}`;
+const encrypt = (value: string): string => `${ENCRYPTION_PREFIX_V3}${toBase64(value)}`;
 
 const decrypt = (value: string): string => {
   if (value.startsWith(ENCRYPTION_PREFIX_V3)) {
-    return string.fromBase64(value.substring(ENCRYPTION_PREFIX_V3.length));
+    return fromBase64(value.substring(ENCRYPTION_PREFIX_V3.length));
   }
 
   return value;

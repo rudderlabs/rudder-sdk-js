@@ -16,9 +16,9 @@ import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
-import { filterDestinations } from '../utilities/destination';
+import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 
-const pluginName = 'NativeDestinationQueue';
+const pluginName = 'NativeDestinationQueues';
 
 const NativeDestinationQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -53,7 +53,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (rudderEvent: RudderEvent, done: DoneCallback) => {
-          const destinationsToSend = filterDestinations(
+          const destinationsToSend = destinationUtils.filterDestinations(
             rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,
           );

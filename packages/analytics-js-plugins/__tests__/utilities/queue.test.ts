@@ -3,7 +3,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   getDeliveryPayload,
   validateEventPayloadSize,
-} from '../../src/shared-chunks/eventsDelivery';
+} from '@rudderstack/analytics-js-plugins/utilities/eventsDelivery';
 import * as utilConstants from '../../src/utilities/constants';
 
 class MockLogger implements ILogger {

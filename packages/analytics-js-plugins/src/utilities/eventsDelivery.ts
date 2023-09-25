@@ -1,17 +1,11 @@
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { clone } from 'ramda';
-
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import * as timestamp from '@rudderstack/analytics-js-common/utilities/timestamp';
-import * as json from '@rudderstack/analytics-js-common/utilities/json';
-import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from '../utilities/constants';
-
-export * as url from '@rudderstack/analytics-js-common/utilities/url';
-export * as uuId from '@rudderstack/analytics-js-common/utilities/uuId';
-export * as http from '@rudderstack/analytics-js-common/utilities/http';
-export * as string from '@rudderstack/analytics-js-common/utilities/string';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
   context: string,
@@ -32,7 +26,7 @@ const QUEUE_UTILITIES = 'QueueUtilities';
  * @returns stringified event payload. Empty string if error occurs.
  */
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
-  json.stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
+  stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
 
 /**
  * Utility to validate final payload size before sending to server
@@ -61,19 +55,15 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
  * Mutates the event and return final event for delivery
  * Updates certain parameters like sentAt timestamp, integrations config etc.
  * @param event RudderEvent object
- * @param state Application state
  * @returns Final event ready to be delivered
  */
 const getFinalEventForDeliveryMutator = (event: RudderEvent): RudderEvent => {
   const finalEvent = clone(event);
 
   // Update sentAt timestamp to the latest timestamp
-  finalEvent.sentAt = timestamp.getCurrentTimeFormatted();
+  finalEvent.sentAt = getCurrentTimeFormatted();
 
   return finalEvent;
 };
 
 export { validateEventPayloadSize, getFinalEventForDeliveryMutator, getDeliveryPayload };
-
-export * as json from '@rudderstack/analytics-js-common/utilities/json';
-export * as timestamp from '@rudderstack/analytics-js-common/utilities/timestamp';

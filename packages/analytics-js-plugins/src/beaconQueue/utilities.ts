@@ -2,7 +2,7 @@ import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/objec
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { json, url } from '../shared-chunks/eventsDelivery';
+import { json, url } from '../shared-chunks/common';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
