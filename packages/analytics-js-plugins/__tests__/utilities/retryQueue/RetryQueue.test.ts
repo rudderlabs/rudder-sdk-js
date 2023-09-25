@@ -928,7 +928,7 @@ describe('Queue', () => {
 
     expect(batchQueue.batch).toEqual({
       enabled: true,
-      maxSize: '3',
+      maxSize: 3,
       maxItems: 20,
       flushInterval: 60000,
     });

@@ -139,14 +139,13 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     this.batch.enabled = batchOptions.enabled === true;
     if (this.batch.enabled) {
-      this.batch.maxSize = batchOptions.maxSize || DEFAULT_MAX_BATCH_SIZE_BYTES;
-      // Set upper cap on the batch size
-      if (this.batch.maxSize > DEFAULT_MAX_BATCH_SIZE_BYTES) {
-        this.batch.maxSize = DEFAULT_MAX_BATCH_SIZE_BYTES;
-      }
-
-      this.batch.maxItems = batchOptions.maxItems || DEFAULT_MAX_BATCH_ITEMS;
-      this.batch.flushInterval = batchOptions.flushInterval || DEFAULT_BATCH_FLUSH_INTERVAL_MS;
+      // Set upper cap on the batch payload size
+      this.batch.maxSize = Math.min(
+        batchOptions.maxSize ?? DEFAULT_MAX_BATCH_SIZE_BYTES,
+        DEFAULT_MAX_BATCH_SIZE_BYTES,
+      );
+      this.batch.maxItems = batchOptions.maxItems ?? DEFAULT_MAX_BATCH_ITEMS;
+      this.batch.flushInterval = batchOptions.flushInterval ?? DEFAULT_BATCH_FLUSH_INTERVAL_MS;
     }
   }
 
