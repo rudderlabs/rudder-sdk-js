@@ -6,13 +6,14 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import { KetchConsentData } from './types';
 import { getKetchConsentData, updateConsentStateFromData } from './utils';
 
-const pluginName = 'KetchConsentManager';
+const pluginName: PluginName = 'KetchConsentManager';
 
 const KetchConsentManager = (): ExtensionPlugin => ({
   name: pluginName,

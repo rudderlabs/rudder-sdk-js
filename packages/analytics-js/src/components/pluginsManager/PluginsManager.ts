@@ -17,7 +17,7 @@ import {
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
 import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
-import { remotePluginNames } from './pluginNames';
+import { pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -188,7 +188,7 @@ class PluginsManager implements IPluginsManager {
   setActivePlugins() {
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
     // Merging available mandatory and optional plugin name list
-    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
+    const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
     const activePlugins: PluginName[] = [];
     const failedPlugins: string[] = [];
 
@@ -240,7 +240,7 @@ class PluginsManager implements IPluginsManager {
 
     Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
-        await remotePluginsList[remotePluginKey]()
+        await remotePluginsList[remotePluginKey as PluginName]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails

@@ -7,6 +7,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { DoneCallback, IQueue } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
@@ -23,7 +24,7 @@ import {
 } from './logMessages';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 
-const pluginName = 'BeaconQueue';
+const pluginName: PluginName = 'BeaconQueue';
 
 const BeaconQueue = (): ExtensionPlugin => ({
   name: pluginName,

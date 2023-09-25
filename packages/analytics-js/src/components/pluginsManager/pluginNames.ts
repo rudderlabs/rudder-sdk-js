@@ -8,21 +8,21 @@ const localPluginNames: PluginName[] = [];
 /**
  * List of plugin names that are loaded as dynamic imports in modern builds
  */
-const remotePluginNames: PluginName[] = [
+const pluginNamesList: PluginName[] = [
   'BeaconQueue',
-  'DeviceModeTransformation',
+  'Bugsnag',
   'DeviceModeDestinations',
+  'DeviceModeTransformation',
   'ErrorReporting',
   'ExternalAnonymousId',
   'GoogleLinker',
+  'KetchConsentManager',
   'NativeDestinationQueue',
+  'OneTrustConsentManager',
   'StorageEncryption',
   'StorageEncryptionLegacy',
   'StorageMigrator',
   'XhrQueue',
-  'OneTrustConsentManager',
-  'KetchConsentManager',
-  'Bugsnag',
 ];
 
-export { localPluginNames, remotePluginNames };
+export { localPluginNames, pluginNamesList };

@@ -8,6 +8,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
@@ -21,7 +22,7 @@ import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 
-const pluginName = 'XhrQueue';
+const pluginName: PluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,

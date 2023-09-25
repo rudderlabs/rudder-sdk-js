@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
@@ -14,7 +14,7 @@ import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './const
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
 import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 
-const pluginName = 'DeviceModeDestinations';
+const pluginName: PluginName = 'DeviceModeDestinations';
 
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,

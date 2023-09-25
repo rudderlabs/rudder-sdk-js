@@ -23,13 +23,16 @@ import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
 dotenv.config();
-const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
+const bundledPluginsList = process.env.BUNDLED_PLUGINS;
+const isDynamicCustomBuild = Boolean(bundledPluginsList);
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
+const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle`: `cdn`
+const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
 const outDirNpmRoot = `dist/npm`;
-const outDirCDNRoot = `dist/cdn`;
+const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}`: `dist/${cdnPath}`;
 const outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
@@ -39,6 +42,14 @@ const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && w
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
+
+if(isDynamicCustomBuild) {
+  console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`)
+}
+
+if(isLegacyBuild && !isDynamicCustomBuild) {
+  console.log(`Legacy Bundle. Including all plugins.`)
+}
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
@@ -64,7 +75,10 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
+        __BUNDLE_ALL_PLUGINS__: isLegacyBuild || isDynamicCustomBuild,
+        __IS_DYNAMIC_CUSTOM_BUNDLE__: isDynamicCustomBuild,
+        __BUNDLED_PLUGINS_LIST__: bundledPluginsList,
+        __IS_LEGACY_BUILD__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
@@ -153,7 +167,7 @@ export function getDefaultConfig(distName) {
       isLocalServerEnabled &&
         serve({
           open: true,
-          openPage: `/cdn/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
+          openPage: `/${cdnPath}/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,

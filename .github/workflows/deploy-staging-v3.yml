@@ -57,6 +57,16 @@ jobs:
           npm run build:browser --staging=true
           npm run build:browser:modern --staging=true
 
+      - name: Build LH assets
+        env:
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'development'
+          BUNDLED_PLUGINS: 'StorageEncryptionLegacy,XhrQueue'
+        run: |
+          nx run @rudderstack/analytics-js:build-browser
+          nx run @rudderstack/analytics-js:build-browser-modern
+
       - name: Sync files to S3 v1.1 staging folder
         run: |
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/rudder-analytics-staging.min.js --cache-control max-age=3600
@@ -75,3 +85,9 @@ jobs:
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/staging/latest/v3*"
+
+      - name: Sync files to S3 v3 LH staging folder
+        run: |
+          aws s3 cp packages/analytics-js/dist/dynamicCdnBundle/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/dynamicCdnBundle/legacy/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js/dist/dynamicCdnBundle/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/dynamicCdnBundle/modern/ --recursive --cache-control max-age=3600
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/staging/latest/v3/dynamicCdnBundle*"

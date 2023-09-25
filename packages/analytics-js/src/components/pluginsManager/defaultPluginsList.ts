@@ -3,21 +3,20 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 /**
  * Plugins to be loaded in the plugins loadOption is not defined
  */
-// TODO: remove from this list the ones that should be loaded only if specific load options exist
 const defaultOptionalPluginsList: PluginName[] = [
+  'BeaconQueue',
   'Bugsnag',
   'DeviceModeDestinations',
   'ErrorReporting',
   'ExternalAnonymousId',
   'GoogleLinker',
+  'KetchConsentManager',
   'NativeDestinationQueue',
+  'OneTrustConsentManager',
   'StorageEncryption',
   'StorageEncryptionLegacy',
   'StorageMigrator',
   'XhrQueue',
-  'OneTrustConsentManager',
-  'KetchConsentManager',
-  'BeaconQueue',
 ];
 
 export { defaultOptionalPluginsList };
