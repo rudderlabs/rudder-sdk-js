@@ -56,6 +56,7 @@ class Mixpanel {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+    this.ignoreDnt = config.ignoreDnt || false;
   }
 
   init() {
@@ -80,6 +81,9 @@ class Mixpanel {
     if (this.dataResidency === 'eu') {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = 'https://api-eu.mixpanel.com';
+    }
+    if (this.ignoreDnt) {
+      options.ignore_dnt = true;
     }
     window.mixpanel.init(this.token, options);
   }
