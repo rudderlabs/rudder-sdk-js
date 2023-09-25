@@ -112,7 +112,7 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    // dataplane events delivery plugins
+    // Cloud mode (dataplane) events delivery plugins
     if (state.loadOptions.value.useBeacon === true && state.capabilities.isBeaconAvailable.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== 'XhrQueue',
@@ -125,6 +125,14 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== 'BeaconQueue',
       );
+    }
+
+    // Enforce default cloud mode event delivery queue plugin is none exists
+    if (
+      !pluginsToLoadFromConfig.includes('XhrQueue') &&
+      !pluginsToLoadFromConfig.includes('BeaconQueue')
+    ) {
+      pluginsToLoadFromConfig.push('XhrQueue');
     }
 
     // Device mode destinations related plugins
