@@ -20,7 +20,7 @@ import { pluginNamesList } from './pluginNames';
  */
 const getBundledBuildPluginImports = (): PluginMap => {
   const bundledBuildPluginImports = {} as PluginMap;
-  let resolvedPluginList = '__BUNDLED_PLUGINS_LIST__' ? '__BUNDLED_PLUGINS_LIST__'.split(',') : [];
+  let resolvedPluginList = '__BUNDLED_PLUGINS_LIST__'.split(',');
 
   // If no plugin list is specified as env variables all plugins are bundled
   if (resolvedPluginList.length === 0) {

@@ -27,6 +27,7 @@ const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
+const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle`: `cdn`
@@ -43,17 +44,99 @@ const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
 
-if(isDynamicCustomBuild) {
-  console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`)
+// Configuration to exclude plugin imports for generated bundle
+const getExternalsConfig = () => {
+  const externalGlobalsConfig = {}
+
+  if(isModuleFederatedBuild) {
+    externalGlobalsConfig['./bundledBuildPluginImports'] = 'null';
+    return externalGlobalsConfig;
+  } else {
+    externalGlobalsConfig['./federatedModulesBuildPluginImports'] = 'null';
+  }
+
+  if(isDynamicCustomBuild) {
+    if (!bundledPluginsList.includes('BeaconQueue')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('Bugsnag')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('DeviceModeDestinations')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('DeviceModeTransformation')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('ErrorReporting')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/errorReporting'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('ExternalAnonymousId')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/externalAnonymousId'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('GoogleLinker')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('KetchConsentManager')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/ketchConsentManager'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('NativeDestinationQueue')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('OneTrustConsentManager')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/oneTrustConsentManager'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('StorageEncryption')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryption'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('StorageEncryptionLegacy')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryptionLegacy'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('StorageMigrator')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = 'null';
+    }
+
+    if (!bundledPluginsList.includes('XhrQueue') && bundledPluginsList.includes('BeaconQueue')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = 'null';
+    }
+  }
+
+  return externalGlobalsConfig;
 }
 
-if(isLegacyBuild && !isDynamicCustomBuild) {
-  console.log(`Legacy Bundle. Including all plugins.`)
+// Output in console to assist debugging bundle builds
+const configSummaryOutput = () => {
+  if(isDynamicCustomBuild) {
+    console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
+  }
+
+  if(isLegacyBuild) {
+    console.log(`Legacy Bundle.`)
+  }
+
+  if(isModuleFederatedBuild) {
+    console.log(`Federated Modules Bundle.`)
+  }
+
+  console.log(`Replaces imports in build time: `, getExternalsConfig());
 }
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
+  configSummaryOutput();
 
   return {
     watch: {
@@ -77,7 +160,7 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __BUNDLE_ALL_PLUGINS__: isLegacyBuild || isDynamicCustomBuild,
         __IS_DYNAMIC_CUSTOM_BUNDLE__: isDynamicCustomBuild,
-        __BUNDLED_PLUGINS_LIST__: bundledPluginsList,
+        __BUNDLED_PLUGINS_LIST__: bundledPluginsList ?? '',
         __IS_LEGACY_BUILD__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
@@ -110,14 +193,7 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      isLegacyBuild &&
-        externalGlobals({
-          './modernBuildPluginImports': 'null',
-        }),
-      !isLegacyBuild &&
-        externalGlobals({
-          './legacyBuildPluginImports': 'null',
-        }),
+      externalGlobals(getExternalsConfig()),
       !isLegacyBuild &&
       federation({
         remotes: {
