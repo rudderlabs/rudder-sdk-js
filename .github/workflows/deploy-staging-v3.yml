@@ -63,7 +63,8 @@ jobs:
           BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'development'
         run: |
-          BUNDLED_PLUGINS='StorageEncryptionLegacy,XhrQueue' npm run build:browser:LH
+          export BUNDLED_PLUGINS='StorageEncryptionLegacy,XhrQueue'
+          npm run build:browser:LH
 
       - name: Sync files to S3 v1.1 staging folder
         run: |
