@@ -202,7 +202,9 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to parse response data: Unexpected token r in JSON at position 1'),
+        new Error(
+          "Failed to parse response data: Expected property name or '}' in JSON at position 1",
+        ),
         'HttpClient',
       );
       done();
