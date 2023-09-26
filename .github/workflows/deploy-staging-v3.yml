@@ -64,8 +64,7 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'development'
           BUNDLED_PLUGINS: 'StorageEncryptionLegacy,XhrQueue'
         run: |
-          nx run @rudderstack/analytics-js:build-browser
-          nx run @rudderstack/analytics-js:build-browser-modern
+          npm run build:browser:LH
 
       - name: Sync files to S3 v1.1 staging folder
         run: |

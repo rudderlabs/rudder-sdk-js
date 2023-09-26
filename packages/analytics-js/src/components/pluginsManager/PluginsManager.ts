@@ -9,6 +9,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -224,7 +225,10 @@ class PluginsManager implements IPluginsManager {
    */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      if (state.plugins.activePlugins.value.includes(localPlugin().name)) {
+      if (
+        isFunction(localPlugin) &&
+        state.plugins.activePlugins.value.includes(localPlugin().name)
+      ) {
         this.register([localPlugin()]);
       }
     });

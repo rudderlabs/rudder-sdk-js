@@ -34,7 +34,7 @@ const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle`: `cdn`
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
 const outDirNpmRoot = `dist/npm`;
 const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}`: `dist/${cdnPath}`;
-const outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
+const outDirNpm = `${outDirNpmRoot}${variantSubfolder}${isDynamicCustomBuild ? '/bundled' :''}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
@@ -49,67 +49,71 @@ const getExternalsConfig = () => {
   const externalGlobalsConfig = {}
 
   if(isModuleFederatedBuild) {
-    externalGlobalsConfig['./bundledBuildPluginImports'] = 'null';
+    externalGlobalsConfig['./bundledBuildPluginImports'] = '{}';
     return externalGlobalsConfig;
   } else {
-    externalGlobalsConfig['./federatedModulesBuildPluginImports'] = 'null';
+    externalGlobalsConfig['./federatedModulesBuildPluginImports'] = '{}';
+  }
+
+  if(bundledPluginsList === 'all') {
+    return externalGlobalsConfig;
   }
 
   if(isDynamicCustomBuild) {
     if (!bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
     }
 
     if (!bundledPluginsList.includes('Bugsnag')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = '{}';
     }
 
     if (!bundledPluginsList.includes('DeviceModeDestinations')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
     }
 
     if (!bundledPluginsList.includes('DeviceModeTransformation')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
     }
 
     if (!bundledPluginsList.includes('ErrorReporting')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/errorReporting'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/errorReporting'] = '{}';
     }
 
     if (!bundledPluginsList.includes('ExternalAnonymousId')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/externalAnonymousId'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/externalAnonymousId'] = '{}';
     }
 
     if (!bundledPluginsList.includes('GoogleLinker')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = '{}';
     }
 
     if (!bundledPluginsList.includes('KetchConsentManager')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/ketchConsentManager'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/ketchConsentManager'] = '{}';
     }
 
     if (!bundledPluginsList.includes('NativeDestinationQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = '{}';
     }
 
     if (!bundledPluginsList.includes('OneTrustConsentManager')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/oneTrustConsentManager'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/oneTrustConsentManager'] = '{}';
     }
 
     if (!bundledPluginsList.includes('StorageEncryption')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryption'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryption'] = '{}';
     }
 
     if (!bundledPluginsList.includes('StorageEncryptionLegacy')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryptionLegacy'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryptionLegacy'] = '{}';
     }
 
     if (!bundledPluginsList.includes('StorageMigrator')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
     }
 
     if (!bundledPluginsList.includes('XhrQueue') && bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = 'null';
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = '{}';
     }
   }
 
