@@ -1,0 +1,103 @@
+diff --git a/node_modules/crypto-es/lib/cipher-core.js b/node_modules/crypto-es/lib/cipher-core.js
+index 54a75ea..c784f58 100644
+--- a/node_modules/crypto-es/lib/cipher-core.js
++++ b/node_modules/crypto-es/lib/cipher-core.js
+@@ -8,6 +8,29 @@ import {
+ import { Base64 } from './enc-base64.js';
+ import { EvpKDFAlgo } from './evpkdf.js';
+ 
++// ObjectAssign polyfill
++const ObjectAssign = typeof Object.assign !== "function" ? function (target) {
++  if (target == null) {
++    throw new TypeError('Cannot convert undefined or null to object');
++  }
++
++  target = Object(target);
++
++  for (let index = 1; index < arguments.length; index++) {
++    const source = arguments[index];
++
++    if (source != null) {
++      for (const key in source) {
++        if (Object.prototype.hasOwnProperty.call(source, key)) {
++          target[key] = source[key];
++        }
++      }
++    }
++  }
++
++  return target;
++} : Object.assign;
++
+ /**
+  * Abstract base cipher template.
+  *
+@@ -38,7 +61,7 @@ export class Cipher extends BufferedBlockAlgorithm {
+      *
+      * @property {WordArray} iv The IV to use for this operation.
+      */
+-    this.cfg = Object.assign(new Base(), cfg);
++    this.cfg = ObjectAssign(new Base(), cfg);
+ 
+     // Store transform mode and key
+     this._xformMode = xformMode;
+@@ -425,7 +448,7 @@ export class BlockCipher extends Cipher {
+      * @property {Mode} mode The block mode to use. Default: CBC
+      * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+      */
+-    super(xformMode, key, Object.assign(
++    super(xformMode, key, ObjectAssign(
+       {
+         mode: CBC,
+         padding: Pkcs7,
+@@ -644,7 +667,7 @@ export class SerializableCipher extends Base {
+    */
+   static encrypt(cipher, message, key, cfg) {
+     // Apply config defaults
+-    const _cfg = Object.assign(new Base(), this.cfg, cfg);
++    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
+ 
+     // Encrypt
+     const encryptor = cipher.createEncryptor(key, _cfg);
+@@ -691,7 +714,7 @@ export class SerializableCipher extends Base {
+     let _ciphertext = ciphertext;
+ 
+     // Apply config defaults
+-    const _cfg = Object.assign(new Base(), this.cfg, cfg);
++    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
+ 
+     // Convert string to CipherParams
+     _ciphertext = this._parse(_ciphertext, _cfg.format);
+@@ -733,7 +756,7 @@ export class SerializableCipher extends Base {
+  *    The formatting strategy to convert cipher param objects to and from a string.
+  *    Default: OpenSSL
+  */
+-SerializableCipher.cfg = Object.assign(
++SerializableCipher.cfg = ObjectAssign(
+   new Base(),
+   { format: OpenSSLFormatter },
+ );
+@@ -811,7 +834,7 @@ export class PasswordBasedCipher extends SerializableCipher {
+    */
+   static encrypt(cipher, message, password, cfg) {
+     // Apply config defaults
+-    const _cfg = Object.assign(new Base(), this.cfg, cfg);
++    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
+ 
+     // Derive key and other params
+     const derivedParams = _cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, _cfg.salt, _cfg.hasher);
+@@ -854,7 +877,7 @@ export class PasswordBasedCipher extends SerializableCipher {
+     let _ciphertext = ciphertext;
+ 
+     // Apply config defaults
+-    const _cfg = Object.assign(new Base(), this.cfg, cfg);
++    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
+ 
+     // Convert string to CipherParams
+     _ciphertext = this._parse(_ciphertext, _cfg.format);
+@@ -880,4 +903,4 @@ export class PasswordBasedCipher extends SerializableCipher {
+  *     The key derivation function to use to generate a key and IV from a password.
+  *     Default: OpenSSL
+  */
+-PasswordBasedCipher.cfg = Object.assign(SerializableCipher.cfg, { kdf: OpenSSLKdf });
++PasswordBasedCipher.cfg = ObjectAssign(SerializableCipher.cfg, { kdf: OpenSSLKdf });

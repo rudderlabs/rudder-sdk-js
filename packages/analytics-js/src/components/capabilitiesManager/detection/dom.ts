@@ -21,6 +21,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'String.prototype.includes': () => !String.prototype.includes,
   'Object.entries': () => !Object.entries,
   'Object.values': () => !Object.values,
+  'Object.assign': () => typeof Object.assign !== "function",
   'Element.prototype.dataset': () => !isDatasetAvailable(),
   'String.prototype.replaceAll': () => !String.prototype.replaceAll,
   TextEncoder: () => isUndefined(TextEncoder),
