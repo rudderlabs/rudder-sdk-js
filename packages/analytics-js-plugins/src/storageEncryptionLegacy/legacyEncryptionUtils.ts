@@ -1,5 +1,5 @@
-import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
+import { AES } from 'crypto-es/lib/aes';
+import { Utf8 } from 'crypto-es/lib/core';
 import { ENCRYPTION_PREFIX_V1, ENCRYPTION_KEY_V1 } from './constants';
 
 const encrypt = (value: string): string =>

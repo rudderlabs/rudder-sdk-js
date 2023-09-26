@@ -4,6 +4,8 @@ export type BeaconQueueItemData = {
   event: RudderEvent;
 };
 
+export type BeaconQueueBatchItemData = BeaconQueueItemData[];
+
 export type BeaconBatchData = {
   batch: RudderEvent[];
 };

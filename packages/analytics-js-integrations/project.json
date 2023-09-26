@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-integrations/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:sdk", "scope:integrations"],
   "targets": {
     "start": {
       "executor": "nx:run-script",
@@ -64,6 +64,24 @@
         }
       }
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-js-integrations/src/**/*.{ts,js}",
+          "packages/analytics-js-integrations/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-js-integrations/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -78,9 +96,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.10",
-        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.10",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.10",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.11",
+        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.11",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.11",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

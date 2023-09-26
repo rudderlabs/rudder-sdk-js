@@ -17,7 +17,7 @@ import { PluginMap } from './types';
 /**
  * Map plugin names to direct code imports from plugins package
  */
-const legacyBuildPluginImports = (): PluginMap => ({
+const getBundledBuildPluginImports = (): PluginMap => ({
   BeaconQueue,
   Bugsnag,
   DeviceModeDestinations,
@@ -34,4 +34,4 @@ const legacyBuildPluginImports = (): PluginMap => ({
   XhrQueue,
 });
 
-export { legacyBuildPluginImports };
+export { getBundledBuildPluginImports };

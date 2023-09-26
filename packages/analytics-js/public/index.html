@@ -68,6 +68,11 @@
         destSDKBaseURL:
           '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+        // queueOptions: {
+        //   batch: {
+        //     maxSize: 5 * 1024, // 5KB
+        //   },
+        // },
         // cookieConsentManager: {
         //   // oneTrust: {
         //   //   enabled: true,
@@ -78,19 +83,20 @@
         // }
         // useBeacon: true,
         // beaconQueueOptions: {
-        //   flushQueueInterval: 60 * 1000,
-        // }
+        //   flushQueueInterval: 10 * 1000,
+        //   maxItems: 5,
+        // },
         storage: {
-          // encryption: {
-          //   version: 'v3'
-          // },
+          encryption: {
+            version: 'v3'
+          },
+          migrate: true,
           // cookie: {
           //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           //   path: '/',
           //   samesite: 'Lax',
           //   secure: true,
           // },
-          // migrate: true,
           // type: 'localStorage',
           // entries: {
           //   userId: {
@@ -107,6 +113,11 @@
           //   },
           // },
         },
+        // plugins: [
+        //   'StorageEncryption',
+        //   'StorageMigrator',
+        //   'XhrQueue'
+        // ]
       };
 
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);

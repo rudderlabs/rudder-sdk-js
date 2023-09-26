@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:sdk", "scope:analytics-v3"],
   "targets": {
     "start": {
       "executor": "nx:run-script",
@@ -96,6 +96,24 @@
       },
       "dependsOn": ["prepare-test-mocks"]
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-js/src/**/*.{ts,js}",
+          "packages/analytics-js/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-js/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -110,9 +128,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.0.0-beta.9",
-        "title": "@rudderstack/analytics-js@3.0.0-beta.9",
-        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.9",
+        "tag": "@rudderstack/analytics-js@3.0.0-beta.10",
+        "title": "@rudderstack/analytics-js@3.0.0-beta.10",
+        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.10",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     },

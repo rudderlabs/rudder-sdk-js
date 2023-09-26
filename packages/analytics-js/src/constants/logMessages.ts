@@ -3,7 +3,6 @@ import {
   StorageType,
   SUPPORTED_STORAGE_TYPES,
 } from '@rudderstack/analytics-js-common/types/Storage';
-import { ResidencyServerRegion } from '@rudderstack/analytics-js-common/types/DataResidency';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
 
@@ -128,9 +127,7 @@ const UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING = (
   selectedResidencyServerRegion: string | undefined,
   defaultRegion: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The residency server region "${selectedResidencyServerRegion}" is not supported. Please choose one of the following supported regions: "${Object.values(
-    ResidencyServerRegion,
-  )}". The default region "${defaultRegion}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The residency server region "${selectedResidencyServerRegion}" is not supported. Please choose one of the following supported regions: "US, EU". The default region "${defaultRegion}" will be used instead.`;
 
 const RESERVED_KEYWORD_WARNING = (
   context: string,
@@ -203,18 +200,14 @@ const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   selectedStrategy: StorageStrategy | undefined,
   defaultStrategy: StorageStrategy,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "${Object.values(
-    StorageStrategy,
-  )}". The default strategy "${defaultStrategy}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "${defaultStrategy}" will be used instead.`;
 
 const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   context: string,
   selectedDeliveryType: DeliveryType | undefined,
   defaultDeliveryType: DeliveryType,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "${Object.values(
-    DeliveryType,
-  )}". The default type "${defaultDeliveryType}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
 // DEBUG
 

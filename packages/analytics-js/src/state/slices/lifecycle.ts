@@ -1,6 +1,5 @@
 import { signal } from '@preact/signals-core';
 import { LifecycleState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../constants/urls';
 
 const lifecycleState: LifecycleState = {
@@ -10,7 +9,7 @@ const lifecycleState: LifecycleState = {
   sourceConfigUrl: signal(undefined),
   status: signal(undefined),
   initialized: signal(false),
-  logLevel: signal(LogLevel.Error),
+  logLevel: signal('ERROR'),
   loaded: signal(false),
   readyCallbacks: signal([]),
   writeKey: signal(undefined),

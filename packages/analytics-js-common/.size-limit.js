@@ -7,6 +7,6 @@ module.exports = [
     name: 'Common Code - No bundling',
     path: 'dist/**/*.js',
     gzip: true,
-    limit: '21 KiB',
+    limit: '18.5 KiB',
   },
 ];

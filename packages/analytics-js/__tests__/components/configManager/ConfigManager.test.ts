@@ -1,5 +1,4 @@
 import { batch, effect, signal } from '@preact/signals-core';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { rest } from 'msw';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -67,7 +66,7 @@ describe('ConfigManager', () => {
       state.lifecycle.dataPlaneUrl.value = undefined;
       state.loadOptions.value.lockIntegrationsVersion = false;
       state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
-      state.loadOptions.value.logLevel = LogLevel.Error;
+      state.loadOptions.value.logLevel = 'ERROR';
       state.loadOptions.value.configUrl = DEFAULT_CONFIG_BE_URL;
     });
   };
@@ -118,7 +117,7 @@ describe('ConfigManager', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     state.loadOptions.value.lockIntegrationsVersion = false;
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
-    state.loadOptions.value.logLevel = LogLevel.Debug;
+    state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
     const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;

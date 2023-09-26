@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-v1.1/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:sdk", "scope:analytics-v1.1"],
   "targets": {
     "build": {
       "executor": "nx:run-script",
@@ -85,6 +85,24 @@
       },
       "dependsOn": ["prepare-test-mocks"]
     },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "hasTypeAwareRules": true,
+        "lintFilePatterns": [
+          "packages/analytics-v1.1/src/**/*.{ts,js}",
+          "packages/analytics-v1.1/{package,project}.json"
+        ]
+      },
+      "configurations": {
+        "ci": {
+          "force": true,
+          "outputFile": "packages/analytics-v1.1/reports/eslint.json",
+          "format": "json"
+        }
+      }
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
@@ -97,9 +115,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.42.2",
-        "title": "rudder-sdk-js@2.42.2",
-        "discussion-category": "rudder-sdk-js@2.42.2",
+        "tag": "rudder-sdk-js@2.42.3",
+        "title": "rudder-sdk-js@2.42.3",
+        "discussion-category": "rudder-sdk-js@2.42.3",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     },

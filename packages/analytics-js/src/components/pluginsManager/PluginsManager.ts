@@ -7,9 +7,9 @@ import { getNonCloudDestinations } from '@rudderstack/analytics-js-common/utilit
 import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -18,7 +18,7 @@ import {
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
 import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
-import { remotePluginNames } from './pluginNames';
+import { pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -45,7 +45,7 @@ class PluginsManager implements IPluginsManager {
    * Orchestrate the plugin loading and registering
    */
   init() {
-    state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+    state.lifecycle.status.value = 'pluginsLoading';
     // Expose pluginsCDNPath to global object, so it can be used in the promise that determines
     // remote plugin cdn path to support proxied plugin remotes
     if (!__BUNDLE_ALL_PLUGINS__) {
@@ -73,7 +73,7 @@ class PluginsManager implements IPluginsManager {
           state.plugins.ready.value = true;
           // TODO: decide what to do if a plugin fails to load for any reason.
           //  Should we stop here or should we progress?
-          state.lifecycle.status.value = LifecycleStatus.PluginsReady;
+          state.lifecycle.status.value = 'pluginsReady';
         });
       }
     });
@@ -107,16 +107,16 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           !(
-            pluginName === PluginName.ErrorReporting ||
+            pluginName === 'ErrorReporting' ||
             supportedErrReportingProviderPluginNames.includes(pluginName)
           ),
       );
     }
 
-    // dataplane events delivery plugins
+    // Cloud mode (dataplane) events delivery plugins
     if (state.loadOptions.value.useBeacon === true && state.capabilities.isBeaconAvailable.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.XhrQueue,
+        pluginName => pluginName !== 'XhrQueue',
       );
     } else {
       if (state.loadOptions.value.useBeacon === true) {
@@ -124,8 +124,16 @@ class PluginsManager implements IPluginsManager {
       }
 
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.BeaconQueue,
+        pluginName => pluginName !== 'BeaconQueue',
       );
+    }
+
+    // Enforce default cloud mode event delivery queue plugin is none exists
+    if (
+      !pluginsToLoadFromConfig.includes('XhrQueue') &&
+      !pluginsToLoadFromConfig.includes('BeaconQueue')
+    ) {
+      pluginsToLoadFromConfig.push('XhrQueue');
     }
 
     // Device mode destinations related plugins
@@ -136,9 +144,9 @@ class PluginsManager implements IPluginsManager {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName =>
           ![
-            PluginName.DeviceModeDestinations,
-            PluginName.DeviceModeTransformation,
-            PluginName.NativeDestinationQueue,
+            'DeviceModeDestinations',
+            'DeviceModeTransformation',
+            'NativeDestinationQueue',
           ].includes(pluginName),
       );
     }
@@ -168,7 +176,7 @@ class PluginsManager implements IPluginsManager {
     // Storage migrator related plugins
     if (!state.storage.migrate.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== PluginName.StorageMigrator,
+        pluginName => pluginName !== 'StorageMigrator',
       );
     }
 
@@ -181,7 +189,7 @@ class PluginsManager implements IPluginsManager {
   setActivePlugins() {
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
     // Merging available mandatory and optional plugin name list
-    const availablePlugins = [...Object.keys(pluginsInventory), ...remotePluginNames];
+    const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
     const activePlugins: PluginName[] = [];
     const failedPlugins: string[] = [];
 
@@ -217,7 +225,10 @@ class PluginsManager implements IPluginsManager {
    */
   registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      if (state.plugins.activePlugins.value.includes(localPlugin().name)) {
+      if (
+        isFunction(localPlugin) &&
+        state.plugins.activePlugins.value.includes(localPlugin().name)
+      ) {
         this.register([localPlugin()]);
       }
     });
@@ -233,7 +244,7 @@ class PluginsManager implements IPluginsManager {
 
     Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
-        await remotePluginsList[remotePluginKey]()
+        await remotePluginsList[remotePluginKey as PluginName]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails

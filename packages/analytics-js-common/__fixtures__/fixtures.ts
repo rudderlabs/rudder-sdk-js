@@ -1,5 +1,3 @@
-import { DestinationConnectionMode } from '../src/types/Destination';
-
 const dummyDataplaneHost = 'https://dummy.dataplane.host.com';
 
 const dummySourceConfigResponse = {
@@ -27,7 +25,7 @@ const dummySourceConfigResponse = {
     destinations: [
       {
         config: {
-          connectionMode: DestinationConnectionMode.Hybrid,
+          connectionMode: 'hybrid',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
@@ -60,7 +58,7 @@ const dummySourceConfigResponse = {
       },
       {
         config: {
-          connectionMode: DestinationConnectionMode.Device,
+          connectionMode: 'device',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
@@ -93,7 +91,7 @@ const dummySourceConfigResponse = {
       },
       {
         config: {
-          connectionMode: DestinationConnectionMode.Cloud,
+          connectionMode: 'cloud',
           measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [

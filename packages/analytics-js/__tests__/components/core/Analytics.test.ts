@@ -1,5 +1,3 @@
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { Analytics } from '../../../src/components/core/Analytics';
 import { resetState, state } from '../../../src/state';
 import { setExposedGlobal } from '../../../src/components/utilities/globals';
@@ -53,37 +51,37 @@ describe('Core - Analytics', () => {
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
       const onDestinationsReadySpy = jest.spyOn(analytics, 'onDestinationsReady');
 
-      state.lifecycle.status.value = LifecycleStatus.Mounted;
+      state.lifecycle.status.value = 'mounted';
       expect(prepareBrowserCapabilitiesSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
-      state.lifecycle.status.value = LifecycleStatus.BrowserCapabilitiesReady;
+      state.lifecycle.status.value = 'browserCapabilitiesReady';
       expect(loadConfigSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
-      state.lifecycle.status.value = LifecycleStatus.Configured;
+      state.lifecycle.status.value = 'configured';
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
+      expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
-      state.lifecycle.status.value = LifecycleStatus.PluginsLoading;
+      state.lifecycle.status.value = 'pluginsLoading';
       expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.PluginsLoading);
+      expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
-      state.lifecycle.status.value = LifecycleStatus.PluginsReady;
-      expect(initSpy).toHaveBeenCalledTimes(2);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
+      state.lifecycle.status.value = 'pluginsReady';
+      expect(initSpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe('ready');
 
-      state.lifecycle.status.value = LifecycleStatus.Initialized;
-      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
+      state.lifecycle.status.value = 'initialized';
+      expect(onInitializedSpy).toHaveBeenCalledTimes(2);
+      expect(state.lifecycle.status.value).toBe('ready');
 
-      state.lifecycle.status.value = LifecycleStatus.Loaded;
-      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
+      state.lifecycle.status.value = 'loaded';
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
+      expect(state.lifecycle.status.value).toBe('ready');
 
-      state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
-      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Ready);
+      state.lifecycle.status.value = 'destinationsReady';
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
+      expect(state.lifecycle.status.value).toBe('ready');
     });
   });
 
@@ -91,15 +89,15 @@ describe('Core - Analytics', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: LogLevel.Error });
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
     it('should load the analytics script without dataPlaneUrl with the given options', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, { logLevel: LogLevel.Error });
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.BrowserCapabilitiesReady);
+      analytics.load(dummyWriteKey, { logLevel: 'ERROR' });
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
@@ -129,7 +127,7 @@ describe('Core - Analytics', () => {
       analytics.onInitialized();
       expect(state.loadOptions.value.onLoaded).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.loaded.value).toBeTruthy();
-      expect(state.lifecycle.status.value).toBe(LifecycleStatus.Loaded);
+      expect(state.lifecycle.status.value).toBe('loaded');
     });
     it('should dispatch RSA initialised event', () => {
       const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
@@ -186,7 +184,7 @@ describe('Core - Analytics', () => {
       const callback = jest.fn();
 
       state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = LifecycleStatus.Ready;
+      state.lifecycle.status.value = 'ready';
       analytics.ready(callback);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(callback).toHaveBeenCalledTimes(1);

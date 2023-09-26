@@ -8,7 +8,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
-import { DESTINATION_EVENT_FORWARDING_ERROR } from '../utilities/logMessages';
+import { DESTINATION_EVENT_FORWARDING_ERROR } from './logMessages';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);

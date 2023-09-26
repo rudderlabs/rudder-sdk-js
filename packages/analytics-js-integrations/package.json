@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.0.0-beta.10",
+  "version": "3.0.0-beta.11",
   "private": true,
   "description": "RudderStack Javascript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -52,8 +52,8 @@
     "build:package": "exit 0",
     "test": "nx test --maxWorkers=50%",
     "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
-    "check:lint:dev": "eslint --ext .js,.ts src",
-    "check:lint": "eslint --ext .js,.ts src -f json -o reports/eslint.json || exit 0",
+    "check:lint": "nx lint",
+    "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
@@ -77,23 +77,20 @@
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/each": "2.0.1",
     "@ndhoule/extend": "2.0.0",
-    "@rudderstack/analytics-js-common": "3.0.0-beta.9",
+    "@rudderstack/analytics-js-common": "*",
     "component-each": "0.2.6",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",
     "is": "3.3.0",
-    "lodash.clonedeep": "4.5.0",
-    "lodash.difference": "4.5.0",
     "lodash.get": "4.4.2",
     "lodash.isempty": "4.4.0",
     "lodash.isequal": "4.5.0",
-    "lodash.isstring": "4.0.1",
     "lodash.isundefined": "3.0.1",
-    "lodash.merge": "4.6.2",
     "lodash.pick": "4.4.0",
     "lodash.pickby": "4.6.0",
     "lodash.tostring": "4.1.4",
@@ -102,7 +99,6 @@
     "on-body": "0.0.1",
     "ramda": "0.29.0"
   },
-  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [

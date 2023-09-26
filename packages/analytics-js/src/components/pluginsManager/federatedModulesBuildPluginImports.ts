@@ -1,7 +1,7 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { PluginMap } from './types';
-import { remotePluginNames } from './pluginNames';
+import { pluginNamesList } from './pluginNames';
 
 /**
  * Get the lazy loaded dynamic import for a plugin name
@@ -10,33 +10,33 @@ const getFederatedModuleImport = (
   pluginName: PluginName,
 ): (() => Promise<ExtensionPlugin>) | undefined => {
   switch (pluginName) {
-    case PluginName.BeaconQueue:
+    case 'BeaconQueue':
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
-    case PluginName.Bugsnag:
+    case 'Bugsnag':
       return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
-    case PluginName.DeviceModeDestinations:
+    case 'DeviceModeDestinations':
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
-    case PluginName.DeviceModeTransformation:
+    case 'DeviceModeTransformation':
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
-    case PluginName.ErrorReporting:
+    case 'ErrorReporting':
       return () => import('rudderAnalyticsRemotePlugins/ErrorReporting');
-    case PluginName.ExternalAnonymousId:
+    case 'ExternalAnonymousId':
       return () => import('rudderAnalyticsRemotePlugins/ExternalAnonymousId');
-    case PluginName.GoogleLinker:
+    case 'GoogleLinker':
       return () => import('rudderAnalyticsRemotePlugins/GoogleLinker');
-    case PluginName.KetchConsentManager:
+    case 'KetchConsentManager':
       return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
-    case PluginName.NativeDestinationQueue:
+    case 'NativeDestinationQueue':
       return () => import('rudderAnalyticsRemotePlugins/NativeDestinationQueue');
-    case PluginName.OneTrustConsentManager:
+    case 'OneTrustConsentManager':
       return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
-    case PluginName.StorageEncryption:
+    case 'StorageEncryption':
       return () => import('rudderAnalyticsRemotePlugins/StorageEncryption');
-    case PluginName.StorageEncryptionLegacy:
+    case 'StorageEncryptionLegacy':
       return () => import('rudderAnalyticsRemotePlugins/StorageEncryptionLegacy');
-    case PluginName.StorageMigrator:
+    case 'StorageMigrator':
       return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
-    case PluginName.XhrQueue:
+    case 'XhrQueue':
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
     default:
       return undefined;
@@ -46,13 +46,13 @@ const getFederatedModuleImport = (
 /**
  * Map of active plugin names to their dynamic import
  */
-const modernBuildPluginImports = (
+const federatedModulesBuildPluginImports = (
   activePluginNames: PluginName[],
 ): PluginMap<Promise<ExtensionPlugin>> => {
-  const remotePlugins: PluginMap<Promise<ExtensionPlugin>> = {};
+  const remotePlugins = {} as PluginMap<Promise<ExtensionPlugin>>;
 
   activePluginNames.forEach(pluginName => {
-    if (remotePluginNames.includes(pluginName)) {
+    if (pluginNamesList.includes(pluginName)) {
       const lazyLoadImport = getFederatedModuleImport(pluginName);
       if (lazyLoadImport) {
         remotePlugins[pluginName] = lazyLoadImport;
@@ -63,4 +63,4 @@ const modernBuildPluginImports = (
   return remotePlugins;
 };
 
-export { modernBuildPluginImports };
+export { federatedModulesBuildPluginImports };

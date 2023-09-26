@@ -17,7 +17,7 @@ import {
   LoadOptions,
   OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ApiCallback, RudderEventType } from '@rudderstack/analytics-js-common/types/EventApi';
+import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
@@ -147,7 +147,7 @@ class Analytics implements IAnalytics {
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
-      state.lifecycle.status.value = LifecycleStatus.Mounted;
+      state.lifecycle.status.value = 'mounted';
     });
 
     // Expose state to global objects
@@ -167,36 +167,36 @@ class Analytics implements IAnalytics {
     effect(() => {
       try {
         switch (state.lifecycle.status.value) {
-          case LifecycleStatus.Mounted:
+          case 'mounted':
             this.prepareBrowserCapabilities();
             break;
-          case LifecycleStatus.BrowserCapabilitiesReady:
+          case 'browserCapabilitiesReady':
             // initialize the preloaded events enqueuing
             retrievePreloadBufferEvents(this);
             this.prepareInternalServices();
             this.loadConfig();
             break;
-          case LifecycleStatus.Configured:
+          case 'configured':
             this.loadPlugins();
             break;
-          case LifecycleStatus.PluginsLoading:
+          case 'pluginsLoading':
             break;
-          case LifecycleStatus.PluginsReady:
+          case 'pluginsReady':
             this.init();
             break;
-          case LifecycleStatus.Initialized:
+          case 'initialized':
             this.onInitialized();
             break;
-          case LifecycleStatus.Loaded:
+          case 'loaded':
             this.loadDestinations();
             this.processBufferedEvents();
             break;
-          case LifecycleStatus.DestinationsLoading:
+          case 'destinationsLoading':
             break;
-          case LifecycleStatus.DestinationsReady:
+          case 'destinationsReady':
             this.onDestinationsReady();
             break;
-          case LifecycleStatus.Ready:
+          case 'ready':
             this.onReady();
             break;
           default:
@@ -302,7 +302,7 @@ class Analytics implements IAnalytics {
     this.eventManager?.init();
 
     // Mark the SDK as initialized
-    state.lifecycle.status.value = LifecycleStatus.Initialized;
+    state.lifecycle.status.value = 'initialized';
   }
 
   /**
@@ -331,7 +331,7 @@ class Analytics implements IAnalytics {
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = LifecycleStatus.Loaded;
+      state.lifecycle.status.value = 'loaded';
     });
 
     this.initialized = true;
@@ -392,12 +392,12 @@ class Analytics implements IAnalytics {
 
     const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
     if (totalDestinationsToLoad === 0) {
-      state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
+      state.lifecycle.status.value = 'destinationsReady';
       return;
     }
 
     // Start loading native integration scripts and create instances
-    state.lifecycle.status.value = LifecycleStatus.DestinationsLoading;
+    state.lifecycle.status.value = 'destinationsLoading';
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.load',
       state,
@@ -416,7 +416,7 @@ class Analytics implements IAnalytics {
 
       if (areAllDestinationsReady) {
         batch(() => {
-          state.lifecycle.status.value = LifecycleStatus.DestinationsReady;
+          state.lifecycle.status.value = 'destinationsReady';
           state.nativeDestinations.clientDestinationsReady.value = true;
         });
       }
@@ -435,7 +435,7 @@ class Analytics implements IAnalytics {
         this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     });
-    state.lifecycle.status.value = LifecycleStatus.Ready;
+    state.lifecycle.status.value = 'ready';
   }
   // End lifecycle methods
 
@@ -459,7 +459,7 @@ class Analytics implements IAnalytics {
      * execute the callback immediately else push the callbacks to a queue that
      * will be executed after loading completes
      */
-    if (state.lifecycle.status.value === LifecycleStatus.Ready) {
+    if (state.lifecycle.status.value === 'ready') {
       try {
         callback();
       } catch (err) {
@@ -481,7 +481,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager?.addEvent({
-      type: RudderEventType.Page,
+      type: 'page',
       category: payload.category,
       name: payload.name,
       properties: payload.properties,
@@ -491,7 +491,7 @@ class Analytics implements IAnalytics {
 
     // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
-    // Send automatic ad blocked page event if adblockers are detected on the page
+    // Send automatic ad blocked page event if ad-blockers are detected on the page
     // Check page category to avoid infinite loop
     if (
       state.capabilities.isAdBlocked.value === true &&
@@ -523,7 +523,7 @@ class Analytics implements IAnalytics {
     }
 
     this.eventManager?.addEvent({
-      type: RudderEventType.Track,
+      type,
       name: payload.name || undefined,
       properties: payload.properties,
       options: payload.options,
@@ -556,7 +556,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.setUserTraits(payload.traits);
 
     this.eventManager?.addEvent({
-      type: RudderEventType.Identify,
+      type,
       userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
@@ -580,7 +580,7 @@ class Analytics implements IAnalytics {
       this.userSessionManager?.getAnonymousId();
 
     this.eventManager?.addEvent({
-      type: RudderEventType.Alias,
+      type,
       to: payload.to,
       from: previousId,
       options: payload.options,
@@ -606,7 +606,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.setGroupTraits(payload.traits);
 
     this.eventManager?.addEvent({
-      type: RudderEventType.Group,
+      type,
       groupId: payload.groupId,
       traits: payload.traits,
       options: payload.options,

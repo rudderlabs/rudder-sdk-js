@@ -18,7 +18,7 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { StorageType, UserSessionKeysType } from '@rudderstack/analytics-js-common/types/Storage';
+import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
@@ -66,7 +66,6 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * Initialize User session with values from storage
-   * @param store Selected store
    */
   init() {
     this.migrateStorageIfNeeded();
@@ -109,14 +108,14 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferringDomain(getReferringDomain(referrer));
     }
     // Initialize session tracking
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.sessionInfo)) {
+    if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       this.initializeSessionTracking();
     }
     // Register the effect to sync with storage
     this.registerEffects();
   }
 
-  isPersistenceEnabledForStorageEntry(entryName: UserSessionKeysType): boolean {
+  isPersistenceEnabledForStorageEntry(entryName: UserSessionKeys): boolean {
     const entries = state.storage.entries.value;
     return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
   }
@@ -240,11 +239,11 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * A function to sync values in storage
-   * @param key
+   * @param sessionKey
    * @param value
    */
   syncValueToStorage(
-    sessionKey: UserSessionKeysType,
+    sessionKey: UserSessionKeys,
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
@@ -268,52 +267,49 @@ class UserSessionManager implements IUserSessionManager {
      * Update userId in storage automatically when userId is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.userId, state.session.userId.value);
+      this.syncValueToStorage('userId', state.session.userId.value);
     });
     /**
      * Update user traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.userTraits, state.session.userTraits.value);
+      this.syncValueToStorage('userTraits', state.session.userTraits.value);
     });
     /**
      * Update group id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.groupId, state.session.groupId.value);
+      this.syncValueToStorage('groupId', state.session.groupId.value);
     });
     /**
      * Update group traits in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.groupTraits, state.session.groupTraits.value);
+      this.syncValueToStorage('groupTraits', state.session.groupTraits.value);
     });
     /**
      * Update anonymous user id in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.anonymousId, state.session.anonymousId.value);
+      this.syncValueToStorage('anonymousId', state.session.anonymousId.value);
     });
     /**
      * Update initial referrer in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.initialReferrer, state.session.initialReferrer.value);
+      this.syncValueToStorage('initialReferrer', state.session.initialReferrer.value);
     });
     /**
      * Update initial referring domain in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(
-        UserSessionKeys.initialReferringDomain,
-        state.session.initialReferringDomain.value,
-      );
+      this.syncValueToStorage('initialReferringDomain', state.session.initialReferringDomain.value);
     });
     /**
      * Update session tracking info in storage automatically when it is updated in state
      */
     effect(() => {
-      this.syncValueToStorage(UserSessionKeys.sessionInfo, state.session.sessionInfo.value);
+      this.syncValueToStorage('sessionInfo', state.session.sessionInfo.value);
     });
   }
 
@@ -375,7 +371,7 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.anonymousId.value as string;
   }
 
-  getItem(sessionKey: UserSessionKeysType) {
+  getItem(sessionKey: UserSessionKeys) {
     const entries = state.storage.entries.value;
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
@@ -391,7 +387,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.getItem(UserSessionKeys.userId);
+    return this.getItem('userId');
   }
 
   /**
@@ -399,7 +395,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.getItem(UserSessionKeys.userTraits);
+    return this.getItem('userTraits');
   }
 
   /**
@@ -407,7 +403,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.getItem(UserSessionKeys.groupId);
+    return this.getItem('groupId');
   }
 
   /**
@@ -415,7 +411,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.getItem(UserSessionKeys.groupTraits);
+    return this.getItem('groupTraits');
   }
 
   /**
@@ -423,7 +419,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.getItem(UserSessionKeys.initialReferrer);
+    return this.getItem('initialReferrer');
   }
 
   /**
@@ -431,7 +427,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.getItem(UserSessionKeys.initialReferringDomain);
+    return this.getItem('initialReferringDomain');
   }
 
   /**
@@ -439,7 +435,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionFromStorage(): Nullable<SessionInfo> {
-    return this.getItem(UserSessionKeys.sessionInfo);
+    return this.getItem('sessionInfo');
   }
 
   /**
@@ -516,7 +512,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.userId)) {
+    if (this.isPersistenceEnabledForStorageEntry('userId')) {
       state.session.userId.value = userId;
     }
   }
@@ -526,7 +522,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.userTraits) && traits) {
+    if (this.isPersistenceEnabledForStorageEntry('userTraits') && traits) {
       state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
     }
   }
@@ -536,7 +532,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupId)) {
+    if (this.isPersistenceEnabledForStorageEntry('groupId')) {
       state.session.groupId.value = groupId;
     }
   }
@@ -546,7 +542,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.groupTraits) && traits) {
+    if (this.isPersistenceEnabledForStorageEntry('groupTraits') && traits) {
       state.session.groupTraits.value = mergeDeepRight(
         state.session.groupTraits.value ?? {},
         traits,
@@ -559,17 +555,17 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferrer(referrer?: string) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.initialReferrer)) {
+    if (this.isPersistenceEnabledForStorageEntry('initialReferrer')) {
       state.session.initialReferrer.value = referrer;
     }
   }
 
   /**
    * Set initial referring domain
-   * @param referrer
+   * @param {String} referringDomain
    */
   setInitialReferringDomain(referringDomain?: string) {
-    if (this.isPersistenceEnabledForStorageEntry(UserSessionKeys.initialReferringDomain)) {
+    if (this.isPersistenceEnabledForStorageEntry('initialReferringDomain')) {
       state.session.initialReferringDomain.value = referringDomain;
     }
   }

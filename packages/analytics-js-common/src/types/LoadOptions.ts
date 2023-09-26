@@ -8,11 +8,7 @@ import { CookieConsentOptions } from './Consent';
 import { ApiObject } from './ApiObject';
 import { StorageOpts, CookieSameSite } from './Storage';
 
-export enum UaChTrackLevel {
-  None = 'none',
-  Default = 'default',
-  Full = 'full',
-}
+export type UaChTrackLevel = 'none' | 'default' | 'full';
 
 /**
  * Represents the options parameter for anonymousId
@@ -26,7 +22,7 @@ export type AnonymousIdOptions = {
 
 export type SessionOpts = {
   autoTrack?: boolean; // Defaults to true
-  timeout?: number; // Defaults to 30 mins
+  timeout?: number; // Defaults to 30 minutes
 };
 
 export type EventMapping = {
@@ -51,6 +47,19 @@ export type BeaconQueueOpts = {
   flushQueueInterval?: number;
 };
 
+export type EventsTransportMode = 'xhr' | 'beacon';
+
+export type BatchOpts = {
+  // Whether to enable batching
+  enabled: boolean;
+  // Maximum number of events in a batch
+  maxItems?: number;
+  // Maximum size of a batch request in bytes
+  maxSize?: number;
+  // Time in milliseconds to flush the queue automatically
+  flushInterval?: number;
+};
+
 /**
  * Represents the queue options parameter in loadOptions type
  */
@@ -61,10 +70,14 @@ export type QueueOpts = {
   minRetryDelay?: number;
   // Exponential base
   backoffFactor?: number;
+  // Jitter to be applied to the delay
+  backoffJitter?: number;
   // Maximum number of attempts
   maxAttempts?: number;
-  // Maximum number of events in storage
+  // Maximum number of events/events batch in storage
   maxItems?: number;
+  // Options for batched requests
+  batch?: BatchOpts;
 };
 
 /**
@@ -76,16 +89,9 @@ export type DestinationsQueueOpts = {
 
 export type OnLoadedCallback = (analytics: any) => void;
 
-export enum DeliveryType {
-  Immediate = 'immediate',
-  Buffer = 'buffer',
-}
+export type DeliveryType = 'immediate' | 'buffer';
 
-export enum StorageStrategy {
-  None = 'none',
-  Session = 'session',
-  AnonymousId = 'anonymousId',
-}
+export type StorageStrategy = 'none' | 'session' | 'anonymousId';
 
 export type PreConsentStorageOptions = {
   strategy: StorageStrategy;
@@ -138,4 +144,6 @@ export type LoadOptions = {
   dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
+  // transport mechanism to be used for sending batched requests
+  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
 };

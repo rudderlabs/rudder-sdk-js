@@ -1,13 +1,12 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { json, url } from '../shared-chunks/common';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
-} from '../utilities/logMessages';
+} from './logMessages';
 import {
   BEACON_QUEUE_PLUGIN,
   DATA_PLANE_API_VERSION,
@@ -21,13 +20,13 @@ import { BeaconBatchData } from './types';
  * @param logger Logger instance
  * @returns stringified events payload as Blob, undefined if error occurs.
  */
-const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
   const data: BeaconBatchData = {
     batch: events,
   };
 
   try {
-    const blobPayload = stringifyWithoutCircular(data, true);
+    const blobPayload = json.stringifyWithoutCircular(data, true);
     const blobOptions: BlobPropertyBag = { type: 'text/plain' };
 
     if (blobPayload) {
@@ -37,7 +36,6 @@ const getDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | und
   } catch (err) {
     logger?.error(BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN), err);
   }
-
   return undefined;
 };
 
@@ -47,7 +45,7 @@ const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueu
 const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    removeDuplicateSlashes(
+    url.removeDuplicateSlashes(
       [
         dpUrl.pathname,
         '/',
@@ -62,4 +60,4 @@ const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   ).href;
 };
 
-export { getDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };
+export { getBatchDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

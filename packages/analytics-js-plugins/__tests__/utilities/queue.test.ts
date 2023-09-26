@@ -3,8 +3,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   getDeliveryPayload,
   validateEventPayloadSize,
-  getBatchDeliveryPayload,
-} from '../../src/utilities/queue';
+} from '@rudderstack/analytics-js-plugins/utilities/eventsDelivery';
 import * as utilConstants from '../../src/utilities/constants';
 
 class MockLogger implements ILogger {
@@ -323,118 +322,6 @@ describe('Queue Plugins Utilities', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'QueueUtilities:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.',
       );
-    });
-  });
-
-  describe('getBatchDeliveryPayload', () => {
-    it('should return stringified batch event payload', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            test: 'test',
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            test1: 'test1',
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBe(
-        '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1"}}]}',
-      );
-    });
-
-    it('should return stringified event payload filtering the null values', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          userId: null,
-          properties: {
-            test: 'test',
-            test2: null,
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          groupId: null,
-          properties: {
-            test1: 'test1',
-            test3: {
-              test4: null,
-            },
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBe(
-        '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1","test3":{}}}]}',
-      );
-    });
-
-    it('should return string with circular dependencies replaced with static string', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          userId: null,
-          properties: {
-            test: 'test',
-            test2: null,
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          groupId: null,
-          properties: {
-            test1: 'test1',
-            test3: {
-              test4: null,
-            },
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      events[1].properties.test5 = events[1];
-
-      expect(getBatchDeliveryPayload(events, mockLogger)).toContain('[Circular Reference]');
-    });
-
-    it('should return null if the payload cannot be stringified', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            someBigInt: BigInt(9007199254740991),
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            test1: 'test1',
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBeNull();
     });
   });
 });

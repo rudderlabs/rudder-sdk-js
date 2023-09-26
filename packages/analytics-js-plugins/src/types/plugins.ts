@@ -3,23 +3,6 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
 
-// Not using the analytics-js package enums to avoid generation of another shared bundle
-export type PluginName =
-  | 'BeaconQueue'
-  | 'Bugsnag'
-  | 'DeviceModeDestinations'
-  | 'DeviceModeTransformation'
-  | 'ErrorReporting'
-  | 'ExternalAnonymousId'
-  | 'GoogleLinker'
-  | 'KetchConsentManager'
-  | 'NativeDestinationQueue'
-  | 'OneTrustConsentManager'
-  | 'StorageEncryption'
-  | 'StorageEncryptionLegacy'
-  | 'StorageMigrator'
-  | 'XhrQueue';
-
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
