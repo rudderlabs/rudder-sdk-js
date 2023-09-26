@@ -62,8 +62,9 @@ jobs:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'development'
+          BUNDLED_PLUGINS: 'StorageEncryptionLegacy,XhrQueue'
         run: |
-          export BUNDLED_PLUGINS='StorageEncryptionLegacy,XhrQueue'
+          npm run clean:cache
           npm run build:browser:LH
 
       - name: Sync files to S3 v1.1 staging folder
