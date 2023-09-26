@@ -13,78 +13,25 @@ import { StorageEncryptionLegacy } from '@rudderstack/analytics-js-plugins/stora
 import { StorageMigrator } from '@rudderstack/analytics-js-plugins/storageMigrator';
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
 import { PluginMap } from './types';
-import { pluginNamesList } from './pluginNames';
 
 /**
  * Map plugin names to direct code imports from plugins package
  */
-const getBundledBuildPluginImports = (): PluginMap => {
-  const bundledBuildPluginImports = {} as PluginMap;
-  let resolvedPluginList = '__BUNDLED_PLUGINS_LIST__'.split(',');
-
-  // If no plugin list is specified as env variables all plugins are bundled
-  if (resolvedPluginList.length === 0) {
-    resolvedPluginList = pluginNamesList;
-  }
-
-  // Add only imports that are required in the bundle, rest are tree-shook as dead code in build time
-  if (resolvedPluginList.includes('BeaconQueue')) {
-    bundledBuildPluginImports.BeaconQueue = BeaconQueue;
-  }
-
-  if (resolvedPluginList.includes('Bugsnag')) {
-    bundledBuildPluginImports.Bugsnag = Bugsnag;
-  }
-
-  if (resolvedPluginList.includes('DeviceModeDestinations')) {
-    bundledBuildPluginImports.DeviceModeDestinations = DeviceModeDestinations;
-  }
-
-  if (resolvedPluginList.includes('DeviceModeTransformation')) {
-    bundledBuildPluginImports.DeviceModeTransformation = DeviceModeTransformation;
-  }
-
-  if (resolvedPluginList.includes('ErrorReporting')) {
-    bundledBuildPluginImports.ErrorReporting = ErrorReporting;
-  }
-
-  if (resolvedPluginList.includes('ExternalAnonymousId')) {
-    bundledBuildPluginImports.ExternalAnonymousId = ExternalAnonymousId;
-  }
-
-  if (resolvedPluginList.includes('GoogleLinker')) {
-    bundledBuildPluginImports.GoogleLinker = GoogleLinker;
-  }
-
-  if (resolvedPluginList.includes('KetchConsentManager')) {
-    bundledBuildPluginImports.KetchConsentManager = KetchConsentManager;
-  }
-
-  if (resolvedPluginList.includes('NativeDestinationQueue')) {
-    bundledBuildPluginImports.NativeDestinationQueue = NativeDestinationQueue;
-  }
-
-  if (resolvedPluginList.includes('OneTrustConsentManager')) {
-    bundledBuildPluginImports.OneTrustConsentManager = OneTrustConsentManager;
-  }
-
-  if (resolvedPluginList.includes('StorageEncryption')) {
-    bundledBuildPluginImports.StorageEncryption = StorageEncryption;
-  }
-
-  if (resolvedPluginList.includes('StorageEncryptionLegacy')) {
-    bundledBuildPluginImports.StorageEncryptionLegacy = StorageEncryptionLegacy;
-  }
-
-  if (resolvedPluginList.includes('StorageMigrator')) {
-    bundledBuildPluginImports.StorageMigrator = StorageMigrator;
-  }
-
-  if (resolvedPluginList.includes('XhrQueue')) {
-    bundledBuildPluginImports.XhrQueue = XhrQueue;
-  }
-
-  return bundledBuildPluginImports;
-};
+const getBundledBuildPluginImports = (): PluginMap => ({
+  BeaconQueue,
+  Bugsnag,
+  DeviceModeDestinations,
+  DeviceModeTransformation,
+  ErrorReporting,
+  ExternalAnonymousId,
+  GoogleLinker,
+  KetchConsentManager,
+  NativeDestinationQueue,
+  OneTrustConsentManager,
+  StorageEncryption,
+  StorageEncryptionLegacy,
+  StorageMigrator,
+  XhrQueue,
+});
 
 export { getBundledBuildPluginImports };

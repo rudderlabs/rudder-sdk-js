@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.11",
+  "version": "3.0.0-beta.12",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
@@ -50,7 +50,8 @@
     "bump-version:monorepo": "npm version prerelease --git-tag-version false",
     "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
-    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
+    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "build:browser:LH": "nx run @rudderstack/analytics-js:build-browser && nx run @rudderstack/analytics-js:build-browser-modern"
   },
   "author": "RudderStack",
   "license": "MIT",
