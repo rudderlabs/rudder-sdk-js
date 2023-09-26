@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -18,7 +18,7 @@ import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
 import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 
-const pluginName = 'NativeDestinationQueues';
+const pluginName: PluginName = 'NativeDestinationQueue';
 
 const NativeDestinationQueue = (): ExtensionPlugin => ({
   name: pluginName,

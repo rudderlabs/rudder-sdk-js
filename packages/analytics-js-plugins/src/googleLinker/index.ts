@@ -2,10 +2,11 @@
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import { parseLinker } from './utils';
 
-const pluginName = 'GoogleLinker';
+const pluginName: PluginName = 'GoogleLinker';
 
 const GoogleLinker = (): ExtensionPlugin => ({
   name: pluginName,

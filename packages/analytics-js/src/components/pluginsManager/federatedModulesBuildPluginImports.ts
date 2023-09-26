@@ -1,7 +1,7 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { PluginMap } from './types';
-import { remotePluginNames } from './pluginNames';
+import { pluginNamesList } from './pluginNames';
 
 /**
  * Get the lazy loaded dynamic import for a plugin name
@@ -46,13 +46,13 @@ const getFederatedModuleImport = (
 /**
  * Map of active plugin names to their dynamic import
  */
-const modernBuildPluginImports = (
+const federatedModulesBuildPluginImports = (
   activePluginNames: PluginName[],
 ): PluginMap<Promise<ExtensionPlugin>> => {
-  const remotePlugins: PluginMap<Promise<ExtensionPlugin>> = {};
+  const remotePlugins = {} as PluginMap<Promise<ExtensionPlugin>>;
 
   activePluginNames.forEach(pluginName => {
-    if (remotePluginNames.includes(pluginName)) {
+    if (pluginNamesList.includes(pluginName)) {
       const lazyLoadImport = getFederatedModuleImport(pluginName);
       if (lazyLoadImport) {
         remotePlugins[pluginName] = lazyLoadImport;
@@ -63,4 +63,4 @@ const modernBuildPluginImports = (
   return remotePlugins;
 };
 
-export { modernBuildPluginImports };
+export { federatedModulesBuildPluginImports };

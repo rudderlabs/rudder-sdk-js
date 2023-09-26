@@ -1,25 +1,23 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { PluginMap } from './types';
-import { legacyBuildPluginImports } from './legacyBuildPluginImports';
-import { modernBuildPluginImports } from './modernBuildPluginImports';
+import { getBundledBuildPluginImports } from './bundledBuildPluginImports';
+import { federatedModulesBuildPluginImports } from './federatedModulesBuildPluginImports';
 
 /**
  * Map of mandatory plugin names and direct imports
  */
-const getMandatoryPluginsMap = (): PluginMap => ({});
+const getMandatoryPluginsMap = (): PluginMap => ({}) as PluginMap;
 
 /**
  * Map of optional plugin names and direct imports for legacy builds
  */
 const getOptionalPluginsMap = (): PluginMap => {
   if (!__BUNDLE_ALL_PLUGINS__) {
-    return {};
+    return {} as PluginMap;
   }
 
-  return {
-    ...(legacyBuildPluginImports?.() || {}),
-  };
+  return getBundledBuildPluginImports();
 };
 
 /**
@@ -29,10 +27,10 @@ const getRemotePluginsMap = (
   activePluginNames: PluginName[],
 ): PluginMap<Promise<ExtensionPlugin>> => {
   if (__BUNDLE_ALL_PLUGINS__) {
-    return {};
+    return {} as PluginMap<Promise<ExtensionPlugin>>;
   }
 
-  return modernBuildPluginImports?.(activePluginNames) || {};
+  return federatedModulesBuildPluginImports?.(activePluginNames) || {};
 };
 
 const pluginsInventory: PluginMap = {

@@ -6,12 +6,13 @@ import { ApplicationState } from '@rudderstack/analytics-js-common/types/Applica
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { checks, encryption } from '../shared-chunks/common';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
 
-const pluginName = 'StorageMigrator';
+const pluginName: PluginName = 'StorageMigrator';
 
 const StorageMigrator = (): ExtensionPlugin => ({
   name: pluginName,
