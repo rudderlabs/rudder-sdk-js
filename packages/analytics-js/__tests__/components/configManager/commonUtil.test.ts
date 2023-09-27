@@ -256,10 +256,9 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update consents state with the data from load options', () => {
-      state.loadOptions.value.cookieConsentManager = {
-        oneTrust: {
-          enabled: true,
-        },
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
       };
 
       state.loadOptions.value.preConsent = {
@@ -289,10 +288,9 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log an error if the specified consent manager is not supported', () => {
-      state.loadOptions.value.cookieConsentManager = {
-        randomManager: {
-          enabled: true,
-        },
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'randomManager',
       };
 
       updateConsentsState(mockLogger);

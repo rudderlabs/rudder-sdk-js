@@ -243,7 +243,7 @@ describe('Event Manager - Utilities', () => {
         state.session.initialReferrer.value = 'https://test.com/page';
         state.session.initialReferringDomain.value = 'https://test.com';
 
-        state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
+        state.consents.data.value.deniedConsents = ['id1', 'id2'];
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
@@ -317,6 +317,7 @@ describe('Event Manager - Utilities', () => {
           userAgent: 'test',
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
+            deniedConsents: ['id1', 'id2'],
           },
           page: {
             path: '/test',
@@ -966,7 +967,7 @@ describe('Event Manager - Utilities', () => {
         state.session.initialReferrer.value = 'initial_referrer';
         state.session.initialReferringDomain.value = 'initial_referring_domain';
 
-        state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
+        state.consents.data.value.deniedConsents = ['id1', 'id2'];
 
         state.context['ua-ch'].value = { mobile: true } as UADataValues;
         state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
@@ -1010,6 +1011,7 @@ describe('Event Manager - Utilities', () => {
           sessionStart: true,
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
+            deniedConsents: ['id1', 'id2'],
           },
           campaign: {},
           library: {

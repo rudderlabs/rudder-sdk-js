@@ -172,7 +172,7 @@ describe('Queue Plugins Utilities', () => {
           sessionId: 1,
           sessionStart: true,
           consentManagement: {
-            deniedConsentIds: ['1', '2', '3'],
+            deniedConsents: ['1', '2', '3'],
           },
           'ua-ch': {
             test: 'test',

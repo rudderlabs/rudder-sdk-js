@@ -247,7 +247,9 @@ const getEnrichedEvent = (
       sessionId: state.session.sessionInfo.value.id || undefined,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
-        deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
+        deniedConsents: clone(state.consents.data.value.deniedConsents),
+        // For backward compatibility with older rudder-server versions
+        deniedConsentIds: clone(state.consents.data.value.deniedConsents),
       },
       'ua-ch': state.context['ua-ch'].value,
       app: state.context.app.value,

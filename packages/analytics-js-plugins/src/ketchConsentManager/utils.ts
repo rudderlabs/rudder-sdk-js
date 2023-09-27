@@ -66,7 +66,7 @@ const getKetchConsentData = (
  */
 const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
   const allowedConsents: string[] = [];
-  const deniedConsentIds: string[] = [];
+  const deniedConsents: string[] = [];
   let initialized = false;
   if (ketchConsentData) {
     Object.entries(ketchConsentData).forEach(e => {
@@ -75,13 +75,13 @@ const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
       if (isConsented) {
         allowedConsents.push(purposeCode);
       } else {
-        deniedConsentIds.push(purposeCode);
+        deniedConsents.push(purposeCode);
       }
     });
     initialized = true;
   }
 
-  return { initialized, allowedConsents, deniedConsentIds };
+  return { initialized, allowedConsents, deniedConsents };
 };
 
 const updateConsentStateFromData = (

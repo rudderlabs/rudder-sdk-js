@@ -9,6 +9,7 @@ import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
+import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -34,7 +35,6 @@ import {
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 import { isValidStorageType } from './validate';
-import { getUserSelectedConsentManager } from '../../utilities/consent';
 
 /**
  * Determines the SDK url
@@ -152,23 +152,39 @@ const updateStorageState = (logger?: ILogger): void => {
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  // Get the consent manager if provided as load option
-  const selectedConsentManager = getUserSelectedConsentManager(
-    state.loadOptions.value.cookieConsentManager,
-  );
-
   let consentManagerPluginName: PluginName | undefined;
-  if (selectedConsentManager) {
-    // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-    consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
-    if (!consentManagerPluginName) {
-      logger?.error(
-        UNSUPPORTED_CONSENT_MANAGER_ERROR(
-          CONFIG_MANAGER,
-          selectedConsentManager,
-          ConsentManagersToPluginNameMap,
-        ),
-      );
+  let allowedConsents: string[] | undefined;
+  let deniedConsents: string[] | undefined;
+  let cmpInitialized = false;
+
+  const consentManagementOpts = state.loadOptions.value.consentManagement;
+  if (
+    consentManagementOpts &&
+    isNonEmptyObject(consentManagementOpts) &&
+    consentManagementOpts.enabled === true
+  ) {
+    const consentProvider = consentManagementOpts.provider;
+    if (consentProvider === 'custom') {
+      cmpInitialized = true;
+      if (Array.isArray(consentManagementOpts.allowedConsents)) {
+        allowedConsents = consentManagementOpts.allowedConsents;
+      }
+
+      if (Array.isArray(consentManagementOpts.deniedConsents)) {
+        deniedConsents = consentManagementOpts.deniedConsents;
+      }
+    } else if (consentProvider) {
+      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+      consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
+      if (!consentManagerPluginName) {
+        logger?.error(
+          UNSUPPORTED_CONSENT_MANAGER_ERROR(
+            CONFIG_MANAGER,
+            consentProvider,
+            ConsentManagersToPluginNameMap,
+          ),
+        );
+      }
     }
   }
 
@@ -207,6 +223,12 @@ const updateConsentsState = (logger?: ILogger): void => {
 
   batch(() => {
     state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+
+    state.consents.data.value = {
+      initialized: cmpInitialized,
+      allowedConsents: allowedConsents ?? [],
+      deniedConsents: deniedConsents ?? [],
+    };
 
     state.consents.preConsentOptions.value = {
       enabled: state.loadOptions.value.preConsent?.enabled === true,

@@ -45,7 +45,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(state.consents.data.value).toStrictEqual({
       initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
-      deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
+      deniedConsents: ['C0002', 'C0004', 'C0005', 'C0006'],
     });
   });
 

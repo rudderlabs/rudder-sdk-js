@@ -49,7 +49,7 @@ describe('Plugin - KetchConsentManager', () => {
     expect(state.consents.data.value).toStrictEqual({
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     });
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual([
@@ -85,7 +85,7 @@ describe('Plugin - KetchConsentManager', () => {
     expect(state.consents.data.value).toStrictEqual({
       initialized: true,
       allowedConsents: ['purpose2', 'purpose4'],
-      deniedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
+      deniedConsents: ['purpose1', 'purpose3', 'purpose5'],
     });
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual(['purpose2', 'purpose4']);
@@ -128,7 +128,7 @@ describe('Plugin - KetchConsentManager', () => {
     expect(state.consents.data.value).toStrictEqual({
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     });
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual([
@@ -154,7 +154,7 @@ describe('Plugin - KetchConsentManager', () => {
     state.consents.data.value = {
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     };
 
     const destConfig = {
@@ -177,7 +177,7 @@ describe('Plugin - KetchConsentManager', () => {
     state.consents.data.value = {
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     };
 
     const destConfig = {
@@ -201,7 +201,7 @@ describe('Plugin - KetchConsentManager', () => {
     state.consents.data.value = {
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     };
 
     const destConfig = {
@@ -232,7 +232,7 @@ describe('Plugin - KetchConsentManager', () => {
     state.consents.data.value = {
       initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     };
 
     const destConfig = {
@@ -263,7 +263,7 @@ describe('Plugin - KetchConsentManager', () => {
     state.consents.data.value = {
       initialized: true,
       allowedConsents: null, // This will throw an exception
-      deniedConsentIds: ['purpose2', 'purpose4'],
+      deniedConsents: ['purpose2', 'purpose4'],
     };
 
     const destConfig = {

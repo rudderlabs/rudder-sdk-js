@@ -36,7 +36,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         (n: string) => n,
       );
       const allowedConsents: Record<string, string> = {};
-      const deniedConsentIds: string[] = [];
+      const deniedConsents: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
       const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
@@ -47,11 +47,11 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         if (allowedConsentIds.includes(CustomGroupId)) {
           allowedConsents[CustomGroupId] = GroupName;
         } else {
-          deniedConsentIds.push(CustomGroupId);
+          deniedConsents.push(CustomGroupId);
         }
       });
 
-      state.consents.data.value = { initialized: true, allowedConsents, deniedConsentIds };
+      state.consents.data.value = { initialized: true, allowedConsents, deniedConsents };
     },
 
     isDestinationConsented(

@@ -31,7 +31,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       // getKetchUserDeniedPurposes returns current ketch opted-out purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserDeniedPurposes = () =>
-        (state.consents.data.value.deniedConsentIds as string[])?.slice();
+        (state.consents.data.value.deniedConsents as string[])?.slice();
 
       // updateKetchConsent callback function to update current consent purpose state
       // this will be called from ketch rudderstack plugin
