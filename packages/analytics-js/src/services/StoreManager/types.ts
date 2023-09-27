@@ -15,7 +15,7 @@ import {
 } from '../../constants/storage';
 
 export type StoreManagerOptions = {
-  cookieOptions?: Partial<ICookieStorageOptions>;
+  cookieStorageOptions?: Partial<ICookieStorageOptions>;
   localStorageOptions?: Partial<ILocalStorageOptions>;
   inMemoryStorageOptions?: Partial<IInMemoryStorageOptions>;
 };

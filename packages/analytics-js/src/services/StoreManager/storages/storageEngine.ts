@@ -61,11 +61,11 @@ const configureInMemoryStorageEngine = (options: Partial<IInMemoryStorageOptions
  * Configure all storage singleton instances
  */
 const configureStorageEngines = (
-  cookieOptions: Partial<ICookieStorageOptions> = {},
+  cookieStorageOptions: Partial<ICookieStorageOptions> = {},
   localStorageOptions: Partial<ILocalStorageOptions> = {},
   inMemoryStorageOptions: Partial<IInMemoryStorageOptions> = {},
 ) => {
-  configureCookieStorageEngine(cookieOptions);
+  configureCookieStorageEngine(cookieStorageOptions);
   configureLocalStorageEngine(localStorageOptions);
   configureInMemoryStorageEngine(inMemoryStorageOptions);
 };

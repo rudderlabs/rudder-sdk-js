@@ -50,7 +50,7 @@ class StoreManager implements IStoreManager {
     }
 
     const config: StoreManagerOptions = {
-      cookieOptions: {
+      cookieStorageOptions: {
         samesite: state.loadOptions.value.sameSiteCookie,
         secure: state.loadOptions.value.secureCookie,
         domain: state.loadOptions.value.setCookieDomain,
@@ -62,7 +62,7 @@ class StoreManager implements IStoreManager {
 
     configureStorageEngines(
       removeUndefinedValues(
-        mergeDeepRight(config.cookieOptions || {}, state.storage.cookie?.value || {}),
+        mergeDeepRight(config.cookieStorageOptions || {}, state.storage.cookie?.value || {}),
       ),
       removeUndefinedValues(config.localStorageOptions),
       removeUndefinedValues(config.inMemoryStorageOptions),
