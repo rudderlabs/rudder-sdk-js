@@ -18,6 +18,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   'OneTrustConsentManager',
   'KetchConsentManager',
   'BeaconQueue',
+  'DeviceModeTransformation',
 ];
 
 export { defaultOptionalPluginsList };

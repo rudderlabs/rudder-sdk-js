@@ -40,6 +40,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       state: ApplicationState,
       pluginsManager: IPluginsManager,
       storeManager: IStoreManager,
+      dmtQueue: IQueue,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): IQueue {
@@ -85,13 +86,15 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
             }
           });
-
           if (destWithTransformationEnabled.length > 0) {
+            state.nativeDestinations.dmtEnabledDestinations.value = destWithTransformationEnabled;
             pluginsManager.invokeSingle(
               'transformEvent.enqueue',
               state,
+              dmtQueue,
               clonedRudderEvent,
               destWithTransformationEnabled,
+              errorHandler,
               logger,
             );
           }

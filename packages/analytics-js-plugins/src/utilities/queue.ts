@@ -9,6 +9,7 @@ import {
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
+import { TransformationRequestPayload } from '../deviceModeTransformation/types';
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 
@@ -23,6 +24,12 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
 
 const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
   stringifyWithoutCircular({ batch: events }, true, undefined, logger);
+
+const getDMTDeliveryPayload = (
+  event: TransformationRequestPayload,
+  logger?: ILogger,
+): Nullable<string> =>
+  stringifyWithoutCircular<TransformationRequestPayload>(event, true, undefined, logger);
 
 /**
  * Utility to validate final payload size before sending to server
@@ -68,4 +75,5 @@ export {
   validateEventPayloadSize,
   getFinalEventForDeliveryMutator,
   getBatchDeliveryPayload,
+  getDMTDeliveryPayload,
 };

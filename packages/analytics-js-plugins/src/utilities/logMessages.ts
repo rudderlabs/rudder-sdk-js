@@ -71,6 +71,19 @@ const DESTINATION_EVENT_FORWARDING_ERROR = (destUserFriendlyId: string): string 
 const BUGSNAG_SDK_LOAD_TIMEOUT_ERROR = (timeout: number): string =>
   `A timeout ${timeout} ms occurred while trying to load the Bugsnag SDK.`;
 
+const DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR = (
+  displayName: string,
+  reason: string,
+  action: string,
+): string =>
+  `[DMT]:: Event transformation unsuccessful for destination "${displayName}". Reason:  ${reason}. ${action}.`;
+
+const DMT_REQUEST_FAILED_ERROR = (displayName: string, status: number, action: string): string =>
+  `[DMT]::[Destination: ${displayName}] :: Transformation request failed with status: ${status}. Retries exhausted. ${action}.`;
+
+const DMT_EXCEPTION = (displayName: string, message: string): string =>
+  `[DMT]::[Destination:${displayName}]:: ${message}`;
+
 // WARN
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
   context: string,
@@ -82,6 +95,8 @@ const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
 const EVENT_PAYLOAD_SIZE_VALIDATION_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.`;
 
+const DMT_SERVER_ACCESS_DENIED_WARNING = (): string =>
+  `[DMT]:: Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`;
 // DEBUG
 const BEACON_PLUGIN_EVENTS_QUEUE_DEBUG = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Sending events to data plane.`;
@@ -112,4 +127,8 @@ export {
   KETCH_CONSENT_COOKIE_PARSE_ERROR,
   KETCH_CONSENT_COOKIE_READ_ERROR,
   BEACON_QUEUE_DELIVERY_ERROR,
+  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
+  DMT_REQUEST_FAILED_ERROR,
+  DMT_EXCEPTION,
+  DMT_SERVER_ACCESS_DENIED_WARNING,
 };
