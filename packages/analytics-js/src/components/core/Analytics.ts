@@ -266,15 +266,10 @@ class Analytics implements IAnalytics {
    * Load configuration
    */
   loadConfig() {
-    if (!state.lifecycle.writeKey.value) {
-      this.errorHandler.onError(
-        new Error('A write key is required to load the SDK. Please provide a valid write key.'),
-        LOAD_CONFIGURATION,
-      );
-      return;
+    if (state.lifecycle.writeKey.value) {
+    this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     }
 
-    this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     this.configManager?.init();
   }
 
