@@ -68,6 +68,11 @@
         destSDKBaseURL:
           '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+        // queueOptions: {
+        //   batch: {
+        //     maxSize: 5 * 1024, // 5KB
+        //   },
+        // },
         // cookieConsentManager: {
         //   // oneTrust: {
         //   //   enabled: true,
@@ -78,19 +83,20 @@
         // }
         // useBeacon: true,
         // beaconQueueOptions: {
-        //   flushQueueInterval: 60 * 1000,
-        // }
+        //   flushQueueInterval: 10 * 1000,
+        //   maxItems: 5,
+        // },
         storage: {
-          // encryption: {
-          //   version: 'v3'
-          // },
+          encryption: {
+            version: 'v3'
+          },
+          migrate: true,
           // cookie: {
           //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           //   path: '/',
           //   samesite: 'Lax',
           //   secure: true,
           // },
-          // migrate: true,
           // type: 'localStorage',
           // entries: {
           //   userId: {
@@ -106,7 +112,12 @@
           //     type: 'cookieStorage',
           //   },
           // },
-        },
+        }
+        // plugins: [
+        //   'StorageEncryption',
+        //   'StorageMigrator',
+        //   'XhrQueue'
+        // ]
       };
 
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
@@ -128,7 +139,7 @@
         },
         function (message) {
           console.log('in identify call', message);
-        },
+        }
       );
 
       rudderanalytics.page(
@@ -143,7 +154,7 @@
         },
         function (message) {
           console.log('in page call', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -155,7 +166,7 @@
         },
         function (message) {
           console.log('in track call 1', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -167,7 +178,7 @@
         },
         function (message) {
           console.log('in track call 2', message);
-        },
+        }
       );
 
       rudderanalytics.track(
@@ -179,7 +190,7 @@
         },
         function (message) {
           console.log('in track call 3', message);
-        },
+        }
       );
 
       rudderanalytics.ready(function () {
@@ -224,7 +235,7 @@
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -249,7 +260,7 @@
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -265,7 +276,7 @@
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
@@ -288,7 +299,7 @@
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
     </script>

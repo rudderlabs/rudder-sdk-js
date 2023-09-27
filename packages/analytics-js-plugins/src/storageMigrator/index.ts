@@ -5,14 +5,14 @@ import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { checks, encryption } from '../shared-chunks/common';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
-import { decrypt } from '../storageEncryption/encryptionUtils';
-import { STORAGE_MIGRATION_ERROR } from '../utilities/logMessages';
+import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
 
-const pluginName = 'StorageMigrator';
+const pluginName: PluginName = 'StorageMigrator';
 
 const StorageMigrator = (): ExtensionPlugin => ({
   name: pluginName,
@@ -28,7 +28,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
     ): Nullable<string> {
       try {
         const storedVal = storageEngine.getItem(key);
-        if (isNullOrUndefined(storedVal)) {
+        if (checks.isNullOrUndefined(storedVal)) {
           return null;
         }
 
@@ -37,10 +37,10 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // The value is not encrypted using legacy encryption
         // Try latest
         if (decryptedVal === storedVal) {
-          decryptedVal = decrypt(storedVal);
+          decryptedVal = encryption.decrypt(storedVal);
         }
 
-        if (isNullOrUndefined(decryptedVal)) {
+        if (checks.isNullOrUndefined(decryptedVal)) {
           return null;
         }
 

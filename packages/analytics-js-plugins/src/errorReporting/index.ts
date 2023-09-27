@@ -8,9 +8,10 @@ import {
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { INVALID_SOURCE_CONFIG_ERROR } from '../utilities/logMessages';
+import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { INVALID_SOURCE_CONFIG_ERROR } from './logMessages';
 
-const pluginName = 'ErrorReporting';
+const pluginName: PluginName = 'ErrorReporting';
 
 const ErrorReporting = (): ExtensionPlugin => ({
   name: pluginName,

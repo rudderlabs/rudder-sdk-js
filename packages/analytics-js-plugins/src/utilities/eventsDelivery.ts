@@ -1,15 +1,22 @@
+import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { clone } from 'ramda';
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
-import {
-  EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
-  EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
-} from './logMessages';
 import { TransformationRequestPayload } from '../deviceModeTransformation/types';
+
+const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
+  context: string,
+  payloadSize: number,
+  sizeLimit: number,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The size of the event payload (${payloadSize} bytes) exceeds the maximum limit of ${sizeLimit} bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.`;
+
+const EVENT_PAYLOAD_SIZE_VALIDATION_WARNING = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.`;
 
 const QUEUE_UTILITIES = 'QueueUtilities';
 
@@ -21,9 +28,6 @@ const QUEUE_UTILITIES = 'QueueUtilities';
  */
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
   stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
-
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
-  stringifyWithoutCircular({ batch: events }, true, undefined, logger);
 
 const getDMTDeliveryPayload = (
   event: TransformationRequestPayload,
@@ -58,7 +62,6 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
  * Mutates the event and return final event for delivery
  * Updates certain parameters like sentAt timestamp, integrations config etc.
  * @param event RudderEvent object
- * @param state Application state
  * @returns Final event ready to be delivered
  */
 const getFinalEventForDeliveryMutator = (event: RudderEvent): RudderEvent => {
@@ -74,6 +77,5 @@ export {
   getDeliveryPayload,
   validateEventPayloadSize,
   getFinalEventForDeliveryMutator,
-  getBatchDeliveryPayload,
   getDMTDeliveryPayload,
 };

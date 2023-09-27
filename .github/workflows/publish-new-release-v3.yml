@@ -74,7 +74,7 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm run release:github -- --base=$LAST_VERSION --head=$CURRENT_VERSION
+          npm run release:github -- --base=${{ env.last_version }} --head=${{ env.current_version }}
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2

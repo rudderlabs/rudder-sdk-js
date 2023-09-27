@@ -1,10 +1,10 @@
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
+import { json } from '../shared-chunks/common';
 import { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from '../utilities/logMessages';
+import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from './logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -194,7 +194,7 @@ const initBugsnagClient = (
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
-  const stateStr = stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
   return stateStr !== null ? JSON.parse(stateStr) : undefined;
 };
 

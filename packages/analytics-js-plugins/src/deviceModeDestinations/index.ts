@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
@@ -11,13 +11,10 @@ import { clone } from 'ramda';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
-import {
-  DESTINATION_NOT_SUPPORTED_ERROR,
-  DESTINATION_SDK_LOAD_ERROR,
-} from '../utilities/logMessages';
-import { filterDestinations } from '../utilities/destination';
+import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
+import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 
-const pluginName = 'DeviceModeDestinations';
+const pluginName: PluginName = 'DeviceModeDestinations';
 
 const DeviceModeDestinations = (): ExtensionPlugin => ({
   name: pluginName,
@@ -53,7 +50,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Filter destinations that are disabled through load options
-      const destinationsToLoad = filterDestinations(
+      const destinationsToLoad = destinationUtils.filterDestinations(
         state.nativeDestinations.loadOnlyIntegrations.value,
         configSupportedDestinations,
       );

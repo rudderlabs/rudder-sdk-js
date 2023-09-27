@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
@@ -13,7 +13,7 @@ import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import { createPayload } from './utilities';
-import { getDMTDeliveryPayload } from '../utilities/queue';
+import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { DoneCallback, IQueue } from '../types/plugins';
@@ -28,9 +28,9 @@ import {
   DMT_REQUEST_FAILED_ERROR,
   DMT_SERVER_ACCESS_DENIED_WARNING,
   DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
-} from '../utilities/logMessages';
+} from './logMessages';
 
-const pluginName = 'DeviceModeTransformation';
+const pluginName: PluginName = 'DeviceModeTransformation';
 
 const DeviceModeTransformation = (): ExtensionPlugin => ({
   name: pluginName,
