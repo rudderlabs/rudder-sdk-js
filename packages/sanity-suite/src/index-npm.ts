@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { RudderAnalytics, LoadOptions, LogLevel } from '@rudderstack/analytics-js/legacy';
+import { RudderAnalytics, LoadOptions } from '@rudderstack/analytics-js/legacy';
 import { initSanitySuite } from './testBook';
 
 const getWriteKey = () => {
@@ -21,7 +21,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
   switch ('FEATURE' as string) {
     case 'dataResidency':
       return {
-        logLevel: LogLevel.Debug,
+        logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
@@ -36,7 +36,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
       };
     case 'preloadBuffer':
       return {
-        logLevel: LogLevel.Debug,
+        logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
@@ -52,7 +52,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     case 'eventFiltering':
       return {
-        logLevel: LogLevel.Debug,
+        logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
@@ -68,7 +68,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     default:
       return {
-        logLevel: LogLevel.Debug,
+        logLevel: 'DEBUG',
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
