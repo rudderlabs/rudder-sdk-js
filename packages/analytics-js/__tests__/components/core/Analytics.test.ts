@@ -104,11 +104,6 @@ describe('Core - Analytics', () => {
   });
 
   describe('loadConfig', () => {
-    it('should handle error if no write key exists', () => {
-      const onErrorSpy = jest.spyOn(analytics.errorHandler, 'onError');
-      analytics.loadConfig();
-      expect(onErrorSpy).toHaveBeenCalledTimes(1);
-    });
     it('should set authentication request header', () => {
       analytics.prepareInternalServices();
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');

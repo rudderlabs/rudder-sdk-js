@@ -144,6 +144,11 @@ class Analytics implements IAnalytics {
 
     // Set initial state values
     batch(() => {
+      // set log level as early as possible
+      if (state.loadOptions.value.logLevel) {
+        this.logger?.setMinLogLevel(state.loadOptions.value.logLevel);
+      }
+
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
@@ -267,7 +272,7 @@ class Analytics implements IAnalytics {
    */
   loadConfig() {
     if (state.lifecycle.writeKey.value) {
-    this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     }
 
     this.configManager?.init();
