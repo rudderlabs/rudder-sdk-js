@@ -3,7 +3,7 @@
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 
 function getReferrer() {
-  return document.referrer || '$direct';
+  return document?.referrer || '$direct';
 }
 
 function getReferringDomain(referrer) {
