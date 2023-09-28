@@ -21,6 +21,7 @@ import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
+import { getOverriddenStorageType } from './utils';
 
 /**
  * A service to manage stores & available storage client configurations
@@ -118,35 +119,13 @@ class StoreManager implements IStoreManager {
     userSessionKeyValues.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
-      const providedStorageType = entries?.[key]?.type;
+      const providedStorageType = entries?.[key]?.type || null;
 
-      let overriddenStorageType: StorageType | undefined;
-      if (state.consents.preConsent.value.enabled) {
-        switch (state.consents.preConsent.value.storage?.strategy) {
-          case 'none':
-            overriddenStorageType = NO_STORAGE;
-            break;
-          case 'session':
-            if (sessionKey !== 'sessionInfo') {
-              overriddenStorageType = NO_STORAGE;
-            } else {
-              overriddenStorageType = DEFAULT_STORAGE_TYPE;
-            }
-            break;
-          case 'anonymousId':
-            if (sessionKey !== 'anonymousId') {
-              overriddenStorageType = NO_STORAGE;
-            } else {
-              overriddenStorageType = DEFAULT_STORAGE_TYPE;
-            }
-            break;
-          default:
-            break;
-        }
-      }
+      const overriddenStorageType = getOverriddenStorageType(state, sessionKey);
 
+      // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
-        overriddenStorageType || providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
+        overriddenStorageType ?? providedStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
       switch (storageType) {
