@@ -133,14 +133,14 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                   }
 
                   let action = ACTION_TO_DROP_EVENT;
-                  let logMethod = logger?.error;
                   if (dest.propagateEventsUntransformedOnError === true) {
                     action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
-                    logMethod = logger?.warn;
                     eventsToSend.push(event);
-                  }
-                  if (logMethod) {
-                    logMethod(
+                    logger?.warn(
+                      DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(dest.displayName, reason, action),
+                    );
+                  } else {
+                    logger?.error(
                       DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(dest.displayName, reason, action),
                     );
                   }
