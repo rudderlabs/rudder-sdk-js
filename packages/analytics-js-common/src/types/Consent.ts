@@ -7,6 +7,13 @@ export type ConsentManagement = {
   deniedConsentIds: string[]; // For backward compatibility
 };
 
+export type CookieConsentOptions = {
+  // OneTrust
+  [key: string]: {
+    enabled: boolean;
+  };
+};
+
 export type ConsentProvider = 'oneTrust' | 'ketch' | 'custom';
 
 export type ConsentManagementOptions = {
