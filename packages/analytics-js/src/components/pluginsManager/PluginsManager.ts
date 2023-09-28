@@ -160,7 +160,7 @@ class PluginsManager implements IPluginsManager {
       );
 
     // Remove all CMP plugins if pre-consent behavior is enabled
-    if (state.consents.preConsentOptions.value.enabled) {
+    if (state.consents.preConsent.value.enabled) {
       filterCondition = (pluginName: PluginName) =>
         !supportedConsentManagerPlugins.includes(pluginName);
     }

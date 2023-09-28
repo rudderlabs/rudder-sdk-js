@@ -23,7 +23,7 @@ export interface IStoreManager {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   init(): void;
-  initClientDataStore(): void;
+  initClientDataStores(): void;
   setStore(storeConfig: IStoreConfig): IStore;
   getStore(id: StoreId): IStore | undefined;
 }

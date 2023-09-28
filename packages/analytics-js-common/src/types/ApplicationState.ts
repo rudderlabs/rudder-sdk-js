@@ -35,7 +35,7 @@ export type ConsentsState = {
   data: Signal<ConsentsInfo>;
   initialized: Signal<boolean>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
-  preConsentOptions: Signal<PreConsentOptions>;
+  preConsent: Signal<PreConsentOptions>;
 };
 
 export type ContextState = {

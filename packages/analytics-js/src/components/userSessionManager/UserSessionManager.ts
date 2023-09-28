@@ -68,6 +68,13 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    */
   init() {
+    this.syncStorageDataToState();
+
+    // Register the effect to sync with storage
+    this.registerEffects();
+  }
+
+  syncStorageDataToState() {
     this.migrateStorageIfNeeded();
     this.migrateDataFromPreviousStorage();
 
@@ -93,26 +100,21 @@ class UserSessionManager implements IUserSessionManager {
       this.setAnonymousId(anonymousId);
     }
 
-    const initialReferrer = this.getInitialReferrer();
-    const initialReferringDomain = this.getInitialReferringDomain();
+    const persistedInitialReferrer = this.getInitialReferrer();
+    const persistedInitialReferringDomain = this.getInitialReferringDomain();
 
-    if (initialReferrer && initialReferringDomain) {
-      this.setInitialReferrer(initialReferrer);
-      this.setInitialReferringDomain(initialReferringDomain);
-    } else if (initialReferrer) {
+    if (persistedInitialReferrer && persistedInitialReferringDomain) {
+      this.setInitialReferrer(persistedInitialReferrer);
+      this.setInitialReferringDomain(persistedInitialReferringDomain);
+    } else {
+      const initialReferrer = persistedInitialReferrer || getReferrer();
       this.setInitialReferrer(initialReferrer);
       this.setInitialReferringDomain(getReferringDomain(initialReferrer));
-    } else {
-      const referrer = getReferrer();
-      this.setInitialReferrer(referrer);
-      this.setInitialReferringDomain(getReferringDomain(referrer));
     }
     // Initialize session tracking
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       this.initializeSessionTracking();
     }
-    // Register the effect to sync with storage
-    this.registerEffects();
   }
 
   isPersistenceEnabledForStorageEntry(entryName: UserSessionKeys): boolean {
@@ -143,7 +145,12 @@ class UserSessionManager implements IUserSessionManager {
               curStore.set(userSessionStorageKeys[key], value);
             }
           }
-          store?.remove(userSessionStorageKeys[key]);
+
+          // Remove entry from previous storage only if pre-consent behavior is inactive
+          // This will be helpful for re-initializing the cookies post consent
+          if (state.consents.preConsent.value.enabled !== true) {
+            store.remove(userSessionStorageKeys[key]);
+          }
         }
       });
     });

@@ -301,7 +301,9 @@ class Analytics implements IAnalytics {
     this.eventManager?.init();
 
     // Mark the SDK as initialized
-    state.lifecycle.status.value = 'initialized';
+    if (state.consents.preConsent.value.enabled === false) {
+      state.lifecycle.status.value = 'initialized';
+    }
   }
 
   /**

@@ -92,7 +92,7 @@ describe('StoreManager', () => {
         removeItem: jest.fn(),
       }));
 
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
 
       expect(storeManager.stores).toHaveProperty('clientDataInCookie');
       expect(storeManager.stores).toHaveProperty('clientDataInLocalStorage');
@@ -106,7 +106,7 @@ describe('StoreManager', () => {
         setItem: jest.fn(),
         removeItem: jest.fn(),
       }));
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
     });
 
@@ -118,13 +118,13 @@ describe('StoreManager', () => {
         setItem: jest.fn(),
         removeItem: jest.fn(),
       }));
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyLocalStorage);
     });
 
     it('should enable truly anonymous tracking if all the persisted data have storage type none', () => {
       state.storage.type.value = NO_STORAGE;
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyNoStorage);
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
     });
@@ -138,7 +138,7 @@ describe('StoreManager', () => {
         setItem: jest.fn(),
         removeItem: jest.fn(),
       }));
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithMixStorage);
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
@@ -151,7 +151,7 @@ describe('StoreManager', () => {
         setItem: jest.fn(),
         removeItem: jest.fn(),
       }));
-      storeManager.initClientDataStore();
+      storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
       expect(logger.warn).toHaveBeenCalled();
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);

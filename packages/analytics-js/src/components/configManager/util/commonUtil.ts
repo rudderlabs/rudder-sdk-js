@@ -245,7 +245,7 @@ const updateConsentsState = (logger?: ILogger): void => {
     state.consents.initialized.value = cmpInitialized;
     state.consents.data.value = consentsData;
 
-    state.consents.preConsentOptions.value = {
+    state.consents.preConsent.value = {
       // Enable pre-consent behavior only if the consent data is already not provided
       enabled: state.loadOptions.value.preConsent?.enabled === true && cmpInitialized === false,
       storage: {

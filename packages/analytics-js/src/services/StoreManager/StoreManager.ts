@@ -68,14 +68,40 @@ class StoreManager implements IStoreManager {
       removeUndefinedValues(config.inMemoryStorageOptions),
     );
 
-    this.initClientDataStore();
+    this.initClientDataStores();
     this.isInitialized = true;
   }
 
   /**
    * Create store to persist data used by the SDK like session, used details etc
    */
-  initClientDataStore() {
+  initClientDataStores() {
+    this.initializeStorageState();
+
+    // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
+    // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
+
+    // Initializing all the enabled store because previous user data might be in different storage
+    // that needs auto migration
+    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
+    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
+    }
+    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
+    }
+    storageTypesRequiringInitialization.forEach(storageType => {
+      this.setStore({
+        id: storageClientDataStoreNameMap[storageType],
+        name: storageClientDataStoreNameMap[storageType],
+        isEncrypted: true,
+        noCompoundKey: true,
+        type: storageType as StorageType,
+      });
+    });
+  }
+
+  initializeStorageState() {
     const globalStorageType = state.storage.type.value;
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
@@ -95,8 +121,8 @@ class StoreManager implements IStoreManager {
       const providedStorageType = entries?.[key]?.type;
 
       let overriddenStorageType: StorageType | undefined;
-      if (state.consents.preConsentOptions.value.enabled) {
-        switch (state.consents.preConsentOptions.value.storage?.strategy) {
+      if (state.consents.preConsent.value.enabled) {
+        switch (state.consents.preConsent.value.storage?.strategy) {
           case 'none':
             overriddenStorageType = NO_STORAGE;
             break;
@@ -163,28 +189,6 @@ class StoreManager implements IStoreManager {
     });
 
     state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
-
-    // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
-    // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-
-    // Initializing all the enabled store because previous user data might be in different storage
-    // that needs auto migration
-    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
-    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
-    }
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
-    }
-    storageTypesRequiringInitialization.forEach(storageType => {
-      this.setStore({
-        id: storageClientDataStoreNameMap[storageType],
-        name: storageClientDataStoreNameMap[storageType],
-        isEncrypted: true,
-        noCompoundKey: true,
-        type: storageType as StorageType,
-      });
-    });
   }
 
   /**

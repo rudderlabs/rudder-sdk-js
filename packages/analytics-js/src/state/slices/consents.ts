@@ -5,7 +5,7 @@ const consentsState: ConsentsState = {
   initialized: signal(false),
   data: signal({}),
   activeConsentManagerPluginName: signal(undefined),
-  preConsentOptions: signal({ enabled: false }),
+  preConsent: signal({ enabled: false }),
 };
 
 export { consentsState };
