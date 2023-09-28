@@ -93,7 +93,34 @@ class StoreManager implements IStoreManager {
       const key = sessionKey;
       const storageKey = sessionKey;
       const providedStorageType = entries?.[key]?.type;
-      const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
+
+      let overriddenStorageType: StorageType | undefined;
+      if (state.consents.preConsentOptions.value.enabled) {
+        switch (state.consents.preConsentOptions.value.storage?.strategy) {
+          case 'none':
+            overriddenStorageType = NO_STORAGE;
+            break;
+          case 'session':
+            if (sessionKey !== 'sessionInfo') {
+              overriddenStorageType = NO_STORAGE;
+            } else {
+              overriddenStorageType = DEFAULT_STORAGE_TYPE;
+            }
+            break;
+          case 'anonymousId':
+            if (sessionKey !== 'anonymousId') {
+              overriddenStorageType = NO_STORAGE;
+            } else {
+              overriddenStorageType = DEFAULT_STORAGE_TYPE;
+            }
+            break;
+          default:
+            break;
+        }
+      }
+
+      const storageType =
+        overriddenStorageType || providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
       switch (storageType) {
