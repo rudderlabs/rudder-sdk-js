@@ -22,7 +22,6 @@ import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ANALYTICS_CORE,
-  LOAD_CONFIGURATION,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {

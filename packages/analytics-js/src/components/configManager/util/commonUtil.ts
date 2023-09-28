@@ -151,7 +151,7 @@ const updateStorageState = (logger?: ILogger): void => {
   });
 };
 
-const updateConsentsState = (logger?: ILogger): void => {
+const getCmpData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
   let allowedConsents: string[] | undefined;
   let deniedConsents: string[] | undefined;
@@ -187,6 +187,21 @@ const updateConsentsState = (logger?: ILogger): void => {
       }
     }
   }
+
+  const data = {
+    initialized: cmpInitialized,
+    allowedConsents: allowedConsents ?? [],
+    deniedConsents: deniedConsents ?? [],
+  };
+
+  return {
+    consentManagerPluginName,
+    data,
+  };
+};
+
+const updateConsentsState = (logger?: ILogger): void => {
+  const { consentManagerPluginName, data } = getCmpData(logger);
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
@@ -224,11 +239,7 @@ const updateConsentsState = (logger?: ILogger): void => {
   batch(() => {
     state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
 
-    state.consents.data.value = {
-      initialized: cmpInitialized,
-      allowedConsents: allowedConsents ?? [],
-      deniedConsents: deniedConsents ?? [],
-    };
+    state.consents.data.value = data;
 
     state.consents.preConsentOptions.value = {
       enabled: state.loadOptions.value.preConsent?.enabled === true,
