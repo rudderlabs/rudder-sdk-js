@@ -132,9 +132,15 @@ class UserSessionManager implements IUserSessionManager {
         const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
         if (storage !== currentStorage && store) {
           if (curStore) {
-            const value = store?.get(userSessionStorageKeys[key]);
-            if (isDefinedNotNullAndNotEmptyString(value)) {
-              curStore?.set(userSessionStorageKeys[key], value);
+            const value = store.get(userSessionStorageKeys[key]);
+            const curVal = curStore.get(userSessionStorageKeys[key]);
+
+            // Set the value only if the current value is invalid and incoming value is valid
+            if (
+              isDefinedNotNullAndNotEmptyString(value) &&
+              !isDefinedNotNullAndNotEmptyString(curVal)
+            ) {
+              curStore.set(userSessionStorageKeys[key], value);
             }
           }
           store?.remove(userSessionStorageKeys[key]);

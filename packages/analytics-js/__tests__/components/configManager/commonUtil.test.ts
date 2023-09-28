@@ -275,7 +275,7 @@ describe('Config Manager Common Utilities', () => {
       updateConsentsState();
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe('OneTrustConsentManager');
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
@@ -314,7 +314,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockLogger);
 
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
@@ -343,7 +343,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockLogger);
 
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
