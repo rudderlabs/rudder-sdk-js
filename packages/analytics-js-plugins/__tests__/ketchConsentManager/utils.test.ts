@@ -40,7 +40,6 @@ describe('KetchConsentManager - Utils', () => {
       updateConsentStateFromData(state, ketchConsentData);
 
       expect(state.consents.data.value).toStrictEqual({
-        initialized: true,
         allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
         deniedConsents: ['purpose2', 'purpose4'],
       });
@@ -60,7 +59,6 @@ describe('KetchConsentManager - Utils', () => {
       const consentData = getConsentData(ketchConsentData);
 
       expect(consentData).toStrictEqual({
-        initialized: true,
         allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
         deniedConsents: ['purpose2', 'purpose4'],
       });
@@ -70,7 +68,6 @@ describe('KetchConsentManager - Utils', () => {
       const consentData = getConsentData();
 
       expect(consentData).toStrictEqual({
-        initialized: false,
         allowedConsents: [],
         deniedConsents: [],
       });

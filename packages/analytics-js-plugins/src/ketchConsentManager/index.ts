@@ -56,11 +56,11 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      const consentData = state.consents.data.value;
-      if (!consentData.initialized) {
+      if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsents = consentData.allowedConsents as string[];
+
+      const allowedConsents = state.consents.data.value.allowedConsents as string[];
 
       try {
         const { ketchConsentPurposes } = destConfig;

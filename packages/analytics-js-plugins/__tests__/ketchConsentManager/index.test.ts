@@ -46,8 +46,8 @@ describe('Plugin - KetchConsentManager', () => {
     // Initialize the plugin
     KetchConsentManager().consentManager.init(state, undefined, mockLogger);
 
+    expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     });
@@ -83,7 +83,6 @@ describe('Plugin - KetchConsentManager', () => {
     });
 
     expect(state.consents.data.value).toStrictEqual({
-      initialized: true,
       allowedConsents: ['purpose2', 'purpose4'],
       deniedConsents: ['purpose1', 'purpose3', 'purpose5'],
     });
@@ -125,8 +124,8 @@ describe('Plugin - KetchConsentManager', () => {
     // Initialize the plugin
     KetchConsentManager().consentManager.init(state, storeManager, mockLogger);
 
+    expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     });
@@ -151,8 +150,8 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should return true if the destination config does not contain ketch consent purposes data', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     };
@@ -174,8 +173,8 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should return true if the ketch consent purposes data is empty in the destination config', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     };
@@ -198,8 +197,8 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should return true if at least one of the ketch consent purposes in the destination config is allowed', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     };
@@ -229,8 +228,8 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should return false if none of the ketch consent purposes in the destination config is allowed', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
       deniedConsents: ['purpose2', 'purpose4'],
     };
@@ -260,8 +259,8 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should return true and log an error if any exception is thrown while checking if the destination is consented', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: null, // This will throw an exception
       deniedConsents: ['purpose2', 'purpose4'],
     };

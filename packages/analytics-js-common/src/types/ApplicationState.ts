@@ -12,7 +12,7 @@ import { IntegrationOpts } from './Integration';
 import { SessionInfo } from './Session';
 import { Source } from './Source';
 import { ApiObject } from './ApiObject';
-import { ConsentInfo } from './Consent';
+import { ConsentsInfo } from './Consent';
 import { StorageType, CookieOptions } from './Storage';
 import { UserSessionKeys } from './userSessionStorageKeys';
 
@@ -32,7 +32,8 @@ export type CapabilitiesState = {
 };
 
 export type ConsentsState = {
-  data: Signal<ConsentInfo>;
+  data: Signal<ConsentsInfo>;
+  initialized: Signal<boolean>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
   preConsentOptions: Signal<PreConsentOptions>;
 };

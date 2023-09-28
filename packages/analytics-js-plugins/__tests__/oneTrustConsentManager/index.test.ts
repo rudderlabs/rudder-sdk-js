@@ -42,8 +42,8 @@ describe('Plugin - OneTrustConsentManager', () => {
     // Initialize the plugin
     OneTrustConsentManager().consentManager.init(state, undefined, mockLogger);
 
+    expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
-      initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
       deniedConsents: ['C0002', 'C0004', 'C0005', 'C0006'],
     });
@@ -51,15 +51,15 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should not successfully initialize the plugin if OneTrust SDK is not loaded', () => {
     OneTrustConsentManager().consentManager.init(state, undefined, mockLogger);
-    expect(state.consents.data.value.initialized).toStrictEqual(false);
+    expect(state.consents.initialized.value).toStrictEqual(false);
     expect(mockLogger.error).toHaveBeenCalledWith(
       `OneTrustConsentManagerPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,
     );
   });
 
   it('should return true if destination specific category is consented', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
 
@@ -91,9 +91,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   });
 
   it('should return true if plugin is not initialized', () => {
-    state.consents.data.value = {
-      initialized: false,
-    };
+    state.consents.initialized.value = false;
 
     const destConfig = {
       blacklistedEvents: [],
@@ -120,8 +118,8 @@ describe('Plugin - OneTrustConsentManager', () => {
   });
 
   it('should return true if destination config does not have any mapping', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {
@@ -141,8 +139,8 @@ describe('Plugin - OneTrustConsentManager', () => {
   });
 
   it('should return false if destination categories are not consented', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {
@@ -169,8 +167,8 @@ describe('Plugin - OneTrustConsentManager', () => {
   });
 
   it('should return true and log error if an exception occurs during destination consent status check', () => {
+    state.consents.initialized.value = true;
     state.consents.data.value = {
-      initialized: true,
       allowedConsents: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
     };
     const destConfig = {

@@ -24,7 +24,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
         logger?.error(ONETRUST_ACCESS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN));
-        state.consents.data.value = { initialized: false };
+        state.consents.initialized.value = false;
         return;
       }
 
@@ -51,7 +51,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         }
       });
 
-      state.consents.data.value = { initialized: true, allowedConsents, deniedConsents };
+      state.consents.initialized.value = true;
+      state.consents.data.value = { allowedConsents, deniedConsents };
     },
 
     isDestinationConsented(
@@ -60,11 +61,10 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      const consentData = state.consents.data.value;
-      if (!consentData.initialized) {
+      if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsents = consentData.allowedConsents as Record<string, string>;
+      const allowedConsents = state.consents.data.value.allowedConsents as Record<string, string>;
 
       try {
         // mapping of the destination with the consent group name

@@ -10,6 +10,7 @@ import {
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
+import { ConsentData } from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -153,8 +154,8 @@ const updateStorageState = (logger?: ILogger): void => {
 
 const getCmpData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
-  let allowedConsents: string[] | undefined;
-  let deniedConsents: string[] | undefined;
+  let allowedConsents: ConsentData | undefined;
+  let deniedConsents: ConsentData | undefined;
   let cmpInitialized = false;
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
@@ -166,12 +167,15 @@ const getCmpData = (logger?: ILogger) => {
     const consentProvider = consentManagementOpts.provider;
     if (consentProvider === 'custom') {
       cmpInitialized = true;
-      if (Array.isArray(consentManagementOpts.allowedConsents)) {
-        allowedConsents = consentManagementOpts.allowedConsents;
+
+      const allowedConsentsOpts = consentManagementOpts.allowedConsents;
+      if (isNonEmptyObject(allowedConsentsOpts) || Array.isArray(allowedConsentsOpts)) {
+        allowedConsents = allowedConsentsOpts;
       }
 
-      if (Array.isArray(consentManagementOpts.deniedConsents)) {
-        deniedConsents = consentManagementOpts.deniedConsents;
+      const deniedConsentsOpts = consentManagementOpts.deniedConsents;
+      if (isNonEmptyObject(deniedConsentsOpts) || Array.isArray(deniedConsentsOpts)) {
+        deniedConsents = deniedConsentsOpts;
       }
     } else if (consentProvider) {
       // Get the corresponding plugin name of the selected consent manager from the supported consent managers
@@ -188,20 +192,20 @@ const getCmpData = (logger?: ILogger) => {
     }
   }
 
-  const data = {
-    initialized: cmpInitialized,
+  const consentsData = {
     allowedConsents: allowedConsents ?? [],
     deniedConsents: deniedConsents ?? [],
   };
 
   return {
     consentManagerPluginName,
-    data,
+    cmpInitialized,
+    consentsData,
   };
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  const { consentManagerPluginName, data } = getCmpData(logger);
+  const { consentManagerPluginName, cmpInitialized, consentsData } = getCmpData(logger);
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
@@ -238,11 +242,12 @@ const updateConsentsState = (logger?: ILogger): void => {
 
   batch(() => {
     state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
-
-    state.consents.data.value = data;
+    state.consents.initialized.value = cmpInitialized;
+    state.consents.data.value = consentsData;
 
     state.consents.preConsentOptions.value = {
-      enabled: state.loadOptions.value.preConsent?.enabled === true,
+      // Enable pre-consent behavior only if the consent data is already not provided
+      enabled: state.loadOptions.value.preConsent?.enabled === true && cmpInitialized === false,
       storage: {
         strategy: storageStrategy,
       },

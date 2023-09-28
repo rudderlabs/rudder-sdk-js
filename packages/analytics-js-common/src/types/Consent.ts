@@ -3,8 +3,8 @@ export type OneTrustCookieCategory = {
 };
 
 export type ConsentManagement = {
-  deniedConsents: string[];
-  deniedConsentIds: string[]; // For backward compatibility
+  deniedConsents: ConsentData;
+  deniedConsentIds: ConsentData; // For backward compatibility
 };
 
 export type CookieConsentOptions = {
@@ -16,17 +16,18 @@ export type CookieConsentOptions = {
 
 export type ConsentProvider = 'oneTrust' | 'ketch' | 'custom';
 
+export type ConsentData = Record<string, string> | string[];
+
 export type ConsentManagementOptions = {
   enabled: boolean;
   provider: ConsentProvider;
-  allowedConsents?: string[];
-  deniedConsents?: string[];
+  allowedConsents?: ConsentData;
+  deniedConsents?: ConsentData;
 };
 
-export type ConsentInfo = {
-  initialized: boolean;
-  allowedConsents?: Record<string, string> | string[];
-  deniedConsents?: string[];
+export type ConsentsInfo = {
+  allowedConsents?: ConsentData;
+  deniedConsents?: ConsentData;
 };
 
 export type KetchConsentPurpose = {
