@@ -15,7 +15,7 @@ const destinationInfo = {
 describe('Google Analytics 4 init tests', () => {
   test('Testing init call of Google Analytics 4 with MeasurementId', () => {
     const ga4 = new GA4(
-      { measurementId: 'G-123456', debugView: true },
+      { measurementId: 'G-123456', debugView: true, piiPropertiesToIgnore: [{ piiProperty: '' }] },
       { getUserId: () => '1234', getUserTraits: () => {} },
       destinationInfo,
     );
@@ -28,7 +28,7 @@ describe('Google Analytics 4 events tests', () => {
   let ga4;
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs' },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{piiProperty: ''}] },
       { getUserId: () => '1234', getUserTraits: () => {} },
       destinationInfo,
     );

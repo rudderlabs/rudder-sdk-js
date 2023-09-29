@@ -9,7 +9,10 @@ import {
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import { eventsConfig } from './config';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
-import { shouldSendUserId, prepareParamsAndEventName, formatAndValidateEventName } from './utils';
+import {
+  isDefinedAndNotNull
+} from '../../utils/commonUtils';
+import { shouldSendUserId, prepareParamsAndEventName, filterUserProperties, formatAndValidateEventName } from './utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -27,8 +30,10 @@ export default class GA4 {
     this.debugView = config.debugView || false;
     this.capturePageView = config.capturePageView || 'rs';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
+    this.sendUserTraitsAsPartOfInIt = isDefinedAndNotNull(config.sendUserTraitsAsPartOfInIt) ? config.sendUserTraitsAsPartOfInIt : true;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -107,8 +112,9 @@ export default class GA4 {
     }
 
     // Set user traits as part of global gtag object
-    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
-    if (Object.keys(userTraits).length > 0) {
+    let userTraits = flattenJsonPayload(this.analytics.getUserTraits());
+    userTraits = filterUserProperties(this.piiPropertiesToIgnore, userTraits);
+    if (this.sendUserTraitsAsPartOfInIt && Object.keys(userTraits).length > 0) {
       window.gtag('set', 'user_properties', userTraits);
     }
 
@@ -155,8 +161,11 @@ export default class GA4 {
     logger.debug('In Google Analytics 4 Identify');
 
     const { message } = rudderElement;
-    const { traits } = message.context;
-    window.gtag('set', 'user_properties', flattenJsonPayload(traits));
+    let { traits } = message.context;
+    traits = filterUserProperties(this.piiPropertiesToIgnore, traits);
+    if (Object.keys(traits).length > 0) {
+      window.gtag('set', 'user_properties', traits);
+    }
 
     if (this.sendUserId && message.userId) {
       const { userId } = message;
