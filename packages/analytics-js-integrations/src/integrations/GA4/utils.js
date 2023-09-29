@@ -25,6 +25,35 @@ const extractLastKey = key => key.split('.').pop();
 const shouldSendUserId = integrations => integrations?.GA4?.sendUserId ?? true;
 
 /**
+ * Returns user traits
+ * @param {*} piiPropertiesToIgnore 
+ * @param {*} userTraits 
+ * @returns 
+ */
+const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
+  const piiKeys = [];
+  const userProperties = {};
+  const traits = userTraits;
+
+  if (piiPropertiesToIgnore.length > 0) {
+    piiPropertiesToIgnore.forEach(property => {
+      if (typeof property.piiProperty === 'string' && property.piiProperty.trim() !== '') {
+        piiKeys.push(property.piiProperty.trim());
+      }
+    });
+  }
+
+  Object.keys(traits).forEach((key) => {
+    const value = traits[key];
+    if (!piiKeys.includes(key)) {
+      userProperties[key] = value;
+    }
+  })
+
+  return userProperties;
+}
+
+/**
  * Reserved event names cannot be used
  * Ref - https://support.google.com/analytics/answer/13316687?hl=en#zippy=%2Cweb
  * @param {*} event
@@ -328,6 +357,7 @@ export {
   getItemList,
   getItemsArray,
   extractLastKey,
+  filterUserTraits,
   shouldSendUserId,
   getExclusionFields,
   isReservedEventName,
