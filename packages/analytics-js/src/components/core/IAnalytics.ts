@@ -196,4 +196,6 @@ export interface IAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
+
+  consent(): void;
 }

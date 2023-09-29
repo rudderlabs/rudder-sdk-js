@@ -287,16 +287,6 @@ class Analytics implements IAnalytics {
     this.storeManager?.init();
     this.userSessionManager?.init();
 
-    // Initialize consent manager
-    if (state.consents.activeConsentManagerPluginName.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
-    }
-
     // Initialize event manager
     this.eventManager?.init();
 
@@ -693,6 +683,32 @@ class Analytics implements IAnalytics {
     const sessionId = this.userSessionManager?.getSessionId();
     return sessionId ?? null;
   }
+
+  consent() {
+    if (!state.consents.preConsent.value.enabled) {
+      return;
+    }
+
+    state.consents.preConsent.value.enabled = false;
+
+    // TODO: Register consent manager plugins
+    // Initialize consent manager
+    if (state.consents.activeConsentManagerPluginName.value) {
+      this.pluginsManager?.invokeSingle(
+        `consentManager.init`,
+        state,
+        this.storeManager,
+        this.logger,
+      );
+    }
+
+    this.storeManager?.initClientDataStores();
+
+    this.userSessionManager?.syncStorageDataToState();
+
+    this.eventManager?.resume();
+  }
+
   // End consumer exposed methods
 }
 
