@@ -3,6 +3,7 @@ import {
   getItemList,
   getItemsArray,
   extractLastKey,
+  filterUserTraits,
   shouldSendUserId,
   getExclusionFields,
   removeInvalidParams,
@@ -332,6 +333,49 @@ describe('Google Analytics 4 utilities tests', () => {
 
       const result = removeInvalidParams(params);
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe('filterUserTraits function tests', () => {
+    it('Should remove mentioned PII keys', () => {
+      const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: 'phone' }, { piiProperty: 'card_number' }];
+
+      const userTraits = {
+        name: 'SDK Test',
+        email: 'sdk@test.com',
+        card_number: '123456',
+        phone: '123456789',
+        country: 'usa'
+      }
+
+      const filteredUserTraits = {
+        name: 'SDK Test',
+        country: 'usa'
+      };
+
+      const result = filterUserTraits(piiPropertiesToIgnore, userTraits);
+      expect(result).toEqual(filteredUserTraits);
+    });
+
+    it('Should return valid user traits', () => {
+      const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: undefined }, { piiProperty: {} }];
+
+      const userTraits = {
+        name: 'SDK Test',
+        email: 'sdk@test.com',
+        trait1: {},
+        trait2: null,
+        trait3: undefined,
+        isPaid: false
+      }
+
+      const filteredUserTraits = {
+        name: 'SDK Test',
+        isPaid: false
+      };
+
+      const result = filterUserTraits(piiPropertiesToIgnore, userTraits);
+      expect(result).toEqual(filteredUserTraits);
     });
   });
 });
