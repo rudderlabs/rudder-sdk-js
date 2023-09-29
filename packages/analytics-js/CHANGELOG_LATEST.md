@@ -1,7 +1,7 @@
-## [3.0.0-beta.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.10...@rudderstack/analytics-js@3.0.0-beta.11) (2023-09-26)
+## [3.0.0-beta.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.11...@rudderstack/analytics-js@3.0.0-beta.12) (2023-09-29)
 
 
 ### Bug Fixes
 
-* **analytics-js-plugins:** add IE11 compatibility for crypto-es ([#1407](https://github.com/rudderlabs/rudder-sdk-js/issues/1407)) ([483ae44](https://github.com/rudderlabs/rudder-sdk-js/commit/483ae44ec59a5ddd72c0187e1c55128967e4289a))
+* **analytics-js,rudder-sdk-js:** dead object issue ([#1410](https://github.com/rudderlabs/rudder-sdk-js/issues/1410)) ([94f4b2d](https://github.com/rudderlabs/rudder-sdk-js/commit/94f4b2db11b32a6b4ddcb2b1eacf7cdbd1867ef3))
 
