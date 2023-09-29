@@ -30,7 +30,7 @@ const shouldSendUserId = integrations => integrations?.GA4?.sendUserId ?? true;
  * @param {*} userTraits 
  * @returns 
  */
-const filterUserProperties = (piiPropertiesToIgnore, userTraits) => {
+const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   const piiKeys = [];
   const userProperties = {};
   const traits = userTraits;
@@ -357,12 +357,12 @@ export {
   getItemList,
   getItemsArray,
   extractLastKey,
+  filterUserTraits,
   shouldSendUserId,
   getExclusionFields,
   isReservedEventName,
   getCustomParameters,
   removeInvalidParams,
-  filterUserProperties,
   prepareParamsAndEventName,
   formatAndValidateEventName,
 };

@@ -9,10 +9,7 @@ import {
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import { eventsConfig } from './config';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
-import {
-  isDefinedAndNotNull
-} from '../../utils/commonUtils';
-import { shouldSendUserId, prepareParamsAndEventName, filterUserProperties, formatAndValidateEventName } from './utils';
+import { shouldSendUserId, prepareParamsAndEventName, filterUserTraits, formatAndValidateEventName } from './utils';
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -33,7 +30,7 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.sendUserTraitsAsPartOfInIt = isDefinedAndNotNull(config.sendUserTraitsAsPartOfInIt) ? config.sendUserTraitsAsPartOfInIt : true;
+    this.sendUserTraitsAsPartOfInIt = Boolean(config.sendUserTraitsAsPartOfInIt) || true;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -112,10 +109,12 @@ export default class GA4 {
     }
 
     // Set user traits as part of global gtag object
-    let userTraits = flattenJsonPayload(this.analytics.getUserTraits());
-    userTraits = filterUserProperties(this.piiPropertiesToIgnore, userTraits);
-    if (this.sendUserTraitsAsPartOfInIt && Object.keys(userTraits).length > 0) {
-      window.gtag('set', 'user_properties', userTraits);
+    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
+    if (this.sendUserTraitsAsPartOfInIt) {
+      const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
+      if (Object.keys(piiFilteredUserTraits).length > 0) {
+        window.gtag('set', 'user_properties', piiFilteredUserTraits);
+      }
     }
 
     /**
@@ -161,10 +160,10 @@ export default class GA4 {
     logger.debug('In Google Analytics 4 Identify');
 
     const { message } = rudderElement;
-    let { traits } = message.context;
-    traits = filterUserProperties(this.piiPropertiesToIgnore, traits);
-    if (Object.keys(traits).length > 0) {
-      window.gtag('set', 'user_properties', traits);
+    const { traits } = message.context;
+    const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, traits);
+    if (Object.keys(piiFilteredUserTraits).length > 0) {
+      window.gtag('set', 'user_properties', piiFilteredUserTraits);
     }
 
     if (this.sendUserId && message.userId) {
