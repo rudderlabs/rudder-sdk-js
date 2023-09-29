@@ -737,23 +737,22 @@
           "name": "FULLSTORY",
           "displayName": "Fullstory",
           "createdAt": "2020-04-09T09:26:55.187Z",
-          "updatedAt": "2023-05-16T11:51:55.527Z",
+          "updatedAt": "2023-09-21T07:45:52.913Z",
           "config": {
             "destConfig": {
-              "ios": ["useNativeSDK"],
-              "web": ["useNativeSDK"],
-              "android": ["useNativeSDK"],
+              "ios": ["useNativeSDK", "connectionMode"],
+              "web": ["useNativeSDK", "connectionMode", "fs_debug_mode", "fs_host"],
+              "android": ["useNativeSDK", "connectionMode"],
               "defaultConfig": [
+                "apiKey",
                 "fs_org",
-                "fs_host",
-                "fs_debug_mode",
                 "blacklistedEvents",
                 "whitelistedEvents",
-                "eventFilteringOption",
-                "oneTrustCookieCategories"
+                "oneTrustCookieCategories",
+                "eventFilteringOption"
               ]
             },
-            "secretKeys": [],
+            "secretKeys": ["apiKey"],
             "excludeKeys": [],
             "includeKeys": [
               "fs_debug_mode",
@@ -765,19 +764,40 @@
               "eventFilteringOption"
             ],
             "transformAt": "processor",
+            "cdkV2Enabled": true,
             "transformAtV1": "processor",
-            "supportedSourceTypes": ["web", "android", "ios"],
-            "saveDestinationResponse": true
+            "supportedSourceTypes": [
+              "web",
+              "android",
+              "ios",
+              "unity",
+              "amp",
+              "cloud",
+              "warehouse",
+              "reactnative",
+              "flutter",
+              "cordova",
+              "shopify"
+            ],
+            "supportedMessageTypes": ["track", "identify", "page", "screen"],
+            "saveDestinationResponse": true,
+            "supportedConnectionModes": {
+              "ios": ["cloud", "device"],
+              "web": ["cloud", "device"],
+              "android": ["cloud", "device"]
+            }
           },
           "responseRules": null,
           "category": null,
-          "options": null
+          "options": {
+            "isBeta": true
+          }
         },
         "deleted": false,
         "createdAt": "2023-02-22T10:22:26.012Z",
-        "updatedAt": "2023-03-23T12:13:21.120Z",
+        "updatedAt": "2023-09-21T08:00:58.800Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2NPlSwwoy6S8Zx0HHccJRyQnsgQ",
+        "revisionId": "2VhLF78NmPRJqegHEInpsxmBz6i",
         "secretConfig": {},
         "secretVersion": 1,
         "shouldApplyDeviceModeTransformation": false,
@@ -842,11 +862,11 @@
         "propagateEventsUntransformedOnError": false
       }
     ],
-    "updatedAt": "2023-06-29T09:18:47.642Z",
+    "updatedAt": "2023-09-27T08:45:15.247Z",
     "createdAt": "2023-02-01T09:49:10.481Z",
     "liveEventsConfig": {
       "eventUpload": false,
-      "eventUploadTS": 1688030327641
+      "eventUploadTS": 1695804315243
     },
     "sourceDefinition": {
       "options": null,
