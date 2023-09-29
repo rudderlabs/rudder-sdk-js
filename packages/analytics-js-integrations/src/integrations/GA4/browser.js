@@ -109,8 +109,8 @@ export default class GA4 {
     }
 
     // Set user traits as part of global gtag object
-    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
     if (this.sendUserTraitsAsPartOfInIt) {
+      const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
       const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
       if (Object.keys(piiFilteredUserTraits).length > 0) {
         window.gtag('set', 'user_properties', piiFilteredUserTraits);
