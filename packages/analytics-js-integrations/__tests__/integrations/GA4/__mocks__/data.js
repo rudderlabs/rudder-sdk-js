@@ -80,8 +80,11 @@ const identifyEvents = [
         context: {
           traits: {
             age: 40,
+            email: 'sdk@gmail.com',
+            phone: '123456',
             userInterest: 'high',
             source: 'RudderStack',
+            card_number: '4312 4312 4312 4312'
           },
         },
         integrations: {},
@@ -93,8 +96,11 @@ const identifyEvents = [
       },
       traits: {
         age: 40,
+        card_number: '4312 4312 4312 4312',
         userInterest: 'high',
         source: 'RudderStack',
+        email: 'sdk@gmail.com',
+        phone: '123456',
       },
     },
   },

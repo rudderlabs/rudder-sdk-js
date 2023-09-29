@@ -371,7 +371,10 @@ describe('Google Analytics 4 utilities tests', () => {
 
       const filteredUserTraits = {
         name: 'SDK Test',
-        isPaid: false
+        isPaid: false,
+        trait2: null,
+        trait1: {},
+        trait3: undefined
       };
 
       const result = filterUserTraits(piiPropertiesToIgnore, userTraits);

@@ -45,7 +45,7 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
 
   Object.keys(traits).forEach((key) => {
     const value = traits[key];
-    if (!piiKeys.includes(key) && ['string', 'number', 'boolean'].includes(typeof value)) {
+    if (!piiKeys.includes(key)) {
       userProperties[key] = value;
     }
   })
