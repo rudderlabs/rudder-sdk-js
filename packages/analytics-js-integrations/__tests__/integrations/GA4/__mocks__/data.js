@@ -1445,7 +1445,7 @@ const groupEvents = [
             name: 'rudder-analytics-php',
             version: '2.0.1',
             consumer: 'LibCurl',
-          },
+          }
         },
         traits: {
           companySize: 100,
