@@ -337,7 +337,7 @@ describe('Google Analytics 4 utilities tests', () => {
   });
 
   describe('filterUserTraits function tests', () => {
-    it('Should remove mentioned PII keys', () => {
+    it('Should update mentioned PII keys value to null', () => {
       const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: 'phone' }, { piiProperty: 'card_number' }];
 
       const userTraits = {
@@ -350,35 +350,27 @@ describe('Google Analytics 4 utilities tests', () => {
 
       const filteredUserTraits = {
         name: 'SDK Test',
-        country: 'usa'
+        country: 'usa',
+        email: null,
+        card_number: null,
+        phone: null
       };
 
       const result = filterUserTraits(piiPropertiesToIgnore, userTraits);
       expect(result).toEqual(filteredUserTraits);
     });
 
-    it('Should return valid user traits', () => {
-      const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: undefined }, { piiProperty: {} }];
+    it('Should remove all fields', () => {
+      const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: 'name' }, { piiProperty: 'isPaid' }, { piiProperty: undefined }, { piiProperty: {} }];
 
       const userTraits = {
         name: 'SDK Test',
         email: 'sdk@test.com',
-        trait1: {},
-        trait2: null,
-        trait3: undefined,
         isPaid: false
       }
 
-      const filteredUserTraits = {
-        name: 'SDK Test',
-        isPaid: false,
-        trait2: null,
-        trait1: {},
-        trait3: undefined
-      };
-
       const result = filterUserTraits(piiPropertiesToIgnore, userTraits);
-      expect(result).toEqual(filteredUserTraits);
+      expect(result).toEqual({});
     });
   });
 });

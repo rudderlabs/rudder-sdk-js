@@ -16,7 +16,7 @@ describe('Google Analytics 4 init tests', () => {
   test('Testing init call of Google Analytics 4 with MeasurementId', () => {
     const ga4 = new GA4(
       { measurementId: 'G-123456', debugView: true },
-      { getUserId: () => '1234', getUserTraits: () => {} },
+      { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
     ga4.init();
@@ -29,7 +29,7 @@ describe('Google Analytics 4 Track events tests', () => {
   beforeEach(() => {
     ga4 = new GA4(
       { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs' },
-      { getUserId: () => '1234', getUserTraits: () => {} },
+      { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
     ga4.init();
@@ -55,7 +55,7 @@ describe('Google Analytics 4 Page events tests', () => {
   let ga4;
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', sendUserTraitsAsPartOfInIt: false, piiPropertiesToIgnore: [{piiProperty: ''}] },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{ piiProperty: '' }] },
       { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
@@ -82,7 +82,7 @@ describe('Google Analytics 4 Group events tests', () => {
   let ga4;
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', sendUserTraitsAsPartOfInIt: true, piiPropertiesToIgnore: [{ piiProperty: '' }] },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{ piiProperty: '' }] },
       { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
@@ -110,7 +110,7 @@ describe('Google Analytics 4 Identify events tests with no piiPropertiesToIgnore
   // Config 1 : default piiPropertiesToIgnore value
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', sendUserTraitsAsPartOfInIt: true, piiPropertiesToIgnore: [{ piiProperty: ''}] },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{ piiProperty: '' }] },
       { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
@@ -138,7 +138,7 @@ describe('Google Analytics 4 Identify events tests with undefined piiPropertiesT
   // Config 2 : empty piiPropertiesToIgnore value
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', sendUserTraitsAsPartOfInIt: true },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs' },
       { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
@@ -166,7 +166,7 @@ describe('Google Analytics 4 Identify events tests with piiPropertiesToIgnore', 
   // Config 3 : valid piiPropertiesToIgnore values
   beforeEach(() => {
     ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', sendUserTraitsAsPartOfInIt: true, piiPropertiesToIgnore: [{ piiProperty: 'email' }, { piiProperty: 'phone' }, { piiProperty: 'card_number' }, { piiProperty: 'age' }] },
+      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{ piiProperty: 'email' }, { piiProperty: 'phone' }, { piiProperty: 'card_number' }, { piiProperty: 'age' }] },
       { getUserId: () => '1234', getUserTraits: () => { } },
       destinationInfo,
     );
@@ -179,7 +179,10 @@ describe('Google Analytics 4 Identify events tests with piiPropertiesToIgnore', 
       const { input, output } = event;
       try {
         ga4.identify(input);
-        expect(window.gtag.mock.calls[0][2]).toEqual({ source: 'RudderStack', userInterest: 'high' });
+        expect(window.gtag.mock.calls[0][2]).toEqual({
+          source: 'RudderStack', userInterest: 'high', age: null,
+          card_number: null, email: null, phone: null
+        });
         expect(window.gtag.mock.calls[1][2]).toEqual(output.userId);
       } catch (error) {
         expect(error.message).toEqual(output.message);
