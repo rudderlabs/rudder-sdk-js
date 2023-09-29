@@ -48,6 +48,12 @@ class Amplitude {
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+    if (
+      navigator.userAgent.indexOf('MSIE') !== -1 ||
+      navigator.appVersion.indexOf('Trident/') > -1
+    ) {
+      initOptions.transport = 'xhr';
+    }
     if (this.preferAnonymousIdForDeviceId && this.analytics)
       initOptions.deviceId = this.analytics.getAnonymousId();
     window.amplitude.init(this.apiKey, null, initOptions);
