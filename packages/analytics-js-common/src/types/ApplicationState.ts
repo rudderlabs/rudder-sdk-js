@@ -89,7 +89,6 @@ export type NativeDestinationsState = {
   failedDestinations: Signal<Destination[]>;
   loadIntegration: Signal<boolean>;
   initializedDestinations: Signal<Destination[]>;
-  dmtEnabledDestinations: Signal<Destination[]>;
   clientDestinationsReady: Signal<boolean>;
   integrationsConfig: Signal<IntegrationOpts>;
 };

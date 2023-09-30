@@ -87,7 +87,6 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             }
           });
           if (destWithTransformationEnabled.length > 0) {
-            state.nativeDestinations.dmtEnabledDestinations.value = destWithTransformationEnabled;
             pluginsManager.invokeSingle(
               'transformEvent.enqueue',
               state,

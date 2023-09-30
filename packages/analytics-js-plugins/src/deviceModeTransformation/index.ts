@@ -80,6 +80,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                 'transformEvent.sendTransformedEventToDestinations',
                 state,
                 pluginsManager,
+                item.destinationIds,
                 result,
                 details?.xhr?.status,
                 item.event,
@@ -114,6 +115,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
     sendTransformedEventToDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
+      destinationIds: string[],
       result: any,
       status: number,
       event: RudderEvent,
@@ -123,7 +125,10 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
       const NATIVE_DEST_EXT_POINT = 'destinationsEventsQueue.enqueueEventToDestination';
       const ACTION_TO_SEND_UNTRANSFORMED_EVENT = 'Sending untransformed event';
       const ACTION_TO_DROP_EVENT = 'Dropping the event';
-      const destinations = state.nativeDestinations.dmtEnabledDestinations.value;
+      const destinations: Destination[] =
+        state.nativeDestinations.initializedDestinations.value.filter(
+          d => d && destinationIds.includes(d.id),
+        );
 
       destinations.forEach(dest => {
         try {

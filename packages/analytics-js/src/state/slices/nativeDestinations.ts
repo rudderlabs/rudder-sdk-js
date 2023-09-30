@@ -8,7 +8,6 @@ const nativeDestinationsState: NativeDestinationsState = {
   failedDestinations: signal([]),
   loadIntegration: signal(true),
   initializedDestinations: signal([]),
-  dmtEnabledDestinations: signal([]),
   clientDestinationsReady: signal(false),
   integrationsConfig: signal({}),
 };
