@@ -111,8 +111,6 @@ export default class GA4 {
     const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
     if (Object.keys(piiFilteredUserTraits).length > 0) {
       window.gtag('set', 'user_properties', piiFilteredUserTraits);
-    } else {
-      window.gtag('set', 'user_properties', null);
     }
 
     /**
@@ -162,7 +160,7 @@ export default class GA4 {
     const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, traits);
     if (Object.keys(piiFilteredUserTraits).length > 0) {
       window.gtag('set', 'user_properties', piiFilteredUserTraits);
-    }
+    } 
 
     if (this.sendUserId && message.userId) {
       const { userId } = message;
