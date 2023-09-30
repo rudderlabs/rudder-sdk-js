@@ -30,7 +30,6 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.sendUserTraitsAsPartOfInIt = Boolean(config.sendUserTraitsAsPartOfInIt) || true;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -108,13 +107,12 @@ export default class GA4 {
       window.gtag('config', measurementId, gtagParameterObject);
     }
 
-    // Set user traits as part of global gtag object
-    if (this.sendUserTraitsAsPartOfInIt) {
-      const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
-      const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
-      if (Object.keys(piiFilteredUserTraits).length > 0) {
-        window.gtag('set', 'user_properties', piiFilteredUserTraits);
-      }
+    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
+    const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
+    if (Object.keys(piiFilteredUserTraits).length > 0) {
+      window.gtag('set', 'user_properties', piiFilteredUserTraits);
+    } else {
+      window.gtag('set', 'user_properties', null);
     }
 
     /**

@@ -32,8 +32,9 @@ const shouldSendUserId = integrations => integrations?.GA4?.sendUserId ?? true;
  */
 const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   const piiKeys = [];
-  const userProperties = {};
+  const piiProperties = {};
   const traits = userTraits;
+  const nonPiiProperties = {};
 
   if (piiPropertiesToIgnore.length > 0) {
     piiPropertiesToIgnore.forEach(property => {
@@ -46,11 +47,17 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   Object.keys(traits).forEach((key) => {
     const value = traits[key];
     if (!piiKeys.includes(key)) {
-      userProperties[key] = value;
+      nonPiiProperties[key] = value;
+    } else {
+      piiProperties[key] = null;
     }
   })
 
-  return userProperties;
+  if (Object.keys(nonPiiProperties).length === 0) {
+    return {};
+  }
+
+  return { ...piiProperties, ...nonPiiProperties };
 }
 
 /**
