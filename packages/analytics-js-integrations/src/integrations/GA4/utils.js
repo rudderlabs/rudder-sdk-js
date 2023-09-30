@@ -34,7 +34,7 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   const piiKeys = [];
   const piiProperties = {};
   const traits = userTraits;
-  const filteredUserProperties = {};
+  const nonPiiProperties = {};
 
   if (piiPropertiesToIgnore.length > 0) {
     piiPropertiesToIgnore.forEach(property => {
@@ -47,17 +47,17 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   Object.keys(traits).forEach((key) => {
     const value = traits[key];
     if (!piiKeys.includes(key)) {
-      filteredUserProperties[key] = value;
+      nonPiiProperties[key] = value;
     } else {
       piiProperties[key] = null;
     }
   })
 
-  if (Object.keys(filteredUserProperties).length === 0) {
+  if (Object.keys(nonPiiProperties).length === 0) {
     return {};
   }
 
-  return { ...piiProperties, ...filteredUserProperties };
+  return { ...piiProperties, ...nonPiiProperties };
 }
 
 /**
