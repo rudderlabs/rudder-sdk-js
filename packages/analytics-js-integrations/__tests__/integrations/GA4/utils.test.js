@@ -360,7 +360,7 @@ describe('Google Analytics 4 utilities tests', () => {
       expect(result).toEqual(filteredUserTraits);
     });
 
-    it('Should remove all fields', () => {
+    it('Should override values of pii fields to null', () => {
       const piiPropertiesToIgnore = [{ piiProperty: 'email' }, { piiProperty: 'name' }, { piiProperty: 'isPaid' }, { piiProperty: undefined }, { piiProperty: {} }];
 
       const userTraits = {
@@ -370,7 +370,11 @@ describe('Google Analytics 4 utilities tests', () => {
       }
 
       const result = filterUserTraits(piiPropertiesToIgnore, userTraits);
-      expect(result).toEqual({});
+      expect(result).toEqual({
+        name: null,
+        email: null,
+        isPaid: null
+      });
     });
   });
 });

@@ -53,10 +53,6 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
     }
   })
 
-  if (Object.keys(nonPiiProperties).length === 0) {
-    return {};
-  }
-
   return { ...piiProperties, ...nonPiiProperties };
 }
 
