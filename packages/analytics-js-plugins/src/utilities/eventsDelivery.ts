@@ -30,10 +30,15 @@ const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<stri
   stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
 
 const getDMTDeliveryPayload = (
-  event: TransformationRequestPayload,
+  dmtRequestPayload: TransformationRequestPayload,
   logger?: ILogger,
 ): Nullable<string> =>
-  stringifyWithoutCircular<TransformationRequestPayload>(event, true, undefined, logger);
+  stringifyWithoutCircular<TransformationRequestPayload>(
+    dmtRequestPayload,
+    true,
+    undefined,
+    logger,
+  );
 
 /**
  * Utility to validate final payload size before sending to server

@@ -14,11 +14,17 @@ import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http'
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import { createPayload } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
-import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
+import {
+  DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,
+  QUEUE_NAME,
+  REQUEST_TIMEOUT_MS,
+  DMT_PLUGIN,
+} from './constants';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { DoneCallback, IQueue } from '../types/plugins';
 import {
   TransformationQueueItemData,
+  TransformationResponsePayload,
   TransformedBatch,
   TransformedEvent,
   TransformedPayload,
@@ -55,11 +61,13 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,
         (item: TransformationQueueItemData, done: DoneCallback) => {
+          const payload = createPayload(item.event, item.destinationIds, item.token);
+
           httpClient.getAsyncData({
             url: `${state.lifecycle.dataPlaneUrl.value}/transform`,
             options: {
               method: 'POST',
-              data: getDMTDeliveryPayload(item.payload) as string,
+              data: getDMTDeliveryPayload(payload) as string,
               sendRawData: true,
             },
             isRawResponse: true,
@@ -69,7 +77,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               const queueErrResp = isErrRetryable(details) ? details : null;
 
               pluginsManager.invokeSingle(
-                'transformEvent.sendDataToDestination',
+                'transformEvent.sendTransformedEventToDestinations',
                 state,
                 pluginsManager,
                 result,
@@ -96,11 +104,14 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
       destinations: Destination[],
     ) {
       const destinationIds = destinations.map(d => d.id);
-      const payload = createPayload(event, destinationIds, state.session.authToken.value);
-      eventsQueue.addItem({ event, payload } as TransformationQueueItemData);
+      eventsQueue.addItem({
+        event,
+        destinationIds,
+        token: state.session.authToken.value,
+      } as TransformationQueueItemData);
     },
 
-    sendDataToDestination(
+    sendTransformedEventToDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
       result: any,
@@ -119,7 +130,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
           const eventsToSend: TransformedEvent[] = [];
           switch (status) {
             case 200: {
-              const response = JSON.parse(result);
+              const response: TransformationResponsePayload = JSON.parse(result);
               const destTransformedResult = response.transformedBatch.find(
                 (e: TransformedBatch) => e.id === dest.id,
               );
@@ -137,11 +148,21 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                     action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
                     eventsToSend.push(event);
                     logger?.warn(
-                      DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(dest.displayName, reason, action),
+                      DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                        DMT_PLUGIN,
+                        dest.displayName,
+                        reason,
+                        action,
+                      ),
                     );
                   } else {
                     logger?.error(
-                      DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(dest.displayName, reason, action),
+                      DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                        DMT_PLUGIN,
+                        dest.displayName,
+                        reason,
+                        action,
+                      ),
                     );
                   }
                 }
@@ -151,7 +172,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             }
             // Transformation server access denied
             case 404: {
-              logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING());
+              logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));
               eventsToSend.push(event);
               break;
             }
@@ -159,6 +180,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               if (dest.propagateEventsUntransformedOnError === true) {
                 logger?.warn(
                   DMT_REQUEST_FAILED_ERROR(
+                    DMT_PLUGIN,
                     dest.displayName,
                     status,
                     ACTION_TO_SEND_UNTRANSFORMED_EVENT,
@@ -167,7 +189,12 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                 eventsToSend.push(event);
               } else {
                 logger?.error(
-                  DMT_REQUEST_FAILED_ERROR(dest.displayName, status, ACTION_TO_DROP_EVENT),
+                  DMT_REQUEST_FAILED_ERROR(
+                    DMT_PLUGIN,
+                    dest.displayName,
+                    status,
+                    ACTION_TO_DROP_EVENT,
+                  ),
                 );
               }
               break;
@@ -186,10 +213,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             }
           });
         } catch (e) {
-          if (e instanceof Error) {
-            e.message = DMT_EXCEPTION(dest.displayName, e.message);
-          }
-          errorHandler?.onError(e);
+          errorHandler?.onError(e, DMT_PLUGIN, DMT_EXCEPTION(dest.displayName));
         }
       });
     },

@@ -16,7 +16,8 @@ export type TransformationRequestPayload = {
 
 export type TransformationQueueItemData = {
   event: RudderEvent;
-  payload: TransformationRequestPayload;
+  destinationIds: string[];
+  token: Nullable<string>;
 };
 
 export type TransformedEvent = RudderEvent | null | Record<string, never> | unknown;
@@ -29,7 +30,7 @@ export type TransformedPayload = {
 
 export type TransformedBatch = {
   id: string;
-  payload: TransformedPayload[];
+  payload: TransformedPayload[] | [];
 };
 
 export type TransformationResponsePayload = {

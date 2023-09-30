@@ -92,6 +92,10 @@ class UserSessionManager implements IUserSessionManager {
     if (anonymousId) {
       this.setAnonymousId(anonymousId);
     }
+    const authToken = this.getAuthToken();
+    if (authToken) {
+      this.setAuthToken(authToken);
+    }
 
     const initialReferrer = this.getInitialReferrer();
     const initialReferringDomain = this.getInitialReferringDomain();
@@ -442,6 +446,14 @@ class UserSessionManager implements IUserSessionManager {
    */
   getSessionFromStorage(): Nullable<SessionInfo> {
     return this.getItem('sessionInfo');
+  }
+
+  /**
+   * Fetches auth token from storage
+   * @returns
+   */
+  getAuthToken(): Nullable<string> {
+    return this.getItem('authToken');
   }
 
   /**
