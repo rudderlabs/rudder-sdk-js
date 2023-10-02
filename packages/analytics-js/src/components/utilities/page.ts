@@ -6,7 +6,7 @@ import { getReferringDomain, getUrlWithoutHash } from './url';
  * Get the referrer URL
  * @returns The referrer URL
  */
-const getReferrer = (): string => document.referrer || '$direct';
+const getReferrer = (): string => document?.referrer || '$direct';
 
 /**
  * To get the canonical URL of the page

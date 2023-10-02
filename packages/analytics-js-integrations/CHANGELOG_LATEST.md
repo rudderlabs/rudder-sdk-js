@@ -1,7 +1,7 @@
-## [3.0.0-beta.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.9...@rudderstack/analytics-js-integrations@3.0.0-beta.10) (2023-09-20)
+## [3.0.0-beta.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.11...@rudderstack/analytics-js-integrations@3.0.0-beta.12) (2023-09-29)
 
 
-### Bug Fixes
+### Features
 
-* **analytics-js-integrations:** path to moengage name import ([25b9ec7](https://github.com/rudderlabs/rudder-sdk-js/commit/25b9ec73331b57d41b97a6a760419b8cf9e822e7))
+* **analytics-js-integrations:** ga4 enhancements ([#1417](https://github.com/rudderlabs/rudder-sdk-js/issues/1417)) ([1012bd7](https://github.com/rudderlabs/rudder-sdk-js/commit/1012bd72611b6c3c329baa324d4b42192dc447e9))
 
