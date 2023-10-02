@@ -64,8 +64,8 @@ jobs:
           echo "Current version: $CURRENT_VERSION"
           echo "Previous version: $LAST_VERSION"
 
-          echo "current_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
-          echo "last_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
+          echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
+          echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Create GitHub Releases
@@ -74,7 +74,7 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm run release:github -- --base=${{ env.last_version }} --head=${{ env.current_version }}
+          npm run release:github -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
@@ -128,7 +128,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{env.RELEASES_URL}}${{ env.last_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
+                    "text": "*Release: <${{env.RELEASES_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
                   }
                 }
               ]

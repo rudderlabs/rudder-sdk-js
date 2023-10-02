@@ -1,7 +1,7 @@
 import objectPath from 'object-path';
 import { diff } from 'deep-object-diff';
-import { ignoredProperties } from './ignoredProperties';
-import { sourceConfigIgnoredProperties } from './sourceConfigIgnoredProperties';
+import { ignoredProperties } from '../ignoredProperties/ignoredProperties';
+import { sourceConfigIgnoredProperties } from '../ignoredProperties/sourceConfigIgnoredProperties';
 
 class ResultsAssertions {
   // Do NOT check different value on these properties if they have value and is of correct type
@@ -21,14 +21,16 @@ class ResultsAssertions {
     try {
       const resultData = JSON.parse(result);
       const expectedResultData = JSON.parse(expectedResult);
+      const isEventMessagePayload = Boolean(resultData.message);
+      const isSourceConfigAPIPayload = Boolean(resultData.source);
 
-      if (resultData.message) {
+      if (isEventMessagePayload) {
         ResultsAssertions.resultDataIgnoredPropertiesMutator(
           resultData,
           expectedResultData,
           ignoredProperties,
         );
-      } else if (resultData.source) {
+      } else if (isSourceConfigAPIPayload) {
         ResultsAssertions.resultDataIgnoredPropertiesMutator(
           resultData,
           expectedResultData,
@@ -54,7 +56,7 @@ class ResultsAssertions {
       const comparisonDiff = diff(expectedObj, resultObj);
       const isEqual = Object.keys(comparisonDiff).length === 0;
       if (!isEqual) {
-        console.log(`Error: Comparison diff: `, comparisonDiff);
+        console.error(`Error: Comparison diff: `, comparisonDiff);
       }
       return isEqual ? 'success' : 'danger';
     } catch (e) {
