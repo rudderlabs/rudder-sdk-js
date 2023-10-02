@@ -11,7 +11,7 @@ const DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR = (
 const DMT_REQUEST_FAILED_ERROR = (
   context: string,
   displayName: string,
-  status: number,
+  status: number | undefined,
   action: string,
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}[Destination: ${displayName}].Transformation request failed with status: ${status}. Retries exhausted. ${action}.`;
