@@ -69,7 +69,7 @@ jobs:
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm run build:package
-          npm run deploy:npm -- --base=$LAST_VERSION --head=$CURRENT_VERSION
+          npm run deploy:npm -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
 
       - name: Send message to Slack channel for v3
         id: slack
