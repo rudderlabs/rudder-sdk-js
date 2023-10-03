@@ -17,6 +17,7 @@ import { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
+  DMT_EXT_POINT_PREFIX,
 } from './constants';
 import { getFinalEvent } from './utils';
 
@@ -31,6 +32,7 @@ class EventRepository implements IEventRepository {
   storeManager: IStoreManager;
   dataplaneEventsQueue: any;
   destinationsEventsQueue: any;
+  dmtEventsQueue: any;
 
   /**
    *
@@ -66,11 +68,22 @@ class EventRepository implements IEventRepository {
       this.logger,
     );
 
+    this.dmtEventsQueue = this.pluginsManager.invokeSingle(
+      `${DMT_EXT_POINT_PREFIX}.init`,
+      state,
+      this.pluginsManager,
+      this.httpClient,
+      this.storeManager,
+      this.errorHandler,
+      this.logger,
+    );
+
     this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
       state,
       this.pluginsManager,
       this.storeManager,
+      this.dmtEventsQueue,
       this.errorHandler,
       this.logger,
     );
@@ -79,6 +92,7 @@ class EventRepository implements IEventRepository {
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
         this.destinationsEventsQueue?.start();
+        this.dmtEventsQueue?.start();
       }
     });
 

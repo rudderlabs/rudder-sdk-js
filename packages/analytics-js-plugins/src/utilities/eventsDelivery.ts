@@ -6,6 +6,7 @@ import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
+import { TransformationRequestPayload } from '../deviceModeTransformation/types';
 
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
   context: string,
@@ -27,6 +28,17 @@ const QUEUE_UTILITIES = 'QueueUtilities';
  */
 const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
   stringifyWithoutCircular<RudderEvent>(event, true, undefined, logger);
+
+const getDMTDeliveryPayload = (
+  dmtRequestPayload: TransformationRequestPayload,
+  logger?: ILogger,
+): Nullable<string> =>
+  stringifyWithoutCircular<TransformationRequestPayload>(
+    dmtRequestPayload,
+    true,
+    undefined,
+    logger,
+  );
 
 /**
  * Utility to validate final payload size before sending to server
@@ -66,4 +78,9 @@ const getFinalEventForDeliveryMutator = (event: RudderEvent): RudderEvent => {
   return finalEvent;
 };
 
-export { validateEventPayloadSize, getFinalEventForDeliveryMutator, getDeliveryPayload };
+export {
+  getDeliveryPayload,
+  validateEventPayloadSize,
+  getFinalEventForDeliveryMutator,
+  getDMTDeliveryPayload,
+};

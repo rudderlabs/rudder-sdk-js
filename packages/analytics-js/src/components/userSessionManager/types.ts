@@ -22,6 +22,7 @@ export interface IUserSessionManager {
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
   start(sessionId?: number): void;
   end(): void;
+  setAuthToken(token: string): void;
 }
 
 export type UserSessionStorageKeysType = keyof typeof userSessionStorageKeys;

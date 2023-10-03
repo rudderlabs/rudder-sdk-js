@@ -18,6 +18,7 @@ const sessionState: SessionState = {
   initialReferrer: signal(defaultUserSessionValues.initialReferrer),
   initialReferringDomain: signal(defaultUserSessionValues.initialReferringDomain),
   sessionInfo: signal(defaultUserSessionValues.sessionInfo),
+  authToken: signal(defaultUserSessionValues.authToken),
 };
 
 export { sessionState, defaultSessionInfo };
