@@ -1,27 +1,28 @@
 /* eslint-disable no-plusplus */
 import { batch } from '@preact/signals-core';
-import { rest } from 'msw';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
-  rudderEventPage,
+  authToken,
   dmtSuccessResponse,
-  dmtPartialSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import { createPayload } from '../../src/deviceModeTransformation/utilities';
+import * as utils from '../../src/deviceModeTransformation/utilities';
 import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
+
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
+  generateUUID: jest.fn(() => 'sample_uuid'),
+}));
 
 describe('Device mode transformation plugin', () => {
   const defaultPluginsManager = new PluginsManager(
@@ -32,16 +33,12 @@ describe('Device mode transformation plugin', () => {
 
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
-  const mockLogger = {
-    error: jest.fn(),
-  } as unknown as ILogger;
-
   beforeAll(() => {
     server.listen();
     batch(() => {
-      state.lifecycle.writeKey.value = 'sampleWriteKey';
-      state.lifecycle.activeDataplaneUrl.value = 'https://sampleurl.com';
-      state.session.authToken.value = 'sample-auth-token';
+      state.lifecycle.writeKey.value = dummyWriteKey;
+      state.lifecycle.activeDataplaneUrl.value = dummyDataplaneHost;
+      state.session.authToken.value = authToken;
     });
   });
 
@@ -50,8 +47,7 @@ describe('Device mode transformation plugin', () => {
   afterAll(() => {
     server.close();
   });
-  const retryCount = 3;
-  let payload;
+
   const destinations = [
     {
       id: 'id1',
@@ -78,11 +74,7 @@ describe('Device mode transformation plugin', () => {
       config: {},
     },
   ];
-
   const destinationIds = ['id1', 'id2', 'id3'];
-  beforeEach(() => {
-    payload = createPayload(rudderEventPage, destinationIds, 'sample-auth-token');
-  });
 
   it('should add DeviceModeTransformation plugin in the loaded plugin list', () => {
     DeviceModeTransformation().initialize(state);
@@ -100,7 +92,7 @@ describe('Device mode transformation plugin', () => {
     );
 
     expect(queue).toBeDefined();
-    expect(queue.name).toBe('rudder_sampleWriteKey');
+    expect(queue.name).toBe('rudder_dummy-write-key');
   });
 
   it('should add item in queue on enqueue', () => {
@@ -130,7 +122,7 @@ describe('Device mode transformation plugin', () => {
     DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
 
     expect(addItemSpy).toBeCalledWith({
-      token: 'sample-auth-token',
+      token: authToken,
       destinationIds,
       event,
     });
@@ -138,23 +130,158 @@ describe('Device mode transformation plugin', () => {
     addItemSpy.mockRestore();
   });
 
-  it.skip('Transformation server returning response in right format in case of successful transformation', async () => {
-    DeviceModeTransformation().init(dummyWriteKey, `${dummyDataplaneHost}/success`);
+  it('should process queue item on start', () => {
+    const mockHttpClient = {
+      getAsyncData: ({ callback }) => {
+        callback(true);
+      },
+      setAuthHeader: jest.fn(),
+    };
+    const queue = DeviceModeTransformation().transformEvent?.init(
+      state,
+      defaultPluginsManager,
+      mockHttpClient,
+      defaultStoreManager,
+    );
 
-    await DeviceModeTransformation()
-      .sendEventForTransformation(payload, retryCount)
-      .then(response => {
-        expect(Array.isArray(response.transformedPayload)).toEqual(true);
+    const event: RudderEvent = {
+      type: 'track',
+      event: 'test',
+      userId: 'test',
+      properties: {
+        test: 'test',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    };
 
-        const destObj = response.transformedPayload[0];
+    const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
-        expect(typeof destObj).toEqual('object');
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'id')).toEqual(true);
-        expect(Object.prototype.hasOwnProperty.call(destObj, 'payload')).toEqual(true);
-      })
-      .catch(e => {
-        console.log(e);
-        expect('to').toBe('fail');
-      });
+    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+
+    // Explicitly start the queue to process the item
+    // In actual implementation, this is done based on the state signals
+    queue.start();
+
+    expect(queueProcessCbSpy).toBeCalledWith(
+      {
+        token: authToken,
+        destinationIds,
+        event,
+      },
+      expect.any(Function),
+      0,
+      3,
+      true,
+    );
+
+    // Item is successfully processed and removed from queue
+    expect(queue.getQueue('queue').length).toBe(0);
+
+    queueProcessCbSpy.mockRestore();
+  });
+
+  it('SendTransformedEventToDestinations function is called in case of successful transformation', () => {
+    const mockHttpClient = {
+      getAsyncData: ({ callback }) => {
+        callback(JSON.stringify(dmtSuccessResponse), { xhr: { status: 200 } });
+      },
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+    const mockSendTransformedEventToDestinations = jest.spyOn(
+      utils,
+      'sendTransformedEventToDestinations',
+    );
+
+    const queue = DeviceModeTransformation().transformEvent?.init(
+      state,
+      defaultPluginsManager,
+      mockHttpClient,
+      defaultStoreManager,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+
+    const event: RudderEvent = {
+      type: 'track',
+      event: 'test',
+      userId: 'test',
+      properties: {
+        test: 'test',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    };
+
+    queue.start();
+    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+
+    expect(mockSendTransformedEventToDestinations).toBeCalledTimes(1);
+    expect(mockSendTransformedEventToDestinations).toHaveBeenCalledWith(
+      state,
+      defaultPluginsManager,
+      destinationIds,
+      JSON.stringify(dmtSuccessResponse),
+      200,
+      event,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    mockSendTransformedEventToDestinations.mockRestore();
+  });
+  it('SendTransformedEventToDestinations function should not be called in case of unsuccessful transformation', () => {
+    const mockHttpClient = {
+      getAsyncData: ({ callback }) => {
+        callback(false, { error: 'some error', xhr: { status: 502 } });
+      },
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+    const mockSendTransformedEventToDestinations = jest.spyOn(
+      utils,
+      'sendTransformedEventToDestinations',
+    );
+
+    const queue = DeviceModeTransformation().transformEvent?.init(
+      state,
+      defaultPluginsManager,
+      mockHttpClient,
+      defaultStoreManager,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+
+    const event: RudderEvent = {
+      type: 'track',
+      event: 'test',
+      userId: 'test',
+      properties: {
+        test: 'test',
+      },
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    };
+
+    queue.start();
+    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+
+    expect(mockSendTransformedEventToDestinations).not.toBeCalled();
+    // The element is requeued
+    expect(queue.getQueue('queue')).toStrictEqual([
+      {
+        item: {
+          token: authToken,
+          destinationIds,
+          event,
+        },
+        attemptNumber: 1,
+        id: 'sample_uuid',
+        time: expect.any(Number),
+        // time: 1 + 500 * 2 ** 1, // this is the delay calculation in RetryQueue
+      },
+    ]);
+    mockSendTransformedEventToDestinations.mockRestore();
   });
 });

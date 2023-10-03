@@ -161,6 +161,7 @@ const dmtPartialSuccessResponse = {
 };
 
 const dummyWriteKey = 'dummy-write-key';
+const authToken = 'sample-auth-token';
 
 export {
   rudderEventPage,
@@ -169,4 +170,5 @@ export {
   dmtSuccessResponse,
   dmtPartialSuccessResponse,
   dummyWriteKey,
+  authToken,
 };

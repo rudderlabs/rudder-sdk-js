@@ -42,7 +42,12 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,
-        (item: TransformationQueueItemData, done: DoneCallback) => {
+        (
+          item: TransformationQueueItemData,
+          done: DoneCallback,
+          attemptNumber?: number,
+          maxRetryAttempts?: number,
+        ) => {
           const payload = createPayload(item.event, item.destinationIds, item.token);
 
           httpClient.getAsyncData({
@@ -58,16 +63,19 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               // null means item will not be requeued
               const queueErrResp = isErrRetryable(details) ? details : null;
 
-              sendTransformedEventToDestinations(
-                state,
-                pluginsManager,
-                item.destinationIds,
-                result,
-                details?.xhr?.status,
-                item.event,
-                errorHandler,
-                logger,
-              );
+              if (!queueErrResp || attemptNumber === maxRetryAttempts) {
+                sendTransformedEventToDestinations(
+                  state,
+                  pluginsManager,
+                  item.destinationIds,
+                  result,
+                  details?.xhr?.status,
+                  item.event,
+                  errorHandler,
+                  logger,
+                );
+              }
+
               done(queueErrResp, result);
             },
           });
