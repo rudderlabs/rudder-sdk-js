@@ -40,6 +40,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
       state: ApplicationState,
       pluginsManager: IPluginsManager,
       storeManager: IStoreManager,
+      dmtQueue: IQueue,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): IQueue {
@@ -58,8 +59,11 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             state.nativeDestinations.initializedDestinations.value,
           );
 
+          // list of destinations which are enable for DMT
+          const destWithTransformationEnabled: Destination[] = [];
+          const clonedRudderEvent = clone(rudderEvent);
+
           destinationsToSend.forEach((dest: Destination) => {
-            const clonedRudderEvent = clone(rudderEvent);
             const sendEvent = !isEventDenyListed(
               clonedRudderEvent.type,
               clonedRudderEvent.event,
@@ -77,17 +81,22 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
             }
 
             if (dest.shouldApplyDeviceModeTransformation) {
-              pluginsManager.invokeSingle(
-                'transformEvent.enqueue',
-                state,
-                clonedRudderEvent,
-                dest,
-                logger,
-              );
+              destWithTransformationEnabled.push(dest);
             } else {
               sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
             }
           });
+          if (destWithTransformationEnabled.length > 0) {
+            pluginsManager.invokeSingle(
+              'transformEvent.enqueue',
+              state,
+              dmtQueue,
+              clonedRudderEvent,
+              destWithTransformationEnabled,
+              errorHandler,
+              logger,
+            );
+          }
 
           // Mark success always
           done(null);

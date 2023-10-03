@@ -692,6 +692,10 @@ class Analytics implements IAnalytics {
     const sessionId = this.userSessionManager?.getSessionId();
     return sessionId ?? null;
   }
+
+  setAuthToken(token: string): void {
+    this.userSessionManager?.setAuthToken(token);
+  }
   // End consumer exposed methods
 }
 

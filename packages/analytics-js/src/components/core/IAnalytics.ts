@@ -196,4 +196,9 @@ export interface IAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
+
+  /**
+   * To set auth token
+   */
+  setAuthToken(token: string): void;
 }

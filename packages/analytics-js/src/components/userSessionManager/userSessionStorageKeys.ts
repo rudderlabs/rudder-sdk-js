@@ -7,6 +7,7 @@ const userSessionStorageKeys = {
   initialReferrer: 'rl_page_init_referrer',
   initialReferringDomain: 'rl_page_init_referring_domain',
   sessionInfo: 'rl_session',
+  authToken: 'rl_auth_token',
 };
 
 const defaultUserSessionValues = {
@@ -18,6 +19,7 @@ const defaultUserSessionValues = {
   initialReferrer: '',
   initialReferringDomain: '',
   sessionInfo: {},
+  authToken: null,
 };
 
 const inMemorySessionKeys = {

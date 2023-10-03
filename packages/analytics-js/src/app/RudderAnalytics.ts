@@ -70,6 +70,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.startSession = this.startSession.bind(this);
     this.endSession = this.endSession.bind(this);
     this.getSessionId = this.getSessionId.bind(this);
+    this.setAuthToken = this.setAuthToken.bind(this);
 
     RudderAnalytics.globalSingleton = this;
 
@@ -277,6 +278,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   getSessionId() {
     return this.getAnalyticsInstance().getSessionId();
+  }
+
+  setAuthToken(token: string) {
+    return this.getAnalyticsInstance().setAuthToken(token);
   }
 }
 
