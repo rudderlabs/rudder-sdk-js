@@ -35,7 +35,6 @@ import {
   transformToServerNames,
   checkReservedKeywords,
   getConfigUrl,
-  getSDKUrlInfo,
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
@@ -303,14 +302,6 @@ class Analytics {
         return false;
       });
 
-      let suffix = ''; // default suffix
-
-      // Get the CDN base URL is rudder staging url
-      const { isStaging } = getSDKUrlInfo();
-      if (isStaging) {
-        suffix = '-staging'; // stagging suffix
-      }
-
       if (this.bufferDataPlaneEventsUntilReady) {
         // Fallback logic to process buffered cloud mode events if integrations are failed to load in given interval
         setTimeout(() => {
@@ -324,7 +315,7 @@ class Analytics {
       this.clientIntegrations.forEach(intg => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
-        const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
+        const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
 
         if (!window.hasOwnProperty(pluginName)) {
           ScriptLoader(pluginName, modURL, { isNonNativeSDK: true });
