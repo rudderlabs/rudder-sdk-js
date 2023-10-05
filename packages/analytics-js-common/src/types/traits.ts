@@ -1,5 +1,21 @@
 import { ApiObject } from './ApiObject';
 
+type Address = {
+  city?: string;
+  country?: string;
+  postalCode?: string;
+  state?: string;
+  street?: string;
+};
+
+type Company = {
+  name?: string;
+  id?: string;
+  industry?: string;
+  employee_count?: string;
+  plan?: string;
+};
+
 /**
  * Represents a traits object in the Identify API
  */
@@ -11,9 +27,9 @@ export type IdentifyTraits = {
   age?: number;
   email?: string;
   phone?: string;
-  address?: string;
+  address?: Address;
   birthday?: string;
-  company?: string;
+  company?: Company;
   createdAt?: string;
   description?: string;
   gender?: string;
