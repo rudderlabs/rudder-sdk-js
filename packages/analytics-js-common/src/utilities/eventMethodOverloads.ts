@@ -5,6 +5,7 @@ import { Nullable } from '../types/Nullable';
 import { isObjectLiteralAndNotNull, mergeDeepRight } from './object';
 import { isDefined, isDefinedAndNotNull, isFunction, isNull, isString } from './checks';
 import { tryStringify } from './string';
+import { IdentifyTraits } from '../types/traits';
 
 export type PageCallOptions = {
   category?: string;
@@ -23,7 +24,7 @@ export type TrackCallOptions = {
 
 export type IdentifyCallOptions = {
   userId?: string | null;
-  traits?: Nullable<ApiObject>;
+  traits?: Nullable<IdentifyTraits>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
 };
