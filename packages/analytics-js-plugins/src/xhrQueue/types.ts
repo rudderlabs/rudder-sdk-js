@@ -9,3 +9,7 @@ export type XHRQueueItemData = {
 export type XHRQueueBatchItemData = XHRQueueItemData[];
 
 export type XHRRetryQueueItemData = XHRQueueItemData | XHRQueueBatchItemData;
+
+export type XHRBatchPayload = {
+  batch: RudderEvent[];
+};
