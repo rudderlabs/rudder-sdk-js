@@ -51,7 +51,6 @@ export type SourceDefinition = {
 };
 
 export type SourceConfigResponse = {
-  isHosted: boolean;
   source: {
     destinations: ConfigResponseDestinationItem[];
     sourceDefinitionId: string;
