@@ -35,7 +35,6 @@ import {
   transformToServerNames,
   checkReservedKeywords,
   getConfigUrl,
-  getSDKUrlInfo,
   getStringId,
   resolveDataPlaneUrl,
   fetchCookieConsentState,
