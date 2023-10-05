@@ -7,6 +7,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   'BeaconQueue',
   'Bugsnag',
   'DeviceModeDestinations',
+  'DeviceModeTransformation',
   'ErrorReporting',
   'ExternalAnonymousId',
   'GoogleLinker',

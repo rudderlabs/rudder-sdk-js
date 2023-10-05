@@ -28,10 +28,17 @@ describe('EventRepository', () => {
     start: jest.fn(),
   };
 
+  const mockDMTEventsQueue = {
+    start: jest.fn(),
+  };
+
   const mockPluginsManager = {
     invokeSingle: (extPoint: string) => {
       if (extPoint === 'destinationsEventsQueue.init') {
         return mockDestinationsEventsQueue;
+      }
+      if (extPoint === 'transformEvent.init') {
+        return mockDMTEventsQueue;
       }
       return mockDataplaneEventsQueue;
     },
@@ -86,10 +93,21 @@ describe('EventRepository', () => {
     );
     expect(spy).nthCalledWith(
       2,
+      'transformEvent.init',
+      state,
+      defaultPluginsManager,
+      expect.objectContaining({}),
+      defaultStoreManager,
+      undefined,
+      undefined,
+    );
+    expect(spy).nthCalledWith(
+      3,
       'destinationsEventsQueue.init',
       state,
       defaultPluginsManager,
       defaultStoreManager,
+      undefined,
       undefined,
       undefined,
     );

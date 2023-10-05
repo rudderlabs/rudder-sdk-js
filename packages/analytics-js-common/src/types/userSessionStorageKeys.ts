@@ -6,4 +6,5 @@ export type UserSessionKeys =
   | 'groupTraits'
   | 'initialReferrer'
   | 'initialReferringDomain'
-  | 'sessionInfo';
+  | 'sessionInfo'
+  | 'authToken';
