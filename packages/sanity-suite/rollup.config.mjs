@@ -152,7 +152,6 @@ const getBuildConfig = featureName => ({
       REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
       CDN_VERSION_PATH:
         `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
-      STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
       FEATURE: featureName,
     }),
     resolve({
@@ -200,7 +199,6 @@ const getBuildConfig = featureName => ({
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
           `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}` || '',
-        __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',
         __FEATURE__: featureName,
       },
     }),
