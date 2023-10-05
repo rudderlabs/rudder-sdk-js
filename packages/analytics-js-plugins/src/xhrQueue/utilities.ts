@@ -8,11 +8,13 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
 import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
-import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> =>
-  json.stringifyWithoutCircular({ batch: events }, true, undefined, logger);
+const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
+  const batchPayload: XHRBatchPayload = { batch: events };
+  return json.stringifyWithoutCircular(batchPayload, true, undefined, logger);
+};
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
   mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
