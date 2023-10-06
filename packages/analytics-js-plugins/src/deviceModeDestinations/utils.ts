@@ -14,6 +14,7 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { checks } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import { DeviceModeDestinationsAnalyticsInstance } from './types';
@@ -90,8 +91,8 @@ const createDestinationInstance = (
           eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
         ),
       identify: (
-        userId?: string | number | Nullable<ApiObject>,
-        traits?: Nullable<ApiObject> | ApiCallback,
+        userId?: string | number | Nullable<IdentifyTraits>,
+        traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
         options?: Nullable<ApiOptions> | ApiCallback,
         callback?: ApiCallback,
       ) =>
