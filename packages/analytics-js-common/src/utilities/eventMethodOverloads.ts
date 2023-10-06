@@ -197,14 +197,14 @@ const trackArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the identify call facade
  */
 const identifyArgumentsToCallOptions = (
-  userId?: Nullable<ApiObject | string | number>,
-  traits?: Nullable<ApiObject> | ApiCallback,
+  userId?: Nullable<IdentifyTraits | string | number>,
+  traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): IdentifyCallOptions => {
   const payload: IdentifyCallOptions = {
     userId: userId as string,
-    traits: traits as Nullable<ApiObject>,
+    traits: traits as Nullable<IdentifyTraits>,
     options: options as Nullable<ApiOptions>,
   };
 
@@ -214,7 +214,7 @@ const identifyArgumentsToCallOptions = (
 
   if (isFunction(options)) {
     payload.userId = userId as string;
-    payload.traits = traits as Nullable<ApiObject>;
+    payload.traits = traits as Nullable<IdentifyTraits>;
     delete payload.options;
     payload.callback = options as ApiCallback;
   }
@@ -230,7 +230,7 @@ const identifyArgumentsToCallOptions = (
     // Explicitly set null to prevent resetting the existing value
     // in the Analytics class
     payload.userId = null;
-    payload.traits = userId as Nullable<ApiObject>;
+    payload.traits = userId as Nullable<IdentifyTraits>;
     payload.options = traits as Nullable<ApiOptions>;
   }
 

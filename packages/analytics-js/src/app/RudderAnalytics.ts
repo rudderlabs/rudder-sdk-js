@@ -17,6 +17,7 @@ import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import { getPreloadedLoadEvent } from '../components/preloadBuffer';
 import { PreloadedEventCall } from '../components/preloadBuffer/types';
@@ -199,8 +200,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Process identify arguments and forward to page call
    */
   identify(
-    userId?: string | number | Nullable<ApiObject>,
-    traits?: Nullable<ApiObject> | ApiCallback,
+    userId?: string | number | Nullable<IdentifyTraits>,
+    traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
