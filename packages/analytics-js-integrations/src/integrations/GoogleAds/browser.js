@@ -38,6 +38,7 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
+    this.newCustomer = config.newCustomer;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -142,6 +143,19 @@ class GoogleAds {
       );
 
       const { properties } = rudderElement.message;
+
+      // set new customer acquisition reporting
+      // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager
+      // the order of priority for new_customer's value is properties.new_customer > config.newCustomer > unspecified
+
+      if (properties.new_customer || this.newCustomer) {
+        if (properties.newCustomer) {
+          properties.new_customer = properties.newCustomer;
+          delete properties.newCustomer;
+        } else if (!this.newCustomer === 'unspecified') {
+          properties.new_customer = this.newCustomer;
+        }
+      }
       const payload = properties || {};
       const sendToValue = this.conversionId;
 
@@ -201,6 +215,17 @@ class GoogleAds {
     ) {
       const event = name;
       const { properties } = rudderElement.message;
+
+      // set new customer acquisition reporting
+      if (properties.new_customer || this.newCustomer) {
+        if (properties.newCustomer) {
+          properties.new_customer = properties.newCustomer;
+          delete properties.newCustomer;
+        } else if (!this.newCustomer === 'unspecified') {
+          properties.new_customer = this.newCustomer;
+        }
+      }
+
       const sendToValue = this.conversionId;
       const payload = properties || {};
       payload.send_to = sendToValue;
