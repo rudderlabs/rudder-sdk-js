@@ -1,12 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/LiveChat/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/LiveChat/constants';
+import Logger from '../../utils/logger';
 import { recordingLiveChatEvents } from './util';
 import { isObject } from '../../utils/utils';
 import { flattenJson } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class LiveChat {
   constructor(config, analytics, destinationInfo) {
@@ -28,17 +33,16 @@ class LiveChat {
   }
 
   init() {
-    logger.debug('===in init Livechat===');
     loadNativeSdk(this.licenseId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded LiveChat===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.LiveChatWidget && isObject(window.LiveChatWidget));
   }
 
   isReady() {
-    logger.debug('===In isReady LiveChat===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
 
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
@@ -53,7 +57,7 @@ class LiveChat {
   }
 
   identify(rudderElement) {
-    logger.debug('===In LiveChat Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { userId, context } = message;
     const { traits } = context;
@@ -62,7 +66,9 @@ class LiveChat {
     if (email) {
       window.LiveChatWidget.call('set_customer_email', email);
     } else {
-      logger.error('User parameter (email) ,required for identify call, not found.');
+      logger.error(
+        `${DISPLAY_NAME} : User parameter (email) ,required for identify call, not found`,
+      );
     }
 
     const name = get(message, 'context.traits.name');

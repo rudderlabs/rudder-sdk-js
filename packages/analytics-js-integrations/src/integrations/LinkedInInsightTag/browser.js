@@ -1,9 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/LinkedInInsightTag/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/LinkedInInsightTag/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 class LinkedInInsightTag {
   constructor(config, analytics, destinationInfo) {
@@ -22,7 +27,6 @@ class LinkedInInsightTag {
   }
 
   init() {
-    logger.debug('===in init LinkedIn Insight Tag===');
     ScriptLoader('LinkedIn Insight Tag', 'https://snap.licdn.com/li.lms-analytics/insight.min.js');
     if (!this.partnerId) {
       return;
@@ -31,21 +35,21 @@ class LinkedInInsightTag {
   }
 
   isLoaded() {
-    logger.debug('=== in isLoaded LinkedIn Insight Tag===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window._linkedin_data_partner_id;
   }
 
   isReady() {
-    logger.debug('=== in isReady LinkedIn Insight Tag===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window._linkedin_data_partner_id;
   }
 
   track(rudderElement) {
-    logger.debug('===In LinkedIn Insight Tag Track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
-      logger.error('[LinkedIn Insight Tag]: Event name is missing for track call.');
+      logger.error(`${DISPLAY_NAME} : Event name is missing for track call`);
       return;
     }
     const trimmedEvent = event.trim();
@@ -57,7 +61,7 @@ class LinkedInInsightTag {
     );
     if (!eventMapping[trimmedEvent]) {
       logger.debug(
-        `The "${event}" event is not mapped in the destination dashboard. It'll be skipped.`,
+        `${DISPLAY_NAME} : The "${event}" event is not mapped in the destination dashboard. It'll be skipped`,
       );
       return;
     }

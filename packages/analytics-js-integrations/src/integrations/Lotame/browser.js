@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Lotame/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Lotame/constants';
+import Logger from '../../utils/logger';
 import { LotameStorage } from './LotameStorage';
+
+const logger = new Logger(NAME);
 
 class Lotame {
   constructor(config, analytics, destinationInfo) {
@@ -29,33 +34,23 @@ class Lotame {
   }
 
   init() {
-    logger.debug('===in init Lotame===');
     window.LOTAME_SYNCH_CALLBACK = () => {};
   }
 
-  isLoaded() {
-    logger.debug('in Lotame isLoaded');
-    return true;
-  }
-
-  isReady() {
-    return true;
-  }
-
   addPixel(source, width, height) {
-    logger.debug(`Adding pixel for :: ${source}`);
+    logger.debug(`${DISPLAY_NAME} : Adding pixel for - ${source}`);
 
     const image = document.createElement('img');
     image.src = source;
     image.setAttribute('width', width);
     image.setAttribute('height', height);
 
-    logger.debug(`Image Pixel :: ${image}`);
+    logger.debug(`${DISPLAY_NAME} : Image Pixel - ${image}`);
     document.getElementsByTagName('body')[0].appendChild(image);
   }
 
   addIFrame(source) {
-    logger.debug(`Adding iframe for :: ${source}`);
+    logger.debug(`${DISPLAY_NAME} : Adding iframe for - ${source}`);
 
     const iframe = document.createElement('iframe');
     iframe.src = source;
@@ -71,9 +66,7 @@ class Lotame {
   }
 
   syncPixel(userId) {
-    logger.debug('===== in syncPixel ======');
-
-    logger.debug('Firing DSP Pixel URLs');
+    logger.debug(`${DISPLAY_NAME} : Firing DSP Pixel URLs`);
     if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
       const currentTime = Date.now();
       this.dspUrlSettingsPixel.forEach(urlSettings => {
@@ -85,7 +78,7 @@ class Lotame {
       });
     }
 
-    logger.debug('Firing DSP IFrame URLs');
+    logger.debug(`${DISPLAY_NAME} : Firing DSP IFrame URLs`);
     if (this.dspUrlSettingsIframe && this.dspUrlSettingsIframe.length > 0) {
       const currentTime = Date.now();
       this.dspUrlSettingsIframe.forEach(urlSettings => {
@@ -114,15 +107,15 @@ class Lotame {
   }
 
   identify(rudderElement) {
-    logger.debug('in Lotame identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { userId } = rudderElement.message;
     this.syncPixel(userId);
   }
 
   page(rudderElement) {
-    logger.debug('in Lotame page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
-    logger.debug('Firing BCP Pixel URLs');
+    logger.debug(`${DISPLAY_NAME} : Firing BCP Pixel URLs`);
     if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
       const currentTime = Date.now();
       this.bcpUrlSettingsPixel.forEach(urlSettings => {
@@ -134,7 +127,7 @@ class Lotame {
       });
     }
 
-    logger.debug('Firing BCP IFrame URLs');
+    logger.debug(`${DISPLAY_NAME} : Firing BCP IFrame URLs`);
     if (this.bcpUrlSettingsIframe && this.bcpUrlSettingsIframe.length > 0) {
       const currentTime = Date.now();
       this.bcpUrlSettingsIframe.forEach(urlSettings => {

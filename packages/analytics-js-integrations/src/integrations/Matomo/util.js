@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import each from '@ndhoule/each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArray } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 /**
  * Get destination specific options from integrations options
@@ -47,12 +49,12 @@ const trackLink = (properties, context) => {
   const url = linkUrl || context?.page?.url || undefined;
 
   if (!url) {
-    logger.error('URL is missing');
+    logger.error(`${DISPLAY_NAME} : URL is missing`);
     return;
   }
 
   if (linkType !== 'link' && linkType !== 'download') {
-    logger.error("linkType can only be ('link' or 'download')");
+    logger.error(`${DISPLAY_NAME} : linkType can only be ('link' or 'download')`);
     return;
   }
 
@@ -80,7 +82,7 @@ const trackContentImpressionsWithinNode = properties => {
   const domId = properties.domId || properties.dom_id;
 
   if (!domId) {
-    logger.error('domId is missing');
+    logger.error(`${DISPLAY_NAME} : domId is missing`);
     return;
   }
 
@@ -205,17 +207,17 @@ const handleSetEcommerceView = properties => {
   }
 
   if (!productName) {
-    logger.error('User parameter name is required');
+    logger.error(`${DISPLAY_NAME} : User parameter name is required`);
     return;
   }
 
   if (!categoryName) {
-    logger.error('User parameter category is required');
+    logger.error(`${DISPLAY_NAME} : User parameter category is required`);
     return;
   }
 
   if (!price) {
-    logger.error('User parameter price is required');
+    logger.error(`${DISPLAY_NAME} : User parameter price is required`);
     return;
   }
 
@@ -320,12 +322,12 @@ const handleTrackEcommerceOrder = (properties, products) => {
   );
 
   if (!oId && !orderId) {
-    logger.error('User parameter order_id is required');
+    logger.error(`${DISPLAY_NAME} : User parameter order_id is required`);
     return;
   }
 
   if (!grandTotal) {
-    logger.error('User parameter (total or revenue) is required');
+    logger.error(`${DISPLAY_NAME} : User parameter (total or revenue) is required`);
     return;
   }
 
@@ -350,11 +352,11 @@ const handleTrackEcommerceCartUpdate = properties => {
 const handleGenericTrackEvent = (event, properties) => {
   const { category, action, value } = properties;
   if (!category) {
-    logger.error('User parameter category is required');
+    logger.error(`${DISPLAY_NAME} : User parameter category is required`);
     return;
   }
   if (!action) {
-    logger.error('User parameter action is required');
+    logger.error(`${DISPLAY_NAME} : User parameter action is required`);
     return;
   }
 

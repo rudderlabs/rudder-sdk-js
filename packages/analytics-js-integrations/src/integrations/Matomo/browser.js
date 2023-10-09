@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 // Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import Logger from '../../utils/logger';
 import {
   goalIdMapping,
   ecommerceEventsMapping,
@@ -12,6 +16,8 @@ import {
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {
@@ -59,12 +65,11 @@ class Matomo {
   }
 
   init() {
-    logger.debug('===In init Matomo===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Matomo===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window._paq && window._paq.push !== Array.prototype.push);
   }
 
@@ -75,8 +80,7 @@ class Matomo {
   }
 
   isReady() {
-    logger.debug('===In isReady Matomo===');
-
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     // Dashboard Event Settings
     if (window._paq && window._paq.push !== Array.prototype.push) {
       // Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has been triggered.
@@ -125,18 +129,20 @@ class Matomo {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Matomo Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { anonymousId, userId } = rudderElement.message;
     const matomoUserId = userId || anonymousId;
     if (!matomoUserId) {
-      logger.error('User parameter (anonymousId or userId) is required for identify call');
+      logger.error(
+        `${DISPLAY_NAME} : User parameter (anonymousId or userId) is required for identify call`,
+      );
       return;
     }
     window._paq.push(['setUserId', matomoUserId]);
   }
 
   track(rudderElement) {
-    logger.debug('===In Matomo track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { message } = rudderElement;
     const { event } = message;
@@ -152,7 +158,7 @@ class Matomo {
     ]);
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name not present`);
       return;
     }
 
@@ -180,7 +186,7 @@ class Matomo {
   }
 
   page(rudderElement) {
-    logger.debug('=== In Matomo Page ===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     window._paq.push(['trackPageView']);
   }
 }

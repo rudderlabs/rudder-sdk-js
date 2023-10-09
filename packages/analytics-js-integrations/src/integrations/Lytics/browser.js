@@ -17,9 +17,14 @@
 /* eslint-disable one-var */
 /* eslint-disable lines-around-directive */
 /* eslint-disable strict */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Lytics/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Lytics/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Lytics {
   constructor(config, analytics, destinationInfo) {
@@ -46,22 +51,21 @@ class Lytics {
 
   init() {
     this.loadLyticsScript();
-    logger.debug('===in init Lytics===');
   }
 
   isLoaded() {
-    logger.debug('in Lytics isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('in Lytics isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
   }
 
   identify(rudderElement) {
-    logger.debug('in Lytics identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     const { traits } = rudderElement.message.context;
     let payload = { user_id: userId, ...traits };
@@ -70,7 +74,7 @@ class Lytics {
   }
 
   page(rudderElement) {
-    logger.debug('in Lytics page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     const { properties } = rudderElement.message;
     let payload = { event: rudderElement.message.name, ...properties };
     payload = this.handleName(payload);
@@ -78,7 +82,7 @@ class Lytics {
   }
 
   track(rudderElement) {
-    logger.debug('in Lytics track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     const { properties } = rudderElement.message;
     let payload = { _e: rudderElement.message.event, ...properties };
     payload = this.handleName(payload);
