@@ -4,6 +4,7 @@ import {
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   NO_STORAGE,
+  SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   configureStorageEngines,
@@ -22,6 +23,7 @@ import {
   entriesWithMixStorage,
   loadOptionWithEntry,
   loadOptionWithInvalidEntry,
+  entriesWithOnlySessionStorage,
 } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
@@ -85,7 +87,7 @@ describe('StoreManager', () => {
   });
 
   describe('initClientDataStore', () => {
-    it('should initialize client data store for cookie,LS,memory storage', () => {
+    it('should initialize client data store for cookie,LS,memory storage,session storage', () => {
       getStorageEngine.mockImplementation(() => ({
         isEnabled: true,
         getItem: jest.fn(),
@@ -98,6 +100,7 @@ describe('StoreManager', () => {
       expect(storeManager.stores).toHaveProperty('clientDataInCookie');
       expect(storeManager.stores).toHaveProperty('clientDataInLocalStorage');
       expect(storeManager.stores).toHaveProperty('clientDataInMemory');
+      expect(storeManager.stores).toHaveProperty('clientDataInSessionStorage');
     });
 
     it('should construct the storage entry state with default storage type if entries or global storage type not provided as load option', () => {
@@ -128,6 +131,18 @@ describe('StoreManager', () => {
       storeManager.initClientDataStore();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyNoStorage);
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+    });
+    it('should construct the storage entry state with global type session storage', () => {
+      state.storage.type.value = SESSION_STORAGE;
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: true,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+      storeManager.initClientDataStore();
+      expect(state.storage.entries.value).toEqual(entriesWithOnlySessionStorage);
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
 
     it('should construct the storage entry state with global type and load option', () => {
