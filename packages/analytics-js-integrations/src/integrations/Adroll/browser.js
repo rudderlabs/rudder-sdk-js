@@ -1,11 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Adroll/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Adroll/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
+
+const logger = new Logger(NAME);
 
 class Adroll {
   constructor(config, analytics, destinationInfo) {
@@ -27,22 +32,21 @@ class Adroll {
   }
 
   init() {
-    logger.debug('===In init Adroll===');
     ScriptLoader('adroll roundtrip', `https://s.adroll.com/j/${this.advId}/roundtrip.js`);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Adroll===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.__adroll;
   }
 
   isReady() {
-    logger.debug('===In isReady Adroll===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.__adroll;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Adroll Identify===');
+    logger.debug(`In ${DISPLAY_NAME} Identify`);
     const { message } = rudderElement;
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
@@ -56,6 +60,7 @@ class Adroll {
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
+    logger.debug(`In ${DISPLAY_NAME} Track`);
     const { message } = rudderElement;
     const { userId, event, properties } = message;
     const eventsHashmap = getHashFromArray(this.eventsMap);
@@ -88,7 +93,7 @@ class Adroll {
   // and the segment associated in adroll
 
   page(rudderElement) {
-    logger.debug('=== In Adroll Page ===');
+    logger.debug(`In ${DISPLAY_NAME} Page`);
     const { message } = rudderElement;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let pageFullName;

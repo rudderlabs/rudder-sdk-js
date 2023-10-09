@@ -1,11 +1,16 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
+import Logger from '../../utils/logger';
 import * as utils from './util';
 import * as ecommUtils from './eCommHandle';
 import * as heartbeatUtils from './heartbeatHandle';
 import { getHashFromArray } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 class AdobeAnalytics {
   constructor(config, analytics, destinationInfo) {
@@ -68,12 +73,12 @@ class AdobeAnalytics {
   }
 
   isLoaded() {
-    logger.debug('in AdobeAnalytics isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('in AdobeAnalytics isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 

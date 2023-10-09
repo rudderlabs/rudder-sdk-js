@@ -1,3 +1,1 @@
-import ActiveCampaign from './browser';
-
-export { ActiveCampaign };
+export { default as ActiveCampaign } from './browser';

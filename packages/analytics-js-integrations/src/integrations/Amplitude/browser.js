@@ -1,6 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
@@ -59,8 +62,18 @@ class Amplitude {
     window.amplitude.init(this.apiKey, null, initOptions);
   }
 
+  isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    return !!(window.amplitude && window.amplitude.getDeviceId());
+  }
+
+  isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    return !!(window.amplitude && window.amplitude.getDeviceId());
+  }
+
   identify(rudderElement) {
-    logger.debug('in Amplitude identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     this.setDeviceId(rudderElement);
 
@@ -94,7 +107,7 @@ class Amplitude {
   }
 
   track(rudderElement) {
-    logger.debug('in Amplitude track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -195,7 +208,7 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug('in Amplitude page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     this.setDeviceId(rudderElement);
 
     const { properties, name, category, integrations } = rudderElement.message;
@@ -225,7 +238,7 @@ class Amplitude {
   }
 
   group(rudderElement) {
-    logger.debug('in Amplitude group');
+    logger.debug(`In ${DISPLAY_NAME} group`);
 
     this.setDeviceId(rudderElement);
 
@@ -327,15 +340,6 @@ class Amplitude {
       quantity: product.quantity,
       category: product.category,
     };
-  }
-
-  isLoaded() {
-    logger.debug('in Amplitude isLoaded');
-    return !!(window.amplitude && window.amplitude.getDeviceId());
-  }
-
-  isReady() {
-    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 }
 
