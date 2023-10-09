@@ -1,7 +1,13 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { eventMapping } from './propertyMappingConfig';
+
+const logger = new Logger(NAME);
 
 function getDestinationEventName(event, userDefinedEventsMapping, sendAsCustomEvent) {
   let eventNames;
@@ -39,7 +45,7 @@ function getDestinationEventName(event, userDefinedEventsMapping, sendAsCustomEv
           This is going to be reflected as "unknown" event in pinterest tag dashboard.
     */
   logger.warn(
-    `'${event}' is not mapped in UI. Make sure to mapped the event in UI or enable the 'send as custom event' setting`,
+    `${DISPLAY_NAME} : '${event}' is not mapped in UI. Make sure to mapped the event in UI or enable the 'send as custom event' setting`,
   );
   return [event];
 }

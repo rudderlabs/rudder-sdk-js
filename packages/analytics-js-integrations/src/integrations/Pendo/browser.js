@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Pendo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Pendo/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {
@@ -23,7 +28,6 @@ class Pendo {
   init() {
     loadNativeSdk(this.apiKey);
     this.initializeMe();
-    logger.debug('===in init Pendo===');
   }
 
   initializeMe() {
@@ -39,12 +43,13 @@ class Pendo {
     window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
 
-  /* utility functions ---Start here ---  */
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
@@ -109,7 +114,7 @@ class Pendo {
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
     if (!event) {
-      logger.error('Cannot call un-named track event');
+      logger.error(`${DISPLAY_NAME} : Cannot call un-named track event`);
       return;
     }
     const props = properties;

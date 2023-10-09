@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import Logger from '../../utils/logger';
 import { mapRudderPropsToOptimizelyProps } from './utils';
+
+const logger = new Logger(NAME);
 
 class Optimizely {
   constructor(config, analytics, destinationInfo) {
@@ -30,15 +35,16 @@ class Optimizely {
   }
 
   init() {
-    logger.debug('=== in optimizely init ===');
     this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }
 
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
@@ -184,7 +190,8 @@ class Optimizely {
   }
 
   track(rudderElement) {
-    logger.debug('in Optimizely web track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
+
     const eventProperties = rudderElement.message.properties;
     const { event } = rudderElement.message;
     if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
@@ -205,7 +212,7 @@ class Optimizely {
   }
 
   page(rudderElement) {
-    logger.debug('in Optimizely web page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     const clonedRudderElement = rudderElement;
     const { category } = clonedRudderElement.message.properties;

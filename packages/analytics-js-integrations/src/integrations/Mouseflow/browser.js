@@ -1,9 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mouseflow/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Mouseflow/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import Logger from '../../utils/logger';
 import { setCustomVariables, addCustomVariables } from './utils';
+
+const logger = new Logger(NAME);
 
 class Mouseflow {
   constructor(config, analytics, destinationInfo) {
@@ -21,7 +26,6 @@ class Mouseflow {
   }
 
   init() {
-    logger.debug('===In init mouseflow===');
     window._mfq = window._mfq || [];
     ScriptLoader(
       'mouseflow-integration',
@@ -30,12 +34,12 @@ class Mouseflow {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded mouseflow===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.mouseflow && typeof window.mouseflow === 'object';
   }
 
   isReady() {
-    logger.debug('===In isReady mouseflow===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window._mfq;
   }
 
@@ -48,7 +52,7 @@ class Mouseflow {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug('===In mouseflow Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { context, traits: rootLevelTraits, anonymousId } = message;
     const { traits } = context;
@@ -70,11 +74,11 @@ class Mouseflow {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug('===In mouseflow Track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
-      logger.error('[mouseflow]: Event name from track call is missing!!===');
+      logger.error(`${DISPLAY_NAME} : Event name from track call is missing`);
       return;
     }
     window._mfq.push(['tag', event]);
@@ -89,7 +93,7 @@ class Mouseflow {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug('===In mouseflow Page===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     const tabPath = rudderElement.message.properties.path || rudderElement.message.context.path;
     if (tabPath) window._mfq.push(['newPageView', tabPath]);
   }
