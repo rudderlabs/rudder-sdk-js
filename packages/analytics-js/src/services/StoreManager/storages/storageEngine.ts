@@ -2,6 +2,7 @@ import {
   ICookieStorageOptions,
   IInMemoryStorageOptions,
   ILocalStorageOptions,
+  ISessionStorageOptions,
   IStorage,
 } from '@rudderstack/analytics-js-common/types/Store';
 import {
@@ -15,6 +16,7 @@ import { defaultLogger } from '../../Logger';
 import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
+import { defaultSessionStorage } from './sessionStorage';
 
 // TODO: create session storage client (similar to localstorage if needed)
 
@@ -26,7 +28,7 @@ const getStorageEngine = (type?: StorageType): IStorage => {
     case LOCAL_STORAGE:
       return defaultLocalStorage;
     case SESSION_STORAGE:
-      return globalThis.sessionStorage;
+      return defaultSessionStorage;
     case MEMORY_STORAGE:
       return defaultInMemoryStorage;
     case COOKIE_STORAGE:
@@ -58,16 +60,25 @@ const configureInMemoryStorageEngine = (options: Partial<IInMemoryStorageOptions
 };
 
 /**
+ * Configure in memory storage singleton
+ */
+const configureSessionStorageEngine = (options: Partial<ISessionStorageOptions>) => {
+  defaultSessionStorage.configure(options);
+};
+
+/**
  * Configure all storage singleton instances
  */
 const configureStorageEngines = (
   cookieOptions: Partial<ICookieStorageOptions> = {},
   localStorageOptions: Partial<ILocalStorageOptions> = {},
   inMemoryStorageOptions: Partial<IInMemoryStorageOptions> = {},
+  sessionStorageOptions: Partial<ISessionStorageOptions> = {},
 ) => {
   configureCookieStorageEngine(cookieOptions);
   configureLocalStorageEngine(localStorageOptions);
   configureInMemoryStorageEngine(inMemoryStorageOptions);
+  configureSessionStorageEngine(sessionStorageOptions);
 };
 
 export {
@@ -75,5 +86,6 @@ export {
   configureCookieStorageEngine,
   configureLocalStorageEngine,
   configureInMemoryStorageEngine,
+  configureSessionStorageEngine,
   configureStorageEngines,
 };

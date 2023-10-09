@@ -22,8 +22,17 @@ const getDefaultLocalStorageOptions = (): ILocalStorageOptions => ({
   enabled: true,
 });
 
+const getDefaultSessionStorageOptions = (): ILocalStorageOptions => ({
+  enabled: true,
+});
+
 const getDefaultInMemoryStorageOptions = (): IInMemoryStorageOptions => ({
   enabled: true,
 });
 
-export { getDefaultCookieOptions, getDefaultLocalStorageOptions, getDefaultInMemoryStorageOptions };
+export {
+  getDefaultCookieOptions,
+  getDefaultLocalStorageOptions,
+  getDefaultInMemoryStorageOptions,
+  getDefaultSessionStorageOptions,
+};

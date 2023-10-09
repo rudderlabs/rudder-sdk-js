@@ -71,6 +71,7 @@ describe('StoreManager', () => {
         },
         { enabled: true },
         { enabled: true },
+        { enabled: true },
       );
 
       expect(storeManager.stores).toHaveProperty('clientDataInCookie');

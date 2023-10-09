@@ -19,7 +19,7 @@ module.exports = [
     name: 'Core - NPM',
     path: 'dist/npm/modern/umd/index.js',
     gzip: true,
-    limit: '24 KiB',
+    limit: '24.5 KiB',
   },
   {
     name: 'Core Legacy - CDN',
