@@ -1,8 +1,13 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Keen/constants';
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-template-curly-in-string */
-/* eslint-disable no-use-before-define */
+import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Keen/constants';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(NAME);
 
 class Keen {
   constructor(config, analytics, destinationInfo) {
@@ -26,7 +31,6 @@ class Keen {
   }
 
   init() {
-    logger.debug('===in init Keen===');
     ScriptLoader('keen-integration', 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
 
     const check = setInterval(checkAndInitKeen.bind(this), 1000);
@@ -46,16 +50,17 @@ class Keen {
   }
 
   isLoaded() {
-    logger.debug('in Keen isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(this.client != null);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(this.client != null);
   }
 
   identify(rudderElement) {
-    logger.debug('in Keen identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     let { userId } = message;
@@ -73,7 +78,7 @@ class Keen {
   }
 
   track(rudderElement) {
-    logger.debug('in Keen track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { event } = rudderElement.message;
     let { properties } = rudderElement.message;
@@ -82,7 +87,7 @@ class Keen {
   }
 
   page(rudderElement) {
-    logger.debug('in Keen page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;

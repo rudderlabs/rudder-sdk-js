@@ -3,10 +3,15 @@
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
+import Logger from '../../utils/logger';
 import { getRevenue } from '../../utils/utils';
 import { loadeNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {
@@ -25,7 +30,6 @@ class Kissmetrics {
   }
 
   init() {
-    logger.debug('===in init Kissmetrics===');
     loadeNativeSdk(this.apiKey);
 
     if (this.isEnvMobile()) {
@@ -34,10 +38,12 @@ class Kissmetrics {
   }
 
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return is.object(window.KM);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return is.object(window.KM);
   }
 
@@ -157,7 +163,7 @@ class Kissmetrics {
   }
 
   identify(rudderElement) {
-    logger.debug('in KissMetrics identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { userId, context } = rudderElement.message;
     const { traits } = context;
@@ -172,7 +178,7 @@ class Kissmetrics {
   }
 
   track(rudderElement) {
-    logger.debug('in KissMetrics track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { event } = rudderElement.message;
     let properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
@@ -212,7 +218,7 @@ class Kissmetrics {
   }
 
   page(rudderElement) {
-    logger.debug('in KissMetrics page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
@@ -233,14 +239,13 @@ class Kissmetrics {
   }
 
   alias(rudderElement) {
-    logger.debug('in KissMetrics alias');
-
+    logger.debug(`In ${DISPLAY_NAME} alias`);
     const { previousId, userId } = rudderElement.message;
     window._kmq.push(['alias', userId, previousId]);
   }
 
   group(rudderElement) {
-    logger.debug('in KissMetrics group');
+    logger.debug(`In ${DISPLAY_NAME} group`);
 
     const { groupId, traits } = rudderElement.message;
     const groupTraits = this.prefix('Group', traits);
