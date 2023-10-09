@@ -1,10 +1,15 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable no-inner-declarations */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleOptimize/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GoogleOptimize/constants';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(NAME);
 
 class GoogleOptimize {
   constructor(config, analytics, destinationInfo) {
@@ -26,7 +31,6 @@ class GoogleOptimize {
   }
 
   init() {
-    logger.debug('===in init Google Optimize===');
     if (!this.containerId) {
       return;
     }
@@ -67,12 +71,12 @@ class GoogleOptimize {
   }
 
   isLoaded() {
-    logger.debug('=== in isLoaded Google Optimize===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.dataLayer;
   }
 
   isReady() {
-    logger.debug('=== in isReady Google Optimize===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.dataLayer;
   }
 }

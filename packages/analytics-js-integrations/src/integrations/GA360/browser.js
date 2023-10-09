@@ -6,9 +6,14 @@
  * underlying GA method will get called.
  */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA360/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GA360/constants';
+import Logger from '../../utils/logger';
 import { GA } from '../GA';
+
+const logger = new Logger(NAME);
 
 class GA360 extends GA {
   constructor(config, analytics, destinationInfo) {
@@ -26,32 +31,32 @@ class GA360 extends GA {
   }
 
   init() {
-    logger.debug('===in init GA 360 ===');
     return super.init();
   }
 
-  identify(rudderElement) {
-    logger.debug('=========in GA 360 identify ==========');
-    return super.identify(rudderElement);
-  }
-
-  track(rudderElement) {
-    logger.debug('=========in GA 360 track ==========');
-    return super.track(rudderElement);
-  }
-
-  page(rudderElement) {
-    logger.debug('=========in GA 360 page ==========');
-    return super.page(rudderElement);
-  }
-
   isLoaded() {
-    logger.debug('=========in GA 360 load ==========');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return super.isLoaded();
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return super.isReady();
+  }
+
+  identify(rudderElement) {
+    logger.debug(`In ${DISPLAY_NAME} identify`);
+    return super.identify(rudderElement);
+  }
+
+  track(rudderElement) {
+    logger.debug(`In ${DISPLAY_NAME} track`);
+    return super.track(rudderElement);
+  }
+
+  page(rudderElement) {
+    logger.debug(`In ${DISPLAY_NAME} page`);
+    return super.page(rudderElement);
   }
 }
 

@@ -1,6 +1,9 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
+import Logger from '../../utils/logger';
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
@@ -12,6 +15,8 @@ import {
   getConversionData,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class GoogleAds {
   constructor(config, analytics, destinationInfo) {
@@ -67,25 +72,21 @@ class GoogleAds {
     }
 
     window.gtag('config', this.conversionId, config);
-
-    logger.debug('===in init Google Ads===');
   }
 
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return window.dataLayer.push !== Array.prototype.push;
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return this.isLoaded();
-  }
-
-  identify() {
-    logger.debug('[GoogleAds] identify:: method not supported');
   }
 
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    logger.debug('in GoogleAdsAnalyticsManager track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { event } = rudderElement.message;
     const conversionData = getConversionData(
@@ -120,7 +121,7 @@ class GoogleAds {
     }
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name is not present`);
       return;
     }
 
@@ -158,7 +159,7 @@ class GoogleAds {
   }
 
   page(rudderElement) {
-    logger.debug('in GoogleAdsAnalyticsManager page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
@@ -186,7 +187,7 @@ class GoogleAds {
     }
 
     if (!name) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name is not present`);
       return;
     }
 

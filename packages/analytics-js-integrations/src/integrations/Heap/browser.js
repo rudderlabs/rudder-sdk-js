@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Heap/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Heap/constants';
+import Logger from '../../utils/logger';
 import processHeapProperties from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
@@ -20,7 +25,7 @@ class Heap {
   }
 
   /**
-   * Initialise Heap
+   * Initialize Heap
    * DOC: https://developers.heap.io/docs/web
    */
 
@@ -28,19 +33,13 @@ class Heap {
     loadNativeSdk(this.appId);
   }
 
-  /**
-   * Check if loaaded
-   */
-
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.heap && window.heap.appid);
   }
 
-  /**
-   * Check if Ready
-   */
-
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.heap && window.heap.appid);
   }
 

@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleTagManager/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GoogleTagManager/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class GoogleTagManager {
   constructor(config, analytics, destinationInfo) {
@@ -20,12 +25,25 @@ class GoogleTagManager {
   }
 
   init() {
-    logger.debug('===in init GoogleTagManager===');
-
     loadNativeSdk(this.containerID, this.serverUrl);
   }
 
+  isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+  }
+
+  sendToGTMDatalayer(props) {
+    window.dataLayer.push(props);
+  }
+
+  isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+  }
+
   identify(rudderElement) {
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     // set the traits to the datalayer and put everything under the key traits
     // keeping it under the traits key as destructing might conflict with `message.properties`
     const rudderMessage = rudderElement.message;
@@ -34,7 +52,7 @@ class GoogleTagManager {
   }
 
   track(rudderElement) {
-    logger.debug('===in track GoogleTagManager===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     const rudderMessage = rudderElement.message;
     const props = {
       event: rudderMessage.event,
@@ -49,7 +67,7 @@ class GoogleTagManager {
   }
 
   page(rudderElement) {
-    logger.debug('===in page GoogleTagManager===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
@@ -77,18 +95,6 @@ class GoogleTagManager {
     };
 
     this.sendToGTMDatalayer(props);
-  }
-
-  isLoaded() {
-    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
-  }
-
-  sendToGTMDatalayer(props) {
-    window.dataLayer.push(props);
-  }
-
-  isReady() {
-    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
   }
 }
 
