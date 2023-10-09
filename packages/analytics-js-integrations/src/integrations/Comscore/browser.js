@@ -1,13 +1,18 @@
 /* eslint-disable compat/compat */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Comscore/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Comscore/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Comscore {
   constructor(config, analytics, destinationInfo) {
@@ -29,12 +34,10 @@ class Comscore {
     } = destinationInfo ?? {});
   }
 
-  init() {
-    logger.debug('===in init Comscore init===');
-  }
+  init() {}
 
   isLoaded() {
-    logger.debug('in Comscore isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -42,11 +45,12 @@ class Comscore {
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.COMSCORE;
   }
 
   page(rudderElement) {
-    logger.debug('in Comscore page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     this.loadConfig(rudderElement);
 
@@ -67,14 +71,12 @@ class Comscore {
   }
 
   loadConfig(rudderElement) {
-    logger.debug('=====in loadConfig=====');
     this.comScoreParams = this.mapComscoreParams(rudderElement.message.properties);
     window._comscore = window._comscore || [];
     window._comscore.push(this.comScoreParams);
   }
 
   initAfterPage() {
-    logger.debug('=====in initAfterPage=====');
     loadNativeSdk();
 
     this._isReady(this).then(instance => {
@@ -107,7 +109,6 @@ class Comscore {
   }
 
   mapComscoreParams(properties) {
-    logger.debug('=====in mapComscoreParams=====');
     const comScoreBeaconParamsMap = this.comScoreBeaconParam;
 
     const comScoreParams = {};
@@ -122,7 +123,6 @@ class Comscore {
 
     comScoreParams.c1 = '2';
     comScoreParams.c2 = this.c2ID;
-    logger.debug('=====in mapComscoreParams=====', comScoreParams);
     return comScoreParams;
   }
 }

@@ -1,6 +1,12 @@
 import md5 from 'md5';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 /**
  * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
@@ -70,7 +76,7 @@ const handleProductView = (message, finalPayload) => {
     }
     finalPayload.push(viewItemObject);
   } else {
-    logger.debug('[Criteo] product_id is a mandatory field to use Product Tag in criteo');
+    logger.debug(`${DISPLAY_NAME} : product_id is a mandatory field to use for Product Tag`);
   }
 
   // Final example payload supported by destination
@@ -109,7 +115,9 @@ const validateProduct = (product, index) => {
     };
     return !Number.isNaN(elementaryProduct.price) && !Number.isNaN(elementaryProduct.quantity);
   }
-  logger.debug(`[Criteo] product at index ${index} is skipped for insufficient information`);
+  logger.debug(
+    `${DISPLAY_NAME} : product at index ${index} is skipped for insufficient information`,
+  );
   return false;
 };
 
@@ -132,7 +140,7 @@ const getProductInfo = properties => {
       }
     });
   } else {
-    logger.debug('[Criteo] Payload should consist of at least one product information');
+    logger.debug(`${DISPLAY_NAME} : Payload should consist of at least one product information`);
   }
 
   return productInfo;
@@ -153,7 +161,7 @@ const processCompletedOrderEvent = (properties, finalPayload, productInfo) => {
   };
 
   if (!trackTransactionObject.id) {
-    logger.debug('[Criteo] order_id (Transaction Id) is a mandatory field');
+    logger.debug(`${DISPLAY_NAME} : order_id (Transaction Id) is a mandatory field`);
     return;
   }
 
@@ -195,7 +203,7 @@ const handlingEventDuo = (message, finalPayload) => {
 
   if (productInfo.length === 0) {
     logger.debug(
-      '[Criteo] None of the products had sufficient information or information is wrongly formatted',
+      `${DISPLAY_NAME} : None of the products had sufficient information or information is wrongly formatted`,
     );
     return;
   }
@@ -291,11 +299,13 @@ const handleListView = (message, finalPayload, OPERATOR_LIST) => {
       }
     });
     if (productIdList.length === 0) {
-      logger.debug('[Criteo] None of the product information had product_id');
+      logger.debug(`${DISPLAY_NAME} : None of the product information had product_id`);
       return;
     }
   } else {
-    logger.debug('[Criteo] The payload should consist of atleast one product information');
+    logger.debug(
+      `${DISPLAY_NAME} : The payload should consist of at least one product information`,
+    );
     return;
   }
 
