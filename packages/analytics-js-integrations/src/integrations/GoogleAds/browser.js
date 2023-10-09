@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable class-methods-use-this */
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
@@ -152,7 +153,7 @@ class GoogleAds {
         if (properties.newCustomer) {
           properties.new_customer = properties.newCustomer;
           delete properties.newCustomer;
-        } else if (!this.newCustomer === 'unspecified') {
+        } else if (!this.newCustomer == 'unspecified') {
           properties.new_customer = this.newCustomer;
         }
       }
@@ -221,7 +222,7 @@ class GoogleAds {
         if (properties.newCustomer) {
           properties.new_customer = properties.newCustomer;
           delete properties.newCustomer;
-        } else if (!this.newCustomer === 'unspecified') {
+        } else if (!this.newCustomer == 'unspecified') {
           properties.new_customer = this.newCustomer;
         }
       }
