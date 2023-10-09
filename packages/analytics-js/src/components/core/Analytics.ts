@@ -709,6 +709,9 @@ class Analytics implements IAnalytics {
     this.eventManager?.resume();
   }
 
+  setAuthToken(token: string): void {
+    this.userSessionManager?.setAuthToken(token);
+  }
   // End consumer exposed methods
 }
 

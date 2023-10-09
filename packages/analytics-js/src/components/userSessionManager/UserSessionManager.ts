@@ -99,6 +99,10 @@ class UserSessionManager implements IUserSessionManager {
     if (anonymousId) {
       this.setAnonymousId(anonymousId);
     }
+    const authToken = this.getAuthToken();
+    if (authToken) {
+      this.setAuthToken(authToken);
+    }
 
     const persistedInitialReferrer = this.getInitialReferrer();
     const persistedInitialReferringDomain = this.getInitialReferringDomain();
@@ -324,6 +328,12 @@ class UserSessionManager implements IUserSessionManager {
     effect(() => {
       this.syncValueToStorage('sessionInfo', state.session.sessionInfo.value);
     });
+    /**
+     * Update session tracking info in storage automatically when it is updated in state
+     */
+    effect(() => {
+      this.syncValueToStorage('authToken', state.session.authToken.value);
+    });
   }
 
   /**
@@ -452,6 +462,14 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * Fetches auth token from storage
+   * @returns
+   */
+  getAuthToken(): Nullable<string> {
+    return this.getItem('authToken');
+  }
+
+  /**
    * If session is active it returns the sessionId
    * @returns
    */
@@ -502,6 +520,7 @@ class UserSessionManager implements IUserSessionManager {
       state.session.userTraits.value = defaultUserSessionValues.userTraits;
       state.session.groupId.value = defaultUserSessionValues.groupId;
       state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
+      state.session.authToken.value = defaultUserSessionValues.authToken;
 
       if (resetAnonymousId) {
         state.session.anonymousId.value = defaultUserSessionValues.anonymousId;
@@ -621,6 +640,16 @@ class UserSessionManager implements IUserSessionManager {
    */
   end() {
     state.session.sessionInfo.value = {};
+  }
+
+  /**
+   * Set auth token
+   * @param userId
+   */
+  setAuthToken(token: string) {
+    if (this.isPersistenceEnabledForStorageEntry('authToken')) {
+      state.session.authToken.value = token;
+    }
   }
 }
 

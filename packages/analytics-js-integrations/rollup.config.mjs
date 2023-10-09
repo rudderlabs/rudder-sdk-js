@@ -30,7 +30,7 @@ const distName = process.env.INTG_NAME;
 const modName = `${process.env.INTG_NAME}${INTG_SUFFIX}`;
 
 export function getOutputFilePath(dirPath, distName) {
-  const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
+  const fileNamePrefix = `${distName}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
   let outFilePath = '';
 

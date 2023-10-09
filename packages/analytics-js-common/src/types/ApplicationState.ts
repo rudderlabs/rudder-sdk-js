@@ -118,6 +118,7 @@ export type SessionState = {
   readonly initialReferrer: Signal<string | undefined>;
   readonly initialReferringDomain: Signal<string | undefined>;
   readonly sessionInfo: Signal<SessionInfo>;
+  readonly authToken: Signal<Nullable<string>>;
 };
 
 export type SourceConfigState = Signal<Source | undefined>;

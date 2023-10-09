@@ -20,7 +20,7 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 dotenv.config();
 
 export function getOutputFilePath(dirPath, distName) {
-  const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
+  const fileNamePrefix = `${distName}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
   let outFilePath = '';
 

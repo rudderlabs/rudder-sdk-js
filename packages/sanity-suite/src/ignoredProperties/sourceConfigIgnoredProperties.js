@@ -1,10 +1,26 @@
 const sourceConfigIgnoredProperties = [
   {
+    key: `updatedAt`,
+    type: 'string',
+  },
+  {
     key: `source.liveEventsConfig.eventUploadTS`,
     type: 'number',
   },
   {
-    key: `source.updatedAt`,
+    key: `source.sourceDefinition.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.0.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.0.revisionId`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.0.destinationDefinition.updatedAt`,
     type: 'string',
   },
   {
@@ -37,6 +53,18 @@ const sourceConfigIgnoredProperties = [
   },
   {
     key: `source.destinations.3.revisionId`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.3.destinationDefinition.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.3.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.4.revisionId`,
     type: 'string',
   },
   {

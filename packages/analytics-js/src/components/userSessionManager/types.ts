@@ -23,6 +23,7 @@ export interface IUserSessionManager {
   start(sessionId?: number): void;
   end(): void;
   syncStorageDataToState(): void;
+  setAuthToken(token: string): void;
 }
 
 export type UserSessionStorageKeysType = keyof typeof userSessionStorageKeys;

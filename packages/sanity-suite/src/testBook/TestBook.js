@@ -108,8 +108,8 @@ class TestBook {
                         </td>
                         <td style="word-wrap: break-word; position: relative;">
                           <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
-          testCase.id
-        }">
+                            testCase.id
+                          }">
                             ${JSON.stringify(testCase.expectedResult, undefined, 2)}
                           </pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
@@ -148,25 +148,22 @@ class TestBook {
 
   attachHtml(suiteGroupsData) {
     const totalSuiteGroups = suiteGroupsData.length;
-    // TODO: make it sticky header
     const headerMarkup = `
-            <div class="sticky-top">
-                <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #FFFFFF;">
-                    <div class="col">
-                        <h1>RudderStack JS SDK Sanity Suite</h1>
-                        <p>
-                            <button type="button" class="btn btn-dark" id="execute-all-trigger">
-                                Execute All
-                            </button>
-                            <a href="https://jsondiff.com" target="_blank" class="btn btn-secondary">See payloads diff</a>
-                            <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
-                                Reset/Reload
-                            </button>
-                            <button type="button" class="btn btn-outline-dark">
-                              Tests Case pass/total: <span class="badge" id="resultSummary">-</span>
-                            </button>
-                        </p>
-                    </div>
+            <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #FFFFFF;">
+                <div class="col">
+                    <h1>RudderStack JS SDK Sanity Suite</h1>
+                    <p>
+                        <button type="button" class="btn btn-dark" id="execute-all-trigger">
+                            Execute All
+                        </button>
+                        <a href="https://jsondiff.com" target="_blank" class="btn btn-secondary">See payloads diff</a>
+                        <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
+                            Reset/Reload
+                        </button>
+                        <button type="button" class="btn btn-outline-dark">
+                            Tests Case pass/total: <span class="badge" id="resultSummary">-</span>
+                        </button>
+                    </p>
                 </div>
             </div>
         `;

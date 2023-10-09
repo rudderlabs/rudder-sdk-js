@@ -3,18 +3,19 @@ import { ApiCallback, ApiOptions } from './EventApi';
 import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import { ApiObject } from './ApiObject';
 import { ILogger } from './Logger';
+import { IdentifyTraits } from './traits';
 
 export type AnalyticsIdentifyMethod = {
   (
     userId?: string,
-    traits?: Nullable<ApiObject>,
+    traits?: Nullable<IdentifyTraits>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (userId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
+  (userId: string, traits: Nullable<IdentifyTraits>, callback: ApiCallback): void;
   (userId: string, callback: ApiCallback): void;
-  (traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  (traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (traits: Nullable<IdentifyTraits>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
 };
 
 export type AnalyticsPageMethod = {
