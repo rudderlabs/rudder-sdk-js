@@ -2,11 +2,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import Logger from '../../utils/logger';
 import { removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {
@@ -34,7 +39,6 @@ class Posthog {
   init() {
     const options = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     if (options && !options.loadIntegration) {
-      logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
       return;
     }
     loadNativeSdk();
@@ -62,11 +66,12 @@ class Posthog {
   }
 
   isLoaded() {
-    logger.debug('in Posthog isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window?.posthog?.__loaded;
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window?.posthog?.__loaded;
   }
 
@@ -96,7 +101,7 @@ class Posthog {
   }
 
   identify(rudderElement) {
-    logger.debug('in Posthog identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
@@ -110,7 +115,7 @@ class Posthog {
   }
 
   track(rudderElement) {
-    logger.debug('in Posthog track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { event, properties } = rudderElement.message;
 
@@ -125,7 +130,7 @@ class Posthog {
    * @memberof Posthog
    */
   page(rudderElement) {
-    logger.debug('in Posthog page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     this.processSuperProperties(rudderElement);
 
@@ -142,7 +147,7 @@ class Posthog {
       delete traits.groupType;
     }
     if (!groupType || !groupKey) {
-      logger.error('groupType and groupKey is required for group call');
+      logger.error(`${DISPLAY_NAME} : groupType and groupKey is required for group call`);
       return;
     }
     posthog.group(groupType, groupKey, traits);

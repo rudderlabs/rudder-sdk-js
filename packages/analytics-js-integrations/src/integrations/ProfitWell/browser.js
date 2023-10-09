@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/ProfitWell/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/ProfitWell/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class ProfitWell {
   constructor(config, analytics, destinationInfo) {
@@ -21,27 +26,25 @@ class ProfitWell {
   }
 
   init() {
-    logger.debug('===In init ProfitWell===');
-
     if (!this.publicApiKey) {
-      logger.debug('===[ProfitWell]: Public API Key not found===');
+      logger.debug(`${DISPLAY_NAME} : Public API Key not found`);
       return;
     }
     loadNativeSdk(this.publicApiKey);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded ProfitWell===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   isReady() {
-    logger.debug('===In isReady ProfitWell===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   identify(rudderElement) {
-    logger.debug('===In ProfitWell identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     if (this.siteType === 'marketing') {
       window.profitwell('start', {});
@@ -65,7 +68,7 @@ class ProfitWell {
       return;
     }
 
-    logger.debug('===[ProfitWell]: email or userId is required for identify===');
+    logger.debug(`${DISPLAY_NAME} : email or userId is required for identify`);
   }
 }
 
