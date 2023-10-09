@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
+  DISPLAY_NAME,
   eventNameMapping,
 } from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
+import Logger from '../../utils/logger';
 import {
   isDefinedAndNotNull,
   getDestinationExternalID,
@@ -12,6 +14,8 @@ import {
 } from '../../utils/commonUtils';
 import { getTrackResponse } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 // Docs : https://ads.tiktok.com/gateway/docs/index
 class TiktokAds {
@@ -31,22 +35,21 @@ class TiktokAds {
   }
 
   init() {
-    logger.debug('===In init Tiktok Ads===');
     loadNativeSdk(this.pixelCode);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Tiktok Ads===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.ttq;
   }
 
   isReady() {
-    logger.debug('===In isReady Tiktok Ads===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.ttq;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Tiktok Ads Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { traits } = message.context;
     const { email, phone, number } = traits;
@@ -68,17 +71,18 @@ class TiktokAds {
   }
 
   track(rudderElement) {
-    logger.debug('===In Tiktok Ads Track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
+
     const { message } = rudderElement;
     let event = message?.event;
     if (!event) {
-      logger.error('Event name is required');
+      logger.error(`${DISPLAY_NAME} : Event name is required`);
       return;
     }
     event = event.toLowerCase().trim();
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
     if (eventNameMapping[event] === undefined && !standardEventsMap[event]) {
-      logger.error(`Event name (${event}) is not valid, must be mapped to one of standard events`);
+      logger.error(`${DISPLAY_NAME} : Event name (${event}) is not valid, must be mapped to one of standard events`);
       return;
     }
     if (standardEventsMap[event]) {
@@ -98,7 +102,7 @@ class TiktokAds {
   }
 
   page(rudderElement) {
-    logger.debug('===In Tiktok Ads Page===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     window.ttq.page();
   }
 }

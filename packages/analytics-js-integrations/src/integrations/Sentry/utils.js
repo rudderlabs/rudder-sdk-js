@@ -1,9 +1,15 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 const convertObjectToArray = (objectInput, propertyName) =>
   objectInput
@@ -11,7 +17,7 @@ const convertObjectToArray = (objectInput, propertyName) =>
     .filter(e => isDefinedAndNotNullAndNotEmpty(e));
 
 const SentryScriptLoader = (id, src, integrity) => {
-  logger.debug(`in script loader=== ${id}`);
+  logger.debug(`${DISPLAY_NAME} : in script loader - ${id}`);
   const js = document.createElement('script');
   js.src = src;
   js.integrity = integrity;

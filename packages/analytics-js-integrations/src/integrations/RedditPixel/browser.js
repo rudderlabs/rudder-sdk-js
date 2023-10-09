@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable prefer-rest-params */
@@ -7,10 +8,15 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -29,32 +35,30 @@ class RedditPixel {
   }
 
   init() {
-    logger.debug('===In init RedditPixel===');
-
     loadNativeSdk(this.advertiserId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded RedditPixel===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
-    logger.debug('===In isReady RedditPixel===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   identify(rudderElement) {
-    logger.debug('===In RedditPixel identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     window.rdt('track', 'SignUp');
   }
 
   track(rudderElement) {
-    logger.debug('===In RedditPixel track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { event } = rudderElement.message;
     if (!event) {
-      logger.error('Event name is not present');
+      logger.error(` ${DISPLAY_NAME} : Event name is not present`);
       return;
     }
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
@@ -90,14 +94,14 @@ class RedditPixel {
           window.rdt('track', 'Search');
           break;
         default:
-          logger.error(`Invalid event ${event}. Track call not supported`);
+          logger.error(`${DISPLAY_NAME} : Invalid event ${event}. Track call not supported`);
           break;
       }
     }
   }
 
   page(rudderElement) {
-    logger.debug('===In RedditPixel page===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     window.rdt('track', 'PageVisit');
   }
 }

@@ -1,8 +1,10 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
 /* eslint-disable func-names */
 /* eslint-disable compat/compat */
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
+import Logger from '../../utils/logger';
 import { generateUUID } from '../../utils/utils';
+
+const logger = new Logger(NAME);
 
 class Shynet {
   constructor(config, analytics, destinationInfo) {
@@ -48,7 +50,7 @@ class Shynet {
           });
           xhr.send(payloadBody);
         } catch (exp) {
-          logger.info(`Error Sending ${NAME} Event`, exp.message);
+          logger.info(`${DISPLAY_NAME} : Error Sending ${NAME} Event`, exp.message);
         }
       },
       newPageLoad(referrer, url) {
@@ -69,17 +71,16 @@ class Shynet {
   }
 
   init() {
-    logger.debug('=== in init Shynet ===');
     return this.scriptCheck;
   }
 
   isLoaded() {
-    logger.debug('=== in Shynet isLoaded= ==');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return this.scriptCheck;
   }
 
   isReady() {
-    logger.debug('=== in Shynet is Ready===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return this.scriptCheck;
   }
 

@@ -1,10 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Qualaroo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Qualaroo/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import Logger from '../../utils/logger';
 import { recordQualarooEvents, transformUserTraits } from './utils';
 import { isNotEmpty } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 class Qualaroo {
   constructor(config, analytics, destinationInfo) {
@@ -35,17 +40,16 @@ class Qualaroo {
   }
 
   init() {
-    logger.debug('===In init Qualaroo===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Qualaroo===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window._kiq && typeof window._kiq === 'object';
   }
 
   isReady() {
-    logger.debug('===In isReady Qualaroo===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     if (this.recordQualarooEvents) {
       recordQualarooEvents(
         this.updateEventNames,
@@ -58,7 +62,7 @@ class Qualaroo {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Qualaroo identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { traits } = message.context;
     const userId = traits?.email || message.userId || traits?.userId || traits?.Id || '';
@@ -78,17 +82,17 @@ class Qualaroo {
   }
 
   track(rudderElement) {
-    logger.debug('===In Qualaroo track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     const { message } = rudderElement;
     const { event, context } = message;
     if (!event) {
-      logger.error('[Qualaroo]:: event is required for track call');
+      logger.error(`${DISPLAY_NAME} : event is required for track call`);
       return;
     }
 
     const integrationName = context.integration?.name;
     if (integrationName && integrationName === 'Qualaroo') {
-      logger.debug(`[Qualaroo]:: dropping callback event: ${event}`);
+      logger.debug(`${DISPLAY_NAME} : dropping callback event: ${event}`);
       return;
     }
 
@@ -96,7 +100,7 @@ class Qualaroo {
   }
 
   page(rudderElement) {
-    logger.debug('===In Qualaroo page===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     const { name, category } = rudderElement.message;
     let pageFullName;
     if (name && category) {

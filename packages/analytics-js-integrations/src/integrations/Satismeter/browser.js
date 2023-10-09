@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Satismeter/constants';
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Satismeter/constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -27,17 +27,16 @@ class Satismeter {
   }
 
   init() {
-    logger.debug('===In init Satismeter===');
     loadNativeSdk(this.writeKey);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Satismeter===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.satismeter;
   }
 
   isReady() {
-    logger.debug('===In isReady Satismeter===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     if (this.recordSatismeterEvents) {
       recordSatismeterEvents(
         this.updateEventNames,
@@ -50,7 +49,8 @@ class Satismeter {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Satismeter identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
+
     const { message } = rudderElement;
     const { traits } = message.context;
     let userId = message.userId || traits.userId;
@@ -76,15 +76,16 @@ class Satismeter {
   }
 
   track(rudderElement) {
-    logger.debug('===In Satismeter track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
+
     const { message } = rudderElement;
     const { event, context } = message;
     if (!event) {
-      logger.error('[Satismeter]:: event is required for track call');
+      logger.error(`${DISPLAY_NAME} : event is required for track call`);
     }
     const integrationName = context.integration?.name;
     if (integrationName && integrationName.toLowerCase() === 'satismeter') {
-      logger.info(`[Satismeter]:: dropping callback event: ${event}`);
+      logger.info(`${DISPLAY_NAME} : dropping callback event: ${event}`);
       return;
     }
     window.satismeter('track', { event });

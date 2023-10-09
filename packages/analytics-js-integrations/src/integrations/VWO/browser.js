@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import Logger from '../../utils/logger';
 import { getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class VWO {
   constructor(config, analytics, destinationInfo) {
@@ -26,11 +29,10 @@ class VWO {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    logger.debug('Config ', config);
+    logger.debug(`${DISPLAY_NAME} : Config`, config);
   }
 
   init() {
-    logger.debug('===In init VWO===');
     const vwoIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     if (vwoIntgConfig?.loadIntegration) {
       const account_id = this.accountId;
@@ -40,7 +42,7 @@ class VWO {
       const { isSPA } = this;
       loadNativeSdk(account_id, settings_tolerance, library_tolerance, use_existing_jquery, isSPA);
     } else {
-      logger.debug('===[VWO]loadIntegration flag is disabled===');
+      logger.debug(`${DISPLAY_NAME} : loadIntegration flag is disabled`);
     }
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
@@ -50,14 +52,13 @@ class VWO {
 
   experimentViewed() {
     window.VWO = window.VWO || [];
-    const self = this;
     window.VWO.push([
       'onVariationApplied',
       data => {
         if (!data) {
           return;
         }
-        logger.debug('Variation Applied');
+        logger.debug(`${DISPLAY_NAME} : Variation Applied`);
         const expId = data[1];
         const variationId = data[2];
         logger.debug(
@@ -71,8 +72,8 @@ class VWO {
           ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(_vwo_exp[expId].type) > -1
         ) {
           try {
-            if (self.sendExperimentTrack) {
-              logger.debug('Tracking...');
+            if (this.sendExperimentTrack) {
+              logger.debug(`${DISPLAY_NAME} : Tracking...`);
               this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
@@ -81,17 +82,17 @@ class VWO {
               });
             }
           } catch (error) {
-            logger.error('[VWO] experimentViewed:: ', error);
+            logger.error(`${DISPLAY_NAME} : experimentViewed`, error);
           }
           try {
-            if (self.sendExperimentIdentify) {
-              logger.debug('Identifying...');
+            if (this.sendExperimentIdentify) {
+              logger.debug(`${DISPLAY_NAME} : Identifying...`);
               this.analytics.identify({
                 [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId],
               });
             }
           } catch (error) {
-            logger.error('[VWO] experimentViewed:: ', error);
+            logger.error(`${DISPLAY_NAME} : experimentViewed`, error);
           }
         }
       },

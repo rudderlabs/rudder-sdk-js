@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable func-names */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
+import Logger from '../../utils/logger';
 import { getAction } from './utils';
+
+const logger = new Logger(NAME);
 
 class TVSquared {
   constructor(config, analytics, destinationInfo) {
@@ -26,7 +29,6 @@ class TVSquared {
   }
 
   init() {
-    logger.debug('===in init TVSquared===');
     window._tvq = window._tvq || [];
     let url = document.location.protocol === 'https:' ? 'https://' : 'http://';
     url += `collector-${this.clientId}.tvsquared.com/`;
@@ -36,12 +38,12 @@ class TVSquared {
   }
 
   isLoaded() {
-    logger.debug('in TVSqaured isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('in TVSqaured isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   }
 

@@ -1,5 +1,6 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
+/* eslint-disable class-methods-use-this */
+import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
+import Logger from '../../utils/logger';
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
 import {
   removeUndefinedAndNullValues,
@@ -7,6 +8,8 @@ import {
 } from '../../utils/commonUtils';
 import { getDefinedTraits } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class YandexMetrica {
   constructor(config, analytics, destinationInfo) {
@@ -42,29 +45,28 @@ class YandexMetrica {
   }
 
   init() {
-    logger.debug('===In init YandexMetrica===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded YandexMetrica===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.ym && typeof window.ym === 'function';
   }
 
   isReady() {
-    logger.debug('===In isReady YandexMetrica===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.ym;
   }
 
   // identify call to yandex.metrica
   identify(rudderElement) {
-    logger.debug('===In YandexMetrica Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     const { userId } = getDefinedTraits(message);
     let payload = { UserID: userId };
     if (!message?.context?.traits) {
-      logger.debug('user traits not present');
+      logger.debug(`${DISPLAY_NAME} : user traits not present`);
     } else {
       const { traits } = message.context;
       payload = { ...payload, ...traits };
@@ -75,7 +77,7 @@ class YandexMetrica {
 
   // track call
   track(rudderElement) {
-    logger.debug('===In YandexMetrica track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { message } = rudderElement;
     const { event, properties } = message;
@@ -87,14 +89,14 @@ class YandexMetrica {
     );
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name not present`);
       return;
     }
     const ecomEvents = Object.keys(ecommerceEventMapping);
 
     const trimmedEvent = event.trim().replace(/\s+/g, '_');
     if (!properties) {
-      logger.error('Properties is not present in the payload');
+      logger.error(`${DISPLAY_NAME} : Properties is not present in the payload`);
       return;
     }
 
@@ -109,22 +111,23 @@ class YandexMetrica {
       );
     } else {
       logger.error(
-        '[Yandex Metrica]: Event is neither mapped in UI nor it belongs to the supported ecommerce events',
+        `${DISPLAY_NAME} : Event is neither mapped in UI nor it belongs to the supported ecommerce events`,
       );
     }
   }
 
   // page call
   page(rudderElement) {
-    logger.debug('===In YandexMetrica Page===');
+    logger.debug(`In ${DISPLAY_NAME} page`);
+
     const { message } = rudderElement;
     if (!message?.context?.page) {
-      logger.error('page object containing page properties are not present in the payload');
+      logger.error(`${DISPLAY_NAME} : page object containing page properties are not present in the payload`);
       return;
     }
     const { page } = message.context;
     if (!page.url) {
-      logger.error('[Yandex Metrica]: url from page call is missing!!===');
+      logger.error(`${DISPLAY_NAME} : url from page call is missing`);
       return;
     }
     let payload = {};

@@ -1,8 +1,14 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
+import Logger from '../../utils/logger';
 import {
   removeUndefinedAndNullValues,
   removeUndefinedAndNullAndEmptyValues,
 } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 // This function is used for sending the track event to yandex.metrica
 const sendEvent = (container, payload) => {
@@ -95,13 +101,13 @@ const getResponsePayload = (properties, eventType) => {
   if (products && Array.isArray(products)) {
     products.forEach((element, index) => {
       if (!(element.product_id || element.name)) {
-        logger.error(`None of product_id or name is present for product at index ${index}`);
+        logger.error(`${DISPLAY_NAME} : None of product_id or name is present for product at index ${index}`);
       } else {
         responsePayload = populatePayload(eventType, element, productsArray);
       }
     });
   } else if (!(productId || name)) {
-    logger.error(`None of product_id or name is present for the product`);
+    logger.error(`${DISPLAY_NAME} : None of product_id or name is present for the product`);
   } else {
     responsePayload = populatePayload(eventType, properties, productsArray);
   }
@@ -124,7 +130,7 @@ const ecommEventPayload = (eventType, properties, goalId) => {
   // populating actionField object required for purchase event type
   if (eventType === 'purchase') {
     if (!orderId) {
-      logger.error('order_id is required for event type purchase');
+      logger.error(`${DISPLAY_NAME} : order_id is required for event type purchase`);
     }
     responsePayload.ecommerce[eventType].actionField = removeUndefinedAndNullAndEmptyValues(
       getActionField(properties, goalId),
