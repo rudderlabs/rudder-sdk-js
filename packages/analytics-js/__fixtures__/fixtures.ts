@@ -394,7 +394,7 @@ const loadOptionWithInvalidEntry = {
   },
 };
 
-const anonymousIdWithNoStorageOption = {
+const anonymousIdWithNoStorageEntries = {
   userId: {
     type: 'cookieStorage',
     key: userSessionStorageKeys.userId,
@@ -445,5 +445,5 @@ export {
   entriesWithMixStorage,
   loadOptionWithEntry,
   loadOptionWithInvalidEntry,
-  anonymousIdWithNoStorageOption,
+  anonymousIdWithNoStorageEntries,
 };

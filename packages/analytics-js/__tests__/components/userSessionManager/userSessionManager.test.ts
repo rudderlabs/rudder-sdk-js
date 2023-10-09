@@ -12,7 +12,7 @@ import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import {
-  anonymousIdWithNoStorageOption,
+  anonymousIdWithNoStorageEntries,
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
@@ -540,7 +540,7 @@ describe('User session manager', () => {
     expect(state.session.anonymousId.value).toEqual('test_uuid');
   });
   it('reset: should clear anonymousId and set default value in case of storage type is no_storage', () => {
-    state.storage.entries.value = anonymousIdWithNoStorageOption;
+    state.storage.entries.value = anonymousIdWithNoStorageEntries;
     userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     userSessionManager.reset(true);
