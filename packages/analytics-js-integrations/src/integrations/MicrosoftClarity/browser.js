@@ -1,4 +1,7 @@
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
 import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 
@@ -26,26 +29,25 @@ class MicrosoftClarity {
   }
 
   init() {
-    logger.debug('===In init Microsoft Clarity===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Microsoft Clarity===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.clarity;
   }
 
   isReady() {
-    logger.debug('===In isReady Microsoft Clarity===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.clarity;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Microsoft Clarity Identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { userId, context } = message;
     if (!userId) {
-      logger.error('[Microsoft Clarity] :: userId is required for an identify call');
+      logger.error(`${DISPLAY_NAME} : userId is required for an identify call`);
       return;
     }
     let sessionId;

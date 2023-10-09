@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MoEngage/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/MoEngage/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -37,18 +42,16 @@ class MoEngage {
   }
 
   init() {
-    const self = this;
-    logger.debug('===in init MoEngage===');
     loadNativeSdk();
     // setting the region if us then not needed.
     if (this.region !== 'US') {
-      self.moeClient = window.moe({
+      this.moeClient = window.moe({
         app_id: this.apiId,
         debug_logs: this.debug ? 1 : 0,
         cluster: this.region === 'EU' ? 'eu' : 'in',
       });
     } else {
-      self.moeClient = window.moe({
+      this.moeClient = window.moe({
         app_id: this.apiId,
         debug_logs: this.debug ? 1 : 0,
       });
@@ -57,20 +60,20 @@ class MoEngage {
   }
 
   isLoaded() {
-    logger.debug('in MoEngage isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.moeBannerText;
   }
 
   isReady() {
-    logger.debug('in MoEngage isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.moeBannerText;
   }
 
   track(rudderElement) {
-    logger.debug('inside track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
-      logger.error('Payload not correct');
+      logger.error(`${DISPLAY_NAME} : Payload not correct`);
       return;
     }
     const { event, properties, userId } = rudderElement.message;
@@ -79,7 +82,7 @@ class MoEngage {
     }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name is not present`);
       return;
     }
     if (properties) {
@@ -90,14 +93,13 @@ class MoEngage {
   }
 
   reset() {
-    logger.debug('inside reset');
+    logger.debug(`${DISPLAY_NAME} : inside reset`);
     // reset the user id
     this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();
   }
 
   identify(rudderElement) {
-    const self = this;
     const { userId, context } = rudderElement.message;
     let traits = null;
     if (context) {
@@ -117,13 +119,13 @@ class MoEngage {
       each((value, key) => {
         // check if name is present
         if (key === 'name') {
-          self.moeClient.add_user_name(value);
+          this.moeClient.add_user_name(value);
         }
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
-          self.moeClient[method](value);
+          this.moeClient[method](value);
         } else {
-          self.moeClient.add_user_attribute(key, value);
+          this.moeClient.add_user_attribute(key, value);
         }
       }, traits);
     }

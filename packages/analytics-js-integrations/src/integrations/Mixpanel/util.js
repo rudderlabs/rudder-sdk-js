@@ -1,8 +1,14 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
+
+const logger = new Logger(NAME);
 
 const keysToExtract = ['context.traits'];
 const exclusionKeys = [
@@ -45,14 +51,14 @@ const formatTraits = message => {
   try {
     outgoingTraits = extractCustomFields(message, outgoingTraits, keysToExtract, exclusionKeys);
   } catch (err) {
-    logger.debug(`Error occured at extractCustomFields ${err}`);
+    logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
   }
   return outgoingTraits;
 };
 
 const parseConfigArray = (arr, key) => {
   if (!arr) {
-    logger.debug('===Mixpanel: arr is undefined or null===');
+    logger.debug(`${DISPLAY_NAME} : arr is undefined or null`);
     return;
   }
   // eslint-disable-next-line consistent-return
