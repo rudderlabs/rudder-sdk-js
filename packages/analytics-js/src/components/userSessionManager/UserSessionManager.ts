@@ -509,11 +509,8 @@ class UserSessionManager implements IUserSessionManager {
       state.session.authToken.value = defaultUserSessionValues.authToken;
 
       if (resetAnonymousId) {
-        if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
-          this.setAnonymousId();
-        } else {
-          state.session.anonymousId.value = defaultUserSessionValues.anonymousId;
-        }
+        // This will generate a new anonymous ID
+        this.setAnonymousId();
       }
 
       if (noNewSessionStart) {
