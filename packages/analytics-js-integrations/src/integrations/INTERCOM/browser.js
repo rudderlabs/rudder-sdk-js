@@ -1,9 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/INTERCOM/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/INTERCOM/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { flattenJsonPayload } from '../../utils/utils';
 import { processNameField, processCompanyField, processIdentityVerificationProps } from './utils';
+
+const logger = new Logger(NAME);
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -25,10 +30,12 @@ class INTERCOM {
   }
 
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.intercom_code;
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.intercom_code;
   }
 

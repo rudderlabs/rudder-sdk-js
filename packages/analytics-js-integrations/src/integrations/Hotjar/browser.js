@@ -1,8 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Hotjar/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Hotjar/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Hotjar {
   constructor(config, analytics, destinationInfo) {
@@ -21,27 +26,26 @@ class Hotjar {
   }
 
   init() {
-    logger.debug('===In init Hotjar===');
     loadNativeSdk(this.siteId);
     this._ready = true;
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Hotjar===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return this._ready;
   }
 
   isReady() {
-    logger.debug('===In isReady Hotjar===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return this._ready;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Hotjar identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('[Hotjar] identify:: user id is required');
+      logger.debug(`${DISPLAY_NAME} : user id is required for an identify call`);
       return;
     }
 
@@ -51,17 +55,17 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.debug('===In Hotjar track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     let { event } = rudderElement.message;
 
     if (!event) {
-      logger.error('Event name is not present');
+      logger.error(`${DISPLAY_NAME} : Event name is not present`);
       return;
     }
 
     if (typeof event !== 'string') {
-      logger.error('Event name should be string');
+      logger.error(`${DISPLAY_NAME} : Event name should be string`);
       return;
     }
 
@@ -75,11 +79,6 @@ class Hotjar {
     if (event) {
       window.hj('event', event);
     }
-  }
-
-  page() {
-    logger.debug('===In Hotjar page===');
-    logger.debug('[Hotjar] page:: method not supported');
   }
 }
 

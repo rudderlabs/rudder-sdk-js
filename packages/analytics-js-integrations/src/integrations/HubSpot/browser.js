@@ -1,9 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
+import Logger from '../../utils/logger';
 import { getDefinedTraits } from '../../utils/utils';
+
+const logger = new Logger(NAME);
 
 class HubSpot {
   constructor(config, analytics, destinationInfo) {
@@ -23,20 +28,20 @@ class HubSpot {
   init() {
     const hubSpotJs = `https://js.hs-scripts.com/${this.hubId}.js`;
     ScriptLoader('hubspot-integration', hubSpotJs);
-    logger.debug('===in init HS===');
   }
 
   isLoaded() {
-    logger.debug('in HubSpotAnalyticsManager isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 
   identify(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     const { traits } = message.context;
@@ -44,7 +49,7 @@ class HubSpot {
     const { userId, email } = getDefinedTraits(message);
 
     if (!email) {
-      logger.error('Email is required');
+      logger.error(`${DISPLAY_NAME} : Email is required`);
       return;
     }
 
@@ -70,7 +75,7 @@ class HubSpot {
   }
 
   track(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { properties, event } = rudderElement.message;
     const eventValue = {
@@ -82,7 +87,7 @@ class HubSpot {
   }
 
   page(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     const { properties } = rudderElement.message;
     const { path } = properties;

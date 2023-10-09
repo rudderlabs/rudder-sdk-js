@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
 import Logger from '../../utils/logger';
 import {
   formPurchaseEventPayload,
@@ -53,22 +56,21 @@ class Iterable {
   }
 
   init() {
-    logger.debug('===In init Iterable===');
     ScriptLoader('iterable-web', 'https://unpkg.com/@iterable/web-sdk/index.js');
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Iterable===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window[iterableWebSdk];
   }
 
   isReady() {
-    logger.debug('===In isReady Iterable===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window[iterableWebSdk];
   }
 
   identify(rudderElement) {
-    logger.debug('===In identify Iterable');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     const { integrations, traits, context, userId } = message;
@@ -77,7 +79,9 @@ class Iterable {
     const jwtToken = extractJWT(integrations);
 
     if (!jwtToken) {
-      logger.error('The JWT token was not passed, The SDK could not be initialised');
+      logger.error(
+        `${DISPLAY_NAME} : The JWT token was not passed, The SDK could not be initialized`,
+      );
       return;
     }
 
@@ -86,11 +90,11 @@ class Iterable {
 
     if (this.initialisationIdentifier === 'userId') {
       wd.setUserID(userId).then(() => {
-        logger.debug('userId set');
+        logger.debug(`${DISPLAY_NAME} : userId set`);
       });
     } else {
       wd.setEmail(userEmail).then(() => {
-        logger.debug('userEmail set');
+        logger.debug(`${DISPLAY_NAME} : userEmail set`);
       });
     }
     /* Available pop-up push notification settings configurable from UI
@@ -123,7 +127,7 @@ class Iterable {
   }
 
   track(rudderElement) {
-    logger.debug('===In track Iterable===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { message } = rudderElement;
     const { event, properties } = message;
@@ -131,7 +135,7 @@ class Iterable {
     const userEmail = get(message, 'context.traits.email');
     const userId = get(message, 'userId');
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name not present`);
       return;
     }
     if (
@@ -148,7 +152,7 @@ class Iterable {
             eventName: 'Track getInAppMessages',
             dataFields: eventPayload,
           })
-          .then(logger.debug('Web in-app push triggered'));
+          .then(logger.debug(`${DISPLAY_NAME} : Web in-app push triggered`));
       }
     } else if (
       isNotEmpty(this.purchaseEventMapping) &&
@@ -173,10 +177,12 @@ class Iterable {
         */
       // Either email or userId must be passed in to identify the user.
       // If both are passed in, email takes precedence.
-      logger.debug(`The event ${event} is not mapped in the dashboard, firing a custom event`);
+      logger.debug(
+        `${DISPLAY_NAME} : The event ${event} is not mapped in the dashboard, firing a custom event`,
+      );
       window[iterableWebSdk]
         .track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
-        .then(logger.debug('Track a custom event.'));
+        .then(logger.debug(`${DISPLAY_NAME} : Track a custom event`));
     }
   }
 }
