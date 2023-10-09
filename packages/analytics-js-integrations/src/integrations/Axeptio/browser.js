@@ -1,7 +1,10 @@
 /* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Axeptio/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Axeptio/constants';
 import Logger from '../../utils/logger';
 import makeACall from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -25,17 +28,16 @@ class Axeptio {
   }
 
   init() {
-    logger.debug('===In init Axeptio===');
     loadNativeSdk(this.clientId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Axeptio===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.__axeptioSDK && typeof window.__axeptioSDK === 'object';
   }
 
   isReady() {
-    logger.debug('===In isReady Axeptio===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     if (this.toggleToActivateCallback) {
       this.recordAxeptioEvents();
     }

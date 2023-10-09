@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Appcues/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Appcues/constants';
+import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 class Appcues {
   constructor(config, analytics, destinationInfo) {
@@ -22,8 +27,6 @@ class Appcues {
   }
 
   init() {
-    logger.debug('===in init Appcues===');
-
     let url = `https://fast.appcues.com/${this.accountId}.js`;
     if (
       isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
@@ -41,23 +44,12 @@ class Appcues {
   }
 
   isLoaded() {
-    logger.debug('in appcues isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.Appcues;
   }
 
   isReady() {
-    logger.debug('in appcues isReady');
-    // This block of code enables us to send Appcues Flow events to all the other destinations connected to the same source (we might use it in future)
-    // if (this.sendToAllDestinations && window.Appcues) {
-    //   window.Appcues.on("all", function(eventName, event) {
-    //     this.analytics.track(eventName, event, {
-    //       integrations: {
-    //         All: true,
-    //         APPCUES: false
-    //       }
-    //     });
-    //   });
-    // }
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.Appcues;
   }
 
@@ -67,7 +59,7 @@ class Appcues {
     if (userId) {
       window.Appcues.identify(userId, traits);
     } else {
-      logger.error('user id is empty');
+      logger.error(`${DISPLAY_NAME} : user id is required`);
     }
   }
 
@@ -77,7 +69,7 @@ class Appcues {
     if (eventName) {
       window.Appcues.track(eventName, properties);
     } else {
-      logger.error('event name is empty');
+      logger.error(`${DISPLAY_NAME} : event name is required`);
     }
   }
 
@@ -85,11 +77,6 @@ class Appcues {
     const { properties, name } = rudderElement.message;
     window.Appcues.page(name, properties);
   }
-
-  // To be uncommented after adding Reset feature to our SDK
-  // reset() {
-  //   window.Appcues.reset();
-  // }
 }
 
 export default Appcues;

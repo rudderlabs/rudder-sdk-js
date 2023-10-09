@@ -25,7 +25,7 @@ class ActiveCampaign {
 
   init() {
     if (!this.actId) {
-      logger.error('actId missing');
+      logger.error(`${DISPLAY_NAME} : actId is required`);
       return;
     }
     loadNativeSdk(this.actId);

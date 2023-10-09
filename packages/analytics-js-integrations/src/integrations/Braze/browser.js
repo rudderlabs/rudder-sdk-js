@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import isEqual from 'lodash.isequal';
 import { isEmpty } from 'ramda';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
@@ -48,7 +51,6 @@ class Braze {
   }
 
   init() {
-    logger.debug('===in init Braze===');
     loadNativeSdk();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
@@ -64,6 +66,14 @@ class Braze {
       window.braze.changeUser(userId);
     }
     window.braze.openSession();
+  }
+
+  isLoaded() {
+    return this.appKey && window.brazeQueue === null;
+  }
+
+  isReady() {
+    return this.appKey && window.brazeQueue === null;
   }
 
   /**
@@ -99,7 +109,7 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
-    logger.debug('in Braze identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
     const { message } = rudderElement;
     const { userId } = message;
     const { context } = message;
@@ -139,14 +149,14 @@ class Braze {
       try {
         const date = new Date(birthday);
         if (date.toString() === 'Invalid Date') {
-          logger.error('Invalid Date for birthday');
+          logger.error(`${DISPLAY_NAME} : Invalid Date for birthday`);
           return;
         }
         window.braze
           .getUser()
           .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
-        logger.error('Error in setting birthday', error);
+        logger.error(`${DISPLAY_NAME} : Error in setting birthday - ${JSON.stringify(error)}`);
       }
     }
     // function set Email
@@ -271,14 +281,6 @@ class Braze {
     } else {
       window.braze.logCustomEvent('Page View', properties);
     }
-  }
-
-  isLoaded() {
-    return this.appKey && window.brazeQueue === null;
-  }
-
-  isReady() {
-    return this.appKey && window.brazeQueue === null;
   }
 }
 

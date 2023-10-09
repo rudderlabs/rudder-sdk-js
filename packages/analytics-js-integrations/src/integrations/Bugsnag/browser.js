@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Bugsnag/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Bugsnag/constants';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(NAME);
 
 class Bugsnag {
   constructor(config, analytics, destinationInfo) {
@@ -21,7 +26,6 @@ class Bugsnag {
   }
 
   init() {
-    logger.debug('===in init Bugsnag===');
     ScriptLoader('bugsnag-id', 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js');
 
     this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
@@ -36,12 +40,12 @@ class Bugsnag {
   }
 
   isLoaded() {
-    logger.debug('in bugsnag isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window.bugsnagClient;
   }
 
   isReady() {
-    logger.debug('in bugsnag isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.bugsnagClient;
   }
 

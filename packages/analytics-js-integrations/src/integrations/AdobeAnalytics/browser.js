@@ -272,7 +272,7 @@ class AdobeAnalytics {
           heartbeatUtils.heartbeatUpdatePlayhead(rudderElement);
           break;
         default:
-          logger.error('No heartbeat function for this event');
+          logger.error(`${DISPLAY_NAME} : No heartbeat function for this event`);
       }
     }
   }

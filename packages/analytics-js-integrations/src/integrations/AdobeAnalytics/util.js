@@ -2,7 +2,10 @@
 /* eslint-disable no-undef */
 import get from 'lodash.get';
 import each from '@ndhoule/each';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
 import Logger from '../../utils/logger';
 import {
   toIso,
@@ -320,7 +323,7 @@ const handleLists = rudderElement => {
     each((value, key) => {
       if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
-          logger.error('list variable is neither a string nor an array');
+          logger.error(`${DISPLAY_NAME} : list variable is neither a string nor an array`);
           return;
         }
         const delimiter = listDelimiterHashmap[key];

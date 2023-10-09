@@ -51,7 +51,7 @@ class Adroll {
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
     if (!email) {
-      logger.error('User parameter (email) is required for identify call');
+      logger.error(`${DISPLAY_NAME} : User parameter (email) is required for identify call`);
       return;
     }
     window._adroll_email = email;
@@ -86,7 +86,9 @@ class Adroll {
       data.adroll_segments = segmentId;
       window.__adroll.record_user(data);
     } else {
-      logger.error(`The event ${event} is not mapped to any segmentId. Aborting!`);
+      logger.error(
+        `${DISPLAY_NAME} : The event ${event} is not mapped to any segmentId. Aborting!`,
+      );
     }
   }
   // record_user fires the correct pixel in accordance with the event configured in the dashboard
@@ -109,7 +111,9 @@ class Adroll {
 
     const segmentId = eventsHashmap[pageFullName.toLowerCase()];
     if (!segmentId) {
-      logger.error(`The event ${pageFullName} is not mapped to any segmentId. Aborting!`);
+      logger.error(
+        `${DISPLAY_NAME} : The event ${pageFullName} is not mapped to any segmentId. Aborting!`,
+      );
       return;
     }
 
