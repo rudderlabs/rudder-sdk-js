@@ -1,6 +1,10 @@
 /* eslint-disable guard-for-in */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { isEmptyObject } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import Logger from '../../utils/logger';
 import {
   eventsConfig,
   itemsArrayParams,
@@ -9,6 +13,8 @@ import {
 } from './config';
 import { isBlank, flattenJson } from '../../utils/commonUtils';
 import { constructPayload, extractCustomFields } from '../../utils/utils';
+
+const logger = new Logger(NAME);
 
 /**
  * Extracts last word after . from string
@@ -26,9 +32,9 @@ const shouldSendUserId = integrations => integrations?.GA4?.sendUserId ?? true;
 
 /**
  * Returns user traits
- * @param {*} piiPropertiesToIgnore 
- * @param {*} userTraits 
- * @returns 
+ * @param {*} piiPropertiesToIgnore
+ * @param {*} userTraits
+ * @returns
  */
 const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   const piiKeys = [];
@@ -44,17 +50,17 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
     });
   }
 
-  Object.keys(traits).forEach((key) => {
+  Object.keys(traits).forEach(key => {
     const value = traits[key];
     if (!piiKeys.includes(key)) {
       nonPiiProperties[key] = value;
     } else {
       piiProperties[key] = null;
     }
-  })
+  });
 
   return { ...piiProperties, ...nonPiiProperties };
-}
+};
 
 /**
  * Reserved event names cannot be used
@@ -93,7 +99,7 @@ const isReservedEventName = event => {
  */
 const formatAndValidateEventName = eventName => {
   if (!eventName || typeof eventName !== 'string') {
-    logger.error('Event name is required and should be a string');
+    logger.error(`${DISPLAY_NAME} : Event name is required and should be a string`);
     return null;
   }
 
@@ -105,7 +111,7 @@ const formatAndValidateEventName = eventName => {
 
   // Reserved event names are not allowed
   if (isReservedEventName(trimmedEvent)) {
-    logger.error(`Reserved event name ${trimmedEvent} is not allowed`);
+    logger.error(` ${DISPLAY_NAME} : Reserved event name ${trimmedEvent} is not allowed`);
     return null;
   }
 
@@ -295,7 +301,9 @@ const prepareStandardEventParams = (message, eventConfig) => {
   if (Array.isArray(mapping) && mapping.length > 0) {
     const hasMissingRequiredValue = mapping.some(mappingItem => {
       if (!payload[mappingItem.destKey] && mappingItem.required) {
-        logger.error(`Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`);
+        logger.error(
+          `${DISPLAY_NAME} : Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`,
+        );
         return true;
       }
       return false;

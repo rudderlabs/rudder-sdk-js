@@ -1,12 +1,17 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Drip/constants';
-import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Drip/constants';
+import Logger from '../../utils/logger';
 import { getDestinationExternalID } from './utils';
-import { extractCustomFields } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { extractCustomFields } from '../../utils/utils';
+import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../../utils/commonUtils';
+
+const logger = new Logger(NAME);
 
 class Drip {
   constructor(config, analytics, destinationInfo) {
@@ -38,34 +43,32 @@ class Drip {
   }
 
   init() {
-    logger.debug('===In init Drip===');
-
     loadNativeSdk(this.accountId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Drip===');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!window._dcq;
   }
 
   isReady() {
-    logger.debug('===In isReady Drip===');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window._dcq;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Drip identify===');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
-      logger.error('user context or traits not present');
+      logger.error(`${DISPLAY_NAME} : user context or traits not present`);
       return;
     }
 
     const email = get(message, 'context.traits.email');
     if (!email) {
-      logger.error('email is required for identify');
+      logger.error(`${DISPLAY_NAME} : email is required for identify`);
       return;
     }
 
@@ -97,7 +100,7 @@ class Drip {
         this.exclusionFields,
       );
     } catch (err) {
-      logger.debug(`Error occured at extractCustomFields ${err}`);
+      logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
     }
 
     payload = {
@@ -127,19 +130,19 @@ class Drip {
   }
 
   track(rudderElement) {
-    logger.debug('===In Drip track===');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { message } = rudderElement;
     const { event } = message;
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error(`${DISPLAY_NAME} : Event name not present`);
       return;
     }
 
     const email = get(message, 'properties.email') || get(message, 'context.traits.email');
     if (!email) {
-      logger.error('email is required for track');
+      logger.error(`${DISPLAY_NAME} : email is required for track`);
       return;
     }
 

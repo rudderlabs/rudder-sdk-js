@@ -1,15 +1,22 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
+import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
-import { shouldSendUserId, prepareParamsAndEventName, filterUserTraits, formatAndValidateEventName } from './utils';
+import {
+  shouldSendUserId,
+  prepareParamsAndEventName,
+  filterUserTraits,
+  formatAndValidateEventName,
+} from './utils';
+
+const logger = new Logger(NAME);
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -141,10 +148,12 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(this.sessionId && this.clientId);
   }
 
   isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return this.isLoaded();
   }
 
@@ -153,14 +162,14 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug('In Google Analytics 4 Identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     const { message } = rudderElement;
     const { traits } = message.context;
     const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, traits);
     if (Object.keys(piiFilteredUserTraits).length > 0) {
       window.gtag('set', 'user_properties', piiFilteredUserTraits);
-    } 
+    }
 
     if (this.sendUserId && message.userId) {
       const { userId } = message;
@@ -178,13 +187,13 @@ export default class GA4 {
       return;
     }
 
-    logger.debug('In Google Analytics 4 Track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
 
     const { message } = rudderElement;
 
     const eventName = formatAndValidateEventName(message?.event);
     if (!eventName) {
-      logger.error('Event name is required');
+      logger.error(`${DISPLAY_NAME} : Event name is required`);
       return;
     }
 
@@ -204,7 +213,7 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug('In Google Analytics 4 Page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
 
     if (this.capturePageView === 'rs') {
       const { message } = rudderElement;
@@ -234,7 +243,7 @@ export default class GA4 {
       return;
     }
 
-    logger.debug('In Google Analytics 4 Group');
+    logger.debug(`In ${DISPLAY_NAME} group`);
 
     const { groupId, traits } = rudderElement.message;
     let payload = traits;

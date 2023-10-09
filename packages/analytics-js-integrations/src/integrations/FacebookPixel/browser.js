@@ -6,12 +6,13 @@
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   traitsMapper,
   reserveTraits,
+  DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import Logger from '../../utils/logger';
 import {
   merge,
   getEventId,
@@ -27,6 +28,8 @@ import {
 } from './utils';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
+
+const logger = new Logger(NAME);
 
 class FacebookPixel {
   constructor(config, analytics, destinationInfo) {
@@ -54,8 +57,6 @@ class FacebookPixel {
   }
 
   init() {
-    logger.debug('===in init FbPixel===');
-
     window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
@@ -103,12 +104,12 @@ class FacebookPixel {
   }
 
   isLoaded() {
-    logger.debug('in FBPixel isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug('in FBPixel isReady');
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!(window.fbq && window.fbq.callMethod);
   }
 
@@ -120,7 +121,6 @@ class FacebookPixel {
   }
 
   track(rudderElement) {
-    const self = this;
     const { event } = rudderElement.message;
     const properties = eventHelpers.getProperties(rudderElement.message);
     const {
@@ -176,12 +176,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'ViewContent',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -199,12 +199,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         eventHelpers.getEventName(event),
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: productInfo.value,
       });
@@ -227,12 +227,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'Purchase',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -248,8 +248,8 @@ class FacebookPixel {
         search_string: query,
       };
 
-      this.makeTrackSignalCall(self.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, { currency, value });
+      this.makeTrackSignalCall(this.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, { currency, value });
     } else if (event === 'Checkout Started') {
       let contentCategory = category;
       const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
@@ -268,28 +268,28 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'InitiateCheckout',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
     } else {
-      logger.debug('inside custom');
+      logger.debug(`${DISPLAY_NAME} : Inside custom`);
       if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
-        logger.debug('inside custom not mapped');
+        logger.debug(`${DISPLAY_NAME} : inside custom not mapped`);
         payload.value = revValue;
-        window.fbq('trackSingleCustom', self.pixelId, event, payload, {
+        window.fbq('trackSingleCustom', this.pixelId, event, payload, {
           eventID: derivedEventID,
         });
       } else {
         payload.value = revValue;
         payload.currency = currency;
-        this.makeTrackSignalCalls(self.pixelId, event, standardTo, derivedEventID, payload);
-        this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+        this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
+        this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
           currency,
           value: revValue,
         });

@@ -1,12 +1,17 @@
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+/* eslint-disable no-underscore-dangle */
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import Logger from '../../utils/logger';
 import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';
-/* eslint-disable no-underscore-dangle */
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(NAME);
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -60,7 +65,6 @@ class Fullstory {
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   init() {
-    logger.debug('===in init FULLSTORY===');
     loadNativeSdk(this.fs_debug_mode, this.fs_host, this.fs_org);
     const fullstoryIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     // Checking if crossDomainSupport is their or not.
@@ -76,7 +80,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug('Unable to access localStorage');
+          logger.debug(`${DISPLAY_NAME} : Unable to access localStorage`);
         }
 
         return null;
@@ -85,7 +89,9 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            logger.error('FullStory unavailable, window["_fs_namespace"] must be defined');
+            logger.error(
+              `${DISPLAY_NAME} : FullStory unavailable, window["_fs_namespace"] must be defined`,
+            );
             return undefined;
           }
           return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
@@ -130,12 +136,17 @@ class Fullstory {
   }
 
   isLoaded() {
-    logger.debug('in FULLSTORY isLoaded');
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    return !!window.FS;
+  }
+
+  isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
     return !!window.FS;
   }
 
   page(rudderElement) {
-    logger.debug('in FULLSORY page');
+    logger.debug(`In ${DISPLAY_NAME} page`);
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const props = {
@@ -147,7 +158,7 @@ class Fullstory {
   }
 
   identify(rudderElement) {
-    logger.debug('in FULLSORY identify');
+    logger.debug(`In ${DISPLAY_NAME} identify`);
 
     let { userId } = rudderElement.message;
     const { context, anonymousId } = rudderElement.message;
@@ -160,7 +171,7 @@ class Fullstory {
   }
 
   track(rudderElement) {
-    logger.debug('in FULLSTORY track');
+    logger.debug(`In ${DISPLAY_NAME} track`);
     window.FS.event(
       rudderElement.message.event,
       Fullstory.getFSProperties(rudderElement.message.properties),

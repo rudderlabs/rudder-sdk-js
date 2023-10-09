@@ -3,7 +3,7 @@ import {
   DISPLAY_NAME,
   NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import Logger from '../../utils/logger';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {
   isNotEmpty,
@@ -12,6 +12,7 @@ import {
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
 
+const logger = new Logger(NAME);
 const matchIdKey = 'properties.matchId';
 
 /**
@@ -63,7 +64,7 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
         typeof itemValue === 'string' &&
         DENIED_CHARACTERS.some(key => itemValue.includes(key))
       ) {
-        logger.info(`${DENIED_CHARACTERS} string variable is not acceptable`);
+        logger.info(`${DISPLAY_NAME} : ${DENIED_CHARACTERS} string variable is not acceptable`);
         itemValue = undefined;
       }
       // supported data types are number and string
@@ -99,7 +100,7 @@ const mapFlagValue = (key, value) => {
     return 0;
   }
 
-  throw Error(`[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`);
+  return 0;
 };
 
 const calculateQuantity = products => {

@@ -301,7 +301,9 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
+      logger.warn(
+        `${DISPLAY_NAME} : Neither "revenue" nor "price" is available. Hence, not logging revenue`,
+      );
       return;
     }
 
