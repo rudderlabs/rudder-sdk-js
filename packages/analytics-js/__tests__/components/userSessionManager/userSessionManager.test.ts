@@ -532,12 +532,14 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
   it('reset: should clear anonymousId with first parameter set to true', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     userSessionManager.reset(true);
-    expect(state.session.anonymousId.value).toEqual('');
+    expect(state.session.anonymousId.value).toEqual('test_uuid');
   });
   it('reset: should not start a new session with second parameter set to true', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.init();
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset(true, true);
