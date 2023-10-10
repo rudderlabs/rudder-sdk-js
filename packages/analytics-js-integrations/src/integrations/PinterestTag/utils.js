@@ -1,7 +1,7 @@
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';

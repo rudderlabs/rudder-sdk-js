@@ -70,16 +70,17 @@ class Pendo {
   identify(rudderElement) {
     let visitorObj = {};
     let accountObj = {};
-    const { groupId } = this.analytics;
-    const { userId, anonymousId } = rudderElement.message;
+    const { userId, anonymousId, groupId, context, traits } = rudderElement.message;
     const id = userId || this.constructPendoAnonymousId(anonymousId);
+    const userTraits = context?.traits || {};
     visitorObj = {
       id,
-      ...this.analytics.getUserTraits(),
+      ...userTraits,
     };
 
+    const groupTraits = traits || {};
     if (groupId) {
-      accountObj = { id: groupId, ...this.analytics.getGroupTraits() };
+      accountObj = { id: groupId, ...groupTraits };
     }
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
@@ -92,17 +93,18 @@ class Pendo {
   group(rudderElement) {
     let accountObj = {};
     let visitorObj = {};
-    const { userId, traits, context } = rudderElement.message;
-    accountObj.id = this.analytics.getGroupId() || this.analytics.getAnonymousId();
+    const { userId, traits, context, groupId, anonymousId } = rudderElement.message;
+    accountObj.id = groupId || anonymousId;
     accountObj = {
       ...accountObj,
       ...traits,
     };
 
+    const userTraits = context?.traits || {};
     if (userId) {
       visitorObj = {
         id: userId,
-        ...context?.traits,
+        ...userTraits,
       };
     }
 

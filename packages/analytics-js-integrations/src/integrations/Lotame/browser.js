@@ -37,6 +37,16 @@ class Lotame {
     window.LOTAME_SYNCH_CALLBACK = () => {};
   }
 
+  isLoaded() {
+    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    return true;
+  }
+
+  isReady() {
+    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    return true;
+  }
+
   addPixel(source, width, height) {
     logger.debug(`${DISPLAY_NAME} : Adding pixel for - ${source}`);
 

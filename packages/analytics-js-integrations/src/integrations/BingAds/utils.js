@@ -66,12 +66,12 @@ const handleProductsArray = properties => {
 const buildEcommPayload = message => {
   const { properties = {} } = message;
   const {
-    category_id: cId,
+    category_id: categoryId,
     total,
     value,
     ecomm_category: ecommCategory,
     transaction_id: transactionId,
-    order_id: oId,
+    order_id: orderId,
     checkout_id: checkoutId,
     ecomm_pagetype: ecommPageType,
     pagetype,
@@ -82,8 +82,8 @@ const buildEcommPayload = message => {
     ecomm_totalvalue: total || value,
     search_term: query,
     ecomm_query: query,
-    ecomm_category: ecommCategory || cId,
-    transaction_id: transactionId || oId || checkoutId,
+    ecomm_category: ecommCategory || categoryId,
+    transaction_id: transactionId || orderId || checkoutId,
     ecomm_pagetype: ecommPageType || pagetype || DEFAULT_PAGETYPE,
   };
   const payload = handleProductsArray(properties);
