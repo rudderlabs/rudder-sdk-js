@@ -41,6 +41,12 @@ To install the package via npm, run the following command:
 npm install @rudderstack/analytics-js-service-worker --save
 ```
 
+```js
+import { Analytics } from '@rudderstack/analytics-js-service-worker';
+
+const rudderClient = new Analytics('<writeKey>', '<dataplaneUrl>/v1/batch');
+```
+
 | Note that this NPM module is only meant to be used for a service worker usage. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node). |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
