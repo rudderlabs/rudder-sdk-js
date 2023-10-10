@@ -15,7 +15,6 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AnonymousIdOptions,
   LoadOptions,
-  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
