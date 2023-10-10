@@ -61,7 +61,7 @@ class HttpClient implements IHttpClient {
    */
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>) {
     const { callback, url, options, timeout, isRawResponse } = config;
-    const isFireAndForget = !(callback && isFunction(callback));
+    const isFireAndForget = !isFunction(callback);
 
     xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
       .then((data: ResponseDetails) => {

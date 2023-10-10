@@ -152,29 +152,28 @@ const updateStorageState = (logger?: ILogger): void => {
   });
 };
 
-const getCmpData = (logger?: ILogger) => {
+const isValidConsentsData = (value: Consents | undefined): value is Consents =>
+  isNonEmptyObject(value) || Array.isArray(value);
+
+const getConsentManagementData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
   let allowedConsents: Consents | undefined;
   let deniedConsents: Consents | undefined;
   let cmpInitialized = false;
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
-  if (
-    consentManagementOpts &&
-    isNonEmptyObject(consentManagementOpts) &&
-    consentManagementOpts.enabled === true
-  ) {
+  if (isNonEmptyObject(consentManagementOpts) && consentManagementOpts.enabled === true) {
     const consentProvider = consentManagementOpts.provider;
     if (consentProvider === 'custom') {
       cmpInitialized = true;
 
       const allowedConsentsOpts = consentManagementOpts.allowedConsents;
-      if (isNonEmptyObject(allowedConsentsOpts) || Array.isArray(allowedConsentsOpts)) {
+      if (isValidConsentsData(allowedConsentsOpts)) {
         allowedConsents = allowedConsentsOpts;
       }
 
       const deniedConsentsOpts = consentManagementOpts.deniedConsents;
-      if (isNonEmptyObject(deniedConsentsOpts) || Array.isArray(deniedConsentsOpts)) {
+      if (isValidConsentsData(deniedConsentsOpts)) {
         deniedConsents = deniedConsentsOpts;
       }
     } else if (consentProvider) {
@@ -205,7 +204,8 @@ const getCmpData = (logger?: ILogger) => {
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  const { consentManagerPluginName, cmpInitialized, consentsData } = getCmpData(logger);
+  const { consentManagerPluginName, cmpInitialized, consentsData } =
+    getConsentManagementData(logger);
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;

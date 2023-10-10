@@ -14,7 +14,7 @@ const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
  * @param value Input value
  * @returns true if the input is an object and not null
  */
-const isObjectAndNotNull = (value: any): boolean =>
+const isObjectAndNotNull = (value: any): value is object =>
   !isNull(value) && typeof value === 'object' && !Array.isArray(value);
 
 /**
@@ -54,7 +54,7 @@ const mergeDeepRight = <T = Record<string, any>>(
  * @param value input any
  * @returns boolean
  */
-const isNonEmptyObject = (value?: any) =>
+const isNonEmptyObject = (value?: any): value is object =>
   isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
 
 /**
