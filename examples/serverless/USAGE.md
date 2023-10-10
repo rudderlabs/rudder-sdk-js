@@ -1,7 +1,7 @@
 # Serverless Usage
 
-RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
-It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used
+in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 
 ## Table of contents
 
@@ -16,9 +16,9 @@ vercel edge and cloudflare worker implementation.
 
 ## Cloudflare Worker
 
-RudderStack JS SDK service worker can be utilised in Cloudflare workers. You can start with the
-[sample](https://developers.cloudflare.com/workers/get-started/guide/) and alter the worker.js file
-to integrate the sdk:
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be
+utilised in Cloudflare workers. You can start with the [sample](https://developers.cloudflare.com/workers/get-started/guide/)
+and alter the worker.js file to integrate the sdk:
 
     import { Analytics } from '@rudderstack/analytics-js-service-worker';
 
@@ -50,9 +50,9 @@ See relevant [example](https://github.com/rudderlabs/rudder-sdk-js/blob/main/exa
 
 ## Vercel Edge
 
-RudderStack JS SDK service worker can be utilised in Vercel Edge functions. You can start with the
-[sample](https://vercel.com/docs/functions/edge-functions/quickstart) and alter the
-app/api/edge-function-sample/route.ts file to integrate the sdk:
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be
+utilised in Vercel Edge functions. You can start with the [sample](https://vercel.com/docs/functions/edge-functions/quickstart)
+and alter the app/api/edge-function-sample/route.ts file to integrate the sdk:
 
     import { Analytics } from '@rudderstack/analytics-js-service-worker';
 

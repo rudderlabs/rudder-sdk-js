@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://rudderstack.com/">
-    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+    <img alt="RudderStack" width="512" src="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-light.jpg">
   </a>
   <br />
   <caption>The Customer Data Platform for Developers</caption>
@@ -40,23 +40,25 @@ npm install @rudderstack/analytics-js-service-worker --save
 
 **Note that this NPM module is only meant to be used for a service worker usage**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
 
-## Usage in Chrome Extensions
+### Usage in Chrome Extensions
 
-RudderStack JS SDK service worker can be used in Chrome Extensions with manifest v3, both as a content script or as a background script service worker.
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package)
+or as a background script service worker (via the [service worker package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker)).
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
-## Usage in Serverless runtimes
+### Usage in Serverless runtimes
 
-RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used
+in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 
 For examples and specific details look into:
 
-- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#Cloudflare-Worker)
-- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#Vercel-Edge)
+- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
+- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 
 ## [How to build the SDK](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#how-to-build-the-sdk)
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run build:npm`: This outputs **dist/npm** folder that contains the npm package contents.
+  - `npm run build:package`: This outputs **dist/npm** folder that contains the npm package contents.
