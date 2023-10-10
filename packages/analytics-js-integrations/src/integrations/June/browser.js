@@ -41,12 +41,12 @@ class June {
 
   isLoaded() {
     logger.debug(`In isLoaded ${DISPLAY_NAME}`);
-    return !!window.analytics && typeof window.analytics === 'object';
+    return !!(window.analytics && window.analytics.push !== Array.prototype.push);
   }
 
   isReady() {
     logger.debug(`In isReady ${DISPLAY_NAME}`);
-    return !!window.analytics && typeof window.analytics === 'object';
+    return !!(window.analytics && window.analytics.push !== Array.prototype.push);;
   }
 
   page(rudderElement) {
