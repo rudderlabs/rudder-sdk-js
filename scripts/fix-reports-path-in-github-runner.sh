@@ -9,6 +9,7 @@ projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrati
 
 # List of files to alter
 for projectFolder in "${projectFolderNames[@]}"; do
+  echo "Replacing $absolutePathPrefix for $projectFolder reports"
   sed -i "s+$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/coverage/lcov.info"
   sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/eslint.json"
   sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/sonar/results-report.xml"
