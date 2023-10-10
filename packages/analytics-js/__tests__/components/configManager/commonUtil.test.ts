@@ -285,6 +285,11 @@ describe('Config Manager Common Utilities', () => {
         },
         trackConsent: true,
       });
+      expect(state.consents.initialized.value).toBe(false);
+      expect(state.consents.data.value).toStrictEqual({
+        allowedConsents: [],
+        deniedConsents: [],
+      });
     });
 
     it('should log an error if the specified consent manager is not supported', () => {
@@ -356,6 +361,39 @@ describe('Config Manager Common Utilities', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent events delivery type "random-delivery" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "immediate" will be used instead.',
       );
+    });
+
+    it('should set pre-consent enabled status to false if the consents data is already provided for custom CMP', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: true,
+      };
+
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'custom',
+        allowedConsents: ['consent1'],
+        deniedConsents: ['consent2'],
+      };
+
+      updateConsentsState();
+
+      expect(state.consents.preConsent.value).toStrictEqual({
+        enabled: false,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+        trackConsent: true,
+      });
     });
   });
 });
