@@ -136,15 +136,20 @@ describe('Core - Analytics', () => {
   });
 
   describe('onDestinationsReady', () => {
-    it('should invoke callbacks passed in onDestinationsReady calls', () => {
-      const callback = jest.fn();
-      state.eventBuffer.readyCallbacksArray.value = [callback, callback];
+    it('should update the life cycle status to ready when onDestinationsReady is called', () => {
       analytics.onDestinationsReady();
-      expect(callback).toHaveBeenCalledTimes(2);
+      expect(state.lifecycle.status.value).toBe('ready');
     });
   });
 
   describe('ready', () => {
+    it('should invoke callbacks passed', () => {
+      const callback = jest.fn();
+      state.eventBuffer.readyCallbacksArray.value = [callback, callback];
+      analytics.onReady();
+      expect(callback).toHaveBeenCalledTimes(2);
+    });
+
     it('should ignore calls with no function callback', () => {
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const errorSpy = jest.spyOn(analytics.logger, 'error');

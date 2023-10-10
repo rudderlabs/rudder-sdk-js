@@ -193,7 +193,12 @@ class Analytics implements IAnalytics {
             break;
           case 'loaded':
             this.processBufferedEvents();
-            this.loadDestinations();
+            // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
+            if (state.consents.preConsent.value.enabled === true) {
+              state.lifecycle.status.value = 'ready';
+            } else {
+              this.loadDestinations();
+            }
             break;
           case 'destinationsLoading':
             break;
@@ -340,6 +345,14 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
+    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
+      try {
+        callback();
+      } catch (err) {
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+      }
+    });
+
     // Emit an event to use as substitute to the ready callback
     const readyEvent = new CustomEvent('RSA_Ready', {
       detail: { analyticsInstance: (globalThis as any).rudderanalytics },
@@ -369,12 +382,6 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
-    // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
-    if (state.consents.preConsent.value.enabled === true) {
-      state.lifecycle.status.value = 'ready';
-      return;
-    }
-
     // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
@@ -418,18 +425,16 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Invoke the ready callbacks if any exist
+   * Move to the ready state
    */
   // eslint-disable-next-line class-methods-use-this
   onDestinationsReady() {
-    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
-      try {
-        callback();
-      } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
-      }
-    });
-    state.lifecycle.status.value = 'ready';
+    // May be do any destination specific actions here
+
+    // Mark the ready status if not already done
+    if (state.lifecycle.status.value !== 'ready') {
+      state.lifecycle.status.value = 'ready';
+    }
   }
   // End lifecycle methods
 
@@ -692,9 +697,9 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: true };
+    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
 
-    // TODO: Register consent manager plugins
+    // TODO: Register consent manager plugins and initialize them
     // Initialize consent manager
     if (state.consents.activeConsentManagerPluginName.value) {
       this.pluginsManager?.invokeSingle(
@@ -705,10 +710,13 @@ class Analytics implements IAnalytics {
       );
     }
 
+    // TODO: Re-init store manager
     this.storeManager?.initClientDataStores();
 
+    // TODO: Re-init user session manager
     this.userSessionManager?.syncStorageDataToState();
 
+    // TODO: Re-init event manager
     this.eventManager?.resume();
   }
 
