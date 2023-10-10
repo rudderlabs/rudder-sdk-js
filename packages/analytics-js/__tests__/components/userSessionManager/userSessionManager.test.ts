@@ -12,6 +12,7 @@ import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import {
+  anonymousIdWithNoStorageEntries,
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
@@ -560,13 +561,22 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
     expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
-  it('reset: should clear anonymousId with first parameter set to true', () => {
+  it('reset: should clear the existing anonymousId and set a new anonymousId with first parameter set to true', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
+    userSessionManager.init();
+    userSessionManager.setAnonymousId(dummyAnonymousId);
+    userSessionManager.reset(true);
+    expect(state.session.anonymousId.value).toEqual('test_uuid');
+  });
+  it('reset: should clear anonymousId and set default value in case of storage type is no_storage', () => {
+    state.storage.entries.value = anonymousIdWithNoStorageEntries;
     userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     userSessionManager.reset(true);
     expect(state.session.anonymousId.value).toEqual('');
   });
   it('reset: should not start a new session with second parameter set to true', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.init();
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset(true, true);
