@@ -50,7 +50,7 @@ jobs:
 
       - name: Fix filesystem paths in generated reports
         run: |
-          ./scripts/fix-reports-path-in-github-runner
+          ./scripts/fix-reports-path-in-github-runner.sh
 
       - name: Upload report to github build
         if: always()
