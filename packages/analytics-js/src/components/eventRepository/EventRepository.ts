@@ -101,7 +101,9 @@ class EventRepository implements IEventRepository {
     // At the time of processing the events, the integrations config data from destinations
     // is merged into the event object
     let timeoutId: number;
-    const preConsentActive = false; // state.consents.preConsent.value.enabled;
+    const shouldBufferEventsForPreConsent =
+      state.consents.preConsent.value.enabled &&
+      state.consents.preConsent.value.events?.delivery === 'buffer';
     effect(() => {
       const shouldBufferDpEvents =
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
@@ -113,8 +115,8 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true &&
-        preConsentActive === false
+        !shouldBufferEventsForPreConsent &&
+        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
         this.dataplaneEventsQueue?.start();
@@ -122,10 +124,7 @@ class EventRepository implements IEventRepository {
     });
 
     // Force start the data plane events queue processing after a timeout
-    if (
-      state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
-      preConsentActive === false
-    ) {
+    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
       timeoutId = (globalThis as typeof window).setTimeout(() => {
         if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
           this.dataplaneEventsQueue?.start();
