@@ -19,7 +19,7 @@
 
 ---
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#@rudderstack-analytics-js-service-worker)@rudderstack/analytics-js-service-worker
+# @rudderstack/analytics-js-service-worker
 
 RudderStack Javascript SDK service worker that can be used in browser extensions and serverless runtimes.
 It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
@@ -28,9 +28,12 @@ It exposes the same interface and features as the [NodeJS SDK](https://www.rudde
 
 ## Table of Contents
 
-- [**Installing the package**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#installing-the-package)
+- [**Installing the package**](#installing-the-package)
+- [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
+- [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
+- [**How to build the SDK**](#how-to-build-the-sdk)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#installing-the-package)Installing the package
+## Installing the package
 
 To install the package via npm, run the following command:
 
@@ -38,16 +41,17 @@ To install the package via npm, run the following command:
 npm install @rudderstack/analytics-js-service-worker --save
 ```
 
-**Note that this NPM module is only meant to be used for a service worker usage**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
+| Note that this NPM module is only meant to be used for a service worker usage. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node). |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-### Usage in Chrome Extensions
+## Usage in Chrome Extensions
 
 RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package)
 or as a background script service worker (via the [service worker package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker)).
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
-### Usage in Serverless runtimes
+## Usage in Serverless runtimes
 
 RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used
 in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
@@ -57,7 +61,7 @@ For examples and specific details look into:
 - [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 - [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 
-## [How to build the SDK](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-service-worker/README.md#how-to-build-the-sdk)
+## How to build the SDK
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 

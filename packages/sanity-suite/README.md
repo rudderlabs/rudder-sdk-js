@@ -27,9 +27,9 @@ RudderStack Javascript SDK sanity suite for manual and automated testing via our
 
 ## Table of Contents
 
-- [**Test URLs**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/sanity-suite/README.md#itest-urls)
+- [**Sanity Suite Public URLs**](#Sanity-Suite-Public-URLs)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/sanity-suite/README.md#itest-urls)Test URLs
+## Sanity Suite Public URLs
 
 - https://cdn.rudderlabs.com/sanity-suite/cdn/v1.1/index.html
 - https://cdn.rudderlabs.com/sanity-suite/npm/v1.1/index.html

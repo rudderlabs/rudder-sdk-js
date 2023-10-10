@@ -8,6 +8,7 @@ or as a background script service worker (via the service worker package).
 - [**Examples**](#examples)
 - [**Background Script**](#background-script)
 - [**Content Script**](#content-script)
+- [**External resources**](#External-resources)
 
 ## Examples
 

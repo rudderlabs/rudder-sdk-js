@@ -19,7 +19,7 @@
 
 ---
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md#@rudderstack-analytics-js)@rudderstack/analytics-js
+# @rudderstack/analytics-js
 
 RudderStack Javascript SDK for browsers.
 
@@ -27,9 +27,12 @@ RudderStack Javascript SDK for browsers.
 
 ## Table of Contents
 
-- [**Installing the package**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md#installing-the-package)
+- [**Installing the package**](#installing-the-package)
+- [**How to build the SDK**](#How-to-build-the-SDK)
+- [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
+- [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md#installing-the-package)Installing the package
+## Installing the package
 
 To install the package via npm, run the following command:
 
@@ -39,15 +42,59 @@ npm install @rudderstack/analytics-js --save
 
 **Note that this NPM module is only meant to be used for a browser installation**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
 
+### Available exports
+
+Default export will fetch the plugins during runtime as federated modules in separate requests.
+
+```javascript
+import { RudderAnalytics } from '@rudderstack/analytics-js';
+
+const analytics = new RudderAnalytics();
+analytics.load(<WRITE_KEY>, <DATA_PLANE_URL>);
+window.rudderanalytics = analytics;
+```
+
+Bundled export will contain the plugins code as part of the bundle in build time.
+
+```javascript
+import { RudderAnalytics } from '@rudderstack/analytics-js/bundled';
+
+const analytics = new RudderAnalytics();
+analytics.load(<WRITE_KEY>, <DATA_PLANE_URL>);
+window.rudderanalytics = analytics;
+```
+
+Legacy export will contain the plugins code as part of the bundle in build time and support legacy browsers like IE11.
+
+```javascript
+import { RudderAnalytics } from '@rudderstack/analytics-js/legacy';
+
+const analytics = new RudderAnalytics();
+analytics.load(<WRITE_KEY>, <DATA_PLANE_URL>);
+window.rudderanalytics = analytics;
+```
+
+## How to build the SDK
+
+Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are
+updated in the `dist` folder of the directory. Among the others, some of the important ones are:
+
+- `npm run build:browser:modern`: This outputs **dist/cdn/modern** folder that contains the cdn package contents.
+- `npm run build:npm`: This outputs **dist/npm** folder that contains the npm package contents.
+
 ## Usage in Chrome Extensions
 
-RudderStack JS SDK can be used for browsers.
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package)
+or as a background script service worker (via the [service worker package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker)).
 
-For examples and specific details look into [examples folder](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples)
+For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md#how-to-build-the-sdk)How to build the SDK
+## Usage in Serverless Runtimes
 
-- Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used
+in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 
-  - `npm run build:browser:modern`: This outputs **dist/cdn** folder that contains the cdn package contents.
-  - `npm run build:npm`: This outputs **dist/npm** folder that contains the npm package contents.
+For examples and specific details look into:
+
+- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
+- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)

@@ -19,7 +19,7 @@
 
 ---
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/loading-scripts/README.md#@rudderstack-loading-scripts)@rudderstack/loading-scripts
+# @rudderstack/loading-scripts
 
 RudderStack Javascript SDK loading script snippet code.
 

@@ -8,6 +8,7 @@ in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 - [**Examples**](#examples)
 - [**Cloudflare Worker**](#Cloudflare-Worker)
 - [**Vercel Edge**](#Vercel-Edge)
+- [**External resources**](#External-resources)
 
 ## Examples
 
