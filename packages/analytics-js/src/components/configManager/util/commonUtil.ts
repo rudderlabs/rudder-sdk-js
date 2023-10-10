@@ -10,7 +10,7 @@ import {
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { ConsentData } from '@rudderstack/analytics-js-common/types/Consent';
+import { Consents } from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -154,8 +154,8 @@ const updateStorageState = (logger?: ILogger): void => {
 
 const getCmpData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
-  let allowedConsents: ConsentData | undefined;
-  let deniedConsents: ConsentData | undefined;
+  let allowedConsents: Consents | undefined;
+  let deniedConsents: Consents | undefined;
   let cmpInitialized = false;
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
