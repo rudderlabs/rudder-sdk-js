@@ -192,8 +192,8 @@ class Analytics implements IAnalytics {
             this.onInitialized();
             break;
           case 'loaded':
-            this.loadDestinations();
             this.processBufferedEvents();
+            this.loadDestinations();
             break;
           case 'destinationsLoading':
             break;
@@ -290,10 +290,7 @@ class Analytics implements IAnalytics {
     // Initialize event manager
     this.eventManager?.init();
 
-    // Mark the SDK as initialized
-    if (state.consents.preConsent.value.enabled === false) {
-      state.lifecycle.status.value = 'initialized';
-    }
+    state.lifecycle.status.value = 'initialized';
   }
 
   /**
@@ -372,6 +369,12 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
+    // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
+    if (state.consents.preConsent.value.enabled === true) {
+      state.lifecycle.status.value = 'ready';
+      return;
+    }
+
     // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
