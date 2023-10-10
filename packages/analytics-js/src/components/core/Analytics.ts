@@ -692,7 +692,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    state.consents.preConsent.value.enabled = false;
+    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: true };
 
     // TODO: Register consent manager plugins
     // Initialize consent manager
