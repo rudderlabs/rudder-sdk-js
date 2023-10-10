@@ -333,8 +333,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
-    const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    if (isStorageTypeValidForStoringData(storage)) {
+    if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
           'userSession.anonymousIdGoogleLinker',
@@ -510,7 +509,8 @@ class UserSessionManager implements IUserSessionManager {
       state.session.authToken.value = defaultUserSessionValues.authToken;
 
       if (resetAnonymousId) {
-        state.session.anonymousId.value = defaultUserSessionValues.anonymousId;
+        // This will generate a new anonymous ID
+        this.setAnonymousId();
       }
 
       if (noNewSessionStart) {
