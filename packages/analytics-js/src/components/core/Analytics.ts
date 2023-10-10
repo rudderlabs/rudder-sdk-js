@@ -137,22 +137,22 @@ class Analytics implements IAnalytics {
 
     // dataPlaneUrl is not provided
     if (isObjectAndNotNull(dataPlaneUrl)) {
-      clonedLoadOptions = dataPlaneUrl as Partial<LoadOptions>;
+      clonedLoadOptions = dataPlaneUrl;
       clonedDataPlaneUrl = undefined;
     }
 
     // Set initial state values
     batch(() => {
-      // set log level as early as possible
-      if (state.loadOptions.value.logLevel) {
-        this.logger?.setMinLogLevel(state.loadOptions.value.logLevel);
-      }
-
       state.lifecycle.writeKey.value = writeKey;
       state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
       state.lifecycle.status.value = 'mounted';
     });
+
+    // set log level as early as possible
+    if (state.loadOptions.value.logLevel) {
+      this.logger?.setMinLogLevel(state.loadOptions.value.logLevel);
+    }
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -318,7 +318,7 @@ class Analytics implements IAnalytics {
     // as this will prevent us from supporting multiple SDK instances in the same page
     // Execute onLoaded callback if provided in load options
     if (isFunction(state.loadOptions.value.onLoaded)) {
-      (state.loadOptions.value.onLoaded as OnLoadedCallback)((globalThis as any).rudderanalytics);
+      state.loadOptions.value.onLoaded((globalThis as any).rudderanalytics);
     }
 
     // Set lifecycle state
