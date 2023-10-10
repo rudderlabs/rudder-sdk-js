@@ -50,7 +50,7 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     this.attachEffects();
-    
+
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
     const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
@@ -115,9 +115,9 @@ class ConfigManager implements IConfigManager {
 
     try {
       if (isString(response)) {
-        res = JSON.parse(response as string);
+        res = JSON.parse(response);
       } else {
-        res = response as SourceConfigResponse;
+        res = response;
       }
     } catch (e) {
       this.onError(e, errMessage, true);

@@ -701,23 +701,23 @@ class Analytics implements IAnalytics {
 
     // TODO: Register consent manager plugins and initialize them
     // Initialize consent manager
-    if (state.consents.activeConsentManagerPluginName.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
-    }
+    // if (state.consents.activeConsentManagerPluginName.value) {
+    //   this.pluginsManager?.invokeSingle(
+    //     `consentManager.init`,
+    //     state,
+    //     this.storeManager,
+    //     this.logger,
+    //   );
+    // }
 
     // TODO: Re-init store manager
-    this.storeManager?.initClientDataStores();
+    // this.storeManager?.initClientDataStores();
 
     // TODO: Re-init user session manager
-    this.userSessionManager?.syncStorageDataToState();
+    // this.userSessionManager?.syncStorageDataToState();
 
     // TODO: Re-init event manager
-    this.eventManager?.resume();
+    // this.eventManager?.resume();
   }
 
   setAuthToken(token: string): void {

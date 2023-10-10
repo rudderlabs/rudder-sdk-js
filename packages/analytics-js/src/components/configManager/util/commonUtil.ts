@@ -155,6 +155,20 @@ const updateStorageState = (logger?: ILogger): void => {
 const isValidConsentsData = (value: Consents | undefined): value is Consents =>
   isNonEmptyObject(value) || Array.isArray(value);
 
+const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) => {
+  const consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
+  if (!consentManagerPluginName) {
+    logger?.error(
+      UNSUPPORTED_CONSENT_MANAGER_ERROR(
+        CONFIG_MANAGER,
+        consentProvider,
+        ConsentManagersToPluginNameMap,
+      ),
+    );
+  }
+  return consentManagerPluginName;
+};
+
 const getConsentManagementData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
   let allowedConsents: Consents | undefined;
@@ -178,16 +192,7 @@ const getConsentManagementData = (logger?: ILogger) => {
       }
     } else if (consentProvider) {
       // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-      consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
-      if (!consentManagerPluginName) {
-        logger?.error(
-          UNSUPPORTED_CONSENT_MANAGER_ERROR(
-            CONFIG_MANAGER,
-            consentProvider,
-            ConsentManagersToPluginNameMap,
-          ),
-        );
-      }
+      consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
     }
   }
 
