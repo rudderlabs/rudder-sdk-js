@@ -51,7 +51,6 @@ jobs:
       - name: Fix filesystem paths in generated reports
         run: |
           pwd
-          ./scripts/fix-reports-path-in-github-runner
 
       - name: Upload report to github build
         if: always()

@@ -1,6 +1,7 @@
 #!/bin/bash
 # List of package folders
-absolutePathPrefix='home/runner/work/rudder-sdk-js/rudder-sdk-js'
+defaultAbsolutePathPrefix='home/runner/work/rudder-sdk-js/rudder-sdk-js'
+selfHostedAbsolutePathPrefix='home/runner/work/rudder-sdk-js/rudder-sdk-js'
 prefixToReplace='/github/workspace'
 
 # List of files to alter
