@@ -16,7 +16,6 @@ import {
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
   entriesWithOnlyNoStorage,
-  entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -42,12 +41,6 @@ describe('User session manager', () => {
   defaultStoreManager.init();
   const clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
   const clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
-
-  const setCustomValuesInLocalStorage = (data: any) => {
-    Object.entries(data).forEach(([key, value]) => {
-      clientDataStoreLS.set(key, value);
-    });
-  };
 
   const setCustomValuesInCookieStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -92,28 +85,6 @@ describe('User session manager', () => {
 
     expect(invokeSpy).toHaveBeenCalled();
     expect(userSessionManager.getUserId()).toBe(customData.rl_user_id);
-
-    // clears entries from cookie storage
-    expect(clientDataStoreCookie.engine.length).toBe(0);
-  });
-
-  it('should not remove entries from previous storage if the data is not migrated', () => {
-    const customData = {
-      rl_anonymous_id: 'myanonymousid',
-      rl_user_id: 'myuserid',
-    };
-    setCustomValuesInLocalStorage(customData);
-    // persisted data with local storage
-    state.storage.entries.value = entriesWithStorageOnlyForAnonymousId;
-    const invokeSpy = jest.spyOn(userSessionManager, 'migrateDataFromPreviousStorage');
-
-    userSessionManager.init();
-
-    expect(invokeSpy).toHaveBeenCalled();
-    expect(userSessionManager.getAnonymousId()).toBe(customData.rl_anonymous_id);
-
-    // only the anonymous ID entry should have been cleared from the previous storage
-    expect(clientDataStoreLS.engine.length).toBe(1);
   });
 
   it('should set default values in session state if the selected store type is none', () => {

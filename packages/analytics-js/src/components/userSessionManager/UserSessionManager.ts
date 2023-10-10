@@ -128,35 +128,24 @@ class UserSessionManager implements IUserSessionManager {
 
   migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
+    const storagesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE];
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
-      const storages = [COOKIE_STORAGE, LOCAL_STORAGE];
-
-      storages.forEach(storage => {
-        const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
-        if (storage !== currentStorage && store) {
-          if (curStore) {
+      if (curStore) {
+        storagesForMigration.forEach(storage => {
+          const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+          if (store && storage !== currentStorage) {
             const value = store.get(userSessionStorageKeys[key]);
-            const curVal = curStore.get(userSessionStorageKeys[key]);
-
-            // Set the value only if the current value is invalid and incoming value is valid
-            if (
-              isDefinedNotNullAndNotEmptyString(value) &&
-              !isDefinedNotNullAndNotEmptyString(curVal)
-            ) {
+            if (isDefinedNotNullAndNotEmptyString(value)) {
               curStore.set(userSessionStorageKeys[key], value);
             }
-          }
 
-          // Remove entry from previous storage only if pre-consent behavior is inactive
-          // This will be helpful for re-initializing the cookies post consent
-          if (state.consents.preConsent.value.enabled !== true) {
             store.remove(userSessionStorageKeys[key]);
           }
-        }
-      });
+        });
+      }
     });
   }
 
