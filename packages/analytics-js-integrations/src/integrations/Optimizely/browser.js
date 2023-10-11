@@ -112,18 +112,23 @@ class Optimizely {
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
-      const state = window?.optimizely?.get('state');
-      if (state) {
+      try {
+       const state = window?.optimizely?.get('state');
+       if (state) {
         const activeCampaigns = state.getCampaignStates({
           isActive: true,
         });
         const campaignState = activeCampaigns[id];
         if (referrer) campaignState.experiment.referrer = referrer;
         sendCampaignData(campaignState);
+       }
+      } catch (e) {
+        logger.debug('Page loaded without Optimizely.')
       }
     };
 
     const checkReferrer = () => {
+      try {
       const state = window?.optimizely?.get('state');
       if (state) {
         const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
@@ -132,8 +137,12 @@ class Optimizely {
           referrerOverride(referrer);
           return referrer;
         }
+      } else {
+        return undefined;
       }
+    } catch (e) {
       return undefined;
+    }
     };
 
     const registerFutureActiveCampaigns = () => {
