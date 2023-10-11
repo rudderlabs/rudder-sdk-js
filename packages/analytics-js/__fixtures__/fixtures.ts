@@ -332,6 +332,41 @@ const entriesWithOnlyNoStorage = {
   },
 };
 
+const entriesWithOnlySessionStorage = {
+  userId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
 const entriesWithMixStorage = {
   userId: {
     type: 'cookieStorage',
@@ -445,5 +480,6 @@ export {
   entriesWithMixStorage,
   loadOptionWithEntry,
   loadOptionWithInvalidEntry,
+  entriesWithOnlySessionStorage,
   anonymousIdWithNoStorageEntries,
 };
