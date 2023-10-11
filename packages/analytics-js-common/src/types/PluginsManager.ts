@@ -9,6 +9,7 @@ export interface IPluginsManager {
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[];
   invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T>;
   register(plugins: ExtensionPlugin[]): void;
+  registerPluginsByName(plugins: PluginName[]): void;
 }
 
 export type PluginName =

@@ -32,12 +32,18 @@ class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
+  readonly availablePlugins: PluginName[] = [];
 
   constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.engine = engine;
-
     this.errorHandler = errorHandler;
     this.logger = logger;
+    // Merging available mandatory and optional plugin name list
+    this.availablePlugins = [
+      ...(Object.keys(pluginsInventory) as PluginName[]),
+      ...pluginNamesList,
+    ];
+
     this.onError = this.onError.bind(this);
   }
 
@@ -52,8 +58,8 @@ class PluginsManager implements IPluginsManager {
       setExposedGlobal('pluginsCDNPath', state.lifecycle.pluginsCDNPath.value);
     }
     this.setActivePlugins();
-    this.registerLocalPlugins();
-    this.registerRemotePlugins();
+    this.registerLocalPlugins(state.plugins.activePlugins.value);
+    this.registerRemotePlugins(state.plugins.activePlugins.value);
     this.attachEffects();
   }
 
@@ -188,13 +194,11 @@ class PluginsManager implements IPluginsManager {
    */
   setActivePlugins() {
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
-    // Merging available mandatory and optional plugin name list
-    const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
     const activePlugins: PluginName[] = [];
     const failedPlugins: string[] = [];
 
     pluginsToLoad.forEach(pluginName => {
-      if (availablePlugins.includes(pluginName)) {
+      if (this.availablePlugins.includes(pluginName)) {
         activePlugins.push(pluginName);
       } else {
         failedPlugins.push(pluginName);
@@ -223,12 +227,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Register plugins that are direct imports to PluginEngine
    */
-  registerLocalPlugins() {
+  registerLocalPlugins(plugins: string[]) {
     Object.values(pluginsInventory).forEach(localPlugin => {
-      if (
-        isFunction(localPlugin) &&
-        state.plugins.activePlugins.value.includes(localPlugin().name)
-      ) {
+      if (isFunction(localPlugin) && plugins.includes(localPlugin().name)) {
         this.register([localPlugin()]);
       }
     });
@@ -237,10 +238,8 @@ class PluginsManager implements IPluginsManager {
   /**
    * Register plugins that are dynamic imports to PluginEngine
    */
-  registerRemotePlugins() {
-    const remotePluginsList = remotePluginsInventory(
-      state.plugins.activePlugins.value as PluginName[],
-    );
+  registerRemotePlugins(plugins: string[]) {
+    const remotePluginsList = remotePluginsInventory(plugins as PluginName[]);
 
     Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -258,6 +257,31 @@ class PluginsManager implements IPluginsManager {
     ).catch(err => {
       this.onError(err);
     });
+  }
+
+  registerPluginsByName(plugins: PluginName[]) {
+    const activePlugins: PluginName[] = [];
+    const failedPlugins: string[] = [];
+    plugins.forEach(pluginName => {
+      if (this.availablePlugins.includes(pluginName)) {
+        activePlugins.push(pluginName);
+      } else {
+        failedPlugins.push(pluginName);
+      }
+    });
+
+    batch(() => {
+      state.plugins.totalPluginsToLoad.value += plugins.length;
+      state.plugins.activePlugins.value = [...state.plugins.activePlugins.value, ...activePlugins];
+      state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, ...failedPlugins];
+    });
+
+    if (failedPlugins.length > 0) {
+      this.onError(new Error(`Unknown plugins: ${failedPlugins}`));
+    }
+
+    this.registerLocalPlugins(activePlugins);
+    this.registerRemotePlugins(activePlugins);
   }
 
   /**
