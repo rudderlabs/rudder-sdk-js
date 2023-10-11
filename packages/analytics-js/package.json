@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.0-beta.12",
+  "version": "3.0.0-beta.13",
   "description": "RudderStack Javascript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -16,6 +16,11 @@
       "import": "./dist/npm/legacy/esm/index.js"
     },
     "./bundled": {
+      "types": "./dist/npm/index.d.ts",
+      "require": "./dist/npm/modern/bundled/cjs/index.js",
+      "import": "./dist/npm/modern/bundled/esm/index.js"
+    },
+    "./dist/npm/modern/bundled/esm": {
       "types": "./dist/npm/index.d.ts",
       "require": "./dist/npm/modern/bundled/cjs/index.js",
       "import": "./dist/npm/modern/bundled/esm/index.js"
