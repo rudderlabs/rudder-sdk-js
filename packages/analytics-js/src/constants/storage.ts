@@ -9,6 +9,7 @@ const CLIENT_DATA_STORE_NAME = 'clientData';
 const CLIENT_DATA_STORE_COOKIE = 'clientDataInCookie';
 const CLIENT_DATA_STORE_LS = 'clientDataInLocalStorage';
 const CLIENT_DATA_STORE_MEMORY = 'clientDataInMemory';
+const CLIENT_DATA_STORE_SESSION = 'clientDataInSessionStorage';
 
 export {
   STORAGE_TEST_COOKIE,
@@ -20,4 +21,5 @@ export {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
   CLIENT_DATA_STORE_MEMORY,
+  CLIENT_DATA_STORE_SESSION,
 };

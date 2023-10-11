@@ -75,3 +75,7 @@ export interface ILocalStorageOptions {
 export interface IInMemoryStorageOptions {
   enabled?: boolean;
 }
+
+export interface ISessionStorageOptions {
+  enabled?: boolean;
+}

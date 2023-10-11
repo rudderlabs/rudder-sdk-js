@@ -8,6 +8,7 @@ import {
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   NO_STORAGE,
+  SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   mergeDeepRight,
@@ -59,6 +60,7 @@ class StoreManager implements IStoreManager {
       },
       localStorageOptions: { enabled: true },
       inMemoryStorageOptions: { enabled: true },
+      sessionStorageOptions: { enabled: true },
     };
 
     configureStorageEngines(
@@ -67,6 +69,7 @@ class StoreManager implements IStoreManager {
       ),
       removeUndefinedValues(config.localStorageOptions),
       removeUndefinedValues(config.inMemoryStorageOptions),
+      removeUndefinedValues(config.sessionStorageOptions),
     );
 
     this.initClientDataStores();
@@ -90,6 +93,9 @@ class StoreManager implements IStoreManager {
     }
     if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
       storageTypesRequiringInitialization.push(COOKIE_STORAGE);
+    }
+    if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(SESSION_STORAGE);
     }
     storageTypesRequiringInitialization.forEach(storageType => {
       this.setStore({
@@ -134,6 +140,11 @@ class StoreManager implements IStoreManager {
             finalStorageType = MEMORY_STORAGE;
           }
           break;
+        case SESSION_STORAGE:
+          if (!getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+            finalStorageType = MEMORY_STORAGE;
+          }
+          break;
         case MEMORY_STORAGE:
         case NO_STORAGE:
           break;
@@ -144,6 +155,8 @@ class StoreManager implements IStoreManager {
             finalStorageType = COOKIE_STORAGE;
           } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
             finalStorageType = LOCAL_STORAGE;
+          } else if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+            finalStorageType = SESSION_STORAGE;
           } else {
             finalStorageType = MEMORY_STORAGE;
           }
