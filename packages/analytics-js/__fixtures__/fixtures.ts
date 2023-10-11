@@ -429,6 +429,41 @@ const loadOptionWithInvalidEntry = {
   },
 };
 
+const anonymousIdWithNoStorageEntries = {
+  userId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'none',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
@@ -446,4 +481,5 @@ export {
   loadOptionWithEntry,
   loadOptionWithInvalidEntry,
   entriesWithOnlySessionStorage,
+  anonymousIdWithNoStorageEntries,
 };
