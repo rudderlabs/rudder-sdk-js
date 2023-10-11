@@ -29,12 +29,6 @@
         "script": "build:npm"
       }
     },
-    "build-worker": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:worker"
-      }
-    },
     "build-package": {
       "executor": "nx:run-script",
       "options": {
