@@ -60,7 +60,7 @@ const configureInMemoryStorageEngine = (options: Partial<IInMemoryStorageOptions
 };
 
 /**
- * Configure in memory storage singleton
+ * Configure session storage singleton
  */
 const configureSessionStorageEngine = (options: Partial<ISessionStorageOptions>) => {
   defaultSessionStorage.configure(options);
