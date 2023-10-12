@@ -162,8 +162,12 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
+let state;
       try {
-        const state = window?.optimizely?.get('state');
+        state = window?.optimizely?.get('state');
+        } catch(){
+        state=undefined
+        }
         if (state) {
           const referrer = checkReferrer();
           const activeCampaigns = state.getCampaignStates({
