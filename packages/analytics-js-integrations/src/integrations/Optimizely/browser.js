@@ -134,16 +134,15 @@ class Optimizely {
       } catch (e) {
         state = undefined;
       }
-      if (state) {
-        const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-        if (referrer) {
-          referrerOverride(referrer);
-          return referrer;
-        }
-      } else {
+      if (!state) {
         return undefined;
       }
+      const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+      if (!referrer) {
+        return undefined;
+      }
+      referrerOverride(referrer);
+      return referrer;
     };
 
     const registerFutureActiveCampaigns = () => {
