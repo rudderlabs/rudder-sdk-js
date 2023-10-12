@@ -1,0 +1,4 @@
+declare const READY_CHECK_TIMEOUT_MS: number;
+declare const SCRIPT_LOAD_TIMEOUT_MS: number;
+declare const DEVICE_MODE_DESTINATIONS_PLUGIN = 'DeviceModeDestinationsPlugin';
+export { READY_CHECK_TIMEOUT_MS, DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS };

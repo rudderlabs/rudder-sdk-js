@@ -1,0 +1,3 @@
+declare const FAILED_REQUEST_ERR_MSG_PREFIX = 'The request failed';
+declare const ERROR_MESSAGES_TO_BE_FILTERED: string[];
+export { FAILED_REQUEST_ERR_MSG_PREFIX, ERROR_MESSAGES_TO_BE_FILTERED };

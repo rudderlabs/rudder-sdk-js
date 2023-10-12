@@ -1,0 +1,12 @@
+declare const BEACON_PLUGIN_EVENTS_QUEUE_DEBUG: (context: string) => string;
+declare const BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR: (context: string) => string;
+declare const BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR: (context: string) => string;
+declare const BEACON_QUEUE_SEND_ERROR: (context: string) => string;
+declare const BEACON_QUEUE_DELIVERY_ERROR: (url: string) => string;
+export {
+  BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
+  BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
+  BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
+  BEACON_QUEUE_SEND_ERROR,
+  BEACON_QUEUE_DELIVERY_ERROR,
+};

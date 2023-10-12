@@ -1,0 +1,182 @@
+import { batch, effect } from '@preact/signals-core';
+import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isValidSourceConfig, validateLoadArgs } from './util/validate';
+import {
+  DATA_PLANE_URL_ERROR,
+  SOURCE_CONFIG_FETCH_ERROR,
+  SOURCE_CONFIG_OPTION_ERROR,
+} from '../../constants/logMessages';
+import { getSourceConfigURL } from '../utilities/loadOptions';
+import { filterEnabledDestination } from '../utilities/destinations';
+import { removeTrailingSlashes } from '../utilities/url';
+import { APP_VERSION } from '../../constants/app';
+import { state } from '../../state';
+import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
+import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
+import { updateConsentsState, updateReportingState, updateStorageState } from './util/commonUtil';
+class ConfigManager {
+  constructor(httpClient, errorHandler, logger) {
+    this.hasErrorHandler = false;
+    this.errorHandler = errorHandler;
+    this.logger = logger;
+    this.httpClient = httpClient;
+    this.hasErrorHandler = Boolean(this.errorHandler);
+    this.onError = this.onError.bind(this);
+    this.processConfig = this.processConfig.bind(this);
+  }
+  attachEffects() {
+    effect(() => {
+      var _a;
+      (_a = this.logger) === null || _a === void 0
+        ? void 0
+        : _a.setMinLogLevel(state.lifecycle.logLevel.value);
+    });
+  }
+  /**
+   * A function to validate, construct and store loadOption, lifecycle, source and destination
+   * config related information in global state
+   */
+  init() {
+    this.attachEffects();
+    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion;
+    validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
+    // determine the path to fetch integration SDK from
+    const intgCdnUrl = getIntegrationsCDNPath(
+      APP_VERSION,
+      lockIntegrationsVersion,
+      state.loadOptions.value.destSDKBaseURL,
+    );
+    // determine the path to fetch remote plugins from
+    const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+    updateStorageState(this.logger);
+    updateConsentsState(this.logger);
+    // set application lifecycle state in global state
+    batch(() => {
+      state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
+      state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
+      if (state.loadOptions.value.logLevel) {
+        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
+      }
+      state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
+        state.loadOptions.value.configUrl,
+        state.lifecycle.writeKey.value,
+        lockIntegrationsVersion,
+        this.logger,
+      );
+    });
+    this.getConfig();
+  }
+  /**
+   * Handle errors
+   */
+  onError(error, customMessage, shouldAlwaysThrow) {
+    var _a;
+    if (this.hasErrorHandler) {
+      (_a = this.errorHandler) === null || _a === void 0
+        ? void 0
+        : _a.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
+    } else {
+      throw error;
+    }
+  }
+  /**
+   * A callback function that is executed once we fetch the source config response.
+   * Use to construct and store information that are dependent on the sourceConfig.
+   */
+  processConfig(response, details) {
+    // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
+    // We can use isErrRetryable utility method
+    if (!response) {
+      this.onError(
+        SOURCE_CONFIG_FETCH_ERROR(details === null || details === void 0 ? void 0 : details.error),
+      );
+      return;
+    }
+    let res;
+    const errMessage = 'Unable to process/parse source config';
+    try {
+      if (isString(response)) {
+        res = JSON.parse(response);
+      } else {
+        res = response;
+      }
+    } catch (e) {
+      this.onError(e, errMessage, true);
+      return;
+    }
+    if (!isValidSourceConfig(res)) {
+      this.onError(new Error(errMessage), undefined, true);
+      return;
+    }
+    // set the values in state for reporting slice
+    updateReportingState(res, this.logger);
+    // determine the dataPlane url
+    const dataPlaneUrl = resolveDataPlaneUrl(
+      res.source.dataplanes,
+      state.lifecycle.dataPlaneUrl.value,
+      state.loadOptions.value.residencyServer,
+      this.logger,
+    );
+    if (!dataPlaneUrl) {
+      this.onError(new Error(DATA_PLANE_URL_ERROR), undefined, true);
+      return;
+    }
+    const nativeDestinations =
+      res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+    // set in the state --> source, destination, lifecycle, reporting
+    batch(() => {
+      var _a;
+      // set source related information in state
+      state.source.value = {
+        config: res.source.config,
+        id: res.source.id,
+      };
+      // set device mode destination related information in state
+      state.nativeDestinations.configuredDestinations.value = nativeDestinations;
+      // set the desired optional plugins
+      state.plugins.pluginsToLoadFromConfig.value =
+        (_a = state.loadOptions.value.plugins) !== null && _a !== void 0 ? _a : [];
+      // set application lifecycle state
+      // Cast to string as we are sure that the value is not undefined
+      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl);
+      state.lifecycle.status.value = 'configured';
+    });
+  }
+  /**
+   * A function to fetch source config either from /sourceConfig endpoint
+   * or from getSourceConfig load option
+   * @returns
+   */
+  getConfig() {
+    const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
+    if (sourceConfigFunc) {
+      if (!isFunction(sourceConfigFunc)) {
+        throw new Error(SOURCE_CONFIG_OPTION_ERROR);
+      }
+      // fetch source config from the function
+      const res = sourceConfigFunc();
+      if (res instanceof Promise) {
+        res
+          .then(pRes => this.processConfig(pRes))
+          .catch(err => {
+            this.onError(err, 'SourceConfig');
+          });
+      } else {
+        this.processConfig(res);
+      }
+    } else {
+      // fetch source config from config url API
+      this.httpClient.getAsyncData({
+        url: state.lifecycle.sourceConfigUrl.value,
+        options: {
+          headers: {
+            'Content-Type': undefined,
+          },
+        },
+        callback: this.processConfig,
+      });
+    }
+  }
+}
+export { ConfigManager };

@@ -1,0 +1,1 @@
+export { CapabilitiesManager } from './CapabilitiesManager';

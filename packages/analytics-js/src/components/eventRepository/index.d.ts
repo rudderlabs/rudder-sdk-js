@@ -1,0 +1,1 @@
+export { EventRepository } from './EventRepository';

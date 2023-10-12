@@ -1,0 +1,6 @@
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+const RETRY_QUEUE_PROCESS_ERROR = context =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Process function threw an error.`;
+const RETRY_QUEUE_ENTRY_REMOVE_ERROR = (context, entry, attempt) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to remove local storage entry "${entry}" (attempt: ${attempt}.`;
+export { RETRY_QUEUE_PROCESS_ERROR, RETRY_QUEUE_ENTRY_REMOVE_ERROR };

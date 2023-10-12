@@ -1,0 +1,12 @@
+declare const QUERY_PARAM_TRAIT_PREFIX = 'ajs_trait_';
+declare const QUERY_PARAM_PROPERTY_PREFIX = 'ajs_prop_';
+declare const QUERY_PARAM_ANONYMOUS_ID_KEY = 'ajs_aid';
+declare const QUERY_PARAM_USER_ID_KEY = 'ajs_uid';
+declare const QUERY_PARAM_TRACK_EVENT_NAME_KEY = 'ajs_event';
+export {
+  QUERY_PARAM_TRAIT_PREFIX,
+  QUERY_PARAM_PROPERTY_PREFIX,
+  QUERY_PARAM_ANONYMOUS_ID_KEY,
+  QUERY_PARAM_USER_ID_KEY,
+  QUERY_PARAM_TRACK_EVENT_NAME_KEY,
+};

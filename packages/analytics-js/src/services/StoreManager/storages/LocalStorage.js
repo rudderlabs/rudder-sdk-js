@@ -1,0 +1,53 @@
+import store from 'storejs';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
+import { defaultLogger } from '../../Logger';
+import { getDefaultLocalStorageOptions } from './defaultOptions';
+// TODO: can we remove the storejs dependency to save bundle size?
+//  check if the get, set overloads and search methods are used at all
+//  if we do, ensure we provide types to support overloads as per storejs docs
+//  https://www.npmjs.com/package/storejs
+/**
+ * A storage utility to persist values in localstorage via Storage interface
+ */
+class LocalStorage {
+  constructor(options = {}, logger) {
+    this.isSupportAvailable = true;
+    this.isEnabled = true;
+    this.length = 0;
+    this.options = getDefaultLocalStorageOptions();
+    this.logger = logger;
+    this.configure(options);
+  }
+  configure(options) {
+    this.options = mergeDeepRight(this.options, options);
+    this.isSupportAvailable = isStorageAvailable(LOCAL_STORAGE, this, this.logger);
+    this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
+    return this.options;
+  }
+  setItem(key, value) {
+    store.set(key, value);
+    this.length = store.keys().length;
+  }
+  // eslint-disable-next-line class-methods-use-this
+  getItem(key) {
+    const value = store.get(key);
+    return isUndefined(value) ? null : value;
+  }
+  removeItem(key) {
+    store.remove(key);
+    this.length = store.keys().length;
+  }
+  clear() {
+    store.clear();
+    this.length = 0;
+  }
+  // eslint-disable-next-line class-methods-use-this
+  key(index) {
+    return store.keys()[index];
+  }
+}
+const defaultLocalStorage = new LocalStorage({}, defaultLogger);
+export { LocalStorage, defaultLocalStorage };

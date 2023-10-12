@@ -1,0 +1,28 @@
+declare const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag';
+declare const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';
+declare const GLOBAL_LIBRARY_OBJECT_NAMES: string[];
+declare const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+declare const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
+declare const API_KEY = '__RS_BUGSNAG_API_KEY__';
+declare const BUGSNAG_VALID_MAJOR_VERSION = '6';
+declare const SDK_LOAD_POLL_INTERVAL_MS = 100;
+declare const MAX_WAIT_FOR_SDK_LOAD_MS: number;
+declare const SDK_FILE_NAME_PREFIXES: () => string[];
+declare const DEV_HOSTS: string[];
+declare const APP_STATE_EXCLUDE_KEYS: string[];
+declare const BUGSNAG_PLUGIN = 'BugsnagPlugin';
+export {
+  BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
+  BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
+  GLOBAL_LIBRARY_OBJECT_NAMES,
+  BUGSNAG_CDN_URL,
+  ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
+  API_KEY,
+  BUGSNAG_VALID_MAJOR_VERSION,
+  MAX_WAIT_FOR_SDK_LOAD_MS,
+  SDK_FILE_NAME_PREFIXES,
+  SDK_LOAD_POLL_INTERVAL_MS,
+  DEV_HOSTS,
+  APP_STATE_EXCLUDE_KEYS,
+  BUGSNAG_PLUGIN,
+};

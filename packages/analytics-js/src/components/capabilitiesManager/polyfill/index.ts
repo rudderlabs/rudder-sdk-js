@@ -1,5 +1,6 @@
 import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
 
+// Source code: https://github.com/JakeChampion/polyfill-library/blob/master/polyfills
 const POLYFILL_URL = `https://polyfill.io/v3/polyfill.min.js?features=${Object.keys(
   legacyJSEngineRequiredPolyfills,
 ).join('%2C')}`;
