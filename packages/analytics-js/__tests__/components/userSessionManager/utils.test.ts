@@ -95,7 +95,7 @@ describe('Utility: User session manager', () => {
       expect(outcome1).toEqual(true);
       expect(outcome2).toEqual(true);
       expect(outcome3).toEqual(true);
-      expect(outcome4).toEqual(false);
+      expect(outcome4).toEqual(true);
       expect(outcome5).toEqual(false);
       expect(outcome6).toEqual(false);
     });

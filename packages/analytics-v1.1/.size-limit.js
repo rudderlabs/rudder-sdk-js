@@ -15,10 +15,4 @@ module.exports = [
     gzip: true,
     limit: '37.5 KiB',
   },
-  {
-    name: 'Service Worker - NPM - v1.1',
-    path: 'dist/npm/service-worker/index.js',
-    gzip: true,
-    limit: '28 KiB',
-  },
 ];

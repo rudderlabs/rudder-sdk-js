@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://rudderstack.com/">
-    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+    <img alt="RudderStack" width="512" src="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-light.jpg">
   </a>
   <br />
   <caption>The Customer Data Platform for Developers</caption>
@@ -19,9 +19,10 @@
 
 ---
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-common/README.md#@rudderstack-analytics-js-common)@rudderstack/analytics-js-common
+# @rudderstack/analytics-js-common
 
-RudderStack Javascript SDK common code that is used within the related analytics, plugins, integrations and service worker packages.
+RudderStack Javascript SDK common code that is used within the related analytics, plugins, integrations and service
+worker packages.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
@@ -29,7 +30,7 @@ RudderStack Javascript SDK common code that is used within the related analytics
 
 - [**Installing the package**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-common/README.md#installing-the-package)
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-common/README.md#installing-the-package)Installing the package
+## Installing the package
 
 To install the package via npm, run the following command:
 
@@ -37,4 +38,5 @@ To install the package via npm, run the following command:
 npm install @rudderstack/analytics-js-common --save
 ```
 
-**Note that this NPM module is only meant to be used for a browser installation**. If you want to integrate RudderStack with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
+**Note that this NPM module is only meant to be used for a browser installation**. If you want to integrate RudderStack
+with your Node.js application, refer to the [**RudderStack Node.js repository**](https://github.com/rudderlabs/rudder-sdk-node).
