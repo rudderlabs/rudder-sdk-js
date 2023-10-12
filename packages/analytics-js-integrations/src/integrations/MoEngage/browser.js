@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -60,20 +60,20 @@ class MoEngage {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.moeBannerText;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.moeBannerText;
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
-      logger.error(`${DISPLAY_NAME} : Payload not correct`);
+      logger.error('Payload not correct');
       return;
     }
     const { event, properties, userId } = rudderElement.message;
@@ -82,7 +82,7 @@ class MoEngage {
     }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is not present');
       return;
     }
     if (properties) {
@@ -93,7 +93,7 @@ class MoEngage {
   }
 
   reset() {
-    logger.debug(`${DISPLAY_NAME} : inside reset`);
+    logger.debug('Inside reset');
     // reset the user id
     this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();

@@ -11,7 +11,7 @@ import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Fullstory {
   constructor(config, analytics, destinationInfo) {
@@ -80,7 +80,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug(`${DISPLAY_NAME} : Unable to access localStorage`);
+          logger.debug('Unable to access localStorage');
         }
 
         return null;
@@ -89,9 +89,7 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            logger.error(
-              `${DISPLAY_NAME} : FullStory unavailable, window["_fs_namespace"] must be defined`,
-            );
+            logger.error(`FullStory unavailable, window["_fs_namespace"] must be defined`);
             return undefined;
           }
           return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
@@ -136,17 +134,17 @@ class Fullstory {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.FS;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.FS;
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const props = {
@@ -158,7 +156,7 @@ class Fullstory {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     let { userId } = rudderElement.message;
     const { context, anonymousId } = rudderElement.message;
@@ -171,7 +169,7 @@ class Fullstory {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     window.FS.event(
       rudderElement.message.event,
       Fullstory.getFSProperties(rudderElement.message.properties),

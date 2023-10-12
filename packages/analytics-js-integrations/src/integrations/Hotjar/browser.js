@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Hotjar {
   constructor(config, analytics, destinationInfo) {
@@ -31,21 +31,21 @@ class Hotjar {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return this._ready;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return this._ready;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug(`${DISPLAY_NAME} : user id is required for an identify call`);
+      logger.debug('user id is required for an identify call');
       return;
     }
 
@@ -55,17 +55,17 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     let { event } = rudderElement.message;
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is not present');
       return;
     }
 
     if (typeof event !== 'string') {
-      logger.error(`${DISPLAY_NAME} : Event name should be string`);
+      logger.error('Event name should be string');
       return;
     }
 

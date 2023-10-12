@@ -1,12 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Vero/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Vero/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
 import { getDestinationOptions } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Vero {
   constructor(config, analytics, destinationInfo) {
@@ -30,12 +33,12 @@ class Vero {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window._veroq && typeof window._veroq === 'object';
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window._veroq && !!window._veroq.ready;
   }
 
@@ -74,7 +77,7 @@ class Vero {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { traits } = message.context || message;
     const userId = message.userId || message.anonymousId;
@@ -98,11 +101,11 @@ class Vero {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties, anonymousId, userId } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name from track call is missing`);
+      logger.error('Event name from track call is missing');
       return;
     }
     const id = userId || anonymousId;
@@ -125,7 +128,7 @@ class Vero {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { name, category } = rudderElement.message;
     let eventName;
     if (!name && !category) {
@@ -150,15 +153,15 @@ class Vero {
    * @param {Alias} alias
    */
   alias(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} alias`);
+    logger.debug('In alias');
     const { message } = rudderElement;
     const { userId, previousId } = message;
     if (!previousId) {
-      logger.error(`${DISPLAY_NAME} : previousId is required for alias call`);
+      logger.error('previousId is required for alias call');
       return;
     }
     if (!userId) {
-      logger.error(`${DISPLAY_NAME} : userId is required for alias call`);
+      logger.error('userId is required for alias call');
       return;
     }
     window._veroq.push(['reidentify', userId, previousId]);

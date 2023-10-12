@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { createUser, getDestinationOptions } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class LaunchDarkly {
   constructor(config, analytics, destinationInfo) {
@@ -36,12 +36,12 @@ class LaunchDarkly {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.LDClient;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return this.isLoaded();
   }
 
@@ -62,7 +62,7 @@ class LaunchDarkly {
     const { event, properties } = rudderElement.message;
     if (window.ldclient) {
       window.ldclient.track(event, properties);
-    } else logger.error(`${DISPLAY_NAME} : track is not supported before identify`);
+    } else logger.error('track is not supported before identify');
   }
 
   alias(rudderElement) {
@@ -71,7 +71,7 @@ class LaunchDarkly {
 
     if (window.ldclient) {
       window.ldclient.alias(newUser, this.launchDarklyUser);
-    } else logger.error(`${DISPLAY_NAME} : alias is not supported before identify`);
+    } else logger.error('alias is not supported before identify');
   }
 }
 export default LaunchDarkly;

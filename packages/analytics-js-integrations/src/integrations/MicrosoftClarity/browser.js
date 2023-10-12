@@ -7,7 +7,7 @@ import Logger from '../../utils/logger';
 
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class MicrosoftClarity {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -33,21 +33,21 @@ class MicrosoftClarity {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.clarity;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.clarity;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId, context } = message;
     if (!userId) {
-      logger.error(`${DISPLAY_NAME} : userId is required for an identify call`);
+      logger.error('userId is required for an identify call');
       return;
     }
     let sessionId;

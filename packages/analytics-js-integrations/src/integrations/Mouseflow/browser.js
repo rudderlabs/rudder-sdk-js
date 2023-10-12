@@ -8,7 +8,7 @@ import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/Script
 import Logger from '../../utils/logger';
 import { setCustomVariables, addCustomVariables } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Mouseflow {
   constructor(config, analytics, destinationInfo) {
@@ -34,12 +34,12 @@ class Mouseflow {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.mouseflow && typeof window.mouseflow === 'object';
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window._mfq;
   }
 
@@ -52,7 +52,7 @@ class Mouseflow {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { context, traits: rootLevelTraits, anonymousId } = message;
     const { traits } = context;
@@ -74,11 +74,11 @@ class Mouseflow {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name from track call is missing`);
+      logger.error('Event name from track call is missing');
       return;
     }
     window._mfq.push(['tag', event]);
@@ -93,7 +93,7 @@ class Mouseflow {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const tabPath = rudderElement.message.properties.path || rudderElement.message.context.path;
     if (tabPath) window._mfq.push(['newPageView', tabPath]);
   }

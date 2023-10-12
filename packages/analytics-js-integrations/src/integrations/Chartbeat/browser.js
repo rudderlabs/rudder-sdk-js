@@ -13,7 +13,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Chartbeat {
   constructor(config, analytics, destinationInfo) {
@@ -43,7 +43,7 @@ class Chartbeat {
   init() {}
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -55,12 +55,12 @@ class Chartbeat {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.pSUPERFLY;
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     this.loadConfig(rudderElement);
 
     if (!this.isFirstPageCallMade) {
@@ -68,16 +68,16 @@ class Chartbeat {
       this.initAfterPage();
     } else {
       if (this.failed) {
-        logger.debug(`${DISPLAY_NAME} : Ignoring cause failed integration`);
+        logger.debug('Ignoring cause failed integration');
         this.replayEvents = [];
         return;
       }
       if (!this.isLoaded() && !this.failed) {
-        logger.debug(`${DISPLAY_NAME} : Pushing to replay queue`);
+        logger.debug('Pushing to replay queue');
         this.replayEvents.push(['page', rudderElement]);
         return;
       }
-      logger.debug(`${DISPLAY_NAME} : Processing page event`);
+      logger.debug('Processing page event');
       const { properties } = rudderElement.message;
       window.pSUPERFLY.virtualPage(properties.path);
     }
@@ -117,7 +117,7 @@ class Chartbeat {
     });
 
     this._isReady(this).then(instance => {
-      logger.debug(`${DISPLAY_NAME} : replaying`);
+      logger.debug('replaying');
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
       });
@@ -134,12 +134,12 @@ class Chartbeat {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
-        logger.debug(`${DISPLAY_NAME} : loaded successfully`);
+        logger.debug('loaded successfully');
         resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
-        logger.debug(`${DISPLAY_NAME} : failed`);
+        logger.debug('failed');
         resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>

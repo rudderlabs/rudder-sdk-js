@@ -16,7 +16,7 @@ import {
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class GoogleAds {
   constructor(config, analytics, destinationInfo) {
@@ -75,18 +75,18 @@ class GoogleAds {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return window.dataLayer.push !== Array.prototype.push;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return this.isLoaded();
   }
 
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
     const conversionData = getConversionData(
@@ -121,7 +121,7 @@ class GoogleAds {
     }
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is not present');
       return;
     }
 
@@ -159,7 +159,7 @@ class GoogleAds {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
@@ -187,7 +187,7 @@ class GoogleAds {
     }
 
     if (!name) {
-      logger.error(`${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is not present');
       return;
     }
 

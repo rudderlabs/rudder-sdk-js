@@ -6,7 +6,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class Lemnisk {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -28,21 +28,21 @@ class Lemnisk {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.lmSMTObj;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.lmSMTObj;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug(`${DISPLAY_NAME} : user id is required`);
+      logger.debug('user id is required');
       return;
     }
     const { message } = rudderElement;
@@ -53,11 +53,11 @@ class Lemnisk {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { event, properties } = rudderElement.message;
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is missing`);
+      logger.error('Event name is missing');
       return;
     }
     if (properties) {
@@ -69,7 +69,7 @@ class Lemnisk {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const { name, properties } = rudderElement.message;
     if (name && !properties) {

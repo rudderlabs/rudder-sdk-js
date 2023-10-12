@@ -8,7 +8,7 @@ import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/Script
 import Logger from '../../utils/logger';
 import { trigger } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class ConvertFlow {
   constructor(config, analytics, destinationInfo) {
@@ -36,7 +36,7 @@ class ConvertFlow {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     if (this.toggleToSendData) {
       trigger(this.eventsMappping, this.eventsList, this.analytics);
     }
@@ -44,16 +44,16 @@ class ConvertFlow {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.convertflow;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const email = message.context.traits?.email || message.traits?.email;
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : email is required for identify call`);
+      logger.error('email is required for identify call');
     }
     const payload = { email, override: true };
     window.convertflow.identify(payload);

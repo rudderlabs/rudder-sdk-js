@@ -11,7 +11,7 @@ import Logger from '../../utils/logger';
 import { getRevenue } from '../../utils/utils';
 import { loadeNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {
@@ -38,12 +38,12 @@ class Kissmetrics {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return is.object(window.KM);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return is.object(window.KM);
   }
 
@@ -163,7 +163,7 @@ class Kissmetrics {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { userId, context } = rudderElement.message;
     const { traits } = context;
@@ -178,7 +178,7 @@ class Kissmetrics {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
     let properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
@@ -218,7 +218,7 @@ class Kissmetrics {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
@@ -239,13 +239,13 @@ class Kissmetrics {
   }
 
   alias(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} alias`);
+    logger.debug('In alias');
     const { previousId, userId } = rudderElement.message;
     window._kmq.push(['alias', userId, previousId]);
   }
 
   group(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug('In group');
 
     const { groupId, traits } = rudderElement.message;
     const groupTraits = this.prefix('Group', traits);

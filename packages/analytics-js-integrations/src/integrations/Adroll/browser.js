@@ -10,7 +10,7 @@ import Logger from '../../utils/logger';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Adroll {
   constructor(config, analytics, destinationInfo) {
@@ -36,22 +36,22 @@ class Adroll {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.__adroll;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.__adroll;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} Identify`);
+    logger.debug('In Identify');
     const { message } = rudderElement;
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : User parameter (email) is required for identify call`);
+      logger.error('User parameter (email) is required for identify call');
       return;
     }
     window._adroll_email = email;
@@ -60,7 +60,7 @@ class Adroll {
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} Track`);
+    logger.debug('In Track');
     const { message } = rudderElement;
     const { userId, event, properties } = message;
     const eventsHashmap = getHashFromArray(this.eventsMap);
@@ -86,16 +86,14 @@ class Adroll {
       data.adroll_segments = segmentId;
       window.__adroll.record_user(data);
     } else {
-      logger.error(
-        `${DISPLAY_NAME} : The event ${event} is not mapped to any segmentId. Aborting!`,
-      );
+      logger.error(`The event ${event} is not mapped to any segmentId. Aborting!`);
     }
   }
   // record_user fires the correct pixel in accordance with the event configured in the dashboard
   // and the segment associated in adroll
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} Page`);
+    logger.debug('In Page');
     const { message } = rudderElement;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let pageFullName;
@@ -111,9 +109,7 @@ class Adroll {
 
     const segmentId = eventsHashmap[pageFullName.toLowerCase()];
     if (!segmentId) {
-      logger.error(
-        `${DISPLAY_NAME} : The event ${pageFullName} is not mapped to any segmentId. Aborting!`,
-      );
+      logger.error(`The event ${pageFullName} is not mapped to any segmentId. Aborting!`);
       return;
     }
 

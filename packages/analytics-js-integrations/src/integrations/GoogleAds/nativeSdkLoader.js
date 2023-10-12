@@ -1,8 +1,8 @@
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
 import Logger from '../../utils/logger';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 function loadNativeSdk(sourceUrl) {
   (function (id, src, document) {

@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {
@@ -44,12 +44,12 @@ class Pendo {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
@@ -116,7 +116,7 @@ class Pendo {
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Cannot call un-named track event`);
+      logger.error('Cannot call un-named track event');
       return;
     }
     const props = properties;

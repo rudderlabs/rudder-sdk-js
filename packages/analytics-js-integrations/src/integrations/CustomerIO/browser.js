@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class CustomerIO {
   constructor(config, analytics, destinationInfo) {
@@ -34,21 +34,21 @@ class CustomerIO {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window._cio && window._cio.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window._cio && window._cio.push !== Array.prototype.push);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { userId, context } = rudderElement.message;
     const { traits } = context || {};
     if (!userId) {
-      logger.error(`${DISPLAY_NAME} : userId is required for Identify call`);
+      logger.error('userId is required for Identify call');
       return;
     }
     const createAt = traits.createdAt;
@@ -60,7 +60,7 @@ class CustomerIO {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const eventName = rudderElement.message.event;
     const { properties } = rudderElement.message;
@@ -68,7 +68,7 @@ class CustomerIO {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     if (this.sendPageNameInSDK === false) {
       window._cio.page(rudderElement.message.properties);
     } else {

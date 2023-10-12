@@ -18,7 +18,7 @@ import {
 } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Mixpanel {
   constructor(config, analytics, destinationInfo) {
@@ -93,14 +93,14 @@ class Mixpanel {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     logger.debug(!!(window.mixpanel && window.mixpanel.config));
     window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
     return !!window?.mixpanel?.config;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window?.mixpanel?.config;
   }
 
@@ -109,7 +109,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     let peopleProperties = parseConfigArray(this.peopleProperties, 'property');
     peopleProperties = extendTraits(peopleProperties);
@@ -178,7 +178,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { name, properties } = rudderElement.message;
     const { category } = properties;
     // consolidated Page Calls
@@ -211,7 +211,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { message } = rudderElement;
     const eventIncrements = parseConfigArray(this.eventIncrements, 'property');
     const propIncrements = parseConfigArray(this.propIncrements, 'property');
@@ -276,18 +276,18 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   group(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug('In group');
     const { userId, groupId, traits } = rudderElement.message;
     if (!userId) {
-      logger.debug(`${DISPLAY_NAME} : valid userId is required for group`);
+      logger.debug('valid userId is required for group');
       return;
     }
     if (!groupId) {
-      logger.debug(`${DISPLAY_NAME} : valid groupId is required for group`);
+      logger.debug('valid groupId is required for group');
       return;
     }
     if (!this.groupKeySettings || this.groupKeySettings.length === 0) {
-      logger.debug(`${DISPLAY_NAME} : groupIdentifierTraits is required for group`);
+      logger.debug('groupIdentifierTraits is required for group');
       return;
     }
     /**
@@ -307,25 +307,25 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   alias(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} alias`);
+    logger.debug('In alias');
     if (this.identityMergeApi === 'simplified') {
-      logger.debug(`${DISPLAY_NAME} : Alias call is deprecated in 'Simplified ID Merge'`);
+      logger.debug("Alias call is deprecated in 'Simplified ID Merge'");
       return;
     }
 
     const { previousId, userId } = rudderElement.message;
     const newId = userId;
     if (!previousId) {
-      logger.debug(`${DISPLAY_NAME} : previousId is required for alias call`);
+      logger.debug('previousId is required for alias call');
       return;
     }
     if (!newId) {
-      logger.debug(`${DISPLAY_NAME} : userId is required for alias call`);
+      logger.debug('userId is required for alias call');
       return;
     }
 
     if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === newId) {
-      logger.debug(`${DISPLAY_NAME} : userId is same as previousId. Skipping alias`);
+      logger.debug('userId is same as previousId. Skipping alias');
       return;
     }
     window.mixpanel.alias(newId, previousId);

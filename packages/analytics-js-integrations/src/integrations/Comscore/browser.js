@@ -12,7 +12,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Comscore {
   constructor(config, analytics, destinationInfo) {
@@ -37,7 +37,7 @@ class Comscore {
   init() {}
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -45,12 +45,12 @@ class Comscore {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.COMSCORE;
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     this.loadConfig(rudderElement);
 

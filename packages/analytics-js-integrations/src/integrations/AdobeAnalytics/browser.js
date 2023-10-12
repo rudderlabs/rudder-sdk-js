@@ -10,7 +10,7 @@ import * as ecommUtils from './eCommHandle';
 import * as heartbeatUtils from './heartbeatHandle';
 import { getHashFromArray } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class AdobeAnalytics {
   constructor(config, analytics, destinationInfo) {
@@ -73,12 +73,12 @@ class AdobeAnalytics {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
@@ -272,7 +272,7 @@ class AdobeAnalytics {
           heartbeatUtils.heartbeatUpdatePlayhead(rudderElement);
           break;
         default:
-          logger.error(`${DISPLAY_NAME} : No heartbeat function for this event`);
+          logger.error('No heartbeat function for this event');
       }
     }
   }

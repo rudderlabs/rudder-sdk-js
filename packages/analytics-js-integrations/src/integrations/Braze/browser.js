@@ -11,7 +11,7 @@ import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -69,10 +69,12 @@ class Braze {
   }
 
   isLoaded() {
+    logger.debug('In isLoaded');
     return this.appKey && window.brazeQueue === null;
   }
 
   isReady() {
+    logger.debug('In isReady');
     return this.appKey && window.brazeQueue === null;
   }
 
@@ -109,7 +111,7 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId } = message;
     const { context } = message;
@@ -149,14 +151,14 @@ class Braze {
       try {
         const date = new Date(birthday);
         if (date.toString() === 'Invalid Date') {
-          logger.error(`${DISPLAY_NAME} : Invalid Date for birthday`);
+          logger.error('Invalid Date for birthday');
           return;
         }
         window.braze
           .getUser()
           .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
-        logger.error(`${DISPLAY_NAME} : Error in setting birthday - ${JSON.stringify(error)}`);
+        logger.error(`Error in setting birthday - ${JSON.stringify(error)}`);
       }
     }
     // function set Email

@@ -8,7 +8,7 @@ import {
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class LinkedInInsightTag {
   constructor(config, analytics, destinationInfo) {
@@ -35,21 +35,21 @@ class LinkedInInsightTag {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window._linkedin_data_partner_id;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window._linkedin_data_partner_id;
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is missing for track call`);
+      logger.error('Event name is missing for track call');
       return;
     }
     const trimmedEvent = event.trim();
@@ -61,7 +61,7 @@ class LinkedInInsightTag {
     );
     if (!eventMapping[trimmedEvent]) {
       logger.debug(
-        `${DISPLAY_NAME} : The "${event}" event is not mapped in the destination dashboard. It'll be skipped`,
+        `The "${event}" event is not mapped in the destination dashboard. It'll be skipped`,
       );
       return;
     }

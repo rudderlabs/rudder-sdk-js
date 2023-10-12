@@ -1,11 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Satismeter/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Satismeter/constants';
 import Logger from '../../utils/logger';
 import { recordSatismeterEvents } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class Satismeter {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -31,12 +34,12 @@ class Satismeter {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.satismeter;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     if (this.recordSatismeterEvents) {
       recordSatismeterEvents(
         this.updateEventNames,
@@ -49,7 +52,7 @@ class Satismeter {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const { traits } = message.context;
@@ -76,16 +79,16 @@ class Satismeter {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event, context } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : event is required for track call`);
+      logger.error('event is required for track call');
     }
     const integrationName = context.integration?.name;
     if (integrationName && integrationName.toLowerCase() === 'satismeter') {
-      logger.info(`${DISPLAY_NAME} : dropping callback event: ${event}`);
+      logger.info(`dropping callback event: ${event}`);
       return;
     }
     window.satismeter('track', { event });

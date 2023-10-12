@@ -7,7 +7,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/Keen/constants';
 import Logger from '../../utils/logger';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Keen {
   constructor(config, analytics, destinationInfo) {
@@ -50,17 +50,17 @@ class Keen {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(this.client != null);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(this.client != null);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     let { userId } = message;
@@ -78,7 +78,7 @@ class Keen {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
     let { properties } = rudderElement.message;
@@ -87,7 +87,7 @@ class Keen {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;

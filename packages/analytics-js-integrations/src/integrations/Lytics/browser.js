@@ -24,7 +24,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Lytics {
   constructor(config, analytics, destinationInfo) {
@@ -54,18 +54,18 @@ class Lytics {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     const { traits } = rudderElement.message.context;
     let payload = { user_id: userId, ...traits };
@@ -74,7 +74,7 @@ class Lytics {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { properties } = rudderElement.message;
     let payload = { event: rudderElement.message.name, ...properties };
     payload = this.handleName(payload);
@@ -82,7 +82,7 @@ class Lytics {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { properties } = rudderElement.message;
     let payload = { _e: rudderElement.message.event, ...properties };
     payload = this.handleName(payload);

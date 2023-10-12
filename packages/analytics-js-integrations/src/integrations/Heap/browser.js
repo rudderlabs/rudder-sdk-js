@@ -7,7 +7,7 @@ import Logger from '../../utils/logger';
 import processHeapProperties from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Heap {
   constructor(config, analytics, destinationInfo) {
@@ -34,12 +34,12 @@ class Heap {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.heap && window.heap.appid);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.heap && window.heap.appid);
   }
 

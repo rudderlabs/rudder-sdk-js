@@ -16,7 +16,7 @@ import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -39,22 +39,22 @@ class RedditPixel {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     window.rdt('track', 'SignUp');
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
     if (!event) {
@@ -94,14 +94,14 @@ class RedditPixel {
           window.rdt('track', 'Search');
           break;
         default:
-          logger.error(`${DISPLAY_NAME} : Invalid event ${event}. Track call not supported`);
+          logger.error(`Invalid event ${event}. Track call not supported`);
           break;
       }
     }
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     window.rdt('track', 'PageVisit');
   }
 }

@@ -1,14 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapEngage/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/SnapEngage/constants';
 import Logger from '../../utils/logger';
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { isObject } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class SnapEngage {
   constructor(config, analytics, destinationInfo) {
@@ -37,12 +40,12 @@ class SnapEngage {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.SnapEngage && isObject(window.SnapEngage));
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.eventsToStandard);
@@ -53,13 +56,13 @@ class SnapEngage {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : User parameter (email) is required for identify call`);
+      logger.error('User parameter (email) is required for identify call');
       return;
     }
     window.SnapEngage.setUserEmail(email);

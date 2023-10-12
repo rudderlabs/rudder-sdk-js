@@ -23,7 +23,7 @@ import {
 import { constructPayload } from '../../utils/utils';
 import { payloadBuilder, payloadBuilderInList } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Podsights {
   constructor(config, analytics, destinationInfo) {
@@ -53,12 +53,12 @@ class Podsights {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.pdst && typeof window.pdst === 'function');
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.pdst && typeof window.pdst === 'function');
   }
 
@@ -76,11 +76,11 @@ class Podsights {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : event name from track call is missing`);
+      logger.error('event name from track call is missing');
       return;
     }
 
@@ -105,7 +105,7 @@ class Podsights {
     } else if (standardEvents.length > 0) {
       events = standardEvents;
     } else {
-      logger.error(`${DISPLAY_NAME} : No Podsights Pixel mapped event found. Aborting`);
+      logger.error('No Podsights Pixel mapped event found. Aborting');
       return;
     }
     const externalId =
@@ -149,7 +149,7 @@ class Podsights {
           break;
         }
         default:
-          logger.error(`${DISPLAY_NAME} : event name ${podsightEvent} not supported. Aborting`);
+          logger.error(`event name ${podsightEvent} not supported. Aborting`);
           break;
       }
     });
@@ -161,7 +161,7 @@ class Podsights {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const { properties, context } = rudderElement.message;
     const { page } = context;

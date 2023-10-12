@@ -17,7 +17,7 @@ import {
 } from './utils';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Criteo {
   constructor(config, analytics, destinationInfo) {
@@ -42,7 +42,7 @@ class Criteo {
 
   init() {
     if (!this.accountId) {
-      logger.debug(`${DISPLAY_NAME} : Account Id is required`);
+      logger.debug('Account Id is required');
       return;
     }
     window.criteo_q = window.criteo_q || [];
@@ -53,12 +53,12 @@ class Criteo {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
@@ -78,7 +78,7 @@ class Criteo {
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.debug(`${DISPLAY_NAME} : Home page is not detected`);
+      logger.debug('Home page is not detected');
       return;
     }
 
@@ -96,14 +96,12 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (!event) {
-      logger.debug(`${DISPLAY_NAME} : Event name from track call is missing`);
+      logger.debug('Event name from track call is missing');
       return;
     }
 
     if (!properties || Object.keys(properties).length === 0) {
-      logger.debug(
-        `${DISPLAY_NAME} : Either properties object is missing or empty in the track call`,
-      );
+      logger.debug('Either properties object is missing or empty in the track call');
       return;
     }
 
@@ -111,7 +109,7 @@ class Criteo {
     const trimmedEvent = event.toLowerCase().trim();
 
     if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
-      logger.debug(`${DISPLAY_NAME} : event ${trimmedEvent} is not supported`);
+      logger.debug(`event ${trimmedEvent} is not supported`);
       return;
     }
     let events = [];

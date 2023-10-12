@@ -11,7 +11,7 @@ import { loadNativeSdk } from './nativeSdkLoader';
 import { extractCustomFields } from '../../utils/utils';
 import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Drip {
   constructor(config, analytics, destinationInfo) {
@@ -47,28 +47,28 @@ class Drip {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window._dcq;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window._dcq;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
-      logger.error(`${DISPLAY_NAME} : user context or traits not present`);
+      logger.error('user context or traits not present');
       return;
     }
 
     const email = get(message, 'context.traits.email');
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : email is required for identify`);
+      logger.error('email is required for identify');
       return;
     }
 
@@ -100,7 +100,7 @@ class Drip {
         this.exclusionFields,
       );
     } catch (err) {
-      logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
+      logger.debug(`Error occurred at extractCustomFields ${err}`);
     }
 
     payload = {
@@ -130,19 +130,19 @@ class Drip {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event } = message;
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name not present`);
+      logger.error('Event name not present');
       return;
     }
 
     const email = get(message, 'properties.email') || get(message, 'context.traits.email');
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : email is required for track`);
+      logger.error('email is required for track');
       return;
     }
 

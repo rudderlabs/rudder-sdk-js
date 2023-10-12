@@ -9,7 +9,7 @@ import {
 import Logger from '../../utils/logger';
 import { updateSaleObject, getMergedProductIds } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class PostAffiliatePro {
   constructor(config, analytics, destinationInfo) {
@@ -48,12 +48,12 @@ class PostAffiliatePro {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.PostAffTracker;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
 
     if (window.PostAffTracker) {
       if (!this.disableTrackingMethod) window.PostAffTracker.disableTrackingMethod('F');
@@ -76,7 +76,7 @@ class PostAffiliatePro {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const visitorId = get(message, 'userId');
@@ -84,7 +84,7 @@ class PostAffiliatePro {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const clickEventsArr = this.clickEvents ? this.clickEvents.split(',') : null;
     const { message } = rudderElement;

@@ -13,7 +13,7 @@ import {
 import Logger from '../../utils/logger';
 import { GA } from '../GA';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class GA360 extends GA {
   constructor(config, analytics, destinationInfo) {
@@ -35,27 +35,27 @@ class GA360 extends GA {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return super.isLoaded();
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return super.isReady();
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     return super.identify(rudderElement);
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     return super.track(rudderElement);
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     return super.page(rudderElement);
   }
 }

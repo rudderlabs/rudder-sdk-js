@@ -7,7 +7,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class ProfitWell {
   constructor(config, analytics, destinationInfo) {
@@ -27,24 +27,24 @@ class ProfitWell {
 
   init() {
     if (!this.publicApiKey) {
-      logger.debug(`${DISPLAY_NAME} : Public API Key not found`);
+      logger.debug('Public API Key not found');
       return;
     }
     loadNativeSdk(this.publicApiKey);
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     if (this.siteType === 'marketing') {
       window.profitwell('start', {});
@@ -68,7 +68,7 @@ class ProfitWell {
       return;
     }
 
-    logger.debug(`${DISPLAY_NAME} : email or userId is required for identify`);
+    logger.debug('email or userId is required for identify');
   }
 }
 

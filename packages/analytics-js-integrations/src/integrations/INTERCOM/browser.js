@@ -8,7 +8,7 @@ import { loadNativeSdk } from './nativeSdkLoader';
 import { flattenJsonPayload } from '../../utils/utils';
 import { processNameField, processCompanyField, processIdentityVerificationProps } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -30,12 +30,12 @@ class INTERCOM {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.intercom_code;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.intercom_code;
   }
 

@@ -9,7 +9,7 @@ import Logger from '../../utils/logger';
 import makeACall from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Axeptio {
   constructor(config, analytics, destinationInfo) {
@@ -32,12 +32,12 @@ class Axeptio {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.__axeptioSDK && typeof window.__axeptioSDK === 'object';
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     if (this.toggleToActivateCallback) {
       this.recordAxeptioEvents();
     }

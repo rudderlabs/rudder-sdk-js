@@ -11,7 +11,7 @@ import { extractCustomFields, getDefinedTraits } from '../../utils/utils';
 import ecommEventPayload from './util';
 import { isNotEmpty } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Klaviyo {
   constructor(config, analytics, destinationInfo) {
@@ -93,19 +93,19 @@ class Klaviyo {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
 
   identify(rudderElement) {
     const { message } = rudderElement;
     if (!(message.context && message.context.traits)) {
-      logger.error(`${DISPLAY_NAME} : user traits not present`);
+      logger.error('user traits not present');
       return;
     }
 
@@ -125,7 +125,7 @@ class Klaviyo {
       $zip: get(message, 'context.traits.zip'),
     };
     if (!payload.$email && !payload.$phone_number && !payload.$id) {
-      logger.error(`${DISPLAY_NAME} : user id, phone or email not present`);
+      logger.error('user id, phone or email not present');
       return;
     }
     if (this.enforceEmailAsPrimary) {
@@ -136,7 +136,7 @@ class Klaviyo {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
+      logger.debug(`Error occured at extractCustomFields ${err}`);
     }
     window._learnq.push(['identify', payload]);
   }

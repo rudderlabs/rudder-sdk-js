@@ -9,7 +9,7 @@ import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/Script
 import Logger from '../../utils/logger';
 import { getDestinationExternalID } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class June {
   constructor(config, analytics, destinationInfo) {
@@ -40,30 +40,30 @@ class June {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.analytics && window.analytics.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
-    return !!(window.analytics && window.analytics.push !== Array.prototype.push);;
+    logger.debug('In isReady');
+    return !!(window.analytics && window.analytics.push !== Array.prototype.push);
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { name, properties } = rudderElement.message;
     window.analytics.page(name, properties);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const userId =
       get(message, 'userId') ||
       get(message, 'context.traits.userId') ||
       get(message, 'context.traits.Id');
     if (!userId) {
-      logger.error(`${DISPLAY_NAME} : userId is required for an identify call`);
+      logger.error('userId is required for an identify call');
       return;
     }
     const traits = get(message, 'context.traits');
@@ -71,7 +71,7 @@ class June {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     let groupId;
     const { message } = rudderElement;
     const externalGroupId = getDestinationExternalID(message, 'juneGroupId');
@@ -88,10 +88,10 @@ class June {
   }
 
   group(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug('In group');
     const { groupId } = rudderElement.message;
     if (!groupId) {
-      logger.error(`${DISPLAY_NAME} : groupId is required for group call`);
+      logger.error('groupId is required for group call');
       return;
     }
     const { traits } = rudderElement.message;

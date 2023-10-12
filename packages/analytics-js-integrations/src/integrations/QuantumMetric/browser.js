@@ -7,7 +7,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/QuantumMetric/constants';
 import Logger from '../../utils/logger';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class QuantumMetric {
   constructor(config, analytics, destinationInfo) {
@@ -40,7 +40,7 @@ class QuantumMetric {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     if (!this._ready && window.QuantumMetricAPI) {
       this._ready = true;
     }
@@ -48,7 +48,7 @@ class QuantumMetric {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return this.isLoaded();
   }
 }

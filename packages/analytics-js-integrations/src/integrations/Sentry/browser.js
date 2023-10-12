@@ -1,12 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
 import Logger from '../../utils/logger';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { getDefinedTraits, isObject } from '../../utils/utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Sentry {
   constructor(config, analytics, destinationInfo) {
@@ -35,7 +38,7 @@ class Sentry {
 
   init() {
     if (!this.dsn) {
-      logger.debug(`${DISPLAY_NAME} : DSN is a mandatory field`);
+      logger.debug('DSN is a mandatory field');
       return;
     }
     SentryScriptLoader(
@@ -53,7 +56,7 @@ class Sentry {
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
 
     return !!(
       window.Sentry &&
@@ -65,7 +68,7 @@ class Sentry {
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
 
     if (
       window.Sentry &&
@@ -103,7 +106,7 @@ class Sentry {
 
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
-      logger.debug(`${DISPLAY_NAME} : Any one of userId, email, name and ip_address is mandatory`);
+      logger.debug('Any one of userId, email, name and ip_address is mandatory');
       return;
     }
 

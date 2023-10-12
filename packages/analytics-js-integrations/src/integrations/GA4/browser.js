@@ -16,7 +16,7 @@ import {
   formatAndValidateEventName,
 } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -148,12 +148,12 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(this.sessionId && this.clientId);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return this.isLoaded();
   }
 
@@ -162,7 +162,7 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const { traits } = message.context;
@@ -187,13 +187,13 @@ export default class GA4 {
       return;
     }
 
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
 
     const eventName = formatAndValidateEventName(message?.event);
     if (!eventName) {
-      logger.error(`${DISPLAY_NAME} : Event name is required`);
+      logger.error('Event name is required');
       return;
     }
 
@@ -213,7 +213,7 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     if (this.capturePageView === 'rs') {
       const { message } = rudderElement;
@@ -243,7 +243,7 @@ export default class GA4 {
       return;
     }
 
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug('In group');
 
     const { groupId, traits } = rudderElement.message;
     let payload = traits;

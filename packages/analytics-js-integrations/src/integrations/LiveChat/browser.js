@@ -11,7 +11,7 @@ import { isObject } from '../../utils/utils';
 import { flattenJson } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class LiveChat {
   constructor(config, analytics, destinationInfo) {
@@ -37,12 +37,12 @@ class LiveChat {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.LiveChatWidget && isObject(window.LiveChatWidget));
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
 
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
@@ -57,7 +57,7 @@ class LiveChat {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId, context } = message;
     const { traits } = context;
@@ -66,9 +66,7 @@ class LiveChat {
     if (email) {
       window.LiveChatWidget.call('set_customer_email', email);
     } else {
-      logger.error(
-        `${DISPLAY_NAME} : User parameter (email) ,required for identify call, not found`,
-      );
+      logger.error('User parameter (email) ,required for identify call, not found');
     }
 
     const name = get(message, 'context.traits.name');

@@ -7,7 +7,7 @@ import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Refiner {
   constructor(config, analytics, destinationInfo) {
@@ -35,23 +35,23 @@ class Refiner {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!this._refiner;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!this._refiner;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const { userId, traits, context } = message;
     const email = traits?.email || context?.traits?.email;
     if (!userId && !email) {
-      logger.error(`${DISPLAY_NAME} : Either userId or email is required`);
+      logger.error('Either userId or email is required');
       return;
     }
     let userTraits = {
@@ -67,17 +67,17 @@ class Refiner {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name not present`);
+      logger.error('Event name not present');
       return;
     }
 
     if (typeof event !== 'string') {
-      logger.error(`${DISPLAY_NAME} : Event name should be string`);
+      logger.error('Event name should be string');
       return;
     }
 
@@ -85,13 +85,13 @@ class Refiner {
   }
 
   group(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug('In group');
 
     const { message } = rudderElement;
     const { userId, groupId, traits, context } = message;
     const userEmail = context?.traits?.email;
     if (!userId && !userEmail) {
-      logger.error(`${DISPLAY_NAME} : Either one userId or email is required`);
+      logger.error('Either one userId or email is required');
       return;
     }
     let accountTraits = { ...traits };
@@ -107,7 +107,7 @@ class Refiner {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const { message } = rudderElement;
     let pageFullName;

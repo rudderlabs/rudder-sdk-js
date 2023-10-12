@@ -10,7 +10,7 @@ import { getHashFromArray } from '../../utils/commonUtils';
 import { getDefinedTraits } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class Olark {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -45,12 +45,12 @@ class Olark {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.olark;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
 
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
@@ -62,7 +62,7 @@ class Olark {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { context } = message;
 

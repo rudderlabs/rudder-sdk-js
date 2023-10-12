@@ -7,7 +7,7 @@ import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/Script
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Appcues {
   constructor(config, analytics, destinationInfo) {
@@ -44,12 +44,12 @@ class Appcues {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.Appcues;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.Appcues;
   }
 
@@ -59,7 +59,7 @@ class Appcues {
     if (userId) {
       window.Appcues.identify(userId, traits);
     } else {
-      logger.error(`${DISPLAY_NAME} : user id is required`);
+      logger.error('user id is required');
     }
   }
 
@@ -69,7 +69,7 @@ class Appcues {
     if (eventName) {
       window.Appcues.track(eventName, properties);
     } else {
-      logger.error(`${DISPLAY_NAME} : event name is required`);
+      logger.error('event name is required');
     }
   }
 

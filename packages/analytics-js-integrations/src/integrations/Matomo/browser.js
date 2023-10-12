@@ -17,7 +17,7 @@ import {
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {
@@ -69,7 +69,7 @@ class Matomo {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window._paq && window._paq.push !== Array.prototype.push);
   }
 
@@ -80,7 +80,7 @@ class Matomo {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     // Dashboard Event Settings
     if (window._paq && window._paq.push !== Array.prototype.push) {
       // Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has been triggered.
@@ -129,20 +129,18 @@ class Matomo {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { anonymousId, userId } = rudderElement.message;
     const matomoUserId = userId || anonymousId;
     if (!matomoUserId) {
-      logger.error(
-        `${DISPLAY_NAME} : User parameter (anonymousId or userId) is required for identify call`,
-      );
+      logger.error('User parameter (anonymousId or userId) is required for identify call');
       return;
     }
     window._paq.push(['setUserId', matomoUserId]);
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event } = message;
@@ -158,7 +156,7 @@ class Matomo {
     ]);
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name not present`);
+      logger.error('Event name not present');
       return;
     }
 
@@ -186,7 +184,7 @@ class Matomo {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     window._paq.push(['trackPageView']);
   }
 }

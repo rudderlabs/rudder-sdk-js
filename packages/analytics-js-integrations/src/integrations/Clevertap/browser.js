@@ -9,7 +9,7 @@ import Logger from '../../utils/logger';
 import { getDestinationOptions } from './utils';
 import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../utils/utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Clevertap {
   constructor(config, analytics, destinationInfo) {
@@ -88,22 +88,22 @@ class Clevertap {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
-      logger.error(`${DISPLAY_NAME} : user traits is not present`);
+      logger.error('user traits is not present');
       return;
     }
     const { userId, email, phone, name } = getDefinedTraits(message);
@@ -124,7 +124,7 @@ class Clevertap {
     // with the exception of one of Identity, Email, or FBID (in Identity)
     // other fields are optional
     if (!userId && !email) {
-      logger.error(`${DISPLAY_NAME} : Either out of userId or email is required`);
+      logger.error('Either out of userId or email is required');
       return;
     }
 
@@ -132,11 +132,11 @@ class Clevertap {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
+      logger.debug(`Error occured at extractCustomFields ${err}`);
     }
     Object.keys(payload).forEach(key => {
       if (isObject(payload[key])) {
-        logger.debug(`${DISPLAY_NAME} : cannot process, unsupported traits`);
+        logger.debug('cannot process, unsupported traits');
       }
     });
     window.clevertap.onUserLogin.push({
@@ -145,7 +145,7 @@ class Clevertap {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const { event, properties } = rudderElement.message;
     if (properties) {
       if (event === 'Order Completed') {
@@ -163,13 +163,13 @@ class Clevertap {
             ['checkout_id', 'revenue', 'products'],
           );
         } catch (err) {
-          logger.debug(`${DISPLAY_NAME} : Error occured at extractCustomFields ${err}`);
+          logger.debug(`Error occured at extractCustomFields ${err}`);
         }
         window.clevertap.event.push('Charged', ecomProperties);
       } else {
         Object.keys(properties).forEach(key => {
           if (isObject(properties[key]) || isArray(properties[key])) {
-            logger.debug(`${DISPLAY_NAME} : cannot process, unsupported event`);
+            logger.debug('cannot process, unsupported event');
           }
         });
         window.clevertap.event.push(event, properties);
@@ -182,7 +182,7 @@ class Clevertap {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties?.category && name) {
@@ -195,7 +195,7 @@ class Clevertap {
     if (properties) {
       Object.keys(properties).forEach(key => {
         if (isObject(properties[key]) || isArray(properties[key])) {
-          logger.debug(`${DISPLAY_NAME} : cannot process, unsupported event`);
+          logger.debug('cannot process, unsupported event');
         }
       });
       window.clevertap.event.push(eventName, properties);

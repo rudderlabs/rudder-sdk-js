@@ -4,11 +4,14 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/TVSquared/constants';
 import Logger from '../../utils/logger';
 import { getAction } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class TVSquared {
   constructor(config, analytics, destinationInfo) {
@@ -38,12 +41,12 @@ class TVSquared {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   }
 

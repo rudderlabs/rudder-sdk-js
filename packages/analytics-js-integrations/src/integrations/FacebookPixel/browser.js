@@ -29,7 +29,7 @@ import {
 import { getHashFromArray } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class FacebookPixel {
   constructor(config, analytics, destinationInfo) {
@@ -104,12 +104,12 @@ class FacebookPixel {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
@@ -278,9 +278,9 @@ class FacebookPixel {
         value: revValue,
       });
     } else {
-      logger.debug(`${DISPLAY_NAME} : Inside custom`);
+      logger.debug('Inside custom');
       if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
-        logger.debug(`${DISPLAY_NAME} : inside custom not mapped`);
+        logger.debug('Inside custom not mapped');
         payload.value = revValue;
         window.fbq('trackSingleCustom', this.pixelId, event, payload, {
           eventID: derivedEventID,

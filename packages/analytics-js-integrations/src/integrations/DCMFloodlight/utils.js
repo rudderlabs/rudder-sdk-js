@@ -12,7 +12,7 @@ import {
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 const matchIdKey = 'properties.matchId';
 
 /**
@@ -64,7 +64,7 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
         typeof itemValue === 'string' &&
         DENIED_CHARACTERS.some(key => itemValue.includes(key))
       ) {
-        logger.info(`${DISPLAY_NAME} : ${DENIED_CHARACTERS} string variable is not acceptable`);
+        logger.info(`${DENIED_CHARACTERS} string variable is not acceptable`);
         itemValue = undefined;
       }
       // supported data types are number and string

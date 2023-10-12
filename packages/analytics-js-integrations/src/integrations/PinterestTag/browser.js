@@ -21,7 +21,7 @@ import {
 import { getDestinationEventName } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 export default class PinterestTag {
   constructor(config, analytics, destinationInfo) {
@@ -66,12 +66,12 @@ export default class PinterestTag {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
 

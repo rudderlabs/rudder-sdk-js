@@ -9,7 +9,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/GoogleOptimize/constants';
 import Logger from '../../utils/logger';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class GoogleOptimize {
   constructor(config, analytics, destinationInfo) {
@@ -71,12 +71,12 @@ class GoogleOptimize {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.dataLayer;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.dataLayer;
   }
 }

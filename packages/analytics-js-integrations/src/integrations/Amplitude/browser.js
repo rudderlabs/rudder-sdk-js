@@ -8,7 +8,7 @@ import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Amplitude {
   constructor(config, analytics, destinationInfo) {
@@ -63,17 +63,17 @@ class Amplitude {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     this.setDeviceId(rudderElement);
 
@@ -107,7 +107,7 @@ class Amplitude {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -208,7 +208,7 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     this.setDeviceId(rudderElement);
 
     const { properties, name, category, integrations } = rudderElement.message;
@@ -238,7 +238,7 @@ class Amplitude {
   }
 
   group(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} group`);
+    logger.debug(`In group`);
 
     this.setDeviceId(rudderElement);
 
@@ -301,9 +301,7 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn(
-        `${DISPLAY_NAME} : Neither "revenue" nor "price" is available. Hence, not logging revenue`,
-      );
+      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
       return;
     }
 

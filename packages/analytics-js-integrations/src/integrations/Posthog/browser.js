@@ -11,7 +11,7 @@ import { removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {
@@ -66,12 +66,12 @@ class Posthog {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window?.posthog?.__loaded;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window?.posthog?.__loaded;
   }
 
@@ -101,7 +101,7 @@ class Posthog {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
@@ -115,7 +115,7 @@ class Posthog {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event, properties } = rudderElement.message;
 
@@ -130,7 +130,7 @@ class Posthog {
    * @memberof Posthog
    */
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     this.processSuperProperties(rudderElement);
 
@@ -147,7 +147,7 @@ class Posthog {
       delete traits.groupType;
     }
     if (!groupType || !groupKey) {
-      logger.error(`${DISPLAY_NAME} : groupType and groupKey is required for group call`);
+      logger.error('groupType and groupKey is required for group call');
       return;
     }
     posthog.group(groupType, groupKey, traits);

@@ -6,7 +6,7 @@ import {
 import Logger from '../../utils/logger';
 import { mapRudderPropsToOptimizelyProps } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Optimizely {
   constructor(config, analytics, destinationInfo) {
@@ -39,12 +39,12 @@ class Optimizely {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
@@ -190,7 +190,7 @@ class Optimizely {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const eventProperties = rudderElement.message.properties;
     const { event } = rudderElement.message;
@@ -212,7 +212,7 @@ class Optimizely {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const clonedRudderElement = rudderElement;
     const { category } = clonedRudderElement.message.properties;

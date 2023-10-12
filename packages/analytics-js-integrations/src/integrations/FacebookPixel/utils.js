@@ -8,7 +8,7 @@ import {
 import Logger from '../../utils/logger';
 import { isDefined } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 function getEventId(message) {
   return (
@@ -54,7 +54,7 @@ const getContentCategory = category => {
     !Array.isArray(contentCategory) &&
     typeof contentCategory === 'object'
   ) {
-    logger.error(`${DISPLAY_NAME} : 'properties.category' must be either be a string or an array`);
+    logger.error("'properties.category' must be either be a string or an array");
     return;
   }
   // eslint-disable-next-line consistent-return
@@ -133,7 +133,7 @@ const buildPayLoad = (
       acc[currPropName] = currPropValue;
     } else {
       logger.debug(
-        `${DISPLAY_NAME} : PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
+        `PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
       );
     }
 
@@ -175,7 +175,7 @@ const formatRevenue = revenue => {
   const formattedRevenue = Number.isNaN(parsedRevenue) ? 0 : parseFloat(parsedRevenue.toFixed(2));
 
   if (Number.isNaN(formattedRevenue)) {
-    logger.error(`${DISPLAY_NAME} : Revenue could not be converted to a number`);
+    logger.error('Revenue could not be converted to a number');
   }
 
   return formattedRevenue;
@@ -309,7 +309,7 @@ const eventHelpers = {
     !standardTo[event?.toLowerCase()] && !legacyTo[event?.toLowerCase()],
   validateRevenue: revValue => {
     if (!isDefined(revValue)) {
-      logger.error(`${DISPLAY_NAME} : 'properties.revenue' could not be converted to a number`);
+      logger.error("'properties.revenue' could not be converted to a number");
     }
   },
 };

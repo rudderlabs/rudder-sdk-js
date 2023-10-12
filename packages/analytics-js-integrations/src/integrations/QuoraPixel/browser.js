@@ -7,7 +7,7 @@ import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class QuoraPixel {
   constructor(config, analytics, destinationInfo) {
@@ -34,17 +34,17 @@ class QuoraPixel {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.qp && window.qp.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.qp && window.qp.push !== Array.prototype.push);
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { event } = rudderElement.message;
     const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
@@ -52,9 +52,7 @@ class QuoraPixel {
     const events = eventsMapping[trimmedEvent] || [];
 
     if (events.length === 0) {
-      logger.warn(
-        `${DISPLAY_NAME} : No Quora Pixel mapped event found. Sending Generic as the default event`,
-      );
+      logger.warn('No Quora Pixel mapped event found. Sending Generic as the default event');
       window.qp('track', 'Generic');
     }
 

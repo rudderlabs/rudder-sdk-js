@@ -1,9 +1,6 @@
 /* eslint-disable guard-for-in */
 import { isEmptyObject } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
 import Logger from '../../utils/logger';
 import {
   eventsConfig,
@@ -14,7 +11,7 @@ import {
 import { isBlank, flattenJson } from '../../utils/commonUtils';
 import { constructPayload, extractCustomFields } from '../../utils/utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 /**
  * Extracts last word after . from string
@@ -99,7 +96,7 @@ const isReservedEventName = event => {
  */
 const formatAndValidateEventName = eventName => {
   if (!eventName || typeof eventName !== 'string') {
-    logger.error(`${DISPLAY_NAME} : Event name is required and should be a string`);
+    logger.error('Event name is required and should be a string');
     return null;
   }
 
@@ -111,7 +108,7 @@ const formatAndValidateEventName = eventName => {
 
   // Reserved event names are not allowed
   if (isReservedEventName(trimmedEvent)) {
-    logger.error(` ${DISPLAY_NAME} : Reserved event name ${trimmedEvent} is not allowed`);
+    logger.error(`Reserved event name ${trimmedEvent} is not allowed`);
     return null;
   }
 
@@ -301,9 +298,7 @@ const prepareStandardEventParams = (message, eventConfig) => {
   if (Array.isArray(mapping) && mapping.length > 0) {
     const hasMissingRequiredValue = mapping.some(mappingItem => {
       if (!payload[mappingItem.destKey] && mappingItem.required) {
-        logger.error(
-          `${DISPLAY_NAME} : Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`,
-        );
+        logger.error(`Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`);
         return true;
       }
       return false;

@@ -6,7 +6,7 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class GoogleTagManager {
   constructor(config, analytics, destinationInfo) {
@@ -29,7 +29,7 @@ class GoogleTagManager {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
   }
 
@@ -38,12 +38,12 @@ class GoogleTagManager {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     // set the traits to the datalayer and put everything under the key traits
     // keeping it under the traits key as destructing might conflict with `message.properties`
     const rudderMessage = rudderElement.message;
@@ -52,7 +52,7 @@ class GoogleTagManager {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
     const rudderMessage = rudderElement.message;
     const props = {
       event: rudderMessage.event,
@@ -67,7 +67,7 @@ class GoogleTagManager {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;

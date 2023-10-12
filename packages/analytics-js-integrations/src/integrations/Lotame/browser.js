@@ -6,7 +6,7 @@ import {
 import Logger from '../../utils/logger';
 import { LotameStorage } from './LotameStorage';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Lotame {
   constructor(config, analytics, destinationInfo) {
@@ -38,29 +38,29 @@ class Lotame {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return true;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return true;
   }
 
   addPixel(source, width, height) {
-    logger.debug(`${DISPLAY_NAME} : Adding pixel for - ${source}`);
+    logger.debug(`Adding pixel for - ${source}`);
 
     const image = document.createElement('img');
     image.src = source;
     image.setAttribute('width', width);
     image.setAttribute('height', height);
 
-    logger.debug(`${DISPLAY_NAME} : Image Pixel - ${image}`);
+    logger.debug(`Image Pixel - ${image}`);
     document.getElementsByTagName('body')[0].appendChild(image);
   }
 
   addIFrame(source) {
-    logger.debug(`${DISPLAY_NAME} : Adding iframe for - ${source}`);
+    logger.debug(`Adding iframe for - ${source}`);
 
     const iframe = document.createElement('iframe');
     iframe.src = source;
@@ -76,7 +76,7 @@ class Lotame {
   }
 
   syncPixel(userId) {
-    logger.debug(`${DISPLAY_NAME} : Firing DSP Pixel URLs`);
+    logger.debug('Firing DSP Pixel URLs');
     if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
       const currentTime = Date.now();
       this.dspUrlSettingsPixel.forEach(urlSettings => {
@@ -88,7 +88,7 @@ class Lotame {
       });
     }
 
-    logger.debug(`${DISPLAY_NAME} : Firing DSP IFrame URLs`);
+    logger.debug('Firing DSP IFrame URLs');
     if (this.dspUrlSettingsIframe && this.dspUrlSettingsIframe.length > 0) {
       const currentTime = Date.now();
       this.dspUrlSettingsIframe.forEach(urlSettings => {
@@ -117,15 +117,15 @@ class Lotame {
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { userId } = rudderElement.message;
     this.syncPixel(userId);
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
-    logger.debug(`${DISPLAY_NAME} : Firing BCP Pixel URLs`);
+    logger.debug('Firing BCP Pixel URLs');
     if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
       const currentTime = Date.now();
       this.bcpUrlSettingsPixel.forEach(urlSettings => {
@@ -137,7 +137,7 @@ class Lotame {
       });
     }
 
-    logger.debug(`${DISPLAY_NAME} : Firing BCP IFrame URLs`);
+    logger.debug('Firing BCP IFrame URLs');
     if (this.bcpUrlSettingsIframe && this.bcpUrlSettingsIframe.length > 0) {
       const currentTime = Date.now();
       this.bcpUrlSettingsIframe.forEach(urlSettings => {

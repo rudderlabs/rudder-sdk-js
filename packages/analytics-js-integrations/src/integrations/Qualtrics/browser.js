@@ -10,7 +10,7 @@ import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Qualtrics {
   constructor(config, analytics, destinationInfo) {
@@ -31,7 +31,7 @@ class Qualtrics {
 
   init() {
     if (!this.projectId) {
-      logger.debug(`${DISPLAY_NAME} : Project ID missing`);
+      logger.debug('Project ID missing');
       return;
     }
 
@@ -44,20 +44,20 @@ class Qualtrics {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug(`${DISPLAY_NAME} : Message field is missing`);
+      logger.debug('Message field is missing');
       return;
     }
 
@@ -70,9 +70,7 @@ class Qualtrics {
     const categoryField = category || properties?.category || null;
 
     if (!categoryField && !name) {
-      logger.debug(
-        `${DISPLAY_NAME} : generic title is disabled and no name or category field found`,
-      );
+      logger.debug('generic title is disabled and no name or category field found');
       return;
     }
     const dynamicTitle =
@@ -82,15 +80,15 @@ class Qualtrics {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     if (!message) {
-      logger.debug(`${DISPLAY_NAME} : Message field is missing`);
+      logger.debug('Message field is missing');
       return;
     }
     if (!message.event) {
-      logger.debug(`${DISPLAY_NAME} : Event field is undefined`);
+      logger.debug('Event field is undefined');
       return;
     }
     window._qsie.push(message.event);

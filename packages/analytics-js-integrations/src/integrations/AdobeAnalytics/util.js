@@ -2,10 +2,7 @@
 /* eslint-disable no-undef */
 import get from 'lodash.get';
 import each from '@ndhoule/each';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
 import Logger from '../../utils/logger';
 import {
   toIso,
@@ -14,7 +11,7 @@ import {
   isDefined,
 } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 let dynamicKeys = [];
 
@@ -323,7 +320,7 @@ const handleLists = rudderElement => {
     each((value, key) => {
       if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
         if (typeof value !== 'string' && !Array.isArray(value)) {
-          logger.error(`${DISPLAY_NAME} : list variable is neither a string nor an array`);
+          logger.error('list variable is neither a string nor an array');
           return;
         }
         const delimiter = listDelimiterHashmap[key];

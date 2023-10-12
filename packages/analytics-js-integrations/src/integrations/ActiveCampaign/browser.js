@@ -7,7 +7,7 @@ import get from 'get-value';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class ActiveCampaign {
   constructor(config, analytics, destinationInfo) {
@@ -25,19 +25,19 @@ class ActiveCampaign {
 
   init() {
     if (!this.actId) {
-      logger.error(`${DISPLAY_NAME} : actId is required`);
+      logger.error('actId is required');
       return;
     }
     loadNativeSdk(this.actId);
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.vgo;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.vgo;
   }
 

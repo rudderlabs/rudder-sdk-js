@@ -17,7 +17,7 @@ import {
   isValidCountingMethod,
 } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class DCMFloodlight {
   constructor(config, analytics, destinationInfo) {
@@ -90,7 +90,7 @@ class DCMFloodlight {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
@@ -98,7 +98,7 @@ class DCMFloodlight {
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
@@ -106,21 +106,21 @@ class DCMFloodlight {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event } = message;
     let customFloodlightVariable;
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : event is required for track call`);
+      logger.error('event is required for track call');
       return;
     }
 
     // Specifies how conversions will be counted for a Floodlight activity
     let countingMethod = get(message, 'properties.countingMethod');
     if (!countingMethod) {
-      logger.error(`${DISPLAY_NAME} : countingMethod is required for track call`);
+      logger.error('countingMethod is required for track call');
       return;
     }
     countingMethod = countingMethod.trim().toLowerCase().replace(/\s+/g, '_');
@@ -132,7 +132,7 @@ class DCMFloodlight {
     );
 
     if (!conversionEvent) {
-      logger.error(`${DISPLAY_NAME} : Conversion event not found`);
+      logger.error('Conversion event not found');
       return;
     }
 
@@ -144,9 +144,7 @@ class DCMFloodlight {
     const { salesTag, customVariables } = conversionEvent;
 
     if (!isValidCountingMethod(salesTag, countingMethod)) {
-      logger.error(
-        `${DISPLAY_NAME} : ${salesTag ? 'Sales' : 'Counter'} Tag:: invalid counting method`,
-      );
+      logger.error(`${salesTag ? 'Sales' : 'Counter'} Tag:: invalid counting method`);
       return;
     }
 
@@ -178,7 +176,7 @@ class DCMFloodlight {
     };
 
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
-    logger.debug(`${DISPLAY_NAME} : eventSnippetPayload - ${JSON.stringify(eventSnippetPayload)}`);
+    logger.debug(`eventSnippetPayload - ${JSON.stringify(eventSnippetPayload)}`);
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
@@ -214,12 +212,12 @@ class DCMFloodlight {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message || rudderElement.message.properties;
 
     if (!category && !name) {
-      logger.error(`${DISPLAY_NAME} : category or name is required for page`);
+      logger.error('category or name is required for page');
       return;
     }
 

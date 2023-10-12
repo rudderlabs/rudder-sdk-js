@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
 import Logger from '../../utils/logger';
 import {
   getEventMappingFromConfig,
@@ -11,7 +14,7 @@ import {
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class SnapPixel {
   constructor(config, analytics, destinationInfo) {
@@ -83,17 +86,17 @@ class SnapPixel {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.snaptr;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.snaptr;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
 
     const { message } = rudderElement;
 
@@ -104,7 +107,7 @@ class SnapPixel {
 
     if (!userEmail && !userPhoneNumber && !ipAddress) {
       logger.error(
-        `${DISPLAY_NAME} : User parameter (email or phone number or ip address) is required for Identify call`,
+        'User parameter (email or phone number or ip address) is required for Identify call',
       );
       return;
     }
@@ -117,7 +120,7 @@ class SnapPixel {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event } = message;
@@ -129,7 +132,7 @@ class SnapPixel {
     );
 
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is not present');
       return;
     }
 
@@ -205,7 +208,7 @@ class SnapPixel {
               !this.trackEvents.includes(event.trim().toUpperCase()) &&
               !this.customEvents.includes(event.trim().toLowerCase())
             ) {
-              logger.error(`${DISPLAY_NAME} : Event doesn't match with Snap Pixel Events`);
+              logger.error("Event doesn't match with Snap Pixel Events");
               return;
             }
             sendEvent(
@@ -216,12 +219,12 @@ class SnapPixel {
         }
       }
     } catch (err) {
-      logger.error(`${DISPLAY_NAME} : track failed with following error`, err);
+      logger.error('track failed with following error', err);
     }
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
+    logger.debug('In page');
 
     const { message } = rudderElement;
     sendEvent('PAGE_VIEW', eventPayload(message, this.deduplicationKey, this.enableDeduplication));

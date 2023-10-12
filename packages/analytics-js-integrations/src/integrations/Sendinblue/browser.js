@@ -1,5 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
 import Logger from '../../utils/logger';
 import { prepareUserTraits, prepareTrackEventData, preparePagePayload } from './utils';
 import { validateEmail, validatePhoneWithCountryCode } from '../../utils/commonUtils';
@@ -7,7 +10,7 @@ import { validateEmail, validatePhoneWithCountryCode } from '../../utils/commonU
 import { getDefinedTraits } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Sendinblue {
   constructor(config, analytics, destinationInfo) {
@@ -36,33 +39,33 @@ class Sendinblue {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return !!window.sendinblue;
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!window.sendinblue;
   }
 
   identify(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} identify`);
+    logger.debug('In identify');
     const { message } = rudderElement;
     const { email, phone } = getDefinedTraits(message);
 
     if (!email) {
-      logger.error(`${DISPLAY_NAME} : email is missing`);
+      logger.error('email is missing');
       return;
     }
 
     if (!validateEmail(email)) {
-      logger.error(`${DISPLAY_NAME} : provided email is invalid`);
+      logger.error('provided email is invalid');
       return;
     }
 
     if (phone && !validatePhoneWithCountryCode(phone)) {
       logger.error(
-        `${DISPLAY_NAME} : provided phone number is invalid. Please provide valid phone number with country code`,
+        'provided phone number is invalid. Please provide valid phone number with country code',
       );
       return;
     }
@@ -74,12 +77,12 @@ class Sendinblue {
   }
 
   track(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} track`);
+    logger.debug('In track');
 
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
-      logger.error(`${DISPLAY_NAME} : event is required for track call`);
+      logger.error('event is required for track call');
       return;
     }
 
@@ -88,7 +91,7 @@ class Sendinblue {
       const { phone } = getDefinedTraits(message);
       if (phone && !validatePhoneWithCountryCode(phone)) {
         logger.error(
-        `${DISPLAY_NAME} : provided phone number is invalid. Please provide valid phone number with country code`,
+          'provided phone number is invalid. Please provide valid phone number with country code',
         );
         return;
       }
@@ -102,8 +105,8 @@ class Sendinblue {
   }
 
   page(rudderElement) {
-    logger.debug(`In ${DISPLAY_NAME} page`);
-    
+    logger.debug('In page');
+
     const { message } = rudderElement;
     const { name } = message;
     const payload = preparePagePayload(message);

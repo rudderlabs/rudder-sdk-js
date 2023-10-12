@@ -8,7 +8,7 @@ import { extractCustomFields } from '../../utils/utils';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class BingAds {
   constructor(config, analytics, destinationInfo) {
@@ -31,14 +31,14 @@ class BingAds {
   }
 
   isLoaded() {
-    logger.debug(`In isLoaded ${DISPLAY_NAME}`);
+    logger.debug('In isLoaded');
     return (
       !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
     );
   }
 
   isReady() {
-    logger.debug(`In isReady ${DISPLAY_NAME}`);
+    logger.debug('In isReady');
     return !!(window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   }
 
@@ -53,7 +53,7 @@ class BingAds {
     const { type, properties } = rudderElement.message;
     const eventToSend = properties?.event_action || type;
     if (!eventToSend) {
-      logger.error(`${DISPLAY_NAME} : Event type is not present`);
+      logger.error('Event type is not present');
       return;
     }
     let payload = {
