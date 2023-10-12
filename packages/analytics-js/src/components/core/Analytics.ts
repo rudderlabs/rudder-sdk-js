@@ -291,6 +291,16 @@ class Analytics implements IAnalytics {
     this.storeManager?.init();
     this.userSessionManager?.init();
 
+    // Initialize consent manager plugin
+    if (state.consents.activeConsentManagerPluginName.value) {
+      this.pluginsManager?.invokeSingle(
+        `consentManager.init`,
+        state,
+        this.storeManager,
+        this.logger,
+      );
+    }
+
     // Initialize event manager
     this.eventManager?.init();
 

@@ -153,18 +153,13 @@ class PluginsManager implements IPluginsManager {
 
     // Consent Management related plugins
     const supportedConsentManagerPlugins: string[] = Object.values(ConsentManagersToPluginNameMap);
-    let filterCondition = (pluginName: PluginName) =>
-      !(
-        pluginName !== state.consents.activeConsentManagerPluginName.value &&
-        supportedConsentManagerPlugins.includes(pluginName)
-      );
-
-    // Remove all CMP plugins if pre-consent flow is active
-    if (state.consents.preConsent.value.enabled) {
-      filterCondition = (pluginName: PluginName) =>
-        !supportedConsentManagerPlugins.includes(pluginName);
-    }
-    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(filterCondition);
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+      pluginName =>
+        !(
+          pluginName !== state.consents.activeConsentManagerPluginName.value &&
+          supportedConsentManagerPlugins.includes(pluginName)
+        ),
+    );
 
     // Storage encryption related plugins
     const supportedStorageEncryptionPlugins: string[] = Object.values(
