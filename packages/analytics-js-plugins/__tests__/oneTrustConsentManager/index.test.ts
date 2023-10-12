@@ -23,7 +23,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(state.plugins.loadedPlugins.value.includes('OneTrustConsentManager')).toBe(true);
   });
 
-  it('should initialize the plugin and compute consentInfo if OneTrust SDK is already loaded', () => {
+  it('should update the consent info if OneTrust SDK is already loaded', () => {
     // Mock the OneTrust data on the window object
     (window as any).OneTrust = {
       GetDomainData: jest.fn(() => ({
@@ -40,7 +40,10 @@ describe('Plugin - OneTrustConsentManager', () => {
     (window as any).OnetrustActiveGroups = ',C0001,C0003,';
 
     // Initialize the plugin
-    OneTrustConsentManager().consentManager.init(state, undefined, mockLogger);
+    OneTrustConsentManager().consentManager.init(state, mockLogger);
+
+    // Update the consent info from state
+    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -49,8 +52,13 @@ describe('Plugin - OneTrustConsentManager', () => {
     });
   });
 
-  it('should not successfully initialize the plugin if OneTrust SDK is not loaded', () => {
-    OneTrustConsentManager().consentManager.init(state, undefined, mockLogger);
+  it('should not successfully update consents data the plugin if OneTrust SDK is not loaded', () => {
+    // Initialize the plugin
+    OneTrustConsentManager().consentManager.init(state, mockLogger);
+
+    // Update the consent info from state
+    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+
     expect(state.consents.initialized.value).toStrictEqual(false);
     expect(mockLogger.error).toHaveBeenCalledWith(
       `OneTrustConsentManagerPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,

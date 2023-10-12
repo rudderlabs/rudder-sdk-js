@@ -22,7 +22,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
+    init(state: ApplicationState, logger?: ILogger): void {
       // getKetchUserConsentedPurposes returns current ketch opted-in purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserConsentedPurposes = () =>
@@ -38,7 +38,13 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       (globalThis as any).updateKetchConsent = (ketchConsentData: KetchConsentData) => {
         updateConsentStateFromData(state, ketchConsentData);
       };
+    },
 
+    updateConsentsInfo(
+      state: ApplicationState,
+      storeManager?: IStoreManager,
+      logger?: ILogger,
+    ): void {
       // retrieve consent data and update the state
       let ketchConsentData;
       if (!checks.isUndefined((globalThis as any).ketchConsent)) {

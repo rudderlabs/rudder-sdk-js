@@ -291,14 +291,9 @@ class Analytics implements IAnalytics {
     this.storeManager?.init();
     this.userSessionManager?.init();
 
-    // Initialize consent manager plugin
+    // Initialize the appropriate consent manager plugin
     if (state.consents.activeConsentManagerPluginName.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
+      this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
     }
 
     // Initialize event manager
@@ -708,16 +703,15 @@ class Analytics implements IAnalytics {
 
     state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
 
-    // TODO: Register consent manager plugins and initialize them
-    // Initialize consent manager
-    // if (state.consents.activeConsentManagerPluginName.value) {
-    //   this.pluginsManager?.invokeSingle(
-    //     `consentManager.init`,
-    //     state,
-    //     this.storeManager,
-    //     this.logger,
-    //   );
-    // }
+    // TODO: Update state with the data in the arguments
+
+    // TODO: Update consents data in state
+    // this.pluginsManager?.invokeSingle(
+    //   `consentManager.updateConsentsInfo`,
+    //   state,
+    //   this.storeManager,
+    //   this.logger,
+    // );
 
     // TODO: Re-init store manager
     // this.storeManager?.initClientDataStores();

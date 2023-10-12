@@ -34,6 +34,15 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should initialize the plugin if ketch consent data is already available on the window object', () => {
+    // Initialize the plugin
+    KetchConsentManager().consentManager.init(state, mockLogger);
+
+    expect((window as any).getKetchUserConsentedPurposes).toEqual(expect.any(Function));
+    expect((window as any).getKetchUserDeniedPurposes).toEqual(expect.any(Function));
+    expect((window as any).updateKetchConsent).toEqual(expect.any(Function));
+  });
+
+  it('should update state with consents data from ketch window resources', () => {
     // Mock the ketch data on the window object
     (window as any).ketchConsent = {
       purpose1: true,
@@ -44,7 +53,10 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, undefined, mockLogger);
+    KetchConsentManager().consentManager.init(state, mockLogger);
+
+    // Update the state with the consent data
+    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -71,7 +83,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, undefined, mockLogger);
+    KetchConsentManager().consentManager.init(state, mockLogger);
 
     // Call the callback function
     (window as any).updateKetchConsent({
@@ -122,7 +134,10 @@ describe('Plugin - KetchConsentManager', () => {
     const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, storeManager, mockLogger);
+    KetchConsentManager().consentManager.init(state, mockLogger);
+
+    // Update the state with the consent data
+    KetchConsentManager().consentManager.updateConsentsInfo(state, storeManager, mockLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({

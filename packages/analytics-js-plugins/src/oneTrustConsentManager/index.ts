@@ -21,7 +21,15 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
+    init(state: ApplicationState, logger?: ILogger): void {
+      // Nothing to initialize
+    },
+
+    updateConsentsInfo(
+      state: ApplicationState,
+      storeManager?: IStoreManager,
+      logger?: ILogger,
+    ): void {
       if (!(globalThis as any).OneTrust || !(globalThis as any).OnetrustActiveGroups) {
         logger?.error(ONETRUST_ACCESS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN));
         state.consents.initialized.value = false;
