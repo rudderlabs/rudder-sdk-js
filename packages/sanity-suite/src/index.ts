@@ -1,6 +1,5 @@
-import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { initSanitySuite } from './testBook';
 
-(window.rudderanalytics as RudderAnalytics).ready(() => {
+(window.rudderanalytics as any).ready(() => {
   initSanitySuite();
 });
