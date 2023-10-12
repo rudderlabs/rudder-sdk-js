@@ -84,7 +84,7 @@ class UserSessionManager implements IUserSessionManager {
     const userTraits = this.getUserTraits();
     const groupId = this.getGroupId();
     const groupTraits = this.getGroupTraits();
-    const anonymousId = this.getAnonymousId();
+    const anonymousId = this.getAnonymousId(state.loadOptions.value.anonymousIdOptions);
     if (userId) {
       this.setUserId(userId);
     }
