@@ -128,19 +128,20 @@ class Optimizely {
     };
 
     const checkReferrer = () => {
+      let state;
       try {
-        const state = window?.optimizely?.get('state');
-        if (state) {
-          const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-          if (referrer) {
-            referrerOverride(referrer);
-            return referrer;
-          }
-        } else {
-          return undefined;
-        }
+        state = window?.optimizely?.get('state');
       } catch (e) {
+        state = undefined;
+      }
+      if (state) {
+        const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+
+        if (referrer) {
+          referrerOverride(referrer);
+          return referrer;
+        }
+      } else {
         return undefined;
       }
     };
@@ -162,38 +163,25 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-let state;
+      let state;
       try {
         state = window?.optimizely?.get('state');
-        } catch(){
-        state=undefined
-        }
-        if (state) {
-          const referrer = checkReferrer();
-          const activeCampaigns = state.getCampaignStates({
-            isActive: true,
-          });
-          Object.keys(activeCampaigns).forEach(id => {
-            if (referrer) {
-              newActiveCampaign(id, referrer);
-            } else {
-              newActiveCampaign(id);
-            }
-          });
-        } else {
-          window.optimizely.push({
-            type: 'addListener',
-            filter: {
-              type: 'lifecycle',
-              name: 'initialized',
-            },
-            handler() {
-              checkReferrer();
-            },
-          });
-        }
       } catch (e) {
-        logger.debug('Page loaded without Optimizely.')
+        state = undefined
+      }
+      if (state) {
+        const referrer = checkReferrer();
+        const activeCampaigns = state.getCampaignStates({
+          isActive: true,
+        });
+        Object.keys(activeCampaigns).forEach(id => {
+          if (referrer) {
+            newActiveCampaign(id, referrer);
+          } else {
+            newActiveCampaign(id);
+          }
+        });
+      } else {
         window.optimizely.push({
           type: 'addListener',
           filter: {
