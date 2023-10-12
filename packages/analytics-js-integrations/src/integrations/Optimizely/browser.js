@@ -113,15 +113,15 @@ class Optimizely {
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
       try {
-       const state = window?.optimizely?.get('state');
-       if (state) {
-        const activeCampaigns = state.getCampaignStates({
-          isActive: true,
-        });
-        const campaignState = activeCampaigns[id];
-        if (referrer) campaignState.experiment.referrer = referrer;
-        sendCampaignData(campaignState);
-       }
+        const state = window?.optimizely?.get('state');
+        if (state) {
+          const activeCampaigns = state.getCampaignStates({
+            isActive: true,
+          });
+          const campaignState = activeCampaigns[id];
+          if (referrer) campaignState.experiment.referrer = referrer;
+          sendCampaignData(campaignState);
+        }
       } catch (e) {
         logger.debug('Page loaded without Optimizely.')
       }
@@ -129,20 +129,20 @@ class Optimizely {
 
     const checkReferrer = () => {
       try {
-      const state = window?.optimizely?.get('state');
-      if (state) {
-        const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+        const state = window?.optimizely?.get('state');
+        if (state) {
+          const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
 
-        if (referrer) {
-          referrerOverride(referrer);
-          return referrer;
+          if (referrer) {
+            referrerOverride(referrer);
+            return referrer;
+          }
+        } else {
+          return undefined;
         }
-      } else {
+      } catch (e) {
         return undefined;
       }
-    } catch (e) {
-      return undefined;
-    }
     };
 
     const registerFutureActiveCampaigns = () => {
@@ -162,20 +162,34 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      const state = window?.optimizely?.get('state');
-      if (state) {
-        const referrer = checkReferrer();
-        const activeCampaigns = state.getCampaignStates({
-          isActive: true,
-        });
-        Object.keys(activeCampaigns).forEach(id => {
-          if (referrer) {
-            newActiveCampaign(id, referrer);
-          } else {
-            newActiveCampaign(id);
-          }
-        });
-      } else {
+      try {
+        const state = window?.optimizely?.get('state');
+        if (state) {
+          const referrer = checkReferrer();
+          const activeCampaigns = state.getCampaignStates({
+            isActive: true,
+          });
+          Object.keys(activeCampaigns).forEach(id => {
+            if (referrer) {
+              newActiveCampaign(id, referrer);
+            } else {
+              newActiveCampaign(id);
+            }
+          });
+        } else {
+          window.optimizely.push({
+            type: 'addListener',
+            filter: {
+              type: 'lifecycle',
+              name: 'initialized',
+            },
+            handler() {
+              checkReferrer();
+            },
+          });
+        }
+      } catch (e) {
+        logger.debug('Page loaded without Optimizely.')
         window.optimizely.push({
           type: 'addListener',
           filter: {
@@ -187,6 +201,7 @@ class Optimizely {
           },
         });
       }
+
     };
     registerCurrentlyActiveCampaigns();
     registerFutureActiveCampaigns();
