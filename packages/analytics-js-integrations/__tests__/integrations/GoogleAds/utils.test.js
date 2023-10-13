@@ -2,6 +2,7 @@ import {
   getConversionData,
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
+  newCustomerAcquisitionReporting,
 } from '../../../src/integrations/GoogleAds/utils';
 import {
   mockEvents,
@@ -106,5 +107,15 @@ describe('GoogleAds utilities getConversionData function tests', () => {
   test('No matching event name is present and no defaultPageConversion is present', () => {
     const conversionData = getConversionData(mockEventTypeConversions, 'Cart Checkout', '');
     expect(conversionData).toEqual({});
+  });
+});
+
+describe('GoogleAds utilities newCustomerAcquisitionReporting function tests', () => {
+  test('newCustomerAcquisitionReporting function should set new_customer property when properties.newCustomer is present', () => {
+    const mockProperties = {
+      newCustomer: true,
+    };
+    const properties = newCustomerAcquisitionReporting(mockProperties, {});
+    expect(properties.new_customer).toEqual(true);
   });
 });
