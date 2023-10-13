@@ -283,6 +283,9 @@ describe('EventRepository', () => {
       events: {
         delivery: 'buffer',
       },
+      storage: {
+        strategy: 'session', // the value should be either 'session' or 'anonymousId'
+      },
     };
 
     eventRepository.init();

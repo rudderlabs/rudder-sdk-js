@@ -19,7 +19,7 @@ import {
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
   DMT_EXT_POINT_PREFIX,
 } from './constants';
-import { getFinalEvent } from './utils';
+import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -101,9 +101,6 @@ class EventRepository implements IEventRepository {
     // At the time of processing the events, the integrations config data from destinations
     // is merged into the event object
     let timeoutId: number;
-    const shouldBufferEventsForPreConsent =
-      state.consents.preConsent.value.enabled &&
-      state.consents.preConsent.value.events?.delivery === 'buffer';
     effect(() => {
       const shouldBufferDpEvents =
         state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
@@ -115,7 +112,7 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        !shouldBufferEventsForPreConsent &&
+        !shouldBufferEventsForPreConsent(state) &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);

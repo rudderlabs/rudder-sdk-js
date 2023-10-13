@@ -44,4 +44,10 @@ const getFinalEvent = (event: RudderEvent, state: ApplicationState) => {
   return finalEvent;
 };
 
-export { getOverriddenIntegrationOptions, getFinalEvent };
+const shouldBufferEventsForPreConsent = (state: ApplicationState): boolean =>
+  state.consents.preConsent.value.enabled &&
+  state.consents.preConsent.value.events?.delivery === 'buffer' &&
+  (state.consents.preConsent.value.storage?.strategy === 'session' ||
+    state.consents.preConsent.value.storage?.strategy === 'none');
+
+export { getOverriddenIntegrationOptions, getFinalEvent, shouldBufferEventsForPreConsent };
