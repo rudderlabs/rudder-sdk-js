@@ -119,7 +119,7 @@ function newCustomerAcquisitionReporting(properties, newCustomerFromCOnfig) {
   if (updatedProperties && updatedProperties.newCustomer) {
     updatedProperties.new_customer = updatedProperties.newCustomer;
     delete updatedProperties.newCustomer;
-  } else if (newCustomerFromCOnfig !== 'unspecified') {
+  } else if (newCustomerFromCOnfig !== undefined) {
     updatedProperties.new_customer = newCustomerFromCOnfig;
   }
   return updatedProperties;
