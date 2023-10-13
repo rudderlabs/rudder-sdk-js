@@ -322,7 +322,7 @@ class Analytics implements IAnalytics {
     // as this will prevent us from supporting multiple SDK instances in the same page
     // Execute onLoaded callback if provided in load options
     if (isFunction(state.loadOptions.value.onLoaded)) {
-      state.loadOptions.value.onLoaded((globalThis as any).rudderanalytics);
+      state.loadOptions.value.onLoaded((globalThis as typeof window).rudderanalytics);
     }
 
     // Set lifecycle state
@@ -335,7 +335,7 @@ class Analytics implements IAnalytics {
 
     // Emit an event to use as substitute to the onLoaded callback
     const initializedEvent = new CustomEvent('RSA_Initialised', {
-      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
       bubbles: true,
       cancelable: true,
       composed: true,
@@ -359,7 +359,7 @@ class Analytics implements IAnalytics {
 
     // Emit an event to use as substitute to the ready callback
     const readyEvent = new CustomEvent('RSA_Ready', {
-      detail: { analyticsInstance: (globalThis as any).rudderanalytics },
+      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
       bubbles: true,
       cancelable: true,
       composed: true,
