@@ -146,7 +146,6 @@ class Optimizely {
     };
 
     const registerFutureActiveCampaigns = () => {
-      window.optimizely = window.optimizely || [];
       window.optimizely.push({
         type: 'addListener',
         filter: {
