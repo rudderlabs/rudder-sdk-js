@@ -388,5 +388,33 @@ describe('Config Manager Common Utilities', () => {
         },
       });
     });
+
+    it('should set pre-consent enabled status to false if the consent management itself is disabled', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      };
+
+      state.loadOptions.value.consentManagement = {
+        enabled: false,
+      };
+
+      updateConsentsState();
+
+      expect(state.consents.preConsent.value).toStrictEqual({
+        enabled: false,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      });
+    });
   });
 });

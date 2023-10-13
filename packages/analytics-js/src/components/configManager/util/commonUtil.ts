@@ -176,6 +176,7 @@ const getConsentManagementData = (logger?: ILogger) => {
   let cmpInitialized = false;
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
+  const consentManagementDisabled = consentManagementOpts?.enabled === false;
   if (isNonEmptyObject(consentManagementOpts) && consentManagementOpts.enabled === true) {
     const consentProvider = consentManagementOpts.provider;
     if (consentProvider === 'custom') {
@@ -204,12 +205,13 @@ const getConsentManagementData = (logger?: ILogger) => {
   return {
     consentManagerPluginName,
     cmpInitialized,
+    consentManagementDisabled,
     consentsData,
   };
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  const { consentManagerPluginName, cmpInitialized, consentsData } =
+  const { consentManagerPluginName, cmpInitialized, consentManagementDisabled, consentsData } =
     getConsentManagementData(logger);
 
   // Pre-consent
@@ -252,7 +254,10 @@ const updateConsentsState = (logger?: ILogger): void => {
 
     state.consents.preConsent.value = {
       // Enable pre-consent behavior only if the consent data is already not provided
-      enabled: state.loadOptions.value.preConsent?.enabled === true && cmpInitialized === false,
+      enabled:
+        state.loadOptions.value.preConsent?.enabled === true &&
+        cmpInitialized === false &&
+        consentManagementDisabled === false,
       storage: {
         strategy: storageStrategy,
       },
