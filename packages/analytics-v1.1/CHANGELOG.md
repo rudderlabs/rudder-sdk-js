@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.43.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.42.4...rudder-sdk-js@2.43.0) (2023-10-13)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.42.4`
+
+### Features
+
+* **analytics-js-service-worker:** deprecate service worker export of rudder-sdk-js package  in favor of the new standalone package([#1437](https://github.com/rudderlabs/rudder-sdk-js/issues/1437)) ([1797d3e](https://github.com/rudderlabs/rudder-sdk-js/commit/1797d3ef356e947a528c2de9abcfde245cc28178))
+
 ## [2.42.4](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.42.3...rudder-sdk-js@2.42.4) (2023-10-02)
 
 
