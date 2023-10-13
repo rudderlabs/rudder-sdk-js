@@ -44,6 +44,22 @@ try {
 }
 
 window.rudderAnalyticsMount = () => {
+  /* eslint-disable */
+  // globalThis polyfill as polyfill.io one does not work in legacy safari
+  if (typeof globalThis !== 'object') {
+    Object.defineProperty(Object.prototype, '__globalThis_magic__', {
+      get: function get() {
+        return this;
+      },
+      configurable: true,
+    });
+    // @ts-ignore
+    __globalThis_magic__.globalThis = __globalThis_magic__;
+    // @ts-ignore
+    delete Object.prototype.__globalThis_magic__;
+  }
+  /* eslint-disable */
+
   const rudderAnalyticsScript = document.createElement('script');
   rudderAnalyticsScript.src = `${sdkBaseUrl}/${window.rudderAnalyticsBuildType}/${sdkName}`;
   rudderAnalyticsScript.async = asyncScript;
@@ -54,10 +70,10 @@ window.rudderAnalyticsMount = () => {
   }
 };
 
-if (typeof Promise === 'undefined') {
+if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
   const rudderAnalyticsPromisesScript = document.createElement('script');
   rudderAnalyticsPromisesScript.src =
-    'https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount';
+    'https://polyfill.io/v3/polyfill.min.js?features=Symbol%2CPromise&callback=rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = asyncScript;
   if (document.head) {
     document.head.appendChild(rudderAnalyticsPromisesScript);
