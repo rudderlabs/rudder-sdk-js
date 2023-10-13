@@ -1,24 +1,28 @@
 # Chrome Extension Usage
 
-RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script
-service worker. It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package)
+or as a background script service worker (via the service worker package).
 
 ## Table of contents
 
 - [**Examples**](#examples)
 - [**Background Script**](#background-script)
 - [**Content Script**](#content-script)
+- [**External resources**](#External-resources)
 
 ## Examples
 
 The provided examples are based on [Chrome Extension v3 Starter](https://github.com/SimGus/chrome-extension-v3-starter)
 that contains a minimal Chrome/Chromium extension using the newest version of the manifest (v3).
 
+You can browse through different examples [here](https://github.com/rudderlabs/rudder-sdk-js/tree/develop/examples/chrome-extension).
+
 ## Background Script
 
-RudderStack npm package JS SDK service worker export can be used as background script. In order to do so you will need to
-place it in your Chrome extension resources, either by copying the file from node modules, and have it as part of the
-resources, or by using a JS bundler and bundle it as part of you service worker script.
+RudderStack [service worker npm package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be
+used as background script. In order to do so you will need to place it in your Chrome extension resources, either by
+copying the file from node modules, and have it as part of the resources, or by using a JS bundler and bundle it as
+part of you service worker script.
 
 Relevant permissions need to be enabled in the manifest file as per the desired capabilities and connections allowed.
 Additionally setting the background script type as module will allow you to import is as ESM.
@@ -49,14 +53,14 @@ Here is an example to track url changes.
 
 Sample background script imports:
 
-    # In case file is copied from node_modules/rudder-sdk-js/service-worker/index.es.js in extension resources folder
+    # In case file is copied from node_modules/@rudderstack/analytics-js-service-worker/npm/esm/index.js in extension resources folder
     import { Analytics } from "./rudderAnalytics.js";
 
     # In case the package is imported directly as umd and then bundled in the background script
-    import { Analytics } from "rudder-sdk-js/service-worker";
+    import { Analytics } from "@rudderstack/analytics-js-service-worker/umd/index.js";
 
     # In case the package is imported directly as es-module and then bundled in the background script
-    import { Analytics } from "rudder-sdk-js/service-worker/index.es";
+    import { Analytics } from "@rudderstack/analytics-js-service-worker";
 
 Sample background script:
 
@@ -76,8 +80,9 @@ Sample background script:
 
 ## Content Script
 
-RudderStack JS SDK can be used as content script. In order to do so you will need to place it in your Chrome extension
-resources, either by downloading the file and have it as part of the resources or by using a JS bundler and bundle it as
+RudderStack Analytics [JavaScript SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/)
+can be used as content script. In order to do so you will need to place it in your Chrome extension resources, either
+by downloading the file and have it as part of the resources or by using a JS bundler and bundle it as
 part of you content script.
 
 Relevant permissions need to be enabled in the manifest file as per the desired capabilities and connections allowed

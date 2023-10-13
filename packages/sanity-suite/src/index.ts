@@ -1,5 +1,5 @@
 import { initSanitySuite } from './testBook';
 
-window.rudderanalytics.ready(() => {
+(window.rudderanalytics as any).ready(() => {
   initSanitySuite();
 });

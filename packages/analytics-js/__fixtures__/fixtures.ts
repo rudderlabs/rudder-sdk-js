@@ -332,6 +332,41 @@ const entriesWithOnlyNoStorage = {
   },
 };
 
+const entriesWithOnlySessionStorage = {
+  userId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'sessionStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
 const entriesWithMixStorage = {
   userId: {
     type: 'cookieStorage',
@@ -394,6 +429,41 @@ const loadOptionWithInvalidEntry = {
   },
 };
 
+const anonymousIdWithNoStorageEntries = {
+  userId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userId,
+  },
+  userTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.userTraits,
+  },
+  anonymousId: {
+    type: 'none',
+    key: userSessionStorageKeys.anonymousId,
+  },
+  groupId: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupId,
+  },
+  groupTraits: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.groupTraits,
+  },
+  initialReferrer: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'cookieStorage',
+    key: userSessionStorageKeys.sessionInfo,
+  },
+};
+
 export {
   identifyRequestPayload,
   trackRequestPayload,
@@ -410,4 +480,6 @@ export {
   entriesWithMixStorage,
   loadOptionWithEntry,
   loadOptionWithInvalidEntry,
+  entriesWithOnlySessionStorage,
+  anonymousIdWithNoStorageEntries,
 };

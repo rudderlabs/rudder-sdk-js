@@ -19,10 +19,18 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { COOKIE_STORAGE, LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import {
+  COOKIE_STORAGE,
+  LOCAL_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { CLIENT_DATA_STORE_COOKIE, CLIENT_DATA_STORE_LS } from '../../constants/storage';
+import {
+  CLIENT_DATA_STORE_COOKIE,
+  CLIENT_DATA_STORE_LS,
+  CLIENT_DATA_STORE_SESSION,
+} from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { defaultSessionInfo } from '../../state/slices/session';
@@ -76,7 +84,7 @@ class UserSessionManager implements IUserSessionManager {
     const userTraits = this.getUserTraits();
     const groupId = this.getGroupId();
     const groupTraits = this.getGroupTraits();
-    const anonymousId = this.getAnonymousId();
+    const anonymousId = this.getAnonymousId(state.loadOptions.value.anonymousIdOptions);
     if (userId) {
       this.setUserId(userId);
     }
@@ -130,7 +138,7 @@ class UserSessionManager implements IUserSessionManager {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
-      const storages = [COOKIE_STORAGE, LOCAL_STORAGE];
+      const storages = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
 
       storages.forEach(storage => {
         const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
@@ -153,12 +161,16 @@ class UserSessionManager implements IUserSessionManager {
     }
     const cookieStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_COOKIE);
     const localStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_LS);
+    const sessionStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_SESSION);
     const stores: IStore[] = [];
     if (cookieStorage) {
       stores.push(cookieStorage);
     }
     if (localStorage) {
       stores.push(localStorage);
+    }
+    if (sessionStorage) {
+      stores.push(sessionStorage);
     }
     Object.keys(userSessionStorageKeys).forEach(storageEntryKey => {
       const key = storageEntryKey as UserSessionStorageKeysType;
@@ -333,8 +345,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
-    const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    if (isStorageTypeValidForStoringData(storage)) {
+    if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
           'userSession.anonymousIdGoogleLinker',
@@ -510,7 +521,8 @@ class UserSessionManager implements IUserSessionManager {
       state.session.authToken.value = defaultUserSessionValues.authToken;
 
       if (resetAnonymousId) {
-        state.session.anonymousId.value = defaultUserSessionValues.anonymousId;
+        // This will generate a new anonymous ID
+        this.setAnonymousId();
       }
 
       if (noNewSessionStart) {
