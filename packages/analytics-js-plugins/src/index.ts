@@ -12,5 +12,3 @@ export { default as StorageEncryption } from './storageEncryption';
 export { default as StorageEncryptionLegacy } from './storageEncryptionLegacy';
 export { default as StorageMigrator } from './storageMigrator';
 export { default as XhrQueue } from './xhrQueue';
-
-// TODO: export all utils too
