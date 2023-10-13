@@ -262,7 +262,12 @@
             }
           ],
           "oneTrustCookieCategories": [],
-          "overrideClientAndSessionId": true
+          "overrideClientAndSessionId": true,
+          "ketchConsentPurposes": [
+            {
+              "purpose": "analytics"
+            }
+          ]
         },
         "liveEventsConfig": {
           "eventDelivery": false,
@@ -274,7 +279,7 @@
           "name": "GA4",
           "displayName": "Google Analytics 4 (GA4)",
           "createdAt": "2020-12-31T10:32:41.062Z",
-          "updatedAt": "2023-10-03T10:41:22.118Z",
+          "updatedAt": "2023-10-12T12:42:07.050Z",
           "config": {
             "destConfig": {
               "ios": ["useNativeSDK", "connectionMode"],
@@ -288,14 +293,6 @@
                 "overrideClientAndSessionId"
               ],
               "android": ["useNativeSDK", "connectionMode"],
-              "shopify": [
-                "useNativeSDK",
-                "connectionMode",
-                "capturePageView",
-                "useNativeSDKToSend",
-                "extendPageViewParams",
-                "overrideClientAndSessionId"
-              ],
               "defaultConfig": [
                 "apiSecret",
                 "debugMode",
@@ -306,6 +303,7 @@
                 "blacklistedEvents",
                 "eventFilteringOption",
                 "piiPropertiesToIgnore",
+                "ketchConsentPurposes",
                 "oneTrustCookieCategories"
               ]
             },
@@ -323,7 +321,8 @@
               "extendPageViewParams",
               "piiPropertiesToIgnore",
               "oneTrustCookieCategories",
-              "overrideClientAndSessionId"
+              "overrideClientAndSessionId",
+              "ketchConsentPurposes"
             ],
             "transformAt": "processor",
             "transformAtV1": "processor",
@@ -361,11 +360,11 @@
         },
         "deleted": false,
         "createdAt": "2023-02-16T08:13:54.021Z",
-        "updatedAt": "2023-09-30T07:01:03.925Z",
+        "updatedAt": "2023-10-13T04:37:49.271Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2W6e4BbCxrlY2Hl80zyYM7PNNNl",
+        "revisionId": "2Wh5FjP3r9CYFWRDrRtxGSlNtab",
         "secretConfig": {},
-        "secretVersion": 10,
+        "secretVersion": 11,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -996,5 +995,5 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-10-06T07:22:05.366Z"
+  "updatedAt": "2023-10-13T04:44:07.532Z"
 }
