@@ -259,7 +259,6 @@ const updateConsentsState = (logger?: ILogger): void => {
       events: {
         delivery: eventsDeliveryType,
       },
-      trackConsent: state.loadOptions.value.preConsent?.trackConsent === true,
     };
   });
 };

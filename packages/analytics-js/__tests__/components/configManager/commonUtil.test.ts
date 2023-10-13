@@ -269,7 +269,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
       };
 
       updateConsentsState();
@@ -283,7 +282,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
       });
       expect(state.consents.initialized.value).toBe(false);
       expect(state.consents.data.value).toStrictEqual({
@@ -327,7 +325,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: false,
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent storage strategy "random-strategy" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "none" will be used instead.',
@@ -343,7 +340,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'random-delivery',
         },
-        trackConsent: 'random',
       };
 
       updateConsentsState(mockLogger);
@@ -356,7 +352,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: false,
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent events delivery type "random-delivery" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "immediate" will be used instead.',
@@ -372,7 +367,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
       };
 
       state.loadOptions.value.consentManagement = {
@@ -392,7 +386,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
       });
     });
   });
