@@ -114,4 +114,20 @@ function getConversionData(eventTypeConversions, eventName, defaultPageConversio
   return conversionData;
 }
 
-export { shouldSendConversionEvent, shouldSendDynamicRemarketingEvent, getConversionData };
+function newCustomerAcquisitionReporting(properties, newCustomerFromCOnfig) {
+  const updatedProperties = { ...properties }; // create a copy of properties object
+  if (updatedProperties && updatedProperties.newCustomer) {
+    updatedProperties.new_customer = updatedProperties.newCustomer;
+    delete updatedProperties.newCustomer;
+  } else if (newCustomerFromCOnfig !== 'unspecified') {
+    updatedProperties.new_customer = newCustomerFromCOnfig;
+  }
+  return updatedProperties;
+}
+
+export {
+  shouldSendConversionEvent,
+  shouldSendDynamicRemarketingEvent,
+  getConversionData,
+  newCustomerAcquisitionReporting,
+};

@@ -11,6 +11,7 @@ import {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
+  newCustomerAcquisitionReporting,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -116,6 +117,7 @@ class GoogleAds {
         send_to: sendToValue,
       };
       properties = removeUndefinedAndNullValues(properties);
+      properties = newCustomerAcquisitionReporting(properties, this.newCustomer);
 
       const eventLabel = this.enableConversionLabel ? 'conversion' : eventName;
       window.gtag('event', eventLabel, properties);
@@ -143,20 +145,12 @@ class GoogleAds {
         false,
       );
 
-      const { properties } = rudderElement.message;
+      let { properties } = rudderElement.message;
 
       // set new customer acquisition reporting
       // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager
       // the order of priority for new_customer's value is properties.new_customer > config.newCustomer > unspecified
-
-      if (properties.new_customer || this.newCustomer) {
-        if (properties.newCustomer) {
-          properties.new_customer = properties.newCustomer;
-          delete properties.newCustomer;
-        } else if (!this.newCustomer == 'unspecified') {
-          properties.new_customer = this.newCustomer;
-        }
-      }
+      properties = newCustomerAcquisitionReporting(properties, this.newCustomer);
       const payload = properties || {};
       const sendToValue = this.conversionId;
 
@@ -216,17 +210,6 @@ class GoogleAds {
     ) {
       const event = name;
       const { properties } = rudderElement.message;
-
-      // set new customer acquisition reporting
-      if (properties.new_customer || this.newCustomer) {
-        if (properties.newCustomer) {
-          properties.new_customer = properties.newCustomer;
-          delete properties.newCustomer;
-        } else if (!this.newCustomer == 'unspecified') {
-          properties.new_customer = this.newCustomer;
-        }
-      }
-
       const sendToValue = this.conversionId;
       const payload = properties || {};
       payload.send_to = sendToValue;
