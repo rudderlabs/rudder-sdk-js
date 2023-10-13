@@ -6,6 +6,7 @@ import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   MEMORY_STORAGE,
+  SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
@@ -86,6 +87,7 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
   Boolean(
     storageType === COOKIE_STORAGE ||
       storageType === LOCAL_STORAGE ||
+      storageType === SESSION_STORAGE ||
       storageType === MEMORY_STORAGE,
   );
 

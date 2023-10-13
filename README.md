@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://rudderstack.com/">
-    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+    <img alt="RudderStack" width="512" src="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-light.jpg">
   </a>
   <br />
   <caption>The Customer Data Platform for Developers</caption>
@@ -19,7 +19,7 @@
 
 ---
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK
+# RudderStack JavaScript SDK
 
 The JavaScript SDK lets you track customer event data from your website and send it to your specified destinations via RudderStack.
 
@@ -27,18 +27,20 @@ The JavaScript SDK lets you track customer event data from your website and send
 
 ## Table of Contents
 
-- [**Installing the JavaScript SDK**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#installing-the-javascript-sdk)
-- [**Identifying your users**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#identifying-users)
-- [**Tracking user actions**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#tracking-user-actions)
-- [**The `ready` API**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#the-ready-api)
-- [**Self-hosted control plane**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#self-hosted-control-plane)
-- [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#adding-your-own-integrations)
-- [**Usage in Chrome Extensions**](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#usage-in-chrome-extensions)
+- [**Installing the JavaScript SDK**](#installing-the-javascript-sdk)
+- [**Identifying your users**](#identifying-users)
+- [**Tracking user actions**](#tracking-user-actions)
+- [**The `ready` API**](#the-ready-api)
+- [**Self-hosted control plane**](#self-hosted-control-plane)
+- [**Adding your own integrations**](#adding-your-own-integrations)
+- [**How to build the SDK**](#how-to-build-the-sdk)
+- [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
+- [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
 | **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK npm package and decoupled it to a new package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
+## Installing the JavaScript SDK
 
 To integrate the JavaScript SDK with your website, place the following code snippet in the `<head>` section of your website.
 
@@ -193,7 +195,7 @@ Refer to the following projects for a detailed walk-through of the above steps:
 
 > If the SDK does not work on the browser versions that you are targeting, verify if adding the browser polyfills to your application solves the issue.
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#identifying-users)Identifying users
+## Identifying users
 
 The `identify` call lets you identify a visiting user and associate them to their actions. It also lets you record the traits about them like their name, email address, etc.
 
@@ -226,7 +228,7 @@ In the above example, the user-related information like the `userId` and `email`
 
 For more information on how to use the `identify` call, refer to the [**JavaScript SDK documentation**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#tracking-user-actions)Tracking user actions
+## Tracking user actions
 
 The `track` call lets you record the customer events, i.e. the actions that they perform, along with any associated properties.
 
@@ -250,7 +252,7 @@ In the above example, the `track` method tracks the user event ‘**test track e
 
 > You can use the `track` method to track various success metrics for your website like user signups, item purchases, article bookmarks, and more.
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#the-ready-api)The `ready` API
+## The `ready` API
 
 There are cases when you may want to tap into the features provided by the end-destination SDKs to enhance tracking and other functionalities. The JavaScript SDK exposes a `ready` API with a `callback` parameter that fires when the SDK is done initializing itself and the other third-party native SDK destinations.
 
@@ -281,39 +283,38 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 | **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).** |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#adding-your-own-integrations)Adding your own integrations
+## Adding your own integrations
 
 You can start adding integrations of your choice for sending the data through their respective web (JavaScript) SDKs.
 
-### [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#how-to-build-the-sdk)How to build the SDK
+## How to build the SDK
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run build:browser`: This outputs **rudder-analytics.min.js**.
-  - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
-  - `npm run build:integration:all`: This outputs **integrations** folder that contains the integrations.
+  - `npm run build:browser`: This outputs **dist/cdn/legacy/rudder-analytics.min.js**.
+  - `npm run build:npm`: This outputs **dist/npm** folder that contains the npm package contents.
+  - `npm run build:integration:all`: This outputs **dist/cdn/legacy** folder that contains the integrations.
 
 > We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` folder.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `src/integrations` folder.
 
-### Usage in Chrome Extensions
+## Usage in Chrome Extensions
 
-RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script
-service worker.
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package)
+or as a background script service worker (via the [service worker package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker)).
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md)
 
-### Usage in Serverless runtimes
+## Usage in Serverless runtimes
 
-RudderStack JS SDK service worker can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
+RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used
+in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 
 For examples and specific details look into:
 
 - [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 - [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
-
-https://vercel.com/docs/functions/edge-functions/quickstart
 
 ## Contribute
 
