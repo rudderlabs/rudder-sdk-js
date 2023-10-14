@@ -151,7 +151,7 @@ const extendTraits = arr => {
  * @return {Array}
  */
 const mapTraits = arr => {
-  const ret = new Array(arr.length);
+  const ret = [];
 
   arr.forEach(key => {
     if (Object.prototype.hasOwnProperty.call(traitAliases, key)) {
