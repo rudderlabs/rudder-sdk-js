@@ -46,7 +46,7 @@ try {
 window.rudderAnalyticsMount = () => {
   /* eslint-disable */
   // globalThis polyfill as polyfill.io one does not work in legacy safari
-  if (typeof globalThis !== 'object') {
+  if (typeof globalThis === 'undefined') {
     Object.defineProperty(Object.prototype, '__globalThis_magic__', {
       get: function get() {
         return this;

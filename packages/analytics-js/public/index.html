@@ -34,7 +34,7 @@
         window.rudderAnalyticsBuildType = 'modern';
       } catch (e) {}
       window.rudderAnalyticsMount = function () {
-        if (typeof globalThis !== 'object') {
+        if (typeof globalThis === 'undefined') {
           Object.defineProperty(Object.prototype, '__globalThis_magic__', {
             get: function get() {
               return this;
