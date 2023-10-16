@@ -18,7 +18,7 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
   const dummyVersion = '2.x.x';
 
   beforeEach(() => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: dummyScriptURL, isStaging: false }));
+    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: dummyScriptURL }));
   });
 
   afterEach(() => {
@@ -48,14 +48,14 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
   });
 
   it('should return default path if no script src exists and integrations version is not locked', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined, isStaging: false }));
+    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined }));
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false);
     expect(integrationsCDNPath).toBe(DEST_SDK_BASE_URL);
   });
 
   it('should return default path with versioned folder if no script src exists and integrations version is locked', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined, isStaging: false }));
+    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: undefined }));
 
     const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true);
     expect(integrationsCDNPath).toBe(`${SDK_CDN_BASE_URL}/${dummyVersion}/${CDN_INT_DIR}`);

@@ -29,12 +29,6 @@
         "script": "build:npm"
       }
     },
-    "build-worker": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:worker"
-      }
-    },
     "build-package": {
       "executor": "nx:run-script",
       "options": {
@@ -115,9 +109,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.42.4",
-        "title": "rudder-sdk-js@2.42.4",
-        "discussion-category": "rudder-sdk-js@2.42.4",
+        "tag": "rudder-sdk-js@2.43.0",
+        "title": "rudder-sdk-js@2.43.0",
+        "discussion-category": "rudder-sdk-js@2.43.0",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     },

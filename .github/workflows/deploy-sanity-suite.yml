@@ -22,6 +22,7 @@ jobs:
   deploy-tag:
     name: Deploy Sanity Suite
     runs-on: ubuntu-latest
+
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

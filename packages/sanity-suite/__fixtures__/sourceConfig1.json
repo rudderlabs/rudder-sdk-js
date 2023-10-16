@@ -51,16 +51,6 @@
           "trackProductsOnce": false,
           "trackRevenuePerProduct": false,
           "preferAnonymousIdForDeviceId": false,
-          "deviceIdFromUrlParam": false,
-          "forceHttps": false,
-          "trackGclid": true,
-          "trackReferrer": true,
-          "saveParamsReferrerOncePerSession": true,
-          "trackUtmProperties": true,
-          "unsetParamsReferrerOnNewSession": false,
-          "batchEvents": false,
-          "eventUploadPeriodMillis": "30000",
-          "eventUploadThreshold": "30",
           "versionName": "",
           "blacklistedEvents": [
             {
@@ -79,7 +69,11 @@
           ],
           "eventFilteringOption": "disable",
           "mapDeviceBrand": false,
-          "residencyServer": "standard"
+          "residencyServer": "standard",
+          "attribution": false,
+          "eventUploadThreshold": "1",
+          "eventUploadPeriodMillis": "0",
+          "trackNewCampaigns": true
         },
         "liveEventsConfig": {
           "eventDelivery": false,
@@ -91,7 +85,7 @@
           "name": "AM",
           "displayName": "Amplitude",
           "createdAt": "2019-09-02T08:08:05.613Z",
-          "updatedAt": "2023-08-22T09:11:50.360Z",
+          "updatedAt": "2023-10-03T10:41:25.398Z",
           "config": {
             "destConfig": {
               "ios": [
@@ -106,16 +100,10 @@
                 "useNativeSDK",
                 "connectionMode",
                 "preferAnonymousIdForDeviceId",
-                "deviceIdFromUrlParam",
-                "forceHttps",
-                "trackGclid",
-                "trackReferrer",
-                "saveParamsReferrerOncePerSession",
-                "trackUtmProperties",
-                "unsetParamsReferrerOnNewSession",
-                "batchEvents",
+                "attribution",
+                "eventUploadThreshold",
                 "eventUploadPeriodMillis",
-                "eventUploadThreshold"
+                "trackNewCampaigns"
               ],
               "android": [
                 "eventUploadPeriodMillis",
@@ -187,16 +175,6 @@
               "trackProductsOnce",
               "trackRevenuePerProduct",
               "preferAnonymousIdForDeviceId",
-              "deviceIdFromUrlParam",
-              "forceHttps",
-              "trackGclid",
-              "trackReferrer",
-              "saveParamsReferrerOncePerSession",
-              "trackUtmProperties",
-              "unsetParamsReferrerOnNewSession",
-              "batchEvents",
-              "eventUploadPeriodMillis",
-              "eventUploadThreshold",
               "versionName",
               "enableLocationListening",
               "useAdvertisingIdForDeviceId",
@@ -207,7 +185,13 @@
               "oneTrustCookieCategories",
               "eventFilteringOption",
               "mapDeviceBrand",
-              "residencyServer"
+              "residencyServer",
+              "userProvidedPageEventString",
+              "useUserDefinedPageEventName",
+              "attribution",
+              "eventUploadThreshold",
+              "eventUploadPeriodMillis",
+              "trackNewCampaigns"
             ],
             "transformAt": "processor",
             "transformAtV1": "processor",
@@ -242,9 +226,9 @@
         },
         "deleted": false,
         "createdAt": "2023-02-01T10:32:02.827Z",
-        "updatedAt": "2023-07-20T11:00:26.508Z",
+        "updatedAt": "2023-10-03T13:35:52.574Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2SpkI8aXYzZXS5DSlkYC51sWl5Y",
+        "revisionId": "2WFtS9yqg1Tlm0upun7pdT0MzHj",
         "secretConfig": {},
         "secretVersion": 17,
         "shouldApplyDeviceModeTransformation": false,
@@ -272,8 +256,18 @@
           "useNativeSDKToSend": false,
           "eventFilteringOption": "disable",
           "extendPageViewParams": false,
+          "piiPropertiesToIgnore": [
+            {
+              "piiProperty": ""
+            }
+          ],
           "oneTrustCookieCategories": [],
-          "overrideClientAndSessionId": true
+          "overrideClientAndSessionId": true,
+          "ketchConsentPurposes": [
+            {
+              "purpose": "analytics"
+            }
+          ]
         },
         "liveEventsConfig": {
           "eventDelivery": false,
@@ -285,7 +279,7 @@
           "name": "GA4",
           "displayName": "Google Analytics 4 (GA4)",
           "createdAt": "2020-12-31T10:32:41.062Z",
-          "updatedAt": "2023-08-08T13:06:15.508Z",
+          "updatedAt": "2023-10-12T12:42:07.050Z",
           "config": {
             "destConfig": {
               "ios": ["useNativeSDK", "connectionMode"],
@@ -299,14 +293,6 @@
                 "overrideClientAndSessionId"
               ],
               "android": ["useNativeSDK", "connectionMode"],
-              "shopify": [
-                "useNativeSDK",
-                "connectionMode",
-                "capturePageView",
-                "useNativeSDKToSend",
-                "extendPageViewParams",
-                "overrideClientAndSessionId"
-              ],
               "defaultConfig": [
                 "apiSecret",
                 "debugMode",
@@ -316,6 +302,8 @@
                 "whitelistedEvents",
                 "blacklistedEvents",
                 "eventFilteringOption",
+                "piiPropertiesToIgnore",
+                "ketchConsentPurposes",
                 "oneTrustCookieCategories"
               ]
             },
@@ -331,8 +319,10 @@
               "useNativeSDKToSend",
               "eventFilteringOption",
               "extendPageViewParams",
+              "piiPropertiesToIgnore",
               "oneTrustCookieCategories",
-              "overrideClientAndSessionId"
+              "overrideClientAndSessionId",
+              "ketchConsentPurposes"
             ],
             "transformAt": "processor",
             "transformAtV1": "processor",
@@ -370,11 +360,11 @@
         },
         "deleted": false,
         "createdAt": "2023-02-16T08:13:54.021Z",
-        "updatedAt": "2023-08-07T05:56:40.704Z",
+        "updatedAt": "2023-10-13T04:37:49.271Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2TdzZR3Y82hrLFmbFyrZHcyv89S",
+        "revisionId": "2Wh5FjP3r9CYFWRDrRtxGSlNtab",
         "secretConfig": {},
-        "secretVersion": 10,
+        "secretVersion": 11,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -1004,5 +994,6 @@
     ],
     "deleted": false,
     "transient": false
-  }
+  },
+  "updatedAt": "2023-10-13T04:44:07.532Z"
 }

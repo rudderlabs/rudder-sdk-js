@@ -112,32 +112,40 @@ class Optimizely {
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
-      const state = window?.optimizely?.get('state');
-      if (state) {
-        const activeCampaigns = state.getCampaignStates({
-          isActive: true,
-        });
-        const campaignState = activeCampaigns[id];
-        if (referrer) campaignState.experiment.referrer = referrer;
-        sendCampaignData(campaignState);
+      try {
+        const state = window?.optimizely?.get('state');
+        if (state) {
+          const activeCampaigns = state.getCampaignStates({
+            isActive: true,
+          });
+          const campaignState = activeCampaigns[id];
+          if (referrer) campaignState.experiment.referrer = referrer;
+          sendCampaignData(campaignState);
+        }
+      } catch (e) {
+        logger.debug('Page loaded without Optimizely.')
       }
     };
 
     const checkReferrer = () => {
-      const state = window?.optimizely?.get('state');
-      if (state) {
-        const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-        if (referrer) {
-          referrerOverride(referrer);
-          return referrer;
-        }
+      let state;
+      try {
+        state = window?.optimizely?.get('state');
+      } catch (e) {
+        state = undefined;
       }
-      return undefined;
+      if (!state) {
+        return undefined;
+      }
+      const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+      if (!referrer) {
+        return undefined;
+      }
+      referrerOverride(referrer);
+      return referrer;
     };
 
     const registerFutureActiveCampaigns = () => {
-      window.optimizely = window.optimizely || [];
       window.optimizely.push({
         type: 'addListener',
         filter: {
@@ -153,7 +161,12 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      const state = window?.optimizely?.get('state');
+      let state;
+      try {
+        state = window?.optimizely?.get('state');
+      } catch (e) {
+        state = undefined
+      }
       if (state) {
         const referrer = checkReferrer();
         const activeCampaigns = state.getCampaignStates({
@@ -178,6 +191,7 @@ class Optimizely {
           },
         });
       }
+
     };
     registerCurrentlyActiveCampaigns();
     registerFutureActiveCampaigns();

@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.0.0-beta.13",
+  "version": "3.0.0-beta.14",
   "private": true,
   "description": "RudderStack Javascript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -72,7 +72,7 @@
     "build:integration:cli": "rollup -c --environment VERSION:$npm_package_version,PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
     "build:integration:bundle-size:cli": "rollup -c --environment VERSION:$npm_package_version,VISUALIZER:true,PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
     "build:integration:dev:cli": "rollup -c --environment PROD_DEBUG,INTG_NAME:$npm_config_intg",
-    "build:integration:all": "STAGING=$npm_config_staging node -r esm ./scripts/integrationBuildScript.js",
+    "build:integration:all": "node -r esm ./scripts/integrationBuildScript.js",
     "build:integration:all:modern": "BROWSERSLIST_ENV=modern npm run build:integration:all",
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
