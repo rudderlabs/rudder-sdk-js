@@ -10,7 +10,7 @@ import {
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { Consents } from '@rudderstack/analytics-js-common/types/Consent';
+import { ConsentManagementOptions, Consents } from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -177,20 +177,20 @@ const getConsentManagementData = (logger?: ILogger) => {
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
   const consentManagementDisabled = consentManagementOpts?.enabled === false;
-  if (isNonEmptyObject(consentManagementOpts) && consentManagementOpts.enabled === true) {
+  if (
+    isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) &&
+    consentManagementOpts.enabled === true
+  ) {
     const consentProvider = consentManagementOpts.provider;
     if (consentProvider === 'custom') {
       cmpInitialized = true;
 
-      const allowedConsentsOpts = consentManagementOpts.allowedConsentIds;
-      if (isValidConsentsData(allowedConsentsOpts)) {
-        allowedConsentIds = allowedConsentsOpts;
-      }
-
-      const deniedConsentsOpts = consentManagementOpts.deniedConsentIds;
-      if (isValidConsentsData(deniedConsentsOpts)) {
-        deniedConsentIds = deniedConsentsOpts;
-      }
+      allowedConsentIds = isValidConsentsData(consentManagementOpts.allowedConsentIds)
+        ? consentManagementOpts.allowedConsentIds
+        : [];
+      deniedConsentIds = isValidConsentsData(consentManagementOpts.deniedConsentIds)
+        ? consentManagementOpts.deniedConsentIds
+        : [];
     } else if (consentProvider) {
       // Get the corresponding plugin name of the selected consent manager from the supported consent managers
       consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
@@ -253,7 +253,6 @@ const updateConsentsState = (logger?: ILogger): void => {
     state.consents.data.value = consentsData;
 
     state.consents.preConsent.value = {
-      // Enable pre-consent behavior only if the consent data is already not provided
       enabled:
         state.loadOptions.value.preConsent?.enabled === true &&
         cmpInitialized === false &&

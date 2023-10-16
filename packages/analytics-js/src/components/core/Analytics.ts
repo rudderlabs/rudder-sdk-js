@@ -191,13 +191,7 @@ class Analytics implements IAnalytics {
             this.onInitialized();
             break;
           case 'loaded':
-            this.processBufferedEvents();
-            // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
-            if (state.consents.preConsent.value.enabled === true) {
-              state.lifecycle.status.value = 'ready';
-            } else {
-              this.loadDestinations();
-            }
+            this.onLoaded();
             break;
           case 'destinationsLoading':
             break;
@@ -215,6 +209,16 @@ class Analytics implements IAnalytics {
         this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
+  }
+
+  private onLoaded() {
+    this.processBufferedEvents();
+    // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
+    if (state.consents.preConsent.value.enabled === true) {
+      state.lifecycle.status.value = 'ready';
+    } else {
+      this.loadDestinations();
+    }
   }
 
   /**
@@ -308,6 +312,7 @@ class Analytics implements IAnalytics {
     // Initialize event manager
     this.eventManager?.init();
 
+    // Mark the SDK as initialized
     state.lifecycle.status.value = 'initialized';
   }
 
