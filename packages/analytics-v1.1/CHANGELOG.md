@@ -6,7 +6,7 @@ This file was generated using [@jscutlery/semver](https://github.com/jscutlery/s
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-common` updated to version `2.42.4`
+* `@rudderstack/analytics-js-common` updated to version `3.0.0-beta.11`
 
 ### Features
 

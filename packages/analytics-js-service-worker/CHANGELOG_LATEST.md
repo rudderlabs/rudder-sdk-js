@@ -1,4 +1,4 @@
-## [0.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.0-beta.10...@rudderstack/analytics-js-service-worker@0.1.0) (2023-10-16)
+## [3.0.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.0-beta.10...@rudderstack/analytics-js-service-worker@3.0.0) (2023-10-16)
 
 
 ### Features
