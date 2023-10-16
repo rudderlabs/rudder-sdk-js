@@ -97,7 +97,7 @@
     "md5": "2.3.0",
     "obj-case": "0.2.1",
     "on-body": "0.0.1",
-    "ramda": "0.29.0"
+    "ramda": "0.29.1"
   },
   "overrides": {},
   "browserslist": {
