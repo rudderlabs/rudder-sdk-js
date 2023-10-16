@@ -1,9 +1,5 @@
 import { clone } from 'ramda';
-import {
-  isString,
-  isUndefined,
-  isNullOrUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
