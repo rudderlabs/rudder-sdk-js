@@ -44,7 +44,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         (n: string) => n,
       );
       const allowedConsents: Record<string, string> = {};
-      const deniedConsents: string[] = [];
+      const deniedConsentIds: string[] = [];
 
       // Get the groups(cookie categorization), user has created in one trust account.
       const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
@@ -55,12 +55,12 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         if (allowedConsentIds.includes(CustomGroupId)) {
           allowedConsents[CustomGroupId] = GroupName;
         } else {
-          deniedConsents.push(CustomGroupId);
+          deniedConsentIds.push(CustomGroupId);
         }
       });
 
       state.consents.initialized.value = true;
-      state.consents.data.value = { allowedConsents, deniedConsents };
+      state.consents.data.value = { allowedConsentIds: allowedConsents, deniedConsentIds };
     },
 
     isDestinationConsented(
@@ -72,7 +72,10 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsents = state.consents.data.value.allowedConsents as Record<string, string>;
+      const allowedConsentIds = state.consents.data.value.allowedConsentIds as Record<
+        string,
+        string
+      >;
 
       try {
         // mapping of the destination with the consent group name
@@ -94,8 +97,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = validOneTrustCookieCategories.every(
           (element: string) =>
-            Object.keys(allowedConsents).includes(element.trim()) ||
-            Object.values(allowedConsents).includes(element.trim()),
+            Object.keys(allowedConsentIds).includes(element.trim()) ||
+            Object.values(allowedConsentIds).includes(element.trim()),
         );
 
         return containsAllConsent;

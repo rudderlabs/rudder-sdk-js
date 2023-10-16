@@ -171,8 +171,8 @@ const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) 
 
 const getConsentManagementData = (logger?: ILogger) => {
   let consentManagerPluginName: PluginName | undefined;
-  let allowedConsents: Consents | undefined;
-  let deniedConsents: Consents | undefined;
+  let allowedConsentIds: Consents | undefined;
+  let deniedConsentIds: Consents | undefined;
   let cmpInitialized = false;
 
   const consentManagementOpts = state.loadOptions.value.consentManagement;
@@ -182,14 +182,14 @@ const getConsentManagementData = (logger?: ILogger) => {
     if (consentProvider === 'custom') {
       cmpInitialized = true;
 
-      const allowedConsentsOpts = consentManagementOpts.allowedConsents;
+      const allowedConsentsOpts = consentManagementOpts.allowedConsentIds;
       if (isValidConsentsData(allowedConsentsOpts)) {
-        allowedConsents = allowedConsentsOpts;
+        allowedConsentIds = allowedConsentsOpts;
       }
 
-      const deniedConsentsOpts = consentManagementOpts.deniedConsents;
+      const deniedConsentsOpts = consentManagementOpts.deniedConsentIds;
       if (isValidConsentsData(deniedConsentsOpts)) {
-        deniedConsents = deniedConsentsOpts;
+        deniedConsentIds = deniedConsentsOpts;
       }
     } else if (consentProvider) {
       // Get the corresponding plugin name of the selected consent manager from the supported consent managers
@@ -198,8 +198,8 @@ const getConsentManagementData = (logger?: ILogger) => {
   }
 
   const consentsData = {
-    allowedConsents: allowedConsents ?? [],
-    deniedConsents: deniedConsents ?? [],
+    allowedConsentIds: allowedConsentIds ?? [],
+    deniedConsentIds: deniedConsentIds ?? [],
   };
 
   return {

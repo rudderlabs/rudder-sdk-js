@@ -26,12 +26,12 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       // getKetchUserConsentedPurposes returns current ketch opted-in purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserConsentedPurposes = () =>
-        (state.consents.data.value.allowedConsents as string[])?.slice();
+        (state.consents.data.value.allowedConsentIds as string[])?.slice();
 
       // getKetchUserDeniedPurposes returns current ketch opted-out purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserDeniedPurposes = () =>
-        (state.consents.data.value.deniedConsents as string[])?.slice();
+        (state.consents.data.value.deniedConsentIds as string[])?.slice();
 
       // updateKetchConsent callback function to update current consent purpose state
       // this will be called from ketch rudderstack plugin
@@ -66,7 +66,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
         return true;
       }
 
-      const allowedConsents = state.consents.data.value.allowedConsents as string[];
+      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
 
       try {
         const { ketchConsentPurposes } = destConfig;
@@ -80,7 +80,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
         // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
         const containsAnyOfConsent = purposes.some(element =>
-          allowedConsents.includes(element.trim()),
+          allowedConsentIds.includes(element.trim()),
         );
         return containsAnyOfConsent;
       } catch (err) {

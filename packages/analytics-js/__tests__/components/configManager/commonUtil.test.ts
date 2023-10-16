@@ -285,8 +285,8 @@ describe('Config Manager Common Utilities', () => {
       });
       expect(state.consents.initialized.value).toBe(false);
       expect(state.consents.data.value).toStrictEqual({
-        allowedConsents: [],
-        deniedConsents: [],
+        allowedConsentIds: [],
+        deniedConsentIds: [],
       });
     });
 
@@ -372,8 +372,8 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.consentManagement = {
         enabled: true,
         provider: 'custom',
-        allowedConsents: ['consent1'],
-        deniedConsents: ['consent2'],
+        allowedConsentIds: ['consent1'],
+        deniedConsentIds: ['consent2'],
       };
 
       updateConsentsState();

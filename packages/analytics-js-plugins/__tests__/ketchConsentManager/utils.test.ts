@@ -40,8 +40,8 @@ describe('KetchConsentManager - Utils', () => {
       updateConsentStateFromData(state, ketchConsentData);
 
       expect(state.consents.data.value).toStrictEqual({
-        allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-        deniedConsents: ['purpose2', 'purpose4'],
+        allowedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
+        deniedConsentIds: ['purpose2', 'purpose4'],
       });
     });
   });
@@ -59,8 +59,8 @@ describe('KetchConsentManager - Utils', () => {
       const consentData = getConsentData(ketchConsentData);
 
       expect(consentData).toStrictEqual({
-        allowedConsents: ['purpose1', 'purpose3', 'purpose5'],
-        deniedConsents: ['purpose2', 'purpose4'],
+        allowedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
+        deniedConsentIds: ['purpose2', 'purpose4'],
       });
     });
 
@@ -68,8 +68,8 @@ describe('KetchConsentManager - Utils', () => {
       const consentData = getConsentData();
 
       expect(consentData).toStrictEqual({
-        allowedConsents: [],
-        deniedConsents: [],
+        allowedConsentIds: [],
+        deniedConsentIds: [],
       });
     });
   });
