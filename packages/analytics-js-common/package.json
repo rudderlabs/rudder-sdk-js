@@ -61,7 +61,7 @@
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.1.1",
     "get-value": "3.0.1",
-    "ramda": "0.29.0",
+    "ramda": "0.29.1",
     "rudder-component-cookie": "0.0.1",
     "storejs": "2.0.6"
   },

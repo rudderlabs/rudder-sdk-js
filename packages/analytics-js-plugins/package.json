@@ -73,7 +73,7 @@
     "@preact/signals-core": "1.5.0",
     "@rudderstack/analytics-js-common": "*",
     "crypto-es": "2.0.4",
-    "ramda": "0.29.0"
+    "ramda": "0.29.1"
   },
   "overrides": {},
   "browserslist": {
