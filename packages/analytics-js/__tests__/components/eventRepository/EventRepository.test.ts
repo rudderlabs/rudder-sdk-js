@@ -274,4 +274,32 @@ describe('EventRepository', () => {
       undefined,
     );
   });
+
+  it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
+    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+
+    state.consents.preConsent.value = {
+      enabled: true,
+      events: {
+        delivery: 'buffer',
+      },
+      storage: {
+        strategy: 'session', // the value should be either 'session' or 'anonymousId'
+      },
+    };
+
+    eventRepository.init();
+
+    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+  });
+
+  describe('resume', () => {
+    it('should resume events processing on resume', () => {
+      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      eventRepository.init();
+
+      eventRepository.resume();
+      expect(mockDataplaneEventsQueue.start).toBeCalled();
+    });
+  });
 });

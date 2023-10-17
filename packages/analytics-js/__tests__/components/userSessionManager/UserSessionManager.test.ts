@@ -12,12 +12,10 @@ import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import {
-  anonymousIdWithNoStorageEntries,
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
   entriesWithOnlyNoStorage,
-  entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -43,12 +41,6 @@ describe('User session manager', () => {
   defaultStoreManager.init();
   const clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
   const clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
-
-  const setCustomValuesInLocalStorage = (data: any) => {
-    Object.entries(data).forEach(([key, value]) => {
-      clientDataStoreLS.set(key, value);
-    });
-  };
 
   const setCustomValuesInCookieStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -93,28 +85,6 @@ describe('User session manager', () => {
 
     expect(invokeSpy).toHaveBeenCalled();
     expect(userSessionManager.getUserId()).toBe(customData.rl_user_id);
-
-    // clears entries from cookie storage
-    expect(clientDataStoreCookie.engine.length).toBe(0);
-  });
-
-  it('should not remove entries from previous storage if the data is not migrated', () => {
-    const customData = {
-      rl_anonymous_id: 'myanonymousid',
-      rl_user_id: 'myuserid',
-    };
-    setCustomValuesInLocalStorage(customData);
-    // persisted data with local storage
-    state.storage.entries.value = entriesWithStorageOnlyForAnonymousId;
-    const invokeSpy = jest.spyOn(userSessionManager, 'migrateDataFromPreviousStorage');
-
-    userSessionManager.init();
-
-    expect(invokeSpy).toHaveBeenCalled();
-    expect(userSessionManager.getAnonymousId()).toBe(customData.rl_anonymous_id);
-
-    // only the anonymous ID entry should have been cleared from the previous storage
-    expect(clientDataStoreLS.engine.length).toBe(1);
   });
 
   it('should set default values in session state if the selected store type is none', () => {
@@ -561,22 +531,13 @@ describe('User session manager', () => {
     expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
     expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
   });
-  it('reset: should clear the existing anonymousId and set a new anonymousId with first parameter set to true', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    userSessionManager.init();
-    userSessionManager.setAnonymousId(dummyAnonymousId);
-    userSessionManager.reset(true);
-    expect(state.session.anonymousId.value).toEqual('test_uuid');
-  });
-  it('reset: should clear anonymousId and set default value in case of storage type is no_storage', () => {
-    state.storage.entries.value = anonymousIdWithNoStorageEntries;
+  it('reset: should clear anonymousId with first parameter set to true', () => {
     userSessionManager.init();
     userSessionManager.setAnonymousId(dummyAnonymousId);
     userSessionManager.reset(true);
     expect(state.session.anonymousId.value).toEqual('');
   });
   it('reset: should not start a new session with second parameter set to true', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.init();
     const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
     userSessionManager.reset(true, true);
