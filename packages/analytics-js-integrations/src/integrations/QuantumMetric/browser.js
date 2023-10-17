@@ -40,7 +40,6 @@ class QuantumMetric {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     if (!this._ready && window.QuantumMetricAPI) {
       this._ready = true;
     }
@@ -48,7 +47,6 @@ class QuantumMetric {
   }
 
   isReady() {
-    logger.debug('In isReady');
     return this.isLoaded();
   }
 }

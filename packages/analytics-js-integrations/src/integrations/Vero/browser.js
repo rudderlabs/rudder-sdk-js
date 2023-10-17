@@ -33,12 +33,10 @@ class Vero {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window._veroq && typeof window._veroq === 'object';
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window._veroq && !!window._veroq.ready;
   }
 
@@ -77,7 +75,6 @@ class Vero {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { traits } = message.context || message;
     const userId = message.userId || message.anonymousId;
@@ -101,7 +98,6 @@ class Vero {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties, anonymousId, userId } = message;
     if (!event) {
@@ -128,7 +124,6 @@ class Vero {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug('In page');
     const { name, category } = rudderElement.message;
     let eventName;
     if (!name && !category) {
@@ -153,7 +148,6 @@ class Vero {
    * @param {Alias} alias
    */
   alias(rudderElement) {
-    logger.debug('In alias');
     const { message } = rudderElement;
     const { userId, previousId } = message;
     if (!previousId) {

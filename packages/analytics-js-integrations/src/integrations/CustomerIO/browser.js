@@ -34,17 +34,14 @@ class CustomerIO {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._cio && window._cio.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window._cio && window._cio.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { userId, context } = rudderElement.message;
     const { traits } = context || {};
     if (!userId) {
@@ -60,15 +57,12 @@ class CustomerIO {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const eventName = rudderElement.message.event;
     const { properties } = rudderElement.message;
     window._cio.track(eventName, properties);
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     if (this.sendPageNameInSDK === false) {
       window._cio.page(rudderElement.message.properties);
     } else {

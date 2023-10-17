@@ -37,13 +37,10 @@ class LiveChat {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.LiveChatWidget && isObject(window.LiveChatWidget));
   }
 
   isReady() {
-    logger.debug('In isReady');
-
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       recordingLiveChatEvents(
@@ -57,7 +54,6 @@ class LiveChat {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId, context } = message;
     const { traits } = context;

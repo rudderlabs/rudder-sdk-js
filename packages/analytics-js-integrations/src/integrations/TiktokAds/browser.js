@@ -39,17 +39,14 @@ class TiktokAds {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.ttq;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.ttq;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { traits } = message.context;
     const { email, phone, number } = traits;
@@ -71,8 +68,6 @@ class TiktokAds {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     let event = message?.event;
     if (!event) {
@@ -102,7 +97,6 @@ class TiktokAds {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     window.ttq.page();
   }
 }

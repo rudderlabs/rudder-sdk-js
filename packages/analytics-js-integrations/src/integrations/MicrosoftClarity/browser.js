@@ -33,17 +33,14 @@ class MicrosoftClarity {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.clarity;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.clarity;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId, context } = message;
     if (!userId) {

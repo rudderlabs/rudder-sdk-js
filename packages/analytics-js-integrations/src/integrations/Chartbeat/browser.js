@@ -43,7 +43,6 @@ class Chartbeat {
   init() {}
 
   isLoaded() {
-    logger.debug('In isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -55,12 +54,10 @@ class Chartbeat {
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.pSUPERFLY;
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     this.loadConfig(rudderElement);
 
     if (!this.isFirstPageCallMade) {
@@ -68,16 +65,13 @@ class Chartbeat {
       this.initAfterPage();
     } else {
       if (this.failed) {
-        logger.debug('Ignoring cause failed integration');
         this.replayEvents = [];
         return;
       }
       if (!this.isLoaded() && !this.failed) {
-        logger.debug('Pushing to replay queue');
         this.replayEvents.push(['page', rudderElement]);
         return;
       }
-      logger.debug('Processing page event');
       const { properties } = rudderElement.message;
       window.pSUPERFLY.virtualPage(properties.path);
     }
@@ -117,7 +111,6 @@ class Chartbeat {
     });
 
     this._isReady(this).then(instance => {
-      logger.debug('replaying');
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
       });
@@ -134,12 +127,10 @@ class Chartbeat {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
-        logger.debug('loaded successfully');
         resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
-        logger.debug('failed');
         resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>

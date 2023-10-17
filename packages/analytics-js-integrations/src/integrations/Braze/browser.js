@@ -46,8 +46,6 @@ class Braze {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-
-    logger.debug('Config ', config);
   }
 
   init() {
@@ -69,13 +67,11 @@ class Braze {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
-    return this.appKey && window.brazeQueue === null;
+    return window.brazeQueue === null;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return this.appKey && window.brazeQueue === null;
+    return this.isLoaded();
   }
 
   /**
@@ -111,7 +107,6 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId } = message;
     const { context } = message;

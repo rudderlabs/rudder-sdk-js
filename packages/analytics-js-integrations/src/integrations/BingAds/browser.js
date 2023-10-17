@@ -31,14 +31,12 @@ class BingAds {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return (
       !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
     );
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!(window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   }
 

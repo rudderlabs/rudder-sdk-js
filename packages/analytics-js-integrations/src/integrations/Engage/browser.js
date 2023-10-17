@@ -37,18 +37,14 @@ class Engage {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.Engage;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.Engage;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const engageId = getDestinationExternalID(message, 'engageId');
     const { userIdOnly, firstName, phone, lastName } = getDefinedTraits(message);
@@ -71,7 +67,6 @@ class Engage {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties, originalTimestamp } = message;
     let engageId = getDestinationExternalID(message, 'engageId');
@@ -97,7 +92,6 @@ class Engage {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { message } = rudderElement;
     const { name, properties, originalTimestamp, category } = message;
     let engageId = getDestinationExternalID(message, 'engageId');

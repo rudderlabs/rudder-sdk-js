@@ -27,25 +27,21 @@ class ProfitWell {
 
   init() {
     if (!this.publicApiKey) {
-      logger.debug('Public API Key not found');
+      logger.error('Public API Key not found');
       return;
     }
     loadNativeSdk(this.publicApiKey);
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.profitwell && window.profitwell.length > 0);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     if (this.siteType === 'marketing') {
       window.profitwell('start', {});
       return;
@@ -68,7 +64,7 @@ class ProfitWell {
       return;
     }
 
-    logger.debug('email or userId is required for identify');
+    logger.info('email or userId is required for identify');
   }
 }
 

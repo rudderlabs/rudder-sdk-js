@@ -86,18 +86,14 @@ class SnapPixel {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.snaptr;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.snaptr;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
 
     const userEmail = get(message, 'context.traits.email');
@@ -120,8 +116,6 @@ class SnapPixel {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event } = message;
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
@@ -224,8 +218,6 @@ class SnapPixel {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { message } = rudderElement;
     sendEvent('PAGE_VIEW', eventPayload(message, this.deduplicationKey, this.enableDeduplication));
   }

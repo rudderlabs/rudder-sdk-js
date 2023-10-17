@@ -34,18 +34,14 @@ class QuoraPixel {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.qp && window.qp.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.qp && window.qp.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
     const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
     const trimmedEvent = event.toLowerCase().trim();

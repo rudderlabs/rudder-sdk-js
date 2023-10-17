@@ -93,13 +93,11 @@ class Klaviyo {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window._learnq && window._learnq.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
@@ -136,7 +134,7 @@ class Klaviyo {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`Error occured at extractCustomFields ${err}`);
+      logger.error(`Error occured at extractCustomFields ${err}`);
     }
     window._learnq.push(['identify', payload]);
   }

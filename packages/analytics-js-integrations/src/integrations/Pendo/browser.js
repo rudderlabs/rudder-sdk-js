@@ -22,7 +22,6 @@ class Pendo {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    logger.debug('Config ', config);
   }
 
   init() {
@@ -44,13 +43,11 @@ class Pendo {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.pendo && window.pendo.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   constructPendoAnonymousId(id) {

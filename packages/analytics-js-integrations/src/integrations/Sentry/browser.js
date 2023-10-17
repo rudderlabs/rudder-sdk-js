@@ -38,7 +38,7 @@ class Sentry {
 
   init() {
     if (!this.dsn) {
-      logger.debug('DSN is a mandatory field');
+      logger.error('DSN is a mandatory field');
       return;
     }
     SentryScriptLoader(
@@ -56,8 +56,6 @@ class Sentry {
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    logger.debug('In isLoaded');
-
     return !!(
       window.Sentry &&
       isObject(window.Sentry) &&
@@ -68,8 +66,6 @@ class Sentry {
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
-    logger.debug('In isReady');
-
     if (
       window.Sentry &&
       isObject(window.Sentry) &&
@@ -106,7 +102,7 @@ class Sentry {
 
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
-      logger.debug('Any one of userId, email, name and ip_address is mandatory');
+      logger.error('Any one of userId, email, name and ip_address is mandatory');
       return;
     }
 

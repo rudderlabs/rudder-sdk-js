@@ -34,10 +34,9 @@ class Comscore {
     } = destinationInfo ?? {});
   }
 
-  init() {}
+  init() { }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -45,13 +44,10 @@ class Comscore {
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.COMSCORE;
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     this.loadConfig(rudderElement);
 
     if (!this.isFirstPageCallMade) {

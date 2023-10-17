@@ -51,17 +51,14 @@ class Woopra {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window?.Woopra?.loaded;
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.Woopra;
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { traits } = rudderElement.message.context;
     if (traits) {
       window.Woopra.identify(traits).push();
@@ -69,13 +66,11 @@ class Woopra {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { event, properties } = rudderElement.message;
     window.Woopra.track(event, properties);
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { name, properties, category } = rudderElement.message;
     const pageCat = category ? `${category} ` : '';
     const pageName = name ? `${name} ` : '';

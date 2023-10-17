@@ -42,7 +42,7 @@ class Criteo {
 
   init() {
     if (!this.accountId) {
-      logger.debug('Account Id is required');
+      logger.error('Account Id is required');
       return;
     }
     window.criteo_q = window.criteo_q || [];
@@ -53,13 +53,11 @@ class Criteo {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
@@ -78,7 +76,7 @@ class Criteo {
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.debug('Home page is not detected');
+      logger.error('Home page is not detected');
       return;
     }
 
@@ -96,12 +94,12 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (!event) {
-      logger.debug('Event name from track call is missing');
+      logger.error('Event name from track call is missing');
       return;
     }
 
     if (!properties || Object.keys(properties).length === 0) {
-      logger.debug('Either properties object is missing or empty in the track call');
+      logger.error('Either properties object is missing or empty in the track call');
       return;
     }
 
@@ -109,7 +107,7 @@ class Criteo {
     const trimmedEvent = event.toLowerCase().trim();
 
     if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
-      logger.debug(`event ${trimmedEvent} is not supported`);
+      logger.error(`event ${trimmedEvent} is not supported`);
       return;
     }
     let events = [];

@@ -69,7 +69,6 @@ class Matomo {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._paq && window._paq.push !== Array.prototype.push);
   }
 
@@ -80,7 +79,6 @@ class Matomo {
   }
 
   isReady() {
-    logger.debug('In isReady');
     // Dashboard Event Settings
     if (window._paq && window._paq.push !== Array.prototype.push) {
       // Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has been triggered.
@@ -129,7 +127,6 @@ class Matomo {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { anonymousId, userId } = rudderElement.message;
     const matomoUserId = userId || anonymousId;
     if (!matomoUserId) {
@@ -140,8 +137,6 @@ class Matomo {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event } = message;
     const goalListMap = getHashFromArrayWithDuplicate(this.eventsMapToGoalId);
@@ -184,7 +179,6 @@ class Matomo {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     window._paq.push(['trackPageView']);
   }
 }

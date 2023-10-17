@@ -44,13 +44,11 @@ class Appcues {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.Appcues;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.Appcues;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {

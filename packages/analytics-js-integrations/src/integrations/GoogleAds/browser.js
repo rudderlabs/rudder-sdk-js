@@ -78,19 +78,15 @@ class GoogleAds {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return window.dataLayer.push !== Array.prototype.push;
   }
 
   isReady() {
-    logger.debug('In isReady');
     return this.isLoaded();
   }
 
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
     const conversionData = getConversionData(
       this.clickEventConversions,
@@ -168,8 +164,6 @@ class GoogleAds {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
       this.clickEventConversions,

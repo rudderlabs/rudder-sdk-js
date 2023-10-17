@@ -118,7 +118,7 @@ const getItemIds = message => {
       if (productId) {
         itemIds.push(productId);
       } else {
-        logger.debug(`product_id not present for product at index ${index}`);
+        logger.info(`product_id not present for product at index ${index}`);
       }
     });
   } else {
@@ -138,7 +138,7 @@ const getItemId = message => {
   if (isDefinedAndNotNull(productId)) {
     itemIds.push(productId);
   } else {
-    logger.debug(`${productIdNotPresentMessage}`);
+    logger.info(productIdNotPresentMessage);
     itemIds = null;
   }
   return itemIds;

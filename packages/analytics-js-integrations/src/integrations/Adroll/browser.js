@@ -36,17 +36,14 @@ class Adroll {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.__adroll;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.__adroll;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In Identify');
     const { message } = rudderElement;
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
@@ -60,7 +57,6 @@ class Adroll {
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
-    logger.debug('In Track');
     const { message } = rudderElement;
     const { userId, event, properties } = message;
     const eventsHashmap = getHashFromArray(this.eventsMap);
@@ -93,7 +89,6 @@ class Adroll {
   // and the segment associated in adroll
 
   page(rudderElement) {
-    logger.debug('In Page');
     const { message } = rudderElement;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let pageFullName;

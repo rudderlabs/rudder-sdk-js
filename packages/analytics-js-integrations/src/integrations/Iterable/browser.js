@@ -60,18 +60,14 @@ class Iterable {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window[iterableWebSdk];
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window[iterableWebSdk];
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { integrations, traits, context, userId } = message;
     const userEmail = traits?.email || context?.traits?.email;
@@ -88,11 +84,11 @@ class Iterable {
 
     if (this.initialisationIdentifier === 'userId') {
       wd.setUserID(userId).then(() => {
-        logger.debug('userId set');
+        logger.info('userId set');
       });
     } else {
       wd.setEmail(userEmail).then(() => {
-        logger.debug('userEmail set');
+        logger.info('userEmail set');
       });
     }
     /* Available pop-up push notification settings configurable from UI
@@ -125,8 +121,6 @@ class Iterable {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event, properties } = message;
     const eventPayload = removeUndefinedAndNullValues(properties);
@@ -150,7 +144,7 @@ class Iterable {
             eventName: 'Track getInAppMessages',
             dataFields: eventPayload,
           })
-          .then(logger.debug('Web in-app push triggered'));
+          .then(logger.info('Web in-app push triggered'));
       }
     } else if (
       isNotEmpty(this.purchaseEventMapping) &&
@@ -175,10 +169,9 @@ class Iterable {
         */
       // Either email or userId must be passed in to identify the user.
       // If both are passed in, email takes precedence.
-      logger.debug(`The event ${event} is not mapped in the dashboard, firing a custom event`);
       window[iterableWebSdk]
         .track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
-        .then(logger.debug('Track a custom event'));
+        .then(logger.info('Track a custom event'));
     }
   }
 }

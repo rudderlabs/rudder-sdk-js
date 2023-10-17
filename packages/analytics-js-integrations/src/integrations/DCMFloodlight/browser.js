@@ -82,15 +82,13 @@ class DCMFloodlight {
   loadCookieMatching() {
     if (this.doubleclickId && this.googleNetworkId) {
       const image = document.createElement('img');
-      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
-        this.googleNetworkId
-      }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
+      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${this.googleNetworkId
+        }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
       document.getElementsByTagName('head')[0].appendChild(image);
     }
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
@@ -98,16 +96,10 @@ class DCMFloodlight {
   }
 
   isReady() {
-    logger.debug('In isReady');
-    if (this.tagFormat === GTAG) {
-      return window.dataLayer.push !== Array.prototype.push;
-    }
-    return true;
+    return this.isLoaded();
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event } = message;
     let customFloodlightVariable;
@@ -176,7 +168,6 @@ class DCMFloodlight {
     };
 
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
-    logger.debug(`eventSnippetPayload - ${JSON.stringify(eventSnippetPayload)}`);
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
@@ -212,7 +203,7 @@ class DCMFloodlight {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
+
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message || rudderElement.message.properties;
 

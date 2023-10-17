@@ -39,17 +39,15 @@ class Sendinblue {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.sendinblue;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.sendinblue;
+
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { email, phone } = getDefinedTraits(message);
 
@@ -77,8 +75,6 @@ class Sendinblue {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
@@ -105,8 +101,6 @@ class Sendinblue {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { message } = rudderElement;
     const { name } = message;
     const payload = preparePagePayload(message);

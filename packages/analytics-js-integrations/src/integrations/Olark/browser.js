@@ -45,13 +45,10 @@ class Olark {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.olark;
   }
 
   isReady() {
-    logger.debug('In isReady');
-
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.standardToEvent, 'from', 'to', false);
@@ -62,7 +59,6 @@ class Olark {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { context } = message;
 

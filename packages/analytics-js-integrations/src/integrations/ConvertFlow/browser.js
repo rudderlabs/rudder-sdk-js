@@ -36,7 +36,6 @@ class ConvertFlow {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     if (this.toggleToSendData) {
       trigger(this.eventsMappping, this.eventsList, this.analytics);
     }
@@ -44,12 +43,10 @@ class ConvertFlow {
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.convertflow;
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const email = message.context.traits?.email || message.traits?.email;
     if (!email) {

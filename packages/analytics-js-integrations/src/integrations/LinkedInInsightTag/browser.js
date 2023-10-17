@@ -35,17 +35,14 @@ class LinkedInInsightTag {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window._linkedin_data_partner_id;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window._linkedin_data_partner_id;
+    return this.isLoaded();
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
@@ -60,7 +57,7 @@ class LinkedInInsightTag {
       false,
     );
     if (!eventMapping[trimmedEvent]) {
-      logger.debug(
+      logger.error(
         `The "${event}" event is not mapped in the destination dashboard. It'll be skipped`,
       );
       return;

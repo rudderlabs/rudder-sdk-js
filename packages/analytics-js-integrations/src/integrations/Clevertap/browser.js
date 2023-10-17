@@ -88,18 +88,14 @@ class Clevertap {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.clevertap && window.clevertap.logout !== undefined;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
@@ -132,11 +128,11 @@ class Clevertap {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`Error occured at extractCustomFields ${err}`);
+      logger.error(`Error occured at extractCustomFields ${err}`);
     }
     Object.keys(payload).forEach(key => {
       if (isObject(payload[key])) {
-        logger.debug('cannot process, unsupported traits');
+        logger.info(`cannot process, unsupported traits - ${payload[key]}`);
       }
     });
     window.clevertap.onUserLogin.push({
@@ -145,7 +141,6 @@ class Clevertap {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { event, properties } = rudderElement.message;
     if (properties) {
       if (event === 'Order Completed') {
@@ -163,13 +158,13 @@ class Clevertap {
             ['checkout_id', 'revenue', 'products'],
           );
         } catch (err) {
-          logger.debug(`Error occured at extractCustomFields ${err}`);
+          logger.error(`Error occured at extractCustomFields ${err}`);
         }
         window.clevertap.event.push('Charged', ecomProperties);
       } else {
         Object.keys(properties).forEach(key => {
           if (isObject(properties[key]) || isArray(properties[key])) {
-            logger.debug('cannot process, unsupported event');
+            logger.info(`cannot process, unsupported event - ${properties[key]}`);
           }
         });
         window.clevertap.event.push(event, properties);
@@ -182,7 +177,6 @@ class Clevertap {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties?.category && name) {
@@ -195,7 +189,7 @@ class Clevertap {
     if (properties) {
       Object.keys(properties).forEach(key => {
         if (isObject(properties[key]) || isArray(properties[key])) {
-          logger.debug('cannot process, unsupported event');
+          logger.info(`cannot process, unsupported event - ${properties[key]}`);
         }
       });
       window.clevertap.event.push(eventName, properties);

@@ -34,21 +34,18 @@ class Rockerbox {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.RB && !!window.RB.loaded;
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.RB;
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { userId, anonymousId, traits, context } = message;
     if (!userId) {
-      logger.debug('userId is needed. A primary identifier is expected');
+      logger.info('userId is needed. A primary identifier is expected');
     }
     const email = traits?.email || context?.traits?.email;
     window.RB.track('identify', {
@@ -66,7 +63,7 @@ class Rockerbox {
       );
       return;
     }
-    logger.debug('In track');
+
 
     const { message } = rudderElement;
     const { event, anonymousId, properties } = message;
@@ -84,7 +81,6 @@ class Rockerbox {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { message } = rudderElement;
     const { anonymousId, properties } = message;
     window.RB.track('view', { ...properties, anonymousId });

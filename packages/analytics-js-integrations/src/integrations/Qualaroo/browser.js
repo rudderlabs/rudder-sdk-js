@@ -44,12 +44,11 @@ class Qualaroo {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window._kiq && typeof window._kiq === 'object';
   }
 
   isReady() {
-    logger.debug('In isReady');
+
     if (this.recordQualarooEvents) {
       recordQualarooEvents(
         this.updateEventNames,
@@ -62,7 +61,6 @@ class Qualaroo {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { traits } = message.context;
     const userId = traits?.email || message.userId || traits?.userId || traits?.Id || '';
@@ -82,7 +80,6 @@ class Qualaroo {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event, context } = message;
     if (!event) {
@@ -92,7 +89,7 @@ class Qualaroo {
 
     const integrationName = context.integration?.name;
     if (integrationName && integrationName === 'Qualaroo') {
-      logger.debug(`dropping callback event: ${event}`);
+      logger.info(`dropping callback event: ${event}`);
       return;
     }
 
@@ -100,7 +97,6 @@ class Qualaroo {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { name, category } = rudderElement.message;
     let pageFullName;
     if (name && category) {

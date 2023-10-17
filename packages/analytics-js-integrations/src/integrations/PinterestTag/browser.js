@@ -66,13 +66,11 @@ export default class PinterestTag {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   // ref :- https://developers.pinterest.com/docs/conversions/conversion-management/#Understanding%20Limited%20Data%20Processing#%0A%2CCPRA%20Related%20Data%20Fields:~:text=using%20SHA%2D256.-,%3C,%3E,-To%20specifically%20not

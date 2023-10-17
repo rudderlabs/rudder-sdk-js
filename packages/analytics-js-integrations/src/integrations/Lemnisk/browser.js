@@ -28,21 +28,17 @@ class Lemnisk {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.lmSMTObj;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.lmSMTObj;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('user id is required');
+      logger.error('user id is required');
       return;
     }
     const { message } = rudderElement;
@@ -53,7 +49,6 @@ class Lemnisk {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { event, properties } = rudderElement.message;
 
     if (!event) {
@@ -69,8 +64,6 @@ class Lemnisk {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { name, properties } = rudderElement.message;
     if (name && !properties) {
       window.lmSMTObj.page(name, { isRudderEvents: true });

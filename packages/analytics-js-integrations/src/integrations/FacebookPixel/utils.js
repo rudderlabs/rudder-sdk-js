@@ -132,7 +132,7 @@ const buildPayLoad = (
     } else if ((!isPropertyPii || isProperyWhiteListed) && !isDateProp) {
       acc[currPropName] = currPropValue;
     } else {
-      logger.debug(
+      logger.info(
         `PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
       );
     }

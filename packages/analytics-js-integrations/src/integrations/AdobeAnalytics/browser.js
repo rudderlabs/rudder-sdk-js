@@ -73,13 +73,11 @@ class AdobeAnalytics {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.s_gi && window.s_gi !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   page(rudderElement) {

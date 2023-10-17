@@ -104,13 +104,11 @@ class FacebookPixel {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.fbq && window.fbq.callMethod);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
@@ -277,10 +275,7 @@ class FacebookPixel {
         currency,
         value: revValue,
       });
-    } else {
-      logger.debug('Inside custom');
-      if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
-        logger.debug('Inside custom not mapped');
+    } else if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
         payload.value = revValue;
         window.fbq('trackSingleCustom', this.pixelId, event, payload, {
           eventID: derivedEventID,
@@ -294,7 +289,6 @@ class FacebookPixel {
           value: revValue,
         });
       }
-    }
   }
 
   makeTrackSignalCalls(pixelId, event, array, derivedEventID, payload) {

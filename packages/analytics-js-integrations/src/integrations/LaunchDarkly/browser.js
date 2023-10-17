@@ -36,12 +36,10 @@ class LaunchDarkly {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.LDClient;
   }
 
   isReady() {
-    logger.debug('In isReady');
     return this.isLoaded();
   }
 

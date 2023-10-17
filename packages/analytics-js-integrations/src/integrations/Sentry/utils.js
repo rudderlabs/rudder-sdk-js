@@ -14,7 +14,7 @@ const convertObjectToArray = (objectInput, propertyName) =>
     .filter(e => isDefinedAndNotNullAndNotEmpty(e));
 
 const SentryScriptLoader = (id, src, integrity) => {
-  logger.debug(`In script loader - ${id}`);
+  logger.info(`In script loader - ${id}`);
   const js = document.createElement('script');
   js.src = src;
   js.integrity = integrity;
@@ -23,8 +23,8 @@ const SentryScriptLoader = (id, src, integrity) => {
   js.id = id;
   js.setAttribute('data-loader', LOAD_ORIGIN);
   const e = document.getElementsByTagName('script')[0];
-  logger.debug('==parent script==', e);
-  logger.debug('==adding script==', js);
+  logger.info('==parent script==', e);
+  logger.info('==adding script==', js);
   e.parentNode.insertBefore(js, e);
 };
 

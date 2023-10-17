@@ -78,13 +78,11 @@ class Shynet {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return this.scriptCheck;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return this.scriptCheck;
+    return this.isLoaded();
   }
 
   page(rudderElement) {

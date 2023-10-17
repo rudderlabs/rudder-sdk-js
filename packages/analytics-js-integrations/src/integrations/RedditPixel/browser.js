@@ -39,23 +39,18 @@ class RedditPixel {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     window.rdt('track', 'SignUp');
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
     if (!event) {
       logger.error(` ${DISPLAY_NAME} : Event name is not present`);
@@ -101,7 +96,6 @@ class RedditPixel {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     window.rdt('track', 'PageVisit');
   }
 }

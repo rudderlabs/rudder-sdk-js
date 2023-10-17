@@ -38,13 +38,11 @@ class Kissmetrics {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return is.object(window.KM);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return is.object(window.KM);
+    return this.isLoaded();
   }
 
   isEnvMobile() {
@@ -73,7 +71,6 @@ class Kissmetrics {
           ret[key] = value;
         } else if (value.toString() !== '[object Object]') {
           // convert non objects to strings
-          logger.debug(value.toString());
           ret[key] = value.toString();
         } else {
           // json
@@ -100,7 +97,6 @@ class Kissmetrics {
   // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   flatten(target, opts) {
     const options = opts || {};
-
     const delimiter = options.delimiter || '.';
     let { maxDepth } = options;
     const { safe } = options;
@@ -163,8 +159,6 @@ class Kissmetrics {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { userId, context } = rudderElement.message;
     const { traits } = context;
     const userTraits = this.clean(traits);
@@ -178,8 +172,6 @@ class Kissmetrics {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
     let properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
     const timestamp = this.toUnixTimestamp(new Date());
@@ -195,7 +187,6 @@ class Kissmetrics {
     }
 
     properties = this.clean(properties);
-    logger.debug(JSON.stringify(properties));
 
     if (this.prefixProperties) {
       properties = this.prefix(event, properties);
@@ -218,8 +209,6 @@ class Kissmetrics {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
     const pageCategory = properties.category || undefined;
@@ -239,14 +228,11 @@ class Kissmetrics {
   }
 
   alias(rudderElement) {
-    logger.debug('In alias');
     const { previousId, userId } = rudderElement.message;
     window._kmq.push(['alias', userId, previousId]);
   }
 
   group(rudderElement) {
-    logger.debug('In group');
-
     const { groupId, traits } = rudderElement.message;
     const groupTraits = this.prefix('Group', traits);
     if (groupId) {

@@ -53,13 +53,11 @@ class Podsights {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.pdst && typeof window.pdst === 'function');
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.pdst && typeof window.pdst === 'function');
+    return this.isLoaded();
   }
 
   loadAliasEvent(externalId) {
@@ -76,7 +74,6 @@ class Podsights {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
@@ -161,8 +158,6 @@ class Podsights {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug('In page');
-
     const { properties, context } = rudderElement.message;
     const { page } = context;
     let payload = properties;

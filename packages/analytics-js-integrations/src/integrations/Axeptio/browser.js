@@ -32,12 +32,10 @@ class Axeptio {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.__axeptioSDK && typeof window.__axeptioSDK === 'object';
   }
 
   isReady() {
-    logger.debug('In isReady');
     if (this.toggleToActivateCallback) {
       this.recordAxeptioEvents();
     }

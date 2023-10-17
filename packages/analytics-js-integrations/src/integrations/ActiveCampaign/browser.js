@@ -32,13 +32,11 @@ class ActiveCampaign {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.vgo;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.vgo;
+    return this.isLoaded();
   }
 
   page(rudderElement) {

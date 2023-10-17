@@ -35,27 +35,22 @@ class GA360 extends GA {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return super.isLoaded();
   }
 
   isReady() {
-    logger.debug('In isReady');
     return super.isReady();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     return super.identify(rudderElement);
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     return super.track(rudderElement);
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     return super.page(rudderElement);
   }
 }

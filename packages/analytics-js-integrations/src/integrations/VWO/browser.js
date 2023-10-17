@@ -32,7 +32,6 @@ class VWO {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    logger.debug('Config', config);
   }
 
   init() {
@@ -45,7 +44,7 @@ class VWO {
       const { isSPA } = this;
       loadNativeSdk(account_id, settings_tolerance, library_tolerance, use_existing_jquery, isSPA);
     } else {
-      logger.debug('loadIntegration flag is disabled');
+      logger.info('loadIntegration flag is disabled');
     }
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
@@ -54,13 +53,11 @@ class VWO {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window._vwo_code;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window._vwo_code;
+    return this.isLoaded();
   }
 
   experimentViewed() {
@@ -71,10 +68,9 @@ class VWO {
         if (!data) {
           return;
         }
-        logger.debug('Variation Applied');
         const expId = data[1];
         const variationId = data[2];
-        logger.debug(
+        logger.info(
           'experiment id:',
           expId,
           'Variation Name:',
@@ -86,7 +82,6 @@ class VWO {
         ) {
           try {
             if (this.sendExperimentTrack) {
-              logger.debug('Tracking...');
               this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
@@ -99,7 +94,6 @@ class VWO {
           }
           try {
             if (this.sendExperimentIdentify) {
-              logger.debug('Identifying...');
               this.analytics.identify({
                 [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId],
               });
@@ -113,13 +107,12 @@ class VWO {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
+
     const eventName = rudderElement.message.event;
     if (eventName === 'Order Completed') {
       const total = rudderElement.message.properties
         ? rudderElement.message.properties.total || rudderElement.message.properties.revenue
         : 0;
-      logger.debug('Revenue', total);
       window.VWO = window.VWO || [];
       window.VWO.push(['track.revenueConversion', total]);
     }

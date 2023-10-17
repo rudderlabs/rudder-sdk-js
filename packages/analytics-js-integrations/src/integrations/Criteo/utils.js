@@ -73,7 +73,7 @@ const handleProductView = (message, finalPayload) => {
     }
     finalPayload.push(viewItemObject);
   } else {
-    logger.debug('product_id is a mandatory field to use for Product Tag');
+    logger.error('product_id is a mandatory field to use for Product Tag');
   }
 
   // Final example payload supported by destination
@@ -112,7 +112,7 @@ const validateProduct = (product, index) => {
     };
     return !Number.isNaN(elementaryProduct.price) && !Number.isNaN(elementaryProduct.quantity);
   }
-  logger.debug(`product at index ${index} is skipped for insufficient information`);
+  logger.info(`product at index ${index} is skipped for insufficient information`);
   return false;
 };
 
@@ -135,7 +135,7 @@ const getProductInfo = properties => {
       }
     });
   } else {
-    logger.debug('Payload should consist of at least one product information');
+    logger.error('Payload should consist of at least one product information');
   }
 
   return productInfo;
@@ -156,7 +156,7 @@ const processCompletedOrderEvent = (properties, finalPayload, productInfo) => {
   };
 
   if (!trackTransactionObject.id) {
-    logger.debug('order_id (Transaction Id) is a mandatory field');
+    logger.error('order_id (Transaction Id) is a mandatory field');
     return;
   }
 
@@ -197,7 +197,7 @@ const handlingEventDuo = (message, finalPayload) => {
   const productInfo = getProductInfo(properties);
 
   if (productInfo.length === 0) {
-    logger.debug(
+    logger.error(
       'None of the products had sufficient information or information is wrongly formatted',
     );
     return;
@@ -294,11 +294,11 @@ const handleListView = (message, finalPayload, OPERATOR_LIST) => {
       }
     });
     if (productIdList.length === 0) {
-      logger.debug('None of the product information had product_id');
+      logger.error('None of the product information had product_id');
       return;
     }
   } else {
-    logger.debug('The payload should consist of at least one product information');
+    logger.error('The payload should consist of at least one product information');
     return;
   }
 

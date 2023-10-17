@@ -40,13 +40,11 @@ class TVSquared {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   page(rudderElement) {

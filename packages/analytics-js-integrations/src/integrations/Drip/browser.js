@@ -47,18 +47,14 @@ class Drip {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window._dcq;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window._dcq;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
@@ -100,7 +96,7 @@ class Drip {
         this.exclusionFields,
       );
     } catch (err) {
-      logger.debug(`Error occurred at extractCustomFields ${err}`);
+      logger.error(`Error occurred at extractCustomFields ${err}`);
     }
 
     payload = {
@@ -130,8 +126,6 @@ class Drip {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event } = message;
 

@@ -34,12 +34,10 @@ class Satismeter {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.satismeter;
   }
 
   isReady() {
-    logger.debug('In isReady');
     if (this.recordSatismeterEvents) {
       recordSatismeterEvents(
         this.updateEventNames,
@@ -52,8 +50,6 @@ class Satismeter {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { traits } = message.context;
     let userId = message.userId || traits.userId;
@@ -79,8 +75,6 @@ class Satismeter {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event, context } = message;
     if (!event) {

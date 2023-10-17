@@ -52,24 +52,20 @@ class YandexMetrica {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.ym && typeof window.ym === 'function';
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.ym;
   }
 
   // identify call to yandex.metrica
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { userId } = getDefinedTraits(message);
     let payload = { UserID: userId };
     if (!message?.context?.traits) {
-      logger.debug('user traits not present');
+      logger.info('user traits not present');
     } else {
       const { traits } = message.context;
       payload = { ...payload, ...traits };
@@ -80,8 +76,6 @@ class YandexMetrica {
 
   // track call
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     const { event, properties } = message;
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
@@ -121,8 +115,6 @@ class YandexMetrica {
 
   // page call
   page(rudderElement) {
-    logger.debug('In page');
-
     const { message } = rudderElement;
     if (!message?.context?.page) {
       logger.error('page object containing page properties are not present in the payload');

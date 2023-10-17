@@ -34,12 +34,10 @@ class Mouseflow {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.mouseflow && typeof window.mouseflow === 'object';
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window._mfq;
   }
 
@@ -52,7 +50,6 @@ class Mouseflow {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const { context, traits: rootLevelTraits, anonymousId } = message;
     const { traits } = context;
@@ -74,7 +71,6 @@ class Mouseflow {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug('In track');
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
@@ -93,7 +89,6 @@ class Mouseflow {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug('In page');
     const tabPath = rudderElement.message.properties.path || rudderElement.message.context.path;
     if (tabPath) window._mfq.push(['newPageView', tabPath]);
   }

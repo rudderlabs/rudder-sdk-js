@@ -40,13 +40,11 @@ class Bugsnag {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.bugsnagClient;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.bugsnagClient;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {

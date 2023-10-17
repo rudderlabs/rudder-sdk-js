@@ -41,20 +41,17 @@ class PostAffiliatePro {
 
   init() {
     if (!this.url) {
-      logger.debug('URL is missing');
+      logger.error('URL is missing');
       return;
     }
     ScriptLoader('pap_x2s6df8d', this.url);
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.PostAffTracker;
   }
 
   isReady() {
-    logger.debug('In isReady');
-
     if (window.PostAffTracker) {
       if (!this.disableTrackingMethod) window.PostAffTracker.disableTrackingMethod('F');
       if (this.paramNameUserId) window.PostAffTracker.setParamNameUserId(this.paramNameUserId);
@@ -76,16 +73,12 @@ class PostAffiliatePro {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const visitorId = get(message, 'userId');
     window.PostAffTracker.setVisitorId(visitorId);
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const clickEventsArr = this.clickEvents ? this.clickEvents.split(',') : null;
     const { message } = rudderElement;
     const { event } = message;

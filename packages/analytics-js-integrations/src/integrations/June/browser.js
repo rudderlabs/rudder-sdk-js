@@ -40,23 +40,19 @@ class June {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.analytics && window.analytics.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.analytics && window.analytics.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { name, properties } = rudderElement.message;
     window.analytics.page(name, properties);
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const { message } = rudderElement;
     const userId =
       get(message, 'userId') ||
@@ -71,7 +67,6 @@ class June {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     let groupId;
     const { message } = rudderElement;
     const externalGroupId = getDestinationExternalID(message, 'juneGroupId');
@@ -88,7 +83,6 @@ class June {
   }
 
   group(rudderElement) {
-    logger.debug('In group');
     const { groupId } = rudderElement.message;
     if (!groupId) {
       logger.error('groupId is required for group call');

@@ -50,18 +50,14 @@ class Keen {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(this.client != null);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(this.client != null);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     let { userId } = message;
     const { context, anonymousId } = message;
@@ -78,8 +74,6 @@ class Keen {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
     let { properties } = rudderElement.message;
     properties = this.getAddOn(properties);
@@ -87,8 +81,6 @@ class Keen {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
     const pageCategory = properties.category || undefined;

@@ -40,12 +40,10 @@ class SnapEngage {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.SnapEngage && isObject(window.SnapEngage));
   }
 
   isReady() {
-    logger.debug('In isReady');
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.eventsToStandard);
@@ -56,8 +54,6 @@ class SnapEngage {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 

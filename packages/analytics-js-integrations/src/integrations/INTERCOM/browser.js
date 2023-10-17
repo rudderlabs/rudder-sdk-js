@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import {
   NAME,
@@ -30,13 +31,11 @@ class INTERCOM {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.intercom_code;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.intercom_code;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
@@ -105,8 +104,7 @@ class INTERCOM {
     window.Intercom('trackEvent', rawPayload.event_name, rawPayload);
   }
 
-  page() {
-    // Get new messages of the current user
+  page(rudderElement) {
     window.Intercom('update');
   }
 }

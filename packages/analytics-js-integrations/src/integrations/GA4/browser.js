@@ -148,12 +148,10 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(this.sessionId && this.clientId);
   }
 
   isReady() {
-    logger.debug('In isReady');
     return this.isLoaded();
   }
 
@@ -162,8 +160,6 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { traits } = message.context;
     const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, traits);
@@ -186,8 +182,6 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
-
-    logger.debug('In track');
 
     const { message } = rudderElement;
 
@@ -213,8 +207,6 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug('In page');
-
     if (this.capturePageView === 'rs') {
       const { message } = rudderElement;
       const { properties } = message;
@@ -242,8 +234,6 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
-
-    logger.debug('In group');
 
     const { groupId, traits } = rudderElement.message;
     let payload = traits;

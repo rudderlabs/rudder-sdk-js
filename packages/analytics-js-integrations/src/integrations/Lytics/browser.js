@@ -54,18 +54,14 @@ class Lytics {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
-    logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     const { traits } = rudderElement.message.context;
     let payload = { user_id: userId, ...traits };
@@ -74,7 +70,6 @@ class Lytics {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { properties } = rudderElement.message;
     let payload = { event: rudderElement.message.name, ...properties };
     payload = this.handleName(payload);
@@ -82,7 +77,6 @@ class Lytics {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     const { properties } = rudderElement.message;
     let payload = { _e: rudderElement.message.event, ...properties };
     payload = this.handleName(payload);

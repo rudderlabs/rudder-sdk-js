@@ -80,7 +80,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug('Unable to access localStorage');
+          logger.info('Unable to access localStorage');
         }
 
         return null;
@@ -134,17 +134,15 @@ class Fullstory {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.FS;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.FS;
+    return this.isLoaded();
   }
 
   page(rudderElement) {
-    logger.debug('In page');
+
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const props = {
@@ -156,8 +154,6 @@ class Fullstory {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     let { userId } = rudderElement.message;
     const { context, anonymousId } = rudderElement.message;
     const { traits } = context;
@@ -169,7 +165,6 @@ class Fullstory {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     window.FS.event(
       rudderElement.message.event,
       Fullstory.getFSProperties(rudderElement.message.properties),

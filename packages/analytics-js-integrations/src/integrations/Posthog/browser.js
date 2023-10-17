@@ -66,13 +66,11 @@ class Posthog {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window?.posthog?.__loaded;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window?.posthog?.__loaded;
+    return this.isLoaded();
   }
 
   /**
@@ -101,8 +99,6 @@ class Posthog {
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
     const { userId } = rudderElement.message;
@@ -115,12 +111,8 @@ class Posthog {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event, properties } = rudderElement.message;
-
     this.processSuperProperties(rudderElement);
-
     posthog.capture(event, properties);
   }
 
@@ -130,15 +122,11 @@ class Posthog {
    * @memberof Posthog
    */
   page(rudderElement) {
-    logger.debug('In page');
-
     this.processSuperProperties(rudderElement);
-
     posthog.capture('$pageview');
   }
 
   group(rudderElement) {
-    logger.debug('in Posthog group');
     const traits = get(rudderElement.message, 'traits');
     const groupKey = get(rudderElement.message, 'groupId');
     let groupType;

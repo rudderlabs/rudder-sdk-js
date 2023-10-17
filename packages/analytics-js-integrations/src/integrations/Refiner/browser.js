@@ -35,18 +35,14 @@ class Refiner {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!this._refiner;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!this._refiner;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { userId, traits, context } = message;
     const email = traits?.email || context?.traits?.email;
@@ -67,8 +63,6 @@ class Refiner {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { event } = rudderElement.message;
 
     if (!event) {
@@ -85,8 +79,6 @@ class Refiner {
   }
 
   group(rudderElement) {
-    logger.debug('In group');
-
     const { message } = rudderElement;
     const { userId, groupId, traits, context } = message;
     const userEmail = context?.traits?.email;
@@ -107,8 +99,6 @@ class Refiner {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { message } = rudderElement;
     let pageFullName;
     if (!message.name && !message.category) {

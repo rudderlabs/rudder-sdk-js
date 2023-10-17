@@ -60,17 +60,14 @@ class MoEngage {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.moeBannerText;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.moeBannerText;
+    return this.isLoaded();
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
       logger.error('Payload not correct');
@@ -93,7 +90,6 @@ class MoEngage {
   }
 
   reset() {
-    logger.debug('Inside reset');
     // reset the user id
     this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();

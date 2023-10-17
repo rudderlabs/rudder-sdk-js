@@ -31,21 +31,17 @@ class Hotjar {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return this._ready;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return this._ready;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('user id is required for an identify call');
+      logger.error('user id is required for an identify call');
       return;
     }
 
@@ -55,8 +51,6 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     let { event } = rudderElement.message;
 
     if (!event) {

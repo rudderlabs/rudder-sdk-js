@@ -39,13 +39,11 @@ class Optimizely {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   referrerOverride = referrer => {
@@ -57,7 +55,6 @@ class Optimizely {
   };
 
   sendDataToRudder = campaignState => {
-    logger.debug(campaignState);
     const { experiment, variation } = campaignState;
     const context = { integrations: { All: true } };
     const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
@@ -129,7 +126,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.debug('Page loaded without Optimizely.')
+        logger.error('Page loaded without Optimizely.')
       }
     };
 
@@ -204,8 +201,6 @@ class Optimizely {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const eventProperties = rudderElement.message.properties;
     const { event } = rudderElement.message;
     if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
@@ -226,8 +221,6 @@ class Optimizely {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const clonedRudderElement = rudderElement;
     const { category } = clonedRudderElement.message.properties;
     const { name } = clonedRudderElement.message;

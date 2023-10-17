@@ -63,18 +63,14 @@ class Amplitude {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.amplitude && window.amplitude.getDeviceId());
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     this.setDeviceId(rudderElement);
 
     // rudderElement.message.context will always be present as part of identify event payload.
@@ -107,7 +103,6 @@ class Amplitude {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -208,7 +203,6 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug('In page');
     this.setDeviceId(rudderElement);
 
     const { properties, name, category, integrations } = rudderElement.message;
@@ -238,8 +232,6 @@ class Amplitude {
   }
 
   group(rudderElement) {
-    logger.debug(`In group`);
-
     this.setDeviceId(rudderElement);
 
     const { groupId, traits } = rudderElement.message;
@@ -301,7 +293,7 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
+      logger.error('Neither "revenue" nor "price" is available. Hence, aborting');
       return;
     }
 

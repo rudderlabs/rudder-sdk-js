@@ -34,13 +34,11 @@ class Heap {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.heap && window.heap.appid);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window.heap && window.heap.appid);
+    return this.isLoaded();
   }
 
   // DOC: https://developers.heap.io/reference#identify

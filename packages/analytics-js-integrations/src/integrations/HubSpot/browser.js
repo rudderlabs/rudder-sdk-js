@@ -31,18 +31,14 @@ class HubSpot {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { traits } = message.context;
 
@@ -67,16 +63,12 @@ class HubSpot {
       });
     }
 
-    logger.debug(traitsValue);
-
     if (typeof window !== 'undefined') {
       window._hsq.push(['identify', traitsValue]);
     }
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { properties, event } = rudderElement.message;
     const eventValue = {
       name: event,
@@ -87,8 +79,6 @@ class HubSpot {
   }
 
   page(rudderElement) {
-    logger.debug('In page');
-
     const { properties } = rudderElement.message;
     const { path } = properties;
     if (path) {

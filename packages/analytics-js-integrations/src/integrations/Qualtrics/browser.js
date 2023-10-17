@@ -31,12 +31,12 @@ class Qualtrics {
 
   init() {
     if (!this.projectId) {
-      logger.debug('Project ID missing');
+      logger.error('Project ID missing');
       return;
     }
 
     if (!this.brandId) {
-      logger.debug(`${DISPLAY_NAME} :Brand ID missing`);
+      logger.error(`${DISPLAY_NAME} :Brand ID missing`);
       return;
     }
 
@@ -44,20 +44,17 @@ class Qualtrics {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!(window._qsie && window.QSI && window.QSI.API);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
-    logger.debug('In page');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug('Message field is missing');
+      logger.error('Message field is missing');
       return;
     }
 
@@ -70,7 +67,7 @@ class Qualtrics {
     const categoryField = category || properties?.category || null;
 
     if (!categoryField && !name) {
-      logger.debug('generic title is disabled and no name or category field found');
+      logger.error('generic title is disabled and no name or category field found');
       return;
     }
     const dynamicTitle =
@@ -80,15 +77,13 @@ class Qualtrics {
   }
 
   track(rudderElement) {
-    logger.debug('In track');
-
     const { message } = rudderElement;
     if (!message) {
-      logger.debug('Message field is missing');
+      logger.error('Message field is missing');
       return;
     }
     if (!message.event) {
-      logger.debug('Event field is undefined');
+      logger.error('Event field is undefined');
       return;
     }
     window._qsie.push(message.event);

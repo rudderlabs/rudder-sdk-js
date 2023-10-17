@@ -71,13 +71,11 @@ class GoogleOptimize {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!window.dataLayer;
   }
 
   isReady() {
-    logger.debug('In isReady');
-    return !!window.dataLayer;
+    return this.isLoaded();
   }
 }
 export default GoogleOptimize;

@@ -67,18 +67,14 @@ class RollBar {
   }
 
   isLoaded() {
-    logger.debug('In isLoaded');
     return !!(window.Rollbar && isObject(window.Rollbar));
   }
 
   isReady() {
-    logger.debug('In isReady');
     return !!window.Rollbar;
   }
 
   identify(rudderElement) {
-    logger.debug('In identify');
-
     const { message } = rudderElement;
     const { userId, context } = message;
     const { traits } = context;
@@ -89,7 +85,7 @@ class RollBar {
       delete person.name;
     }
     if (userId) person.id = userId;
-    else logger.debug('userId is not found. no new user will be created in rollbar');
+    else logger.info('userId is not found. no new user will be created in rollbar');
     window.Rollbar.configure({ payload: { person } });
   }
 }
