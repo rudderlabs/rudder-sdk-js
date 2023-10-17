@@ -15,14 +15,12 @@ import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AnonymousIdOptions,
   LoadOptions,
-  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ANALYTICS_CORE,
-  LOAD_CONFIGURATION,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
@@ -138,7 +136,7 @@ class Analytics implements IAnalytics {
 
     // dataPlaneUrl is not provided
     if (isObjectAndNotNull(dataPlaneUrl)) {
-      clonedLoadOptions = dataPlaneUrl as Partial<LoadOptions>;
+      clonedLoadOptions = dataPlaneUrl;
       clonedDataPlaneUrl = undefined;
     }
 
@@ -149,6 +147,11 @@ class Analytics implements IAnalytics {
       state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
       state.lifecycle.status.value = 'mounted';
     });
+
+    // set log level as early as possible
+    if (state.loadOptions.value.logLevel) {
+      this.logger?.setMinLogLevel(state.loadOptions.value.logLevel);
+    }
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -188,8 +191,7 @@ class Analytics implements IAnalytics {
             this.onInitialized();
             break;
           case 'loaded':
-            this.loadDestinations();
-            this.processBufferedEvents();
+            this.onLoaded();
             break;
           case 'destinationsLoading':
             break;
@@ -207,6 +209,16 @@ class Analytics implements IAnalytics {
         this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
+  }
+
+  private onLoaded() {
+    this.processBufferedEvents();
+    // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
+    if (state.consents.preConsent.value.enabled === true) {
+      state.lifecycle.status.value = 'ready';
+    } else {
+      this.loadDestinations();
+    }
   }
 
   /**
@@ -266,15 +278,10 @@ class Analytics implements IAnalytics {
    * Load configuration
    */
   loadConfig() {
-    if (!state.lifecycle.writeKey.value) {
-      this.errorHandler.onError(
-        new Error('A write key is required to load the SDK. Please provide a valid write key.'),
-        LOAD_CONFIGURATION,
-      );
-      return;
+    if (state.lifecycle.writeKey.value) {
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     }
 
-    this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     this.configManager?.init();
   }
 
@@ -288,14 +295,18 @@ class Analytics implements IAnalytics {
     this.storeManager?.init();
     this.userSessionManager?.init();
 
-    // Initialize consent manager
+    // Initialize the appropriate consent manager plugin
     if (state.consents.activeConsentManagerPluginName.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.init`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
+      this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
+
+      if (state.consents.preConsent.value.enabled === false) {
+        this.pluginsManager?.invokeSingle(
+          `consentManager.updateConsentsInfo`,
+          state,
+          this.storeManager,
+          this.logger,
+        );
+      }
     }
 
     // Initialize event manager
@@ -325,9 +336,7 @@ class Analytics implements IAnalytics {
     // as this will prevent us from supporting multiple SDK instances in the same page
     // Execute onLoaded callback if provided in load options
     if (isFunction(state.loadOptions.value.onLoaded)) {
-      (state.loadOptions.value.onLoaded as OnLoadedCallback)(
-        (globalThis as typeof window).rudderanalytics,
-      );
+      state.loadOptions.value.onLoaded((globalThis as typeof window).rudderanalytics);
     }
 
     // Set lifecycle state
@@ -354,6 +363,14 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
+    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
+      try {
+        callback();
+      } catch (err) {
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+      }
+    });
+
     // Emit an event to use as substitute to the ready callback
     const readyEvent = new CustomEvent('RSA_Ready', {
       detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
@@ -426,18 +443,16 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Invoke the ready callbacks if any exist
+   * Move to the ready state
    */
   // eslint-disable-next-line class-methods-use-this
   onDestinationsReady() {
-    state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
-      try {
-        callback();
-      } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
-      }
-    });
-    state.lifecycle.status.value = 'ready';
+    // May be do any destination specific actions here
+
+    // Mark the ready status if not already done
+    if (state.lifecycle.status.value !== 'ready') {
+      state.lifecycle.status.value = 'ready';
+    }
   }
   // End lifecycle methods
 
@@ -693,6 +708,33 @@ class Analytics implements IAnalytics {
   getSessionId(): Nullable<number> {
     const sessionId = this.userSessionManager?.getSessionId();
     return sessionId ?? null;
+  }
+
+  consent() {
+    if (!state.consents.preConsent.value.enabled) {
+      return;
+    }
+
+    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+
+    // TODO: Update state with the data in the arguments
+
+    // TODO: Update consents data in state
+    // this.pluginsManager?.invokeSingle(
+    //   `consentManager.updateConsentsInfo`,
+    //   state,
+    //   this.storeManager,
+    //   this.logger,
+    // );
+
+    // TODO: Re-init store manager
+    // this.storeManager?.initClientDataStores();
+
+    // TODO: Re-init user session manager
+    // this.userSessionManager?.syncStorageDataToState();
+
+    // TODO: Re-init event manager
+    // this.eventManager?.resume();
   }
 
   setAuthToken(token: string): void {

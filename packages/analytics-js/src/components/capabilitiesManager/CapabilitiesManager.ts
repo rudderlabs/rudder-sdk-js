@@ -118,11 +118,17 @@ class CapabilitiesManager implements ICapabilitiesManager {
     if (shouldLoadPolyfill) {
       const isDefaultPolyfillService = polyfillUrl !== state.loadOptions.value.polyfillURL;
       if (isDefaultPolyfillService) {
-        const polyfillCallback = (): void => this.onReady();
-
         // write key specific callback
         // NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
         const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
+
+        const polyfillCallback = (): void => {
+          this.onReady();
+
+          // Remove the entry from window so we don't leave room for calling it again
+          delete (globalThis as any)[polyfillCallbackName];
+        };
+
         (globalThis as any)[polyfillCallbackName] = polyfillCallback;
 
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
@@ -149,7 +155,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
   /**
    * Attach listeners to window to observe event that update capabilities state values
    */
-  // eslint-disable-next-line class-methods-use-this
   attachWindowListeners() {
     globalThis.addEventListener('offline', () => {
       state.capabilities.isOnline.value = false;

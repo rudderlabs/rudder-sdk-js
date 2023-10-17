@@ -197,6 +197,8 @@ export interface IAnalytics {
    */
   getSessionId(): Nullable<number>;
 
+  consent(): void;
+
   /**
    * To set auth token
    */
