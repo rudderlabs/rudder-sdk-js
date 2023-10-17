@@ -1,12 +1,11 @@
 import Image from 'next/image';
-import { useEffect } from 'react';
 import useRudderStackAnalytics from '../useRudderAnalytics';
 
 export default function Home() {
-  useRudderStackAnalytics();
+  const analytics = useRudderStackAnalytics();
 
   const page = () => {
-    window.rudderanalytics?.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -22,7 +21,7 @@ export default function Home() {
     );
   };
   const identify = () => {
-    window.rudderanalytics?.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -36,7 +35,7 @@ export default function Home() {
     );
   };
   const track = () => {
-    window.rudderanalytics?.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -49,12 +48,12 @@ export default function Home() {
     );
   };
   const alias = () => {
-    window.rudderanalytics?.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    window.rudderanalytics?.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',
@@ -81,7 +80,7 @@ export default function Home() {
 
       <div className='mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left'>
         <button
-          onClick={() => page()}
+          onClick={page}
           className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
           <h2 className={`mb-3 text-2xl font-semibold`}>Page </h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
@@ -90,7 +89,7 @@ export default function Home() {
         </button>
 
         <button
-          onClick={() => identify()}
+          onClick={identify}
           className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30'>
           <h2 className={`mb-3 text-2xl font-semibold`}>Identify</h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
@@ -99,7 +98,7 @@ export default function Home() {
         </button>
 
         <button
-          onClick={() => track()}
+          onClick={track}
           className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
           <h2 className={`mb-3 text-2xl font-semibold`}>Track</h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
@@ -108,7 +107,7 @@ export default function Home() {
         </button>
 
         <button
-          onClick={() => group()}
+          onClick={group}
           className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
           <h2 className={`mb-3 text-2xl font-semibold`}>Group</h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
@@ -116,7 +115,7 @@ export default function Home() {
           </p>
         </button>
         <button
-          onClick={() => alias()}
+          onClick={alias}
           className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
           <h2 className={`mb-3 text-2xl font-semibold`}>Alias</h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>

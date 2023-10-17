@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@rudderstack/analytics-js": "^3.0.0-beta.12",
+    "@rudderstack/analytics-js": "*",
     "next": "13.5.4",
     "react": "^18",
     "react-dom": "^18"

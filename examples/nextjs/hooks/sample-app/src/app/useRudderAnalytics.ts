@@ -1,24 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { RudderAnalytics } from '@rudderstack/analytics-js';
 
-const useRudderStackAnalytics = () => {
+const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
+  const [analytics, setAnalytics] = useState<RudderAnalytics>();
+
   useEffect(() => {
-    if (window.rudderanalytics) {
-      return window.rudderanalytics as any;
+    if (!analytics) {
+      const initialize = async () => {
+        const { RudderAnalytics } = await import('@rudderstack/analytics-js/bundled');
+        const analyticsInstance = new RudderAnalytics();
+
+        analyticsInstance.load('<writeKey>', '<dataplaneUrl>');
+
+        analyticsInstance.ready(() => {
+          console.log('We are all set!!!');
+        });
+
+        window.rudderanalytics = analyticsInstance;
+        setAnalytics(analyticsInstance);
+      };
+
+      initialize().catch(e => console.log(e));
     }
-    const initialize = async () => {
-      const Analytics = (await import('@rudderstack/analytics-js/bundled')).RudderAnalytics;
-      const analytics = new Analytics();
+  }, [analytics]);
 
-      analytics.load('<writeKey>', '<dataplaneUrl>');
-
-      analytics.ready(() => {
-        console.log('We are all set!!!');
-      });
-
-      window.rudderanalytics = analytics;
-    };
-    initialize();
-  }, []);
+  return analytics;
 };
 
 export default useRudderStackAnalytics;
