@@ -83,15 +83,29 @@ describe('Core - Analytics', () => {
       expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe('ready');
     });
+
+    it('should short circuit the lifecycle when pre-consent behavior is enabled', () => {
+      analytics.startLifecycle();
+      const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
+      const processBufferedEventsSpy = jest.spyOn(analytics, 'processBufferedEvents');
+
+      state.consents.preConsent.value = { enabled: true };
+      state.lifecycle.status.value = 'loaded';
+      expect(processBufferedEventsSpy).toHaveBeenCalledTimes(1);
+      expect(loadDestinationsSpy).not.toHaveBeenCalled();
+      expect(state.lifecycle.status.value).toBe('ready');
+    });
   });
 
   describe('load', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
+      const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+      expect(setMinLogLevelSpy).toHaveBeenCalledWith('ERROR');
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
     it('should load the analytics script without dataPlaneUrl with the given options', () => {
@@ -104,11 +118,6 @@ describe('Core - Analytics', () => {
   });
 
   describe('loadConfig', () => {
-    it('should handle error if no write key exists', () => {
-      const onErrorSpy = jest.spyOn(analytics.errorHandler, 'onError');
-      analytics.loadConfig();
-      expect(onErrorSpy).toHaveBeenCalledTimes(1);
-    });
     it('should set authentication request header', () => {
       analytics.prepareInternalServices();
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
@@ -141,15 +150,29 @@ describe('Core - Analytics', () => {
   });
 
   describe('onDestinationsReady', () => {
-    it('should invoke callbacks passed in onDestinationsReady calls', () => {
-      const callback = jest.fn();
-      state.eventBuffer.readyCallbacksArray.value = [callback, callback];
+    it('should update the life cycle status to ready when onDestinationsReady is called', () => {
       analytics.onDestinationsReady();
-      expect(callback).toHaveBeenCalledTimes(2);
+      expect(state.lifecycle.status.value).toBe('ready');
+    });
+
+    it('should not update the life cycle status to ready if it is already in that state', () => {
+      const onReadySpy = jest.spyOn(analytics, 'onReady');
+      state.lifecycle.status.value = 'ready';
+      analytics.onDestinationsReady();
+      expect(onReadySpy).not.toBeCalled();
+
+      onReadySpy.mockRestore();
     });
   });
 
   describe('ready', () => {
+    it('should invoke callbacks passed', () => {
+      const callback = jest.fn();
+      state.eventBuffer.readyCallbacksArray.value = [callback, callback];
+      analytics.onReady();
+      expect(callback).toHaveBeenCalledTimes(2);
+    });
+
     it('should ignore calls with no function callback', () => {
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const errorSpy = jest.spyOn(analytics.logger, 'error');

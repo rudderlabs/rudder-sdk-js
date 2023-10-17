@@ -3,7 +3,8 @@
  * @param value input value
  * @returns boolean
  */
-const isFunction = (value: any): boolean =>
+// eslint-disable-next-line @typescript-eslint/ban-types
+const isFunction = (value: any): value is Function =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
 /**
@@ -11,21 +12,21 @@ const isFunction = (value: any): boolean =>
  * @param value input value
  * @returns boolean
  */
-const isString = (value: any): boolean => typeof value === 'string';
+const isString = (value: any): value is string => typeof value === 'string';
 
 /**
  * A function to check given value is null or not
  * @param value input value
  * @returns boolean
  */
-const isNull = (value: any): boolean => value === null;
+const isNull = (value: any): value is null => value === null;
 
 /**
  * A function to check given value is undefined
  * @param value input value
  * @returns boolean
  */
-const isUndefined = (value: any): boolean => typeof value === 'undefined';
+const isUndefined = (value: any): value is undefined => typeof value === 'undefined';
 
 /**
  * A function to check given value is null or undefined
@@ -61,7 +62,7 @@ const isDefinedNotNullAndNotEmptyString = (value: any): boolean =>
  * @param obj input value
  * @returns true if the input is an instance of Error and false otherwise
  */
-const isTypeOfError = (obj: any) => obj instanceof Error;
+const isTypeOfError = (obj: any): obj is Error => obj instanceof Error;
 
 export {
   isFunction,

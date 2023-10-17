@@ -21,6 +21,7 @@ class TVSquared {
     this.analytics = analytics;
     this.brandId = config.brandId;
     this.clientId = config.clientId;
+    this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
     this.name = NAME;
     ({
@@ -59,6 +60,17 @@ class TVSquared {
   track(rudderElement) {
     const { message } = rudderElement;
     const { event, userId, anonymousId } = message;
+
+    const whitelistEvents = this.eventWhiteList.filter(wl => wl.event !== '');
+
+    const isEventInWhiteList = whitelistEvents.some(
+      whitelistEvent => whitelistEvent.event.toUpperCase() === event.toUpperCase(),
+    );
+
+    if (!isEventInWhiteList && whitelistEvents.length > 0) {
+      return;
+    }
+
     const session = { user: userId || anonymousId || '' };
     const action = getAction(message, this.customMetrics);
 

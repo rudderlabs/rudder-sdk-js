@@ -17,7 +17,7 @@ env:
 jobs:
   deploy-tag:
     name: Deploy to NPM v3
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
 
     steps:

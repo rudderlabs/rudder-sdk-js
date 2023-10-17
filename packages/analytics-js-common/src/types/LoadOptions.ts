@@ -4,7 +4,7 @@ import { Nullable } from './Nullable';
 import { PluginName } from './PluginsManager';
 import { IntegrationOpts } from './Integration';
 import { ApiOptions } from './EventApi';
-import { CookieConsentOptions } from './Consent';
+import { ConsentManagementOptions } from './Consent';
 import { ApiObject } from './ApiObject';
 import { StorageOpts, CookieSameSite } from './Storage';
 
@@ -105,7 +105,6 @@ export type PreConsentOptions = {
   enabled: boolean;
   storage?: PreConsentStorageOptions;
   events?: PreConsentEventsOptions;
-  trackConsent?: boolean;
 };
 
 /**
@@ -124,7 +123,6 @@ export type LoadOptions = {
   useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
-  cookieConsentManager?: CookieConsentOptions;
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie: CookieSameSite; // defaults to Lax.
@@ -146,4 +144,5 @@ export type LoadOptions = {
   preConsent?: PreConsentOptions;
   // transport mechanism to be used for sending batched requests
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
+  consentManagement?: ConsentManagementOptions;
 };

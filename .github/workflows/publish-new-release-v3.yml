@@ -13,7 +13,7 @@ env:
 jobs:
   release:
     name: Publish new release v3
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     if: (startsWith(github.event.pull_request.head.ref, 'v3-release/') || startsWith(github.event.pull_request.head.ref, 'v3-hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
 
     steps:
