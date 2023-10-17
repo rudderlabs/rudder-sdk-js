@@ -1,9 +1,5 @@
 import { clone } from 'ramda';
-import {
-  isString,
-  isUndefined,
-  isNullOrUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -140,7 +136,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (options.integrations && isObjectLiteralAndNotNull(options.integrations)) {
+  if (isObjectLiteralAndNotNull<IntegrationOpts>(options.integrations)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
@@ -202,7 +198,7 @@ const shouldUseGlobalIntegrationsConfigInEvents = () =>
  */
 const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
   // Only allow object type for options
-  if (!isNullOrUndefined(options) && isObjectLiteralAndNotNull(options)) {
+  if (isObjectLiteralAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options as ApiOptions);
     // eslint-disable-next-line no-param-reassign
     rudderEvent.context = getMergedContext(rudderEvent.context, options as ApiOptions);

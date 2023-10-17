@@ -19,7 +19,7 @@ import {
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
   DMT_EXT_POINT_PREFIX,
 } from './constants';
-import { getFinalEvent } from './utils';
+import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -112,6 +112,7 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
+        !shouldBufferEventsForPreConsent(state) &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
@@ -126,6 +127,12 @@ class EventRepository implements IEventRepository {
           this.dataplaneEventsQueue?.start();
         }
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
+    }
+  }
+
+  resume() {
+    if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+      this.dataplaneEventsQueue?.start();
     }
   }
 

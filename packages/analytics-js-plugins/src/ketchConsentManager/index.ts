@@ -22,11 +22,11 @@ const KetchConsentManager = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   consentManager: {
-    init(state: ApplicationState, storeManager?: IStoreManager, logger?: ILogger): void {
+    init(state: ApplicationState, logger?: ILogger): void {
       // getKetchUserConsentedPurposes returns current ketch opted-in purposes
       // This will be helpful for debugging
       (globalThis as any).getKetchUserConsentedPurposes = () =>
-        (state.consents.data.value.allowedConsents as string[])?.slice();
+        (state.consents.data.value.allowedConsentIds as string[])?.slice();
 
       // getKetchUserDeniedPurposes returns current ketch opted-out purposes
       // This will be helpful for debugging
@@ -38,7 +38,13 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       (globalThis as any).updateKetchConsent = (ketchConsentData: KetchConsentData) => {
         updateConsentStateFromData(state, ketchConsentData);
       };
+    },
 
+    updateConsentsInfo(
+      state: ApplicationState,
+      storeManager?: IStoreManager,
+      logger?: ILogger,
+    ): void {
       // retrieve consent data and update the state
       let ketchConsentData;
       if (!checks.isUndefined((globalThis as any).ketchConsent)) {
@@ -56,11 +62,11 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      const consentData = state.consents.data.value;
-      if (!consentData.initialized) {
+      if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsents = consentData.allowedConsents as string[];
+
+      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
 
       try {
         const { ketchConsentPurposes } = destConfig;
@@ -74,7 +80,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
         // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
         const containsAnyOfConsent = purposes.some(element =>
-          allowedConsents.includes(element.trim()),
+          allowedConsentIds.includes(element.trim()),
         );
         return containsAnyOfConsent;
       } catch (err) {

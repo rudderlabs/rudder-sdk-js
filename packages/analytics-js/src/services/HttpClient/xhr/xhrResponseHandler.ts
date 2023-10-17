@@ -12,7 +12,7 @@ const responseTextToJson = <T = any>(
     return JSON.parse(responseText || '');
   } catch (err) {
     const error = getMutatedError(err, 'Failed to parse response data');
-    if (onError && isFunction(onError)) {
+    if (isFunction(onError)) {
       onError(error);
     } else {
       throw error;
