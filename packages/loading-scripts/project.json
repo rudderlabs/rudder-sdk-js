@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/loading-scripts/src",
   "projectType": "library",
-  "tags": ["type:sdk", "scope:snippet"],
+  "tags": ["type:app", "scope:snippet"],
   "targets": {
     "build": {
       "executor": "nx:run-script",
@@ -28,6 +28,13 @@
       "options": {
         "script": "build:browser:modern"
       }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:minified"
+      },
+      "dependsOn": ["build-browser"]
     },
     "clean": {
       "executor": "nx:run-script",
