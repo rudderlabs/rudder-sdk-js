@@ -70,12 +70,12 @@ const configureSessionStorageEngine = (options: Partial<ISessionStorageOptions>)
  * Configure all storage singleton instances
  */
 const configureStorageEngines = (
-  cookieOptions: Partial<ICookieStorageOptions> = {},
+  cookieStorageOptions: Partial<ICookieStorageOptions> = {},
   localStorageOptions: Partial<ILocalStorageOptions> = {},
   inMemoryStorageOptions: Partial<IInMemoryStorageOptions> = {},
   sessionStorageOptions: Partial<ISessionStorageOptions> = {},
 ) => {
-  configureCookieStorageEngine(cookieOptions);
+  configureCookieStorageEngine(cookieStorageOptions);
   configureLocalStorageEngine(localStorageOptions);
   configureInMemoryStorageEngine(inMemoryStorageOptions);
   configureSessionStorageEngine(sessionStorageOptions);

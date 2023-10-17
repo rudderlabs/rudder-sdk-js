@@ -22,6 +22,7 @@ export interface IUserSessionManager {
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
   start(sessionId?: number): void;
   end(): void;
+  syncStorageDataToState(): void;
   setAuthToken(token: string): void;
 }
 

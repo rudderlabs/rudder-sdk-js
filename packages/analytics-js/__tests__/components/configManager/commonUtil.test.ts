@@ -256,10 +256,9 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should update consents state with the data from load options', () => {
-      state.loadOptions.value.cookieConsentManager = {
-        oneTrust: {
-          enabled: true,
-        },
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
       };
 
       state.loadOptions.value.preConsent = {
@@ -270,13 +269,12 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
       };
 
       updateConsentsState();
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe('OneTrustConsentManager');
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
@@ -284,15 +282,18 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: true,
+      });
+      expect(state.consents.initialized.value).toBe(false);
+      expect(state.consents.data.value).toStrictEqual({
+        allowedConsentIds: [],
+        deniedConsentIds: [],
       });
     });
 
     it('should log an error if the specified consent manager is not supported', () => {
-      state.loadOptions.value.cookieConsentManager = {
-        randomManager: {
-          enabled: true,
-        },
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'randomManager',
       };
 
       updateConsentsState(mockLogger);
@@ -316,7 +317,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockLogger);
 
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
@@ -324,7 +325,6 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: false,
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent storage strategy "random-strategy" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "none" will be used instead.',
@@ -340,12 +340,11 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'random-delivery',
         },
-        trackConsent: 'random',
       };
 
       updateConsentsState(mockLogger);
 
-      expect(state.consents.preConsentOptions.value).toStrictEqual({
+      expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
         storage: {
           strategy: 'none',
@@ -353,11 +352,69 @@ describe('Config Manager Common Utilities', () => {
         events: {
           delivery: 'immediate',
         },
-        trackConsent: false,
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent events delivery type "random-delivery" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "immediate" will be used instead.',
       );
+    });
+
+    it('should set pre-consent enabled status to false if the consents data is already provided for custom CMP', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      };
+
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'custom',
+        allowedConsentIds: ['consent1'],
+        deniedConsentIds: ['consent2'],
+      };
+
+      updateConsentsState();
+
+      expect(state.consents.preConsent.value).toStrictEqual({
+        enabled: false,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      });
+    });
+
+    it('should set pre-consent enabled status to false if the consent management itself is disabled', () => {
+      state.loadOptions.value.preConsent = {
+        enabled: true,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      };
+
+      state.loadOptions.value.consentManagement = {
+        enabled: false,
+      };
+
+      updateConsentsState();
+
+      expect(state.consents.preConsent.value).toStrictEqual({
+        enabled: false,
+        storage: {
+          strategy: 'none',
+        },
+        events: {
+          delivery: 'immediate',
+        },
+      });
     });
   });
 });

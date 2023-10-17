@@ -73,7 +73,7 @@ class PluginEngine implements IPluginEngine {
 
     this.byName[plugin.name] = plugin;
 
-    if (plugin.initialize && isFunction(plugin.initialize)) {
+    if (isFunction(plugin.initialize)) {
       plugin.initialize(state);
     }
   }
