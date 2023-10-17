@@ -38,6 +38,10 @@ jobs:
         run: |
           npm run check:security
 
+      - name: Build npm packages
+        run: |
+          npm run build:package
+
       - name: Execute bundle size checks
         uses: rudderlabs/github-action-check-size-limit@v2.6.0
         env:
