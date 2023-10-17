@@ -14,6 +14,7 @@ import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   AnonymousIdOptions,
+  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -710,7 +711,7 @@ class Analytics implements IAnalytics {
     return sessionId ?? null;
   }
 
-  consent() {
+  consent(options: ConsentOptions) {
     if (!state.consents.preConsent.value.enabled) {
       return;
     }

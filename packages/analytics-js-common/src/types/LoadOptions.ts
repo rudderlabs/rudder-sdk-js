@@ -146,3 +146,12 @@ export type LoadOptions = {
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
 };
+
+export type ConsentOptions = {
+  storage?: StorageOpts;
+  consentManagement?: ConsentManagementOptions;
+  integrations?: IntegrationOpts;
+  discardPreConsentEvents?: boolean;
+  sendPageEvent?: boolean;
+  trackConsent?: boolean;
+};

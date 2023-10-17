@@ -5,6 +5,7 @@ import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandl
 import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import {
   AnonymousIdOptions,
+  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -197,7 +198,11 @@ export interface IAnalytics {
    */
   getSessionId(): Nullable<number>;
 
-  consent(): void;
+  /**
+   * To record consent
+   * @param options Consent API options
+   */
+  consent(options: ConsentOptions): void;
 
   /**
    * To set auth token
