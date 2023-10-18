@@ -305,6 +305,11 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log a warning if the specified storage strategy is not supported', () => {
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
+      };
+
       state.loadOptions.value.preConsent = {
         enabled: true,
         storage: {
@@ -332,6 +337,11 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log a warning if the specified events delivery type is not supported', () => {
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
+      };
+
       state.loadOptions.value.preConsent = {
         enabled: true,
         storage: {

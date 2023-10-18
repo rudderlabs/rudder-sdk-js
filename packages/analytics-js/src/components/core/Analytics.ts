@@ -56,6 +56,7 @@ import { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import { IAnalytics } from './IAnalytics';
+import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -297,7 +298,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.init();
 
     // Initialize the appropriate consent manager plugin
-    if (state.consents.activeConsentManagerPluginName.value) {
+    if (state.consents.enabled.value && !state.consents.initialized.value) {
       this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
 
       if (state.consents.preConsent.value.enabled === false) {
@@ -711,22 +712,35 @@ class Analytics implements IAnalytics {
     return sessionId ?? null;
   }
 
-  consent(options: ConsentOptions) {
+  consent(options?: ConsentOptions) {
     if (!state.consents.preConsent.value.enabled) {
+      // TODO: Maybe log a warning here
       return;
     }
 
-    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+    batch(() => {
+      state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+      state.consents.postConsent.value = getValidPostConsentOptions(options);
 
-    // TODO: Update state with the data in the arguments
+      const { initialized, enabled, consentsData } = getConsentManagementData(
+        state.consents.postConsent.value.consentManagement,
+        this.logger,
+      );
 
-    // TODO: Update consents data in state
-    // this.pluginsManager?.invokeSingle(
-    //   `consentManager.updateConsentsInfo`,
-    //   state,
-    //   this.storeManager,
-    //   this.logger,
-    // );
+      state.consents.enabled.value = enabled || state.consents.enabled.value;
+      state.consents.initialized.value = initialized || state.consents.initialized.value;
+      state.consents.data.value = consentsData;
+    });
+
+    // Update consents data in state
+    if (state.consents.enabled.value && !state.consents.initialized.value) {
+      this.pluginsManager?.invokeSingle(
+        `consentManager.updateConsentsInfo`,
+        state,
+        this.storeManager,
+        this.logger,
+      );
+    }
 
     // TODO: Re-init store manager
     // this.storeManager?.initClientDataStores();

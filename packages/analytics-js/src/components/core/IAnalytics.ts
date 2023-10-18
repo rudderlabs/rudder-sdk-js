@@ -202,7 +202,7 @@ export interface IAnalytics {
    * To record consent
    * @param options Consent API options
    */
-  consent(options: ConsentOptions): void;
+  consent(options?: ConsentOptions): void;
 
   /**
    * To set auth token
