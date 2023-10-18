@@ -38,6 +38,8 @@ class Matomo {
     this.timeout = config.timeout;
     this.getCrossDomainLinkingUrlParameter = config.getCrossDomainLinkingUrlParameter;
     this.disableBrowserFeatureDetection = config.disableBrowserFeatureDetection;
+    this.matomoVersion = motamoVersion;
+    this.premiseSDKEndpoint = premiseSDKEndpoint;
 
     this.ecomEvents = {
       SET_ECOMMERCE_VIEW: 'SET_ECOMMERCE_VIEW',
@@ -55,7 +57,7 @@ class Matomo {
   }
 
   loadScript() {
-    loadNativeSdk(this.serverUrl, this.siteId);
+    loadNativeSdk(this.matomoVersion, this.premiseSDKEndpoint, this.serverUrl, this.siteId);
   }
 
   init() {
