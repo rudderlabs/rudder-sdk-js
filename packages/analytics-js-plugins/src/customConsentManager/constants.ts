@@ -1,0 +1,3 @@
+const CUSTOM_CONSENT_MANAGER_PLUGIN = 'CustomConsentManagerPlugin';
+
+export { CUSTOM_CONSENT_MANAGER_PLUGIN };

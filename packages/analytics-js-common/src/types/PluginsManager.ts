@@ -15,6 +15,7 @@ export interface IPluginsManager {
 export type PluginName =
   | 'BeaconQueue'
   | 'Bugsnag'
+  | 'CustomConsentManager'
   | 'DeviceModeDestinations'
   | 'DeviceModeTransformation'
   | 'ErrorReporting'

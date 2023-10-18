@@ -38,6 +38,7 @@ const isCDNPackageBuild = moduleType === 'cdn';
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
   './Bugsnag': './src/bugsnag/index.ts',
+  './CustomConsentManager': './src/customConsentManager/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
   './ErrorReporting': './src/errorReporting/index.ts',
