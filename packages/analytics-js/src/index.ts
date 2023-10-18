@@ -1,4 +1,7 @@
-// TODO: export all types that we need for public interface consumption
+import { RudderAnalytics } from './app/RudderAnalytics';
+import { PreloadedEventCall, RudderAnalyticsPreloader } from './components/preloadBuffer/types';
+import { IRudderStackGlobals } from './app/IRudderStackGlobals';
+
 export {
   type AnonymousIdOptions,
   type LoadOptions,
@@ -17,4 +20,16 @@ export { type LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { RudderAnalytics } from './app/RudderAnalytics';
 export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
-export { type PreloadedEventCall } from './components/preloadBuffer/types';
+export {
+  type PreloadedEventCall,
+  type RudderAnalyticsPreloader,
+} from './components/preloadBuffer/types';
+
+declare global {
+  interface Window {
+    rudderanalytics: RudderAnalytics | PreloadedEventCall[] | RudderAnalyticsPreloader;
+    RudderStackGlobals: IRudderStackGlobals;
+    rudderAnalyticsMount: () => void;
+    rudderAnalyticsBuildType: 'legacy' | 'modern';
+  }
+}

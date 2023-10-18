@@ -46,6 +46,10 @@ class EventManager implements IEventManager {
     this.eventRepository.init();
   }
 
+  resume() {
+    this.eventRepository.resume();
+  }
+
   /**
    * Consumes a new incoming event
    * @param event Incoming event data

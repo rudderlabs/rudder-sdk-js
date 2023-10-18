@@ -41,6 +41,16 @@
         window.rudderAnalyticsBuildType = "modern";
       } catch (e) {}
       window.rudderAnalyticsMount = function() {
+        if (typeof globalThis === 'undefined') {
+          Object.defineProperty(Object.prototype, '__globalThis_magic__', {
+            get: function get() {
+              return this;
+            },
+            configurable: true
+          });
+          __globalThis_magic__.globalThis = __globalThis_magic__;
+          delete Object.prototype.__globalThis_magic__;
+        }
         var rudderAnalyticsScript = document.createElement("script");
         rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
@@ -50,9 +60,9 @@
           document.body.appendChild(rudderAnalyticsScript);
         }
       };
-      if (typeof Promise === "undefined") {
+      if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement("script");
-        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=globalThis%2CPromise&callback=rudderAnalyticsMount";
+        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=Symbol%2CPromise&callback=rudderAnalyticsMount";
         rudderAnalyticsPromisesScript.async = asyncScript;
         if (document.head) {
           document.head.appendChild(rudderAnalyticsPromisesScript);
@@ -63,20 +73,6 @@
         window.rudderAnalyticsMount();
       }
       // New addition to load script ends
-
-      // Sets the user ID/anonymous ID
-      // Sending these Identify and Track event to test the preload buffer
-      rudderanalytics.setAnonymousId("automationqa_123");
-
-        // Identify call
-      rudderanalytics.identify("12345", {
-        name: "Automation QA"
-      });
-
-        // Track call
-      rudderanalytics.track("test event", {
-        testProp: "automationQA_prop1"
-      });
 
       var loadOptions={
         logLevel: 'DEBUG',
@@ -90,7 +86,12 @@
         },
         storage: {
           migrate: true
-        }
+        },
+        anonymousIdOptions: {
+        autoCapture: {
+          enabled: true,
+          source: "segment"
+        }}
       };
 
       rudderanalytics.load(

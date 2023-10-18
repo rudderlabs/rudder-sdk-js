@@ -2,9 +2,10 @@ import { signal } from '@preact/signals-core';
 import { ConsentsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const consentsState: ConsentsState = {
-  data: signal({ initialized: false }),
+  initialized: signal(false),
+  data: signal({}),
   activeConsentManagerPluginName: signal(undefined),
-  preConsentOptions: signal({ enabled: false }),
+  preConsent: signal({ enabled: false }),
 };
 
 export { consentsState };

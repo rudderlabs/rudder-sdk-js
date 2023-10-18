@@ -1,7 +1,10 @@
-## [2.42.4](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.42.3...rudder-sdk-js@2.42.4) (2023-10-02)
+## [2.43.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.42.4...rudder-sdk-js@2.43.0) (2023-10-16)
 
+### Dependency Updates
 
-### Bug Fixes
+* `@rudderstack/analytics-js-common` updated to version `3.0.0-beta.11`
 
-* **analytics-js,rudder-sdk-js:** dead object issue ([#1410](https://github.com/rudderlabs/rudder-sdk-js/issues/1410)) ([94f4b2d](https://github.com/rudderlabs/rudder-sdk-js/commit/94f4b2db11b32a6b4ddcb2b1eacf7cdbd1867ef3))
+### Features
+
+* **analytics-js-service-worker:** deprecate service worker export of rudder-sdk-js package  in favor of the new standalone package([#1437](https://github.com/rudderlabs/rudder-sdk-js/issues/1437)) ([1797d3e](https://github.com/rudderlabs/rudder-sdk-js/commit/1797d3ef356e947a528c2de9abcfde245cc28178))
 

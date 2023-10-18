@@ -76,6 +76,13 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    */
   init() {
+    this.syncStorageDataToState();
+
+    // Register the effect to sync with storage
+    this.registerEffects();
+  }
+
+  syncStorageDataToState() {
     this.migrateStorageIfNeeded();
     this.migrateDataFromPreviousStorage();
 
@@ -105,26 +112,21 @@ class UserSessionManager implements IUserSessionManager {
       this.setAuthToken(authToken);
     }
 
-    const initialReferrer = this.getInitialReferrer();
-    const initialReferringDomain = this.getInitialReferringDomain();
+    const persistedInitialReferrer = this.getInitialReferrer();
+    const persistedInitialReferringDomain = this.getInitialReferringDomain();
 
-    if (initialReferrer && initialReferringDomain) {
-      this.setInitialReferrer(initialReferrer);
-      this.setInitialReferringDomain(initialReferringDomain);
-    } else if (initialReferrer) {
+    if (persistedInitialReferrer && persistedInitialReferringDomain) {
+      this.setInitialReferrer(persistedInitialReferrer);
+      this.setInitialReferringDomain(persistedInitialReferringDomain);
+    } else {
+      const initialReferrer = persistedInitialReferrer || getReferrer();
       this.setInitialReferrer(initialReferrer);
       this.setInitialReferringDomain(getReferringDomain(initialReferrer));
-    } else {
-      const referrer = getReferrer();
-      this.setInitialReferrer(referrer);
-      this.setInitialReferringDomain(getReferringDomain(referrer));
     }
     // Initialize session tracking
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       this.initializeSessionTracking();
     }
-    // Register the effect to sync with storage
-    this.registerEffects();
   }
 
   isPersistenceEnabledForStorageEntry(entryName: UserSessionKeys): boolean {
@@ -134,24 +136,24 @@ class UserSessionManager implements IUserSessionManager {
 
   migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
+    const storagesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
-      const storages = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
-
-      storages.forEach(storage => {
-        const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
-        if (storage !== currentStorage && store) {
-          if (curStore) {
-            const value = store?.get(userSessionStorageKeys[key]);
+      if (curStore) {
+        storagesForMigration.forEach(storage => {
+          const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+          if (store && storage !== currentStorage) {
+            const value = store.get(userSessionStorageKeys[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
-              curStore?.set(userSessionStorageKeys[key], value);
+              curStore.set(userSessionStorageKeys[key], value);
             }
+
+            store.remove(userSessionStorageKeys[key]);
           }
-          store?.remove(userSessionStorageKeys[key]);
-        }
-      });
+        });
+      }
     });
   }
 

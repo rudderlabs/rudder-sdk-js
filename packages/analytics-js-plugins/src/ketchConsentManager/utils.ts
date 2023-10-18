@@ -2,7 +2,8 @@
 import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ConsentInfo } from '@rudderstack/analytics-js-common/types/Consent';
+import { ConsentsInfo } from '@rudderstack/analytics-js-common/types/Consent';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { checks, storages, string } from '../shared-chunks/common';
 import { KETCH_CONSENT_COOKIE_PARSE_ERROR, KETCH_CONSENT_COOKIE_READ_ERROR } from './logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
@@ -64,24 +65,22 @@ const getKetchConsentData = (
  * @param ketchConsentData Consent data derived from the consent cookie
  * @returns Consent data
  */
-const getConsentData = (ketchConsentData?: KetchConsentData): ConsentInfo => {
-  const allowedConsents: string[] = [];
+const getConsentData = (ketchConsentData?: KetchConsentData): ConsentsInfo => {
+  const allowedConsentIds: string[] = [];
   const deniedConsentIds: string[] = [];
-  let initialized = false;
   if (ketchConsentData) {
     Object.entries(ketchConsentData).forEach(e => {
       const purposeCode = e[0];
       const isConsented = e[1];
       if (isConsented) {
-        allowedConsents.push(purposeCode);
+        allowedConsentIds.push(purposeCode);
       } else {
         deniedConsentIds.push(purposeCode);
       }
     });
-    initialized = true;
   }
 
-  return { initialized, allowedConsents, deniedConsentIds };
+  return { allowedConsentIds, deniedConsentIds };
 };
 
 const updateConsentStateFromData = (
@@ -89,6 +88,7 @@ const updateConsentStateFromData = (
   ketchConsentData: KetchConsentData,
 ) => {
   const consentData = getConsentData(ketchConsentData);
+  state.consents.initialized.value = isDefined(ketchConsentData);
   state.consents.data.value = consentData;
 };
 
