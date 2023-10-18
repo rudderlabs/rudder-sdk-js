@@ -1,8 +1,8 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-function loadNativeSdk(matomoVersion, premiseSDKEndpoint, serverUrl, siteId) {
+function loadNativeSdk(matomoVersion, premiseUrl, serverUrl, siteId) {
   window._paq = window._paq || [];
-  (function (matomoVersion, premiseSDKEndpoint, serverUrl, siteId) {
+  (function (matomoVersion, premiseUrl, serverUrl, siteId) {
     let u = serverUrl;
     window._paq.push(['setTrackerUrl', `${u}matomo.php`]);
     window._paq.push(['setSiteId', siteId]);
@@ -11,10 +11,10 @@ function loadNativeSdk(matomoVersion, premiseSDKEndpoint, serverUrl, siteId) {
     const s = d.getElementsByTagName('script')[0];
     g.async = true;
     u = u.replace('https://', '');
-    g.src = matomoVersion === 'premise' ? premiseSDKEndpoint : `//cdn.matomo.cloud/${u}matomo.js`;
+    g.src = matomoVersion === 'premise' ? premiseUrl : `//cdn.matomo.cloud/${u}matomo.js`;
     g.setAttribute('data-loader', LOAD_ORIGIN);
     s.parentNode.insertBefore(g, s);
-  })(matomoVersion, premiseSDKEndpoint, serverUrl, siteId);
+  })(matomoVersion, premiseUrl, serverUrl, siteId);
 }
 
 export { loadNativeSdk };
