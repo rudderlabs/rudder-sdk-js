@@ -1,8 +1,8 @@
-import {
+import type {
   DestinationIntgConfig,
   IntegrationOpts,
 } from '@rudderstack/analytics-js-common/types/Integration';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { checks } from '../shared-chunks/common';
 
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>

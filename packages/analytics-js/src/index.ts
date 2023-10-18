@@ -1,6 +1,9 @@
-import { RudderAnalytics } from './app/RudderAnalytics';
-import { PreloadedEventCall, RudderAnalyticsPreloader } from './components/preloadBuffer/types';
-import { IRudderStackGlobals } from './app/IRudderStackGlobals';
+import type { RudderAnalytics } from './app/RudderAnalytics';
+import type {
+  PreloadedEventCall,
+  RudderAnalyticsPreloader,
+} from './components/preloadBuffer/types';
+import type { IRudderStackGlobals } from './app/IRudderStackGlobals';
 
 export {
   type AnonymousIdOptions,

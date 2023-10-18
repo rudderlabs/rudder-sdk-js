@@ -12,7 +12,7 @@ import { StorageEncryption } from '@rudderstack/analytics-js-plugins/storageEncr
 import { StorageEncryptionLegacy } from '@rudderstack/analytics-js-plugins/storageEncryptionLegacy';
 import { StorageMigrator } from '@rudderstack/analytics-js-plugins/storageMigrator';
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
-import { PluginMap } from './types';
+import type { PluginMap } from './types';
 
 /**
  * Map plugin names to direct code imports from plugins package

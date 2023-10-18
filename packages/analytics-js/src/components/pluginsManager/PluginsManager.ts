@@ -1,13 +1,16 @@
 import { batch, effect } from '@preact/signals-core';
-import {
+import type {
   ExtensionPlugin,
   IPluginEngine,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js-common/utilities/destinations';
-import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type {
+  IPluginsManager,
+  PluginName,
+} from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { setExposedGlobal } from '../utilities/globals';

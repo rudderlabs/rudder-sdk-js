@@ -1,20 +1,20 @@
-import { Signal } from '@preact/signals-core';
-import { PluginName } from './PluginsManager';
-import { Nullable } from './Nullable';
-import { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
-import { ApiCallback, ReadyCallback, Traits } from './EventApi';
-import { BufferedEvent } from './Event';
-import { LifecycleStatus } from './ApplicationLifecycle';
-import { LogLevel } from './Logger';
-import { LoadOptions, PreConsentOptions } from './LoadOptions';
-import { Destination } from './Destination';
-import { IntegrationOpts } from './Integration';
-import { SessionInfo } from './Session';
-import { Source } from './Source';
-import { ApiObject } from './ApiObject';
-import { ConsentsInfo } from './Consent';
-import { StorageType, CookieOptions } from './Storage';
-import { UserSessionKeys } from './userSessionStorageKeys';
+import type { Signal } from '@preact/signals-core';
+import type { PluginName } from './PluginsManager';
+import type { Nullable } from './Nullable';
+import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
+import type { ApiCallback, ReadyCallback, Traits } from './EventApi';
+import type { BufferedEvent } from './Event';
+import type { LifecycleStatus } from './ApplicationLifecycle';
+import type { LogLevel } from './Logger';
+import type { LoadOptions, PreConsentOptions } from './LoadOptions';
+import type { Destination } from './Destination';
+import type { IntegrationOpts } from './Integration';
+import type { SessionInfo } from './Session';
+import type { Source } from './Source';
+import type { ApiObject } from './ApiObject';
+import type { ConsentsInfo } from './Consent';
+import type { StorageType, CookieOptions } from './Storage';
+import type { UserSessionKeys } from './userSessionStorageKeys';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;

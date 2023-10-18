@@ -1,4 +1,4 @@
-import { CookieConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { CookieConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 
 /**
@@ -23,7 +23,8 @@ const getUserSelectedConsentManager = (
 
   const validCookieConsentOptions = cookieConsentOptions as CookieConsentOptions;
   return Object.keys(validCookieConsentOptions).find(
-    e => e && validCookieConsentOptions[e].enabled === true,
+    e =>
+      e && validCookieConsentOptions[e] && (validCookieConsentOptions[e] as any).enabled === true,
   );
 };
 

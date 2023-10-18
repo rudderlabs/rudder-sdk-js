@@ -1,5 +1,5 @@
-import { IErrorHandler } from './ErrorHandler';
-import { ILogger } from './Logger';
+import type { IErrorHandler } from './ErrorHandler';
+import type { ILogger } from './Logger';
 
 export interface IRequestConfig {
   url: string;

@@ -6,7 +6,7 @@
 /* eslint-disable unicorn/consistent-destructuring */
 
 /* Loading snippet start */
-import {
+import type {
   PreloadedEventCall,
   RudderAnalytics,
   RudderAnalyticsPreloader,
@@ -34,7 +34,7 @@ const methods: string[] = [
 ];
 
 for (let i = 0; i < methods.length; i++) {
-  const method = methods[i];
+  const method = methods[i] as string;
   (window.rudderanalytics as unknown as RudderAnalyticsPreloader)[method] = (methodName =>
     function () {
       (window.rudderanalytics as PreloadedEventCall[]).push(

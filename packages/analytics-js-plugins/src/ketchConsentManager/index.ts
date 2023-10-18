@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
-import { KetchConsentData } from './types';
+import type { KetchConsentData } from './types';
 import { getKetchConsentData, updateConsentStateFromData } from './utils';
 
 const pluginName: PluginName = 'KetchConsentManager';

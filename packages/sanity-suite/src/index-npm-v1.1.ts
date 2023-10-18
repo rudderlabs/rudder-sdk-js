@@ -29,6 +29,7 @@ const getLoadOptions = () => {
           },
         },
       };
+    // eslint-disable-next-line sonarjs/no-duplicated-branches
     case 'preloadBuffer':
       return {
         logLevel: 'DEBUG',

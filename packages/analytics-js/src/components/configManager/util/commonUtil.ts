@@ -1,16 +1,22 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { ConsentManagementOptions, Consents } from '@rudderstack/analytics-js-common/types/Consent';
+import type {
+  ConsentManagementOptions,
+  Consents,
+} from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -27,7 +33,7 @@ import {
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse } from '../types';
+import type { SourceConfigResponse } from '../types';
 import {
   ConsentManagersToPluginNameMap,
   DEFAULT_ERROR_REPORTING_PROVIDER,

@@ -1,4 +1,4 @@
-import { Destination } from '../types/Destination';
+import type { Destination } from '../types/Destination';
 
 /**
  * A function to filter and return non cloud mode destinations

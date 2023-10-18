@@ -2,13 +2,13 @@
 /* eslint-disable no-undef */
 import each from '@ndhoule/each';
 import get from 'lodash.get';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
 } from '../../utils/commonUtils';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 let dynamicKeys = [];
 

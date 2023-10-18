@@ -1,14 +1,14 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import {
+import type {
   IQueue,
   QueueItem,
   QueueItemData,
@@ -17,7 +17,7 @@ import {
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
-import { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
+import type { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,
@@ -456,7 +456,11 @@ class RetryQueue implements IQueue<QueueItemData> {
     let inProgressSize = Object.keys(inProgress).length;
 
     // eslint-disable-next-line no-plusplus
-    while (queue.length > 0 && queue[0].time <= now && inProgressSize++ < this.maxItems) {
+    while (
+      queue.length > 0 &&
+      (queue[0] as QueueItem).time <= now &&
+      inProgressSize++ < this.maxItems
+    ) {
       const el = queue.shift();
       if (el) {
         const id = generateUUID();
@@ -490,7 +494,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancel(this.processId);
 
     if (queue.length > 0) {
-      const nextProcessExecutionTime = queue[0].time - now;
+      const nextProcessExecutionTime = (queue[0] as QueueItem).time - now;
       this.processId = this.schedule.run(
         this.processHead,
         nextProcessExecutionTime,
@@ -683,7 +687,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
         res.push(
           this.storeManager.setStore({
-            id: parts[1],
+            id: parts[1] as string,
             name,
             validKeys: QueueStatuses,
             type: LOCAL_STORAGE,

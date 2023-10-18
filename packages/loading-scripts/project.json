@@ -46,7 +46,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/loading-scripts/jest.config.ts",
+        "jestConfig": "packages/loading-scripts/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,

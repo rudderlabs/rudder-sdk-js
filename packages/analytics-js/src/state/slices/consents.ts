@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { ConsentsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ConsentsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const consentsState: ConsentsState = {
   initialized: signal(false),

@@ -1,9 +1,9 @@
-import { Nullable } from './Nullable';
-import { ApiCallback, ApiOptions } from './EventApi';
-import { AnonymousIdOptions, LoadOptions } from './LoadOptions';
-import { ApiObject } from './ApiObject';
-import { ILogger } from './Logger';
-import { IdentifyTraits } from './traits';
+import type { Nullable } from './Nullable';
+import type { ApiCallback, ApiOptions } from './EventApi';
+import type { AnonymousIdOptions, LoadOptions } from './LoadOptions';
+import type { ApiObject } from './ApiObject';
+import type { ILogger } from './Logger';
+import type { IdentifyTraits } from './traits';
 
 export type AnalyticsIdentifyMethod = {
   (

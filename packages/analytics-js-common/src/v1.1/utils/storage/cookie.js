@@ -54,6 +54,7 @@ class CookieLocal {
    *
    * @param {*} key
    */
+  // eslint-disable-next-line class-methods-use-this
   get(key) {
     return cookie(key);
   }

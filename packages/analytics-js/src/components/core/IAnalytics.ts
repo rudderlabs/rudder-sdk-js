@@ -1,31 +1,31 @@
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import {
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import type {
   AnonymousIdOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import {
+import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
   PageCallOptions,
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { Store } from '../../services/StoreManager';
-import { IUserSessionManager } from '../userSessionManager/types';
-import { IConfigManager } from '../configManager/types';
-import { IEventManager } from '../eventManager/types';
-import { ICapabilitiesManager } from '../capabilitiesManager/types';
-import { PreloadedEventCall } from '../preloadBuffer/types';
-import { BufferQueue } from './BufferQueue';
+import type { Store } from '../../services/StoreManager';
+import type { IUserSessionManager } from '../userSessionManager/types';
+import type { IConfigManager } from '../configManager/types';
+import type { IEventManager } from '../eventManager/types';
+import type { ICapabilitiesManager } from '../capabilitiesManager/types';
+import type { PreloadedEventCall } from '../preloadBuffer/types';
+import type { BufferQueue } from './BufferQueue';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;

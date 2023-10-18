@@ -1,12 +1,12 @@
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import {
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type {
   TransformationRequestPayload,
   TransformationResponsePayload,
   TransformedBatch,
