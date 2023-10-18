@@ -38,7 +38,9 @@
     "build:modern": "npm run build:browser:modern"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@rudderstack/analytics-js": "*"
+  },
   "overrides": {},
   "browserslist": {
     "production": [
