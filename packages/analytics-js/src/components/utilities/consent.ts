@@ -13,6 +13,7 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 import {
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
+  mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
@@ -58,7 +59,11 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     validOptions.discardPreConsentEvents = clonedOptions.discardPreConsentEvents === true;
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;
-    validOptions.consentManagement = clonedOptions.consentManagement;
+    if (isNonEmptyObject(clonedOptions.consentManagement)) {
+      validOptions.consentManagement = mergeDeepRight(clonedOptions.consentManagement, {
+        enabled: true,
+      });
+    }
   }
   return validOptions;
 };
@@ -85,34 +90,33 @@ const getConsentManagementData = (
   logger?: ILogger,
 ) => {
   let consentManagerPluginName: PluginName | undefined;
-  let allowedConsentIds: Consents | undefined;
-  let deniedConsentIds: Consents | undefined;
+  let allowedConsentIds: Consents = [];
+  let deniedConsentIds: Consents = [];
   let initialized = false;
 
   let enabled = consentManagementOpts?.enabled === true;
   if (isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) && enabled) {
     const consentProvider = consentManagementOpts.provider;
-    if (consentProvider === 'custom') {
-      initialized = true;
+    // Get the corresponding plugin name of the selected consent manager from the supported consent managers
+    consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
 
-      allowedConsentIds = isValidConsentsData(consentManagementOpts.allowedConsentIds)
-        ? consentManagementOpts.allowedConsentIds
-        : [];
-      deniedConsentIds = isValidConsentsData(consentManagementOpts.deniedConsentIds)
-        ? consentManagementOpts.deniedConsentIds
-        : [];
-    } else if (consentProvider) {
-      // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-      consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
+    if (isValidConsentsData(consentManagementOpts.allowedConsentIds)) {
+      allowedConsentIds = consentManagementOpts.allowedConsentIds;
+      initialized = true;
+    }
+
+    if (isValidConsentsData(consentManagementOpts.deniedConsentIds)) {
+      deniedConsentIds = consentManagementOpts.deniedConsentIds;
+      initialized = true;
     }
   }
 
   const consentsData = {
-    allowedConsentIds: allowedConsentIds ?? [],
-    deniedConsentIds: deniedConsentIds ?? [],
+    allowedConsentIds,
+    deniedConsentIds,
   };
 
-  // Enabled consent management only if consent manager plugin name is available
+  // Enable consent management only if consent manager is supported
   enabled = enabled && Boolean(consentManagerPluginName);
 
   return {

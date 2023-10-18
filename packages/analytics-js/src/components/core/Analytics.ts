@@ -722,12 +722,11 @@ class Analytics implements IAnalytics {
       state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
       state.consents.postConsent.value = getValidPostConsentOptions(options);
 
-      const { initialized, enabled, consentsData } = getConsentManagementData(
+      const { initialized, consentsData } = getConsentManagementData(
         state.consents.postConsent.value.consentManagement,
         this.logger,
       );
 
-      state.consents.enabled.value = enabled || state.consents.enabled.value;
       state.consents.initialized.value = initialized || state.consents.initialized.value;
       state.consents.data.value = consentsData;
     });
