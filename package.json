@@ -27,7 +27,7 @@
     "check:lint:ci": "nx run-many -t check:lint:ci --parallel=false --verbose",
     "check:lint": "nx run-many -t check:lint --parallel=false --verbose",
     "check:size": "nx run-many -t check:size --parallel=false --verbose",
-    "check:size:build": "nx run-many -t build-check-size",
+    "check:size:build": "npm run build:package && nx run-many -t build-check-size",
     "check:size:json": "npm run check:size:json:ci -- --verbose",
     "check:size:json:ci": "nx run-many -t check:size:json --parallel=false",
     "check:circular": "nx run-many -t check:circular --parallel=false --verbose",
