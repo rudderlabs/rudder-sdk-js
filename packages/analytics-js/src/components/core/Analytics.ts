@@ -747,10 +747,10 @@ class Analytics implements IAnalytics {
     // TODO: Re-init user session manager
     // this.userSessionManager?.syncStorageDataToState();
 
-    this.loadDestinations();
-
     // Resume event manager to process the events to destinations
     this.eventManager?.resume();
+
+    this.loadDestinations();
   }
 
   setAuthToken(token: string): void {

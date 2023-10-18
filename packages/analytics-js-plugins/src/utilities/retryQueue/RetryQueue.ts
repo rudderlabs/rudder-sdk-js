@@ -578,14 +578,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.setQueue(QueueStatuses.QUEUE, our.queue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
-    this.clearOtherQueue(other, 1);
+    this.clearQueueEntries(other, 1);
 
     // process the new items we claimed
     this.processHead();
   }
 
   // eslint-disable-next-line class-methods-use-this
-  clearOtherQueue(other: IStore, localStorageBackoff: number) {
+  clearQueueEntries(other: IStore, localStorageBackoff: number) {
     this.removeStorageEntry(other, 0, localStorageBackoff);
   }
 
@@ -707,6 +707,11 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
 
     this.schedule.run(this.checkReclaim, this.timeouts.reclaimTimer, ScheduleModes.RESCHEDULE);
+  }
+
+  clear() {
+    this.schedule.cancelAll();
+    this.clearQueueEntries(this.store, 0);
   }
 }
 
