@@ -6,6 +6,12 @@
 /* eslint-disable unicorn/consistent-destructuring */
 
 /* Loading snippet start */
+import {
+  PreloadedEventCall,
+  RudderAnalytics,
+  RudderAnalyticsPreloader,
+} from '@rudderstack/analytics-js';
+
 const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
 const sdkName = 'rsa.min.js';
 const asyncScript = true;
@@ -29,9 +35,11 @@ const methods: string[] = [
 
 for (let i = 0; i < methods.length; i++) {
   const method = methods[i];
-  window.rudderanalytics[method] = (methodName =>
+  (window.rudderanalytics as unknown as RudderAnalyticsPreloader)[method] = (methodName =>
     function () {
-      window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+      (window.rudderanalytics as PreloadedEventCall[]).push(
+        [methodName].concat(Array.prototype.slice.call(arguments) as PreloadedEventCall),
+      );
     })(method);
 }
 
@@ -89,4 +97,8 @@ const loadOptions = {
   // configure your load options here
 };
 
-window.rudderanalytics.load('<write-key>', '<data-plane-url>', loadOptions);
+(window.rudderanalytics as unknown as RudderAnalytics).load(
+  '<write-key>',
+  '<data-plane-url>',
+  loadOptions,
+);

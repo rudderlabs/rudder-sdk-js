@@ -22,6 +22,7 @@ import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
+import { getStorageTypeFromPreConsent } from './utils';
 
 /**
  * A service to manage stores & available storage client configurations
@@ -51,7 +52,7 @@ class StoreManager implements IStoreManager {
     }
 
     const config: StoreManagerOptions = {
-      cookieOptions: {
+      cookieStorageOptions: {
         samesite: state.loadOptions.value.sameSiteCookie,
         secure: state.loadOptions.value.secureCookie,
         domain: state.loadOptions.value.setCookieDomain,
@@ -64,21 +65,50 @@ class StoreManager implements IStoreManager {
 
     configureStorageEngines(
       removeUndefinedValues(
-        mergeDeepRight(config.cookieOptions || {}, state.storage.cookie?.value || {}),
+        mergeDeepRight(config.cookieStorageOptions ?? {}, state.storage.cookie?.value ?? {}),
       ),
       removeUndefinedValues(config.localStorageOptions),
       removeUndefinedValues(config.inMemoryStorageOptions),
       removeUndefinedValues(config.sessionStorageOptions),
     );
 
-    this.initClientDataStore();
+    this.initClientDataStores();
     this.isInitialized = true;
   }
 
   /**
    * Create store to persist data used by the SDK like session, used details etc
    */
-  initClientDataStore() {
+  initClientDataStores() {
+    this.initializeStorageState();
+
+    // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
+    // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
+
+    // Initializing all the enabled store because previous user data might be in different storage
+    // that needs auto migration
+    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
+    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
+    }
+    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
+    }
+    if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+      storageTypesRequiringInitialization.push(SESSION_STORAGE);
+    }
+    storageTypesRequiringInitialization.forEach(storageType => {
+      this.setStore({
+        id: storageClientDataStoreNameMap[storageType],
+        name: storageClientDataStoreNameMap[storageType],
+        isEncrypted: true,
+        noCompoundKey: true,
+        type: storageType as StorageType,
+      });
+    });
+  }
+
+  initializeStorageState() {
     const globalStorageType = state.storage.type.value;
     let trulyAnonymousTracking = true;
     const entries = state.loadOptions.value.storage?.entries;
@@ -96,7 +126,12 @@ class StoreManager implements IStoreManager {
       const key = sessionKey;
       const storageKey = sessionKey;
       const providedStorageType = entries?.[key]?.type;
-      const storageType = providedStorageType || globalStorageType || DEFAULT_STORAGE_TYPE;
+
+      const preConsentStorageType = getStorageTypeFromPreConsent(state, sessionKey);
+
+      // Storage type precedence order: pre-consent strategy > entry type > global type > default
+      const storageType =
+        preConsentStorageType ?? providedStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
       switch (storageType) {
@@ -146,31 +181,6 @@ class StoreManager implements IStoreManager {
     });
 
     state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
-
-    // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
-    // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-
-    // Initializing all the enabled store because previous user data might be in different storage
-    // that needs auto migration
-    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
-    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
-    }
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
-    }
-    if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(SESSION_STORAGE);
-    }
-    storageTypesRequiringInitialization.forEach(storageType => {
-      this.setStore({
-        id: storageClientDataStoreNameMap[storageType],
-        name: storageClientDataStoreNameMap[storageType],
-        isEncrypted: true,
-        noCompoundKey: true,
-        type: storageType as StorageType,
-      });
-    });
   }
 
   /**

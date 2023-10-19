@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/loading-scripts/src",
   "projectType": "library",
-  "tags": ["type:sdk", "scope:snippet"],
+  "tags": ["type:app", "scope:snippet"],
   "targets": {
     "build": {
       "executor": "nx:run-script",
@@ -28,6 +28,13 @@
       "options": {
         "script": "build:browser:modern"
       }
+    },
+    "build-check-size": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:browser:minified"
+      },
+      "dependsOn": ["build-browser"]
     },
     "clean": {
       "executor": "nx:run-script",
@@ -84,9 +91,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.10",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.10",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.10",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }
