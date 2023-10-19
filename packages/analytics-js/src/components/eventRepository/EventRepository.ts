@@ -131,12 +131,12 @@ class EventRepository implements IEventRepository {
   }
 
   resume() {
-    if (state.consents.postConsent.value.discardPreConsentEvents) {
-      this.dataplaneEventsQueue?.clear();
-      this.destinationsEventsQueue?.clear();
-    }
-
     if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+      if (state.consents.postConsent.value.discardPreConsentEvents) {
+        this.dataplaneEventsQueue?.clear();
+        this.destinationsEventsQueue?.clear();
+      }
+
       this.dataplaneEventsQueue?.start();
     }
   }

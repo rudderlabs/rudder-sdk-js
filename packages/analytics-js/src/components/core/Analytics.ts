@@ -402,6 +402,10 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
+    if (state.nativeDestinations.clientDestinationsReady.value) {
+      return;
+    }
+
     // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
@@ -713,11 +717,6 @@ class Analytics implements IAnalytics {
   }
 
   consent(options?: ConsentOptions) {
-    if (!state.consents.preConsent.value.enabled) {
-      // TODO: Maybe log a warning here
-      return;
-    }
-
     batch(() => {
       state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
       state.consents.postConsent.value = getValidPostConsentOptions(options);
