@@ -177,7 +177,7 @@ describe('Device mode transformation plugin', () => {
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getQueue('queue').length).toBe(0);
+    expect(queue.getQueueEntry('queue').length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
   });
@@ -269,7 +269,7 @@ describe('Device mode transformation plugin', () => {
 
     expect(mockSendTransformedEventToDestinations).not.toBeCalled();
     // The element is requeued
-    expect(queue.getQueue('queue')).toStrictEqual([
+    expect(queue.getQueueEntry('queue')).toStrictEqual([
       {
         item: {
           token: authToken,

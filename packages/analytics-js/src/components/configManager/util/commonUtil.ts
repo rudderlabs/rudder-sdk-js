@@ -194,6 +194,9 @@ const updateConsentsState = (logger?: ILogger): void => {
     state.consents.data.value = consentsData;
 
     state.consents.preConsent.value = {
+      // Only enable pre-consent if it is explicitly enabled and
+      // if it is not already initialized and
+      // if consent management is enabled
       enabled:
         state.loadOptions.value.preConsent?.enabled === true &&
         initialized === false &&

@@ -57,8 +57,11 @@ export interface IQueue<T = any> {
   timeouts: Record<string, number>;
   scheduleTimeoutActive: boolean;
   attachListeners?(): void;
-  getQueue(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
-  setQueue(name?: string, value?: Nullable<QueueItem<T>[] | Record<string, any> | number>): void;
+  getQueueEntry(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
+  setQueueEntry(
+    name?: string,
+    value?: Nullable<QueueItem<T>[] | Record<string, any> | number>,
+  ): void;
   start(): void;
   stop(): void;
   enqueue(item: QueueItem<T>): void;
