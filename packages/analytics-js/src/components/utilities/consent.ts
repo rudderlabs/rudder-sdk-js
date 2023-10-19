@@ -6,7 +6,6 @@ import {
 } from '@rudderstack/analytics-js-common/types/Consent';
 import {
   ConsentOptions,
-  PostConsentOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -46,7 +45,7 @@ const getUserSelectedConsentManager = (
 };
 
 const getValidPostConsentOptions = (options?: ConsentOptions) => {
-  const validOptions: PostConsentOptions = {
+  const validOptions: ConsentOptions = {
     sendPageEvent: false,
     trackConsent: false,
     discardPreConsentEvents: false,

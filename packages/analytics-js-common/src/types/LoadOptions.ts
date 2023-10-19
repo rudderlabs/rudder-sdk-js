@@ -107,15 +107,6 @@ export type PreConsentOptions = {
   events?: PreConsentEventsOptions;
 };
 
-export type PostConsentOptions = {
-  storage?: StorageOpts;
-  consentManagement?: ConsentManagementOptions;
-  integrations?: IntegrationOpts;
-  discardPreConsentEvents: boolean;
-  sendPageEvent: boolean;
-  trackConsent: boolean;
-};
-
 /**
  * Represents the options parameter in the load API
  */
