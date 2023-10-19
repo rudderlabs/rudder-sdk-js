@@ -21,15 +21,21 @@ describe('EventRepository', () => {
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   const mockDestinationsEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockDataplaneEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockDMTEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockPluginsManager = {
@@ -300,6 +306,19 @@ describe('EventRepository', () => {
 
       eventRepository.resume();
       expect(mockDataplaneEventsQueue.start).toBeCalled();
+    });
+
+    it('should clear the events queue if discardPreConsentEvents is set to true', () => {
+      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+
+      state.consents.postConsent.value.discardPreConsentEvents = true;
+
+      eventRepository.init();
+
+      eventRepository.resume();
+
+      expect(mockDataplaneEventsQueue.clear).toBeCalled();
+      expect(mockDestinationsEventsQueue.clear).toBeCalled();
     });
   });
 });
