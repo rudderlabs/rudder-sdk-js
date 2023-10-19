@@ -252,6 +252,7 @@ describe('Event Manager - Utilities', () => {
         state.context.userAgent.value = 'test';
         state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
         state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
+        state.context.timezone.value = 'GMT+0530';
       });
 
       // @ts-ignore
@@ -315,6 +316,7 @@ describe('Event Manager - Utilities', () => {
             mobile: true,
           },
           userAgent: 'test',
+          timezone: 'GMT+0530',
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
           },
@@ -975,6 +977,7 @@ describe('Event Manager - Utilities', () => {
         state.context.userAgent.value = 'test';
         state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
         state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
+        state.context.timezone.value = 'GMT+0530';
       });
 
       const rudderEvent = {
@@ -1033,6 +1036,7 @@ describe('Event Manager - Utilities', () => {
           'ua-ch': {
             mobile: true,
           },
+          timezone: 'GMT+0530',
         },
         properties: null,
         originalTimestamp: '2020-01-01T00:00:00.000Z',
