@@ -88,7 +88,7 @@ const isValidConsentsData = (value: Consents | undefined): value is Consents =>
  */
 const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) => {
   const consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
-  if (!consentManagerPluginName) {
+  if (consentProvider && !consentManagerPluginName) {
     logger?.error(
       UNSUPPORTED_CONSENT_MANAGER_ERROR(
         CONFIG_MANAGER,
