@@ -29,6 +29,7 @@ const contextState: ContextState = {
     innerHeight: 0,
   }),
   'ua-ch': signal(undefined),
+  timezone: signal(undefined),
 };
 
 export { contextState };

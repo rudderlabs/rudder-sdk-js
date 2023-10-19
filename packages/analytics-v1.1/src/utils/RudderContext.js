@@ -1,4 +1,5 @@
 // Context class
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import RudderApp from './RudderApp';
 import { RudderLibraryInfo, RudderOSInfo } from './RudderInfo';
 import { getUserAgent, getLanguage } from './navigator';
@@ -15,6 +16,7 @@ class RudderContext {
     this.os = new RudderOSInfo();
     this.locale = getLanguage();
     this.screen = getScreenDetails();
+    this.timezone = getTimezone();
   }
 }
 
