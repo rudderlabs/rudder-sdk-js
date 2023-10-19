@@ -41,7 +41,7 @@
     "pre-commit": "npm run test && npm run check:size:build && npm run check:size:json && npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && npm run build:package",
     "build:integrations": "nx run-many --targets=build-browser,build-browser-modern --parallel=false --projects=@rudderstack/analytics-js-integrations",
     "build:v3": "nx run-many -t build --parallel=false --exclude=rudder-sdk-js,@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-integrations",
     "build:v1.1": "nx run-many -t build --parallel=false --projects=rudder-sdk-js",
