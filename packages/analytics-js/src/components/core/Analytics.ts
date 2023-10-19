@@ -717,6 +717,8 @@ class Analytics implements IAnalytics {
   }
 
   consent(options?: ConsentOptions) {
+    this.errorHandler.leaveBreadcrumb(`New consent invocation`);
+
     batch(() => {
       state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
       state.consents.postConsent.value = getValidPostConsentOptions(options);

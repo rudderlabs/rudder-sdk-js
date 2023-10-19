@@ -4,9 +4,7 @@ import {
   Consents,
   CookieConsentOptions,
 } from '@rudderstack/analytics-js-common/types/Consent';
-import {
-  ConsentOptions,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { ConsentOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {
@@ -65,7 +63,6 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;
     if (isNonEmptyObject(clonedOptions.consentManagement)) {
-
       // Override enabled value with the current state value
       validOptions.consentManagement = mergeDeepRight(clonedOptions.consentManagement, {
         enabled: state.consents.enabled.value,
