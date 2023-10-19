@@ -49,6 +49,7 @@ export type ContextState = {
   locale: Signal<Nullable<string>>;
   screen: Signal<ScreenInfo>;
   'ua-ch': Signal<UADataValues | undefined>;
+  timezone: Signal<string | undefined>;
 };
 
 export type EventBufferState = {

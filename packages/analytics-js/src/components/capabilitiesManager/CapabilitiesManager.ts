@@ -9,6 +9,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { POLYFILL_SCRIPT_LOAD_ERROR } from '../../constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -85,6 +86,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.context.userAgent.value = getUserAgent();
       state.context.locale.value = getLanguage();
       state.context.screen.value = getScreenDetails();
+      state.context.timezone.value = getTimezone();
 
       if (hasUAClientHints()) {
         getUserAgentClientHint((uach?: UADataValues) => {
