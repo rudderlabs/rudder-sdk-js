@@ -14,8 +14,8 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
-import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 import { state } from '@rudderstack/analytics-js/state';
+import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
