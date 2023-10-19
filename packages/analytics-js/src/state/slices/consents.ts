@@ -7,11 +7,7 @@ const consentsState: ConsentsState = {
   data: signal({}),
   activeConsentManagerPluginName: signal(undefined),
   preConsent: signal({ enabled: false }),
-  postConsent: signal({
-    discardPreConsentEvents: false,
-    sendPageEvent: false,
-    trackConsent: false,
-  }),
+  postConsent: signal({}),
 };
 
 export { consentsState };

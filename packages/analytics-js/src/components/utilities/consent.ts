@@ -17,6 +17,7 @@ import {
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
+import { state } from '@rudderstack/analytics-js/state';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
@@ -44,6 +45,11 @@ const getUserSelectedConsentManager = (
   );
 };
 
+/**
+ * Validates and normalizes the consent options provided by the user
+ * @param options Consent options provided by the user
+ * @returns Validated and normalized consent options
+ */
 const getValidPostConsentOptions = (options?: ConsentOptions) => {
   const validOptions: ConsentOptions = {
     sendPageEvent: false,
@@ -59,17 +65,30 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;
     if (isNonEmptyObject(clonedOptions.consentManagement)) {
+
+      // Override enabled value with the current state value
       validOptions.consentManagement = mergeDeepRight(clonedOptions.consentManagement, {
-        enabled: true,
+        enabled: state.consents.enabled.value,
       });
     }
   }
   return validOptions;
 };
 
+/**
+ * Validates if the input is a valid consents data
+ * @param value Input consents data
+ * @returns true if the input is a valid consents data else false
+ */
 const isValidConsentsData = (value: Consents | undefined): value is Consents =>
   isNonEmptyObject(value) || Array.isArray(value);
 
+/**
+ * Retrieves the corresponding plugin name of the selected consent manager from the supported consent managers
+ * @param consentProvider consent management provider name
+ * @param logger logger instance
+ * @returns Corresponding plugin name of the selected consent manager from the supported consent managers
+ */
 const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) => {
   const consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
   if (!consentManagerPluginName) {
@@ -84,6 +103,12 @@ const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) 
   return consentManagerPluginName;
 };
 
+/**
+ * Validates and converts the consent management options into a normalized format
+ * @param consentManagementOpts Consent management options provided by the user
+ * @param logger logger instance
+ * @returns An object containing the consent manager plugin name, initialized, enabled and consents data
+ */
 const getConsentManagementData = (
   consentManagementOpts: ConsentManagementOptions | undefined,
   logger?: ILogger,
