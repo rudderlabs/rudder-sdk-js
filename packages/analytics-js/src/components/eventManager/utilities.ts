@@ -254,6 +254,7 @@ const getEnrichedEvent = (
       screen: state.context.screen.value,
       campaign: extractUTMParameters(globalThis.location.href),
       page: getContextPageProperties(pageProps),
+      timezone: state.context.timezone.value,
     },
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: DEFAULT_INTEGRATIONS_CONFIG,
