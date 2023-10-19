@@ -31,6 +31,7 @@ export type RudderContext = {
   screen: ScreenInfo;
   campaign?: UTMParameters;
   trulyAnonymousTracking?: boolean;
+  timezone: string;
 };
 
 export type RudderEvent = {
