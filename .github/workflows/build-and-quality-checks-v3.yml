@@ -38,10 +38,6 @@ jobs:
         run: |
           npm run check:security
 
-      - name: Build npm packages
-        run: |
-          npm run build:package
-
       - name: Execute bundle size checks
         uses: rudderlabs/github-action-check-size-limit@v2.6.0
         env:
@@ -50,6 +46,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build
-          clean_script: clean:output
+          clean_script: clean
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
           is_monorepo: true
