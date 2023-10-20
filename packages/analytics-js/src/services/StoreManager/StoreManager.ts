@@ -15,8 +15,9 @@ import {
   removeUndefinedValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
-import { userSessionStorageKeys } from '../../components/userSessionManager/userSessionStorageKeys';
+import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import { batch } from '@preact/signals-core';
+import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
@@ -111,7 +112,10 @@ class StoreManager implements IStoreManager {
   initializeStorageState() {
     const globalStorageType = state.storage.type.value;
     let trulyAnonymousTracking = true;
-    const entries = state.loadOptions.value.storage?.entries;
+    const entries = mergeDeepRight(
+      state.consents.postConsent.value.storage?.entries ?? {},
+      state.loadOptions.value.storage?.entries ?? {},
+    );
     const userSessionKeyValues: UserSessionKeys[] = [
       'userId',
       'userTraits',
@@ -122,16 +126,18 @@ class StoreManager implements IStoreManager {
       'initialReferringDomain',
       'sessionInfo',
     ];
+
+    let storageEntries = {};
     userSessionKeyValues.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
-      const providedStorageType = entries?.[key]?.type;
+      const configuredStorageType = entries?.[key]?.type;
 
       const preConsentStorageType = getStorageTypeFromPreConsent(state, sessionKey);
 
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
-        preConsentStorageType ?? providedStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
+        preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
       let finalStorageType = storageType;
 
       switch (storageType) {
@@ -164,23 +170,26 @@ class StoreManager implements IStoreManager {
       }
       if (finalStorageType !== storageType) {
         this.logger?.warn(
-          STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType),
+          STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
         );
       }
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
       }
-      const storageState = state.storage.entries.value;
-      state.storage.entries.value = {
-        ...storageState,
+
+      storageEntries = {
+        ...storageEntries,
         [sessionKey]: {
           type: finalStorageType,
-          key: userSessionStorageKeys[storageKey],
+          key: USER_SESSION_STORAGE_KEYS[storageKey],
         },
       };
     });
 
-    state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
+    batch(() => {
+      state.storage.entries.value = storageEntries;
+      state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
+    });
   }
 
   /**

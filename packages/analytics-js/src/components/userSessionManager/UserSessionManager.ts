@@ -24,7 +24,7 @@ import {
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
+import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import {
   CLIENT_DATA_STORE_COOKIE,
@@ -49,7 +49,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
+import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import { IUserSessionManager, UserSessionStorageKeysType } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
@@ -145,12 +145,12 @@ class UserSessionManager implements IUserSessionManager {
         storagesForMigration.forEach(storage => {
           const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
           if (store && storage !== currentStorage) {
-            const value = store.get(userSessionStorageKeys[key]);
+            const value = store.get(USER_SESSION_STORAGE_KEYS[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
-              curStore.set(userSessionStorageKeys[key], value);
+              curStore.set(USER_SESSION_STORAGE_KEYS[key], value);
             }
 
-            store.remove(userSessionStorageKeys[key]);
+            store.remove(USER_SESSION_STORAGE_KEYS[key]);
           }
         });
       }
@@ -174,9 +174,9 @@ class UserSessionManager implements IUserSessionManager {
     if (sessionStorage) {
       stores.push(sessionStorage);
     }
-    Object.keys(userSessionStorageKeys).forEach(storageEntryKey => {
-      const key = storageEntryKey as UserSessionStorageKeysType;
-      const storageEntry = userSessionStorageKeys[key];
+    Object.keys(USER_SESSION_STORAGE_KEYS).forEach(storageKey => {
+      const key = storageKey as UserSessionStorageKeysType;
+      const storageEntry = USER_SESSION_STORAGE_KEYS[key];
       stores.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
@@ -394,7 +394,7 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.anonymousId.value as string;
   }
 
-  getItem(sessionKey: UserSessionKeys) {
+  getEntryValue(sessionKey: UserSessionKeys) {
     const entries = state.storage.entries.value;
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
@@ -410,7 +410,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.getItem('userId');
+    return this.getEntryValue('userId');
   }
 
   /**
@@ -418,7 +418,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.getItem('userTraits');
+    return this.getEntryValue('userTraits');
   }
 
   /**
@@ -426,7 +426,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.getItem('groupId');
+    return this.getEntryValue('groupId');
   }
 
   /**
@@ -434,7 +434,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.getItem('groupTraits');
+    return this.getEntryValue('groupTraits');
   }
 
   /**
@@ -442,7 +442,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.getItem('initialReferrer');
+    return this.getEntryValue('initialReferrer');
   }
 
   /**
@@ -450,7 +450,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.getItem('initialReferringDomain');
+    return this.getEntryValue('initialReferringDomain');
   }
 
   /**
@@ -458,7 +458,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionFromStorage(): Nullable<SessionInfo> {
-    return this.getItem('sessionInfo');
+    return this.getEntryValue('sessionInfo');
   }
 
   /**
@@ -466,7 +466,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getAuthToken(): Nullable<string> {
-    return this.getItem('authToken');
+    return this.getEntryValue('authToken');
   }
 
   /**
@@ -516,11 +516,11 @@ class UserSessionManager implements IUserSessionManager {
     const { manualTrack, autoTrack } = state.session.sessionInfo.value;
 
     batch(() => {
-      state.session.userId.value = defaultUserSessionValues.userId;
-      state.session.userTraits.value = defaultUserSessionValues.userTraits;
-      state.session.groupId.value = defaultUserSessionValues.groupId;
-      state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
-      state.session.authToken.value = defaultUserSessionValues.authToken;
+      state.session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
+      state.session.userTraits.value = DEFAULT_USER_SESSION_VALUES.userTraits;
+      state.session.groupId.value = DEFAULT_USER_SESSION_VALUES.groupId;
+      state.session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
+      state.session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
 
       if (resetAnonymousId) {
         // This will generate a new anonymous ID
@@ -532,7 +532,7 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
+        state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
         this.startOrRenewAutoTracking();
       } else if (manualTrack) {
         this.startManualTrackingInternal();

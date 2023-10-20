@@ -730,6 +730,9 @@ class Analytics implements IAnalytics {
 
       state.consents.initialized.value = initialized || state.consents.initialized.value;
       state.consents.data.value = consentsData;
+
+      state.storage.type.value =
+        state.consents.postConsent.value.storage?.type ?? state.storage.type.value;
     });
 
     // Update consents data in state
@@ -742,11 +745,11 @@ class Analytics implements IAnalytics {
       );
     }
 
-    // TODO: Re-init store manager
-    // this.storeManager?.initClientDataStores();
+    // Re-init store manager
+    this.storeManager?.initializeStorageState();
 
-    // TODO: Re-init user session manager
-    // this.userSessionManager?.syncStorageDataToState();
+    // Re-init user session manager
+    this.userSessionManager?.syncStorageDataToState();
 
     // Resume event manager to process the events to destinations
     this.eventManager?.resume();

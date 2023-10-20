@@ -1,8 +1,8 @@
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import {
-  defaultUserSessionValues,
-  userSessionStorageKeys,
-} from '../../../src/components/userSessionManager/userSessionStorageKeys';
+  DEFAULT_USER_SESSION_VALUES,
+  USER_SESSION_STORAGE_KEYS,
+} from '../../../src/components/userSessionManager/constants';
 import { StoreManager } from '../../../src/services/StoreManager';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -63,7 +63,7 @@ describe('User session manager', () => {
   };
 
   const clearStorage = () => {
-    Object.values(userSessionStorageKeys).forEach(key => {
+    Object.values(USER_SESSION_STORAGE_KEYS).forEach(key => {
       clientDataStoreCookie.remove(key);
       clientDataStoreLS.remove(key);
     });
@@ -121,14 +121,14 @@ describe('User session manager', () => {
     state.storage.entries.value = entriesWithOnlyNoStorage;
     userSessionManager.init();
 
-    expect(state.session.userId.value).toBe(defaultUserSessionValues.userId);
-    expect(state.session.userTraits.value).toStrictEqual(defaultUserSessionValues.userTraits);
-    expect(state.session.anonymousId.value).toBe(defaultUserSessionValues.anonymousId);
-    expect(state.session.groupId.value).toBe(defaultUserSessionValues.groupId);
-    expect(state.session.groupTraits.value).toStrictEqual(defaultUserSessionValues.groupTraits);
-    expect(state.session.initialReferrer.value).toBe(defaultUserSessionValues.initialReferrer);
+    expect(state.session.userId.value).toBe(DEFAULT_USER_SESSION_VALUES.userId);
+    expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
+    expect(state.session.anonymousId.value).toBe(DEFAULT_USER_SESSION_VALUES.anonymousId);
+    expect(state.session.groupId.value).toBe(DEFAULT_USER_SESSION_VALUES.groupId);
+    expect(state.session.groupTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.groupTraits);
+    expect(state.session.initialReferrer.value).toBe(DEFAULT_USER_SESSION_VALUES.initialReferrer);
     expect(state.session.initialReferringDomain.value).toBe(
-      defaultUserSessionValues.initialReferringDomain,
+      DEFAULT_USER_SESSION_VALUES.initialReferringDomain,
     );
   });
 

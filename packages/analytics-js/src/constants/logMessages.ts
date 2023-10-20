@@ -172,10 +172,11 @@ const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
 
 const STORAGE_UNAVAILABLE_WARNING = (
   context: string,
+  entry: string,
   selectedStorageType: string,
   finalStorageType: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available. The SDK will be initialized with "${finalStorageType}" instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
 const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;

@@ -14,7 +14,7 @@ import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentsInfo } from './Consent';
 import { StorageType, CookieOptions } from './Storage';
-import { UserSessionKeys } from './userSessionStorageKeys';
+import { UserSessionKeys } from './UserSessionStorage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
