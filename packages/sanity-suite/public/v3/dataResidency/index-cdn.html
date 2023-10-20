@@ -93,10 +93,9 @@
         configUrl: '__CONFIG_SERVER_HOST__',
         destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust'
         },
         storage: {
           migrate: true

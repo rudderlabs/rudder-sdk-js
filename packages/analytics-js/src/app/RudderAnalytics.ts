@@ -11,6 +11,7 @@ import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudder
 import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
   AnonymousIdOptions,
+  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -72,6 +73,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.endSession = this.endSession.bind(this);
     this.getSessionId = this.getSessionId.bind(this);
     this.setAuthToken = this.setAuthToken.bind(this);
+    this.consent = this.consent.bind(this);
 
     RudderAnalytics.globalSingleton = this;
 
@@ -283,6 +285,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   setAuthToken(token: string) {
     return this.getAnalyticsInstance().setAuthToken(token);
+  }
+
+  consent(options?: ConsentOptions) {
+    return this.getAnalyticsInstance().consent(options);
   }
 }
 

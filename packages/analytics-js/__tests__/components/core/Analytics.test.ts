@@ -2,6 +2,8 @@ import { Analytics } from '../../../src/components/core/Analytics';
 import { resetState, state } from '../../../src/state';
 import { setExposedGlobal } from '../../../src/components/utilities/globals';
 import { entriesWithOnlyCookieStorage } from '../../../__fixtures__/fixtures';
+import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -447,6 +449,53 @@ describe('Core - Analytics', () => {
         name: 'buttonClicked',
         properties: { color: 'blue' },
       });
+    });
+  });
+
+  describe('consent', () => {
+    it('should resume SDK processing on consent', () => {
+      analytics.prepareInternalServices();
+
+      state.consents.enabled.value = true;
+      state.consents.initialized.value = false;
+
+      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+      const resumeSpy = jest.spyOn(analytics.eventManager as IEventManager, 'resume');
+      const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
+
+      analytics.consent({
+        consentManagement: {
+          provider: 'custom',
+        },
+        discardPreConsentEvents: true,
+        sendPageEvent: false,
+      });
+
+      expect(state.consents.preConsent.value.enabled).toBe(false);
+      expect(state.consents.postConsent.value).toEqual({
+        discardPreConsentEvents: true,
+        sendPageEvent: false,
+        trackConsent: false,
+        consentManagement: {
+          enabled: true,
+          provider: 'custom',
+        },
+      });
+
+      expect(state.consents.initialized.value).toBe(false);
+      expect(state.consents.data.value).toStrictEqual({
+        allowedConsentIds: [],
+        deniedConsentIds: [],
+      });
+
+      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
+      expect(resumeSpy).toHaveBeenCalledTimes(1);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

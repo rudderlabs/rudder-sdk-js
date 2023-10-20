@@ -54,7 +54,7 @@ describe('Queue', () => {
   it('should add an item to the queue', () => {
     queue.addItem('a');
 
-    expect(queue.getQueue('queue')).toEqual([
+    expect(queue.getStorageEntry('queue')).toEqual([
       {
         item: 'a',
         attemptNumber: 0,
@@ -74,7 +74,7 @@ describe('Queue', () => {
 
     batchQueue.addItem('a');
 
-    expect(batchQueue.getQueue('batchQueue')).toEqual([
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([
       {
         item: 'a',
         attemptNumber: 0,
@@ -83,7 +83,7 @@ describe('Queue', () => {
       },
     ]);
 
-    expect(batchQueue.getQueue('queue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('queue')).toEqual([]);
   });
 
   it('should dispatch batch items to main queue when length criteria is met', () => {
@@ -97,9 +97,9 @@ describe('Queue', () => {
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getQueue('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
 
-    expect(batchQueue.getQueue('queue')).toEqual([
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
         item: ['a', 'b'],
         attemptNumber: 0,
@@ -123,9 +123,9 @@ describe('Queue', () => {
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getQueue('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
 
-    expect(batchQueue.getQueue('queue')).toEqual([
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
         item: ['a', 'b'],
         attemptNumber: 0,
@@ -213,13 +213,7 @@ describe('Queue', () => {
     expect(queue.processQueueCb).toBeCalledTimes(1);
 
     // logic based on item state (eg. could be msg timestamp field)
-    queue.shouldRetry = item => {
-      if (item.shouldRetry === false) {
-        return false;
-      }
-
-      return true;
-    };
+    queue.shouldRetry = item => !(item.shouldRetry === false);
 
     mockProcessItemCb.mockReset();
     queue.requeue({ shouldRetry: false }, 1);
@@ -989,6 +983,48 @@ describe('Queue', () => {
       maxItems: 30,
       maxSize: 1000,
       flushInterval: 60000,
+    });
+  });
+
+  describe('clear', () => {
+    it('should reset all the queue entries upon invoking clear method', () => {
+      queue.processQueueCb = (_, done) => {
+        // always fail
+        done(true);
+      };
+
+      queue.addItem('a');
+      queue.addItem('b');
+      queue.addItem('c');
+
+      expect(queue.getStorageEntry('queue')).toEqual([
+        {
+          item: 'a',
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+        {
+          item: 'b',
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+        {
+          item: 'c',
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+      ]);
+
+      queue.start();
+
+      queue.clear();
+
+      expect(queue.getStorageEntry('queue')).toEqual([]);
+      expect(queue.getStorageEntry('inProgress')).toEqual({});
+      expect(queue.getStorageEntry('batchQueue')).toEqual([]);
     });
   });
 });
