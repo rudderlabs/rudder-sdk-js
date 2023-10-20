@@ -19,7 +19,7 @@ const DEFAULT_USER_SESSION_VALUES = {
   initialReferrer: '',
   initialReferringDomain: '',
   sessionInfo: {},
-  authToken: null,
+  authToken: '',
 };
 
 export { USER_SESSION_STORAGE_KEYS, DEFAULT_USER_SESSION_VALUES };

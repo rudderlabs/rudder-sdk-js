@@ -88,29 +88,22 @@ class UserSessionManager implements IUserSessionManager {
 
     // get the values from storage and set it again
     const userId = this.getUserId();
+    this.setUserId(userId || DEFAULT_USER_SESSION_VALUES.userId);
+
     const userTraits = this.getUserTraits();
+    this.setUserTraits(userTraits ?? DEFAULT_USER_SESSION_VALUES.userTraits);
+
     const groupId = this.getGroupId();
+    this.setGroupId(groupId || DEFAULT_USER_SESSION_VALUES.groupId);
+
     const groupTraits = this.getGroupTraits();
+    this.setGroupTraits(groupTraits ?? DEFAULT_USER_SESSION_VALUES.groupTraits);
+
     const anonymousId = this.getAnonymousId(state.loadOptions.value.anonymousIdOptions);
-    if (userId) {
-      this.setUserId(userId);
-    }
-    if (userTraits) {
-      this.setUserTraits(userTraits);
-    }
-    if (groupId) {
-      this.setGroupId(groupId);
-    }
-    if (groupTraits) {
-      this.setGroupTraits(groupTraits);
-    }
-    if (anonymousId) {
-      this.setAnonymousId(anonymousId);
-    }
+    this.setAnonymousId(anonymousId || DEFAULT_USER_SESSION_VALUES.anonymousId);
+
     const authToken = this.getAuthToken();
-    if (authToken) {
-      this.setAuthToken(authToken);
-    }
+    this.setAuthToken(authToken || DEFAULT_USER_SESSION_VALUES.authToken);
 
     const persistedInitialReferrer = this.getInitialReferrer();
     const persistedInitialReferringDomain = this.getInitialReferringDomain();
@@ -126,6 +119,9 @@ class UserSessionManager implements IUserSessionManager {
     // Initialize session tracking
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       this.initializeSessionTracking();
+    } else {
+      // Setting the default value to delete the entry from storage
+      state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
     }
   }
 
