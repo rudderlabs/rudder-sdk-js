@@ -20,6 +20,19 @@ const getLoadOptions = (): Partial<LoadOptions> => {
   // eslint-disable-next-line sonarjs/no-all-duplicated-branches
   switch ('FEATURE' as string) {
     case 'dataResidency':
+      return {
+        logLevel: 'DEBUG',
+        configUrl: 'CONFIG_SERVER_HOST',
+        lockIntegrationsVersion: true,
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
+        },
+        storage: {
+          migrate: true,
+        },
+      };
     case 'preloadBuffer':
       return {
         logLevel: 'DEBUG',
@@ -28,7 +41,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         consentManagement: {
           enabled: true,
-          provider: 'oneTrust'
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
@@ -43,7 +56,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         consentManagement: {
           enabled: true,
-          provider: 'oneTrust'
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
@@ -58,7 +71,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
         consentManagement: {
           enabled: true,
-          provider: 'oneTrust'
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
