@@ -6,6 +6,7 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 const defaultOptionalPluginsList: PluginName[] = [
   'BeaconQueue',
   'Bugsnag',
+  'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
   'ErrorReporting',

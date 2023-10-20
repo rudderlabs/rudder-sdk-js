@@ -25,10 +25,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
@@ -40,10 +39,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
@@ -56,10 +54,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,
@@ -72,10 +69,9 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
         },
         storage: {
           migrate: true,

@@ -14,6 +14,8 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
     case 'Bugsnag':
       return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
+    case 'CustomConsentManager':
+      return () => import('rudderAnalyticsRemotePlugins/CustomConsentManager');
     case 'DeviceModeDestinations':
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
     case 'DeviceModeTransformation':
