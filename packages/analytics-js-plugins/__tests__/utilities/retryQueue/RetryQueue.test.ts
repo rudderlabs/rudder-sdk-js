@@ -54,7 +54,7 @@ describe('Queue', () => {
   it('should add an item to the queue', () => {
     queue.addItem('a');
 
-    expect(queue.getQueueEntry('queue')).toEqual([
+    expect(queue.getStorageEntry('queue')).toEqual([
       {
         item: 'a',
         attemptNumber: 0,
@@ -74,7 +74,7 @@ describe('Queue', () => {
 
     batchQueue.addItem('a');
 
-    expect(batchQueue.getQueueEntry('batchQueue')).toEqual([
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([
       {
         item: 'a',
         attemptNumber: 0,
@@ -83,7 +83,7 @@ describe('Queue', () => {
       },
     ]);
 
-    expect(batchQueue.getQueueEntry('queue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('queue')).toEqual([]);
   });
 
   it('should dispatch batch items to main queue when length criteria is met', () => {
@@ -97,9 +97,9 @@ describe('Queue', () => {
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getQueueEntry('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
 
-    expect(batchQueue.getQueueEntry('queue')).toEqual([
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
         item: ['a', 'b'],
         attemptNumber: 0,
@@ -123,9 +123,9 @@ describe('Queue', () => {
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getQueueEntry('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
 
-    expect(batchQueue.getQueueEntry('queue')).toEqual([
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
         item: ['a', 'b'],
         attemptNumber: 0,
@@ -997,7 +997,7 @@ describe('Queue', () => {
       queue.addItem('b');
       queue.addItem('c');
 
-      expect(queue.getQueueEntry('queue')).toEqual([
+      expect(queue.getStorageEntry('queue')).toEqual([
         {
           item: 'a',
           attemptNumber: 0,
@@ -1022,9 +1022,9 @@ describe('Queue', () => {
 
       queue.clear();
 
-      expect(queue.getQueueEntry('queue')).toEqual([]);
-      expect(queue.getQueueEntry('inProgress')).toEqual({});
-      expect(queue.getQueueEntry('batchQueue')).toEqual([]);
+      expect(queue.getStorageEntry('queue')).toEqual([]);
+      expect(queue.getStorageEntry('inProgress')).toEqual({});
+      expect(queue.getStorageEntry('batchQueue')).toEqual([]);
     });
   });
 });
