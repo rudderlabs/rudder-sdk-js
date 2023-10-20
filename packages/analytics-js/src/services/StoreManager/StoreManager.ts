@@ -113,8 +113,8 @@ class StoreManager implements IStoreManager {
     const globalStorageType = state.storage.type.value;
     let trulyAnonymousTracking = true;
     const entries = mergeDeepRight(
-      state.consents.postConsent.value.storage?.entries ?? {},
       state.loadOptions.value.storage?.entries ?? {},
+      state.consents.postConsent.value.storage?.entries ?? {},
     );
     const userSessionKeyValues: UserSessionKeys[] = [
       'userId',
