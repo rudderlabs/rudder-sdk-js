@@ -80,10 +80,9 @@
         destSDKBaseURL: '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
         lockIntegrationsVersion: true,
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust'
         },
         storage: {
           migrate: true

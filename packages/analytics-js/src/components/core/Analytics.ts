@@ -14,6 +14,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type {
   AnonymousIdOptions,
+  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -55,6 +56,7 @@ import type { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
+import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -296,7 +298,7 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.init();
 
     // Initialize the appropriate consent manager plugin
-    if (state.consents.activeConsentManagerPluginName.value) {
+    if (state.consents.enabled.value && !state.consents.initialized.value) {
       this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
 
       if (state.consents.preConsent.value.enabled === false) {
@@ -400,6 +402,10 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
+    if (state.nativeDestinations.clientDestinationsReady.value) {
+      return;
+    }
+
     // Set in state the desired activeDestinations to inject in DOM
     this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
@@ -710,23 +716,31 @@ class Analytics implements IAnalytics {
     return sessionId ?? null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  consent() {
-    if (!state.consents.preConsent.value.enabled) {
-      return;
+  consent(options?: ConsentOptions) {
+    this.errorHandler.leaveBreadcrumb(`New consent invocation`);
+
+    batch(() => {
+      state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+      state.consents.postConsent.value = getValidPostConsentOptions(options);
+
+      const { initialized, consentsData } = getConsentManagementData(
+        state.consents.postConsent.value.consentManagement,
+        this.logger,
+      );
+
+      state.consents.initialized.value = initialized || state.consents.initialized.value;
+      state.consents.data.value = consentsData;
+    });
+
+    // Update consents data in state
+    if (state.consents.enabled.value && !state.consents.initialized.value) {
+      this.pluginsManager?.invokeSingle(
+        `consentManager.updateConsentsInfo`,
+        state,
+        this.storeManager,
+        this.logger,
+      );
     }
-
-    state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
-
-    // TODO: Update state with the data in the arguments
-
-    // TODO: Update consents data in state
-    // this.pluginsManager?.invokeSingle(
-    //   `consentManager.updateConsentsInfo`,
-    //   state,
-    //   this.storeManager,
-    //   this.logger,
-    // );
 
     // TODO: Re-init store manager
     // this.storeManager?.initClientDataStores();
@@ -734,8 +748,10 @@ class Analytics implements IAnalytics {
     // TODO: Re-init user session manager
     // this.userSessionManager?.syncStorageDataToState();
 
-    // TODO: Re-init event manager
-    // this.eventManager?.resume();
+    // Resume event manager to process the events to destinations
+    this.eventManager?.resume();
+
+    this.loadDestinations();
   }
 
   setAuthToken(token: string): void {

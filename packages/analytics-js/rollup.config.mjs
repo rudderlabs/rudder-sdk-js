@@ -68,6 +68,10 @@ const getExternalsConfig = () => {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = '{}';
     }
 
+    if (!bundledPluginsList.includes('CustomConsentManager')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/customConsentManager'] = '{}';
+    }
+
     if (!bundledPluginsList.includes('DeviceModeDestinations')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
     }

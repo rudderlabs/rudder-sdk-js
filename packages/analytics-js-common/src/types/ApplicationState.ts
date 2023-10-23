@@ -6,7 +6,7 @@ import type { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import type { BufferedEvent } from './Event';
 import type { LifecycleStatus } from './ApplicationLifecycle';
 import type { LogLevel } from './Logger';
-import type { LoadOptions, PreConsentOptions } from './LoadOptions';
+import type { ConsentOptions, LoadOptions, PreConsentOptions } from './LoadOptions';
 import type { Destination } from './Destination';
 import type { IntegrationOpts } from './Integration';
 import type { SessionInfo } from './Session';
@@ -32,10 +32,12 @@ export type CapabilitiesState = {
 };
 
 export type ConsentsState = {
+  enabled: Signal<boolean>;
   data: Signal<ConsentsInfo>;
   initialized: Signal<boolean>;
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
   preConsent: Signal<PreConsentOptions>;
+  postConsent: Signal<ConsentOptions>;
 };
 
 export type ContextState = {

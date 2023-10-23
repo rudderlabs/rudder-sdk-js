@@ -31,6 +31,7 @@ const methods: string[] = [
   'setAnonymousId',
   'startSession',
   'endSession',
+  'consent',
 ];
 
 for (let i = 0; i < methods.length; i++) {

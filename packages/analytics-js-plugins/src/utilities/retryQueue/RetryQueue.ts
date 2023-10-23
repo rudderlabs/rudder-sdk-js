@@ -113,9 +113,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       validKeys: QueueStatuses,
       type: storageType,
     });
-    this.setQueue(QueueStatuses.IN_PROGRESS, {});
-    this.setQueue(QueueStatuses.QUEUE, []);
-    this.setQueue(QueueStatuses.BATCH_QUEUE, []);
+    this.setDefaultQueueEntries();
 
     // bind recurring tasks for ease of use
     this.ack = this.ack.bind(this);
@@ -127,6 +125,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.attachListeners();
 
     this.scheduleTimeoutActive = false;
+  }
+
+  private setDefaultQueueEntries() {
+    this.setStorageEntry(QueueStatuses.IN_PROGRESS, {});
+    this.setStorageEntry(QueueStatuses.QUEUE, []);
+    this.setStorageEntry(QueueStatuses.BATCH_QUEUE, []);
   }
 
   configureBatchMode(options: QueueOpts) {
@@ -160,12 +164,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
   }
 
-  getQueue(name?: string): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
+  getStorageEntry(
+    name?: string,
+  ): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
     return this.store.get(name ?? this.name);
   }
 
   // TODO: fix the type of different queues to be the same if possible
-  setQueue(
+  setStorageEntry(
     name?: string,
     value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
   ) {
@@ -218,13 +224,14 @@ class RetryQueue implements IQueue<QueueItemData> {
   flushBatch() {
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
-      let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+      let batchQueue =
+        (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
       if (batchQueue.length > 0) {
         batchQueue = batchQueue.slice(-batchQueue.length);
 
         const batchEntry = this.genQueueItem(batchQueue.map(queueItem => queueItem.item));
 
-        this.setQueue(QueueStatuses.BATCH_QUEUE, []);
+        this.setStorageEntry(QueueStatuses.BATCH_QUEUE, []);
 
         this.pushToMainQueue(batchEntry);
       }
@@ -290,7 +297,8 @@ class RetryQueue implements IQueue<QueueItemData> {
    */
   handleNewItemForBatch(entry: QueueItem<QueueItemData>) {
     let curEntry: QueueItem<QueueItemData> | undefined;
-    let batchQueue = (this.getQueue(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+    let batchQueue =
+      (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
 
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
@@ -320,18 +328,19 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     // update the batch queue
-    this.setQueue(QueueStatuses.BATCH_QUEUE, batchQueue);
+    this.setStorageEntry(QueueStatuses.BATCH_QUEUE, batchQueue);
     return curEntry;
   }
 
   pushToMainQueue(curEntry: QueueItem<QueueItemData>) {
-    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+    let queue =
+      (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
-    this.setQueue(QueueStatuses.QUEUE, queue);
+    this.setStorageEntry(QueueStatuses.QUEUE, queue);
 
     if (this.scheduleTimeoutActive) {
       this.processHead();
@@ -426,19 +435,20 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancel(this.processId);
 
     // Pop the head off the queue
-    let queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+    let queue =
+      (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
     const inProgress =
-      (this.getQueue(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+      (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
     const now = this.schedule.now();
     const toRun: InProgressQueueItem[] = [];
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
       const inProgress =
-        (this.getQueue(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+        (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
       delete inProgress[id];
 
-      this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
+      this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
         this.requeue(el.item, el.attemptNumber + 1, err, el.id);
@@ -476,8 +486,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       }
     }
 
-    this.setQueue(QueueStatuses.QUEUE, queue);
-    this.setQueue(QueueStatuses.IN_PROGRESS, inProgress);
+    this.setStorageEntry(QueueStatuses.QUEUE, queue);
+    this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
     toRun.forEach(el => {
       // TODO: handle processQueueCb timeout
@@ -490,7 +500,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
 
     // re-read the queue in case the process function finished immediately or added another item
-    queue = (this.getQueue(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
+    queue =
+      (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
     this.schedule.cancel(this.processId);
 
     if (queue.length > 0) {
@@ -505,9 +516,9 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   // Ack continuously to prevent other tabs from claiming our queue
   ack() {
-    this.setQueue(QueueStatuses.ACK, this.schedule.now());
-    this.setQueue(QueueStatuses.RECLAIM_START, null);
-    this.setQueue(QueueStatuses.RECLAIM_END, null);
+    this.setStorageEntry(QueueStatuses.ACK, this.schedule.now());
+    this.setStorageEntry(QueueStatuses.RECLAIM_START, null);
+    this.setStorageEntry(QueueStatuses.RECLAIM_END, null);
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
@@ -519,7 +530,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       type: LOCAL_STORAGE,
     });
     const our = {
-      queue: (this.getQueue(QueueStatuses.QUEUE) ?? []) as QueueItem[],
+      queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
@@ -579,17 +590,17 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     our.queue = our.queue.sort(sortByTime);
 
-    this.setQueue(QueueStatuses.QUEUE, our.queue);
+    this.setStorageEntry(QueueStatuses.QUEUE, our.queue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
-    this.clearOtherQueue(other, 1);
+    this.clearQueueEntries(other, 1);
 
     // process the new items we claimed
     this.processHead();
   }
 
   // eslint-disable-next-line class-methods-use-this
-  clearOtherQueue(other: IStore, localStorageBackoff: number) {
+  clearQueueEntries(other: IStore, localStorageBackoff: number) {
     this.removeStorageEntry(other, 0, localStorageBackoff);
   }
 
@@ -711,6 +722,11 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
 
     this.schedule.run(this.checkReclaim, this.timeouts.reclaimTimer, ScheduleModes.RESCHEDULE);
+  }
+
+  clear() {
+    this.schedule.cancelAll();
+    this.setDefaultQueueEntries();
   }
 }
 

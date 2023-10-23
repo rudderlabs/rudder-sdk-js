@@ -1,6 +1,6 @@
 import type { Nullable } from './Nullable';
 import type { ApiCallback, ApiOptions } from './EventApi';
-import type { AnonymousIdOptions, LoadOptions } from './LoadOptions';
+import type { AnonymousIdOptions, ConsentOptions, LoadOptions } from './LoadOptions';
 import type { ApiObject } from './ApiObject';
 import type { ILogger } from './Logger';
 import type { IdentifyTraits } from './traits';
@@ -186,7 +186,19 @@ export interface IRudderAnalytics<T = any> {
   endSession(): void;
 
   /**
+   * To set authorization token
+   * @param token token value
+   */
+  setAuthToken(token: string): void;
+
+  /**
    * To fetch the current sessionId
    */
   getSessionId(): Nullable<number>;
+
+  /**
+   * To provide consent
+   * @param options Consent API options
+   */
+  consent(options?: ConsentOptions): void;
 }

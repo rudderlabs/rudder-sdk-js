@@ -11,6 +11,7 @@ const localPluginNames: PluginName[] = [];
 const pluginNamesList: PluginName[] = [
   'BeaconQueue',
   'Bugsnag',
+  'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
   'ErrorReporting',
