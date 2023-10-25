@@ -155,7 +155,7 @@ describe('User session manager', () => {
     userSessionManager.syncValueToStorage('userId', sampleUserId);
     userSessionManager.syncValueToStorage('sessionInfo', sampleSessionInfo);
     expect(userSessionManager.getUserId()).toBe(sampleUserId);
-    expect(userSessionManager.getSessionFromStorage()).toBe(null);
+    expect(userSessionManager.getSessionInfo()).toBe(null);
   });
 
   it('should initialize user details from storage to state', () => {
@@ -356,41 +356,41 @@ describe('User session manager', () => {
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
   });
 
-  it('initializeSessionTracking: should be called during initialization of user session', () => {
+  it('startOrRenewAutoTracking: should call startAutoTracking if auto tracking is not disabled', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
-    userSessionManager.initializeSessionTracking = jest.fn();
-    userSessionManager.init();
-    expect(userSessionManager.initializeSessionTracking).toHaveBeenCalled();
-  });
-  it('initializeSessionTracking: should call startAutoTracking if auto tracking is not disabled', () => {
     userSessionManager.startOrRenewAutoTracking = jest.fn();
-    userSessionManager.initializeSessionTracking();
+    userSessionManager.init();
     expect(userSessionManager.startOrRenewAutoTracking).toHaveBeenCalled();
   });
+
   it('initializeSessionTracking: should print warning message and use default timeout if provided timeout is not in number format', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = '100000';
-    userSessionManager.initializeSessionTracking();
+    userSessionManager.init();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
       'UserSessionManager:: The session timeout value "100000" is not a number. The default timeout of 1800000 ms will be used instead.',
     );
     expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT_MS);
   });
   it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = 0;
-    userSessionManager.initializeSessionTracking();
+    userSessionManager.init();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
       'UserSessionManager:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.',
     );
     expect(state.session.sessionInfo.value.autoTrack).toBe(false);
   });
   it('initializeSessionTracking: should print warning message if provided timeout is less than 10 second', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
-    userSessionManager.initializeSessionTracking();
+    userSessionManager.init();
     expect(defaultLogger.warn).toHaveBeenCalledWith(
       `UserSessionManager:: The session timeout value 5000 ms is less than the recommended minimum of 10000 ms. Please consider increasing the timeout value to ensure optimal performance and reliability.`,
     );
   });
   it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.init();
     state.session.sessionInfo.value = {};
     userSessionManager.refreshSession();
@@ -445,7 +445,8 @@ describe('User session manager', () => {
     });
   });
   it('refreshSession: should return only session id from the second event of the auto session tracking', () => {
-    userSessionManager.initializeSessionTracking();
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
+    userSessionManager.init();
     userSessionManager.refreshSession(); // sessionInfo For First Event
     userSessionManager.refreshSession();
     expect(state.session.sessionInfo.value.sessionStart).toBe(false);

@@ -153,6 +153,10 @@ const ignoredProperties = [
     key: `source.updatedAt`,
     type: 'string',
   },
+  {
+    key: `message.context.timezone`,
+    type: 'string',
+  },
 ];
 
 export { ignoredProperties };
