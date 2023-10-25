@@ -1,13 +1,13 @@
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getDefinedTraits } from '../../utils/utils';
 
-function setSystemAttributes(webengage, message, config) {
+function setSystemAttributes(webengage, message, hashEmail, hashPhone) {
   const { email, firstName, lastName, phone } = getDefinedTraits(message);
   const allowedGenders = ['male', 'female', 'other'];
   const { context, traits } = message;
   const { gender, company, emailOptIn, smsOptIn, whatsappOptIn } = context.traits || traits;
   if (email) {
-    if (!config.hashEmail) {
+    if (!hashEmail) {
       webengage.user.setAttribute('we_email', email);
     } else {
       webengage.user.setAttribute('we_hashed_email', email);
@@ -20,7 +20,7 @@ function setSystemAttributes(webengage, message, config) {
     webengage.user.setAttribute('we_last_name', lastName);
   }
   if (phone) {
-    if (!config.hashPhone) {
+    if (!hashPhone) {
       webengage.user.setAttribute('we_phone', phone);
     } else {
       webengage.user.setAttribute('we_hashed_phone', phone);

@@ -48,7 +48,7 @@ class Webengage {
     logger.debug('===In identify Webengage===');
     const { userId } = message;
     window.webengage.user.login(userId);
-    setSystemAttributes(window.webengage, message, config);
+    setSystemAttributes(window.webengage, message, this.hashEmail, this.hashPhone);
     setCustomAttributes(window.webengage, message);
   }
 

@@ -72,6 +72,7 @@ import { CNameMapping as Olark } from '../../constants/integrations/Olark/consta
 import { CNameMapping as Lemnisk } from '../../constants/integrations/Lemnisk/constants';
 import { CNameMapping as TiktokAds } from '../../constants/integrations/TiktokAds/constants';
 import { CNameMapping as ActiveCampaign } from '../../constants/integrations/ActiveCampaign/constants';
+import { CNameMapping as Webengage } from '../../constants/integrations/Webengage/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -151,6 +152,7 @@ const commonNames = {
   ...Lemnisk,
   ...TiktokAds,
   ...ActiveCampaign,
+  ...Webengage,
 };
 
 export { commonNames };

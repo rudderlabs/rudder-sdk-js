@@ -294,3 +294,7 @@ export {
   DISPLAY_NAME as ActiveCampaignDisplayName,
   DIR_NAME as ActiveCampaignDirectoryName,
 } from './integrations/ActiveCampaign/constants';
+export {
+  DISPLAY_NAME as WebengageDisplayName,
+  DIR_NAME as WebengageDirectoryName,
+} from './integrations/Webengage/constants';

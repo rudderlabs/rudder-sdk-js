@@ -73,6 +73,7 @@ const clientToServerNames = {
   LEMNISK: 'Lemnisk',
   TIKTOK_ADS: 'TikTok Ads',
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
+  WEBENGAGE: 'Webengage',
 };
 
 export { clientToServerNames };
