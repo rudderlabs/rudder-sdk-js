@@ -95,7 +95,20 @@ class UserSessionManager implements IUserSessionManager {
     this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
     this.setInitialReferrerInfo();
-    this.setSessionInfo(mergeDeepRight(this.getSessionInfo() ?? {}, sessionInfo ?? {}));
+    this.configureUserSession(sessionInfo);
+  }
+
+  configureUserSession(sessionInfo: SessionInfo | undefined) {
+    let finalSessionInfo = sessionInfo;
+    if (sessionInfo) {
+      const curSessionInfo = this.getSessionInfo() ?? {};
+      finalSessionInfo = {
+        ...sessionInfo,
+        autoTrack: sessionInfo.autoTrack && curSessionInfo.manualTrack !== true,
+      };
+    }
+
+    this.setSessionInfo(mergeDeepRight(this.getSessionInfo() ?? {}, finalSessionInfo ?? {}));
   }
 
   private setInitialReferrerInfo() {
@@ -175,10 +188,8 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  private getConfiguredSessionInfo(): SessionInfo {
-    const sessionInfo: SessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
-    let autoTrack =
-      state.loadOptions.value.sessions.autoTrack !== false && sessionInfo.manualTrack !== true;
+  getConfiguredSessionInfo(): SessionInfo {
+    let autoTrack = state.loadOptions.value.sessions.autoTrack !== false;
 
     let timeout: number;
     const configuredSessionTimeout = state.loadOptions.value.sessions.timeout;
@@ -206,7 +217,7 @@ class UserSessionManager implements IUserSessionManager {
         TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
-    return { ...sessionInfo, timeout, autoTrack };
+    return { timeout, autoTrack };
   }
 
   /**

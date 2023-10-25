@@ -356,14 +356,14 @@ describe('User session manager', () => {
     expect(clientDataStoreCookie.set).toHaveBeenCalled();
   });
 
-  it('startOrRenewAutoTracking: should call startAutoTracking if auto tracking is not disabled', () => {
+  it('should invoke startOrRenewAutoTracking if auto tracking is not disabled', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager.startOrRenewAutoTracking = jest.fn();
     userSessionManager.init();
     expect(userSessionManager.startOrRenewAutoTracking).toHaveBeenCalled();
   });
 
-  it('initializeSessionTracking: should print warning message and use default timeout if provided timeout is not in number format', () => {
+  it('should log a warning and use default timeout if provided timeout is not in number format', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = '100000';
     userSessionManager.init();
@@ -372,7 +372,7 @@ describe('User session manager', () => {
     );
     expect(state.session.sessionInfo.value.timeout).toBe(DEFAULT_SESSION_TIMEOUT_MS);
   });
-  it('initializeSessionTracking: should print warning message and disable auto tracking if provided timeout is 0', () => {
+  it('should log a warning and disable auto tracking if provided timeout is 0', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = 0;
     userSessionManager.init();
@@ -381,7 +381,7 @@ describe('User session manager', () => {
     );
     expect(state.session.sessionInfo.value.autoTrack).toBe(false);
   });
-  it('initializeSessionTracking: should print warning message if provided timeout is less than 10 second', () => {
+  it('should log a warning if provided timeout is less than 10 seconds', () => {
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
     userSessionManager.init();
