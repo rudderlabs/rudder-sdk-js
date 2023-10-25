@@ -147,3 +147,12 @@ export type LoadOptions = {
   consentManagement?: ConsentManagementOptions;
   sameDomainCookieOnly?: boolean;
 };
+
+export type ConsentOptions = {
+  storage?: StorageOpts;
+  consentManagement?: ConsentManagementOptions;
+  integrations?: IntegrationOpts;
+  discardPreConsentEvents?: boolean;
+  sendPageEvent?: boolean;
+  trackConsent?: boolean;
+};
