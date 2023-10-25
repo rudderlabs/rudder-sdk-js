@@ -10,7 +10,7 @@ export default function Home() {
     }
 
     const initialize = async () => {
-      const { RudderAnalytics } = await import('@rudderstack/analytics-js/bundled');
+      const { RudderAnalytics } = await import('@rudderstack/analytics-js');
       const analytics = new RudderAnalytics();
 
       analytics.load('<writeKey>', '<dataplaneUrl>');
