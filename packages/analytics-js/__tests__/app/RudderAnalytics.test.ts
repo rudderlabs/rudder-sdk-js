@@ -236,4 +236,30 @@ describe('Core - Rudder Analytics Facade', () => {
       ['track'],
     ]);
   });
+
+  it('should process setAuthToken arguments and forwards to setAuthToken call', () => {
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
+    const setAuthTokenSpy = jest.spyOn(analyticsInstance, 'setAuthToken');
+
+    rudderAnalytics.setAuthToken('token');
+    expect(setAuthTokenSpy).toHaveBeenCalledWith('token');
+  });
+
+  it('should process consent arguments and forwards to consent call', () => {
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
+    const consentSpy = jest.spyOn(analyticsInstance, 'consent');
+
+    rudderAnalytics.consent({
+      consentManagement: {
+        allowedConsentIds: ['1'],
+        deniedConsentIds: ['2'],
+      },
+    });
+    expect(consentSpy).toHaveBeenCalledWith({
+      consentManagement: {
+        allowedConsentIds: ['1'],
+        deniedConsentIds: ['2'],
+      },
+    });
+  });
 });

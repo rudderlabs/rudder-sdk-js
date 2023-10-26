@@ -146,7 +146,7 @@ describe('XhrQueue', () => {
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getQueue('queue').length).toBe(0);
+    expect(queue.getStorageEntry('queue').length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
   });
@@ -196,7 +196,7 @@ describe('XhrQueue', () => {
     );
 
     // The element is requeued
-    expect(queue.getQueue('queue')).toStrictEqual([
+    expect(queue.getStorageEntry('queue')).toStrictEqual([
       {
         item: {
           url: 'https://sampleurl.com/v1/track',
