@@ -41,43 +41,61 @@ describe('Webengage Track event', () => {
     window.webengage.track = jest.fn();
   });
   test('Testing Track Custom Events', () => {
-    webengage.track('Added To Cart', {
-      ProductID: 1337,
-      Price: 39.8,
-      Quantity: 1,
-      Product: 'Givenchy Pour Homme Cologne',
-      Category: 'Fragrance',
-      Currency: 'USD',
-      Discounted: true,
+    webengage.track({
+      message: {
+        context: {},
+        event: 'Custom',
+        properties: {
+          customProp: 'testProp',
+          checkout_id: 'what is checkout id here??',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+        },
+      },
     });
-    expect(window.webengage.event.mock.calls[0][0]).toEqual('Custom');
-    expect(window.webengage.event.mock.calls[0][1]).toEqual({
+    expect(window.webengage.track.mock.calls[0][0]).toEqual('Custom');
+    expect(window.webengage.track.mock.calls[0][1]).toEqual({
       customProp: 'testProp',
-      checkoutId: 'what is checkout id here??',
-      eventId: 'purchaseId',
-      orderId: 'transactionId',
+      checkout_id: 'what is checkout id here??',
+      event_id: 'purchaseId',
+      order_id: 'transactionId',
       value: 35.0,
       shipping: 4.0,
       coupon: 'APPARELSALE',
       currency: 'GBP',
-      products: [
-        {
-          customPropProd: 'testPropProd',
-          product_id: 'abc',
-          category: 'Merch',
-          name: 'Food/Drink',
-          brand: '',
-          variant: 'Extra topped',
-          price: 3.0,
-          quantity: 2,
-          currency: 'GBP',
-          position: 1,
-          value: 6.0,
-          typeOfProduct: 'Food',
-          url: 'https://www.example.com/product/bacon-jam',
-          image_url: 'https://www.example.com/product/bacon-jam.jpg',
-        },
-      ],
     });
+  });
+});
+
+describe('Webengage Identify event', () => {
+  let webengage;
+  beforeEach(() => {
+    webengage = new Webengage(
+      { licenseCode: '12567839', hashEmail: false, dataCentre: 'standard', hashPhone: false },
+      { loadOnlyIntegrations: {}, loglevel: 'debug' },
+    );
+    window.webengage.track = jest.fn();
+  });
+  test('Testing Identify', () => {
+    webengage.identify({
+      message: {
+        context: {
+          traits: {
+            email: 'alex@example.com',
+            firstName: 'Alex',
+            lastName: 'Keener',
+          },
+        },
+        userId: 'user101',
+      },
+    });
+    expect(window.webengage.user.login('user101'));
+    expect(window.webengage.user.setAttribute('we_email', 'alex@example.com'));
+    expect(window.webengage.user.setAttribute('we_first_name', 'Alex'));
+    expect(window.webengage.user.setAttribute('we_last_name', 'Keener'));
   });
 });
