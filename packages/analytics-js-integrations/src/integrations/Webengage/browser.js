@@ -11,7 +11,7 @@ class Webengage {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.webengageLicenseCode = config.webengageLicenseCode;
+    this.licenseCode = config.licenseCode;
     this.dataCentre = config.dataCentre;
     this.hashEmail = config.hashEmail;
     this.hashPhone = config.hashPhone;
@@ -24,7 +24,7 @@ class Webengage {
   }
 
   loadScript() {
-    loadNativeSdk(this.webengageLicenseCode, this.dataCentre);
+    loadNativeSdk(this.licenseCode, this.dataCentre, window);
   }
 
   init() {
@@ -34,7 +34,7 @@ class Webengage {
 
   isLoaded() {
     logger.debug('===In isLoaded Webengage===');
-    return !!window.webengage && typeof window.webengage === 'function';
+    return !!window.webengage && typeof window.webengage === 'object';
   }
 
   isReady() {

@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-function loadNativeSdk(webengageLicenseCode, dataCentre) {
+function loadNativeSdk(licenseCode, dataCentre, window) {
   var webengage;
   !(function (w, e, b, n, g) {
     function o(e, t) {
@@ -25,12 +25,11 @@ function loadNativeSdk(webengageLicenseCode, dataCentre) {
       }
       for (i = 0; i < u.length; i++) o(r.user, ['user', u[i]]);
       setTimeout(function () {
-        var f = e.createElement('script'),
-          d = e.getElementById('_webengage_script_tag');
+        var f = e.createElement('script');
         (f.type = 'text/javascript'),
           (f.async = !0),
           (f.src =
-            dataCentre === 'global'
+            dataCentre === 'standard'
               ? ('https:' == e.location.protocol
                   ? 'https://ssl.widgets.webengage.com'
                   : 'http://cdn.widgets.webengage.com') + '/js/webengage-min-v-6.0.js'
@@ -38,12 +37,10 @@ function loadNativeSdk(webengageLicenseCode, dataCentre) {
                   ? 'https://widgets.in.webengage.com'
                   : 'http://widgets.in.webengage.com') + '/js/webengage-min-v-6.0.js');
         f.setAttribute('data-loader', LOAD_ORIGIN);
-        d.parentNode.insertBefore(f, d);
       });
     }
   })(window, document, 'webengage');
-
-  webengage.init(webengageLicenseCode);
+  window.webengage.init(licenseCode);
 }
 
 export { loadNativeSdk };
