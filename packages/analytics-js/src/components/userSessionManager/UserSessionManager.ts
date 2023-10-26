@@ -76,8 +76,8 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    */
   init() {
-    const configuredSessionInfo = this.getConfiguredSessionInfo();
-    this.syncStorageDataToState(configuredSessionInfo);
+    const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
+    this.syncStorageDataToState(configuredSessionTrackingInfo);
 
     // Register the effect to sync with storage
     this.registerEffects();
@@ -95,10 +95,10 @@ class UserSessionManager implements IUserSessionManager {
     this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
     this.setInitialReferrerInfo();
-    this.configureUserSession(sessionInfo);
+    this.configureSessionTracking(sessionInfo);
   }
 
-  configureUserSession(sessionInfo: SessionInfo | undefined) {
+  configureSessionTracking(sessionInfo: SessionInfo | undefined) {
     let finalSessionInfo = sessionInfo;
     if (sessionInfo) {
       const curSessionInfo = this.getSessionInfo() ?? {};
@@ -188,7 +188,7 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  getConfiguredSessionInfo(): SessionInfo {
+  getConfiguredSessionTrackingInfo(): SessionInfo {
     let autoTrack = state.loadOptions.value.sessions.autoTrack !== false;
 
     let timeout: number;
