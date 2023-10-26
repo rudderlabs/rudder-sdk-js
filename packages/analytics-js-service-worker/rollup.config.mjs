@@ -15,6 +15,7 @@ import dts from 'rollup-plugin-dts';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist/npm`;
@@ -79,10 +80,7 @@ export function getDefaultConfig(distName) {
       }),
       copy({
         targets: [
-          { src: 'package.json', dest: outDir },
-          { src: 'README.md', dest: outDir },
-          { src: 'CHANGELOG.md', dest: outDir },
-          { src: 'LICENSE', dest: outDir },
+          { src: 'types/index.d.ts', dest: outDir }
         ],
       }),
       filesize({
