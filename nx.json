@@ -3,25 +3,6 @@
     "appsDir": "packages",
     "libsDir": "packages"
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "build-browser",
-          "build-browser-modern",
-          "build-npm",
-          "build-npm-modern",
-          "build-worker",
-          "build-package",
-          "build-check-size",
-          "check:size:build",
-          "test"
-        ]
-      }
-    }
-  },
   "defaultBase": "main",
   "pluginsConfig": {
     "@nx/js": {
@@ -30,14 +11,42 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
+      "cache": true
     },
     "version": [
       {
         "target": "version",
         "projects": "dependencies"
       }
-    ]
+    ],
+    "build": {
+      "cache": true
+    },
+    "build-browser": {
+      "cache": true
+    },
+    "build-browser-modern": {
+      "cache": true
+    },
+    "build-npm": {
+      "cache": true
+    },
+    "build-npm-modern": {
+      "cache": true
+    },
+    "build-worker": {
+      "cache": true
+    },
+    "build-package": {
+      "cache": true
+    },
+    "build-check-size": {
+      "cache": true
+    },
+    "check:size:build": {
+      "cache": true
+    }
   },
   "generators": {
     "@nx/js:library": {
