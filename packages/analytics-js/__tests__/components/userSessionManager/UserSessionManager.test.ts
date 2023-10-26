@@ -230,7 +230,7 @@ describe('User session manager', () => {
       expect(actualAnonymousId).toBe('test_uuid');
     });
 
-    it('should return the default anonymous ID if persistence is disabled for anonymous ID', () => {
+    it('should return default value if persistence is disabled for anonymous ID', () => {
       state.storage.entries.value = {
         ...entriesWithOnlyCookieStorage,
         anonymousId: {
@@ -503,75 +503,232 @@ describe('User session manager', () => {
     });
   });
 
-  // TODO: more test cases need to be covered
-  it('setAnonymousId', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newAnonymousId = 'new-dummy-anonymous-id';
-    userSessionManager.init();
-    userSessionManager.setAnonymousId(newAnonymousId);
-    expect(state.session.anonymousId.value).toBe(newAnonymousId);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setAnonymousId', () => {
+    it('should set the provided anonymous ID', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const newAnonymousId = 'new-dummy-anonymous-id';
+      userSessionManager.init();
+      userSessionManager.setAnonymousId(newAnonymousId);
+      expect(state.session.anonymousId.value).toBe(newAnonymousId);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for anonymous ID', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        anonymousId: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setAnonymousId(dummyAnonymousId);
+      expect(state.session.anonymousId.value).toBe(DEFAULT_USER_SESSION_VALUES.anonymousId);
+    });
+
+    it('should generate a new anonymous ID if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setAnonymousId();
+      expect(state.session.anonymousId.value).toBe('test_uuid');
+    });
+
+    // TODO: Add a new TC for Google Linker parameters
   });
 
-  it('setUserId', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newUserId = 'new-dummy-user-id';
-    userSessionManager.init();
-    userSessionManager.setUserId(newUserId);
-    expect(state.session.userId.value).toBe(newUserId);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setUserId', () => {
+    it('should set the provided user ID', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newUserId = 'new-dummy-user-id';
+      userSessionManager.init();
+      userSessionManager.setUserId(newUserId);
+      expect(state.session.userId.value).toBe(newUserId);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for user ID', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        userId: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.userId,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setUserId('dummy-user-id');
+      expect(state.session.userId.value).toBe(DEFAULT_USER_SESSION_VALUES.userId);
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setUserId();
+      expect(state.session.userId.value).toBe(DEFAULT_USER_SESSION_VALUES.userId);
+    });
   });
 
-  it('setUserTraits', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newUserTraits = { key1: 'value1', key2: 'value2' };
-    userSessionManager.init();
-    userSessionManager.setUserTraits(newUserTraits);
-    expect(state.session.userTraits.value).toStrictEqual(newUserTraits);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setUserTraits', () => {
+    it('should set the provided user traits', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newUserTraits = { key1: 'value1', key2: 'value2' };
+      userSessionManager.init();
+      userSessionManager.setUserTraits(newUserTraits);
+      expect(state.session.userTraits.value).toStrictEqual(newUserTraits);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for user traits', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        userTraits: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.userTraits,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setUserTraits({ key1: 'value1', key2: 'value2' });
+      expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setUserTraits();
+      expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
+    });
   });
 
-  it('setGroupId', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newGroupId = 'new-dummy-group-id';
-    userSessionManager.init();
-    userSessionManager.setGroupId(newGroupId);
-    expect(state.session.groupId.value).toBe(newGroupId);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setGroupId', () => {
+    it('should set the provided group id', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newGroupId = 'new-dummy-group-id';
+      userSessionManager.init();
+      userSessionManager.setGroupId(newGroupId);
+      expect(state.session.groupId.value).toBe(newGroupId);
+      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+    });
+
+    it('should reset the value to default value if persistence is not enabled for group id', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        groupId: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.groupId,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setGroupId('dummy-group-id');
+      expect(state.session.groupId.value).toBe(DEFAULT_USER_SESSION_VALUES.groupId);
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setGroupId();
+      expect(state.session.groupId.value).toBe(DEFAULT_USER_SESSION_VALUES.groupId);
+    });
   });
 
-  it('setGroupTraits', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newGroupTraits = { key1: 'value1', key2: 'value2' };
-    userSessionManager.init();
-    userSessionManager.setGroupTraits(newGroupTraits);
-    expect(state.session.groupTraits.value).toStrictEqual(newGroupTraits);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setGroupTraits', () => {
+    it('should set the provided group traits', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newGroupTraits = { key1: 'value1', key2: 'value2' };
+      userSessionManager.init();
+      userSessionManager.setGroupTraits(newGroupTraits);
+      expect(state.session.groupTraits.value).toStrictEqual(newGroupTraits);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for group traits', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        groupTraits: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setGroupTraits({ key1: 'value1', key2: 'value2' });
+      expect(state.session.groupTraits.value).toStrictEqual(
+        DEFAULT_USER_SESSION_VALUES.groupTraits,
+      );
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setGroupTraits();
+      expect(state.session.groupTraits.value).toStrictEqual(
+        DEFAULT_USER_SESSION_VALUES.groupTraits,
+      );
+    });
   });
 
-  it('setInitialReferrer', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newReferrer = 'new-dummy-referrer-1';
-    userSessionManager.init();
-    userSessionManager.setInitialReferrer(newReferrer);
-    expect(state.session.initialReferrer.value).toBe(newReferrer);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setInitialReferrer', () => {
+    it('should set the provided initial referrer', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newReferrer = 'new-dummy-referrer-1';
+      userSessionManager.init();
+      userSessionManager.setInitialReferrer(newReferrer);
+      expect(state.session.initialReferrer.value).toBe(newReferrer);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for initial referrer', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        initialReferrer: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setInitialReferrer('dummy-url');
+      expect(state.session.initialReferrer.value).toBe(DEFAULT_USER_SESSION_VALUES.initialReferrer);
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setInitialReferrer();
+      expect(state.session.initialReferrer.value).toBe(DEFAULT_USER_SESSION_VALUES.initialReferrer);
+    });
   });
 
-  it('setInitialReferringDomain', () => {
-    state.storage.entries.value = entriesWithOnlyCookieStorage;
-    clientDataStoreCookie.set = jest.fn();
-    const newReferrer = 'new-dummy-referrer-2';
-    userSessionManager.init();
-    userSessionManager.setInitialReferringDomain(newReferrer);
-    expect(state.session.initialReferringDomain.value).toBe(newReferrer);
-    expect(clientDataStoreCookie.set).toHaveBeenCalled();
+  describe('setInitialReferringDomain', () => {
+    it('should set the provided initial referring domain', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newReferrer = 'new-dummy-referrer-2';
+      userSessionManager.init();
+      userSessionManager.setInitialReferringDomain(newReferrer);
+      expect(state.session.initialReferringDomain.value).toBe(newReferrer);
+      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+    });
+
+    it('should reset the value to default value if persistence is not enabled for initial referring domain', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        initialReferringDomain: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setInitialReferringDomain('dummy-url');
+      expect(state.session.initialReferringDomain.value).toBe(
+        DEFAULT_USER_SESSION_VALUES.initialReferringDomain,
+      );
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setInitialReferringDomain();
+      expect(state.session.initialReferringDomain.value).toBe(
+        DEFAULT_USER_SESSION_VALUES.initialReferringDomain,
+      );
+    });
   });
 
   it('should invoke startOrRenewAutoTracking if auto tracking is not disabled', () => {

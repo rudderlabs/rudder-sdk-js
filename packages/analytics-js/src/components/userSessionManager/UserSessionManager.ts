@@ -347,12 +347,9 @@ class UserSessionManager implements IUserSessionManager {
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
     const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    const key: string = state.storage.entries.value.anonymousId?.key as string;
-    let persistedAnonymousId;
     // fetch the anonymousId from storage
     if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
-      persistedAnonymousId = store?.get(key);
+      let persistedAnonymousId = this.getEntryValue('anonymousId');
       if (!persistedAnonymousId && options) {
         // fetch anonymousId from external source
         const autoCapturedAnonymousId = this.pluginsManager?.invokeSingle<string | undefined>(
