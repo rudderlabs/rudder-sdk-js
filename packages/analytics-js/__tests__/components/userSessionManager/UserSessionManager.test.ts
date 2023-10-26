@@ -43,6 +43,9 @@ describe('User session manager', () => {
   defaultStoreManager.init();
   const clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
   const clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
+  const clientDataStoreSession = defaultStoreManager.getStore(
+    'clientDataInSessionStorage',
+  ) as Store;
 
   const setCustomValuesInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -66,6 +69,7 @@ describe('User session manager', () => {
     Object.values(USER_SESSION_STORAGE_KEYS).forEach(key => {
       clientDataStoreCookie.remove(key);
       clientDataStoreLS.remove(key);
+      clientDataStoreSession.remove(key);
     });
   };
 

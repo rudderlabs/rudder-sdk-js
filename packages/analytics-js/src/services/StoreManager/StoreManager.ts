@@ -131,6 +131,7 @@ class StoreManager implements IStoreManager {
       'initialReferrer',
       'initialReferringDomain',
       'sessionInfo',
+      'authToken',
     ];
 
     let storageEntries = {};

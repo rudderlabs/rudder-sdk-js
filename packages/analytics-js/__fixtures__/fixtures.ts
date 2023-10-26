@@ -260,6 +260,10 @@ const entriesWithOnlyCookieStorage = {
     type: 'cookieStorage',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'cookieStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 const entriesWithOnlyLocalStorage = {
@@ -294,6 +298,88 @@ const entriesWithOnlyLocalStorage = {
   sessionInfo: {
     type: 'localStorage',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
+};
+
+const entriesWithoutCookieStorage = {
+  userId: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.userTraits,
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+  },
+  groupId: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupId,
+  },
+  groupTraits: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+  },
+  initialReferrer: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
+};
+
+const entriesWithoutCookieAndLocalStorage = {
+  userId: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.userId,
+  },
+  userTraits: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.userTraits,
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+  },
+  groupId: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupId,
+  },
+  groupTraits: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+  },
+  initialReferrer: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
   },
 };
 
@@ -330,6 +416,10 @@ const entriesWithOnlyNoStorage = {
     type: 'none',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 const entriesWithOnlySessionStorage = {
@@ -365,6 +455,10 @@ const entriesWithOnlySessionStorage = {
     type: 'sessionStorage',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 const entriesWithMixStorage = {
@@ -377,7 +471,7 @@ const entriesWithMixStorage = {
     key: USER_SESSION_STORAGE_KEYS.userTraits,
   },
   anonymousId: {
-    type: 'cookieStorage',
+    type: 'sessionStorage',
     key: USER_SESSION_STORAGE_KEYS.anonymousId,
   },
   groupId: {
@@ -400,6 +494,10 @@ const entriesWithMixStorage = {
     type: 'none',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 const loadOptionWithEntry = {
@@ -410,10 +508,64 @@ const loadOptionWithEntry = {
     type: 'localStorage',
   },
   anonymousId: {
-    type: 'cookieStorage',
+    type: 'sessionStorage',
   },
   sessionInfo: {
     type: 'none',
+  },
+};
+
+const postConsentStorageEntryOptions = {
+  userId: {
+    type: 'cookieStorage',
+  },
+  userTraits: {
+    type: 'localStorage',
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+  },
+  sessionInfo: {
+    type: 'none',
+  },
+};
+
+const entriesWithInMemoryFallback = {
+  userId: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.userId,
+  },
+  userTraits: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.userTraits,
+  },
+  anonymousId: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+  },
+  groupId: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupId,
+  },
+  groupTraits: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+  },
+  initialReferrer: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
   },
 };
 
@@ -462,6 +614,10 @@ const entriesWithStorageOnlyForSession = {
     type: 'cookieStorage',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 const anonymousIdWithNoStorageEntries = {
@@ -496,6 +652,10 @@ const anonymousIdWithNoStorageEntries = {
   sessionInfo: {
     type: 'cookieStorage',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'cookieStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
   },
 };
 
@@ -532,6 +692,10 @@ const entriesWithStorageOnlyForAnonymousId = {
     type: 'none',
     key: USER_SESSION_STORAGE_KEYS.sessionInfo,
   },
+  authToken: {
+    type: 'none',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
 };
 
 export {
@@ -554,4 +718,8 @@ export {
   entriesWithStorageOnlyForAnonymousId,
   entriesWithOnlySessionStorage,
   anonymousIdWithNoStorageEntries,
+  entriesWithInMemoryFallback,
+  postConsentStorageEntryOptions,
+  entriesWithoutCookieStorage,
+  entriesWithoutCookieAndLocalStorage,
 };
