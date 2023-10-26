@@ -113,10 +113,10 @@ export type PreConsentOptions = {
 export type LoadOptions = {
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
-  configUrl: string; // defaults to https://api.rudderstack.com
+  configUrl?: string; // defaults to https://api.rudderstack.com
   queueOptions?: QueueOpts;
   loadIntegration?: boolean; // defaults to true.
-  sessions: SessionOpts;
+  sessions?: SessionOpts;
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
@@ -125,9 +125,9 @@ export type LoadOptions = {
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
-  sameSiteCookie: CookieSameSite; // defaults to Lax.
+  sameSiteCookie?: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
-  polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+  polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;

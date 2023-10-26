@@ -189,10 +189,17 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   getConfiguredSessionTrackingInfo(): SessionInfo {
-    let autoTrack = state.loadOptions.value.sessions.autoTrack !== false;
+    let autoTrack = state.loadOptions.value.sessions?.autoTrack !== false;
+
+    // Do not validate any further if autoTrack is disabled
+    if (!autoTrack) {
+      return {
+        autoTrack,
+      };
+    }
 
     let timeout: number;
-    const configuredSessionTimeout = state.loadOptions.value.sessions.timeout;
+    const configuredSessionTimeout = state.loadOptions.value.sessions?.timeout;
     if (!isPositiveInteger(configuredSessionTimeout)) {
       this.logger?.warn(
         TIMEOUT_NOT_NUMBER_WARNING(
