@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect } from 'react';
-import { type RudderAnalytics } from "@rudderstack/analytics-js";
+import type { RudderAnalytics } from "@rudderstack/analytics-js";
 
 export default function Home() {
   useEffect(() => {
@@ -10,7 +10,7 @@ export default function Home() {
       return;
     }
     const initialize = async () => {
-      const { RudderAnalytics } = await import('@rudderstack/analytics-js/bundled');
+      const { RudderAnalytics } = await import('@rudderstack/analytics-js');
       const analytics = new RudderAnalytics();
 
       analytics.load('<writeKey>', '<dataplaneUrl>');
