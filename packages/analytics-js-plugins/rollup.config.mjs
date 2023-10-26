@@ -110,6 +110,7 @@ export function getDefaultConfig(distName) {
         name: modName,
         filename: remotePluginsExportsFilename,
         exposes: pluginsMap,
+        remoteType: 'promise',
       }),
       process.env.UGLIFY === 'true' &&
       terser({
