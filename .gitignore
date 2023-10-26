@@ -81,3 +81,5 @@ tsconfig.build.tsbuildinfo
 **/.settings/
 **/.project
 *.zip
+
+.nx/cache
