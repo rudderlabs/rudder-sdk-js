@@ -1,5 +1,8 @@
 import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { getStorageEngine } from '../../../../src/services/StoreManager/storages/storageEngine';
+import {
+  getStorageEngine,
+  configureCookieStorageEngine,
+} from '../../../../src/services/StoreManager/storages/storageEngine';
 
 describe('CookieStorage', () => {
   let engine: IStorage;
@@ -23,5 +26,17 @@ describe('CookieStorage', () => {
     // engine.setItem('test-key', 'abc');
     // engine.clear();
     // expect(engine.length).toStrictEqual(0);
+  });
+  it('should not set domain if sameDomainCookieOnly is set to true', () => {
+    expect(typeof engine.options.domain).toBe('string');
+    configureCookieStorageEngine({
+      samesite: 'Lax',
+      domain: 'example.com',
+      maxage: 31536000000,
+      enabled: true,
+      sameDomainCookieOnly: true,
+    });
+    const newEngine = getStorageEngine('cookieStorage');
+    expect(newEngine.options.domain).toBe(undefined);
   });
 });
