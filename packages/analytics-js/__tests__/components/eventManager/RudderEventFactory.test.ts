@@ -41,6 +41,12 @@ describe('RudderEventFactory', () => {
       state.context.userAgent.value = 'test';
       state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
       state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
+
+      state.storage.entries.value = {
+        anonymousId: {
+          type: 'memoryStorage',
+        },
+      };
     });
   });
 

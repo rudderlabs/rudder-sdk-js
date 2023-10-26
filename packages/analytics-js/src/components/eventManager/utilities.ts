@@ -265,7 +265,7 @@ const getEnrichedEvent = (
   } as Partial<RudderEvent>;
 
   if (
-    isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
+    !isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
   ) {
     // Generate new anonymous id for each request
     commonEventData.anonymousId = generateAnonymousId();
