@@ -111,7 +111,7 @@ class UserSessionManager implements IUserSessionManager {
     this.setSessionInfo(mergeDeepRight(this.getSessionInfo() ?? {}, finalSessionInfo ?? {}));
   }
 
-  private setInitialReferrerInfo() {
+  setInitialReferrerInfo() {
     const persistedInitialReferrer = this.getInitialReferrer();
     const persistedInitialReferringDomain = this.getInitialReferringDomain();
 
