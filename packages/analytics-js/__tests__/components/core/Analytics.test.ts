@@ -188,11 +188,9 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
     });
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const callback = jest.fn();
 
       analytics.ready(callback);
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['ready', callback]]);
     });
     it('should buffer callback trigger until ready', () => {
@@ -229,10 +227,7 @@ describe('Core - Analytics', () => {
 
   describe('page', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.page({ name: 'name' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['page', { name: 'name' }],
       ]);
@@ -255,10 +250,7 @@ describe('Core - Analytics', () => {
 
   describe('track', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.track({ name: 'name' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['track', { name: 'name' }],
       ]);
@@ -281,10 +273,7 @@ describe('Core - Analytics', () => {
 
   describe('identify', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.identify({ userId: 'userId' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['identify', { userId: 'userId' }],
       ]);
@@ -335,10 +324,7 @@ describe('Core - Analytics', () => {
 
   describe('alias', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.alias({ to: 'to' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
     });
     it('should sent events if loaded', () => {
@@ -362,12 +348,10 @@ describe('Core - Analytics', () => {
   describe('group', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
       const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
 
       analytics.group({ groupId: 'groupId' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(0);
       expect(setGroupTraitsSpy).toHaveBeenCalledTimes(0);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
@@ -397,11 +381,9 @@ describe('Core - Analytics', () => {
   describe('reset', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
 
       analytics.reset(true);
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['reset', true]]);
     });

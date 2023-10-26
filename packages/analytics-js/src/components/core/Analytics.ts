@@ -465,12 +465,13 @@ class Analytics implements IAnalytics {
   // Start consumer exposed methods
   ready(callback: ApiCallback) {
     const type = 'ready';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
       this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
@@ -495,13 +496,14 @@ class Analytics implements IAnalytics {
 
   page(payload: PageCallOptions) {
     const type = 'page';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     this.eventManager?.addEvent({
       type: 'page',
@@ -537,13 +539,14 @@ class Analytics implements IAnalytics {
 
   track(payload: TrackCallOptions) {
     const type = 'track';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     this.eventManager?.addEvent({
       type,
@@ -556,13 +559,14 @@ class Analytics implements IAnalytics {
 
   identify(payload: IdentifyCallOptions) {
     const type = 'identify';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     const shouldResetSession = Boolean(
       payload.userId && state.session.userId.value && payload.userId !== state.session.userId.value,
@@ -589,13 +593,14 @@ class Analytics implements IAnalytics {
 
   alias(payload: AliasCallOptions) {
     const type = 'alias';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     const previousId =
       payload.from ??
@@ -613,13 +618,14 @@ class Analytics implements IAnalytics {
 
   group(payload: GroupCallOptions) {
     const type = 'group';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     // `null` value indicates that previous group ID needs to be retained
     if (!isNull(payload.groupId)) {
@@ -639,15 +645,15 @@ class Analytics implements IAnalytics {
 
   reset(resetAnonymousId?: boolean) {
     const type = 'reset';
-    this.errorHandler.leaveBreadcrumb(
-      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
-    );
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(
+      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
+    );
     this.userSessionManager?.reset(resetAnonymousId);
   }
 
@@ -663,6 +669,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
@@ -688,25 +695,25 @@ class Analytics implements IAnalytics {
 
   startSession(sessionId?: number): void {
     const type = 'startSession';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.start(sessionId);
   }
 
   endSession(): void {
     const type = 'endSession';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.end();
   }
 
