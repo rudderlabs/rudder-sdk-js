@@ -64,6 +64,7 @@ jobs:
         env:
           HUSKY: 0
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
 #          npm run deploy:npm -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
