@@ -1,6 +1,6 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
-import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
@@ -730,9 +730,6 @@ class Analytics implements IAnalytics {
 
       state.consents.initialized.value = initialized || state.consents.initialized.value;
       state.consents.data.value = consentsData;
-
-      state.storage.type.value =
-        state.consents.postConsent.value.storage?.type ?? state.storage.type.value;
     });
 
     // Update consents data in state

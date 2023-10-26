@@ -17,13 +17,14 @@ import {
 import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { batch } from '@preact/signals-core';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
-import { getStorageTypeFromPreConsent } from './utils';
+import { getStorageTypeFromPreConsentIfApplicable } from './utils';
 
 /**
  * A service to manage stores & available storage client configurations
@@ -110,12 +111,17 @@ class StoreManager implements IStoreManager {
   }
 
   initializeStorageState() {
-    const globalStorageType = state.storage.type.value;
+    let globalStorageType = state.storage.type.value;
+    let entriesOptions = state.loadOptions.value.storage?.entries;
+
+    // Use the storage options from post consent if anything is defined
+    const postConsentStorageOpts = state.consents.postConsent.value.storage;
+    if (isDefined(postConsentStorageOpts?.type) || isDefined(postConsentStorageOpts?.entries)) {
+      globalStorageType = postConsentStorageOpts?.type;
+      entriesOptions = postConsentStorageOpts?.entries;
+    }
+
     let trulyAnonymousTracking = true;
-    const entries = mergeDeepRight(
-      state.loadOptions.value.storage?.entries ?? {},
-      state.consents.postConsent.value.storage?.entries ?? {},
-    );
     const userSessionKeyValues: UserSessionKeys[] = [
       'userId',
       'userTraits',
@@ -131,9 +137,9 @@ class StoreManager implements IStoreManager {
     userSessionKeyValues.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
-      const configuredStorageType = entries?.[key]?.type;
+      const configuredStorageType = entriesOptions?.[key]?.type;
 
-      const preConsentStorageType = getStorageTypeFromPreConsent(state, sessionKey);
+      const preConsentStorageType = getStorageTypeFromPreConsentIfApplicable(state, sessionKey);
 
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
