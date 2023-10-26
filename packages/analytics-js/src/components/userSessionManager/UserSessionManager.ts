@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { batch, effect } from '@preact/signals-core';
 import {
   isNonEmptyObject,
@@ -42,6 +41,7 @@ import {
   TIMEOUT_ZERO_WARNING,
 } from '../../constants/logMessages';
 import {
+  generateAnonymousId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
@@ -332,20 +332,12 @@ class UserSessionManager implements IUserSessionManager {
         );
         finalAnonymousId = linkerPluginsResult;
       }
-      finalAnonymousId = finalAnonymousId || this.generateAnonymousId();
+      finalAnonymousId = finalAnonymousId || generateAnonymousId();
     } else {
       finalAnonymousId = DEFAULT_USER_SESSION_VALUES.anonymousId;
     }
 
     state.session.anonymousId.value = finalAnonymousId;
-  }
-
-  /**
-   * Generate a new anonymousId
-   * @returns string anonymousID
-   */
-  generateAnonymousId(): string {
-    return generateUUID();
   }
 
   /**
@@ -370,7 +362,7 @@ class UserSessionManager implements IUserSessionManager {
         );
         persistedAnonymousId = autoCapturedAnonymousId;
       }
-      state.session.anonymousId.value = persistedAnonymousId || this.generateAnonymousId();
+      state.session.anonymousId.value = persistedAnonymousId || generateAnonymousId();
     }
     return state.session.anonymousId.value as string;
   }
