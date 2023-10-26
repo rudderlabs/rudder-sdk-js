@@ -39,7 +39,7 @@ jobs:
           npm run check:security
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.6.0
+        uses: rudderlabs/github-action-check-size-limit@v2.7.0
         env:
           HUSKY: 0
         with:
