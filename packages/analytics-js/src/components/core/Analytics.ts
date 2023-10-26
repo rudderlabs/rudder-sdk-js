@@ -1,6 +1,6 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
-import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
