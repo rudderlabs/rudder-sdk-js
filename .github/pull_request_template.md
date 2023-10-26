@@ -14,6 +14,10 @@ Please confirm you have tested for the following browsers:
 - [ ] Firefox
 - [ ] IE11
 
+## Sanity Suite
+
+- [ ] All sanity suite test cases pass locally
+
 ## Security
 
 - [ ] The code changed/added as part of this pull request won't create any security issues with how the software is being used.

@@ -13,3 +13,5 @@ examples/chrome-extension/**/rudderAnalytics.js
 examples/chrome-extension/**/foreground.js
 examples/**/index.html
 **/public/index.html
+
+/.nx/cache
