@@ -2,18 +2,23 @@
   "name": "@rudderstack/analytics-js-service-worker",
   "version": "3.0.0",
   "description": "RudderStack Javascript Service Worker SDK",
-  "main": "umd/index.js",
-  "module": "esm/index.js",
+  "main": "dist/npm/umd/index.js",
+  "module": "dist/npm/esm/index.js",
   "exports": {
-    "require": "./umd/index.js",
-    "import": "./esm/index.js",
-    "types": "./index.d.ts"
+    "require": "./dist/npm/umd/index.js",
+    "import": "./dist/npm/esm/index.js",
+    "types": "./dist/npm/index.d.ts"
   },
-  "types": "./index.d.ts",
+  "types": "./dist/npm/index.d.ts",
   "publishConfig": {
-    "directory": "dist/npm",
     "access": "public"
   },
+  "files": [
+    "dist/npm",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "analytics",
     "rudder"
@@ -50,7 +55,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "package": "cd dist && rimraf -rf ./dts && npm pack --pack-destination ../",
+    "package": "cd dist/npm && npm pack --pack-destination ../../",
     "release": "npm publish"
   },
   "engines": {

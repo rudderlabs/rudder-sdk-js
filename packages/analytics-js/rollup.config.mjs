@@ -207,8 +207,10 @@ export function getDefaultConfig(distName) {
         remotes: {
           rudderAnalyticsRemotePlugins: {
             // use promise to set the path to allow override via loadOption value in case of proxy
+            // https://github.com/originjs/vite-plugin-federation#externaltype-urlpromise
             external: remotePluginsHostPromise,
-            externalType: 'promise'
+            externalType: 'promise',
+            format: 'esm'
           },
         }
       }),

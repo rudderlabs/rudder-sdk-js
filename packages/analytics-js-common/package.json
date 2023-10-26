@@ -59,7 +59,7 @@
     "@ndhoule/defaults": "2.0.1",
     "@preact/signals-core": "1.5.0",
     "@segment/top-domain": "3.0.1",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "get-value": "3.0.1",
     "ramda": "0.29.1",
     "rudder-component-cookie": "0.0.1",

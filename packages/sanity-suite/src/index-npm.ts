@@ -25,6 +25,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        pluginsSDKBaseURL: 'REMOTE_MODULES_BASE_PATH',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust',
@@ -40,6 +41,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        pluginsSDKBaseURL: 'REMOTE_MODULES_BASE_PATH',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust',
@@ -55,6 +57,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        pluginsSDKBaseURL: 'REMOTE_MODULES_BASE_PATH',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust',
@@ -70,6 +73,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
         configUrl: 'CONFIG_SERVER_HOST',
         lockIntegrationsVersion: true,
         destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        pluginsSDKBaseURL: 'REMOTE_MODULES_BASE_PATH',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust',

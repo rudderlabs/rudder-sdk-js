@@ -80,7 +80,7 @@
       "dependsOn": ["prepare-test-mocks"]
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
