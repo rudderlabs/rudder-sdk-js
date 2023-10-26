@@ -174,11 +174,7 @@ class Matomo {
     }
 
     // Mapping Ecommerce Events
-    if (ecommerceMapping?.[trimmedEvent]) {
-      ecommerceEventsMapping(ecommerceMapping[trimmedEvent], message);
-    } else {
-      ecommerceEventsMapping('trackEvent', message);
-    }
+    ecommerceEventsMapping(ecommerceMapping[trimmedEvent] || 'trackEvent', message);
   }
 
   page() {
