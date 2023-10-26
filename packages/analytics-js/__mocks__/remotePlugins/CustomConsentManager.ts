@@ -1,5 +1,5 @@
-const KetchConsentManager = () => ({
-  name: 'KetchConsentManager',
+const CustomConsentManager = () => ({
+  name: 'CustomConsentManager',
   consentManager: {
     init: jest.fn(() => {}),
     updateConsentsInfo: jest.fn(() => {}),
@@ -7,4 +7,4 @@ const KetchConsentManager = () => ({
   },
 });
 
-export default KetchConsentManager;
+export default CustomConsentManager;

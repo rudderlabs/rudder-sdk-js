@@ -300,11 +300,16 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "oneTrust,ketch".',
+        'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "oneTrust,ketch,custom".',
       );
     });
 
     it('should log a warning if the specified storage strategy is not supported', () => {
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
+      };
+
       state.loadOptions.value.preConsent = {
         enabled: true,
         storage: {
@@ -332,6 +337,11 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should log a warning if the specified events delivery type is not supported', () => {
+      state.loadOptions.value.consentManagement = {
+        enabled: true,
+        provider: 'oneTrust',
+      };
+
       state.loadOptions.value.preConsent = {
         enabled: true,
         storage: {

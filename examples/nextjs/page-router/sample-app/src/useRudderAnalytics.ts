@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type RudderAnalytics } from '@rudderstack/analytics-js';
+import type { RudderAnalytics } from '@rudderstack/analytics-js';
 
 const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
   const [analytics, setAnalytics] = useState<RudderAnalytics>();
@@ -7,7 +7,7 @@ const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
   useEffect(() => {
     if (!analytics) {
       const initialize = async () => {
-        const { RudderAnalytics } = await import('@rudderstack/analytics-js/bundled');
+        const { RudderAnalytics } = await import('@rudderstack/analytics-js');
         const analyticsInstance = new RudderAnalytics();
 
         analyticsInstance.load('<writeKey>', '<dataplaneUrl>');
