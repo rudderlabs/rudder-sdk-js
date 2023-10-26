@@ -84,7 +84,7 @@
     "@ndhoule/extend": "2.0.0",
     "@rudderstack/analytics-js-common": "*",
     "component-each": "0.2.6",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "get-value": "3.0.1",
     "is": "3.3.0",
     "lodash.get": "4.4.2",
