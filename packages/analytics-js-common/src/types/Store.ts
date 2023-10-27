@@ -66,6 +66,7 @@ export interface ICookieStorageOptions extends CookieOptions {
   domain?: string;
   secure?: boolean;
   enabled?: boolean;
+  sameDomainCookiesOnly?: boolean;
 }
 
 export interface ILocalStorageOptions {
