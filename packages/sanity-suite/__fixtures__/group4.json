@@ -74,7 +74,8 @@
       },
       "consentManagement": {
         "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
-      }
+      },
+      "timezone": "GMT+0530"
     },
     "type": "group",
     "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
