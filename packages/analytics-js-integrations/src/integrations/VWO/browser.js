@@ -42,6 +42,17 @@ class VWO {
     } else {
       logger.debug('===[VWO]loadIntegration flag is disabled===');
     }
+
+    window.VWO = window.VWO || [];
+    window.VWO.event = window.VWO.event || function () {
+        window.VWO.push(['event'].concat([].slice.call(arguments)));
+    };
+ 
+    
+    window.VWO.visitor = window.VWO.visitor || function () {
+        window.VWO.push(['visitor'].concat([].slice.call(arguments)));
+    };
+
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
       this.experimentViewed();
@@ -105,13 +116,6 @@ class VWO {
     const payload = traits || {};
     const formattedAttributes = sanitizeAttributes(payload);
 
-    window.VWO = window.VWO || [];
-    window.VWO.visitor =
-      window.VWO.visitor ||
-      function () {
-        window.VWO.push(['visitor'].concat([].slice.call(arguments)));
-      };
-
     window.VWO.visitor(formattedAttributes, { source: 'rudderstack' });
   }
 
@@ -129,11 +133,6 @@ class VWO {
     }
     const sanitizedEventName = sanitizeName(eventName);
     logger.debug(`[VWO] eventName: ${sanitizedEventName}`);
-    window.VWO.event =
-      window.VWO.event ||
-      function () {
-        window.VWO.push(['event'].concat([].slice.call(arguments)));
-      };
     window.VWO.event(sanitizedEventName, properties, { source: 'rudderstack', ogName: eventName });
   }
 
