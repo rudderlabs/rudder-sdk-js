@@ -717,6 +717,39 @@ describe('User session manager', () => {
     });
   });
 
+  describe('getAuthToken', () => {
+    it('should return persisted auth token', () => {
+      const customData = {
+        rl_auth_token: 'dummy-auth-token-12345678',
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      const actualAuthToken = userSessionManager.getAuthToken();
+      expect(actualAuthToken).toBe(customData.rl_auth_token);
+    });
+
+    it('should return null if persisted auth token is not available', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      const actualAuthToken = userSessionManager.getAuthToken();
+      expect(actualAuthToken).toBe(null);
+    });
+
+    it('should return null if persistence is disabled for auth token', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        authToken: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.authToken,
+        },
+      };
+      userSessionManager.init();
+      const actualAuthToken = userSessionManager.getAuthToken();
+      expect(actualAuthToken).toStrictEqual(null);
+    });
+  });
+
   describe('getSessionInfo', () => {
     it('should return persisted session info', () => {
       const customData = {
@@ -980,6 +1013,37 @@ describe('User session manager', () => {
       expect(state.session.initialReferringDomain.value).toBe(
         DEFAULT_USER_SESSION_VALUES.initialReferringDomain,
       );
+    });
+  });
+
+  describe('setAuthToken', () => {
+    it('should set the provided auth token', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      clientDataStoreCookie.set = jest.fn();
+      const newAuthToken = 'new-dummy-auth-token';
+      userSessionManager.init();
+      userSessionManager.setAuthToken(newAuthToken);
+      expect(state.session.authToken.value).toBe(newAuthToken);
+    });
+
+    it('should reset the value to default value if persistence is not enabled for auth token', () => {
+      state.storage.entries.value = {
+        ...entriesWithOnlyCookieStorage,
+        authToken: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.authToken,
+        },
+      };
+      userSessionManager.init();
+      userSessionManager.setAuthToken('dummy-auth-token');
+      expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
+    });
+
+    it('should reset the value to default value if the value is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setAuthToken();
+      expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
   });
 

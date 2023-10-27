@@ -639,9 +639,10 @@ class UserSessionManager implements IUserSessionManager {
    * @param userId
    */
   setAuthToken(token: Nullable<string>) {
-    state.session.authToken.value = this.isPersistenceEnabledForStorageEntry('authToken')
-      ? token
-      : DEFAULT_USER_SESSION_VALUES.authToken;
+    state.session.authToken.value =
+      this.isPersistenceEnabledForStorageEntry('authToken') && token
+        ? token
+        : DEFAULT_USER_SESSION_VALUES.authToken;
   }
 }
 
