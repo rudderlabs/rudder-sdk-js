@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
@@ -17,10 +17,10 @@ import {
   getRequestInfo,
   getBatchDeliveryPayload,
 } from './utilities';
-import { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
+import type { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 
 const pluginName: PluginName = 'XhrQueue';
 

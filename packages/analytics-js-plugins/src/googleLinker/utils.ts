@@ -1,4 +1,4 @@
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { crc32 } from './crc32';
 import { USER_INTERFACE } from './userLib';
 import { decode } from './base64Decoder';
@@ -47,11 +47,15 @@ const parseLinkerParamValue = (value: string): Nullable<Record<string, string>> 
  *
  * @return {!Object<string, string>}
  */
-const deserialize = (serializedIds: string): Record<string, string> => {
+const deserialize = (serializedIds?: string): Record<string, string> => {
+  if (!serializedIds) {
+    return {};
+  }
+
   const keyValuePairs: Record<string, string> = {};
   const params = serializedIds.split(DELIMITER);
   for (let i = 0; i < params.length; i += 2) {
-    const key = params[i];
+    const key = params[i] as string;
     const valid = KEY_VALIDATOR.test(key);
     if (valid) {
       keyValuePairs[key] = decode(params[i + 1]);
@@ -142,7 +146,7 @@ const parseLinker = (value: string): Nullable<Record<string, string>> => {
 
   const { checksum, serializedIds } = linkerObj;
 
-  if (!isCheckSumValid(serializedIds, checksum)) {
+  if (!serializedIds || !checksum || !isCheckSumValid(serializedIds, checksum)) {
     return null;
   }
 

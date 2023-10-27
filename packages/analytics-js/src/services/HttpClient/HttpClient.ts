@@ -1,12 +1,12 @@
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import {
+import type {
   IAsyncRequestConfig,
   IHttpClient,
   IRequestConfig,
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { defaultErrorHandler } from '../ErrorHandler';

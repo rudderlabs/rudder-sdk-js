@@ -1,6 +1,6 @@
-import { DebouncedFunction } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { DebouncedFunction } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DEBOUNCED_TIMEOUT_MS } from '../../constants/timeouts';
-import { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
+import type { ExposedGlobals, IRudderStackGlobals } from '../../app/IRudderStackGlobals';
 
 /**
  * Create globally accessible RudderStackGlobals object
@@ -21,7 +21,9 @@ const createExposedGlobals = (analyticsInstanceId = 'app') => {
  */
 const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'app') => {
   createExposedGlobals(analyticsInstanceId);
-  (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId][keyName] = value;
+  ((globalThis as typeof window).RudderStackGlobals[analyticsInstanceId] as ExposedGlobals)[
+    keyName
+  ] = value;
 };
 
 /**
@@ -32,7 +34,9 @@ const getExposedGlobal = (
   analyticsInstanceId = 'app',
 ): Partial<ExposedGlobals> => {
   createExposedGlobals(analyticsInstanceId);
-  return (globalThis as typeof window).RudderStackGlobals[analyticsInstanceId][keyName];
+  return ((globalThis as typeof window).RudderStackGlobals[analyticsInstanceId] as ExposedGlobals)[
+    keyName
+  ];
 };
 
 function debounce(func: DebouncedFunction, thisArg: any, delay: number = DEBOUNCED_TIMEOUT_MS) {

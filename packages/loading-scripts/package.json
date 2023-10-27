@@ -37,10 +37,10 @@
     "check:security": "npm audit --recursive --audit-level=high",
     "build:modern": "npm run build:browser:modern"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@rudderstack/analytics-js": "*"
   },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
