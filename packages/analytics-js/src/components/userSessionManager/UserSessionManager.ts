@@ -422,7 +422,7 @@ class UserSessionManager implements IUserSessionManager {
       (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
       sessionInfo.manualTrack
     ) {
-      return sessionInfo.id || null;
+      return sessionInfo.id ?? null;
     }
     return null;
   }
