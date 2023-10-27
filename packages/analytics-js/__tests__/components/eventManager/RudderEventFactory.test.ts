@@ -103,6 +103,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/NewPage',
@@ -188,6 +189,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/',
@@ -260,6 +262,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/',
@@ -345,6 +348,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/',
@@ -410,6 +414,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/',
@@ -488,6 +493,7 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          resolutionStrategy: 'and',
         },
         page: {
           path: '/',

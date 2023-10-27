@@ -152,10 +152,8 @@ const updateStorageState = (logger?: ILogger): void => {
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  const { consentManagerPluginName, initialized, enabled, consentsData } = getConsentManagementData(
-    state.loadOptions.value.consentManagement,
-    logger,
-  );
+  const { provider, consentManagerPluginName, initialized, enabled, consentsData } =
+    getConsentManagementData(state.loadOptions.value.consentManagement, logger);
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
@@ -195,6 +193,7 @@ const updateConsentsState = (logger?: ILogger): void => {
     state.consents.initialized.value = initialized;
     state.consents.enabled.value = enabled;
     state.consents.data.value = consentsData;
+    state.consents.provider.value = provider;
 
     state.consents.preConsent.value = {
       // Only enable pre-consent if it is explicitly enabled and

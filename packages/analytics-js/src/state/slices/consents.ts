@@ -8,6 +8,8 @@ const consentsState: ConsentsState = {
   activeConsentManagerPluginName: signal(undefined),
   preConsent: signal({ enabled: false }),
   postConsent: signal({}),
+  resolutionStrategy: signal('and'),
+  provider: signal(undefined),
 };
 
 export { consentsState };

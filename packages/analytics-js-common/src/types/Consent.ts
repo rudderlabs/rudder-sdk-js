@@ -13,13 +13,15 @@ export type CookieConsentOptions = {
   };
 };
 
-export type ConsentProvider = 'oneTrust' | 'ketch' | 'custom';
+export type ConsentManagementProvider = 'oneTrust' | 'ketch' | 'custom';
+
+export type ConsentResolutionStrategy = 'and' | 'or';
 
 export type Consents = Record<string, string> | string[];
 
 export type ConsentManagementOptions = {
   enabled: boolean;
-  provider: ConsentProvider;
+  provider: ConsentManagementProvider;
   allowedConsentIds?: Consents;
   deniedConsentIds?: Consents;
 };

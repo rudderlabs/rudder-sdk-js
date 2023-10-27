@@ -1,6 +1,7 @@
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type {
   ConsentManagementOptions,
+  ConsentManagementProvider,
   Consents,
   CookieConsentOptions,
 } from '@rudderstack/analytics-js-common/types/Consent';
@@ -16,6 +17,7 @@ import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/con
 import { clone } from 'ramda';
 import { state } from '@rudderstack/analytics-js/state';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
+import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
@@ -115,12 +117,16 @@ const getConsentManagementData = (
   let allowedConsentIds: Consents = [];
   let deniedConsentIds: Consents = [];
   let initialized = false;
+  let provider: ConsentManagementProvider | undefined;
 
   let enabled = consentManagementOpts?.enabled === true;
   if (isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) && enabled) {
-    const consentProvider = consentManagementOpts.provider;
+    provider = consentManagementOpts.provider;
     // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-    consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
+    consentManagerPluginName = getConsentManagerPluginName(provider, logger);
+    if (isUndefined(consentManagerPluginName)) {
+      provider = undefined;
+    }
 
     if (isValidConsentsData(consentManagementOpts.allowedConsentIds)) {
       allowedConsentIds = consentManagementOpts.allowedConsentIds;
@@ -142,6 +148,7 @@ const getConsentManagementData = (
   enabled = enabled && Boolean(consentManagerPluginName);
 
   return {
+    provider,
     consentManagerPluginName,
     initialized,
     enabled,
