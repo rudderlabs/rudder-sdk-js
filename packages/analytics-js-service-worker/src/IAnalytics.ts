@@ -1,4 +1,4 @@
-import { ApiCallback, ApiObject, IntegrationOptions } from './types';
+import type { ApiCallback, ApiObject, IntegrationOptions } from './types';
 
 export interface IAnalytics {
   /**

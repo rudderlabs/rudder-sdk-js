@@ -1,5 +1,8 @@
-import { ISessionStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type {
+  ISessionStorageOptions,
+  IStorage,
+} from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { SESSION_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';

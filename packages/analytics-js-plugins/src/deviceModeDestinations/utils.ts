@@ -2,22 +2,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import {
+import type {
   Destination,
   DeviceModeDestination,
 } from '@rudderstack/analytics-js-common/types/Destination';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { checks } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
-import { DeviceModeDestinationsAnalyticsInstance } from './types';
+import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
 import {
   DESTINATION_INIT_ERROR,

@@ -1,4 +1,4 @@
-import { Nullable } from './Nullable';
+import type { Nullable } from './Nullable';
 
 export interface ExtensionPoint {
   [lifeCycleName: string]: (...args: any[]) => unknown;

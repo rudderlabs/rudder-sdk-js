@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import { parseLinker } from './utils';
 
@@ -14,7 +14,7 @@ const GoogleLinker = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   userSession: {
-    anonymousIdGoogleLinker(rudderAmpLinkerParam?: Nullable<string>): Nullable<string> {
+    anonymousIdGoogleLinker(rudderAmpLinkerParam?: Nullable<string>): Nullable<string | undefined> {
       if (!rudderAmpLinkerParam) {
         return null;
       }

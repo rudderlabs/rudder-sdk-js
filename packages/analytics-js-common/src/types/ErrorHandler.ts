@@ -1,6 +1,6 @@
-import { IPluginEngine } from './PluginEngine';
-import { ILogger } from './Logger';
-import { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
+import type { IPluginEngine } from './PluginEngine';
+import type { ILogger } from './Logger';
+import type { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
 export type SDKError = unknown;
 

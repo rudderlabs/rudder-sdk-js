@@ -1,9 +1,9 @@
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
 /**
  * Filters and returns the user supplied integrations config that should take preference over the destination specific integrations config

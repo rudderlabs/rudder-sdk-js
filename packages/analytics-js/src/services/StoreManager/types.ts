@@ -4,7 +4,7 @@ import {
   MEMORY_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import {
+import type {
   ICookieStorageOptions,
   IInMemoryStorageOptions,
   ILocalStorageOptions,

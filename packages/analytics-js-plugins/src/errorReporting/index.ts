@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import {
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
   ExtensionPlugin,
   IPluginEngine,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { INVALID_SOURCE_CONFIG_ERROR } from './logMessages';
 
 const pluginName: PluginName = 'ErrorReporting';
