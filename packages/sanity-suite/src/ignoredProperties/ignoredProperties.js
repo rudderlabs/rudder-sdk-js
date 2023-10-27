@@ -84,6 +84,10 @@ const ignoredProperties = [
     type: 'number',
   },
   {
+    key: 'message.context.timezone',
+    type: 'string',
+  },
+  {
     key: 'message.messageId',
     type: 'string',
   },
