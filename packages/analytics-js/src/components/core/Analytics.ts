@@ -91,13 +91,14 @@ class Analytics implements IAnalytics {
 
     this.load = this.load.bind(this);
     this.startLifecycle = this.startLifecycle.bind(this);
-    this.prepareBrowserCapabilities = this.prepareBrowserCapabilities.bind(this);
+    this.onMounted = this.onMounted.bind(this);
+    this.onBrowserCapabilitiesReady = this.onBrowserCapabilitiesReady.bind(this);
     this.enqueuePreloadBufferEvents = this.enqueuePreloadBufferEvents.bind(this);
     this.processDataInPreloadBuffer = this.processDataInPreloadBuffer.bind(this);
     this.prepareInternalServices = this.prepareInternalServices.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
-    this.init = this.init.bind(this);
-    this.loadPlugins = this.loadPlugins.bind(this);
+    this.onPluginsReady = this.onPluginsReady.bind(this);
+    this.onConfigured = this.onConfigured.bind(this);
     this.onInitialized = this.onInitialized.bind(this);
     this.processBufferedEvents = this.processBufferedEvents.bind(this);
     this.loadDestinations = this.loadDestinations.bind(this);
@@ -173,21 +174,18 @@ class Analytics implements IAnalytics {
       try {
         switch (state.lifecycle.status.value) {
           case 'mounted':
-            this.prepareBrowserCapabilities();
+            this.onMounted();
             break;
           case 'browserCapabilitiesReady':
-            // initialize the preloaded events enqueuing
-            retrievePreloadBufferEvents(this);
-            this.prepareInternalServices();
-            this.loadConfig();
+            this.onBrowserCapabilitiesReady();
             break;
           case 'configured':
-            this.loadPlugins();
+            this.onConfigured();
             break;
           case 'pluginsLoading':
             break;
           case 'pluginsReady':
-            this.init();
+            this.onPluginsReady();
             break;
           case 'initialized':
             this.onInitialized();
@@ -213,7 +211,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  private onLoaded() {
+  onBrowserCapabilitiesReady() {
+    // initialize the preloaded events enqueuing
+    retrievePreloadBufferEvents(this);
+    this.prepareInternalServices();
+    this.loadConfig();
+  }
+
+  onLoaded() {
     this.processBufferedEvents();
     // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
     if (state.consents.preConsent.value.enabled === true) {
@@ -226,7 +231,7 @@ class Analytics implements IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  prepareBrowserCapabilities() {
+  onMounted() {
     this.capabilitiesManager.init();
   }
 
@@ -290,7 +295,7 @@ class Analytics implements IAnalytics {
   /**
    * Initialize the storage and event queue
    */
-  init() {
+  onPluginsReady() {
     this.errorHandler.init(this.externalSrcLoader);
 
     // Initialize storage
@@ -321,7 +326,7 @@ class Analytics implements IAnalytics {
   /**
    * Load plugins
    */
-  loadPlugins() {
+  onConfigured() {
     this.pluginsManager?.init();
     // TODO: are we going to enable custom plugins to be passed as load options?
     // registerCustomPlugins(state.loadOptions.value.customPlugins);

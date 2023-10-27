@@ -45,16 +45,16 @@ describe('Core - Analytics', () => {
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
       analytics.startLifecycle();
-      const prepareBrowserCapabilitiesSpy = jest.spyOn(analytics, 'prepareBrowserCapabilities');
+      const onMountedSpy = jest.spyOn(analytics, 'onMounted');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
-      const initSpy = jest.spyOn(analytics, 'init');
-      const loadPluginsSpy = jest.spyOn(analytics, 'loadPlugins');
+      const onPluginsReadySpy = jest.spyOn(analytics, 'onPluginsReady');
+      const onConfiguredSpy = jest.spyOn(analytics, 'onConfigured');
       const onInitializedSpy = jest.spyOn(analytics, 'onInitialized');
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
       const onDestinationsReadySpy = jest.spyOn(analytics, 'onDestinationsReady');
 
       state.lifecycle.status.value = 'mounted';
-      expect(prepareBrowserCapabilitiesSpy).toHaveBeenCalledTimes(1);
+      expect(onMountedSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
       state.lifecycle.status.value = 'browserCapabilitiesReady';
@@ -62,15 +62,15 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
       state.lifecycle.status.value = 'configured';
-      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsLoading';
-      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(initSpy).toHaveBeenCalledTimes(1);
+      expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('ready');
 
       state.lifecycle.status.value = 'initialized';
