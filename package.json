@@ -200,6 +200,7 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.1.4",
     "@nx/nx-darwin-arm64": "17.0.2",
     "@nx/nx-darwin-x64": "17.0.2",
     "@nx/nx-linux-x64-gnu": "17.0.2",
