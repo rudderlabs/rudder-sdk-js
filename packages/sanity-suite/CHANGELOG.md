@@ -2,6 +2,22 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.14...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.15) (2023-10-27)
+
+
+### Features
+
+* consent api ([#1458](https://github.com/rudderlabs/rudder-sdk-js/issues/1458)) ([216b405](https://github.com/rudderlabs/rudder-sdk-js/commit/216b405f7c319d5ff2d799d2e3a5efe2ee4a03af))
+* remove preload buffer for segment AnonymousId TC ([#1450](https://github.com/rudderlabs/rudder-sdk-js/issues/1450)) ([4ed8aff](https://github.com/rudderlabs/rudder-sdk-js/commit/4ed8afff1a155c9a37223202ccfcd213ef9c0d9a))
+
+
+### Bug Fixes
+
+* **analytics-js:** correct declared global extended type ([#1460](https://github.com/rudderlabs/rudder-sdk-js/issues/1460)) ([3f15290](https://github.com/rudderlabs/rudder-sdk-js/commit/3f1529037ba0541391b5f8033e37f867fdd7931c))
+* **analytics-js:** fix remote import error when npm package is bundled with webpack ([#1466](https://github.com/rudderlabs/rudder-sdk-js/issues/1466)) ([3a818ac](https://github.com/rudderlabs/rudder-sdk-js/commit/3a818accd24e6b3667c75a6b60fb12aba36bdf7e))
+* **monorepo:** update vulnerable dependencies ([#1457](https://github.com/rudderlabs/rudder-sdk-js/issues/1457)) ([7a4bc4c](https://github.com/rudderlabs/rudder-sdk-js/commit/7a4bc4cc641e4fff2a8f561ce6fd67d16c0cd5a0))
+* upgrade vulnerable cryptoJS dependency, rolup to v4 & NX to v17 ([#1471](https://github.com/rudderlabs/rudder-sdk-js/issues/1471)) ([b2bb21c](https://github.com/rudderlabs/rudder-sdk-js/commit/b2bb21cb3f618f6c86f593d1706abe9e6349066d))
+
 ## [3.0.0-beta.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.13...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.14) (2023-10-16)
 
 
