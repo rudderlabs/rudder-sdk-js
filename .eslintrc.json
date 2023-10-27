@@ -100,6 +100,11 @@
         "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
         "@typescript-eslint/no-unnecessary-type-constraint": "off",
         "@typescript-eslint/no-useless-constructor": ["error"],
+        "@typescript-eslint/consistent-type-imports": [
+          "error",
+          { "fixStyle": "inline-type-imports" }
+        ],
+        "@typescript-eslint/no-import-type-side-effects": "error",
         "no-console": "off",
         "no-plusplus": "off",
         "import/no-extraneous-dependencies": "off",

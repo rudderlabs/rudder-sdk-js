@@ -9,23 +9,23 @@ import {
   isDefinedNotNullAndNotEmptyString,
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
-import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
+import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -50,7 +50,7 @@ import {
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
-import { IUserSessionManager, UserSessionStorageKeysType } from './types';
+import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
@@ -140,10 +140,14 @@ class UserSessionManager implements IUserSessionManager {
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
-      const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
+      const curStore = this.storeManager?.getStore(
+        storageClientDataStoreNameMap[currentStorage] as string,
+      );
       if (curStore) {
         storagesForMigration.forEach(storage => {
-          const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+          const store = this.storeManager?.getStore(
+            storageClientDataStoreNameMap[storage] as string,
+          );
           if (store && storage !== currentStorage) {
             const value = store.get(userSessionStorageKeys[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
@@ -268,7 +272,9 @@ class UserSessionManager implements IUserSessionManager {
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
     if (isStorageTypeValidForStoringData(storage)) {
-      const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+      const curStore = this.storeManager?.getStore(
+        storageClientDataStoreNameMap[storage] as string,
+      );
       if ((value && isString(value)) || isNonEmptyObject(value)) {
         curStore?.set(key, value);
       } else {
@@ -378,7 +384,7 @@ class UserSessionManager implements IUserSessionManager {
     let persistedAnonymousId;
     // fetch the anonymousId from storage
     if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage] as string);
       persistedAnonymousId = store?.get(key);
       if (!persistedAnonymousId && options) {
         // fetch anonymousId from external source
@@ -399,7 +405,7 @@ class UserSessionManager implements IUserSessionManager {
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;
     if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
+      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage] as string);
       return store?.get(key) ?? null;
     }
     return null;

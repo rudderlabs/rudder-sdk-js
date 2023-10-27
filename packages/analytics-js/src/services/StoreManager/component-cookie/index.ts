@@ -1,7 +1,7 @@
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_DATA_ENCODING_ERROR } from '../../../constants/logMessages';
 
 /**
@@ -43,10 +43,10 @@ const parse = (str: string): Record<string, string | undefined> => {
   // TODO: Decode only the cookies that are needed by the SDK
   pairs.forEach(pairItem => {
     pair = pairItem.split('=');
-    const keyName = decode(pair[0]);
+    const keyName = pair[0] ? decode(pair[0]) : undefined;
 
     if (keyName) {
-      obj[keyName] = decode(pair[1]);
+      obj[keyName] = pair[1] ? decode(pair[1]) : undefined;
     }
   });
 

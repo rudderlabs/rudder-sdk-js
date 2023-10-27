@@ -30,6 +30,7 @@ class StoreLocal {
    * @param {*} key
    * @param {*} value
    */
+  // eslint-disable-next-line class-methods-use-this
   set(key, value) {
     return store.set(key, value);
   }
@@ -38,6 +39,7 @@ class StoreLocal {
    *
    * @param {*} key
    */
+  // eslint-disable-next-line class-methods-use-this
   get(key) {
     return store.get(key);
   }
@@ -46,6 +48,7 @@ class StoreLocal {
    *
    * @param {*} key
    */
+  // eslint-disable-next-line class-methods-use-this
   remove(key) {
     return store.remove(key);
   }

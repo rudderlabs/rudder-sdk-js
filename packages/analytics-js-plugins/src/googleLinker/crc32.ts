@@ -33,6 +33,8 @@ const crc32 = (str: string): number => {
   let crc = 0 ^ -1;
 
   for (let i = 0; i < str.length; i++) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xff];
   }
 

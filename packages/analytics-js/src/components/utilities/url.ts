@@ -1,5 +1,5 @@
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
 
 /**
  * Removes trailing slash from url

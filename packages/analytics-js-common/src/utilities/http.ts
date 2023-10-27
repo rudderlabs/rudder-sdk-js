@@ -1,4 +1,4 @@
-import { ResponseDetails } from '../types/HttpClient';
+import type { ResponseDetails } from '../types/HttpClient';
 
 const isErrRetryable = (details?: ResponseDetails) => {
   let isRetryableNWFailure = false;

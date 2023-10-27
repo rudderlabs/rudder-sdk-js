@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 const pluginName: PluginName = 'CustomConsentManager';
 
