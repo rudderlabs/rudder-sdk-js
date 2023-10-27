@@ -52,7 +52,12 @@ import type { PreloadedEventCall } from '../preloadBuffer/types';
 import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import type { IEventRepository } from '../eventRepository/types';
-import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+  CONSENT_TRACK_EVENT_NAME,
+} from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
@@ -718,6 +723,20 @@ class Analytics implements IAnalytics {
     this.eventManager?.resume();
 
     this.loadDestinations();
+
+    this.sendTrackingEvents();
+  }
+
+  sendTrackingEvents() {
+    if (state.consents.postConsent.value.trackConsent) {
+      this.track({
+        name: CONSENT_TRACK_EVENT_NAME,
+      } as TrackCallOptions);
+    }
+
+    if (state.consents.postConsent.value.sendPageEvent) {
+      this.page({} as PageCallOptions);
+    }
   }
 
   setAuthToken(token: string): void {
