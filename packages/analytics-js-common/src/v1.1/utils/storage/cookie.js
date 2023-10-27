@@ -31,6 +31,10 @@ class CookieLocal {
       domain,
       samesite: 'Lax',
     });
+    // configure cookies for exactly same domain
+    if (inOpts.sameDomainCookiesOnly) {
+      delete this.cOpts.domain;
+    }
 
     return this.cOpts;
   }
