@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { LifecycleState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { LifecycleState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../constants/urls';
 
 const lifecycleState: LifecycleState = {

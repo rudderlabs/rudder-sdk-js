@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  IPluginsManager,
+  PluginName,
+} from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { clone } from 'ramda';
 import { storages } from '../shared-chunks/common';
-import { DoneCallback, IQueue } from '../types/plugins';
+import type { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';

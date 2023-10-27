@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { NativeDestinationsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { NativeDestinationsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const nativeDestinationsState: NativeDestinationsState = {
   configuredDestinations: signal([]),

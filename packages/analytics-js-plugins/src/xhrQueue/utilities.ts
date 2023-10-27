@@ -1,14 +1,14 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
 import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
-import { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
+import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 
 const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
@@ -74,7 +74,7 @@ const getRequestInfo = (
       eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event),
     );
     data = getBatchDeliveryPayload(finalEvents, logger);
-    headers = clone(itemData[0].headers);
+    headers = itemData[0] ? clone(itemData[0].headers) : {};
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;

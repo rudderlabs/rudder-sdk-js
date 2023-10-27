@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { PluginsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { PluginsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const pluginsState: PluginsState = {
   ready: signal(false),
