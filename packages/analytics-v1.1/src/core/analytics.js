@@ -1218,6 +1218,10 @@ class Analytics {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
+    if (options && typeof options.sameDomainCookiesOnly === 'boolean') {
+      storageOptions = { ...storageOptions, sameDomainCookiesOnly: options.sameDomainCookiesOnly };
+    }
+
     if (options && SAMESITE_COOKIE_OPTS.indexOf(options.sameSiteCookie) !== -1) {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
