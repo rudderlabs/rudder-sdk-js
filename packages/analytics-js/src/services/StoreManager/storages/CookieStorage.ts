@@ -34,6 +34,9 @@ class CookieStorage implements IStorage {
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
     this.options = mergeDeepRight(this.options ?? {}, options);
+    if (options.sameDomainCookiesOnly) {
+      delete this.options.domain;
+    }
     this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
