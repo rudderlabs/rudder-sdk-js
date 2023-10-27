@@ -67,7 +67,6 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-#          npm run deploy:npm -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
           nx release publish -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
 
       - name: Send message to Slack channel for v3
