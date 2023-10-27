@@ -57,14 +57,14 @@ import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
+import { dispatchSDKEvent } from './utilities';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
  */
 class Analytics implements IAnalytics {
-  preloadBuffer: BufferQueue<PreloadedEventCall> = new BufferQueue();
+  preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
-  status?: LifecycleStatus;
   logger: ILogger;
   errorHandler: IErrorHandler;
   httpClient: IHttpClient;
@@ -82,44 +82,13 @@ class Analytics implements IAnalytics {
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
+    this.preloadBuffer = new BufferQueue();
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
-
-    this.load = this.load.bind(this);
-    this.startLifecycle = this.startLifecycle.bind(this);
-    this.onMounted = this.onMounted.bind(this);
-    this.onBrowserCapabilitiesReady = this.onBrowserCapabilitiesReady.bind(this);
-    this.enqueuePreloadBufferEvents = this.enqueuePreloadBufferEvents.bind(this);
-    this.processDataInPreloadBuffer = this.processDataInPreloadBuffer.bind(this);
-    this.prepareInternalServices = this.prepareInternalServices.bind(this);
-    this.loadConfig = this.loadConfig.bind(this);
-    this.onPluginsReady = this.onPluginsReady.bind(this);
-    this.onConfigured = this.onConfigured.bind(this);
-    this.onInitialized = this.onInitialized.bind(this);
-    this.processBufferedEvents = this.processBufferedEvents.bind(this);
-    this.loadDestinations = this.loadDestinations.bind(this);
-    this.onDestinationsReady = this.onDestinationsReady.bind(this);
-    this.onReady = this.onReady.bind(this);
-    this.ready = this.ready.bind(this);
-    this.page = this.page.bind(this);
-    this.track = this.track.bind(this);
-    this.identify = this.identify.bind(this);
-    this.alias = this.alias.bind(this);
-    this.group = this.group.bind(this);
-    this.reset = this.reset.bind(this);
-    this.getAnonymousId = this.getAnonymousId.bind(this);
-    this.setAnonymousId = this.setAnonymousId.bind(this);
-    this.getUserId = this.getUserId.bind(this);
-    this.getUserTraits = this.getUserTraits.bind(this);
-    this.getGroupId = this.getGroupId.bind(this);
-    this.getGroupTraits = this.getGroupTraits.bind(this);
-    this.startSession = this.startSession.bind(this);
-    this.endSession = this.endSession.bind(this);
-    this.getSessionId = this.getSessionId.bind(this);
   }
 
   /**
@@ -355,14 +324,7 @@ class Analytics implements IAnalytics {
     this.initialized = true;
 
     // Emit an event to use as substitute to the onLoaded callback
-    const initializedEvent = new CustomEvent('RSA_Initialised', {
-      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-    });
-
-    (globalThis as typeof window).document.dispatchEvent(initializedEvent);
+    dispatchSDKEvent('RSA_Initialised');
   }
 
   /**
@@ -379,14 +341,7 @@ class Analytics implements IAnalytics {
     });
 
     // Emit an event to use as substitute to the ready callback
-    const readyEvent = new CustomEvent('RSA_Ready', {
-      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-    });
-
-    (globalThis as typeof window).document.dispatchEvent(readyEvent);
+    dispatchSDKEvent('RSA_Ready');
   }
 
   /**

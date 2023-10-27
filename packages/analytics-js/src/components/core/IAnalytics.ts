@@ -31,7 +31,6 @@ import { BufferQueue } from './BufferQueue';
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
-  status?: LifecycleStatus;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;

@@ -18,6 +18,7 @@ import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-com
 import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { USER_SESSION_KEYS } from '@rudderstack/analytics-js/constants/storage';
 import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
@@ -53,12 +54,13 @@ class StoreManager implements IStoreManager {
       return;
     }
 
+    const loadOptions = state.loadOptions.value;
     const config: StoreManagerOptions = {
       cookieStorageOptions: {
-        samesite: state.loadOptions.value.sameSiteCookie,
-        secure: state.loadOptions.value.secureCookie,
-        domain: state.loadOptions.value.setCookieDomain,
-        sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
+        samesite: loadOptions.sameSiteCookie,
+        secure: loadOptions.secureCookie,
+        domain: loadOptions.setCookieDomain,
+        sameDomainCookiesOnly: loadOptions.sameDomainCookiesOnly,
         enabled: true,
       },
       localStorageOptions: { enabled: true },
@@ -90,24 +92,18 @@ class StoreManager implements IStoreManager {
 
     // Initializing all the enabled store because previous user data might be in different storage
     // that needs auto migration
-    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
-    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
-    }
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
-    }
-    if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(SESSION_STORAGE);
-    }
-    storageTypesRequiringInitialization.forEach(storageType => {
-      this.setStore({
-        id: storageClientDataStoreNameMap[storageType],
-        name: storageClientDataStoreNameMap[storageType],
-        isEncrypted: true,
-        noCompoundKey: true,
-        type: storageType as StorageType,
-      });
+    const storageTypes = [MEMORY_STORAGE, LOCAL_STORAGE, COOKIE_STORAGE, SESSION_STORAGE];
+
+    storageTypes.forEach(storageType => {
+      if (getStorageEngine(storageType)?.isEnabled) {
+        this.setStore({
+          id: storageClientDataStoreNameMap[storageType],
+          name: storageClientDataStoreNameMap[storageType],
+          isEncrypted: true,
+          noCompoundKey: true,
+          type: storageType,
+        });
+      }
     });
   }
 
@@ -123,20 +119,8 @@ class StoreManager implements IStoreManager {
     }
 
     let trulyAnonymousTracking = true;
-    const userSessionKeys: UserSessionKey[] = [
-      'userId',
-      'userTraits',
-      'anonymousId',
-      'groupId',
-      'groupTraits',
-      'initialReferrer',
-      'initialReferringDomain',
-      'sessionInfo',
-      'authToken',
-    ];
-
     let storageEntries = {};
-    userSessionKeys.forEach(sessionKey => {
+    USER_SESSION_KEYS.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
       const configuredStorageType = entriesOptions?.[key]?.type;

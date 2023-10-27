@@ -113,6 +113,7 @@ export type ReportingState = {
 };
 
 export type SessionState = {
+  // IMPORTANT: Ensure to keep these names same as USER_SESSION_KEYS
   readonly userId: Signal<Nullable<string> | undefined>;
   readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
   readonly anonymousId: Signal<string | undefined>;

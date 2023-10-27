@@ -29,6 +29,7 @@ import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
   CLIENT_DATA_STORE_SESSION,
+  USER_SESSION_KEYS,
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
@@ -128,19 +129,20 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   isPersistenceEnabledForStorageEntry(entryName: UserSessionKey): boolean {
-    const entries = state.storage.entries.value;
-    return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
+    return isStorageTypeValidForStoringData(
+      state.storage.entries.value[entryName]?.type as StorageType,
+    );
   }
 
   migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
-    const storagesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
+    const storageTypesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
       const curStore = this.storeManager?.getStore(storageClientDataStoreNameMap[currentStorage]);
       if (curStore) {
-        storagesForMigration.forEach(storage => {
+        storageTypesForMigration.forEach(storage => {
           const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
           if (store && storage !== currentStorage) {
             const value = store.get(USER_SESSION_STORAGE_KEYS[key]);
@@ -159,22 +161,23 @@ class UserSessionManager implements IUserSessionManager {
     if (!state.storage.migrate.value) {
       return;
     }
-    const cookieStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_COOKIE);
-    const localStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_LS);
-    const sessionStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_SESSION);
+
+    const persistentStoreNames = [
+      CLIENT_DATA_STORE_COOKIE,
+      CLIENT_DATA_STORE_LS,
+      CLIENT_DATA_STORE_SESSION,
+    ];
+
     const stores: IStore[] = [];
-    if (cookieStorage) {
-      stores.push(cookieStorage);
-    }
-    if (localStorage) {
-      stores.push(localStorage);
-    }
-    if (sessionStorage) {
-      stores.push(sessionStorage);
-    }
+    persistentStoreNames.forEach(storeName => {
+      const store = this.storeManager?.getStore(storeName);
+      if (store) {
+        stores.push(store);
+      }
+    });
+
     Object.keys(USER_SESSION_STORAGE_KEYS).forEach(storageKey => {
-      const key = storageKey as UserSessionStorageKeysType;
-      const storageEntry = USER_SESSION_STORAGE_KEYS[key];
+      const storageEntry = USER_SESSION_STORAGE_KEYS[storageKey as UserSessionStorageKeysType];
       stores.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
@@ -183,6 +186,7 @@ class UserSessionManager implements IUserSessionManager {
           this.errorHandler,
           this.logger,
         );
+
         if (migratedVal) {
           store.set(storageEntry, migratedVal);
         }
@@ -267,59 +271,11 @@ class UserSessionManager implements IUserSessionManager {
    * Function to update storage whenever state value changes
    */
   registerEffects() {
-    /**
-     * Update userId in storage automatically when userId is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('userId', state.session.userId.value);
-    });
-    /**
-     * Update user traits in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('userTraits', state.session.userTraits.value);
-    });
-    /**
-     * Update group id in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('groupId', state.session.groupId.value);
-    });
-    /**
-     * Update group traits in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('groupTraits', state.session.groupTraits.value);
-    });
-    /**
-     * Update anonymous user id in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('anonymousId', state.session.anonymousId.value);
-    });
-    /**
-     * Update initial referrer in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('initialReferrer', state.session.initialReferrer.value);
-    });
-    /**
-     * Update initial referring domain in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('initialReferringDomain', state.session.initialReferringDomain.value);
-    });
-    /**
-     * Update session tracking info in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('sessionInfo', state.session.sessionInfo.value);
-    });
-    /**
-     * Update session tracking info in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('authToken', state.session.authToken.value);
+    // This will work as long as the user session entry key names are same as the state keys
+    USER_SESSION_KEYS.forEach(sessionKey => {
+      effect(() => {
+        this.syncValueToStorage(sessionKey, state.session[sessionKey].value);
+      });
     });
   }
 
@@ -375,11 +331,11 @@ class UserSessionManager implements IUserSessionManager {
 
   getEntryValue(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage]);
-      return store?.get(key) ?? null;
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
+      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storageType]);
+      const storageKey = entries[sessionKey]?.key as string;
+      return store?.get(storageKey) ?? null;
     }
     return null;
   }
@@ -453,12 +409,12 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
+    const sessionInfo = state.session.sessionInfo.value;
     if (
-      (state.session.sessionInfo.value.autoTrack &&
-        !hasSessionExpired(state.session.sessionInfo.value.expiresAt)) ||
-      state.session.sessionInfo.value.manualTrack
+      (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
+      sessionInfo.manualTrack
     ) {
-      return state.session.sessionInfo.value.id || null;
+      return sessionInfo.id || null;
     }
     return null;
   }
@@ -467,18 +423,24 @@ class UserSessionManager implements IUserSessionManager {
    * A function to update current session info after each event call
    */
   refreshSession(): void {
-    if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
-      if (state.session.sessionInfo.value.autoTrack) {
+    let sessionInfo = state.session.sessionInfo.value;
+    if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
+      if (sessionInfo.autoTrack) {
         this.startOrRenewAutoTracking();
       }
-      if (state.session.sessionInfo.value.sessionStart === undefined) {
+
+      // Re-assigning the variable with the same value intentionally as
+      // startOrRenewAutoTracking() will update the sessionInfo value
+      sessionInfo = state.session.sessionInfo.value;
+
+      if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
-          ...state.session.sessionInfo.value,
+          ...sessionInfo,
           sessionStart: true,
         };
-      } else if (state.session.sessionInfo.value.sessionStart) {
+      } else if (sessionInfo.sessionStart) {
         state.session.sessionInfo.value = {
-          ...state.session.sessionInfo.value,
+          ...sessionInfo,
           sessionStart: false,
         };
       }
@@ -492,14 +454,15 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
-    const { manualTrack, autoTrack } = state.session.sessionInfo.value;
+    const { session } = state;
+    const { manualTrack, autoTrack } = session.sessionInfo.value;
 
     batch(() => {
-      state.session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
-      state.session.userTraits.value = DEFAULT_USER_SESSION_VALUES.userTraits;
-      state.session.groupId.value = DEFAULT_USER_SESSION_VALUES.groupId;
-      state.session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
-      state.session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
+      session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
+      session.userTraits.value = DEFAULT_USER_SESSION_VALUES.userTraits;
+      session.groupId.value = DEFAULT_USER_SESSION_VALUES.groupId;
+      session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
+      session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
 
       if (resetAnonymousId) {
         // This will generate a new anonymous ID
@@ -511,7 +474,7 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
         this.startOrRenewAutoTracking();
       } else if (manualTrack) {
         this.startManualTrackingInternal();
@@ -600,14 +563,13 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking() {
-    if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
-      state.session.sessionInfo.value = generateAutoTrackingSession(
-        state.session.sessionInfo.value.timeout,
-      );
+    const sessionInfo = state.session.sessionInfo.value;
+    if (hasSessionExpired(sessionInfo.expiresAt)) {
+      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
       const timestamp = Date.now();
-      const timeout = state.session.sessionInfo.value.timeout as number;
-      state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
+      const timeout = sessionInfo.timeout as number;
+      state.session.sessionInfo.value = mergeDeepRight(sessionInfo, {
         expiresAt: timestamp + timeout, // set the expiry time of the session
       });
     }
