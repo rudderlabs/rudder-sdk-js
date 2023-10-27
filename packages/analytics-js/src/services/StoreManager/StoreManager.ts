@@ -162,6 +162,7 @@ class StoreManager implements IStoreManager {
     });
 
     batch(() => {
+      state.storage.type.value = globalStorageType;
       state.storage.entries.value = storageEntries;
       state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
     });

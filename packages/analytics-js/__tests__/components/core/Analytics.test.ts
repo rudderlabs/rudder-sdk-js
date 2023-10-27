@@ -1,9 +1,15 @@
-import { Analytics } from '../../../src/components/core/Analytics';
-import { resetState, state } from '../../../src/state';
-import { setExposedGlobal } from '../../../src/components/utilities/globals';
-import { entriesWithOnlyCookieStorage } from '../../../__fixtures__/fixtures';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
+import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import {
+  entriesWithMixStorage,
+  entriesWithOnlyCookieStorage,
+} from '../../../__fixtures__/fixtures';
+import { setExposedGlobal } from '../../../src/components/utilities/globals';
+import { resetState, state } from '../../../src/state';
+import { Analytics } from '../../../src/components/core/Analytics';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -440,6 +446,8 @@ describe('Core - Analytics', () => {
 
       state.consents.enabled.value = true;
       state.consents.initialized.value = false;
+      state.storage.type.value = 'localStorage';
+      state.storage.entries.value = entriesWithMixStorage;
 
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const invokeSingleSpy = jest.spyOn(
@@ -448,10 +456,39 @@ describe('Core - Analytics', () => {
       );
       const resumeSpy = jest.spyOn(analytics.eventManager as IEventManager, 'resume');
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
+      const initializeStorageStateSpy = jest.spyOn(
+        analytics.storeManager as IStoreManager,
+        'initializeStorageState',
+      );
+      const syncStorageDataToStateSpy = jest.spyOn(
+        analytics.userSessionManager as IUserSessionManager,
+        'syncStorageDataToState',
+      );
 
       analytics.consent({
         consentManagement: {
+          enabled: true,
           provider: 'custom',
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
         },
         discardPreConsentEvents: true,
         sendPageEvent: false,
@@ -466,6 +503,26 @@ describe('Core - Analytics', () => {
           enabled: true,
           provider: 'custom',
         },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
+        },
       });
 
       expect(state.consents.initialized.value).toBe(false);
@@ -476,8 +533,50 @@ describe('Core - Analytics', () => {
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
+      expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
+      expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);
       expect(loadDestinationsSpy).toHaveBeenCalledTimes(1);
+
+      expect(state.storage.type.value).toBe('cookieStorage');
+      expect(state.storage.entries.value).toStrictEqual({
+        userId: {
+          type: 'sessionStorage',
+          key: USER_SESSION_STORAGE_KEYS.userId,
+        },
+        userTraits: {
+          type: 'localStorage',
+          key: USER_SESSION_STORAGE_KEYS.userTraits,
+        },
+        anonymousId: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+        },
+        groupId: {
+          type: 'memoryStorage',
+          key: USER_SESSION_STORAGE_KEYS.groupId,
+        },
+        groupTraits: {
+          type: 'memoryStorage',
+          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+        },
+        initialReferrer: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+        },
+        initialReferringDomain: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+        },
+        sessionInfo: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+        },
+        authToken: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.authToken,
+        },
+      });
     });
   });
 });
