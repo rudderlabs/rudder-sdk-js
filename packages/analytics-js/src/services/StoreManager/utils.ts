@@ -1,11 +1,11 @@
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 
 const getStorageTypeFromPreConsentIfApplicable = (
   state: ApplicationState,
-  sessionKey: UserSessionKeys,
+  sessionKey: UserSessionKey,
 ) => {
   let overriddenStorageType: StorageType | undefined;
   if (state.consents.preConsent.value.enabled) {

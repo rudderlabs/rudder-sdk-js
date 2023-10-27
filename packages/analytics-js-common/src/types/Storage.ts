@@ -1,4 +1,4 @@
-import { UserSessionKeys } from './UserSessionStorage';
+import { UserSessionKey } from './UserSessionStorage';
 
 export type StorageEncryptionVersion = 'legacy' | 'v3'; // default is v3
 
@@ -33,7 +33,7 @@ export type StorageOpts = {
   type?: StorageType;
   cookie?: CookieOptions;
   entries?: {
-    [key in UserSessionKeys]?: LoadOptionStorageEntry;
+    [key in UserSessionKey]?: LoadOptionStorageEntry;
   };
 };
 

@@ -14,7 +14,7 @@ import { Source } from './Source';
 import { ApiObject } from './ApiObject';
 import { ConsentsInfo } from './Consent';
 import { StorageType, CookieOptions } from './Storage';
-import { UserSessionKeys } from './UserSessionStorage';
+import { UserSessionKey } from './UserSessionStorage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -131,7 +131,7 @@ export type StorageEntry = {
   key: string;
 };
 export type StorageEntries = {
-  [key in UserSessionKeys]?: StorageEntry;
+  [key in UserSessionKey]?: StorageEntry;
 };
 
 export type StorageState = {

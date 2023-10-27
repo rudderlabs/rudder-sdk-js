@@ -23,7 +23,7 @@ import {
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import {
   CLIENT_DATA_STORE_COOKIE,
@@ -125,7 +125,7 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
-  isPersistenceEnabledForStorageEntry(entryName: UserSessionKeys): boolean {
+  isPersistenceEnabledForStorageEntry(entryName: UserSessionKey): boolean {
     const entries = state.storage.entries.value;
     return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
   }
@@ -245,7 +245,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param value
    */
   syncValueToStorage(
-    sessionKey: UserSessionKeys,
+    sessionKey: UserSessionKey,
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
@@ -371,7 +371,7 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.anonymousId.value as string;
   }
 
-  getEntryValue(sessionKey: UserSessionKeys) {
+  getEntryValue(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
     const storage = entries[sessionKey]?.type as StorageType;
     const key = entries[sessionKey]?.key as string;

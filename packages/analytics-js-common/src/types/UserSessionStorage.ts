@@ -1,4 +1,4 @@
-export type UserSessionKeys =
+export type UserSessionKey =
   | 'userId'
   | 'userTraits'
   | 'anonymousId'

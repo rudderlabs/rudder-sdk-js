@@ -15,7 +15,7 @@ import {
   removeUndefinedValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
@@ -122,7 +122,7 @@ class StoreManager implements IStoreManager {
     }
 
     let trulyAnonymousTracking = true;
-    const userSessionKeyValues: UserSessionKeys[] = [
+    const userSessionKeys: UserSessionKey[] = [
       'userId',
       'userTraits',
       'anonymousId',
@@ -135,7 +135,7 @@ class StoreManager implements IStoreManager {
     ];
 
     let storageEntries = {};
-    userSessionKeyValues.forEach(sessionKey => {
+    userSessionKeys.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
       const configuredStorageType = entriesOptions?.[key]?.type;
@@ -145,41 +145,9 @@ class StoreManager implements IStoreManager {
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
-      let finalStorageType = storageType;
 
-      switch (storageType) {
-        case LOCAL_STORAGE:
-          if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-        case SESSION_STORAGE:
-          if (!getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-        case MEMORY_STORAGE:
-        case NO_STORAGE:
-          break;
-        case COOKIE_STORAGE:
-        default:
-          // First try setting the storage to cookie else to local storage
-          if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-            finalStorageType = COOKIE_STORAGE;
-          } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-            finalStorageType = LOCAL_STORAGE;
-          } else if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-            finalStorageType = SESSION_STORAGE;
-          } else {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-      }
-      if (finalStorageType !== storageType) {
-        this.logger?.warn(
-          STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
-        );
-      }
+      const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
+
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
       }
@@ -197,6 +165,46 @@ class StoreManager implements IStoreManager {
       state.storage.entries.value = storageEntries;
       state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
     });
+  }
+
+  private getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
+    let finalStorageType = storageType;
+    switch (storageType) {
+      case LOCAL_STORAGE:
+        if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+      case SESSION_STORAGE:
+        if (!getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+      case MEMORY_STORAGE:
+      case NO_STORAGE:
+        break;
+      case COOKIE_STORAGE:
+      default:
+        // First try setting the storage to cookie else to local storage
+        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          finalStorageType = COOKIE_STORAGE;
+        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = LOCAL_STORAGE;
+        } else if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+          finalStorageType = SESSION_STORAGE;
+        } else {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+    }
+
+    if (finalStorageType !== storageType) {
+      this.logger?.warn(
+        STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
+      );
+    }
+
+    return finalStorageType;
   }
 
   /**
