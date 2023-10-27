@@ -56,7 +56,7 @@ class StoreManager implements IStoreManager {
         samesite: state.loadOptions.value.sameSiteCookie,
         secure: state.loadOptions.value.secureCookie,
         domain: state.loadOptions.value.setCookieDomain,
-        sameDomainCookieOnly: state.loadOptions.value.sameDomainCookieOnly,
+        sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
         enabled: true,
       },
       localStorageOptions: { enabled: true },

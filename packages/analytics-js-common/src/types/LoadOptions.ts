@@ -145,7 +145,7 @@ export type LoadOptions = {
   // transport mechanism to be used for sending batched requests
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
-  sameDomainCookieOnly?: boolean;
+  sameDomainCookiesOnly?: boolean;
 };
 
 export type ConsentOptions = {
