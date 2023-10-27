@@ -10,6 +10,7 @@ const consentsState: ConsentsState = {
   postConsent: signal({}),
   resolutionStrategy: signal('and'),
   provider: signal(undefined),
+  metadata: signal(undefined),
 };
 
 export { consentsState };

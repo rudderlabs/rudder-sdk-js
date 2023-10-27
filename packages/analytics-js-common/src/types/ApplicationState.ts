@@ -12,7 +12,12 @@ import type { IntegrationOpts } from './Integration';
 import type { SessionInfo } from './Session';
 import type { Source } from './Source';
 import type { ApiObject } from './ApiObject';
-import type { ConsentManagementProvider, ConsentResolutionStrategy, ConsentsInfo } from './Consent';
+import type {
+  ConsentManagementMetadata,
+  ConsentManagementProvider,
+  ConsentResolutionStrategy,
+  ConsentsInfo,
+} from './Consent';
 import type { StorageType, CookieOptions } from './Storage';
 import type { UserSessionKey } from './UserSessionStorage';
 
@@ -40,6 +45,7 @@ export type ConsentsState = {
   postConsent: Signal<ConsentOptions>;
   resolutionStrategy: Signal<ConsentResolutionStrategy>;
   provider: Signal<ConsentManagementProvider | undefined>;
+  metadata: Signal<ConsentManagementMetadata | undefined>;
 };
 
 export type ContextState = {

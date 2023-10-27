@@ -13,6 +13,15 @@ export type CookieConsentOptions = {
   };
 };
 
+export type ConsentManagementMetadata = {
+  providers: ConsentManagementProviderMetadata[];
+};
+
+export type ConsentManagementProviderMetadata = {
+  provider: ConsentManagementProvider;
+  resolutionStrategy: ConsentResolutionStrategy;
+};
+
 export type ConsentManagementProvider = 'oneTrust' | 'ketch' | 'custom';
 
 export type ConsentResolutionStrategy = 'and' | 'or';

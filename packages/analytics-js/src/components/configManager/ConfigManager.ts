@@ -114,7 +114,7 @@ class ConfigManager implements IConfigManager {
     }
 
     let res: SourceConfigResponse;
-    const errMessage = 'Unable to process/parse source config';
+    const errMessage = 'Unable to process/parse source configuration response';
 
     try {
       if (isString(response)) {
@@ -122,8 +122,8 @@ class ConfigManager implements IConfigManager {
       } else {
         res = response;
       }
-    } catch (e) {
-      this.onError(e, errMessage, true);
+    } catch (err) {
+      this.onError(err, errMessage, true);
       return;
     }
 
@@ -152,6 +152,8 @@ class ConfigManager implements IConfigManager {
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
+      state.consents.metadata.value = res.consentManagementMetadata;
+
       // set source related information in state
       state.source.value = {
         config: res.source.config,
