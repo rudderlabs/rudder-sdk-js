@@ -13,7 +13,7 @@ import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import {
   anonymousIdWithNoStorageEntries,
-  entriesWithMixStorage,
+  entriesWithMixStorageButWithoutNone,
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
   entriesWithOnlyNoStorage,
@@ -95,11 +95,15 @@ describe('User session manager', () => {
       };
       setDataInCookieStorage(customData);
 
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 10000,
+      };
       state.storage.entries.value = entriesWithStorageOnlyForAnonymousId;
       userSessionManager.init();
 
       // Modify the storage options and re-align state and storage
-      state.storage.entries.value = entriesWithMixStorage;
+      state.storage.entries.value = entriesWithMixStorageButWithoutNone;
       userSessionManager.syncStorageDataToState();
 
       expect(state.session.userId.value).toBe(DEFAULT_USER_SESSION_VALUES.userId);
@@ -110,9 +114,15 @@ describe('User session manager', () => {
       );
       expect(state.session.initialReferrer.value).toBe('$direct');
       expect(state.session.initialReferringDomain.value).toBe('');
-      expect(state.session.sessionInfo.value).toStrictEqual(
-        DEFAULT_USER_SESSION_VALUES.sessionInfo,
-      );
+      // Auto-tracking should resume post consent
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        autoTrack: true,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: undefined,
+        timeout: 10000, // TODO: fix this after this entry is removed from state
+      });
+      // This also covers the data migration from previous storage to current
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
@@ -428,6 +438,7 @@ describe('User session manager', () => {
       userSessionManager.init();
       expect(state.session.sessionInfo.value).toStrictEqual({
         autoTrack: false,
+        timeout: DEFAULT_SESSION_TIMEOUT_MS,
       });
     });
 

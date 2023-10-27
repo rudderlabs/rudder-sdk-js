@@ -500,6 +500,45 @@ const entriesWithMixStorage = {
   },
 };
 
+const entriesWithMixStorageButWithoutNone = {
+  userId: {
+    type: 'cookieStorage',
+    key: USER_SESSION_STORAGE_KEYS.userId,
+  },
+  userTraits: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.userTraits,
+  },
+  anonymousId: {
+    type: 'sessionStorage',
+    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+  },
+  groupId: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupId,
+  },
+  groupTraits: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+  },
+  initialReferrer: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+  },
+  initialReferringDomain: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+  },
+  sessionInfo: {
+    type: 'localStorage',
+    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+  },
+  authToken: {
+    type: 'memoryStorage',
+    key: USER_SESSION_STORAGE_KEYS.authToken,
+  },
+};
+
 const loadOptionWithEntry = {
   userId: {
     type: 'cookieStorage',
@@ -722,4 +761,5 @@ export {
   postConsentStorageEntryOptions,
   entriesWithoutCookieStorage,
   entriesWithoutCookieAndLocalStorage,
+  entriesWithMixStorageButWithoutNone,
 };

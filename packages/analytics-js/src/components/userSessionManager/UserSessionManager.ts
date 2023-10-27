@@ -76,14 +76,13 @@ class UserSessionManager implements IUserSessionManager {
    * Initialize User session with values from storage
    */
   init() {
-    const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-    this.syncStorageDataToState(configuredSessionTrackingInfo);
+    this.syncStorageDataToState();
 
     // Register the effect to sync with storage
     this.registerEffects();
   }
 
-  syncStorageDataToState(sessionInfo?: SessionInfo) {
+  syncStorageDataToState() {
     this.migrateStorageIfNeeded();
     this.migrateDataFromPreviousStorage();
 
@@ -95,20 +94,23 @@ class UserSessionManager implements IUserSessionManager {
     this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
     this.setInitialReferrerInfo();
-    this.configureSessionTracking(sessionInfo);
+    this.configureSessionTracking();
   }
 
-  configureSessionTracking(sessionInfo: SessionInfo | undefined) {
-    let finalSessionInfo = sessionInfo;
-    if (sessionInfo) {
-      const curSessionInfo = this.getSessionInfo() ?? {};
-      finalSessionInfo = {
-        ...sessionInfo,
-        autoTrack: sessionInfo.autoTrack && curSessionInfo.manualTrack !== true,
+  configureSessionTracking() {
+    let sessionInfo = this.getSessionInfo();
+    if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
+      const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
+      const persistedSessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
+      sessionInfo = {
+        ...persistedSessionInfo,
+        ...configuredSessionTrackingInfo,
+        autoTrack:
+          configuredSessionTrackingInfo.autoTrack && persistedSessionInfo.manualTrack !== true,
       };
     }
 
-    this.setSessionInfo(mergeDeepRight(this.getSessionInfo() ?? {}, finalSessionInfo ?? {}));
+    this.setSessionInfo(sessionInfo);
   }
 
   setInitialReferrerInfo() {
@@ -519,7 +521,7 @@ class UserSessionManager implements IUserSessionManager {
 
   setSessionInfo(sessionInfo: Nullable<SessionInfo>) {
     state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
-      ? sessionInfo ?? defaultSessionInfo
+      ? (sessionInfo as SessionInfo)
       : DEFAULT_USER_SESSION_VALUES.sessionInfo;
 
     // If auto session tracking is enabled start the session tracking
