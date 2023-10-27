@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ConsentsInfo } from '@rudderstack/analytics-js-common/types/Consent';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ConsentsInfo } from '@rudderstack/analytics-js-common/types/Consent';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { checks, storages, string } from '../shared-chunks/common';
 import { KETCH_CONSENT_COOKIE_PARSE_ERROR, KETCH_CONSENT_COOKIE_READ_ERROR } from './logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
-import { KetchConsentCookieData, KetchConsentData } from './types';
+import type { KetchConsentCookieData, KetchConsentData } from './types';
 
 /**
  * Gets the consent data from the Ketch's consent cookie

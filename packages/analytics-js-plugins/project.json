@@ -76,7 +76,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js-plugins/jest.config.ts",
+        "jestConfig": "packages/analytics-js-plugins/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,

@@ -1,11 +1,11 @@
 import { clone } from 'ramda';
 import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
@@ -15,7 +15,7 @@ import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,

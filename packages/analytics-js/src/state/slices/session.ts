@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals-core';
-import { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { DEFAULT_USER_SESSION_VALUES } from '../../components/userSessionManager/constants';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 

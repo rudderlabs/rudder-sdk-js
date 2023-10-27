@@ -1,5 +1,5 @@
-import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
-import { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
+import type { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
+import type { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 

@@ -1,4 +1,4 @@
-import { UserSessionKey } from './UserSessionStorage';
+import type { UserSessionKey } from './UserSessionStorage';
 
 export type StorageEncryptionVersion = 'legacy' | 'v3'; // default is v3
 

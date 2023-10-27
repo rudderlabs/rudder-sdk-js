@@ -1,5 +1,5 @@
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export type BatchPayloadData = {
   orderNo: number;

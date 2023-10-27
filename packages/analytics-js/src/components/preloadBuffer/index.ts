@@ -6,8 +6,8 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { PreloadedEventCall } from './types';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { PreloadedEventCall } from './types';
 import {
   QUERY_PARAM_ANONYMOUS_ID_KEY,
   QUERY_PARAM_PROPERTY_PREFIX,
@@ -15,7 +15,7 @@ import {
   QUERY_PARAM_TRAIT_PREFIX,
   QUERY_PARAM_USER_ID_KEY,
 } from '../../constants/queryParams';
-import { IAnalytics } from '../core/IAnalytics';
+import type { IAnalytics } from '../core/IAnalytics';
 import { getExposedGlobal, setExposedGlobal } from '../utilities/globals';
 import { GLOBAL_PRELOAD_BUFFER } from '../../constants/app';
 
@@ -88,8 +88,11 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
    */
   let i = 0;
   while (i < preloadedEventsArray.length) {
-    if (preloadedEventsArray[i] && preloadedEventsArray[i][0] === loadMethodName) {
-      loadEvent = preloadedEventsArray[i];
+    if (
+      preloadedEventsArray[i] &&
+      (preloadedEventsArray[i] as PreloadedEventCall)[0] === loadMethodName
+    ) {
+      loadEvent = preloadedEventsArray[i] as PreloadedEventCall;
       preloadedEventsArray.splice(i, 1);
       break;
     }

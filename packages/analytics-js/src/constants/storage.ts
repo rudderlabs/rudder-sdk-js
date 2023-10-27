@@ -1,4 +1,4 @@
-import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 
 const STORAGE_TEST_COOKIE = 'test_rudder_cookie';
 const STORAGE_TEST_LOCAL_STORAGE = 'test_rudder_ls';

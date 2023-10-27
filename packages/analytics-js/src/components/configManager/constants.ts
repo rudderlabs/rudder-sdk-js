@@ -1,4 +1,4 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';

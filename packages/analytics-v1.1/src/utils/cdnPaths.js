@@ -1,5 +1,5 @@
-import { getSDKUrlInfo, removeTrailingSlashes } from './utils';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { getSDKUrlInfo, removeTrailingSlashes } from './utils';
 import { CDN_ARCH_VERSION_DIR, CDN_INT_DIR, DEST_SDK_BASE_URL } from './constants';
 
 const getIntegrationsCDNPath = (

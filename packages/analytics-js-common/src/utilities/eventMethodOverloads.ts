@@ -1,11 +1,11 @@
 import { clone } from 'ramda';
-import { ApiObject } from '../types/ApiObject';
-import { ApiCallback, ApiOptions } from '../types/EventApi';
-import { Nullable } from '../types/Nullable';
+import type { ApiObject } from '../types/ApiObject';
+import type { ApiCallback, ApiOptions } from '../types/EventApi';
+import type { Nullable } from '../types/Nullable';
 import { isObjectLiteralAndNotNull, mergeDeepRight } from './object';
 import { isDefined, isDefinedAndNotNull, isFunction, isNull, isString } from './checks';
 import { tryStringify } from './string';
-import { IdentifyTraits } from '../types/traits';
+import type { IdentifyTraits } from '../types/traits';
 
 export type PageCallOptions = {
   category?: string;

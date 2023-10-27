@@ -1,7 +1,7 @@
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 
 const getStorageTypeFromPreConsentIfApplicable = (
   state: ApplicationState,

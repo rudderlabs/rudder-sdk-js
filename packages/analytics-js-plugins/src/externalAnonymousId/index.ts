@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getSegmentAnonymousId } from './util';
 import { externallyLoadedSessionStorageKeys } from './constants';
 

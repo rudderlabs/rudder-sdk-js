@@ -1,9 +1,9 @@
 import { EXTERNAL_SRC_LOADER } from '../../constants/loggerContexts';
 import { DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS } from '../../constants/timeouts';
 import { isFunction } from '../../utilities/checks';
-import { IErrorHandler } from '../../types/ErrorHandler';
-import { ILogger } from '../../types/Logger';
-import { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
+import type { IErrorHandler } from '../../types/ErrorHandler';
+import type { ILogger } from '../../types/Logger';
+import type { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
 import { jsFileLoader } from './jsFileLoader';
 
 /**

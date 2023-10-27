@@ -34,7 +34,7 @@ const getLoadOptions = (): Partial<LoadOptions> => {
           migrate: true,
         },
       };
-    // eslint-disable-next-line sonarjs/no-all-duplicated-branches
+    // eslint-disable-next-line sonarjs/no-duplicated-branches
     case 'preloadBuffer':
       return {
         logLevel: 'DEBUG',

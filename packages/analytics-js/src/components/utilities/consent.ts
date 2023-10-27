@@ -1,12 +1,12 @@
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
+import type {
   ConsentManagementOptions,
   Consents,
   CookieConsentOptions,
 } from '@rudderstack/analytics-js-common/types/Consent';
-import { ConsentOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
@@ -39,7 +39,8 @@ const getUserSelectedConsentManager = (
 
   const validCookieConsentOptions = cookieConsentOptions as CookieConsentOptions;
   return Object.keys(validCookieConsentOptions).find(
-    e => e && validCookieConsentOptions[e].enabled === true,
+    e =>
+      e && validCookieConsentOptions[e] && (validCookieConsentOptions[e] as any).enabled === true,
   );
 };
 

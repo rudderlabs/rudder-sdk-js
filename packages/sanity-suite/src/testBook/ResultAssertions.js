@@ -3,10 +3,10 @@ import { diff } from 'deep-object-diff';
 import { ignoredProperties } from '../ignoredProperties/ignoredProperties';
 import { sourceConfigIgnoredProperties } from '../ignoredProperties/sourceConfigIgnoredProperties';
 
-class ResultsAssertions {
+const ResultsAssertions = {
   // Do NOT check different value on these properties if they have value and is of correct type
   // as they are time sensitive, random ids, or they depend on client instance
-  static resultDataIgnoredPropertiesMutator(resultData, expectedResultData, ignoredPropertyList) {
+  resultDataIgnoredPropertiesMutator(resultData, expectedResultData, ignoredPropertyList) {
     ignoredPropertyList.forEach(property => {
       if (
         typeof objectPath.get(resultData, property.key) === property.type ||
@@ -15,9 +15,9 @@ class ResultsAssertions {
         objectPath.set(resultData, property.key, objectPath.get(expectedResultData, property.key));
       }
     });
-  }
+  },
 
-  static sanitizeResultData(result, expectedResult) {
+  sanitizeResultData(result, expectedResult) {
     try {
       const resultData = JSON.parse(result);
       const expectedResultData = JSON.parse(expectedResult);
@@ -43,13 +43,13 @@ class ResultsAssertions {
       console.error(e);
       return JSON.stringify({}, undefined, 2);
     }
-  }
+  },
 
-  static assertResult(result, expected) {
+  assertResult(result, expected) {
     return result === expected ? 'success' : 'danger';
-  }
+  },
 
-  static assertDeepObjectDiffResult(result, expected) {
+  assertDeepObjectDiffResult(result, expected) {
     try {
       const resultObj = JSON.parse(result);
       const expectedObj = JSON.parse(expected);
@@ -63,7 +63,7 @@ class ResultsAssertions {
       console.error(`Error: Comparison diff: `, e);
       return 'danger';
     }
-  }
-}
+  },
+};
 
 export { ResultsAssertions };

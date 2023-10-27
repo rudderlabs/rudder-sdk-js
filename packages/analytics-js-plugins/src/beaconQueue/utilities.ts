@@ -1,7 +1,7 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { json, url } from '../shared-chunks/common';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
@@ -12,7 +12,7 @@ import {
   DATA_PLANE_API_VERSION,
   DEFAULT_BEACON_QUEUE_OPTIONS,
 } from './constants';
-import { BeaconBatchData } from './types';
+import type { BeaconBatchData } from './types';
 
 /**
  * Utility to get the stringified event payload as Blob

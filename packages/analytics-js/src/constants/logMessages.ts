@@ -1,10 +1,13 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {
-  StorageType,
+  type StorageType,
   SUPPORTED_STORAGE_TYPES,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;

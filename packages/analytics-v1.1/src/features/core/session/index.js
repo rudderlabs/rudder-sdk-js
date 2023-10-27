@@ -3,13 +3,13 @@
 /* eslint-disable import/prefer-default-export */
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
 } from '../../../utils/constants';
 import { countDigits } from '../../../utils/utils';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 
 class UserSession {
   constructor() {

@@ -1,7 +1,11 @@
-import { IStoreConfig, IStoreManager, StoreId } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type {
+  IStoreConfig,
+  IStoreManager,
+  StoreId,
+} from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   COOKIE_STORAGE,
@@ -14,14 +18,17 @@ import {
   mergeDeepRight,
   removeUndefinedValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import {
+  DEFAULT_STORAGE_TYPE,
+  type StorageType,
+} from '@rudderstack/analytics-js-common/types/Storage';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { USER_SESSION_KEYS } from '@rudderstack/analytics-js/constants/storage';
 import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
-import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
+import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
@@ -97,8 +104,8 @@ class StoreManager implements IStoreManager {
     storageTypes.forEach(storageType => {
       if (getStorageEngine(storageType)?.isEnabled) {
         this.setStore({
-          id: storageClientDataStoreNameMap[storageType],
-          name: storageClientDataStoreNameMap[storageType],
+          id: storageClientDataStoreNameMap[storageType] as string,
+          name: storageClientDataStoreNameMap[storageType] as string,
           isEncrypted: true,
           noCompoundKey: true,
           type: storageType,
@@ -199,7 +206,7 @@ class StoreManager implements IStoreManager {
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
     this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
-    return this.stores[storeConfig.id];
+    return this.stores[storeConfig.id] as Store;
   }
 
   /**

@@ -1,30 +1,30 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
-import { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import {
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type {
   AnonymousIdOptions,
   ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
-import { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ANALYTICS_CORE,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import {
+import type {
   AliasCallOptions,
   GroupCallOptions,
   IdentifyCallOptions,
@@ -36,26 +36,26 @@ import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
 import { defaultHttpClient } from '../../services/HttpClient';
-import { Store, StoreManager } from '../../services/StoreManager';
+import { type Store, StoreManager } from '../../services/StoreManager';
 import { state } from '../../state';
 import { ConfigManager } from '../configManager/ConfigManager';
-import { ICapabilitiesManager } from '../capabilitiesManager/types';
+import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import { CapabilitiesManager } from '../capabilitiesManager';
-import { IEventManager } from '../eventManager/types';
+import type { IEventManager } from '../eventManager/types';
 import { EventManager } from '../eventManager';
 import { UserSessionManager } from '../userSessionManager/UserSessionManager';
-import { IUserSessionManager } from '../userSessionManager/types';
-import { IConfigManager } from '../configManager/types';
+import type { IUserSessionManager } from '../userSessionManager/types';
+import type { IConfigManager } from '../configManager/types';
 import { setExposedGlobal } from '../utilities/globals';
 import { normalizeLoadOptions } from '../utilities/loadOptions';
 import { consumePreloadBufferedEvent, retrievePreloadBufferEvents } from '../preloadBuffer';
-import { PreloadedEventCall } from '../preloadBuffer/types';
+import type { PreloadedEventCall } from '../preloadBuffer/types';
 import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
-import { IEventRepository } from '../eventRepository/types';
+import type { IEventRepository } from '../eventRepository/types';
 import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
-import { IAnalytics } from './IAnalytics';
+import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent } from './utilities';
 

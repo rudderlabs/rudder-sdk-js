@@ -1,9 +1,12 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
@@ -23,7 +26,7 @@ import {
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse } from '../types';
+import type { SourceConfigResponse } from '../types';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,

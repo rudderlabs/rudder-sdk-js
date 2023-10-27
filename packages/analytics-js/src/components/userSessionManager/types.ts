@@ -1,8 +1,8 @@
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { USER_SESSION_STORAGE_KEYS } from './constants';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { USER_SESSION_STORAGE_KEYS } from './constants';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;

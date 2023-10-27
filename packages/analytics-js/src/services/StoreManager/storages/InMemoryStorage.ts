@@ -1,6 +1,10 @@
-import { IInMemoryStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type {
+  IInMemoryStorageOptions,
+  IStorage,
+} from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { defaultLogger } from '../../Logger';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
@@ -52,8 +56,8 @@ class InMemoryStorage implements IStorage {
     this.length = 0;
   }
 
-  key(index: number): string {
-    return Object.keys(this.data)[index];
+  key(index: number): Nullable<string> {
+    return Object.keys(this.data)[index] ? (Object.keys(this.data)[index] as string) : null;
   }
 }
 
