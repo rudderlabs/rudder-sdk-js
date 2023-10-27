@@ -30,6 +30,8 @@ class Amplitude {
     this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
+    this.groupTypeTrait = config.groupTypeTrait;
+    this.groupValueTrait = config.groupValueTrait;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -230,7 +232,6 @@ class Amplitude {
     this.setDeviceId(rudderElement);
 
     const { groupId, traits } = rudderElement.message;
-
     const { groupTypeTrait } = this;
     const { groupValueTrait } = this;
     let groupType;
