@@ -111,7 +111,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
           // the configured resolution strategy
           switch (state.consents.resolutionStrategy.value) {
             case 'or':
-              return configuredConsents.some(matchPredicate);
+              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
             case 'and':
             default:
               return configuredConsents.every(matchPredicate);
@@ -123,8 +123,8 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
           // Eg:
           // ["Performance Cookies", "Functional Cookies"]
           const configuredConsents = oneTrustCookieCategories
-            .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory.trim())
-            .filter((n: string | undefined) => n);
+            .map(c => c.oneTrustCookieCategory.trim())
+            .filter(n => n);
 
           // Check if all the destination's mapped cookie categories are consented by the user in the browser.
           return configuredConsents.every(matchPredicate);
