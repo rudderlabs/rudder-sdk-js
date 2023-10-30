@@ -11,6 +11,8 @@ import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
+import type { ConsentResolutionStrategy } from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -213,4 +215,31 @@ const updateConsentsState = (logger?: ILogger): void => {
   });
 };
 
-export { getSDKUrl, updateReportingState, updateStorageState, updateConsentsState };
+/**
+ * Determines the consent management state variables from the source config data
+ * @param resp Source config response
+ * @param logger Logger instance
+ */
+const configureConsentManagementState = (resp: SourceConfigResponse, logger?: ILogger): void => {
+  let resolutionStrategy: ConsentResolutionStrategy | undefined;
+  if (state.consents.provider.value && isObjectLiteralAndNotNull(resp.consentManagementMetadata)) {
+    resolutionStrategy = resp.consentManagementMetadata.providers.find(
+      p => p.provider === state.consents.provider.value,
+    )?.resolutionStrategy;
+  }
+
+  batch(() => {
+    state.consents.metadata.value = resp.consentManagementMetadata;
+
+    state.consents.resolutionStrategy.value =
+      resolutionStrategy ?? state.consents.resolutionStrategy.value;
+  });
+};
+
+export {
+  getSDKUrl,
+  updateReportingState,
+  updateStorageState,
+  updateConsentsState,
+  configureConsentManagementState,
+};

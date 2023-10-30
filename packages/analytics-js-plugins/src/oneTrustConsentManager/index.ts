@@ -46,7 +46,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       const allowedConsents: Record<string, string> = {};
       const deniedConsentIds: string[] = [];
 
-      // Get the groups(cookie categorization), user has created in one trust account.
+      // Get the groups (cookie categorization), user has created in OneTrust account.
       const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
         .Groups;
 
@@ -60,6 +60,9 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       });
 
       state.consents.initialized.value = true;
+
+      // In case of OneTrust, as we still support both category names and IDs, the allowed consents
+      // are stored as an object with key as the category ID and value as the category name.
       state.consents.data.value = { allowedConsentIds: allowedConsents, deniedConsentIds };
     },
 
@@ -72,36 +75,63 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsentIds = state.consents.data.value.allowedConsentIds as Record<
-        string,
-        string
-      >;
+      const allowedConsents = state.consents.data.value.allowedConsentIds as Record<string, string>;
 
       try {
         // mapping of the destination with the consent group name
-        const { oneTrustCookieCategories } = destConfig;
+        const { oneTrustCookieCategories, consentManagement } = destConfig;
 
-        // If the destination do not have this mapping events will be sent.
-        if (!oneTrustCookieCategories) {
+        // If the destination does not have consent management config, events should be sent.
+        if (!consentManagement && !oneTrustCookieCategories) {
           return true;
         }
 
-        // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
-        // Eg:
-        // ["Performance Cookies", "Functional Cookies"]
-        const validOneTrustCookieCategories = oneTrustCookieCategories
-          .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory)
-          .filter((n: string | undefined) => n);
+        const allowedConsentIds = Object.keys(allowedConsents);
+        const allowedConsentNames = Object.values(allowedConsents);
 
-        let containsAllConsent = true;
-        // Check if all the destination's mapped cookie categories are consented by the user in the browser.
-        containsAllConsent = validOneTrustCookieCategories.every(
-          (element: string) =>
-            Object.keys(allowedConsentIds).includes(element.trim()) ||
-            Object.values(allowedConsentIds).includes(element.trim()),
-        );
+        // Match the consent in both IDs and names
+        const matchPredicate = (consent: string) =>
+          allowedConsentIds.includes(consent) || allowedConsentNames.includes(consent);
 
-        return containsAllConsent;
+        // Generic consent management
+        if (consentManagement) {
+          // Get the corresponding consents for the destination
+          const cmpConsents = consentManagement.find(
+            c => c.provider === state.consents.provider.value,
+          )?.consents;
+
+          // If there are no consents configured for the destination for the current provider, events should be sent.
+          if (!cmpConsents) {
+            return true;
+          }
+
+          const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
+
+          // match the configured consents with user provided consents as per
+          // the configured resolution strategy
+          switch (state.consents.resolutionStrategy.value) {
+            case 'or':
+              return configuredConsents.some(matchPredicate);
+            case 'and':
+            default:
+              return configuredConsents.every(matchPredicate);
+          }
+          // Legacy cookie consent management
+          // To be removed once the source config API is updated to support generic consent management
+        } else if (oneTrustCookieCategories) {
+          // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
+          // Eg:
+          // ["Performance Cookies", "Functional Cookies"]
+          const configuredConsents = oneTrustCookieCategories
+            .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory.trim())
+            .filter((n: string | undefined) => n);
+
+          // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+          return configuredConsents.every(matchPredicate);
+        }
+
+        // If there are no consents configured for the destination for the current provider, events should be sent.
+        return true;
       } catch (err) {
         errorHandler?.onError(
           err,

@@ -23,7 +23,12 @@ import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import type { IConfigManager, SourceConfigResponse } from './types';
-import { updateConsentsState, updateReportingState, updateStorageState } from './util/commonUtil';
+import {
+  configureConsentManagementState,
+  updateConsentsState,
+  updateReportingState,
+  updateStorageState,
+} from './util/commonUtil';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -152,8 +157,6 @@ class ConfigManager implements IConfigManager {
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
-      state.consents.metadata.value = res.consentManagementMetadata;
-
       // set source related information in state
       state.source.value = {
         config: res.source.config,
@@ -165,6 +168,8 @@ class ConfigManager implements IConfigManager {
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
+
+      configureConsentManagementState(res, this.logger);
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined

@@ -52,7 +52,7 @@ export type SourceDefinition = {
 };
 
 export type SourceConfigResponse = {
-  consentManagementMetadata: ConsentManagementMetadata;
+  consentManagementMetadata?: ConsentManagementMetadata;
   source: {
     destinations: ConfigResponseDestinationItem[];
     sourceDefinitionId: string;
