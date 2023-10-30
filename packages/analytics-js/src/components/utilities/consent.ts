@@ -16,8 +16,8 @@ import {
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
 import { state } from '@rudderstack/analytics-js/state';
+import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 
 /**
  * A function to get the name of the consent manager with enabled true set in the load options
@@ -61,7 +61,7 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     const clonedOptions = clone(options);
 
     validOptions.storage = clonedOptions.storage;
-    validOptions.integrations = clonedOptions.integrations;
+    validOptions.integrations = clonedOptions.integrations ?? DEFAULT_INTEGRATIONS_CONFIG;
     validOptions.discardPreConsentEvents = clonedOptions.discardPreConsentEvents === true;
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;

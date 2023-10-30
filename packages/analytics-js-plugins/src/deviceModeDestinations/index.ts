@@ -12,6 +12,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { clone } from 'ramda';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
@@ -52,9 +53,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           return false;
         });
 
-      // Filter destinations that are disabled through load options
+      // Filter destinations that are disabled through load and consent API options
       const destinationsToLoad = destinationUtils.filterDestinations(
-        state.nativeDestinations.loadOnlyIntegrations.value,
+        mergeDeepRight(
+          state.nativeDestinations.loadOnlyIntegrations.value,
+          state.consents.postConsent.value?.integrations ?? {},
+        ),
         configSupportedDestinations,
       );
 
