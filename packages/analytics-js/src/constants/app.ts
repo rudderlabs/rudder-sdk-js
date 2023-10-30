@@ -8,7 +8,7 @@ const ADBLOCK_PAGE_NAME = 'ad-block page request';
 const ADBLOCK_PAGE_PATH = '/ad-blocked';
 const GLOBAL_PRELOAD_BUFFER = 'preloadedEventsBuffer';
 
-const CONSENT_TRACK_EVENT_NAME = 'Consent Interaction';
+const CONSENT_TRACK_EVENT_NAME = 'Consent Management Interaction';
 
 export {
   APP_NAME,
