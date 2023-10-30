@@ -52,21 +52,21 @@ const CustomConsentManager = (): ExtensionPlugin => ({
         }
 
         // Get the corresponding consents for the destination
-        const cmpConsents = consentManagement.find(
-          c => c.provider === state.consents.provider.value,
-        )?.consents;
+        const cmpConfig = consentManagement.find(c => c.provider === state.consents.provider.value);
 
         // If there are no consents configured for the destination for the current provider, events should be sent.
-        if (!cmpConsents) {
+        if (!cmpConfig?.consents) {
           return true;
         }
 
-        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
-        const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
+        const configuredConsents = cmpConfig.consents.map(c => c.consent.trim()).filter(n => n);
+        const resolutionStrategy =
+          cmpConfig.resolutionStrategy ?? state.consents.resolutionStrategy.value;
 
         // match the configured consents with user provided consents as per
         // the configured resolution strategy
-        switch (state.consents.resolutionStrategy.value) {
+        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
+        switch (resolutionStrategy) {
           case 'or':
             return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
           case 'and':
