@@ -465,10 +465,12 @@ describe('Core - Analytics', () => {
         'syncStorageDataToState',
       );
 
+      const trackSpy = jest.spyOn(analytics, 'track');
+      const pageSpy = jest.spyOn(analytics, 'page');
+
       analytics.consent({
         consentManagement: {
-          enabled: true,
-          provider: 'custom',
+          provider: 'oneTrust',
         },
         storage: {
           type: 'cookieStorage',
@@ -491,10 +493,8 @@ describe('Core - Analytics', () => {
           },
         },
         discardPreConsentEvents: true,
-        integrations: {
-          All: true,
-        },
-        sendPageEvent: false,
+        sendPageEvent: true,
+        trackConsent: true,
       });
 
       expect(state.consents.preConsent.value.enabled).toBe(false);
@@ -503,11 +503,11 @@ describe('Core - Analytics', () => {
           All: true,
         },
         discardPreConsentEvents: true,
-        sendPageEvent: false,
-        trackConsent: false,
+        sendPageEvent: true,
+        trackConsent: true,
         consentManagement: {
           enabled: true,
-          provider: 'custom',
+          provider: 'oneTrust',
         },
         storage: {
           type: 'cookieStorage',
@@ -537,7 +537,7 @@ describe('Core - Analytics', () => {
         deniedConsentIds: [],
       });
 
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
+      expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
       expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
@@ -583,6 +583,9 @@ describe('Core - Analytics', () => {
           key: USER_SESSION_STORAGE_KEYS.authToken,
         },
       });
+
+      expect(trackSpy).toHaveBeenCalled();
+      expect(pageSpy).toHaveBeenCalled();
     });
   });
 });
