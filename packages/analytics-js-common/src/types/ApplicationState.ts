@@ -43,7 +43,7 @@ export type ConsentsState = {
   activeConsentManagerPluginName: Signal<PluginName | undefined>;
   preConsent: Signal<PreConsentOptions>;
   postConsent: Signal<ConsentOptions>;
-  resolutionStrategy: Signal<ConsentResolutionStrategy>;
+  resolutionStrategy: Signal<ConsentResolutionStrategy | undefined>;
   provider: Signal<ConsentManagementProvider | undefined>;
   metadata: Signal<ConsentManagementMetadata | undefined>;
 };

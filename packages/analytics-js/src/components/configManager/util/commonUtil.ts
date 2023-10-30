@@ -12,7 +12,10 @@ import {
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import type { ConsentResolutionStrategy } from '@rudderstack/analytics-js-common/types/Consent';
+import type {
+  ConsentManagementMetadata,
+  ConsentResolutionStrategy,
+} from '@rudderstack/analytics-js-common/types/Consent';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -37,6 +40,7 @@ import {
 } from '../constants';
 import { isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
+import { clone } from 'ramda';
 
 /**
  * Determines the SDK url
@@ -221,11 +225,19 @@ const updateConsentsState = (logger?: ILogger): void => {
  * @param logger Logger instance
  */
 const configureConsentManagementState = (resp: SourceConfigResponse, logger?: ILogger): void => {
-  let resolutionStrategy: ConsentResolutionStrategy | undefined;
-  if (state.consents.provider.value && isObjectLiteralAndNotNull(resp.consentManagementMetadata)) {
-    resolutionStrategy = resp.consentManagementMetadata.providers.find(
-      p => p.provider === state.consents.provider.value,
-    )?.resolutionStrategy;
+  let resolutionStrategy: ConsentResolutionStrategy | undefined =
+    state.consents.resolutionStrategy.value;
+
+  let cmpMetadata: ConsentManagementMetadata | undefined;
+  if (isObjectLiteralAndNotNull(resp.consentManagementMetadata)) {
+    if (state.consents.provider.value) {
+      resolutionStrategy =
+        resp.consentManagementMetadata.providers.find(
+          p => p.provider === state.consents.provider.value,
+        )?.resolutionStrategy ?? state.consents.resolutionStrategy.value;
+    }
+
+    cmpMetadata = resp.consentManagementMetadata;
   }
 
   // If the provider is custom, then the resolution strategy is not applicable
@@ -234,10 +246,8 @@ const configureConsentManagementState = (resp: SourceConfigResponse, logger?: IL
   }
 
   batch(() => {
-    state.consents.metadata.value = resp.consentManagementMetadata;
-
-    state.consents.resolutionStrategy.value =
-      resolutionStrategy ?? state.consents.resolutionStrategy.value;
+    state.consents.metadata.value = clone(cmpMetadata);
+    state.consents.resolutionStrategy.value = resolutionStrategy;
   });
 };
 

@@ -458,6 +458,7 @@ describe('RudderEventFactory', () => {
 
     batch(() => {
       state.session.groupId.value = 'overridden_group_id';
+      state.consents.resolutionStrategy.value = 'or';
       state.session.groupTraits.value = {
         key4: 'value4',
         key5: 'value5',
@@ -503,6 +504,7 @@ describe('RudderEventFactory', () => {
           deniedConsentIds: ['id1', 'id2'],
           allowedConsentIds: ['id3', 'id4'],
           provider: 'custom',
+          resolutionStrategy: 'or',
         },
         page: {
           path: '/',
