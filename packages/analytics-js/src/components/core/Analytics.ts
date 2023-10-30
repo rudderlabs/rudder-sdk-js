@@ -23,12 +23,14 @@ import {
   ANALYTICS_CORE,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type {
-  AliasCallOptions,
-  GroupCallOptions,
-  IdentifyCallOptions,
-  PageCallOptions,
-  TrackCallOptions,
+import {
+  pageArgumentsToCallOptions,
+  type AliasCallOptions,
+  type GroupCallOptions,
+  type IdentifyCallOptions,
+  type PageCallOptions,
+  type TrackCallOptions,
+  trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
@@ -486,18 +488,18 @@ class Analytics implements IAnalytics {
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY
     ) {
-      const pageCallArgs = {
-        category: ADBLOCK_PAGE_CATEGORY,
-        name: ADBLOCK_PAGE_NAME,
-        properties: {
-          // 'title' is intentionally omitted as it does not make sense
-          // in v3 implementation
-          path: ADBLOCK_PAGE_PATH,
-        },
-        options: state.loadOptions.value.sendAdblockPageOptions,
-      } as PageCallOptions;
-
-      this.page(pageCallArgs);
+      this.page(
+        pageArgumentsToCallOptions(
+          ADBLOCK_PAGE_CATEGORY,
+          ADBLOCK_PAGE_NAME,
+          {
+            // 'title' is intentionally omitted as it does not make sense
+            // in v3 implementation
+            path: ADBLOCK_PAGE_PATH,
+          },
+          state.loadOptions.value.sendAdblockPageOptions,
+        ),
+      );
     }
   }
 
@@ -729,13 +731,11 @@ class Analytics implements IAnalytics {
 
   sendTrackingEvents() {
     if (state.consents.postConsent.value.trackConsent) {
-      this.track({
-        name: CONSENT_TRACK_EVENT_NAME,
-      } as TrackCallOptions);
+      this.track(trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME));
     }
 
     if (state.consents.postConsent.value.sendPageEvent) {
-      this.page({} as PageCallOptions);
+      this.page(pageArgumentsToCallOptions());
     }
   }
 
