@@ -101,7 +101,7 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
   }
 };
 
-const updateStorageState = (logger?: ILogger): void => {
+const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
   const storageOptsFromLoad = state.loadOptions.value.storage;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
@@ -157,7 +157,7 @@ const updateStorageState = (logger?: ILogger): void => {
   });
 };
 
-const updateConsentsState = (logger?: ILogger): void => {
+const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
   const { provider, consentManagerPluginName, initialized, enabled, consentsData } =
     getConsentManagementData(state.loadOptions.value.consentManagement, logger);
 
@@ -224,7 +224,7 @@ const updateConsentsState = (logger?: ILogger): void => {
  * @param resp Source config response
  * @param logger Logger instance
  */
-const configureConsentManagementState = (resp: SourceConfigResponse, logger?: ILogger): void => {
+const updateConsentsState = (resp: SourceConfigResponse, logger?: ILogger): void => {
   let resolutionStrategy: ConsentResolutionStrategy | undefined =
     state.consents.resolutionStrategy.value;
 
@@ -254,7 +254,7 @@ const configureConsentManagementState = (resp: SourceConfigResponse, logger?: IL
 export {
   getSDKUrl,
   updateReportingState,
-  updateStorageState,
+  updateStorageStateFromLoadOptions,
+  updateConsentsStateFromLoadOptions,
   updateConsentsState,
-  configureConsentManagementState,
 };

@@ -24,10 +24,10 @@ import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import type { IConfigManager, SourceConfigResponse } from './types';
 import {
-  configureConsentManagementState,
   updateConsentsState,
+  updateConsentsStateFromLoadOptions,
   updateReportingState,
-  updateStorageState,
+  updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
 
 class ConfigManager implements IConfigManager {
@@ -72,8 +72,8 @@ class ConfigManager implements IConfigManager {
     // determine the path to fetch remote plugins from
     const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
 
-    updateStorageState(this.logger);
-    updateConsentsState(this.logger);
+    updateStorageStateFromLoadOptions(this.logger);
+    updateConsentsStateFromLoadOptions(this.logger);
 
     // set application lifecycle state in global state
     batch(() => {
@@ -169,7 +169,7 @@ class ConfigManager implements IConfigManager {
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
-      configureConsentManagementState(res, this.logger);
+      updateConsentsState(res, this.logger);
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined
