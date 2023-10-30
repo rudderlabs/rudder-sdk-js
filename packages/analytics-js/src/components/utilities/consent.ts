@@ -84,23 +84,26 @@ const isValidConsentsData = (value: Consents | undefined): value is Consents =>
   isNonEmptyObject(value) || Array.isArray(value);
 
 /**
- * Retrieves the corresponding plugin name of the selected consent manager from the supported consent managers
- * @param consentProvider consent management provider name
+ * Retrieves the corresponding provider and plugin name of the selected consent manager from the supported consent managers
+ * @param consentManagementOpts consent management options
  * @param logger logger instance
- * @returns Corresponding plugin name of the selected consent manager from the supported consent managers
+ * @returns Corresponding provider and plugin name of the selected consent manager from the supported consent managers
  */
-const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) => {
-  const consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
-  if (consentProvider && !consentManagerPluginName) {
+const getConsentManagerInfo = (
+  consentManagementOpts: ConsentManagementOptions,
+  logger?: ILogger,
+) => {
+  let { provider }: { provider: ConsentManagementProvider | undefined } = consentManagementOpts;
+  const consentManagerPluginName = ConsentManagersToPluginNameMap[provider];
+  if (provider && !consentManagerPluginName) {
     logger?.error(
-      UNSUPPORTED_CONSENT_MANAGER_ERROR(
-        CONFIG_MANAGER,
-        consentProvider,
-        ConsentManagersToPluginNameMap,
-      ),
+      UNSUPPORTED_CONSENT_MANAGER_ERROR(CONFIG_MANAGER, provider, ConsentManagersToPluginNameMap),
     );
+
+    // Reset the provider value
+    provider = undefined;
   }
-  return consentManagerPluginName;
+  return { provider, consentManagerPluginName };
 };
 
 /**
@@ -123,10 +126,7 @@ const getConsentManagementData = (
   if (isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) && enabled) {
     provider = consentManagementOpts.provider;
     // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-    consentManagerPluginName = getConsentManagerPluginName(provider, logger);
-    if (isUndefined(consentManagerPluginName)) {
-      provider = undefined;
-    }
+    ({ provider, consentManagerPluginName } = getConsentManagerInfo(consentManagementOpts, logger));
 
     if (isValidConsentsData(consentManagementOpts.allowedConsentIds)) {
       allowedConsentIds = consentManagementOpts.allowedConsentIds;
