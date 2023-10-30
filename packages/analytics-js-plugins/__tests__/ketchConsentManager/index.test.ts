@@ -308,4 +308,119 @@ describe('Plugin - KetchConsentManager', () => {
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
     );
   });
+
+  it('should return false if the destination categories are not consented in generic consent management config', () => {
+    state.consents.initialized.value = true;
+    state.consents.resolutionStrategy.value = 'or';
+    state.consents.provider.value = 'ketch';
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0003'],
+    };
+    const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'Functional Cookies',
+            },
+            {
+              consent: 'C0004',
+            },
+          ],
+        },
+        {
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'C0004',
+            },
+          ],
+        },
+      ],
+    };
+    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
+      state,
+      destConfig,
+      mockErrorHandler,
+      mockLogger,
+    );
+    expect(isDestinationConsented).toBe(false);
+  });
+
+  it("should return true if the active consent provider's configuration data is not present in the destination config", () => {
+    state.consents.initialized.value = true;
+    state.consents.resolutionStrategy.value = 'or';
+    state.consents.provider.value = 'ketch';
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0003'],
+    };
+    const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'Functional Cookies',
+            },
+          ],
+        },
+      ],
+    };
+    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
+      state,
+      destConfig,
+      mockErrorHandler,
+      mockLogger,
+    );
+    expect(isDestinationConsented).toBe(true);
+  });
+
+  it('should return true if at least one of the configured consents in generic consent management are consented', () => {
+    state.consents.initialized.value = true;
+    state.consents.provider.value = 'ketch';
+    state.consents.resolutionStrategy.value = 'or';
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0003'],
+    };
+    const destConfig = {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'Functional Cookies',
+            },
+            {
+              consent: 'C0003',
+            },
+          ],
+        },
+        {
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'C0003',
+            },
+          ],
+        },
+      ],
+    };
+    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
+      state,
+      destConfig,
+      mockErrorHandler,
+      mockLogger,
+    );
+    expect(isDestinationConsented).toBe(true);
+  });
 });
