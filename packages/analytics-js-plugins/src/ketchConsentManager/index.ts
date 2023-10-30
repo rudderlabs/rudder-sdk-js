@@ -70,12 +70,6 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
       try {
         const { ketchConsentPurposes, consentManagement } = destConfig;
-
-        // If the destination does not have consent management config, events should be sent.
-        if (!consentManagement && !ketchConsentPurposes) {
-          return true;
-        }
-
         const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
 
         // Generic consent management

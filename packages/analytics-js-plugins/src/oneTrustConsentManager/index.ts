@@ -81,11 +81,6 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         // mapping of the destination with the consent group name
         const { oneTrustCookieCategories, consentManagement } = destConfig;
 
-        // If the destination does not have consent management config, events should be sent.
-        if (!consentManagement && !oneTrustCookieCategories) {
-          return true;
-        }
-
         const allowedConsentIds = Object.keys(allowedConsents);
         const allowedConsentNames = Object.values(allowedConsents);
 

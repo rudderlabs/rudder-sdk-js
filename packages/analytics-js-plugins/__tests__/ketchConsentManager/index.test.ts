@@ -72,6 +72,14 @@ describe('Plugin - KetchConsentManager', () => {
     expect((window as any).getKetchUserDeniedPurposes()).toStrictEqual(['purpose2', 'purpose4']);
   });
 
+  it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
+    // Initialize the plugin
+    KetchConsentManager().consentManager.init(state, mockLogger);
+
+    expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual(undefined);
+    expect((window as any).getKetchUserDeniedPurposes()).toStrictEqual(undefined);
+  });
+
   it('should define a callback function on window to update consent data', () => {
     // Mock the ketch data on the window object
     (window as any).ketchConsent = {
@@ -422,5 +430,69 @@ describe('Plugin - KetchConsentManager', () => {
       mockLogger,
     );
     expect(isDestinationConsented).toBe(true);
+  });
+
+  it('should return appropriate value when the resolution strategy is set to "and"', () => {
+    state.consents.initialized.value = true;
+    state.consents.provider.value = 'ketch';
+    state.consents.resolutionStrategy.value = 'and';
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0002', 'C0003'],
+    };
+    const destConfig = {
+      consentManagement: [
+        {
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0002',
+            },
+          ],
+        },
+      ],
+    };
+    expect(
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return appropriate value when the resolution strategy not set', () => {
+    state.consents.initialized.value = true;
+    state.consents.provider.value = 'ketch';
+    state.consents.resolutionStrategy.value = null;
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0002', 'C0003'],
+    };
+    const destConfig = {
+      consentManagement: [
+        {
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0002',
+            },
+          ],
+        },
+      ],
+    };
+    expect(
+      KetchConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
+    ).toBe(true);
   });
 });

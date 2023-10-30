@@ -21,6 +21,11 @@ describe('Plugin - CustomConsentManager', () => {
     expect(state.plugins.loadedPlugins.value.includes('CustomConsentManager')).toBe(true);
   });
 
+  it('ensure default extension points are defined', () => {
+    expect(CustomConsentManager().consentManager.init()).toBeUndefined();
+    expect(CustomConsentManager().consentManager.updateConsentsInfo()).toBeUndefined();
+  });
+
   it('should return true if the consent manager is not initialized', () => {
     expect(
       CustomConsentManager().consentManager.isDestinationConsented(
@@ -35,10 +40,44 @@ describe('Plugin - CustomConsentManager', () => {
   it('should return true if the destination config does not have consent management config', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'custom';
+    const destConfig = {};
     expect(
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
-        undefined,
+        destConfig,
+        mockErrorHandler,
+        mockLogger,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return true if the destination config does not have data for the active provider', () => {
+    state.consents.initialized.value = true;
+    state.consents.provider.value = 'custom';
+    state.consents.data.value = {
+      allowedConsentIds: ['C0001', 'C0002', 'C0003'],
+    };
+
+    const destConfig = {
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0002',
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(
+      CustomConsentManager().consentManager.isDestinationConsented(
+        state,
+        destConfig,
         mockErrorHandler,
         mockLogger,
       ),
