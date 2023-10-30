@@ -26,6 +26,7 @@ class Braze {
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     if (!config.appKey) this.appKey = '';
     this.endPoint = '';
+    this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
       const dataCenterArr = config.dataCenter.trim().split('-');
@@ -99,6 +100,9 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     logger.debug('in Braze identify');
     const { message } = rudderElement;
     const { userId } = message;
@@ -233,6 +237,9 @@ class Braze {
   }
 
   track(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
@@ -256,6 +263,9 @@ class Braze {
   }
 
   page(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
