@@ -228,6 +228,11 @@ const configureConsentManagementState = (resp: SourceConfigResponse, logger?: IL
     )?.resolutionStrategy;
   }
 
+  // If the provider is custom, then the resolution strategy is not applicable
+  if (state.consents.provider.value === 'custom') {
+    resolutionStrategy = undefined;
+  }
+
   batch(() => {
     state.consents.metadata.value = resp.consentManagementMetadata;
 

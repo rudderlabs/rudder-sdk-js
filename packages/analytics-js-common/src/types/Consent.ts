@@ -4,6 +4,8 @@ export type OneTrustCookieCategory = {
 
 export type ConsentManagement = {
   deniedConsentIds: Consents;
+  allowedConsentIds: Consents;
+  provider: ConsentManagementProvider;
 };
 
 export type CookieConsentOptions = {
