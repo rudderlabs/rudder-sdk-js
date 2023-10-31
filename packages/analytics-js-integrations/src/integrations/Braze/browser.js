@@ -58,7 +58,7 @@ class Braze {
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
     window.braze.automaticallyShowInAppMessages();
-
+    window.braze.requestPushPermission();
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
     if (userId) {
