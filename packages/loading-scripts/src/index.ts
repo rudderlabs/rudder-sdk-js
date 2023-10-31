@@ -12,6 +12,9 @@ import type {
   RudderAnalyticsPreloader,
 } from '@rudderstack/analytics-js';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const snippetVersion = '__PACKAGE_VERSION__';
+console.info(`Rudderstack loading snippet: v${snippetVersion}`);
 const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
 const sdkName = 'rsa.min.js';
 const asyncScript = true;
