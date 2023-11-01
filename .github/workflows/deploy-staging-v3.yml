@@ -65,6 +65,7 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'development'
           BUNDLED_PLUGINS: 'StorageEncryptionLegacy,XhrQueue'
         run: |
+          export BUNDLED_PLUGINS='StorageEncryptionLegacy,XhrQueue'
           npm run clean:cache
           npm run build:browser:LH
 
