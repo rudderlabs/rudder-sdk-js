@@ -9,7 +9,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/sanity-suite/jest.config.ts",
+        "jestConfig": "packages/sanity-suite/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -23,7 +23,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,

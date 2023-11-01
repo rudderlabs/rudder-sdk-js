@@ -1,12 +1,12 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { EVENT_OBJECT_GENERATION_ERROR } from '../../constants/logMessages';
-import { IEventManager } from './types';
+import type { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
-import { IEventRepository } from '../eventRepository/types';
-import { IUserSessionManager } from '../userSessionManager/types';
+import type { IEventRepository } from '../eventRepository/types';
+import type { IUserSessionManager } from '../userSessionManager/types';
 
 /**
  * A service to generate valid event payloads and queue them for processing
@@ -44,6 +44,10 @@ class EventManager implements IEventManager {
    */
   init() {
     this.eventRepository.init();
+  }
+
+  resume() {
+    this.eventRepository.resume();
   }
 
   /**

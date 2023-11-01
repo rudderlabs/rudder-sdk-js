@@ -14,7 +14,7 @@ const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
  * @param value Input value
  * @returns true if the input is an object and not null
  */
-const isObjectAndNotNull = (value: any): boolean =>
+const isObjectAndNotNull = (value: any): value is object =>
   !isNull(value) && typeof value === 'object' && !Array.isArray(value);
 
 /**
@@ -22,7 +22,7 @@ const isObjectAndNotNull = (value: any): boolean =>
  * @param value Input value
  * @returns true if the input is an object and not null
  */
-const isObjectLiteralAndNotNull = (value: any): boolean =>
+const isObjectLiteralAndNotNull = <T>(value?: T): value is T =>
   !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
 const mergeDeepRightObjectArrays = (
@@ -54,8 +54,8 @@ const mergeDeepRight = <T = Record<string, any>>(
  * @param value input any
  * @returns boolean
  */
-const isNonEmptyObject = (value?: any) =>
-  isObjectLiteralAndNotNull(value) && Object.keys(value).length > 0;
+const isNonEmptyObject = <T>(value?: T): value is T =>
+  isObjectLiteralAndNotNull(value) && Object.keys(value as any).length > 0;
 
 /**
  * A utility to recursively remove undefined values from an object

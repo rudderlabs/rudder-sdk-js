@@ -148,8 +148,8 @@ const getBuildConfig = featureName => ({
       FEATURE_DATA_RESIDENCY_WRITE_KEY: process.env.FEATURE_DATA_RESIDENCY_WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
-      APP_DEST_SDK_BASE_URL: getDestinationsURL(),
-      REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH,
+      APP_DEST_SDK_BASE_URL: getDestinationsURL() || '',
+      REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH || '',
       CDN_VERSION_PATH:
         `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
       FEATURE: featureName,

@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { ContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '../../constants/app';
 
 const contextState: ContextState = {
@@ -29,6 +29,7 @@ const contextState: ContextState = {
     innerHeight: 0,
   }),
   'ua-ch': signal(undefined),
+  timezone: signal(undefined),
 };
 
 export { contextState };

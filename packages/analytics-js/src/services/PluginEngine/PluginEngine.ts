@@ -1,12 +1,12 @@
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getValueByPath, hasValueByPath } from '@rudderstack/analytics-js-common/utilities/object';
-import {
+import type {
   ExtensionPlugin,
   IPluginEngine,
   PluginEngineConfig,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGIN_ENGINE } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { defaultLogger } from '../Logger';
 import {
@@ -73,7 +73,7 @@ class PluginEngine implements IPluginEngine {
 
     this.byName[plugin.name] = plugin;
 
-    if (plugin.initialize && isFunction(plugin.initialize)) {
+    if (isFunction(plugin.initialize)) {
       plugin.initialize(state);
     }
   }
@@ -90,7 +90,7 @@ class PluginEngine implements IPluginEngine {
       }
     }
 
-    const index = this.plugins.indexOf(plugin);
+    const index = this.plugins.indexOf(plugin as ExtensionPlugin);
 
     if (index === -1) {
       const errorMessage = PLUGIN_ENGINE_BUG_ERROR(PLUGIN_ENGINE, name);
@@ -126,7 +126,7 @@ class PluginEngine implements IPluginEngine {
       });
     }
 
-    return this.cache[lifeCycleName];
+    return this.cache[lifeCycleName] as ExtensionPlugin[];
   }
 
   // This method allows to process this.plugins so that it could
@@ -159,7 +159,7 @@ class PluginEngine implements IPluginEngine {
     const pluginMethodPath = extensionPointNameParts.join('.');
     const pluginsToInvoke = allowMultiple
       ? this.getPlugins(extensionPointName)
-      : [this.getPlugins(extensionPointName)[0]];
+      : [this.getPlugins(extensionPointName)[0] as ExtensionPlugin];
 
     return pluginsToInvoke.map(plugin => {
       const method = getValueByPath(plugin, extensionPointName as string);

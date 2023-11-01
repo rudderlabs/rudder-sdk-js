@@ -1,6 +1,6 @@
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import {
@@ -9,12 +9,13 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { POLYFILL_SCRIPT_LOAD_ERROR } from '../../constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import { state } from '../../state';
 import { getUserAgentClientHint } from './detection/clientHint';
-import { ICapabilitiesManager } from './types';
+import type { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {
   getScreenDetails,
@@ -85,6 +86,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.context.userAgent.value = getUserAgent();
       state.context.locale.value = getLanguage();
       state.context.screen.value = getScreenDetails();
+      state.context.timezone.value = getTimezone();
 
       if (hasUAClientHints()) {
         getUserAgentClientHint((uach?: UADataValues) => {
@@ -118,11 +120,17 @@ class CapabilitiesManager implements ICapabilitiesManager {
     if (shouldLoadPolyfill) {
       const isDefaultPolyfillService = polyfillUrl !== state.loadOptions.value.polyfillURL;
       if (isDefaultPolyfillService) {
-        const polyfillCallback = (): void => this.onReady();
-
         // write key specific callback
         // NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
         const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
+
+        const polyfillCallback = (): void => {
+          this.onReady();
+
+          // Remove the entry from window so we don't leave room for calling it again
+          delete (globalThis as any)[polyfillCallbackName];
+        };
+
         (globalThis as any)[polyfillCallbackName] = polyfillCallback;
 
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
@@ -149,7 +157,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
   /**
    * Attach listeners to window to observe event that update capabilities state values
    */
-  // eslint-disable-next-line class-methods-use-this
   attachWindowListeners() {
     globalThis.addEventListener('offline', () => {
       state.capabilities.isOnline.value = false;

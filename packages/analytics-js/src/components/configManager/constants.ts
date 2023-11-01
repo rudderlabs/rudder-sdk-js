@@ -1,4 +1,4 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';
@@ -6,6 +6,7 @@ const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: 'OneTrustConsentManager',
   ketch: 'KetchConsentManager',
+  custom: 'CustomConsentManager',
 };
 
 export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {

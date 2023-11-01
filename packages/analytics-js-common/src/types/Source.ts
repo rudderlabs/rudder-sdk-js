@@ -1,4 +1,4 @@
-import { RegionDetails, ResidencyServerRegion } from './DataResidency';
+import type { RegionDetails, ResidencyServerRegion } from './DataResidency';
 
 export type StatsCollection = {
   errors: {

@@ -1,25 +1,25 @@
 import { clone } from 'ramda';
 import { effect } from '@preact/signals-core';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { API_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import { HttpClient } from '../../services/HttpClient';
 import { state } from '../../state';
-import { IEventRepository } from './types';
+import type { IEventRepository } from './types';
 import {
   DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
   DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
   DMT_EXT_POINT_PREFIX,
 } from './constants';
-import { getFinalEvent } from './utils';
+import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -112,6 +112,7 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
+        !shouldBufferEventsForPreConsent(state) &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
@@ -126,6 +127,17 @@ class EventRepository implements IEventRepository {
           this.dataplaneEventsQueue?.start();
         }
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
+    }
+  }
+
+  resume() {
+    if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+      if (state.consents.postConsent.value.discardPreConsentEvents) {
+        this.dataplaneEventsQueue?.clear();
+        this.destinationsEventsQueue?.clear();
+      }
+
+      this.dataplaneEventsQueue?.start();
     }
   }
 

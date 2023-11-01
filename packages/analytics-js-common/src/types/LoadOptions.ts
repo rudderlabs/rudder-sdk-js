@@ -1,12 +1,12 @@
-import { LogLevel } from './Logger';
-import { ResidencyServerRegion } from './DataResidency';
-import { Nullable } from './Nullable';
-import { PluginName } from './PluginsManager';
-import { IntegrationOpts } from './Integration';
-import { ApiOptions } from './EventApi';
-import { CookieConsentOptions } from './Consent';
-import { ApiObject } from './ApiObject';
-import { StorageOpts, CookieSameSite } from './Storage';
+import type { LogLevel } from './Logger';
+import type { ResidencyServerRegion } from './DataResidency';
+import type { Nullable } from './Nullable';
+import type { PluginName } from './PluginsManager';
+import type { IntegrationOpts } from './Integration';
+import type { ApiOptions } from './EventApi';
+import type { ConsentManagementOptions } from './Consent';
+import type { ApiObject } from './ApiObject';
+import type { StorageOpts, CookieSameSite } from './Storage';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -105,7 +105,6 @@ export type PreConsentOptions = {
   enabled: boolean;
   storage?: PreConsentStorageOptions;
   events?: PreConsentEventsOptions;
-  trackConsent?: boolean;
 };
 
 /**
@@ -124,7 +123,6 @@ export type LoadOptions = {
   useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
-  cookieConsentManager?: CookieConsentOptions;
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie: CookieSameSite; // defaults to Lax.
@@ -146,4 +144,15 @@ export type LoadOptions = {
   preConsent?: PreConsentOptions;
   // transport mechanism to be used for sending batched requests
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
+  consentManagement?: ConsentManagementOptions;
+  sameDomainCookiesOnly?: boolean;
+};
+
+export type ConsentOptions = {
+  storage?: StorageOpts;
+  consentManagement?: ConsentManagementOptions;
+  integrations?: IntegrationOpts;
+  discardPreConsentEvents?: boolean;
+  sendPageEvent?: boolean;
+  trackConsent?: boolean;
 };

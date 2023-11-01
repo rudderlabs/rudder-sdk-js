@@ -1,4 +1,4 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 /**
  * Plugins to be loaded in the plugins loadOption is not defined
@@ -6,6 +6,7 @@ import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManage
 const defaultOptionalPluginsList: PluginName[] = [
   'BeaconQueue',
   'Bugsnag',
+  'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
   'ErrorReporting',

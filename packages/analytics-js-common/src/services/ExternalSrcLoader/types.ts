@@ -1,4 +1,4 @@
-import { ILogger } from '../../types/Logger';
+import type { ILogger } from '../../types/Logger';
 
 export interface IExternalSourceLoadConfig {
   url: string;

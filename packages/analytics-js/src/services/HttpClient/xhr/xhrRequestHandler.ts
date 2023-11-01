@@ -2,11 +2,11 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import {
+import type {
   IXHRRequestOptions,
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { DEFAULT_XHR_TIMEOUT_MS } from '../../../constants/timeouts';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../../constants/errors';

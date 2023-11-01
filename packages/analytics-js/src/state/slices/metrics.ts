@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { MetricsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { MetricsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const metricsState: MetricsState = {
   retries: signal(0),

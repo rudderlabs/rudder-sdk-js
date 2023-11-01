@@ -31,6 +31,10 @@ class CookieLocal {
       domain,
       samesite: 'Lax',
     });
+    // configure cookies for exactly same domain
+    if (inOpts.sameDomainCookiesOnly) {
+      delete this.cOpts.domain;
+    }
 
     return this.cOpts;
   }
@@ -54,6 +58,7 @@ class CookieLocal {
    *
    * @param {*} key
    */
+  // eslint-disable-next-line class-methods-use-this
   get(key) {
     return cookie(key);
   }

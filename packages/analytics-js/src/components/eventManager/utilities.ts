@@ -1,15 +1,11 @@
 import { clone } from 'ramda';
-import {
-  isString,
-  isUndefined,
-  isNullOrUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
@@ -140,7 +136,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (options.integrations && isObjectLiteralAndNotNull(options.integrations)) {
+  if (isObjectLiteralAndNotNull<IntegrationOpts>(options.integrations)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
@@ -202,7 +198,7 @@ const shouldUseGlobalIntegrationsConfigInEvents = () =>
  */
 const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
   // Only allow object type for options
-  if (!isNullOrUndefined(options) && isObjectLiteralAndNotNull(options)) {
+  if (isObjectLiteralAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options as ApiOptions);
     // eslint-disable-next-line no-param-reassign
     rudderEvent.context = getMergedContext(rudderEvent.context, options as ApiOptions);
@@ -258,6 +254,7 @@ const getEnrichedEvent = (
       screen: state.context.screen.value,
       campaign: extractUTMParameters(globalThis.location.href),
       page: getContextPageProperties(pageProps),
+      timezone: state.context.timezone.value,
     },
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: DEFAULT_INTEGRATIONS_CONFIG,

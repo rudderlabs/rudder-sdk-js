@@ -23,6 +23,8 @@ const {
   startSession,
   endSession,
   getSessionId,
+  consent,
+  setAuthToken,
 } = new RudderAnalytics();
 
 /*
@@ -48,4 +50,6 @@ export {
   startSession,
   endSession,
   getSessionId,
+  consent,
+  setAuthToken,
 };

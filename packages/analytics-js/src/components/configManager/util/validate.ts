@@ -2,7 +2,7 @@ import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/util
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   SUPPORTED_STORAGE_TYPES,
-  StorageType,
+  type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   WRITE_KEY_VALIDATION_ERROR,

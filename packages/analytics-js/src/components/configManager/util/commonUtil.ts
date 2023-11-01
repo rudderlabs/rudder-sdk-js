@@ -1,10 +1,12 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
@@ -13,7 +15,6 @@ import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
-  UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
@@ -25,16 +26,15 @@ import {
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse } from '../types';
+import type { SourceConfigResponse } from '../types';
 import {
-  ConsentManagersToPluginNameMap,
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 import { isValidStorageType } from './validate';
-import { getUserSelectedConsentManager } from '../../utilities/consent';
+import { getConsentManagementData } from '../../utilities/consent';
 
 /**
  * Determines the SDK url
@@ -152,25 +152,10 @@ const updateStorageState = (logger?: ILogger): void => {
 };
 
 const updateConsentsState = (logger?: ILogger): void => {
-  // Get the consent manager if provided as load option
-  const selectedConsentManager = getUserSelectedConsentManager(
-    state.loadOptions.value.cookieConsentManager,
+  const { consentManagerPluginName, initialized, enabled, consentsData } = getConsentManagementData(
+    state.loadOptions.value.consentManagement,
+    logger,
   );
-
-  let consentManagerPluginName: PluginName | undefined;
-  if (selectedConsentManager) {
-    // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-    consentManagerPluginName = ConsentManagersToPluginNameMap[selectedConsentManager];
-    if (!consentManagerPluginName) {
-      logger?.error(
-        UNSUPPORTED_CONSENT_MANAGER_ERROR(
-          CONFIG_MANAGER,
-          selectedConsentManager,
-          ConsentManagersToPluginNameMap,
-        ),
-      );
-    }
-  }
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
@@ -207,16 +192,24 @@ const updateConsentsState = (logger?: ILogger): void => {
 
   batch(() => {
     state.consents.activeConsentManagerPluginName.value = consentManagerPluginName;
+    state.consents.initialized.value = initialized;
+    state.consents.enabled.value = enabled;
+    state.consents.data.value = consentsData;
 
-    state.consents.preConsentOptions.value = {
-      enabled: state.loadOptions.value.preConsent?.enabled === true,
+    state.consents.preConsent.value = {
+      // Only enable pre-consent if it is explicitly enabled and
+      // if it is not already initialized and
+      // if consent management is enabled
+      enabled:
+        state.loadOptions.value.preConsent?.enabled === true &&
+        initialized === false &&
+        enabled === true,
       storage: {
         strategy: storageStrategy,
       },
       events: {
         delivery: eventsDeliveryType,
       },
-      trackConsent: state.loadOptions.value.preConsent?.trackConsent === true,
     };
   });
 };

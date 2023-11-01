@@ -1,5 +1,5 @@
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { getReferringDomain, getUrlWithoutHash } from './url';
 
 /**
@@ -17,7 +17,7 @@ const getCanonicalUrl = (): string => {
   let canonicalUrl = '';
 
   for (let i = 0; tags[i]; i += 1) {
-    const tag = tags[i];
+    const tag = tags[i] as HTMLLinkElement;
     if (tag.getAttribute('rel') === 'canonical' && !canonicalUrl) {
       canonicalUrl = tag.getAttribute('href') ?? '';
       break;

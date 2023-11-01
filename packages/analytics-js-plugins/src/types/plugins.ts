@@ -1,5 +1,5 @@
-import { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 export type { Bugsnag as BugsnagLib } from '@bugsnag/js';
 
@@ -57,8 +57,11 @@ export interface IQueue<T = any> {
   timeouts: Record<string, number>;
   scheduleTimeoutActive: boolean;
   attachListeners?(): void;
-  getQueue(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
-  setQueue(name?: string, value?: Nullable<QueueItem<T>[] | Record<string, any> | number>): void;
+  getStorageEntry(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
+  setStorageEntry(
+    name?: string,
+    value?: Nullable<QueueItem<T>[] | Record<string, any> | number>,
+  ): void;
   start(): void;
   stop(): void;
   enqueue(item: QueueItem<T>): void;

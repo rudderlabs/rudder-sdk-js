@@ -21,15 +21,21 @@ describe('EventRepository', () => {
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   const mockDestinationsEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockDataplaneEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockDMTEventsQueue = {
+    scheduleTimeoutActive: false,
     start: jest.fn(),
+    clear: jest.fn(),
   };
 
   const mockPluginsManager = {
@@ -273,5 +279,46 @@ describe('EventRepository', () => {
       'API Callback Invocation Failed',
       undefined,
     );
+  });
+
+  it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
+    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+
+    state.consents.preConsent.value = {
+      enabled: true,
+      events: {
+        delivery: 'buffer',
+      },
+      storage: {
+        strategy: 'session', // the value should be either 'session' or 'anonymousId'
+      },
+    };
+
+    eventRepository.init();
+
+    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+  });
+
+  describe('resume', () => {
+    it('should resume events processing on resume', () => {
+      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      eventRepository.init();
+
+      eventRepository.resume();
+      expect(mockDataplaneEventsQueue.start).toBeCalled();
+    });
+
+    it('should clear the events queue if discardPreConsentEvents is set to true', () => {
+      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+
+      state.consents.postConsent.value.discardPreConsentEvents = true;
+
+      eventRepository.init();
+
+      eventRepository.resume();
+
+      expect(mockDataplaneEventsQueue.clear).toBeCalled();
+      expect(mockDestinationsEventsQueue.clear).toBeCalled();
+    });
   });
 });

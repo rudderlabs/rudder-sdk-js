@@ -1,9 +1,9 @@
-import { RudderEventType, Traits } from './EventApi';
-import { Nullable } from './Nullable';
-import { ConsentManagement } from './Consent';
-import { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
-import { IntegrationOpts } from './Integration';
-import { ApiObject } from './ApiObject';
+import type { RudderEventType, Traits } from './EventApi';
+import type { Nullable } from './Nullable';
+import type { ConsentManagement } from './Consent';
+import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import type { IntegrationOpts } from './Integration';
+import type { ApiObject } from './ApiObject';
 
 // TODO: fix type
 export type BufferedEvent = any[];
@@ -31,6 +31,7 @@ export type RudderContext = {
   screen: ScreenInfo;
   campaign?: UTMParameters;
   trulyAnonymousTracking?: boolean;
+  timezone: string;
 };
 
 export type RudderEvent = {

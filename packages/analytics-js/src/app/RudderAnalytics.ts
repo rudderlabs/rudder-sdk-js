@@ -7,22 +7,23 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import {
+import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type {
   AnonymousIdOptions,
+  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
+import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import { getPreloadedLoadEvent } from '../components/preloadBuffer';
-import { PreloadedEventCall } from '../components/preloadBuffer/types';
+import type { PreloadedEventCall } from '../components/preloadBuffer/types';
 import { setExposedGlobal } from '../components/utilities/globals';
-import { IAnalytics } from '../components/core/IAnalytics';
+import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
@@ -72,6 +73,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.endSession = this.endSession.bind(this);
     this.getSessionId = this.getSessionId.bind(this);
     this.setAuthToken = this.setAuthToken.bind(this);
+    this.consent = this.consent.bind(this);
 
     RudderAnalytics.globalSingleton = this;
 
@@ -105,7 +107,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.analyticsInstances[instanceId] = new Analytics();
     }
 
-    return this.analyticsInstances[instanceId];
+    return this.analyticsInstances[instanceId] as IAnalytics;
   }
 
   /**
@@ -283,6 +285,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   setAuthToken(token: string) {
     return this.getAnalyticsInstance().setAuthToken(token);
+  }
+
+  consent(options?: ConsentOptions) {
+    return this.getAnalyticsInstance().consent(options);
   }
 }
 

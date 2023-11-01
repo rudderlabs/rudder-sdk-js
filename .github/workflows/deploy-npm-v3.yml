@@ -46,7 +46,7 @@ jobs:
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -64,13 +64,10 @@ jobs:
         env:
           HUSKY: 0
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.CURRENT_VERSION_VALUE }}/modern/plugins'
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'production'
+          NPM_CONFIG_PROVENANCE: true
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npm run build:package
-          npm run deploy:npm -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+          nx release publish -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
 
       - name: Send message to Slack channel for v3
         id: slack

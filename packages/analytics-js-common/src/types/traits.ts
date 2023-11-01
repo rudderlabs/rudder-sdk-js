@@ -1,4 +1,4 @@
-import { ApiObject } from './ApiObject';
+import type { ApiObject } from './ApiObject';
 
 type Address = {
   city?: string;

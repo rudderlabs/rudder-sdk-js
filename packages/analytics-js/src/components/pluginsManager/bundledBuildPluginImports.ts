@@ -1,5 +1,6 @@
 import { BeaconQueue } from '@rudderstack/analytics-js-plugins/beaconQueue';
 import { Bugsnag } from '@rudderstack/analytics-js-plugins/bugsnag';
+import { CustomConsentManager } from '@rudderstack/analytics-js-plugins/customConsentManager';
 import { DeviceModeDestinations } from '@rudderstack/analytics-js-plugins/deviceModeDestinations';
 import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
 import { ErrorReporting } from '@rudderstack/analytics-js-plugins/errorReporting';
@@ -12,7 +13,7 @@ import { StorageEncryption } from '@rudderstack/analytics-js-plugins/storageEncr
 import { StorageEncryptionLegacy } from '@rudderstack/analytics-js-plugins/storageEncryptionLegacy';
 import { StorageMigrator } from '@rudderstack/analytics-js-plugins/storageMigrator';
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
-import { PluginMap } from './types';
+import type { PluginMap } from './types';
 
 /**
  * Map plugin names to direct code imports from plugins package
@@ -20,6 +21,7 @@ import { PluginMap } from './types';
 const getBundledBuildPluginImports = (): PluginMap => ({
   BeaconQueue,
   Bugsnag,
+  CustomConsentManager,
   DeviceModeDestinations,
   DeviceModeTransformation,
   ErrorReporting,

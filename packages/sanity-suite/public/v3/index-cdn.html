@@ -74,33 +74,23 @@
       }
       // New addition to load script ends
 
-      // Sets the user ID/anonymous ID
-      // Sending these Identify and Track event to test the preload buffer
-      rudderanalytics.setAnonymousId("automationqa_123");
-
-        // Identify call
-      rudderanalytics.identify("12345", {
-        name: "Automation QA"
-      });
-
-        // Track call
-      rudderanalytics.track("test event", {
-        testProp: "automationQA_prop1"
-      });
-
       var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
         destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        cookieConsentManager: {
-          oneTrust: {
-            enabled: true,
-          },
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust'
         },
         storage: {
           migrate: true
-        }
+        },
+        anonymousIdOptions: {
+        autoCapture: {
+          enabled: true,
+          source: "segment"
+        }}
       };
 
       rudderanalytics.load(

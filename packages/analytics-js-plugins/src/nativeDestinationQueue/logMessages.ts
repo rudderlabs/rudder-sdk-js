@@ -1,5 +1,5 @@
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 const DESTINATION_EVENT_FILTERING_WARNING = (
   context: string,

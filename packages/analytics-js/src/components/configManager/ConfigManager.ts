@@ -1,10 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
@@ -19,7 +22,7 @@ import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse } from './types';
+import type { IConfigManager, SourceConfigResponse } from './types';
 import { updateConsentsState, updateReportingState, updateStorageState } from './util/commonUtil';
 
 class ConfigManager implements IConfigManager {
@@ -50,9 +53,10 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     this.attachEffects();
-    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
 
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
+
+    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
 
     // determine the path to fetch integration SDK from
     const intgCdnUrl = getIntegrationsCDNPath(
@@ -114,9 +118,9 @@ class ConfigManager implements IConfigManager {
 
     try {
       if (isString(response)) {
-        res = JSON.parse(response as string);
+        res = JSON.parse(response);
       } else {
-        res = response as SourceConfigResponse;
+        res = response;
       }
     } catch (e) {
       this.onError(e, errMessage, true);

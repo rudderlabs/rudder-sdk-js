@@ -1,4 +1,4 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 /**
  * List of plugin names that are loaded as direct imports in all builds
@@ -11,6 +11,7 @@ const localPluginNames: PluginName[] = [];
 const pluginNamesList: PluginName[] = [
   'BeaconQueue',
   'Bugsnag',
+  'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
   'ErrorReporting',

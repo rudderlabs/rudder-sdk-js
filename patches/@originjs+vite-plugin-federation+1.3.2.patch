@@ -1,8 +1,17 @@
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-index f54ce2e..e01eb38 100644
+index f0d9618..bc12cba 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-@@ -880,12 +880,11 @@ function prodExposePlugin(options) {
+@@ -378,7 +378,7 @@ function prodRemotePlugin(options) {
+                             return new Promise((resolve, reject) => {
+                                 const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
+                                 getUrl().then(url => {
+-                                    import(/* @vite-ignore */ url).then(lib => {
++                                    import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
+                                         if (!remote.inited) {
+                                             const shareScope = wrapShareModule(remote.from)
+                                             lib.init(shareScope);
+@@ -873,12 +873,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -17,7 +26,7 @@ index f54ce2e..e01eb38 100644
    }
    return {
      name: "originjs:expose-production",
-@@ -894,23 +893,6 @@ function prodExposePlugin(options) {
+@@ -887,23 +886,6 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
@@ -41,7 +50,7 @@ index f54ce2e..e01eb38 100644
      async function __federation_import(name) {
          return import(name);
      };
-@@ -1021,7 +1003,7 @@ function prodExposePlugin(options) {
+@@ -1014,7 +996,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -50,11 +59,38 @@ index f54ce2e..e01eb38 100644
                `./${slashPath}`
              );
            }
+@@ -1086,7 +1068,7 @@ const loadJS = async (url, fn) => {
+   document.getElementsByTagName('head')[0].appendChild(script);
+ }
+ function get(name, ${REMOTE_FROM_PARAMETER}){
+-  return import(/* @vite-ignore */ name).then(module => ()=> {
++  return import(/* webpackIgnore: true */ /* @vite-ignore */ name).then(module => ()=> {
+     if (${REMOTE_FROM_PARAMETER} === 'webpack') {
+       return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
+     }
+@@ -1120,7 +1102,7 @@ async function __federation_method_ensure(remoteId) {
+       return new Promise((resolve, reject) => {
+         const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
+         getUrl().then(url => {
+-          import(/* @vite-ignore */ url).then(lib => {
++          import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
+             if (!remote.inited) {
+               const shareScope = wrapShareScope(remote.from)
+               lib.init(shareScope);
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-index b97a7ae..57c22a6 100644
+index b040304..132fa3b 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-@@ -863,12 +863,11 @@ function prodExposePlugin(options) {
+@@ -361,7 +361,7 @@ function prodRemotePlugin(options) {
+                             return new Promise((resolve, reject) => {
+                                 const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
+                                 getUrl().then(url => {
+-                                    import(/* @vite-ignore */ url).then(lib => {
++                                    import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
+                                         if (!remote.inited) {
+                                             const shareScope = wrapShareModule(remote.from)
+                                             lib.init(shareScope);
+@@ -856,12 +856,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -69,7 +105,7 @@ index b97a7ae..57c22a6 100644
    }
    return {
      name: "originjs:expose-production",
-@@ -877,23 +876,6 @@ function prodExposePlugin(options) {
+@@ -870,23 +869,6 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
@@ -93,7 +129,7 @@ index b97a7ae..57c22a6 100644
      async function __federation_import(name) {
          return import(name);
      };
-@@ -1004,7 +986,7 @@ function prodExposePlugin(options) {
+@@ -997,7 +979,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -102,3 +138,21 @@ index b97a7ae..57c22a6 100644
                `./${slashPath}`
              );
            }
+@@ -1069,7 +1051,7 @@ const loadJS = async (url, fn) => {
+   document.getElementsByTagName('head')[0].appendChild(script);
+ }
+ function get(name, ${REMOTE_FROM_PARAMETER}){
+-  return import(/* @vite-ignore */ name).then(module => ()=> {
++  return import(/* webpackIgnore: true */ /* @vite-ignore */ name).then(module => ()=> {
+     if (${REMOTE_FROM_PARAMETER} === 'webpack') {
+       return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
+     }
+@@ -1103,7 +1085,7 @@ async function __federation_method_ensure(remoteId) {
+       return new Promise((resolve, reject) => {
+         const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
+         getUrl().then(url => {
+-          import(/* @vite-ignore */ url).then(lib => {
++          import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
+             if (!remote.inited) {
+               const shareScope = wrapShareScope(remote.from)
+               lib.init(shareScope);

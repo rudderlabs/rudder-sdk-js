@@ -1,5 +1,5 @@
-import { ExtensionPlugin, IPluginEngine } from './PluginEngine';
-import { Nullable } from './Nullable';
+import type { ExtensionPlugin, IPluginEngine } from './PluginEngine';
+import type { Nullable } from './Nullable';
 
 export interface IPluginsManager {
   engine: IPluginEngine;
@@ -14,6 +14,7 @@ export interface IPluginsManager {
 export type PluginName =
   | 'BeaconQueue'
   | 'Bugsnag'
+  | 'CustomConsentManager'
   | 'DeviceModeDestinations'
   | 'DeviceModeTransformation'
   | 'ErrorReporting'

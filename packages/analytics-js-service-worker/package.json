@@ -1,19 +1,24 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "RudderStack Javascript Service Worker SDK",
-  "main": "umd/index.js",
-  "module": "esm/index.js",
+  "main": "dist/npm/umd/index.js",
+  "module": "dist/npm/esm/index.js",
   "exports": {
-    "require": "./umd/index.js",
-    "import": "./esm/index.js",
-    "types": "./index.d.ts"
+    "require": "./dist/npm/umd/index.js",
+    "import": "./dist/npm/esm/index.js",
+    "types": "./dist/npm/index.d.ts"
   },
-  "types": "./index.d.ts",
+  "types": "./dist/npm/index.d.ts",
   "publishConfig": {
-    "directory": "dist/npm",
     "access": "public"
   },
+  "files": [
+    "dist/npm",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "analytics",
     "rudder"
@@ -50,7 +55,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "package": "cd dist && rimraf -rf ./dts && npm pack --pack-destination ../",
+    "package": "cd dist/npm && npm pack --pack-destination ../../",
     "release": "npm publish"
   },
   "engines": {
@@ -60,12 +65,13 @@
     "@lukeed/uuid": "2.0.1",
     "@segment/loosely-validate-event": "2.0.0",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
-    "assert": "2.1.0",
     "axios": "0.27.2",
-    "axios-retry": "3.7.0",
+    "axios-retry": "3.8.0",
     "lodash.clonedeep": "4.5.0",
     "lodash.isstring": "4.0.1",
-    "ms": "2.1.3"
+    "ms": "2.1.3",
+    "jest-date-mock": "1.0.8",
+    "msw": "1.3.2"
   },
   "devDependencies": {},
   "overrides": {},

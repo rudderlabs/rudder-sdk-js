@@ -1,9 +1,10 @@
 import store from 'storejs';
-import { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
 import { defaultLogger } from '../../Logger';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
@@ -57,8 +58,8 @@ class LocalStorage implements IStorage {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  key(index: number): string {
-    return store.keys()[index];
+  key(index: number): Nullable<string> {
+    return store.keys()[index] ? (store.keys()[index] as string) : null;
   }
 }
 

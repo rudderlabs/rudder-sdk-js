@@ -1,4 +1,4 @@
-import { Nullable } from '../types/Nullable';
+import type { Nullable } from '../types/Nullable';
 import { isNullOrUndefined, isString } from './checks';
 
 // TODO: see if bundle size is bumped up if we use ramda trim instead of custom
