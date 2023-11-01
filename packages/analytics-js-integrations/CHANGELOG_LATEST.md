@@ -1,18 +1,14 @@
-## [3.0.0-beta.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.13...@rudderstack/analytics-js-integrations@3.0.0-beta.14) (2023-10-16)
+## [3.0.0-beta.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.14...@rudderstack/analytics-js-integrations@3.0.0-beta.15) (2023-10-27)
 
 
 ### Features
 
-* add new customer acquisition reporting to google ads ([#1432](https://github.com/rudderlabs/rudder-sdk-js/issues/1432)) ([5bf9eed](https://github.com/rudderlabs/rudder-sdk-js/commit/5bf9eed34e3709255411de09c319da4074ae9535))
-* **analytics-js-service-worker:** deprecate service worker export of rudder-sdk-js package  in favor of the new standalone package([#1437](https://github.com/rudderlabs/rudder-sdk-js/issues/1437)) ([1797d3e](https://github.com/rudderlabs/rudder-sdk-js/commit/1797d3ef356e947a528c2de9abcfde245cc28178))
+* matomo: support premise version ([#1461](https://github.com/rudderlabs/rudder-sdk-js/issues/1461)) ([29ab5f7](https://github.com/rudderlabs/rudder-sdk-js/commit/29ab5f70d30d0ed11b3d5fbe519c624ce21787c9))
 
 
 ### Bug Fixes
 
-* gracefully handling state property for pages where optimizely is not loaded ([#1441](https://github.com/rudderlabs/rudder-sdk-js/issues/1441)) ([8725cc6](https://github.com/rudderlabs/rudder-sdk-js/commit/8725cc60c35c80803eaf08df562c413bcdb21882))
-
-
-### Reverts
-
-* Revert "chore: remove duplicate config named eventWhiteList" (#1452) ([80f397f](https://github.com/rudderlabs/rudder-sdk-js/commit/80f397fe6b5dc1668b7e8e1b04df1ae1f7b5febf)), closes [#1452](https://github.com/rudderlabs/rudder-sdk-js/issues/1452) [#1430](https://github.com/rudderlabs/rudder-sdk-js/issues/1430)
+* amplitude: configs not reffered ([#1470](https://github.com/rudderlabs/rudder-sdk-js/issues/1470)) ([7e456f0](https://github.com/rudderlabs/rudder-sdk-js/commit/7e456f0a8466d5bb4af950439581adccccb00153))
+* **monorepo:** update vulnerable dependencies ([#1457](https://github.com/rudderlabs/rudder-sdk-js/issues/1457)) ([7a4bc4c](https://github.com/rudderlabs/rudder-sdk-js/commit/7a4bc4cc641e4fff2a8f561ce6fd67d16c0cd5a0))
+* upgrade vulnerable cryptoJS dependency, rolup to v4 & NX to v17 ([#1471](https://github.com/rudderlabs/rudder-sdk-js/issues/1471)) ([b2bb21c](https://github.com/rudderlabs/rudder-sdk-js/commit/b2bb21cb3f618f6c86f593d1706abe9e6349066d))
 

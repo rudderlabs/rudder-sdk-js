@@ -128,9 +128,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.0.0-beta.13",
-        "title": "@rudderstack/analytics-js@3.0.0-beta.13",
-        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.13",
+        "tag": "@rudderstack/analytics-js@3.0.0-beta.14",
+        "title": "@rudderstack/analytics-js@3.0.0-beta.14",
+        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.14",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     },
