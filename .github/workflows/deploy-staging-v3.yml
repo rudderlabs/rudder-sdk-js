@@ -67,6 +67,7 @@ jobs:
         run: |
           export BUNDLED_PLUGINS='StorageEncryptionLegacy,XhrQueue'
           npm run clean:cache
+          cd packages/analytics-js
           npm run build:browser:LH
 
       - name: Sync files to S3 v1.1 staging folder
