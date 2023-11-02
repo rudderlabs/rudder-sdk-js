@@ -7,6 +7,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   isDefinedNotNullAndNotEmptyString,
+  isNullOrUndefined,
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -189,7 +190,11 @@ class UserSessionManager implements IUserSessionManager {
           this.errorHandler,
           this.logger,
         );
-        if (migratedVal) {
+
+        // Skip setting the value if it is null or undefined
+        // as those values indicate there is no need for migration or
+        // migration failed
+        if (!isNullOrUndefined(migratedVal)) {
           store.set(storageEntry, migratedVal);
         }
       });
