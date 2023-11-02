@@ -13,7 +13,7 @@ import type {
 } from '@rudderstack/analytics-js';
 
 const snippetVersion = '__PACKAGE_VERSION__';
-console.info(`Rudderstack loading snippet: v${snippetVersion}`);
+console.info(`RudderStack loading snippet: v${snippetVersion}`);
 const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
 const sdkName = 'rsa.min.js';
 const asyncScript = true;
