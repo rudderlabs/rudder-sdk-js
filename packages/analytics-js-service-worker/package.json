@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "RudderStack Javascript Service Worker SDK",
   "main": "dist/npm/umd/index.js",
   "module": "dist/npm/esm/index.js",
