@@ -1,4 +1,16 @@
 {
+  "consentManagementMetadata": {
+    "providers": [
+      {
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      {
+        "provider": "ketch",
+        "resolutionStrategy": "or"
+      }
+    ]
+  },
   "source": {
     "id": "2L8FlAECp1sEUP7NVilWLTeA2wp",
     "name": "JS SDK Prod",
