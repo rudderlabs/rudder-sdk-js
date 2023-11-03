@@ -1,5 +1,4 @@
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
@@ -31,7 +30,6 @@ import type { BufferQueue } from './BufferQueue';
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
-  status?: LifecycleStatus;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;
@@ -61,7 +59,12 @@ export interface IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  prepareBrowserCapabilities(): void;
+  onMounted(): void;
+
+  /**
+   * Prepare internal services and load configuration
+   */
+  onBrowserCapabilitiesReady(): void;
 
   /**
    * Enqueue in buffer the events that were triggered pre SDK initialization
@@ -86,12 +89,12 @@ export interface IAnalytics {
   /**
    * Initialize the storage and event queue
    */
-  init(): void;
+  onPluginsReady(): void;
 
   /**
    * Load plugins
    */
-  loadPlugins(): void;
+  onConfigured(): void;
 
   /**
    * Trigger onLoaded callback if any is provided in config & emit initialised event

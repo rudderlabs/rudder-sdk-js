@@ -2,7 +2,7 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import type { userSessionStorageKeys } from './userSessionStorageKeys';
+import type { USER_SESSION_STORAGE_KEYS } from './constants';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
@@ -23,7 +23,7 @@ export interface IUserSessionManager {
   start(sessionId?: number): void;
   end(): void;
   syncStorageDataToState(): void;
-  setAuthToken(token: string): void;
+  setAuthToken(token: Nullable<string>): void;
 }
 
-export type UserSessionStorageKeysType = keyof typeof userSessionStorageKeys;
+export type UserSessionStorageKeysType = keyof typeof USER_SESSION_STORAGE_KEYS;
