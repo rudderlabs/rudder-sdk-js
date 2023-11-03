@@ -1,4 +1,5 @@
 import { sourceConfigAPISuite } from './sourceConfig';
+import { sourceConfigAPIDevSuite } from './sourceConfigDev';
 import { identifyMethodSuite } from './identify';
 import { trackMethodSuite } from './track';
 import { pageMethodSuite } from './page';
@@ -29,4 +30,11 @@ const sanityTestBookData = [
   },
 ];
 
-export { sanityTestBookData };
+const devSanityTestBookData = [
+  {
+    groupName: 'API Endpoints',
+    suites: [sourceConfigAPIDevSuite],
+  },
+];
+
+export { sanityTestBookData, devSanityTestBookData };
