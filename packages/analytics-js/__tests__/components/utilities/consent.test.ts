@@ -142,6 +142,7 @@ describe('consent utilties', () => {
           allowedConsentIds: ['test1'],
           deniedConsentIds: ['test2'],
         },
+        provider: 'oneTrust',
       };
 
       const validOptions = getConsentManagementData(consentOptions);

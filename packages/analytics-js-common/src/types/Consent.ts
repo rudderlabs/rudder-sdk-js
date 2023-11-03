@@ -4,6 +4,8 @@ export type OneTrustCookieCategory = {
 
 export type ConsentManagement = {
   deniedConsentIds: Consents;
+  allowedConsentIds: Consents;
+  provider: ConsentManagementProvider;
 };
 
 export type CookieConsentOptions = {
@@ -13,13 +15,24 @@ export type CookieConsentOptions = {
   };
 };
 
-export type ConsentProvider = 'oneTrust' | 'ketch' | 'custom';
+export type ConsentManagementMetadata = {
+  providers: ConsentManagementProviderMetadata[];
+};
+
+export type ConsentManagementProviderMetadata = {
+  provider: ConsentManagementProvider;
+  resolutionStrategy: ConsentResolutionStrategy;
+};
+
+export type ConsentManagementProvider = 'oneTrust' | 'ketch' | 'custom';
+
+export type ConsentResolutionStrategy = 'and' | 'or';
 
 export type Consents = Record<string, string> | string[];
 
 export type ConsentManagementOptions = {
   enabled: boolean;
-  provider: ConsentProvider;
+  provider: ConsentManagementProvider;
   allowedConsentIds?: Consents;
   deniedConsentIds?: Consents;
 };
