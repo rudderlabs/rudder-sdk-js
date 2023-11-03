@@ -1,7 +1,7 @@
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { ICookieStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ICookieStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
@@ -34,6 +34,9 @@ class CookieStorage implements IStorage {
 
   configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
     this.options = mergeDeepRight(this.options ?? {}, options);
+    if (options.sameDomainCookiesOnly) {
+      delete this.options.domain;
+    }
     this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
@@ -70,7 +73,7 @@ class CookieStorage implements IStorage {
   key(index: number): Nullable<string> {
     const cookies = cookie();
     const cookieNames = Object.keys(cookies);
-    return isUndefined(cookieNames[index]) ? null : cookieNames[index];
+    return isUndefined(cookieNames[index]) ? null : (cookieNames[index] as string);
   }
 }
 

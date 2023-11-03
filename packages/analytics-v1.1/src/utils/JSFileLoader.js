@@ -4,11 +4,12 @@ const DEFAULT_TIMEOUT = 10 * 1000; // 10 seconds
  *
  * @param {*} url The URL of the script to be loaded
  * @param {*} id ID for the script tag [optional]
+ * @param {*} timeout timeout [optional]
  * @param {*} async Whether to load the script in async mode. Defaults to `true` [optional]
  * @returns
  */
-const loadScript = (url, id, timeout, async = true) => {
-  return new Promise((resolve, reject) => {
+const loadScript = (url, id, timeout, async = true) =>
+  new Promise((resolve, reject) => {
     try {
       const exists = document.getElementById(id);
       if (exists) {
@@ -61,6 +62,5 @@ const loadScript = (url, id, timeout, async = true) => {
       reject(new Error(`Exception occurred while loading the script "${url}": "${err}"`));
     }
   });
-};
 
 export { loadScript };

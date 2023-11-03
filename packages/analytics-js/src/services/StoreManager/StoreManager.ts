@@ -1,7 +1,11 @@
-import { IStoreConfig, IStoreManager, StoreId } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type {
+  IStoreConfig,
+  IStoreManager,
+  StoreId,
+} from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { STORE_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   COOKIE_STORAGE,
@@ -14,11 +18,14 @@ import {
   mergeDeepRight,
   removeUndefinedValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { DEFAULT_STORAGE_TYPE, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
+import {
+  DEFAULT_STORAGE_TYPE,
+  type StorageType,
+} from '@rudderstack/analytics-js-common/types/Storage';
+import type { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
 import { userSessionStorageKeys } from '../../components/userSessionManager/userSessionStorageKeys';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
-import { StoreManagerOptions, storageClientDataStoreNameMap } from './types';
+import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
@@ -56,6 +63,7 @@ class StoreManager implements IStoreManager {
         samesite: state.loadOptions.value.sameSiteCookie,
         secure: state.loadOptions.value.secureCookie,
         domain: state.loadOptions.value.setCookieDomain,
+        sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
         enabled: true,
       },
       localStorageOptions: { enabled: true },
@@ -99,8 +107,8 @@ class StoreManager implements IStoreManager {
     }
     storageTypesRequiringInitialization.forEach(storageType => {
       this.setStore({
-        id: storageClientDataStoreNameMap[storageType],
-        name: storageClientDataStoreNameMap[storageType],
+        id: storageClientDataStoreNameMap[storageType] as string,
+        name: storageClientDataStoreNameMap[storageType] as string,
         isEncrypted: true,
         noCompoundKey: true,
         type: storageType as StorageType,
@@ -189,7 +197,7 @@ class StoreManager implements IStoreManager {
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
     this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
-    return this.stores[storeConfig.id];
+    return this.stores[storeConfig.id] as Store;
   }
 
   /**

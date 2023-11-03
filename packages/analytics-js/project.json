@@ -83,7 +83,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js/jest.config.ts",
+        "jestConfig": "packages/analytics-js/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -97,7 +97,7 @@
       "dependsOn": ["prepare-test-mocks"]
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
@@ -128,9 +128,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.0.0-beta.13",
-        "title": "@rudderstack/analytics-js@3.0.0-beta.13",
-        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.13",
+        "tag": "@rudderstack/analytics-js@3.0.0-beta.14",
+        "title": "@rudderstack/analytics-js@3.0.0-beta.14",
+        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.14",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     },

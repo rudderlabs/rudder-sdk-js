@@ -65,7 +65,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-v1.1/jest.config.ts",
+        "jestConfig": "packages/analytics-v1.1/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -80,7 +80,7 @@
       "dependsOn": ["prepare-test-mocks"]
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
@@ -109,9 +109,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.43.0",
-        "title": "rudder-sdk-js@2.43.0",
-        "discussion-category": "rudder-sdk-js@2.43.0",
+        "tag": "rudder-sdk-js@2.44.0",
+        "title": "rudder-sdk-js@2.44.0",
+        "discussion-category": "rudder-sdk-js@2.44.0",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     },

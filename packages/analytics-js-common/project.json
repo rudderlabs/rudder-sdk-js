@@ -52,7 +52,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js-common/jest.config.ts",
+        "jestConfig": "packages/analytics-js-common/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -66,7 +66,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
@@ -97,9 +97,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.11",
-        "title": "@rudderstack/analytics-js-common@3.0.0-beta.11",
-        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.11",
+        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.12",
+        "title": "@rudderstack/analytics-js-common@3.0.0-beta.12",
+        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.12",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     }

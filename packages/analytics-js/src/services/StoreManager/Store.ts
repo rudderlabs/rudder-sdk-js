@@ -1,11 +1,11 @@
 import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
-import { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { defaultLogger } from '../Logger';
@@ -82,7 +82,7 @@ class Store implements IStore {
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
     Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key]);
+      const value = this.get(validKeys[key] as string);
       const validKey = noCompoundKey ? key : [name, id, key].join('.');
 
       inMemoryStorage.setItem(validKey, value);

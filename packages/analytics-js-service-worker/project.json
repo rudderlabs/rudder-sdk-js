@@ -51,7 +51,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js-service-worker/jest.config.ts",
+        "jestConfig": "packages/analytics-js-service-worker/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -65,7 +65,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
@@ -94,9 +94,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-service-worker@3.0.0",
-        "title": "rudderstack/analytics-js-service-worker@3.0.0",
-        "discussion-category": "rudderstack/analytics-js-service-worker@3.0.0",
+        "tag": "@rudderstack/analytics-js-service-worker@3.0.1",
+        "title": "rudderstack/analytics-js-service-worker@3.0.1",
+        "discussion-category": "rudderstack/analytics-js-service-worker@3.0.1",
         "notesFile": "./packages/analytics-js-service-worker/CHANGELOG_LATEST.md"
       }
     },
@@ -104,7 +104,7 @@
       "executor": "ngx-deploy-npm:deploy",
       "options": {
         "access": "public",
-        "distFolderPath": "packages/analytics-js-service-worker/dist/npm",
+        "distFolderPath": "packages/analytics-js-service-worker",
         "noBuild": true
       }
     }

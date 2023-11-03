@@ -1,14 +1,17 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { BeaconQueueOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DoneCallback, IQueue } from '../types/plugins';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type {
+  BeaconQueueOpts,
+  QueueOpts,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { DoneCallback, IQueue } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
@@ -16,7 +19,7 @@ import {
 } from './utilities';
 import { eventsDelivery, timestamp, storages } from '../shared-chunks/common';
 import { BEACON_QUEUE_PLUGIN, MAX_BATCH_PAYLOAD_SIZE_BYTES, QUEUE_NAME } from './constants';
-import { BeaconQueueBatchItemData, BeaconQueueItemData } from './types';
+import type { BeaconQueueBatchItemData, BeaconQueueItemData } from './types';
 import {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_SEND_ERROR,

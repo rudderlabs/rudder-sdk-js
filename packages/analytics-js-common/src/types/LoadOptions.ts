@@ -1,12 +1,12 @@
-import { LogLevel } from './Logger';
-import { ResidencyServerRegion } from './DataResidency';
-import { Nullable } from './Nullable';
-import { PluginName } from './PluginsManager';
-import { IntegrationOpts } from './Integration';
-import { ApiOptions } from './EventApi';
-import { ConsentManagementOptions } from './Consent';
-import { ApiObject } from './ApiObject';
-import { StorageOpts, CookieSameSite } from './Storage';
+import type { LogLevel } from './Logger';
+import type { ResidencyServerRegion } from './DataResidency';
+import type { Nullable } from './Nullable';
+import type { PluginName } from './PluginsManager';
+import type { IntegrationOpts } from './Integration';
+import type { ApiOptions } from './EventApi';
+import type { ConsentManagementOptions } from './Consent';
+import type { ApiObject } from './ApiObject';
+import type { StorageOpts, CookieSameSite } from './Storage';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -145,6 +145,7 @@ export type LoadOptions = {
   // transport mechanism to be used for sending batched requests
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
+  sameDomainCookiesOnly?: boolean;
 };
 
 export type ConsentOptions = {
