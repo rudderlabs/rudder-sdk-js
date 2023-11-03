@@ -112,7 +112,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
               return configuredConsents.every(matchPredicate);
           }
           // Legacy cookie consent management
-          // To be removed once the source config API is updated to support generic consent management
+          // TODO: To be removed once the source config API is updated to support generic consent management
         } else if (oneTrustCookieCategories) {
           // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
           // Eg:

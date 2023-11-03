@@ -97,7 +97,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
           }
 
           // Legacy cookie consent management
-          // To be removed once the source config API is updated to support generic consent management
+          // TODO: To be removed once the source config API is updated to support generic consent management
         } else if (ketchConsentPurposes) {
           const configuredConsents = ketchConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
 
