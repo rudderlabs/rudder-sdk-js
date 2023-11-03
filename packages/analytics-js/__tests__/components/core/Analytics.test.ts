@@ -470,7 +470,28 @@ describe('Core - Analytics', () => {
 
       analytics.consent({
         consentManagement: {
-          provider: 'oneTrust',
+          provider: 'custom',
+          enabled: true,
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
         },
         storage: {
           type: 'cookieStorage',
@@ -507,7 +528,27 @@ describe('Core - Analytics', () => {
         trackConsent: true,
         consentManagement: {
           enabled: true,
-          provider: 'oneTrust',
+          provider: 'custom',
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
         },
         storage: {
           type: 'cookieStorage',
