@@ -8,6 +8,7 @@ describe('Capabilities Detection - DOM', () => {
     expect(isDatasetAvailable()).toBeTruthy();
   });
   it('should detect not supported javascript features', () => {
+    navigator.sendBeacon = jest.fn();
     expect(isLegacyJSEngine()).toBeFalsy();
   });
 });
