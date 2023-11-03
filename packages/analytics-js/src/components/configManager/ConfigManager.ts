@@ -14,6 +14,7 @@ import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
+  SOURCE_CONFIG_RESOLUTION_ERROR,
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
@@ -119,8 +120,6 @@ class ConfigManager implements IConfigManager {
     }
 
     let res: SourceConfigResponse;
-    const errMessage = 'Unable to process/parse source configuration response';
-
     try {
       if (isString(response)) {
         res = JSON.parse(response);
@@ -128,12 +127,12 @@ class ConfigManager implements IConfigManager {
         res = response;
       }
     } catch (err) {
-      this.onError(err, errMessage, true);
+      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR, true);
       return;
     }
 
     if (!isValidSourceConfig(res)) {
-      this.onError(new Error(errMessage), undefined, true);
+      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
       return;
     }
 
