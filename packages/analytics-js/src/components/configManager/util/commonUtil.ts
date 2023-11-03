@@ -224,7 +224,7 @@ const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
  * @param resp Source config response
  * @param logger Logger instance
  */
-const updateConsentsState = (resp: SourceConfigResponse, logger?: ILogger): void => {
+const updateConsentsState = (resp: SourceConfigResponse): void => {
   let resolutionStrategy: ConsentResolutionStrategy | undefined =
     state.consents.resolutionStrategy.value;
 

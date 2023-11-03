@@ -168,7 +168,7 @@ class ConfigManager implements IConfigManager {
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
-      updateConsentsState(res, this.logger);
+      updateConsentsState(res);
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined
