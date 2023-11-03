@@ -5,6 +5,7 @@ import {
   MEMORY_STORAGE,
   NO_STORAGE,
   SESSION_STORAGE,
+  COOKIE_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import {
   configureStorageEngines,
@@ -26,6 +27,10 @@ import {
   entriesWithStorageOnlyForSession,
   entriesWithStorageOnlyForAnonymousId,
   entriesWithOnlySessionStorage,
+  entriesWithInMemoryFallback,
+  postConsentStorageEntryOptions,
+  entriesWithoutCookieStorage,
+  entriesWithoutCookieAndLocalStorage,
 } from '../../../__fixtures__/fixtures';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
@@ -88,7 +93,7 @@ describe('StoreManager', () => {
     });
   });
 
-  describe('initClientDataStore', () => {
+  describe('initClientDataStores', () => {
     beforeEach(() => {
       getStorageEngine.mockImplementation(() => ({
         isEnabled: true,
@@ -114,6 +119,7 @@ describe('StoreManager', () => {
     it('should construct the storage entry state with default storage type if entries or global storage type not provided as load option', () => {
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
 
     it('should construct the storage entry state with global storage type if only global storage type is provided as load option', () => {
@@ -128,6 +134,7 @@ describe('StoreManager', () => {
       expect(state.storage.entries.value).toEqual(entriesWithOnlyNoStorage);
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
     });
+
     it('should construct the storage entry state with global type session storage', () => {
       state.storage.type.value = SESSION_STORAGE;
       getStorageEngine.mockImplementation(() => ({
@@ -138,10 +145,9 @@ describe('StoreManager', () => {
       }));
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlySessionStorage);
-      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
 
-    it('should construct the storage entry state with global type and load option', () => {
+    it('should construct the storage entry state with global type and load options', () => {
       state.storage.type.value = MEMORY_STORAGE;
       state.loadOptions.value.storage.entries = loadOptionWithEntry;
       storeManager.initClientDataStores();
@@ -155,6 +161,48 @@ describe('StoreManager', () => {
       expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
       expect(logger.warn).toHaveBeenCalled();
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+
+    it('should fallback to localstorage for storage type cookie if localstorage is available', () => {
+      getStorageEngine.mockImplementation(type => ({
+        isEnabled: type !== COOKIE_STORAGE,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+
+      state.loadOptions.value.storage.entries = loadOptionWithEntry;
+
+      storeManager.initClientDataStores();
+      expect(state.storage.entries.value).toEqual(entriesWithoutCookieStorage);
+    });
+
+    it('should fallback to session storage for storage type cookie if cookie and local storage are unavailable', () => {
+      getStorageEngine.mockImplementation(type => ({
+        isEnabled: type === SESSION_STORAGE || type === MEMORY_STORAGE,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+
+      state.loadOptions.value.storage.entries = loadOptionWithEntry;
+
+      storeManager.initClientDataStores();
+      expect(state.storage.entries.value).toEqual(entriesWithoutCookieAndLocalStorage);
+    });
+
+    it('should fallback to default storage type if specified storage type is unavailable', () => {
+      getStorageEngine.mockImplementation(() => ({
+        isEnabled: false,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
+
+      state.loadOptions.value.storage.entries = loadOptionWithEntry;
+      storeManager.initClientDataStores();
+      expect(state.storage.entries.value).toEqual(entriesWithInMemoryFallback);
+      expect(logger.warn).toBeCalledTimes(8);
     });
 
     it('should construct the appropriate storage entry state if the pre-consent storage strategy is set to none', () => {
@@ -191,6 +239,20 @@ describe('StoreManager', () => {
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithStorageOnlyForAnonymousId);
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+
+    it('should construct the appropriate storage entry state if post consent storage options are available', () => {
+      state.loadOptions.value.storage.entries = entriesWithOnlyNoStorage; // these options should be ignored
+      state.consents.postConsent.value = {
+        storage: {
+          type: MEMORY_STORAGE,
+          entries: postConsentStorageEntryOptions,
+        },
+      };
+
+      storeManager.initClientDataStores();
+
+      expect(state.storage.entries.value).toEqual(entriesWithMixStorage);
     });
 
     describe('Stores', () => {

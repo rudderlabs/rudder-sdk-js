@@ -14,7 +14,7 @@ import type { Source } from './Source';
 import type { ApiObject } from './ApiObject';
 import type { ConsentsInfo } from './Consent';
 import type { StorageType, CookieOptions } from './Storage';
-import type { UserSessionKeys } from './userSessionStorageKeys';
+import type { UserSessionKey } from './UserSessionStorage';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -113,6 +113,7 @@ export type ReportingState = {
 };
 
 export type SessionState = {
+  // IMPORTANT: Ensure to keep these names same as USER_SESSION_KEYS
   readonly userId: Signal<Nullable<string> | undefined>;
   readonly userTraits: Signal<Nullable<ApiObject> | undefined>;
   readonly anonymousId: Signal<string | undefined>;
@@ -131,7 +132,7 @@ export type StorageEntry = {
   key: string;
 };
 export type StorageEntries = {
-  [key in UserSessionKeys]?: StorageEntry;
+  [key in UserSessionKey]?: StorageEntry;
 };
 
 export type StorageState = {

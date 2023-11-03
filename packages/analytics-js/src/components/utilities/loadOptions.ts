@@ -123,7 +123,7 @@ const normalizeLoadOptions = (
 };
 
 const getSourceConfigURL = (
-  configUrl: string,
+  configUrl: string | undefined,
   writeKey: string,
   lockIntegrationsVersion: boolean,
   logger?: ILogger,
