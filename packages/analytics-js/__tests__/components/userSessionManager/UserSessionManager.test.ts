@@ -1,10 +1,11 @@
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import {
   DEFAULT_USER_SESSION_VALUES,
   USER_SESSION_STORAGE_KEYS,
 } from '../../../src/components/userSessionManager/constants';
 import { StoreManager } from '../../../src/services/StoreManager';
-import { Store } from '../../../src/services/StoreManager/Store';
+import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../../src/constants/timeouts';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -27,6 +28,8 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 describe('User session manager', () => {
   const dummyAnonymousId = 'dummy-anonymousId-12345678';
   defaultLogger.warn = jest.fn();
+  defaultLogger.error = jest.fn();
+
   const defaultPluginsManager = new PluginsManager(
     defaultPluginEngine,
     defaultErrorHandler,
@@ -140,7 +143,30 @@ describe('User session manager', () => {
         // V3 encrypted
         rl_page_init_referrer:
           'RS_ENC_v3_Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMS9jZG4vbW9kZXJuL2lpZmUvaW5kZXguaHRtbCI%3D', // '"$direct"
+        // empty string
+        rl_group_id: 'RudderEncrypt%3AU2FsdGVkX19AHpnwm%2FJMyd%2Bu1Vq88KBjUYM0AsZnu8Q%3D', // '""'
       };
+
+      class MockPluginsManager implements IPluginsManager {
+        invokeSingle = jest.fn(() => ''); // always return empty string
+      }
+
+      const mockPluginsManager = new MockPluginsManager();
+
+      const storeManager = new StoreManager(
+        defaultPluginsManager,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      storeManager.init();
+
+      userSessionManager = new UserSessionManager(
+        defaultErrorHandler,
+        defaultLogger,
+        mockPluginsManager,
+        storeManager,
+      );
 
       setDataInCookieStorageEngine(customData);
 
@@ -150,7 +176,7 @@ describe('User session manager', () => {
 
       defaultPluginsManager.init();
 
-      const invokeSpy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
+      const invokeSpy = mockPluginsManager.invokeSingle;
       const extensionPoint = 'storage.migrate';
 
       userSessionManager.init();
@@ -211,7 +237,6 @@ describe('User session manager', () => {
         defaultErrorHandler,
         defaultLogger,
       );
-
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_user_id',
@@ -279,6 +304,8 @@ describe('User session manager', () => {
       expect(state.session.initialReferrer.value).toBe('$direct');
       expect(state.session.initialReferringDomain.value).toBe('');
       expect(state.session.sessionInfo.value).not.toBeUndefined();
+
+      expect(defaultLogger.error).not.toHaveBeenCalled();
     });
 
     it('should auto-migrate data from previous storage', () => {
