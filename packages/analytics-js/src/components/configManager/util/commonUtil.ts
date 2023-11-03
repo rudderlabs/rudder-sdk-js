@@ -16,6 +16,7 @@ import type {
   ConsentManagementMetadata,
   ConsentResolutionStrategy,
 } from '@rudderstack/analytics-js-common/types/Consent';
+import { clone } from 'ramda';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -40,7 +41,6 @@ import {
 } from '../constants';
 import { isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
-import { clone } from 'ramda';
 
 /**
  * Determines the SDK url

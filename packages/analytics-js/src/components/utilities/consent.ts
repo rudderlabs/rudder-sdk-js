@@ -124,7 +124,6 @@ const getConsentManagementData = (
 
   let enabled = consentManagementOpts?.enabled === true;
   if (isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) && enabled) {
-    provider = consentManagementOpts.provider;
     // Get the corresponding plugin name of the selected consent manager from the supported consent managers
     ({ provider, consentManagerPluginName } = getConsentManagerInfo(consentManagementOpts, logger));
 

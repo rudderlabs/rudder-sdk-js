@@ -5,7 +5,6 @@ import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/D
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import type { OneTrustCookieCategory } from '@rudderstack/analytics-js-common/types/Consent';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from './logMessages';
