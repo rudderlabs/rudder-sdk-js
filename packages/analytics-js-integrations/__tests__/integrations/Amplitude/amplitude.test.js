@@ -38,6 +38,20 @@ const amplitudeConfig = {
     },
   ],
 };
+const amplitudeEUConfig = {
+  apiKey: 'abcde',
+  residencyServer: 'EU',
+  groupTypeTrait: 'email',
+  groupValueTrait: 'age',
+  traitsToIncrement: [
+    {
+      traits: 'age',
+    },
+    {
+      traits: 'friends',
+    },
+  ]
+};
 const destinationInfo = {
   areTransformationsConnected: false,
   destinationId: 'sample-destination-id',
@@ -55,6 +69,16 @@ describe('Amplitude init tests', () => {
   test('Testing init call of Amplitude', () => {
     const amplitude = new Amplitude(
       amplitudeConfig,
+      { loglevel: 'debug', loadIntegration: true },
+      destinationInfo,
+    );
+    amplitude.init();
+    // eslint-disable-next-line no-underscore-dangle
+    expect(typeof window.amplitude).toBe('object');
+  });
+  test('Testing init call of Amplitude with EU residency set', () => {
+    const amplitude = new Amplitude(
+      amplitudeEUConfig,
       { loglevel: 'debug', loadIntegration: true },
       destinationInfo,
     );
