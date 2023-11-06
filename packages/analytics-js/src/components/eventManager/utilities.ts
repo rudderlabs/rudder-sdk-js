@@ -15,6 +15,7 @@ import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
@@ -28,6 +29,7 @@ import {
 } from './constants';
 import { getDefaultPageProperties } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
+import { generateAnonymousId, isStorageTypeValidForStoringData } from '../userSessionManager/utils';
 
 /**
  * To get the page properties for context object
@@ -244,6 +246,9 @@ const getEnrichedEvent = (
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
+        allowedConsentIds: clone(state.consents.data.value.allowedConsentIds),
+        provider: state.consents.provider.value,
+        resolutionStrategy: state.consents.resolutionStrategy.value,
       },
       'ua-ch': state.context['ua-ch'].value,
       app: state.context.app.value,
@@ -262,9 +267,11 @@ const getEnrichedEvent = (
     userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
 
-  if (state.storage.entries.value.anonymousId?.type === NO_STORAGE) {
+  if (
+    !isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
+  ) {
     // Generate new anonymous id for each request
-    commonEventData.anonymousId = generateUUID();
+    commonEventData.anonymousId = generateAnonymousId();
   } else {
     // Type casting to string as the user session manager will take care of initializing the value
     commonEventData.anonymousId = state.session.anonymousId.value as string;

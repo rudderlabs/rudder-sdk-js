@@ -3,7 +3,8 @@ import { SourceConfigResponse } from '../../../src/components/configManager/type
 import {
   getSDKUrl,
   updateReportingState,
-  updateStorageState,
+  updateStorageStateFromLoadOptions,
+  updateConsentsStateFromLoadOptions,
   updateConsentsState,
 } from '../../../src/components/configManager/util/commonUtil';
 import { state, resetState } from '../../../src/state';
@@ -26,6 +27,10 @@ describe('Config Manager Common Utilities', () => {
     warn: jest.fn(),
     error: jest.fn(),
   } as unknown as ILogger;
+
+  beforeEach(() => {
+    resetState();
+  });
 
   describe('getSDKUrl', () => {
     afterEach(() => {
@@ -78,10 +83,6 @@ describe('Config Manager Common Utilities', () => {
   });
 
   describe('updateReportingState', () => {
-    beforeEach(() => {
-      resetState();
-    });
-
     it('should update reporting state with the data from source config', () => {
       const mockSourceConfig = {
         source: {
@@ -162,11 +163,7 @@ describe('Config Manager Common Utilities', () => {
     });
   });
 
-  describe('updateStorageState', () => {
-    beforeEach(() => {
-      resetState();
-    });
-
+  describe('updateStorageStateFromLoadOptions', () => {
     it('should update storage state with the data from load options', () => {
       state.loadOptions.value.storage = {
         encryption: {
@@ -178,7 +175,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageState();
+      updateStorageStateFromLoadOptions();
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(state.storage.migrate.value).toBe(true);
@@ -188,7 +185,7 @@ describe('Config Manager Common Utilities', () => {
     it('should update storage state with the data even if encryption version is not specified', () => {
       state.loadOptions.value.storage = {};
 
-      updateStorageState(mockLogger);
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
     });
@@ -198,7 +195,7 @@ describe('Config Manager Common Utilities', () => {
         type: 'random-type',
       };
 
-      updateStorageState(mockLogger);
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.type.value).toBe('cookieStorage');
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -213,7 +210,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageState(mockLogger);
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -228,7 +225,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageState(mockLogger);
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryptionLegacy');
     });
@@ -241,7 +238,7 @@ describe('Config Manager Common Utilities', () => {
         migrate: true,
       };
 
-      updateStorageState(mockLogger);
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.migrate.value).toBe(false);
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -250,11 +247,7 @@ describe('Config Manager Common Utilities', () => {
     });
   });
 
-  describe('updateConsentsState', () => {
-    beforeEach(() => {
-      resetState();
-    });
-
+  describe('updateConsentsStateFromLoadOptions', () => {
     it('should update consents state with the data from load options', () => {
       state.loadOptions.value.consentManagement = {
         enabled: true,
@@ -271,7 +264,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsState();
+      updateConsentsStateFromLoadOptions();
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe('OneTrustConsentManager');
       expect(state.consents.preConsent.value).toStrictEqual({
@@ -296,7 +289,7 @@ describe('Config Manager Common Utilities', () => {
         provider: 'randomManager',
       };
 
-      updateConsentsState(mockLogger);
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -320,7 +313,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsState(mockLogger);
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
@@ -352,7 +345,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsState(mockLogger);
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
@@ -386,7 +379,7 @@ describe('Config Manager Common Utilities', () => {
         deniedConsentIds: ['consent2'],
       };
 
-      updateConsentsState();
+      updateConsentsStateFromLoadOptions();
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: false,
@@ -414,7 +407,7 @@ describe('Config Manager Common Utilities', () => {
         enabled: false,
       };
 
-      updateConsentsState();
+      updateConsentsStateFromLoadOptions();
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: false,
@@ -425,6 +418,114 @@ describe('Config Manager Common Utilities', () => {
           delivery: 'immediate',
         },
       });
+    });
+  });
+
+  describe('updateConsentsState', () => {
+    it('should update the consent management state with the data from the source config response', () => {
+      state.consents.provider.value = 'ketch';
+      const mockSourceConfig = {
+        consentManagementMetadata: {
+          providers: [
+            {
+              provider: 'oneTrust',
+              resolutionStrategy: 'and',
+            },
+            {
+              provider: 'ketch',
+              resolutionStrategy: 'or',
+            },
+          ],
+        },
+      } as SourceConfigResponse;
+
+      updateConsentsState(mockSourceConfig);
+
+      expect(state.consents.metadata.value).toStrictEqual(
+        mockSourceConfig.consentManagementMetadata,
+      );
+      expect(state.consents.resolutionStrategy.value).toBe('or');
+    });
+
+    it('should set the resolution strategy as undefined if the provider is set to "custom"', () => {
+      state.consents.provider.value = 'custom';
+      const mockSourceConfig = {
+        consentManagementMetadata: {
+          providers: [
+            {
+              provider: 'oneTrust',
+              resolutionStrategy: 'and',
+            },
+            {
+              provider: 'ketch',
+              resolutionStrategy: 'or',
+            },
+          ],
+        },
+      } as SourceConfigResponse;
+
+      updateConsentsState(mockSourceConfig);
+
+      expect(state.consents.metadata.value).toStrictEqual(
+        mockSourceConfig.consentManagementMetadata,
+      );
+      expect(state.consents.resolutionStrategy.value).toBe(undefined);
+    });
+
+    it('should not update the metadata and resolution strategy to state if the metadata in source config is not an object literal', () => {
+      state.consents.provider.value = 'ketch';
+      const mockSourceConfig = {
+        consentManagementMetadata: 'random-metadata',
+      } as SourceConfigResponse;
+
+      updateConsentsState(mockSourceConfig);
+
+      expect(state.consents.metadata.value).toBe(undefined);
+      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+    });
+
+    it('should not update the resolution strategy to state if the provider is not set', () => {
+      state.consents.provider.value = undefined;
+      const mockSourceConfig = {
+        consentManagementMetadata: {
+          providers: [
+            {
+              provider: 'oneTrust',
+              resolutionStrategy: 'and',
+            },
+            {
+              provider: 'ketch',
+              resolutionStrategy: 'or',
+            },
+          ],
+        },
+      } as SourceConfigResponse;
+
+      updateConsentsState(mockSourceConfig);
+
+      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+    });
+
+    it('should not update the resolution strategy to state if the provider is not supported', () => {
+      state.consents.provider.value = 'random-provider';
+      const mockSourceConfig = {
+        consentManagementMetadata: {
+          providers: [
+            {
+              provider: 'oneTrust',
+              resolutionStrategy: 'and',
+            },
+            {
+              provider: 'ketch',
+              resolutionStrategy: 'or',
+            },
+          ],
+        },
+      } as SourceConfigResponse;
+
+      updateConsentsState(mockSourceConfig);
+
+      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
     });
   });
 });

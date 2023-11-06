@@ -3,7 +3,6 @@ import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
-import type { LifecycleStatus } from '@rudderstack/analytics-js-common/types/ApplicationLifecycle';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
@@ -24,12 +23,14 @@ import {
   ANALYTICS_CORE,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type {
-  AliasCallOptions,
-  GroupCallOptions,
-  IdentifyCallOptions,
-  PageCallOptions,
-  TrackCallOptions,
+import {
+  pageArgumentsToCallOptions,
+  type AliasCallOptions,
+  type GroupCallOptions,
+  type IdentifyCallOptions,
+  type PageCallOptions,
+  type TrackCallOptions,
+  trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
@@ -53,18 +54,23 @@ import type { PreloadedEventCall } from '../preloadBuffer/types';
 import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import type { IEventRepository } from '../eventRepository/types';
-import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+  CONSENT_TRACK_EVENT_NAME,
+} from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
+import { dispatchSDKEvent } from './utilities';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
  */
 class Analytics implements IAnalytics {
-  preloadBuffer: BufferQueue<PreloadedEventCall> = new BufferQueue();
+  preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
-  status?: LifecycleStatus;
   logger: ILogger;
   errorHandler: IErrorHandler;
   httpClient: IHttpClient;
@@ -82,43 +88,13 @@ class Analytics implements IAnalytics {
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
+    this.preloadBuffer = new BufferQueue();
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
-
-    this.load = this.load.bind(this);
-    this.startLifecycle = this.startLifecycle.bind(this);
-    this.prepareBrowserCapabilities = this.prepareBrowserCapabilities.bind(this);
-    this.enqueuePreloadBufferEvents = this.enqueuePreloadBufferEvents.bind(this);
-    this.processDataInPreloadBuffer = this.processDataInPreloadBuffer.bind(this);
-    this.prepareInternalServices = this.prepareInternalServices.bind(this);
-    this.loadConfig = this.loadConfig.bind(this);
-    this.init = this.init.bind(this);
-    this.loadPlugins = this.loadPlugins.bind(this);
-    this.onInitialized = this.onInitialized.bind(this);
-    this.processBufferedEvents = this.processBufferedEvents.bind(this);
-    this.loadDestinations = this.loadDestinations.bind(this);
-    this.onDestinationsReady = this.onDestinationsReady.bind(this);
-    this.onReady = this.onReady.bind(this);
-    this.ready = this.ready.bind(this);
-    this.page = this.page.bind(this);
-    this.track = this.track.bind(this);
-    this.identify = this.identify.bind(this);
-    this.alias = this.alias.bind(this);
-    this.group = this.group.bind(this);
-    this.reset = this.reset.bind(this);
-    this.getAnonymousId = this.getAnonymousId.bind(this);
-    this.setAnonymousId = this.setAnonymousId.bind(this);
-    this.getUserId = this.getUserId.bind(this);
-    this.getUserTraits = this.getUserTraits.bind(this);
-    this.getGroupId = this.getGroupId.bind(this);
-    this.getGroupTraits = this.getGroupTraits.bind(this);
-    this.startSession = this.startSession.bind(this);
-    this.endSession = this.endSession.bind(this);
-    this.getSessionId = this.getSessionId.bind(this);
   }
 
   /**
@@ -173,21 +149,18 @@ class Analytics implements IAnalytics {
       try {
         switch (state.lifecycle.status.value) {
           case 'mounted':
-            this.prepareBrowserCapabilities();
+            this.onMounted();
             break;
           case 'browserCapabilitiesReady':
-            // initialize the preloaded events enqueuing
-            retrievePreloadBufferEvents(this);
-            this.prepareInternalServices();
-            this.loadConfig();
+            this.onBrowserCapabilitiesReady();
             break;
           case 'configured':
-            this.loadPlugins();
+            this.onConfigured();
             break;
           case 'pluginsLoading':
             break;
           case 'pluginsReady':
-            this.init();
+            this.onPluginsReady();
             break;
           case 'initialized':
             this.onInitialized();
@@ -213,7 +186,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  private onLoaded() {
+  onBrowserCapabilitiesReady() {
+    // initialize the preloaded events enqueuing
+    retrievePreloadBufferEvents(this);
+    this.prepareInternalServices();
+    this.loadConfig();
+  }
+
+  onLoaded() {
     this.processBufferedEvents();
     // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
     if (state.consents.preConsent.value.enabled === true) {
@@ -226,7 +206,7 @@ class Analytics implements IAnalytics {
   /**
    * Load browser polyfill if required
    */
-  prepareBrowserCapabilities() {
+  onMounted() {
     this.capabilitiesManager.init();
   }
 
@@ -290,7 +270,7 @@ class Analytics implements IAnalytics {
   /**
    * Initialize the storage and event queue
    */
-  init() {
+  onPluginsReady() {
     this.errorHandler.init(this.externalSrcLoader);
 
     // Initialize storage
@@ -321,7 +301,7 @@ class Analytics implements IAnalytics {
   /**
    * Load plugins
    */
-  loadPlugins() {
+  onConfigured() {
     this.pluginsManager?.init();
     // TODO: are we going to enable custom plugins to be passed as load options?
     // registerCustomPlugins(state.loadOptions.value.customPlugins);
@@ -350,14 +330,7 @@ class Analytics implements IAnalytics {
     this.initialized = true;
 
     // Emit an event to use as substitute to the onLoaded callback
-    const initializedEvent = new CustomEvent('RSA_Initialised', {
-      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-    });
-
-    (globalThis as typeof window).document.dispatchEvent(initializedEvent);
+    dispatchSDKEvent('RSA_Initialised');
   }
 
   /**
@@ -374,14 +347,7 @@ class Analytics implements IAnalytics {
     });
 
     // Emit an event to use as substitute to the ready callback
-    const readyEvent = new CustomEvent('RSA_Ready', {
-      detail: { analyticsInstance: (globalThis as typeof window).rudderanalytics },
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-    });
-
-    (globalThis as typeof window).document.dispatchEvent(readyEvent);
+    dispatchSDKEvent('RSA_Ready');
   }
 
   /**
@@ -465,12 +431,13 @@ class Analytics implements IAnalytics {
   // Start consumer exposed methods
   ready(callback: ApiCallback) {
     const type = 'ready';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
       this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
@@ -495,13 +462,14 @@ class Analytics implements IAnalytics {
 
   page(payload: PageCallOptions) {
     const type = 'page';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     this.eventManager?.addEvent({
       type: 'page',
@@ -520,30 +488,31 @@ class Analytics implements IAnalytics {
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY
     ) {
-      const pageCallArgs = {
-        category: ADBLOCK_PAGE_CATEGORY,
-        name: ADBLOCK_PAGE_NAME,
-        properties: {
-          // 'title' is intentionally omitted as it does not make sense
-          // in v3 implementation
-          path: ADBLOCK_PAGE_PATH,
-        },
-        options: state.loadOptions.value.sendAdblockPageOptions,
-      } as PageCallOptions;
-
-      this.page(pageCallArgs);
+      this.page(
+        pageArgumentsToCallOptions(
+          ADBLOCK_PAGE_CATEGORY,
+          ADBLOCK_PAGE_NAME,
+          {
+            // 'title' is intentionally omitted as it does not make sense
+            // in v3 implementation
+            path: ADBLOCK_PAGE_PATH,
+          },
+          state.loadOptions.value.sendAdblockPageOptions,
+        ),
+      );
     }
   }
 
   track(payload: TrackCallOptions) {
     const type = 'track';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     this.eventManager?.addEvent({
       type,
@@ -556,13 +525,14 @@ class Analytics implements IAnalytics {
 
   identify(payload: IdentifyCallOptions) {
     const type = 'identify';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     const shouldResetSession = Boolean(
       payload.userId && state.session.userId.value && payload.userId !== state.session.userId.value,
@@ -589,13 +559,14 @@ class Analytics implements IAnalytics {
 
   alias(payload: AliasCallOptions) {
     const type = 'alias';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     const previousId =
       payload.from ??
@@ -613,13 +584,14 @@ class Analytics implements IAnalytics {
 
   group(payload: GroupCallOptions) {
     const type = 'group';
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
+
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value += 1;
 
     // `null` value indicates that previous group ID needs to be retained
     if (!isNull(payload.groupId)) {
@@ -639,15 +611,15 @@ class Analytics implements IAnalytics {
 
   reset(resetAnonymousId?: boolean) {
     const type = 'reset';
-    this.errorHandler.leaveBreadcrumb(
-      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
-    );
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(
+      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
+    );
     this.userSessionManager?.reset(resetAnonymousId);
   }
 
@@ -663,6 +635,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
@@ -688,25 +661,25 @@ class Analytics implements IAnalytics {
 
   startSession(sessionId?: number): void {
     const type = 'startSession';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.start(sessionId);
   }
 
   endSession(): void {
     const type = 'endSession';
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type]);
       return;
     }
 
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.end();
   }
 
@@ -742,16 +715,28 @@ class Analytics implements IAnalytics {
       );
     }
 
-    // TODO: Re-init store manager
-    // this.storeManager?.initClientDataStores();
+    // Re-init store manager
+    this.storeManager?.initializeStorageState();
 
-    // TODO: Re-init user session manager
-    // this.userSessionManager?.syncStorageDataToState();
+    // Re-init user session manager
+    this.userSessionManager?.syncStorageDataToState();
 
     // Resume event manager to process the events to destinations
     this.eventManager?.resume();
 
     this.loadDestinations();
+
+    this.sendTrackingEvents();
+  }
+
+  sendTrackingEvents() {
+    if (state.consents.postConsent.value.trackConsent) {
+      this.track(trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME));
+    }
+
+    if (state.consents.postConsent.value.sendPageEvent) {
+      this.page(pageArgumentsToCallOptions());
+    }
   }
 
   setAuthToken(token: string): void {

@@ -1,4 +1,4 @@
-const userSessionStorageKeys = {
+const USER_SESSION_STORAGE_KEYS = {
   userId: 'rl_user_id',
   userTraits: 'rl_trait',
   anonymousId: 'rl_anonymous_id',
@@ -10,7 +10,7 @@ const userSessionStorageKeys = {
   authToken: 'rl_auth_token',
 };
 
-const defaultUserSessionValues = {
+const DEFAULT_USER_SESSION_VALUES = {
   userId: '',
   userTraits: {},
   anonymousId: '',
@@ -22,8 +22,4 @@ const defaultUserSessionValues = {
   authToken: null,
 };
 
-const inMemorySessionKeys = {
-  session_id: 'sessionId',
-};
-
-export { userSessionStorageKeys, inMemorySessionKeys, defaultUserSessionValues };
+export { USER_SESSION_STORAGE_KEYS, DEFAULT_USER_SESSION_VALUES };

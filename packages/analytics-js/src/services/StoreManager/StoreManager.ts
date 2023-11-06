@@ -22,14 +22,17 @@ import {
   DEFAULT_STORAGE_TYPE,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
-import type { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
-import { userSessionStorageKeys } from '../../components/userSessionManager/userSessionStorageKeys';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import { batch } from '@preact/signals-core';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { USER_SESSION_KEYS } from '@rudderstack/analytics-js/constants/storage';
+import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { Store } from './Store';
-import { getStorageTypeFromPreConsent } from './utils';
+import { getStorageTypeFromPreConsentIfApplicable } from './utils';
 
 /**
  * A service to manage stores & available storage client configurations
@@ -58,12 +61,13 @@ class StoreManager implements IStoreManager {
       return;
     }
 
+    const loadOptions = state.loadOptions.value;
     const config: StoreManagerOptions = {
       cookieStorageOptions: {
-        samesite: state.loadOptions.value.sameSiteCookie,
-        secure: state.loadOptions.value.secureCookie,
-        domain: state.loadOptions.value.setCookieDomain,
-        sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
+        samesite: loadOptions.sameSiteCookie,
+        secure: loadOptions.secureCookie,
+        domain: loadOptions.setCookieDomain,
+        sameDomainCookiesOnly: loadOptions.sameDomainCookiesOnly,
         enabled: true,
       },
       localStorageOptions: { enabled: true },
@@ -95,100 +99,105 @@ class StoreManager implements IStoreManager {
 
     // Initializing all the enabled store because previous user data might be in different storage
     // that needs auto migration
-    const storageTypesRequiringInitialization = [MEMORY_STORAGE];
-    if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(LOCAL_STORAGE);
-    }
-    if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(COOKIE_STORAGE);
-    }
-    if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-      storageTypesRequiringInitialization.push(SESSION_STORAGE);
-    }
-    storageTypesRequiringInitialization.forEach(storageType => {
-      this.setStore({
-        id: storageClientDataStoreNameMap[storageType] as string,
-        name: storageClientDataStoreNameMap[storageType] as string,
-        isEncrypted: true,
-        noCompoundKey: true,
-        type: storageType as StorageType,
-      });
+    const storageTypes = [MEMORY_STORAGE, LOCAL_STORAGE, COOKIE_STORAGE, SESSION_STORAGE];
+
+    storageTypes.forEach(storageType => {
+      if (getStorageEngine(storageType)?.isEnabled) {
+        this.setStore({
+          id: storageClientDataStoreNameMap[storageType] as string,
+          name: storageClientDataStoreNameMap[storageType] as string,
+          isEncrypted: true,
+          noCompoundKey: true,
+          type: storageType,
+        });
+      }
     });
   }
 
   initializeStorageState() {
-    const globalStorageType = state.storage.type.value;
+    let globalStorageType = state.storage.type.value;
+    let entriesOptions = state.loadOptions.value.storage?.entries;
+
+    // Use the storage options from post consent if anything is defined
+    const postConsentStorageOpts = state.consents.postConsent.value.storage;
+    if (isDefined(postConsentStorageOpts?.type) || isDefined(postConsentStorageOpts?.entries)) {
+      globalStorageType = postConsentStorageOpts?.type;
+      entriesOptions = postConsentStorageOpts?.entries;
+    }
+
     let trulyAnonymousTracking = true;
-    const entries = state.loadOptions.value.storage?.entries;
-    const userSessionKeyValues: UserSessionKeys[] = [
-      'userId',
-      'userTraits',
-      'anonymousId',
-      'groupId',
-      'groupTraits',
-      'initialReferrer',
-      'initialReferringDomain',
-      'sessionInfo',
-    ];
-    userSessionKeyValues.forEach(sessionKey => {
+    let storageEntries = {};
+    USER_SESSION_KEYS.forEach(sessionKey => {
       const key = sessionKey;
       const storageKey = sessionKey;
-      const providedStorageType = entries?.[key]?.type;
+      const configuredStorageType = entriesOptions?.[key]?.type;
 
-      const preConsentStorageType = getStorageTypeFromPreConsent(state, sessionKey);
+      const preConsentStorageType = getStorageTypeFromPreConsentIfApplicable(state, sessionKey);
 
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
-        preConsentStorageType ?? providedStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
-      let finalStorageType = storageType;
+        preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
 
-      switch (storageType) {
-        case LOCAL_STORAGE:
-          if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-        case SESSION_STORAGE:
-          if (!getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-        case MEMORY_STORAGE:
-        case NO_STORAGE:
-          break;
-        case COOKIE_STORAGE:
-        default:
-          // First try setting the storage to cookie else to local storage
-          if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
-            finalStorageType = COOKIE_STORAGE;
-          } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
-            finalStorageType = LOCAL_STORAGE;
-          } else if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
-            finalStorageType = SESSION_STORAGE;
-          } else {
-            finalStorageType = MEMORY_STORAGE;
-          }
-          break;
-      }
-      if (finalStorageType !== storageType) {
-        this.logger?.warn(
-          STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, storageType, finalStorageType),
-        );
-      }
+      const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
+
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
       }
-      const storageState = state.storage.entries.value;
-      state.storage.entries.value = {
-        ...storageState,
+
+      storageEntries = {
+        ...storageEntries,
         [sessionKey]: {
           type: finalStorageType,
-          key: userSessionStorageKeys[storageKey],
+          key: USER_SESSION_STORAGE_KEYS[storageKey],
         },
       };
     });
 
-    state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
+    batch(() => {
+      state.storage.type.value = globalStorageType;
+      state.storage.entries.value = storageEntries;
+      state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
+    });
+  }
+
+  private getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
+    let finalStorageType = storageType;
+    switch (storageType) {
+      case LOCAL_STORAGE:
+        if (!getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+      case SESSION_STORAGE:
+        if (!getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+      case MEMORY_STORAGE:
+      case NO_STORAGE:
+        break;
+      case COOKIE_STORAGE:
+      default:
+        // First try setting the storage to cookie else to local storage
+        if (getStorageEngine(COOKIE_STORAGE)?.isEnabled) {
+          finalStorageType = COOKIE_STORAGE;
+        } else if (getStorageEngine(LOCAL_STORAGE)?.isEnabled) {
+          finalStorageType = LOCAL_STORAGE;
+        } else if (getStorageEngine(SESSION_STORAGE)?.isEnabled) {
+          finalStorageType = SESSION_STORAGE;
+        } else {
+          finalStorageType = MEMORY_STORAGE;
+        }
+        break;
+    }
+
+    if (finalStorageType !== storageType) {
+      this.logger?.warn(
+        STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
+      );
+    }
+
+    return finalStorageType;
   }
 
   /**
