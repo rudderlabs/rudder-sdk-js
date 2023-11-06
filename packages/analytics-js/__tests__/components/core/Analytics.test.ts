@@ -1,9 +1,15 @@
-import { Analytics } from '../../../src/components/core/Analytics';
-import { resetState, state } from '../../../src/state';
-import { setExposedGlobal } from '../../../src/components/utilities/globals';
-import { entriesWithOnlyCookieStorage } from '../../../__fixtures__/fixtures';
 import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
+import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import {
+  entriesWithMixStorage,
+  entriesWithOnlyCookieStorage,
+} from '../../../__fixtures__/fixtures';
+import { setExposedGlobal } from '../../../src/components/utilities/globals';
+import { resetState, state } from '../../../src/state';
+import { Analytics } from '../../../src/components/core/Analytics';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -46,16 +52,16 @@ describe('Core - Analytics', () => {
     it('should call expected methods in different state status', () => {
       analytics.startLifecycle();
       navigator.sendBeacon = jest.fn();
-      const prepareBrowserCapabilitiesSpy = jest.spyOn(analytics, 'prepareBrowserCapabilities');
+      const onMountedSpy = jest.spyOn(analytics, 'onMounted');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
-      const initSpy = jest.spyOn(analytics, 'init');
-      const loadPluginsSpy = jest.spyOn(analytics, 'loadPlugins');
+      const onPluginsReadySpy = jest.spyOn(analytics, 'onPluginsReady');
+      const onConfiguredSpy = jest.spyOn(analytics, 'onConfigured');
       const onInitializedSpy = jest.spyOn(analytics, 'onInitialized');
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
       const onDestinationsReadySpy = jest.spyOn(analytics, 'onDestinationsReady');
 
       state.lifecycle.status.value = 'mounted';
-      expect(prepareBrowserCapabilitiesSpy).toHaveBeenCalledTimes(1);
+      expect(onMountedSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
       state.lifecycle.status.value = 'browserCapabilitiesReady';
@@ -63,15 +69,15 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
 
       state.lifecycle.status.value = 'configured';
-      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsLoading';
-      expect(loadPluginsSpy).toHaveBeenCalledTimes(1);
+      expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(initSpy).toHaveBeenCalledTimes(1);
+      expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('ready');
 
       state.lifecycle.status.value = 'initialized';
@@ -191,11 +197,9 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
     });
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const callback = jest.fn();
 
       analytics.ready(callback);
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['ready', callback]]);
     });
     it('should buffer callback trigger until ready', () => {
@@ -232,10 +236,7 @@ describe('Core - Analytics', () => {
 
   describe('page', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.page({ name: 'name' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['page', { name: 'name' }],
       ]);
@@ -258,10 +259,7 @@ describe('Core - Analytics', () => {
 
   describe('track', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.track({ name: 'name' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['track', { name: 'name' }],
       ]);
@@ -284,10 +282,7 @@ describe('Core - Analytics', () => {
 
   describe('identify', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.identify({ userId: 'userId' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['identify', { userId: 'userId' }],
       ]);
@@ -338,10 +333,7 @@ describe('Core - Analytics', () => {
 
   describe('alias', () => {
     it('should buffer events until loaded', () => {
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-
       analytics.alias({ to: 'to' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
     });
     it('should sent events if loaded', () => {
@@ -365,12 +357,10 @@ describe('Core - Analytics', () => {
   describe('group', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
       const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
 
       analytics.group({ groupId: 'groupId' });
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(0);
       expect(setGroupTraitsSpy).toHaveBeenCalledTimes(0);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
@@ -400,11 +390,9 @@ describe('Core - Analytics', () => {
   describe('reset', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
 
       analytics.reset(true);
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['reset', true]]);
     });
@@ -461,6 +449,8 @@ describe('Core - Analytics', () => {
 
       state.consents.enabled.value = true;
       state.consents.initialized.value = false;
+      state.storage.type.value = 'localStorage';
+      state.storage.entries.value = entriesWithMixStorage;
 
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const invokeSingleSpy = jest.spyOn(
@@ -469,23 +459,119 @@ describe('Core - Analytics', () => {
       );
       const resumeSpy = jest.spyOn(analytics.eventManager as IEventManager, 'resume');
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
+      const initializeStorageStateSpy = jest.spyOn(
+        analytics.storeManager as IStoreManager,
+        'initializeStorageState',
+      );
+      const syncStorageDataToStateSpy = jest.spyOn(
+        analytics.userSessionManager as IUserSessionManager,
+        'syncStorageDataToState',
+      );
+
+      const trackSpy = jest.spyOn(analytics, 'track');
+      const pageSpy = jest.spyOn(analytics, 'page');
 
       analytics.consent({
         consentManagement: {
           provider: 'custom',
+          enabled: true,
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
         },
         discardPreConsentEvents: true,
-        sendPageEvent: false,
+        sendPageEvent: true,
+        trackConsent: true,
       });
 
       expect(state.consents.preConsent.value.enabled).toBe(false);
       expect(state.consents.postConsent.value).toEqual({
+        integrations: {
+          All: true,
+        },
         discardPreConsentEvents: true,
-        sendPageEvent: false,
-        trackConsent: false,
+        sendPageEvent: true,
+        trackConsent: true,
         consentManagement: {
           enabled: true,
           provider: 'custom',
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
+        },
+        storage: {
+          type: 'cookieStorage',
+          entries: {
+            userId: {
+              type: 'sessionStorage',
+            },
+            userTraits: {
+              type: 'localStorage',
+            },
+            groupId: {
+              type: 'memoryStorage',
+            },
+            groupTraits: {
+              type: 'memoryStorage',
+            },
+            authToken: {
+              type: 'none',
+            },
+          },
         },
       });
 
@@ -495,10 +581,55 @@ describe('Core - Analytics', () => {
         deniedConsentIds: [],
       });
 
-      expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
+      expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
       expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
+      expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
+      expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);
       expect(loadDestinationsSpy).toHaveBeenCalledTimes(1);
+
+      expect(state.storage.type.value).toBe('cookieStorage');
+      expect(state.storage.entries.value).toStrictEqual({
+        userId: {
+          type: 'sessionStorage',
+          key: USER_SESSION_STORAGE_KEYS.userId,
+        },
+        userTraits: {
+          type: 'localStorage',
+          key: USER_SESSION_STORAGE_KEYS.userTraits,
+        },
+        anonymousId: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+        },
+        groupId: {
+          type: 'memoryStorage',
+          key: USER_SESSION_STORAGE_KEYS.groupId,
+        },
+        groupTraits: {
+          type: 'memoryStorage',
+          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+        },
+        initialReferrer: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+        },
+        initialReferringDomain: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+        },
+        sessionInfo: {
+          type: 'cookieStorage',
+          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+        },
+        authToken: {
+          type: 'none',
+          key: USER_SESSION_STORAGE_KEYS.authToken,
+        },
+      });
+
+      expect(trackSpy).toHaveBeenCalled();
+      expect(pageSpy).toHaveBeenCalled();
     });
   });
 });
