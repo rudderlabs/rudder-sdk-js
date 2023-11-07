@@ -51,7 +51,6 @@ describe('Core - Analytics', () => {
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
       analytics.startLifecycle();
-      navigator.sendBeacon = jest.fn();
       const onMountedSpy = jest.spyOn(analytics, 'onMounted');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
       const onPluginsReadySpy = jest.spyOn(analytics, 'onPluginsReady');
@@ -109,7 +108,6 @@ describe('Core - Analytics', () => {
   describe('load', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
-      navigator.sendBeacon = jest.fn();
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
@@ -119,7 +117,6 @@ describe('Core - Analytics', () => {
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
     it('should load the analytics script without dataPlaneUrl with the given options', () => {
-      navigator.sendBeacon = jest.fn();
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       analytics.load(dummyWriteKey, { logLevel: 'ERROR' });
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
