@@ -33,6 +33,9 @@ describe('RudderEventFactory', () => {
       state.session.initialReferringDomain.value = 'https://test.com';
 
       state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
+      state.consents.data.value.allowedConsentIds = ['id3', 'id4'];
+      state.consents.provider.value = 'custom';
+      state.consents.resolutionStrategy.value = undefined;
 
       state.context['ua-ch'].value = { mobile: true } as UADataValues;
       state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
@@ -41,6 +44,12 @@ describe('RudderEventFactory', () => {
       state.context.userAgent.value = 'test';
       state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
       state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
+
+      state.storage.entries.value = {
+        anonymousId: {
+          type: 'memoryStorage',
+        },
+      };
     });
   });
 
@@ -97,6 +106,8 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
         },
         page: {
           path: '/NewPage',
@@ -182,6 +193,8 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
         },
         page: {
           path: '/',
@@ -254,6 +267,8 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
         },
         page: {
           path: '/',
@@ -339,6 +354,8 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
         },
         page: {
           path: '/',
@@ -404,6 +421,8 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
         },
         page: {
           path: '/',
@@ -439,6 +458,7 @@ describe('RudderEventFactory', () => {
 
     batch(() => {
       state.session.groupId.value = 'overridden_group_id';
+      state.consents.resolutionStrategy.value = 'or';
       state.session.groupTraits.value = {
         key4: 'value4',
         key5: 'value5',
@@ -482,6 +502,9 @@ describe('RudderEventFactory', () => {
         userAgent: 'test',
         consentManagement: {
           deniedConsentIds: ['id1', 'id2'],
+          allowedConsentIds: ['id3', 'id4'],
+          provider: 'custom',
+          resolutionStrategy: 'or',
         },
         page: {
           path: '/',

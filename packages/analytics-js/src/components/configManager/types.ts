@@ -8,6 +8,7 @@ import type {
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ConsentManagementMetadata } from '@rudderstack/analytics-js-common/types/Consent';
 
 export type DestinationDefinition = {
   name: string;
@@ -51,6 +52,7 @@ export type SourceDefinition = {
 };
 
 export type SourceConfigResponse = {
+  consentManagementMetadata?: ConsentManagementMetadata;
   source: {
     destinations: ConfigResponseDestinationItem[];
     sourceDefinitionId: string;

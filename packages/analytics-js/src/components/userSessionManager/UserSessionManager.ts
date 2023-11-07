@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { batch, effect } from '@preact/signals-core';
 import {
   isNonEmptyObject,
@@ -7,6 +6,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   isDefinedNotNullAndNotEmptyString,
+  isNullOrUndefined,
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -24,12 +24,13 @@ import {
   LOCAL_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import type { UserSessionKeys } from '@rudderstack/analytics-js-common/types/userSessionStorageKeys';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
   CLIENT_DATA_STORE_SESSION,
+  USER_SESSION_KEYS,
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
@@ -42,6 +43,7 @@ import {
   TIMEOUT_ZERO_WARNING,
 } from '../../constants/logMessages';
 import {
+  generateAnonymousId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
@@ -49,7 +51,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { defaultUserSessionValues, userSessionStorageKeys } from './userSessionStorageKeys';
+import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
 import { isPositiveInteger } from '../utilities/number';
 
@@ -87,31 +89,33 @@ class UserSessionManager implements IUserSessionManager {
     this.migrateDataFromPreviousStorage();
 
     // get the values from storage and set it again
-    const userId = this.getUserId();
-    const userTraits = this.getUserTraits();
-    const groupId = this.getGroupId();
-    const groupTraits = this.getGroupTraits();
-    const anonymousId = this.getAnonymousId(state.loadOptions.value.anonymousIdOptions);
-    if (userId) {
-      this.setUserId(userId);
-    }
-    if (userTraits) {
-      this.setUserTraits(userTraits);
-    }
-    if (groupId) {
-      this.setGroupId(groupId);
-    }
-    if (groupTraits) {
-      this.setGroupTraits(groupTraits);
-    }
-    if (anonymousId) {
-      this.setAnonymousId(anonymousId);
-    }
-    const authToken = this.getAuthToken();
-    if (authToken) {
-      this.setAuthToken(authToken);
+    this.setUserId(this.getUserId());
+    this.setUserTraits(this.getUserTraits());
+    this.setGroupId(this.getGroupId());
+    this.setGroupTraits(this.getGroupTraits());
+    this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
+    this.setAuthToken(this.getAuthToken());
+    this.setInitialReferrerInfo();
+    this.configureSessionTracking();
+  }
+
+  configureSessionTracking() {
+    let sessionInfo = this.getSessionInfo();
+    if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
+      const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
+      const persistedSessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
+      sessionInfo = {
+        ...persistedSessionInfo,
+        ...configuredSessionTrackingInfo,
+        autoTrack:
+          configuredSessionTrackingInfo.autoTrack && persistedSessionInfo.manualTrack !== true,
+      };
     }
 
+    this.setSessionInfo(sessionInfo);
+  }
+
+  setInitialReferrerInfo() {
     const persistedInitialReferrer = this.getInitialReferrer();
     const persistedInitialReferringDomain = this.getInitialReferringDomain();
 
@@ -123,20 +127,17 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(initialReferrer);
       this.setInitialReferringDomain(getReferringDomain(initialReferrer));
     }
-    // Initialize session tracking
-    if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
-      this.initializeSessionTracking();
-    }
   }
 
-  isPersistenceEnabledForStorageEntry(entryName: UserSessionKeys): boolean {
-    const entries = state.storage.entries.value;
-    return isStorageTypeValidForStoringData(entries[entryName]?.type as StorageType);
+  isPersistenceEnabledForStorageEntry(entryName: UserSessionKey): boolean {
+    return isStorageTypeValidForStoringData(
+      state.storage.entries.value[entryName]?.type as StorageType,
+    );
   }
 
   migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
-    const storagesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
+    const storageTypesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
@@ -144,17 +145,17 @@ class UserSessionManager implements IUserSessionManager {
         storageClientDataStoreNameMap[currentStorage] as string,
       );
       if (curStore) {
-        storagesForMigration.forEach(storage => {
+        storageTypesForMigration.forEach(storage => {
           const store = this.storeManager?.getStore(
             storageClientDataStoreNameMap[storage] as string,
           );
           if (store && storage !== currentStorage) {
-            const value = store.get(userSessionStorageKeys[key]);
+            const value = store.get(USER_SESSION_STORAGE_KEYS[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
-              curStore.set(userSessionStorageKeys[key], value);
+              curStore.set(USER_SESSION_STORAGE_KEYS[key], value);
             }
 
-            store.remove(userSessionStorageKeys[key]);
+            store.remove(USER_SESSION_STORAGE_KEYS[key]);
           }
         });
       }
@@ -165,22 +166,23 @@ class UserSessionManager implements IUserSessionManager {
     if (!state.storage.migrate.value) {
       return;
     }
-    const cookieStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_COOKIE);
-    const localStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_LS);
-    const sessionStorage = this.storeManager?.getStore(CLIENT_DATA_STORE_SESSION);
+
+    const persistentStoreNames = [
+      CLIENT_DATA_STORE_COOKIE,
+      CLIENT_DATA_STORE_LS,
+      CLIENT_DATA_STORE_SESSION,
+    ];
+
     const stores: IStore[] = [];
-    if (cookieStorage) {
-      stores.push(cookieStorage);
-    }
-    if (localStorage) {
-      stores.push(localStorage);
-    }
-    if (sessionStorage) {
-      stores.push(sessionStorage);
-    }
-    Object.keys(userSessionStorageKeys).forEach(storageEntryKey => {
-      const key = storageEntryKey as UserSessionStorageKeysType;
-      const storageEntry = userSessionStorageKeys[key];
+    persistentStoreNames.forEach(storeName => {
+      const store = this.storeManager?.getStore(storeName);
+      if (store) {
+        stores.push(store);
+      }
+    });
+
+    Object.keys(USER_SESSION_STORAGE_KEYS).forEach(storageKey => {
+      const storageEntry = USER_SESSION_STORAGE_KEYS[storageKey as UserSessionStorageKeysType];
       stores.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
@@ -189,25 +191,29 @@ class UserSessionManager implements IUserSessionManager {
           this.errorHandler,
           this.logger,
         );
-        if (migratedVal) {
+
+        // Skip setting the value if it is null or undefined
+        // as those values indicate there is no need for migration or
+        // migration failed
+        if (!isNullOrUndefined(migratedVal)) {
           store.set(storageEntry, migratedVal);
         }
       });
     });
   }
 
-  /**
-   * A function to initialize sessionTracking
-   */
-  initializeSessionTracking() {
-    const sessionInfo: SessionInfo = this.getSessionFromStorage() ?? defaultSessionInfo;
+  getConfiguredSessionTrackingInfo(): SessionInfo {
+    let autoTrack = state.loadOptions.value.sessions?.autoTrack !== false;
 
-    let finalAutoTrackingStatus = !(
-      state.loadOptions.value.sessions.autoTrack === false || sessionInfo.manualTrack === true
-    );
+    // Do not validate any further if autoTrack is disabled
+    if (!autoTrack) {
+      return {
+        autoTrack,
+      };
+    }
 
-    let sessionTimeout: number;
-    const configuredSessionTimeout = state.loadOptions.value.sessions.timeout;
+    let timeout: number;
+    const configuredSessionTimeout = state.loadOptions.value.sessions?.timeout;
     if (!isPositiveInteger(configuredSessionTimeout)) {
       this.logger?.warn(
         TIMEOUT_NOT_NUMBER_WARNING(
@@ -216,35 +222,23 @@ class UserSessionManager implements IUserSessionManager {
           DEFAULT_SESSION_TIMEOUT_MS,
         ),
       );
-      sessionTimeout = DEFAULT_SESSION_TIMEOUT_MS;
+      timeout = DEFAULT_SESSION_TIMEOUT_MS;
     } else {
-      sessionTimeout = configuredSessionTimeout as number;
+      timeout = configuredSessionTimeout as number;
     }
 
-    if (sessionTimeout === 0) {
+    if (timeout === 0) {
       this.logger?.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));
-      finalAutoTrackingStatus = false;
+      autoTrack = false;
     }
     // In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
     // and will proceed with it
-    if (sessionTimeout > 0 && sessionTimeout < MIN_SESSION_TIMEOUT_MS) {
+    if (timeout > 0 && timeout < MIN_SESSION_TIMEOUT_MS) {
       this.logger?.warn(
-        TIMEOUT_NOT_RECOMMENDED_WARNING(
-          USER_SESSION_MANAGER,
-          sessionTimeout,
-          MIN_SESSION_TIMEOUT_MS,
-        ),
+        TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
-    state.session.sessionInfo.value = {
-      ...sessionInfo,
-      timeout: sessionTimeout,
-      autoTrack: finalAutoTrackingStatus,
-    };
-    // If auto session tracking is enabled start the session tracking
-    if (state.session.sessionInfo.value.autoTrack) {
-      this.startOrRenewAutoTracking();
-    }
+    return { timeout, autoTrack };
   }
 
   /**
@@ -265,7 +259,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param value
    */
   syncValueToStorage(
-    sessionKey: UserSessionKeys,
+    sessionKey: UserSessionKey,
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
@@ -287,59 +281,11 @@ class UserSessionManager implements IUserSessionManager {
    * Function to update storage whenever state value changes
    */
   registerEffects() {
-    /**
-     * Update userId in storage automatically when userId is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('userId', state.session.userId.value);
-    });
-    /**
-     * Update user traits in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('userTraits', state.session.userTraits.value);
-    });
-    /**
-     * Update group id in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('groupId', state.session.groupId.value);
-    });
-    /**
-     * Update group traits in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('groupTraits', state.session.groupTraits.value);
-    });
-    /**
-     * Update anonymous user id in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('anonymousId', state.session.anonymousId.value);
-    });
-    /**
-     * Update initial referrer in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('initialReferrer', state.session.initialReferrer.value);
-    });
-    /**
-     * Update initial referring domain in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('initialReferringDomain', state.session.initialReferringDomain.value);
-    });
-    /**
-     * Update session tracking info in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('sessionInfo', state.session.sessionInfo.value);
-    });
-    /**
-     * Update session tracking info in storage automatically when it is updated in state
-     */
-    effect(() => {
-      this.syncValueToStorage('authToken', state.session.authToken.value);
+    // This will work as long as the user session entry key names are same as the state keys
+    USER_SESSION_KEYS.forEach(sessionKey => {
+      effect(() => {
+        this.syncValueToStorage(sessionKey, state.session[sessionKey].value);
+      });
     });
   }
 
@@ -355,22 +301,18 @@ class UserSessionManager implements IUserSessionManager {
     let finalAnonymousId: string | undefined | null = anonymousId;
     if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
-        const linkerPluginsResult = this.pluginsManager?.invokeMultiple<Nullable<string>>(
+        const linkerPluginsResult = this.pluginsManager?.invokeSingle(
           'userSession.anonymousIdGoogleLinker',
           rudderAmpLinkerParam,
         );
-        finalAnonymousId = linkerPluginsResult?.[0];
+        finalAnonymousId = linkerPluginsResult;
       }
-      state.session.anonymousId.value = finalAnonymousId || this.generateAnonymousId();
+      finalAnonymousId = finalAnonymousId || generateAnonymousId();
+    } else {
+      finalAnonymousId = DEFAULT_USER_SESSION_VALUES.anonymousId;
     }
-  }
 
-  /**
-   * Generate a new anonymousId
-   * @returns string anonymousID
-   */
-  generateAnonymousId(): string {
-    return generateUUID();
+    state.session.anonymousId.value = finalAnonymousId;
   }
 
   /**
@@ -380,12 +322,9 @@ class UserSessionManager implements IUserSessionManager {
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
     const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    const key: string = state.storage.entries.value.anonymousId?.key as string;
-    let persistedAnonymousId;
     // fetch the anonymousId from storage
     if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage] as string);
-      persistedAnonymousId = store?.get(key);
+      let persistedAnonymousId = this.getEntryValue('anonymousId');
       if (!persistedAnonymousId && options) {
         // fetch anonymousId from external source
         const autoCapturedAnonymousId = this.pluginsManager?.invokeSingle<string | undefined>(
@@ -395,18 +334,20 @@ class UserSessionManager implements IUserSessionManager {
         );
         persistedAnonymousId = autoCapturedAnonymousId;
       }
-      state.session.anonymousId.value = persistedAnonymousId || this.generateAnonymousId();
+      state.session.anonymousId.value = persistedAnonymousId || generateAnonymousId();
     }
     return state.session.anonymousId.value as string;
   }
 
-  getItem(sessionKey: UserSessionKeys) {
+  getEntryValue(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
-      const store = this.storeManager?.getStore(storageClientDataStoreNameMap[storage] as string);
-      return store?.get(key) ?? null;
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
+      const store = this.storeManager?.getStore(
+        storageClientDataStoreNameMap[storageType] as string,
+      );
+      const storageKey = entries[sessionKey]?.key as string;
+      return store?.get(storageKey) ?? null;
     }
     return null;
   }
@@ -416,7 +357,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.getItem('userId');
+    return this.getEntryValue('userId');
   }
 
   /**
@@ -424,7 +365,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.getItem('userTraits');
+    return this.getEntryValue('userTraits');
   }
 
   /**
@@ -432,7 +373,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.getItem('groupId');
+    return this.getEntryValue('groupId');
   }
 
   /**
@@ -440,7 +381,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.getItem('groupTraits');
+    return this.getEntryValue('groupTraits');
   }
 
   /**
@@ -448,7 +389,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.getItem('initialReferrer');
+    return this.getEntryValue('initialReferrer');
   }
 
   /**
@@ -456,15 +397,15 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.getItem('initialReferringDomain');
+    return this.getEntryValue('initialReferringDomain');
   }
 
   /**
    * Fetches session tracking information from storage
    * @returns
    */
-  getSessionFromStorage(): Nullable<SessionInfo> {
-    return this.getItem('sessionInfo');
+  getSessionInfo(): Nullable<SessionInfo> {
+    return this.getEntryValue('sessionInfo');
   }
 
   /**
@@ -472,7 +413,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getAuthToken(): Nullable<string> {
-    return this.getItem('authToken');
+    return this.getEntryValue('authToken');
   }
 
   /**
@@ -480,12 +421,12 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
+    const sessionInfo = state.session.sessionInfo.value;
     if (
-      (state.session.sessionInfo.value.autoTrack &&
-        !hasSessionExpired(state.session.sessionInfo.value.expiresAt)) ||
-      state.session.sessionInfo.value.manualTrack
+      (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
+      sessionInfo.manualTrack
     ) {
-      return state.session.sessionInfo.value.id || null;
+      return sessionInfo.id ?? null;
     }
     return null;
   }
@@ -494,18 +435,24 @@ class UserSessionManager implements IUserSessionManager {
    * A function to update current session info after each event call
    */
   refreshSession(): void {
-    if (state.session.sessionInfo.value.autoTrack || state.session.sessionInfo.value.manualTrack) {
-      if (state.session.sessionInfo.value.autoTrack) {
+    let sessionInfo = state.session.sessionInfo.value;
+    if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
+      if (sessionInfo.autoTrack) {
         this.startOrRenewAutoTracking();
       }
-      if (state.session.sessionInfo.value.sessionStart === undefined) {
+
+      // Re-assigning the variable with the same value intentionally as
+      // startOrRenewAutoTracking() will update the sessionInfo value
+      sessionInfo = state.session.sessionInfo.value;
+
+      if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
-          ...state.session.sessionInfo.value,
+          ...sessionInfo,
           sessionStart: true,
         };
-      } else if (state.session.sessionInfo.value.sessionStart) {
+      } else if (sessionInfo.sessionStart) {
         state.session.sessionInfo.value = {
-          ...state.session.sessionInfo.value,
+          ...sessionInfo,
           sessionStart: false,
         };
       }
@@ -519,14 +466,15 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
-    const { manualTrack, autoTrack } = state.session.sessionInfo.value;
+    const { session } = state;
+    const { manualTrack, autoTrack } = session.sessionInfo.value;
 
     batch(() => {
-      state.session.userId.value = defaultUserSessionValues.userId;
-      state.session.userTraits.value = defaultUserSessionValues.userTraits;
-      state.session.groupId.value = defaultUserSessionValues.groupId;
-      state.session.groupTraits.value = defaultUserSessionValues.groupTraits;
-      state.session.authToken.value = defaultUserSessionValues.authToken;
+      session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
+      session.userTraits.value = DEFAULT_USER_SESSION_VALUES.userTraits;
+      session.groupId.value = DEFAULT_USER_SESSION_VALUES.groupId;
+      session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
+      session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
 
       if (resetAnonymousId) {
         // This will generate a new anonymous ID
@@ -538,7 +486,7 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        state.session.sessionInfo.value = defaultUserSessionValues.sessionInfo;
+        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
         this.startOrRenewAutoTracking();
       } else if (manualTrack) {
         this.startManualTrackingInternal();
@@ -546,14 +494,26 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
+  setSessionInfo(sessionInfo: Nullable<SessionInfo>) {
+    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
+      ? (sessionInfo as SessionInfo)
+      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+    // If auto session tracking is enabled start the session tracking
+    if (state.session.sessionInfo.value.autoTrack) {
+      this.startOrRenewAutoTracking();
+    }
+  }
+
   /**
    * Set user Id
    * @param userId
    */
   setUserId(userId?: Nullable<string>) {
-    if (this.isPersistenceEnabledForStorageEntry('userId')) {
-      state.session.userId.value = userId;
-    }
+    state.session.userId.value =
+      this.isPersistenceEnabledForStorageEntry('userId') && userId
+        ? userId
+        : DEFAULT_USER_SESSION_VALUES.userId;
   }
 
   /**
@@ -561,9 +521,10 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistenceEnabledForStorageEntry('userTraits') && traits) {
-      state.session.userTraits.value = mergeDeepRight(state.session.userTraits.value ?? {}, traits);
-    }
+    state.session.userTraits.value =
+      this.isPersistenceEnabledForStorageEntry('userTraits') && traits
+        ? mergeDeepRight(state.session.userTraits.value ?? {}, traits)
+        : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
 
   /**
@@ -571,9 +532,10 @@ class UserSessionManager implements IUserSessionManager {
    * @param groupId
    */
   setGroupId(groupId?: Nullable<string>) {
-    if (this.isPersistenceEnabledForStorageEntry('groupId')) {
-      state.session.groupId.value = groupId;
-    }
+    state.session.groupId.value =
+      this.isPersistenceEnabledForStorageEntry('groupId') && groupId
+        ? groupId
+        : DEFAULT_USER_SESSION_VALUES.groupId;
   }
 
   /**
@@ -581,12 +543,10 @@ class UserSessionManager implements IUserSessionManager {
    * @param traits
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
-    if (this.isPersistenceEnabledForStorageEntry('groupTraits') && traits) {
-      state.session.groupTraits.value = mergeDeepRight(
-        state.session.groupTraits.value ?? {},
-        traits,
-      );
-    }
+    state.session.groupTraits.value =
+      this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
+        ? mergeDeepRight(state.session.groupTraits.value ?? {}, traits)
+        : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }
 
   /**
@@ -594,9 +554,10 @@ class UserSessionManager implements IUserSessionManager {
    * @param referrer
    */
   setInitialReferrer(referrer?: string) {
-    if (this.isPersistenceEnabledForStorageEntry('initialReferrer')) {
-      state.session.initialReferrer.value = referrer;
-    }
+    state.session.initialReferrer.value =
+      this.isPersistenceEnabledForStorageEntry('initialReferrer') && referrer
+        ? referrer
+        : DEFAULT_USER_SESSION_VALUES.initialReferrer;
   }
 
   /**
@@ -604,23 +565,23 @@ class UserSessionManager implements IUserSessionManager {
    * @param {String} referringDomain
    */
   setInitialReferringDomain(referringDomain?: string) {
-    if (this.isPersistenceEnabledForStorageEntry('initialReferringDomain')) {
-      state.session.initialReferringDomain.value = referringDomain;
-    }
+    state.session.initialReferringDomain.value =
+      this.isPersistenceEnabledForStorageEntry('initialReferringDomain') && referringDomain
+        ? referringDomain
+        : DEFAULT_USER_SESSION_VALUES.initialReferringDomain;
   }
 
   /**
-   * A function to check for existing session details and depending on that create a new session.
+   * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking() {
-    if (hasSessionExpired(state.session.sessionInfo.value.expiresAt)) {
-      state.session.sessionInfo.value = generateAutoTrackingSession(
-        state.session.sessionInfo.value.timeout,
-      );
+    const sessionInfo = state.session.sessionInfo.value;
+    if (hasSessionExpired(sessionInfo.expiresAt)) {
+      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
       const timestamp = Date.now();
-      const timeout = state.session.sessionInfo.value.timeout as number;
-      state.session.sessionInfo.value = mergeDeepRight(state.session.sessionInfo.value, {
+      const timeout = sessionInfo.timeout as number;
+      state.session.sessionInfo.value = mergeDeepRight(sessionInfo, {
         expiresAt: timestamp + timeout, // set the expiry time of the session
       });
     }
@@ -653,10 +614,11 @@ class UserSessionManager implements IUserSessionManager {
    * Set auth token
    * @param userId
    */
-  setAuthToken(token: string) {
-    if (this.isPersistenceEnabledForStorageEntry('authToken')) {
-      state.session.authToken.value = token;
-    }
+  setAuthToken(token: Nullable<string>) {
+    state.session.authToken.value =
+      this.isPersistenceEnabledForStorageEntry('authToken') && token
+        ? token
+        : DEFAULT_USER_SESSION_VALUES.authToken;
   }
 }
 

@@ -114,13 +114,11 @@ function getConversionData(eventTypeConversions, eventName, defaultPageConversio
   return conversionData;
 }
 
-function newCustomerAcquisitionReporting(properties, newCustomerFromCOnfig) {
+function newCustomerAcquisitionReporting(properties) {
   const updatedProperties = { ...properties }; // create a copy of properties object
   if (updatedProperties && updatedProperties.newCustomer) {
     updatedProperties.new_customer = updatedProperties.newCustomer;
     delete updatedProperties.newCustomer;
-  } else if (newCustomerFromCOnfig !== undefined) {
-    updatedProperties.new_customer = newCustomerFromCOnfig;
   }
   return updatedProperties;
 }
