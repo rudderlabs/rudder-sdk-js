@@ -9,9 +9,13 @@ import { Analytics } from './rudderAnalytics.js';
 
 console.log(Analytics);
 
-const rudderClient = new Analytics('<writeKey>', '<dataPlaneURL>/v1/batch', {
-  logLevel: 'silly',
-});
+const rudderClient = new Analytics(
+  '2L8Fl7ryPss3Zku133Pj5ox7NeP',
+  'https://rudderstacpn.dataplane.rudderstack.com/v1/batch',
+  {
+    logLevel: 'silly',
+  },
+);
 
 chrome.tabs.onUpdated.addListener((tabId, tab) => {
   if (tab.url) {
