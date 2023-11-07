@@ -30,6 +30,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   requestAnimationFrame: () => !isFunction(globalThis.requestAnimationFrame),
   cancelAnimationFrame: () => !isFunction(globalThis.cancelAnimationFrame),
   CustomEvent: () => !isFunction(globalThis.CustomEvent),
+  /* eslint-disable-next-line */
   'navigator.sendBeacon': () => !isFunction(navigator.sendBeacon),
 };
 
