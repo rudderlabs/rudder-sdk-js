@@ -23,12 +23,14 @@ import {
   ANALYTICS_CORE,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type {
-  AliasCallOptions,
-  GroupCallOptions,
-  IdentifyCallOptions,
-  PageCallOptions,
-  TrackCallOptions,
+import {
+  pageArgumentsToCallOptions,
+  type AliasCallOptions,
+  type GroupCallOptions,
+  type IdentifyCallOptions,
+  type PageCallOptions,
+  type TrackCallOptions,
+  trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
@@ -52,7 +54,12 @@ import type { PreloadedEventCall } from '../preloadBuffer/types';
 import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import type { IEventRepository } from '../eventRepository/types';
-import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+  CONSENT_TRACK_EVENT_NAME,
+} from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
@@ -481,18 +488,18 @@ class Analytics implements IAnalytics {
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY
     ) {
-      const pageCallArgs = {
-        category: ADBLOCK_PAGE_CATEGORY,
-        name: ADBLOCK_PAGE_NAME,
-        properties: {
-          // 'title' is intentionally omitted as it does not make sense
-          // in v3 implementation
-          path: ADBLOCK_PAGE_PATH,
-        },
-        options: state.loadOptions.value.sendAdblockPageOptions,
-      } as PageCallOptions;
-
-      this.page(pageCallArgs);
+      this.page(
+        pageArgumentsToCallOptions(
+          ADBLOCK_PAGE_CATEGORY,
+          ADBLOCK_PAGE_NAME,
+          {
+            // 'title' is intentionally omitted as it does not make sense
+            // in v3 implementation
+            path: ADBLOCK_PAGE_PATH,
+          },
+          state.loadOptions.value.sendAdblockPageOptions,
+        ),
+      );
     }
   }
 
@@ -718,6 +725,18 @@ class Analytics implements IAnalytics {
     this.eventManager?.resume();
 
     this.loadDestinations();
+
+    this.sendTrackingEvents();
+  }
+
+  sendTrackingEvents() {
+    if (state.consents.postConsent.value.trackConsent) {
+      this.track(trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME));
+    }
+
+    if (state.consents.postConsent.value.sendPageEvent) {
+      this.page(pageArgumentsToCallOptions());
+    }
   }
 
   setAuthToken(token: string): void {

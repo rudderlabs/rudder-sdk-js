@@ -246,6 +246,9 @@ const getEnrichedEvent = (
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       consentManagement: {
         deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
+        allowedConsentIds: clone(state.consents.data.value.allowedConsentIds),
+        provider: state.consents.provider.value,
+        resolutionStrategy: state.consents.resolutionStrategy.value,
       },
       'ua-ch': state.context['ua-ch'].value,
       app: state.context.app.value,

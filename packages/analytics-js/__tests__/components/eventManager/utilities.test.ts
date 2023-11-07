@@ -319,6 +319,7 @@ describe('Event Manager - Utilities', () => {
           timezone: 'GMT+0530',
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
+            resolutionStrategy: 'and',
           },
           page: {
             path: '/test',
@@ -1013,6 +1014,7 @@ describe('Event Manager - Utilities', () => {
           sessionStart: true,
           consentManagement: {
             deniedConsentIds: ['id1', 'id2'],
+            resolutionStrategy: 'and',
           },
           campaign: {},
           library: {
