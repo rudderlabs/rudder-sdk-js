@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle,no-param-reassign,consistent-return, sonarjs/prefer-single-boolean-return */
-import looselyValidate from '@segment/loosely-validate-event';
 import axios, {
   type AxiosError,
   type AxiosInstance,
@@ -20,6 +19,7 @@ import type {
   FlushOverrideMessage,
   IntegrationOptions,
 } from './types';
+import { looselyValidateEvent } from './loosely-validate-event';
 
 const version = '__PACKAGE_VERSION__';
 
@@ -127,7 +127,7 @@ class Analytics implements IAnalytics {
 
   _validate(message: Record<string, any>, type?: string) {
     try {
-      looselyValidate(message, type);
+      looselyValidateEvent(message, type);
     } catch (e: any) {
       if (e.message === 'Your message must be < 32kb.') {
         this.logger.info(

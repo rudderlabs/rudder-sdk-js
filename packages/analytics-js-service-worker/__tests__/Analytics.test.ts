@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { advanceTo } from 'jest-date-mock';
 import { Analytics } from '../src/Analytics';
 import { server } from './__fixtures__/msw.server';
@@ -17,8 +16,8 @@ import {
 jest.mock('uuid', () => ({ v4: () => '123456789' }));
 
 describe('JS SDK Service Worker', () => {
-  let rudderAnalyticsClient = null;
-  let requestBody;
+  let rudderAnalyticsClient: Analytics;
+  let requestBody: any;
 
   beforeAll(() => {
     advanceTo(new Date(2022, 1, 21, 0, 0, 0));
@@ -26,16 +25,20 @@ describe('JS SDK Service Worker', () => {
   });
 
   beforeEach(() => {
-    rudderAnalyticsClient = new Analytics(dummyWriteKey, dummyDataplaneHost, dummyInitOptions);
+    rudderAnalyticsClient = new Analytics(
+      dummyWriteKey,
+      dummyDataplaneHost,
+      dummyInitOptions as any,
+    );
     server.events.on('request:start', req => {
       requestBody = req.body;
     });
   });
 
   afterEach(() => {
-    rudderAnalyticsClient = null;
     server.resetHandlers();
     server.events.removeAllListeners();
+    rudderAnalyticsClient = null as any;
     requestBody = null;
   });
 
