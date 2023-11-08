@@ -44,13 +44,13 @@ class VWO {
     }
 
     window.VWO = window.VWO || [];
-    window.VWO.event = window.VWO.event || function () {
-        window.VWO.push(['event'].concat([].slice.call(arguments)));
+    window.VWO.event = window.VWO.event || function (...args) {
+        window.VWO.push(['event', ...args]);
     };
  
     
-    window.VWO.visitor = window.VWO.visitor || function () {
-        window.VWO.push(['visitor'].concat([].slice.call(arguments)));
+    window.VWO.visitor = window.VWO.visitor || function (...args) {
+        window.VWO.push(['visitor', ...args]);
     };
 
     // Send track or iddentify when
