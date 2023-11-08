@@ -26,7 +26,7 @@ export class AppComponent {
       console.log('We are all set!!!');
     });
 
-    // window.rudderanalytics = analytics;
+    window.rudderanalytics = this.analytics;
   }
 
   page() {
