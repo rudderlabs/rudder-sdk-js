@@ -1,4 +1,4 @@
-import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -202,7 +202,9 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to parse response data: Unexpected token r in JSON at position 1'),
+        new SyntaxError(
+          "Failed to parse response data: Expected property name or '}' in JSON at position 1",
+        ),
         'HttpClient',
       );
       done();
