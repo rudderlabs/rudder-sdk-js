@@ -7,6 +7,7 @@
     "sourceMap": true,
     "inlineSourceMap": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": false,
     "types": ["jest", "node"]
   },
   "include": [
