@@ -30,19 +30,63 @@ export class AppComponent {
   }
 
   page() {
-    console.log('clicked');
-    this.analytics?.page();
+    this.analytics?.page(
+      'Cart',
+      'Cart Viewed',
+      {
+        path: '/best-seller/1',
+        referrer: 'https://www.google.com/search?q=estore+bestseller',
+        search: 'estore bestseller',
+        title: 'The best sellers offered by EStore',
+        url: 'https://www.estore.com/best-seller/1',
+      },
+      () => {
+        console.log('page call');
+      },
+    );
   }
   identify() {
-    console.log('clicked');
+    this.analytics?.identify(
+      'sample-user-123',
+      {
+        firstName: 'Alex',
+        lastName: 'Keener',
+        email: 'alex@example.com',
+        phone: '+1-202-555-0146',
+      },
+      () => {
+        console.log('identify call');
+      },
+    );
   }
   track() {
-    console.log('clicked');
+    this.analytics?.track(
+      'Order Completed',
+      {
+        revenue: 30,
+        currency: 'USD',
+        user_actual_id: 12345,
+      },
+      () => {
+        console.log('track call');
+      },
+    );
   }
   group() {
-    console.log('clicked');
+    this.analytics?.group(
+      'sample_group_id',
+      {
+        name: 'Apple Inc.',
+        location: 'USA',
+      },
+      () => {
+        console.log('group call');
+      },
+    );
   }
   alias() {
-    console.log('clicked');
+    this.analytics?.alias('alias-user-id', () => {
+      console.log('alias call');
+    });
   }
 }
