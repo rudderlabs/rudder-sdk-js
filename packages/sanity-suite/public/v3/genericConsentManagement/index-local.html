@@ -3,25 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>RudderStack JS SDK Sanity Suite</title>
+    <title>RudderStack JS SDK Sanity Suite - Generic Consent Management</title>
 
     <script>
-      window.OneTrust = {
-        GetDomainData: function () {
-          return {
-            Groups: [
-              { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
-              { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
-              { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
-              { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
-              { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
-            ]
-          };
-        }
-      };
-      window.OnetrustActiveGroups = ',C0001,C0003,';
-
       var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
       var sdkName = "rsa.min.js";
       var asyncScript = true;
@@ -74,10 +58,6 @@
       }
       // New addition to load script ends
 
-      // Sets the user ID/anonymous ID
-      // Sending these Identify and Track event to test the preload buffer
-      rudderanalytics.setAnonymousId("automationqa_123");
-
       // Identify call
       rudderanalytics.identify("12345", {
         name: "Automation QA"
@@ -88,32 +68,11 @@
         testProp: "automationQA_prop1"
       });
 
-      var loadOptions={
-        logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        lockIntegrationsVersion: true,
-        consentManagement: {
-          enabled: true,
-          provider: 'oneTrust'
-        },
-        storage: {
-          migrate: true
-        }
-      };
-
-      rudderanalytics.load(
-        '__FEATURE_EVENT_FILTERING_WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions
-      );
-
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
 
-      window.userWriteKey = '__FEATURE_EVENT_FILTERING_WRITE_KEY__';
+      window.userWriteKey = '__FEATURE_GCM_WRITE_KEY__';
       window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link

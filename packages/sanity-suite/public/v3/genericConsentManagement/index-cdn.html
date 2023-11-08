@@ -1,28 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>RudderStack JS SDK Sanity Suite</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RudderStack JS SDK Sanity Suite - Generic Consent Management</title>
 
     <script>
-      window.OneTrust = {
-        GetDomainData: function () {
-          return {
-            Groups: [
-              { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
-              { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
-              { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
-              { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
-              { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
-            ]
-          };
-        }
-      };
-      window.OnetrustActiveGroups = ',C0001,C0003,';
-
-      var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
+      var sdkBaseUrl = "https://cdn.rudderlabs.com/__CDN_VERSION_PATH__";
       var sdkName = "rsa.min.js";
       var asyncScript = true;
       window.rudderAnalyticsBuildType = "legacy";
@@ -54,11 +38,11 @@
         var rudderAnalyticsScript = document.createElement("script");
         rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
-        // if (document.head) {
-        //   document.head.appendChild(rudderAnalyticsScript);
-        // } else {
-        //   document.body.appendChild(rudderAnalyticsScript);
-        // }
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsScript);
+        }
       };
       if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement("script");
@@ -74,10 +58,6 @@
       }
       // New addition to load script ends
 
-      // Sets the user ID/anonymous ID
-      // Sending these Identify and Track event to test the preload buffer
-      rudderanalytics.setAnonymousId("automationqa_123");
-
       // Identify call
       rudderanalytics.identify("12345", {
         name: "Automation QA"
@@ -88,32 +68,11 @@
         testProp: "automationQA_prop1"
       });
 
-      var loadOptions={
-        logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        lockIntegrationsVersion: true,
-        consentManagement: {
-          enabled: true,
-          provider: 'oneTrust'
-        },
-        storage: {
-          migrate: true
-        }
-      };
-
-      rudderanalytics.load(
-        '__FEATURE_EVENT_FILTERING_WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions
-      );
-
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
 
-      window.userWriteKey = '__FEATURE_EVENT_FILTERING_WRITE_KEY__';
+      window.userWriteKey = '__FEATURE_GCM_WRITE_KEY__';
       window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
@@ -136,9 +95,6 @@
       integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
       crossorigin="anonymous"
     ></script>
-    <script
-      src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll"
-    ></script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js"></script>
     <style>
       .collapsed-row pre {
@@ -151,15 +107,12 @@
         overflow: hidden;
       }
     </style>
-    <script async src="../rsa.min.js"></script>
-</head>
-<body>
-
-<div class="container-xxl">
-    <div class="row px-4">
-        <div class="col" id="testBook">
-        </div>
+  </head>
+  <body>
+    <div class="container-xxl">
+      <div class="row px-4">
+        <div class="col" id="testBook"></div>
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>

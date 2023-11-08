@@ -3,25 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RudderStack JS SDK Sanity Suite</title>
+    <title>RudderStack JS SDK Sanity Suite - Generic Consent Management</title>
 
     <script>
-      window.OneTrust = {
-        GetDomainData: function () {
-          return {
-            Groups: [
-              { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
-              { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
-              { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
-              { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
-              { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
-            ]
-          };
-        }
-      };
-      window.OnetrustActiveGroups = ',C0001,C0003,';
-
       window.rudderanalytics = [];
       var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
       for (var i = 0; i < methods.length; i++) {
@@ -33,7 +17,21 @@
         }(method);
       }
 
-      window.userWriteKey = '__FEATURE_EVENT_FILTERING_WRITE_KEY__';
+      // Identify call
+      rudderanalytics.identify("12345", {
+        name: "Automation QA"
+      });
+
+      // Track call
+      rudderanalytics.track("test event", {
+        testProp: "automationQA_prop1"
+      });
+
+      rudderanalytics.ready(function () {
+        console.log('We are all set!!!');
+      });
+
+      window.userWriteKey = '__FEATURE_GCM_WRITE_KEY__';
       window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
@@ -86,7 +84,7 @@
   </head>
   <body>
     <div class="container-xxl">
-      <div class="row  px-4">
+      <div class="row px-4">
         <div class="col" id="testBook"></div>
       </div>
     </div>
