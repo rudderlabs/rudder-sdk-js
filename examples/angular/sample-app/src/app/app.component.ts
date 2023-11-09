@@ -11,7 +11,9 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'sample-app';
   analytics: RudderAnalytics | undefined;
+  routerEventSubscription: Subscription | undefined;
 
+  constructor(private _router: Router) {}
   ngOnInit() {
     this.initialize();
   }
