@@ -28,6 +28,7 @@ class Mixpanel {
     this.dataResidency = config.dataResidency || 'us';
     this.setAllTraitsByDefault = config.setAllTraitsByDefault || false;
     this.superProperties = config.superProperties || [];
+    this.setOnceProperties = config.setOnceProperties || [];
     this.eventIncrements = config.eventIncrements || [];
     this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
@@ -110,6 +111,7 @@ class Mixpanel {
     let peopleProperties = parseConfigArray(this.peopleProperties, 'property');
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
+    const setOnceProperties = parseConfigArray(this.setOnceProperties, 'property');
 
     let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (this.identityMergeApi === 'simplified') {
@@ -131,7 +133,9 @@ class Mixpanel {
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
     const traitsToSet = {};
+    const traitsToSetOnce = {};
     Object.keys(traits).forEach(trait => {
+      if (!setOnceProperties.includes(trait)) {
       if (Object.prototype.hasOwnProperty.call(traits, trait)) {
         const value = traits[trait];
         if (Array.isArray(value) && value.length > 0) {
@@ -146,8 +150,16 @@ class Mixpanel {
           traitsToSet[trait] = value;
         }
       }
+    } else {
+      // as this set is not supposed to be set any more in the future
+      traitsToSetOnce[trait] = traits[trait];
+    }
     });
-
+    
+    if(traitsToSetOnce && Object.keys(traitsToSetOnce).length > 0) {
+      window.mixpanel.people.set_once(traitsToSetOnce);
+    }
+    
     if (this.setAllTraitsByDefault) {
       window.mixpanel.register(traits);
       if (this.people) {
