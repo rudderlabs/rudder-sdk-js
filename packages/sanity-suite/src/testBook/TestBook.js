@@ -8,6 +8,7 @@ class TestBook {
     this.createTestBook(testBookData);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   generateSuiteMarkup(suiteGroupData, groupIndex) {
     let markupString = `
             <div class="row">
@@ -136,6 +137,7 @@ class TestBook {
     return markupString;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   joinHtml(items) {
     let joinedHtml = '';
 
@@ -178,6 +180,7 @@ class TestBook {
   }
 
   // Invoke the trigger handlers passing as arguments the input data array items
+  // eslint-disable-next-line class-methods-use-this
   invokeTriggerHandlers(clickHandler, inputData, resultCallback) {
     // Always add callback methods in order to retrieve the generated message object
     const inputs = [...(inputData || [])];
@@ -196,9 +199,9 @@ class TestBook {
 
     for (let i = 0; i < totalTriggerElements; i++) {
       const triggerElement = triggerElements[i];
-      const suiteGroupIndex = triggerElement.dataset.suiteGroupIndex;
-      const suiteIndex = triggerElement.dataset.suiteIndex;
-      const testCaseIndex = triggerElement.dataset.testCaseIndex;
+      const { suiteGroupIndex } = triggerElement.dataset;
+      const { suiteIndex } = triggerElement.dataset;
+      const { testCaseIndex } = triggerElement.dataset;
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
       const resultCallback = function (generatedPayload, isApiTest) {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
@@ -255,7 +258,7 @@ class TestBook {
     });
 
     const expandToggleElements = document.getElementsByClassName('testCaseToggle');
-    Array.from(expandToggleElements).forEach(function (element) {
+    Array.from(expandToggleElements).forEach(element => {
       element.addEventListener('click', event => {
         if (event.target.parentNode.parentNode.className) {
           event.target.parentNode.parentNode.className = '';
@@ -266,6 +269,7 @@ class TestBook {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   attachResultsObserver() {
     const resultContainerElements = document.getElementsByClassName('testCaseResult');
     const totalResultContainerElements = resultContainerElements.length;
@@ -273,9 +277,9 @@ class TestBook {
     for (let i = 0; i < totalResultContainerElements; i++) {
       const resultContainerElement = resultContainerElements[i];
       const resultRowElement = resultContainerElement.parentNode.parentNode;
-      const testCaseId = resultContainerElement.dataset.testCaseId;
+      const { testCaseId } = resultContainerElement.dataset;
 
-      const observer = new MutationObserver((mutationList, observer) => {
+      const observer = new MutationObserver(mutationList => {
         const resultDataElement = mutationList[0].addedNodes[0].parentNode;
         const resultData = resultDataElement.textContent.trim();
         const expectedResult = resultRowElement.lastElementChild.childNodes[1].textContent.trim();
@@ -303,6 +307,7 @@ class TestBook {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   resultStatusSummary() {
     const resultSummaryElement = document.getElementById('resultSummary');
     const totalTestCases = document.getElementsByClassName('testCaseResult').length;

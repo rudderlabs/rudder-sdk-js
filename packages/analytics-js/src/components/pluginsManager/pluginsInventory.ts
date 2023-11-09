@@ -1,6 +1,6 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { PluginMap } from './types';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginMap } from './types';
 import { getBundledBuildPluginImports } from './bundledBuildPluginImports';
 import { federatedModulesBuildPluginImports } from './federatedModulesBuildPluginImports';
 

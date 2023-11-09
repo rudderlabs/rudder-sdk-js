@@ -1,5 +1,9 @@
-import { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
-import { OneTrustCookieCategory, KetchConsentPurpose } from './Consent';
+import type { Conversion, EventFilteringOption, EventMapping } from './LoadOptions';
+import type {
+  OneTrustCookieCategory,
+  KetchConsentPurpose,
+  ConsentManagementProvider,
+} from './Consent';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 
@@ -18,11 +22,22 @@ export type DeviceModeDestination = {
   isReady?: () => boolean;
 };
 
+export type ConsentsConfig = {
+  consent: string;
+};
+
+export type ConsentManagementProviderConfig = {
+  provider: ConsentManagementProvider;
+  consents: ConsentsConfig[];
+  resolutionStrategy: string | undefined;
+};
+
 export type DestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
-  oneTrustCookieCategories: OneTrustCookieCategory[];
-  ketchConsentPurposes: KetchConsentPurpose[];
+  oneTrustCookieCategories?: OneTrustCookieCategory[];
+  ketchConsentPurposes?: KetchConsentPurpose[];
+  consentManagement?: ConsentManagementProviderConfig[];
   eventFilteringOption: EventFilteringOption;
   clickEventConversions?: Conversion[];
   pageLoadConversions?: Conversion[];

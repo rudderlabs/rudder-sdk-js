@@ -5,10 +5,13 @@ import {
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
-import { LoadOptions, UaChTrackLevel } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
+import type {
+  LoadOptions,
+  UaChTrackLevel,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { INVALID_CONFIG_URL_WARNING } from '../../constants/logMessages';
 import { APP_VERSION, MODULE_TYPE } from '../../constants/app';
@@ -120,7 +123,7 @@ const normalizeLoadOptions = (
 };
 
 const getSourceConfigURL = (
-  configUrl: string,
+  configUrl: string | undefined,
   writeKey: string,
   lockIntegrationsVersion: boolean,
   logger?: ILogger,

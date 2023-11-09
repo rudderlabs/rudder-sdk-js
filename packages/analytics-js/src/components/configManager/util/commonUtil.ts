@@ -1,13 +1,22 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
 } from '@rudderstack/analytics-js-common/constants/consent';
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
+import type {
+  ConsentManagementMetadata,
+  ConsentResolutionStrategy,
+} from '@rudderstack/analytics-js-common/types/Consent';
+import { clone } from 'ramda';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
@@ -23,7 +32,7 @@ import {
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
-import { SourceConfigResponse } from '../types';
+import type { SourceConfigResponse } from '../types';
 import {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
@@ -92,7 +101,7 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
   }
 };
 
-const updateStorageState = (logger?: ILogger): void => {
+const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
   const storageOptsFromLoad = state.loadOptions.value.storage;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
@@ -148,11 +157,9 @@ const updateStorageState = (logger?: ILogger): void => {
   });
 };
 
-const updateConsentsState = (logger?: ILogger): void => {
-  const { consentManagerPluginName, initialized, enabled, consentsData } = getConsentManagementData(
-    state.loadOptions.value.consentManagement,
-    logger,
-  );
+const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
+  const { provider, consentManagerPluginName, initialized, enabled, consentsData } =
+    getConsentManagementData(state.loadOptions.value.consentManagement, logger);
 
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
@@ -192,6 +199,7 @@ const updateConsentsState = (logger?: ILogger): void => {
     state.consents.initialized.value = initialized;
     state.consents.enabled.value = enabled;
     state.consents.data.value = consentsData;
+    state.consents.provider.value = provider;
 
     state.consents.preConsent.value = {
       // Only enable pre-consent if it is explicitly enabled and
@@ -211,4 +219,42 @@ const updateConsentsState = (logger?: ILogger): void => {
   });
 };
 
-export { getSDKUrl, updateReportingState, updateStorageState, updateConsentsState };
+/**
+ * Determines the consent management state variables from the source config data
+ * @param resp Source config response
+ * @param logger Logger instance
+ */
+const updateConsentsState = (resp: SourceConfigResponse): void => {
+  let resolutionStrategy: ConsentResolutionStrategy | undefined =
+    state.consents.resolutionStrategy.value;
+
+  let cmpMetadata: ConsentManagementMetadata | undefined;
+  if (isObjectLiteralAndNotNull(resp.consentManagementMetadata)) {
+    if (state.consents.provider.value) {
+      resolutionStrategy =
+        resp.consentManagementMetadata.providers.find(
+          p => p.provider === state.consents.provider.value,
+        )?.resolutionStrategy ?? state.consents.resolutionStrategy.value;
+    }
+
+    cmpMetadata = resp.consentManagementMetadata;
+  }
+
+  // If the provider is custom, then the resolution strategy is not applicable
+  if (state.consents.provider.value === 'custom') {
+    resolutionStrategy = undefined;
+  }
+
+  batch(() => {
+    state.consents.metadata.value = clone(cmpMetadata);
+    state.consents.resolutionStrategy.value = resolutionStrategy;
+  });
+};
+
+export {
+  getSDKUrl,
+  updateReportingState,
+  updateStorageStateFromLoadOptions,
+  updateConsentsStateFromLoadOptions,
+  updateConsentsState,
+};

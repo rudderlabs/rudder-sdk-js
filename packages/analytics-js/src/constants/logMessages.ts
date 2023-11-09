@@ -1,16 +1,20 @@
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {
-  StorageType,
+  type StorageType,
   SUPPORTED_STORAGE_TYPES,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
-import { DeliveryType, StorageStrategy } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  DeliveryType,
+  StorageStrategy,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for integrations is not valid.`;
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
+const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
@@ -172,10 +176,11 @@ const STORAGE_QUOTA_EXCEEDED_WARNING = (context: string): string =>
 
 const STORAGE_UNAVAILABLE_WARNING = (
   context: string,
+  entry: string,
   selectedStorageType: string,
   finalStorageType: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available. The SDK will be initialized with "${finalStorageType}" instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
 const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
@@ -262,4 +267,5 @@ export {
   COOKIE_DATA_ENCODING_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
+  SOURCE_CONFIG_RESOLUTION_ERROR,
 };

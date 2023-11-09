@@ -1,13 +1,14 @@
-import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
-import {
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
+import type {
   RegionDetails,
   ResidencyServerRegion,
 } from '@rudderstack/analytics-js-common/types/DataResidency';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ConsentManagementMetadata } from '@rudderstack/analytics-js-common/types/Consent';
 
 export type DestinationDefinition = {
   name: string;
@@ -51,6 +52,7 @@ export type SourceDefinition = {
 };
 
 export type SourceConfigResponse = {
+  consentManagementMetadata?: ConsentManagementMetadata;
   source: {
     destinations: ConfigResponseDestinationItem[];
     sourceDefinitionId: string;

@@ -115,7 +115,7 @@ describe('GoogleAds utilities newCustomerAcquisitionReporting function tests', (
     const mockProperties = {
       newCustomer: true,
     };
-    const properties = newCustomerAcquisitionReporting(mockProperties, {});
+    const properties = newCustomerAcquisitionReporting(mockProperties);
     expect(properties.new_customer).toEqual(true);
   });
 });

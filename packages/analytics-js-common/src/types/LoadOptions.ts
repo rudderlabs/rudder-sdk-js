@@ -1,12 +1,12 @@
-import { LogLevel } from './Logger';
-import { ResidencyServerRegion } from './DataResidency';
-import { Nullable } from './Nullable';
-import { PluginName } from './PluginsManager';
-import { IntegrationOpts } from './Integration';
-import { ApiOptions } from './EventApi';
-import { ConsentManagementOptions } from './Consent';
-import { ApiObject } from './ApiObject';
-import { StorageOpts, CookieSameSite } from './Storage';
+import type { LogLevel } from './Logger';
+import type { ResidencyServerRegion } from './DataResidency';
+import type { Nullable } from './Nullable';
+import type { PluginName } from './PluginsManager';
+import type { IntegrationOpts } from './Integration';
+import type { ApiOptions } from './EventApi';
+import type { ConsentManagementOptions } from './Consent';
+import type { ApiObject } from './ApiObject';
+import type { StorageOpts, CookieSameSite } from './Storage';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -113,10 +113,10 @@ export type PreConsentOptions = {
 export type LoadOptions = {
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
-  configUrl: string; // defaults to https://api.rudderstack.com
+  configUrl?: string; // defaults to https://api.rudderstack.com
   queueOptions?: QueueOpts;
   loadIntegration?: boolean; // defaults to true.
-  sessions: SessionOpts;
+  sessions?: SessionOpts;
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
@@ -125,9 +125,9 @@ export type LoadOptions = {
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
-  sameSiteCookie: CookieSameSite; // defaults to Lax.
+  sameSiteCookie?: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
-  polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+  polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
@@ -145,6 +145,7 @@ export type LoadOptions = {
   // transport mechanism to be used for sending batched requests
   transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
+  sameDomainCookiesOnly?: boolean;
 };
 
 export type ConsentOptions = {

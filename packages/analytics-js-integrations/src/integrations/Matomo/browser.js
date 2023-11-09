@@ -44,6 +44,8 @@ class Matomo {
     this.timeout = config.timeout;
     this.getCrossDomainLinkingUrlParameter = config.getCrossDomainLinkingUrlParameter;
     this.disableBrowserFeatureDetection = config.disableBrowserFeatureDetection;
+    this.matomoVersion = config.matomoVersion;
+    this.premiseUrl = config.premiseUrl;
 
     this.ecomEvents = {
       SET_ECOMMERCE_VIEW: 'SET_ECOMMERCE_VIEW',
@@ -61,7 +63,7 @@ class Matomo {
   }
 
   loadScript() {
-    loadNativeSdk(this.serverUrl, this.siteId);
+    loadNativeSdk(this.matomoVersion, this.premiseUrl, this.serverUrl, this.siteId);
   }
 
   init() {
@@ -141,14 +143,14 @@ class Matomo {
     const { event } = message;
     const goalListMap = getHashFromArrayWithDuplicate(this.eventsMapToGoalId);
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
-    const ecommerceMapping = new Map([
-      ['product viewed', this.ecomEvents.SET_ECOMMERCE_VIEW],
-      ['product added', this.ecomEvents.ADD_ECOMMERCE_ITEM],
-      ['product removed', this.ecomEvents.REMOVE_ECOMMERCE_ITEM],
-      ['order completed', this.ecomEvents.TRACK_ECOMMERCE_ORDER],
-      ['cart cleared', this.ecomEvents.CLEAR_ECOMMERCE_CART],
-      ['update cart', this.ecomEvents.TRACK_ECOMMERCE_CART_UPDATE],
-    ]);
+    const ecommerceMapping = {
+      'product viewed': this.ecomEvents.SET_ECOMMERCE_VIEW,
+      'product added': this.ecomEvents.ADD_ECOMMERCE_ITEM,
+      'product removed': this.ecomEvents.REMOVE_ECOMMERCE_ITEM,
+      'order completed': this.ecomEvents.TRACK_ECOMMERCE_ORDER,
+      'cart cleared': this.ecomEvents.CLEAR_ECOMMERCE_CART,
+      'update cart': this.ecomEvents.TRACK_ECOMMERCE_CART_UPDATE,
+    };
 
     if (!event) {
       logger.error('Event name not present');
@@ -171,11 +173,7 @@ class Matomo {
     }
 
     // Mapping Ecommerce Events
-    if (ecommerceMapping.has(trimmedEvent)) {
-      ecommerceEventsMapping(ecommerceMapping.get(trimmedEvent), message);
-    } else {
-      ecommerceEventsMapping('trackEvent', message);
-    }
+    ecommerceEventsMapping(ecommerceMapping[trimmedEvent] || 'trackEvent', message);
   }
 
   page(rudderElement) {

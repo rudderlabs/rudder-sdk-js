@@ -1,8 +1,8 @@
-import { IErrorHandler } from './ErrorHandler';
-import { ILogger } from './Logger';
-import { IPluginsManager } from './PluginsManager';
-import { Nullable } from './Nullable';
-import { StorageType, CookieOptions, CookieSameSite } from './Storage';
+import type { IErrorHandler } from './ErrorHandler';
+import type { ILogger } from './Logger';
+import type { IPluginsManager } from './PluginsManager';
+import type { Nullable } from './Nullable';
+import type { StorageType, CookieOptions, CookieSameSite } from './Storage';
 
 export type StoreId = string;
 
@@ -23,7 +23,7 @@ export interface IStoreManager {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   init(): void;
-  initClientDataStores(): void;
+  initializeStorageState(): void;
   setStore(storeConfig: IStoreConfig): IStore;
   getStore(id: StoreId): IStore | undefined;
 }
@@ -66,6 +66,7 @@ export interface ICookieStorageOptions extends CookieOptions {
   domain?: string;
   secure?: boolean;
   enabled?: boolean;
+  sameDomainCookiesOnly?: boolean;
 }
 
 export interface ILocalStorageOptions {

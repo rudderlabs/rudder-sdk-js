@@ -1,16 +1,20 @@
 /* eslint-disable class-methods-use-this */
-import { IHttpClient, ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
+  SOURCE_CONFIG_RESOLUTION_ERROR,
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
@@ -19,8 +23,13 @@ import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import { IConfigManager, SourceConfigResponse } from './types';
-import { updateConsentsState, updateReportingState, updateStorageState } from './util/commonUtil';
+import type { IConfigManager, SourceConfigResponse } from './types';
+import {
+  updateConsentsState,
+  updateConsentsStateFromLoadOptions,
+  updateReportingState,
+  updateStorageStateFromLoadOptions,
+} from './util/commonUtil';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -64,8 +73,8 @@ class ConfigManager implements IConfigManager {
     // determine the path to fetch remote plugins from
     const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
 
-    updateStorageState(this.logger);
-    updateConsentsState(this.logger);
+    updateStorageStateFromLoadOptions(this.logger);
+    updateConsentsStateFromLoadOptions(this.logger);
 
     // set application lifecycle state in global state
     batch(() => {
@@ -111,21 +120,19 @@ class ConfigManager implements IConfigManager {
     }
 
     let res: SourceConfigResponse;
-    const errMessage = 'Unable to process/parse source config';
-
     try {
       if (isString(response)) {
         res = JSON.parse(response);
       } else {
         res = response;
       }
-    } catch (e) {
-      this.onError(e, errMessage, true);
+    } catch (err) {
+      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR, true);
       return;
     }
 
     if (!isValidSourceConfig(res)) {
-      this.onError(new Error(errMessage), undefined, true);
+      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
       return;
     }
 
@@ -160,6 +167,8 @@ class ConfigManager implements IConfigManager {
 
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
+
+      updateConsentsState(res);
 
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined

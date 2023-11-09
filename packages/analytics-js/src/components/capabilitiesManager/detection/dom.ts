@@ -30,6 +30,8 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   requestAnimationFrame: () => !isFunction(globalThis.requestAnimationFrame),
   cancelAnimationFrame: () => !isFunction(globalThis.cancelAnimationFrame),
   CustomEvent: () => !isFunction(globalThis.CustomEvent),
+  /* eslint-disable-next-line */
+  'navigator.sendBeacon': () => !isFunction(navigator.sendBeacon),
 };
 
 const isLegacyJSEngine = (): boolean => {
@@ -38,9 +40,10 @@ const isLegacyJSEngine = (): boolean => {
 
   /* eslint-disable-next-line unicorn/no-for-loop */
   for (let i = 0; i < requiredCapabilitiesList.length; i++) {
-    const isCapabilityMissing = legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i]];
+    const isCapabilityMissing =
+      legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i] as string];
 
-    if (isCapabilityMissing()) {
+    if (isFunction(isCapabilityMissing) && isCapabilityMissing()) {
       needsPolyfill = true;
       break;
     }

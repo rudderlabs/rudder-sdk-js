@@ -51,7 +51,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/analytics-js-integrations/jest.config.ts",
+        "jestConfig": "packages/analytics-js-integrations/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -96,9 +96,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.14",
-        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.14",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.14",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.15",
+        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.15",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.15",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

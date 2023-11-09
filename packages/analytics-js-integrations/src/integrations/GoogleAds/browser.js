@@ -45,7 +45,6 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
-    this.newCustomer = config.newCustomer;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -114,7 +113,7 @@ class GoogleAds {
         send_to: sendToValue,
       };
       properties = removeUndefinedAndNullValues(properties);
-      properties = newCustomerAcquisitionReporting(properties, this.newCustomer);
+      properties = newCustomerAcquisitionReporting(properties);
 
       const eventLabel = this.enableConversionLabel ? 'conversion' : eventName;
       window.gtag('event', eventLabel, properties);
@@ -146,8 +145,7 @@ class GoogleAds {
 
       // set new customer acquisition reporting
       // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager
-      // the order of priority for new_customer's value is properties.new_customer > config.newCustomer > unspecified
-      properties = newCustomerAcquisitionReporting(properties, this.newCustomer);
+      properties = newCustomerAcquisitionReporting(properties);
       const payload = properties || {};
       const sendToValue = this.conversionId;
 

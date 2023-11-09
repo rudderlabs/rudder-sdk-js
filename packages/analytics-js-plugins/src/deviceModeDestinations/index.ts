@@ -1,14 +1,18 @@
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { IPluginsManager, PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  IPluginsManager,
+  PluginName,
+} from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/destDisplayNamesToFileNamesMap';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { clone } from 'ramda';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
@@ -49,9 +53,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           return false;
         });
 
-      // Filter destinations that are disabled through load options
+      // Filter destinations that are disabled through load and consent API options
       const destinationsToLoad = destinationUtils.filterDestinations(
-        state.nativeDestinations.loadOnlyIntegrations.value,
+        mergeDeepRight(
+          state.nativeDestinations.loadOnlyIntegrations.value,
+          state.consents.postConsent.value?.integrations ?? {},
+        ),
         configSupportedDestinations,
       );
 
@@ -85,7 +92,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
         const sdkTypeName = sdkName;
-        if (!isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, logger)) {
+        if (sdkTypeName && !isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, logger)) {
           const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader.loadJSFile({
             url: destSdkURL,
@@ -117,8 +124,12 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               }),
             timeout: SCRIPT_LOAD_TIMEOUT_MS,
           });
-        } else {
+        } else if (sdkTypeName) {
           initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, errorHandler, logger);
+        } else {
+          logger?.error(
+            DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.displayName),
+          );
         }
       });
     },

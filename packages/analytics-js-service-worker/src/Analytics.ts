@@ -1,20 +1,25 @@
 /* eslint-disable no-underscore-dangle,no-param-reassign,consistent-return, sonarjs/prefer-single-boolean-return */
-import looselyValidate from '@segment/loosely-validate-event';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+} from 'axios';
 import axiosRetry from 'axios-retry';
 import ms from 'ms';
 import { v4 as uuid } from '@lukeed/uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
-import { IAnalytics } from './IAnalytics';
-import {
+import type { IAnalytics } from './IAnalytics';
+import type {
   ApiCallback,
   ApiObject,
   ConstructorOptions,
   FlushOverrideMessage,
   IntegrationOptions,
 } from './types';
+import { looselyValidateEvent } from './loosely-validate-event';
 
 const version = '__PACKAGE_VERSION__';
 
@@ -122,7 +127,7 @@ class Analytics implements IAnalytics {
 
   _validate(message: Record<string, any>, type?: string) {
     try {
-      looselyValidate(message, type);
+      looselyValidateEvent(message, type);
     } catch (e: any) {
       if (e.message === 'Your message must be < 32kb.') {
         this.logger.info(

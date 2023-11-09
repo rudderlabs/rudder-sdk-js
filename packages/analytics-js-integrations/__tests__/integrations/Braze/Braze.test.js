@@ -40,6 +40,7 @@ const mockBrazeSDK = () => {
     setPhoneNumber: jest.fn(),
     setCustomUserAttribute: jest.fn(),
     logCustomEvent: jest.fn(),
+    logPurchase: jest.fn(),
     getCachedContentCards: jest.fn(),
     getCachedFeed: jest.fn(),
     User: {
@@ -475,4 +476,470 @@ describe('identify', () => {
     // Expect Storage.setItem not been called with the updated payload
     expect(Storage.setItem).not.toHaveBeenCalled();
   });
+});
+
+describe('track', () => {
+  it('should call the necessary Braze methods to set user properties', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            gender: 'male',
+            phone: '1234567890',
+            address: {
+              country: 'USA',
+              city: 'New York',
+            },
+            birthday: '1990-01-01',
+          },
+        },
+        event: "Product Reviewed",
+        properties: {
+        review_id: "12345",
+          product_id : "123",
+          rating : 3.0,
+          review_body : "Good product."
+      }
+  }};
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Product Reviewed", {"rating": 3, "review_body": "Good product.", "review_id": "12345"});
+  });
+
+  it('should call the necessary Braze methods for order completed event', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            gender: 'male',
+            phone: '1234567890',
+            address: {
+              country: 'USA',
+              city: 'New York',
+            },
+            birthday: '1990-01-01',
+          },
+        },
+        event: "order completed",
+        properties: {
+          currency: "USD",
+          products: [{
+            product_id: "123454387",
+            name: "Game",
+            price: 15.99,
+            quantity: 1
+          }
+          ]
+      }}};
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logPurchase).toHaveBeenCalledWith('123454387', 15.99, "USD", 1, {});
+  });
+
+  it('should call the necessary Braze methods for order completed event with extra properties', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            gender: 'male',
+            phone: '1234567890',
+            address: {
+              country: 'USA',
+              city: 'New York',
+            },
+            birthday: '1990-01-01',
+          },
+        },
+        event: "order completed",
+        properties: {
+          currency: "USD",
+          products: [{
+            product_id: "123454387",
+            name: "Game",
+            price: 15.99,
+            quantity: 1
+          }
+          ],
+          rating: 5
+        }}};
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logPurchase).toHaveBeenCalledWith('123454387', 15.99, "USD", 1, { "rating": 5});
+  });
+
+  it('should call the necessary Braze methods for anonymous user', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        anonymousId: 'anon123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            gender: 'male',
+            phone: '1234567890',
+            address: {
+              country: 'USA',
+              city: 'New York',
+            },
+            birthday: '1990-01-01',
+          },
+        },
+        event: "Product Reviewed",
+        properties: {
+          review_id: "12345",
+          product_id : "123",
+          rating : 3.0,
+          review_body : "Good product."
+        }
+      }};
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
+  });
+
+  it('should call the necessary Braze methods for order completed event wit hreserved properties', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            gender: 'male',
+            phone: '1234567890',
+            address: {
+              country: 'USA',
+              city: 'New York',
+            },
+            birthday: '1990-01-01',
+          },
+        },
+        event: "Product Reviewed",
+        properties: {
+          time: "164545454545",
+          currency: "USD",
+          products: [{
+            product_id: "123454387",
+            name: "Game",
+            price: 15.99,
+            quantity: 1
+          }
+          ]
+        }}};
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Product Reviewed", {"products": [{"name": "Game", "price": 15.99, "product_id": "123454387", "quantity": 1}]});
+  });
+});
+
+describe('page', () => {
+  it('should call the necessary Braze methods to custom event', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        type: "page",
+        name: "Home",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Home", {"title": "Home | RudderStack", "url": "http://www.rudderstack.com"});
+  });
+
+  it('should call the necessary Braze methods to custom event without event name', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        type: "page",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Page View", {"title": "Home | RudderStack", "url": "http://www.rudderstack.com"});
+  });
+
+  it('should call the necessary Braze methods to custom event with anonymousUser', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: false,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        anonymousId: 'anon123',
+        type: "page",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(0);
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Page View", {"title": "Home | RudderStack", "url": "http://www.rudderstack.com"});
+  });
+
+  it('should call the necessary Braze methods to custom event with anonymousUser and tracking anonymous user', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        anonymousId: 'anon123',
+        type: "page",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(1);
+    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Page View", {"title": "Home | RudderStack", "url": "http://www.rudderstack.com"});
+  });
+
+  it('should call the necessary Braze methods to custom event with reserved properties', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        anonymousId: 'anon123',
+        type: "page",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com",
+          event_name: 'ABC',
+          referer: 'index',
+          currency: 'usd'
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(1);
+    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith("Page View", {"title": "Home | RudderStack", "url": "http://www.rudderstack.com", "referer": "index"});
+  });
+
 });

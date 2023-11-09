@@ -1,4 +1,4 @@
-import { DoneCallback } from '../../types/plugins';
+import type { DoneCallback } from '../../types/plugins';
 
 export type QueueBackoff = {
   minRetryDelay: number;

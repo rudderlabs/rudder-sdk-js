@@ -1,13 +1,14 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { USER_SESSION_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
@@ -91,6 +92,12 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
       storageType === MEMORY_STORAGE,
   );
 
+/**
+ * Generate a new anonymousId
+ * @returns string anonymousID
+ */
+const generateAnonymousId = (): string => generateUUID();
+
 export {
   hasSessionExpired,
   generateSessionId,
@@ -98,4 +105,5 @@ export {
   generateManualTrackingSession,
   MIN_SESSION_ID_LENGTH,
   isStorageTypeValidForStoringData,
+  generateAnonymousId,
 };

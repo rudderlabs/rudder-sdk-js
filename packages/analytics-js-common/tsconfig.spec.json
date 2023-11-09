@@ -8,10 +8,11 @@
     "sourceMap": true,
     "inlineSourceMap": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": false,
     "types": ["jest", "node"]
   },
   "include": [
-    "jest.config.ts",
+    "jest.config.mjs",
     "__tests__/**/*.ts",
     "__mocks__/**/*.ts",
     "__fixtures__/**/*.ts",

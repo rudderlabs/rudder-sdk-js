@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { OneTrustCookieCategory } from '@rudderstack/analytics-js-common/types/Consent';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from './logMessages';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
-import { OneTrustGroup } from './types';
+import type { OneTrustGroup } from './types';
 
 const pluginName: PluginName = 'OneTrustConsentManager';
 
@@ -46,7 +45,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       const allowedConsents: Record<string, string> = {};
       const deniedConsentIds: string[] = [];
 
-      // Get the groups(cookie categorization), user has created in one trust account.
+      // Get the groups (cookie categorization), user has created in OneTrust account.
       const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
         .Groups;
 
@@ -60,6 +59,9 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       });
 
       state.consents.initialized.value = true;
+
+      // In case of OneTrust, as we still support both category names and IDs, the allowed consents
+      // are stored as an object with key as the category ID and value as the category name.
       state.consents.data.value = { allowedConsentIds: allowedConsents, deniedConsentIds };
     },
 
@@ -72,36 +74,58 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsentIds = state.consents.data.value.allowedConsentIds as Record<
-        string,
-        string
-      >;
+      const allowedConsents = state.consents.data.value.allowedConsentIds as Record<string, string>;
 
       try {
         // mapping of the destination with the consent group name
-        const { oneTrustCookieCategories } = destConfig;
+        const { oneTrustCookieCategories, consentManagement } = destConfig;
 
-        // If the destination do not have this mapping events will be sent.
-        if (!oneTrustCookieCategories) {
-          return true;
+        const allowedConsentIds = Object.keys(allowedConsents);
+        const allowedConsentNames = Object.values(allowedConsents);
+
+        // Match the consent in both IDs and names
+        const matchPredicate = (consent: string) =>
+          allowedConsentIds.includes(consent) || allowedConsentNames.includes(consent);
+
+        // Generic consent management
+        if (consentManagement) {
+          // Get the corresponding consents for the destination
+          const cmpConsents = consentManagement.find(
+            c => c.provider === state.consents.provider.value,
+          )?.consents;
+
+          // If there are no consents configured for the destination for the current provider, events should be sent.
+          if (!cmpConsents) {
+            return true;
+          }
+
+          const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
+
+          // match the configured consents with user provided consents as per
+          // the configured resolution strategy
+          switch (state.consents.resolutionStrategy.value) {
+            case 'or':
+              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
+            case 'and':
+            default:
+              return configuredConsents.every(matchPredicate);
+          }
+          // Legacy cookie consent management
+          // TODO: To be removed once the source config API is updated to support generic consent management
+        } else if (oneTrustCookieCategories) {
+          // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
+          // Eg:
+          // ["Performance Cookies", "Functional Cookies"]
+          const configuredConsents = oneTrustCookieCategories
+            .map(c => c.oneTrustCookieCategory.trim())
+            .filter(n => n);
+
+          // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+          return configuredConsents.every(matchPredicate);
         }
 
-        // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
-        // Eg:
-        // ["Performance Cookies", "Functional Cookies"]
-        const validOneTrustCookieCategories = oneTrustCookieCategories
-          .map((c: OneTrustCookieCategory) => c.oneTrustCookieCategory)
-          .filter((n: string | undefined) => n);
-
-        let containsAllConsent = true;
-        // Check if all the destination's mapped cookie categories are consented by the user in the browser.
-        containsAllConsent = validOneTrustCookieCategories.every(
-          (element: string) =>
-            Object.keys(allowedConsentIds).includes(element.trim()) ||
-            Object.values(allowedConsentIds).includes(element.trim()),
-        );
-
-        return containsAllConsent;
+        // If there are no consents configured for the destination for the current provider, events should be sent.
+        return true;
       } catch (err) {
         errorHandler?.onError(
           err,

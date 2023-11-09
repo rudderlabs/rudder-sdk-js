@@ -46,7 +46,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/loading-scripts/jest.config.ts",
+        "jestConfig": "packages/loading-scripts/jest.config.mjs",
         "passWithNoTests": true,
         "codeCoverage": true,
         "watchAll": false,
@@ -91,9 +91,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.11",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

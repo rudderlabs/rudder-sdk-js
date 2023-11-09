@@ -1,5 +1,5 @@
 import { clone } from 'ramda';
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { loadOptionsState } from './slices/loadOptions';
 import { sessionState } from './slices/session';
 import { capabilitiesState } from './slices/capabilities';

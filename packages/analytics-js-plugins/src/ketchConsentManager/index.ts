@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
-import { KetchConsentData } from './types';
+import type { KetchConsentData } from './types';
 import { getKetchConsentData, updateConsentStateFromData } from './utils';
 
 const pluginName: PluginName = 'KetchConsentManager';
@@ -69,20 +69,44 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
 
       try {
-        const { ketchConsentPurposes } = destConfig;
+        const { ketchConsentPurposes, consentManagement } = destConfig;
+        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
 
-        // If the destination do not have this mapping events will be sent.
-        if (!ketchConsentPurposes || ketchConsentPurposes.length === 0) {
-          return true;
+        // Generic consent management
+        if (consentManagement) {
+          // Get the corresponding consents for the destination
+          const cmpConsents = consentManagement.find(
+            c => c.provider === state.consents.provider.value,
+          )?.consents;
+
+          // If there are no consents configured for the destination for the current provider, events should be sent.
+          if (!cmpConsents) {
+            return true;
+          }
+
+          const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
+
+          // match the configured consents with user provided consents as per
+          // the configured resolution strategy
+          switch (state.consents.resolutionStrategy.value) {
+            case 'or':
+              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
+            case 'and':
+            default:
+              return configuredConsents.every(matchPredicate);
+          }
+
+          // Legacy cookie consent management
+          // TODO: To be removed once the source config API is updated to support generic consent management
+        } else if (ketchConsentPurposes) {
+          const configuredConsents = ketchConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
+
+          // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
+          return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
         }
 
-        const purposes = ketchConsentPurposes.map(p => p.purpose).filter(n => n);
-
-        // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
-        const containsAnyOfConsent = purposes.some(element =>
-          allowedConsentIds.includes(element.trim()),
-        );
-        return containsAnyOfConsent;
+        // If there are no consents configured for the destination for the current provider, events should be sent.
+        return true;
       } catch (err) {
         errorHandler?.onError(err, KETCH_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
         return true;

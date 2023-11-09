@@ -1,13 +1,13 @@
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,

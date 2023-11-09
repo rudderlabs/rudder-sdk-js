@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-loading-scripts",
-  "version": "3.0.0-beta.11",
+  "version": "3.0.0-beta.12",
   "private": true,
   "description": "Loading script for RudderStack Javascript SDK",
   "main": "./src/index.js",
@@ -37,10 +37,10 @@
     "check:security": "npm audit --recursive --audit-level=high",
     "build:modern": "npm run build:browser:modern"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@rudderstack/analytics-js": "*"
   },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [

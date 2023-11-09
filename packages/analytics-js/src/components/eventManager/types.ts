@@ -1,4 +1,4 @@
-import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
 
 export interface IEventManager {
   init(): void;
