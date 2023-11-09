@@ -99,4 +99,8 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log('alias call');
     });
   }
+  
+    public ngOnDestroy(): void {
+      this.routerEventSubscription?.unsubscribe()
+    }
 }
