@@ -24,6 +24,7 @@ class Braze {
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
+    this.enablePushNotification = config.enablePushNotification || false;
     if (!config.appKey) this.appKey = '';
     this.endPoint = '';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
@@ -58,11 +59,13 @@ class Braze {
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
     window.braze.automaticallyShowInAppMessages();
-    window.braze.requestPushPermission();
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
     if (userId) {
       window.braze.changeUser(userId);
+    }
+    if (this.enablePushNotification) {
+      window.braze.requestPushPermission();
     }
     window.braze.openSession();
   }
