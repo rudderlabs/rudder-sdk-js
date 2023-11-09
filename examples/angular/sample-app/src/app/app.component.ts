@@ -8,7 +8,7 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'sample-app';
   analytics: RudderAnalytics | undefined;
 
