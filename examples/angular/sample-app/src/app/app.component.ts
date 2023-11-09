@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { NavigationStart, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 @Component({
