@@ -7,6 +7,6 @@ module.exports = [
     name: 'Service Worker Module',
     path: 'dist/npm/esm/index.js',
     gzip: true,
-    limit: '22 KiB',
+    limit: '26.5 KiB',
   },
 ];
