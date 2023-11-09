@@ -148,7 +148,7 @@ describe('KetchConsentManager - Utils', () => {
       expect(ketchConsentData).toBeUndefined();
       expect(mockLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to parse the consent cookie.',
-        new SyntaxError('Unexpected token i in JSON at position 0'),
+        new SyntaxError('Unexpected token \'i\', "i�" is not valid JSON'),
       );
     });
 
@@ -162,7 +162,7 @@ describe('KetchConsentManager - Utils', () => {
       expect(ketchConsentData).toBeUndefined();
       expect(mockLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to parse the consent cookie.',
-        new SyntaxError('Unexpected token a in JSON at position 0'),
+        new SyntaxError('Unexpected token \'a\', "abcde" is not valid JSON'),
       );
     });
 
