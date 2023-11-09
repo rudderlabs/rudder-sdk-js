@@ -6,6 +6,7 @@ import {
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
@@ -153,7 +154,7 @@ class Braze {
           .getUser()
           .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
-        logger.error(`Error in setting birthday - ${JSON.stringify(error)}`);
+        logger.error(`Error in setting birthday - ${stringifyWithoutCircularV1(error, true)}`);
       }
     }
     // function set Email

@@ -53,7 +53,7 @@ class RedditPixel {
   track(rudderElement) {
     const { event } = rudderElement.message;
     if (!event) {
-      logger.error(` ${DISPLAY_NAME} : Event name is not present`);
+      logger.error('Event name is required');
       return;
     }
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
