@@ -538,26 +538,6 @@ describe('Core - Analytics', () => {
             },
           },
         },
-        storage: {
-          type: 'cookieStorage',
-          entries: {
-            userId: {
-              type: 'sessionStorage',
-            },
-            userTraits: {
-              type: 'localStorage',
-            },
-            groupId: {
-              type: 'memoryStorage',
-            },
-            groupTraits: {
-              type: 'memoryStorage',
-            },
-            authToken: {
-              type: 'none',
-            },
-          },
-        },
       });
 
       expect(state.consents.initialized.value).toBe(false);
