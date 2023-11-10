@@ -240,11 +240,6 @@ class Analytics {
       // Initialize transformation handler once we determine the dataPlaneUrl
       this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
 
-      // Execute onLoaded callback if provided in load options
-      if (this.options && typeof this.options.onLoaded === 'function') {
-        this.options.onLoaded(this);
-      }
-
       response.source.destinations.forEach(function (destination) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
@@ -291,6 +286,11 @@ class Analytics {
 
       // set loaded flag to true
       this.loaded = true;
+
+      // Execute onLoaded callback if provided in load options
+      if (this.options && typeof this.options.onLoaded === 'function') {
+        this.options.onLoaded(this);
+      }
 
       // Execute any pending buffered requests
       // (needed if the load call was not previously buffered)
