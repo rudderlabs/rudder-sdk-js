@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -354,14 +355,24 @@ class Analytics implements IAnalytics {
    * Consume preloaded events buffer
    */
   processBufferedEvents() {
-    // Process buffered events
-    state.eventBuffer.toBeProcessedArray.value.forEach((bufferedItem: BufferedEvent) => {
-      const methodName = bufferedItem[0];
-      if (isFunction((this as any)[methodName])) {
-        (this as any)[methodName](...bufferedItem.slice(1));
+    // This logic has been intentionally implemented without a simple
+    // for-loop as the individual events that are processed may
+    // add more events to the buffer (this is needed for the consent API)
+    let bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
+    while (bufferedEvents.length > 0) {
+      const bufferedEvent = bufferedEvents.shift();
+      state.eventBuffer.toBeProcessedArray.value = bufferedEvents;
+
+      if (bufferedEvent) {
+        const methodName = bufferedEvent[0];
+        if (isFunction((this as any)[methodName])) {
+          // Send additional arg 'true' to indicate that this is a buffered invocation
+          (this as any)[methodName](...bufferedEvent.slice(1), true);
+        }
       }
-    });
-    state.eventBuffer.toBeProcessedArray.value = [];
+
+      bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
+    }
   }
 
   /**
@@ -429,11 +440,14 @@ class Analytics implements IAnalytics {
   // End lifecycle methods
 
   // Start consumer exposed methods
-  ready(callback: ApiCallback) {
+  ready(callback: ApiCallback, isBufferedInvocation = false) {
     const type = 'ready';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, callback],
+      ];
       return;
     }
 
@@ -460,11 +474,14 @@ class Analytics implements IAnalytics {
     }
   }
 
-  page(payload: PageCallOptions) {
+  page(payload: PageCallOptions, isBufferedInvocation = false) {
     const type = 'page';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -503,11 +520,14 @@ class Analytics implements IAnalytics {
     }
   }
 
-  track(payload: TrackCallOptions) {
+  track(payload: TrackCallOptions, isBufferedInvocation = false) {
     const type = 'track';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -523,11 +543,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  identify(payload: IdentifyCallOptions) {
+  identify(payload: IdentifyCallOptions, isBufferedInvocation = false) {
     const type = 'identify';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -557,11 +580,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  alias(payload: AliasCallOptions) {
+  alias(payload: AliasCallOptions, isBufferedInvocation = false) {
     const type = 'alias';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -582,11 +608,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  group(payload: GroupCallOptions) {
+  group(payload: GroupCallOptions, isBufferedInvocation = false) {
     const type = 'group';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -609,11 +638,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  reset(resetAnonymousId?: boolean) {
+  reset(resetAnonymousId?: boolean, isBufferedInvocation = false) {
     const type = 'reset';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, resetAnonymousId],
+      ];
       return;
     }
 
@@ -627,11 +659,18 @@ class Analytics implements IAnalytics {
     return this.userSessionManager?.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void {
+  setAnonymousId(
+    anonymousId?: string,
+    rudderAmpLinkerParam?: string,
+    isBufferedInvocation = false,
+  ): void {
     const type = 'setAnonymousId';
     // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, anonymousId, rudderAmpLinkerParam]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, anonymousId, rudderAmpLinkerParam],
+      ];
       return;
     }
 
@@ -659,11 +698,14 @@ class Analytics implements IAnalytics {
     return state.session.groupTraits.value;
   }
 
-  startSession(sessionId?: number): void {
+  startSession(sessionId?: number, isBufferedInvocation = false): void {
     const type = 'startSession';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, sessionId],
+      ];
       return;
     }
 
@@ -671,11 +713,14 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.start(sessionId);
   }
 
-  endSession(): void {
+  endSession(isBufferedInvocation = false): void {
     const type = 'endSession';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type],
+      ];
       return;
     }
 
@@ -689,11 +734,14 @@ class Analytics implements IAnalytics {
     return sessionId ?? null;
   }
 
-  consent(options?: ConsentOptions) {
+  consent(options?: ConsentOptions, isBufferedInvocation = false) {
     const type = 'consent';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, options]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, options],
+      ];
       return;
     }
 
@@ -733,16 +781,34 @@ class Analytics implements IAnalytics {
 
     this.loadDestinations();
 
-    this.sendTrackingEvents();
+    this.sendTrackingEvents(isBufferedInvocation);
   }
 
-  sendTrackingEvents() {
+  sendTrackingEvents(isBufferedInvocation: boolean) {
+    // If isBufferedInvocation is true, then the tracking events will be added to the end of the
+    // events buffer array so that any other preload events (mainly from query string API) will be processed first.
     if (state.consents.postConsent.value.trackConsent) {
-      this.track(trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME));
+      const trackOptions = trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME);
+      if (isBufferedInvocation) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          ['track', trackOptions],
+        ];
+      } else {
+        this.track(trackOptions);
+      }
     }
 
     if (state.consents.postConsent.value.sendPageEvent) {
-      this.page(pageArgumentsToCallOptions());
+      const pageOptions = pageArgumentsToCallOptions();
+      if (isBufferedInvocation) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          ['page', pageOptions],
+        ];
+      } else {
+        this.page(pageOptions);
+      }
     }
   }
 
