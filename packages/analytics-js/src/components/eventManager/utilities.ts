@@ -244,12 +244,15 @@ const getEnrichedEvent = (
       traits: clone(state.session.userTraits.value),
       sessionId: state.session.sessionInfo.value.id || undefined,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
-      consentManagement: {
-        deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
-        allowedConsentIds: clone(state.consents.data.value.allowedConsentIds),
-        provider: state.consents.provider.value,
-        resolutionStrategy: state.consents.resolutionStrategy.value,
-      },
+      // Add 'consentManagement' only if consent management is enabled
+      ...(state.consents.enabled.value && {
+        consentManagement: {
+          deniedConsentIds: clone(state.consents.data.value.deniedConsentIds),
+          allowedConsentIds: clone(state.consents.data.value.allowedConsentIds),
+          provider: state.consents.provider.value,
+          resolutionStrategy: state.consents.resolutionStrategy.value,
+        },
+      }),
       'ua-ch': state.context['ua-ch'].value,
       app: state.context.app.value,
       library: state.context.library.value,
