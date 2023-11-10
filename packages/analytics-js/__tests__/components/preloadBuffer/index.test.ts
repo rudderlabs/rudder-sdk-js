@@ -1,6 +1,7 @@
 import {
   getEventDataFromQueryString,
   getPreloadedLoadEvent,
+  promotePreloadedConsentEventsToTop,
   retrieveEventsFromQueryString,
   retrievePreloadBufferEvents,
 } from '../../../src/components/preloadBuffer';
@@ -78,7 +79,7 @@ describe('Preload Buffer', () => {
     window.location.href = testUrlParams;
     (window as any).RudderStackGlobals = {
       app: {
-        preloadedEventsBuffer: [['track'], ['track']],
+        preloadedEventsBuffer: [['consent'], ['track'], ['track']],
       },
     };
 
@@ -89,6 +90,7 @@ describe('Preload Buffer', () => {
       ['setAnonymousId', 'asdfghjkl'],
       ['identify', 'qzxcvbnm', { dummy1: 'true' }],
       ['track', 'dummyName', { dummy: 'true' }],
+      ['consent'],
       ['track'],
       ['track'],
     ]);
@@ -106,5 +108,23 @@ describe('Preload Buffer', () => {
 
     expect(analytics.enqueuePreloadBufferEvents).toHaveBeenCalledTimes(0);
     expect(analytics.load).toHaveBeenCalledTimes(0);
+  });
+
+  it('should promote consent events to top if they exist in the preloaded events array', () => {
+    const argumentsArray: PreloadedEventCall[] = [
+      ['track'],
+      ['consent', { option1: true }],
+      ['track'],
+      ['consent', { option1: false }],
+    ];
+
+    promotePreloadedConsentEventsToTop(argumentsArray);
+
+    expect(argumentsArray).toStrictEqual([
+      ['consent', { option1: true }],
+      ['consent', { option1: false }],
+      ['track'],
+      ['track'],
+    ]);
   });
 });
