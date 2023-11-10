@@ -72,6 +72,7 @@ import * as Olark from './Olark';
 import * as Lemnisk from './Lemnisk';
 import * as TiktokAds from './TiktokAds';
 import * as ActiveCampaign from './ActiveCampaign';
+import * as Sprig from './Sprig';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -150,6 +151,7 @@ const integrations = {
   LEMNISK: Lemnisk.default,
   TIKTOK_ADS: TiktokAds.default,
   ACTIVE_CAMPAIGN: ActiveCampaign.default,
+  SPRIG: Sprig.default,
 };
 
 export { integrations };
