@@ -20,7 +20,7 @@ beforeEach(() => {
   scriptElement.id = 'dummyScript';
   const headElements = document.getElementsByTagName('head');
   headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
-  delete window._paq;
+  delete window.Intercom;
 });
 
 describe('Intercom Identify event', () => {
