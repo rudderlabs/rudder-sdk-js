@@ -28,8 +28,10 @@ class Braze {
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
+    this.enablePushNotification = config.enablePushNotification || false;
     if (!config.appKey) this.appKey = '';
     this.endPoint = '';
+    this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
       const dataCenterArr = config.dataCenter.trim().split('-');
@@ -58,11 +60,13 @@ class Braze {
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
     window.braze.automaticallyShowInAppMessages();
-
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
     if (userId) {
       window.braze.changeUser(userId);
+    }
+    if (this.enablePushNotification) {
+      window.braze.requestPushPermission();
     }
     window.braze.openSession();
   }
@@ -108,6 +112,10 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
+
     const { message } = rudderElement;
     const { userId } = message;
     const { context } = message;
@@ -241,6 +249,9 @@ class Braze {
   }
 
   track(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
@@ -264,6 +275,9 @@ class Braze {
   }
 
   page(rudderElement) {
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;

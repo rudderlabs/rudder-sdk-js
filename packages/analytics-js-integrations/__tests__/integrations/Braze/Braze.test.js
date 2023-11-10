@@ -943,3 +943,120 @@ describe('page', () => {
   });
 
 });
+
+describe('hybrid mode', () => {
+  it('should not call the necessary Braze methods for page call', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+      connectionMode: 'hybrid'
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        type: "page",
+        name: "Home",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.page(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(0);
+  });
+
+  it('should not call the necessary Braze methods for track call', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+      connectionMode: 'hybrid'
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        type: "page",
+        name: "Home",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.track(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(0);
+  });
+
+  it('should not call the necessary Braze methods for identify call', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      trackAnonymousUser: true,
+      enableBrazeLogging: false,
+      dataCenter: 'US-03',
+      enableHtmlInAppMessages: false,
+      allowUserSuppliedJavascript: false,
+      connectionMode: 'hybrid'
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+
+    // Create a mock rudderElement with necessary properties
+    const rudderElement = {
+      message: {
+        userId: 'user123',
+        type: "page",
+        name: "Home",
+        properties: {
+          title: "Home | RudderStack",
+          url: "http://www.rudderstack.com"
+        },
+      },
+    };
+
+    jest.spyOn(window.braze, 'changeUser');
+    braze.identify(rudderElement);
+
+    // Expect the necessary Braze methods to be called with the correct values
+    expect(window.braze.changeUser).toBeCalledTimes(0);
+  });
+
+});
