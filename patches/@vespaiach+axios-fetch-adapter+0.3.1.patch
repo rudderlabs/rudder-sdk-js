@@ -1,0 +1,43 @@
+diff --git a/node_modules/@vespaiach/axios-fetch-adapter/index.js b/node_modules/@vespaiach/axios-fetch-adapter/index.js
+index 527e282..79cdec3 100644
+--- a/node_modules/@vespaiach/axios-fetch-adapter/index.js
++++ b/node_modules/@vespaiach/axios-fetch-adapter/index.js
+@@ -1,8 +1,16 @@
+ import axios from 'axios';
+-import settle from 'axios/lib/core/settle';
+-import buildURL from 'axios/lib/helpers/buildURL';
+-import buildFullPath from 'axios/lib/core/buildFullPath';
+-import { isUndefined, isStandardBrowserEnv, isFormData } from 'axios/lib/utils';
++// NX has issue with named exports, thus we need the relative paths here
++// more: https://github.com/nrwl/nx/issues/19563
++// import settle from 'axios/unsafe/core/settle';
++// import buildURL from 'axios/unsafe/helpers/buildURL';
++// import buildFullPath from 'axios/unsafe/core/buildFullPath';
++// import * as browserUtils from 'axios/unsafe/platform/browser';
++// import * as utils from 'axios/unsafe/utils';
++import settle from '../../axios/lib/core/settle';
++import buildURL from '../../axios/lib/helpers/buildURL';
++import buildFullPath from '../../axios/lib/core/buildFullPath';
++import * as browserUtils from '../../axios/lib/platform/browser';
++import * as utils from '../../axios/lib/utils';
+ 
+ /**
+  * - Create a request object
+@@ -106,7 +114,7 @@ function createRequest(config) {
+ 
+         // In these cases the browser will automatically set the correct Content-Type,
+         // but only if that header hasn't been set yet. So that's why we're deleting it.
+-        if (isFormData(options.body) && isStandardBrowserEnv()) {
++        if (utils.default.isFormData(options.body) && browserUtils.default.isStandardBrowserEnv()) {
+             headers.delete('Content-Type');
+         }
+     }
+@@ -127,7 +135,7 @@ function createRequest(config) {
+     }
+     // This config is similar to XHR’s withCredentials flag, but with three available values instead of two.
+     // So if withCredentials is not set, default value 'same-origin' will be used
+-    if (!isUndefined(config.withCredentials)) {
++    if (!utils.default.isUndefined(config.withCredentials)) {
+         options.credentials = config.withCredentials ? 'include' : 'omit';
+     }
+ 
