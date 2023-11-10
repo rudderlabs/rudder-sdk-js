@@ -236,7 +236,7 @@ class Analytics {
 
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
-      this.loaded = true;
+
       // Initialize transformation handler once we determine the dataPlaneUrl
       this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
 
@@ -244,10 +244,6 @@ class Analytics {
       if (this.options && typeof this.options.onLoaded === 'function') {
         this.options.onLoaded(this);
       }
-
-      // Execute any pending buffered requests
-      // (needed if the load call was not previously buffered)
-      processDataInAnalyticsArray(this);
 
       response.source.destinations.forEach(function (destination) {
         // logger.debug(
@@ -292,6 +288,13 @@ class Analytics {
           handleError(e);
         }
       }
+
+      // set loaded flag to true
+      this.loaded = true;
+
+      // Execute any pending buffered requests
+      // (needed if the load call was not previously buffered)
+      processDataInAnalyticsArray(this);
 
       // filter destination that doesn't have mapping config-->Integration names
       this.clientIntegrations = this.clientIntegrations.filter(intg => {
