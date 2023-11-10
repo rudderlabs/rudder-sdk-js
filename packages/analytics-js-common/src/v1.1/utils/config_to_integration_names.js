@@ -74,6 +74,7 @@ const configToIntNames = {
   LEMNISK: 'Lemnisk',
   TIKTOK_ADS: 'TiktokAds',
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
+  SPRIG: 'Sprig'
 };
 
 export { configToIntNames };
