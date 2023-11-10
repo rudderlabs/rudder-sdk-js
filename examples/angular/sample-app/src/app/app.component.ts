@@ -16,10 +16,10 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private _router: Router) {}
   ngOnInit() {
     this.initialize();
-    
-    this.routerEventSubscription = this._router.events.subscribe((event) => {
+
+    this.routerEventSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
-        window.rudderanalytics.page(event.url)
+        this.analytics?.page(event.url);
       }
     });
   }
@@ -99,8 +99,8 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log('alias call');
     });
   }
-  
-    public ngOnDestroy(): void {
-      this.routerEventSubscription?.unsubscribe()
-    }
+
+  public ngOnDestroy(): void {
+    this.routerEventSubscription?.unsubscribe();
+  }
 }
