@@ -50,7 +50,7 @@ const amplitudeEUConfig = {
     {
       traits: 'friends',
     },
-  ]
+  ],
 };
 const destinationInfo = {
   areTransformationsConnected: false,
@@ -85,5 +85,7 @@ describe('Amplitude init tests', () => {
     amplitude.init();
     // eslint-disable-next-line no-underscore-dangle
     expect(typeof window.amplitude).toBe('object');
+    // eslint-disable-next-line no-underscore-dangle
+    expect(amplitudeEUConfig.residencyServer).toBe('EU');
   });
 });
