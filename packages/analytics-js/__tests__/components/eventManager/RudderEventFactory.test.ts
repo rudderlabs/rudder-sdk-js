@@ -104,11 +104,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-        },
         page: {
           path: '/NewPage',
           referrer: 'https://sample.com/NewPage',
@@ -191,11 +186,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-        },
         page: {
           path: '/',
           referrer: '$direct',
@@ -265,11 +255,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-        },
         page: {
           path: '/',
           referrer: '$direct',
@@ -352,11 +337,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-        },
         page: {
           path: '/',
           referrer: '$direct',
@@ -419,11 +399,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-        },
         page: {
           path: '/',
           referrer: '$direct',
@@ -500,12 +475,6 @@ describe('RudderEventFactory', () => {
           mobile: true,
         },
         userAgent: 'test',
-        consentManagement: {
-          deniedConsentIds: ['id1', 'id2'],
-          allowedConsentIds: ['id3', 'id4'],
-          provider: 'custom',
-          resolutionStrategy: 'or',
-        },
         page: {
           path: '/',
           referrer: '$direct',
