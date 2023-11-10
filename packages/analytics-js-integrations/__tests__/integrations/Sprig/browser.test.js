@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import Sprig from '../../../src/integrations/Sprig/browser';
 
+const url = 'http://localhost:3004';
 const destinationInfo = {
   areTransformationsConnected: false,
   destinationId: 'sample-destination-id',
@@ -52,21 +53,33 @@ describe('Sprig tests', () => {
     });
   });
 
-  test('Send logIn track event', () => {
+  test('Send signed in track event', () => {
     sprig.track({
       message: {
         userId: 'user@1',
         event: 'signed in',
         properties: {
-          url: 'http://localhost:3004',
+          url,
         },
       },
     });
-    console.log(window.Sprig._queue[1]);
     expect(window.Sprig._queue[0][1]).toEqual({
       eventName: 'signed in',
-      properties: { url: 'http://localhost:3004' },
+      properties: { url },
       userId: 'user@1',
     });
+  });
+
+  test('Send signed out track event', () => {
+    sprig.track({
+      message: {
+        userId: 'user@1',
+        event: 'signed out',
+        properties: {
+          url,
+        },
+      },
+    });
+    expect(window.Sprig._queue[0][0]).toEqual('logoutUser');
   });
 });
