@@ -596,5 +596,29 @@ describe('Core - Analytics', () => {
       expect(trackSpy).toHaveBeenCalled();
       expect(pageSpy).toHaveBeenCalled();
     });
+
+    it('should add consent auto tracking events to the end of the buffered events', () => {
+      analytics.prepareInternalServices();
+
+      state.eventBuffer.toBeProcessedArray.value = [['identify', { userId: 'test_user_id' }]];
+
+      state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
+      state.consents.initialized.value = false;
+
+      analytics.consent(
+        {
+          sendPageEvent: true,
+          trackConsent: true,
+        },
+        true,
+      ); // Send true to mimic buffered invocation
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['identify', { userId: 'test_user_id' }],
+        ['track', { name: 'Consent Management Interaction', properties: {} }],
+        ['page', { properties: { category: null, name: null } }],
+      ]);
+    });
   });
 });
