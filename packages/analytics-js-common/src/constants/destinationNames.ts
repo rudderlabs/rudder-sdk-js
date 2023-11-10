@@ -294,3 +294,7 @@ export {
   DISPLAY_NAME as ActiveCampaignDisplayName,
   DIR_NAME as ActiveCampaignDirectoryName,
 } from './integrations/ActiveCampaign/constants';
+export {
+  DISPLAY_NAME as SprigDisplayName,
+  DIR_NAME as SprigDirectoryName,
+} from './integrations/Sprig/constants';
