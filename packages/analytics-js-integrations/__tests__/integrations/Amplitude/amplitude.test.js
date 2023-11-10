@@ -87,7 +87,7 @@ describe('Amplitude init tests', () => {
     // eslint-disable-next-line no-underscore-dangle
     expect(typeof window.amplitude).toBe('object');
     // eslint-disable-next-line no-underscore-dangle
-    expect(amplitudeEUConfig.residencyServer).toBe('EU');
+    expect(window.amplitude._q[1].args[2].serverZone).toBe('EU');
   });
 });
 
