@@ -20,6 +20,7 @@
         'setAnonymousId',
         'startSession',
         'endSession',
+        'consent'
       ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
@@ -122,7 +123,10 @@
         // preConsent: {
         //   enabled: true,
         //   storage: {
-        //     strategy: 'anonymousId'
+        //     strategy: 'session'
+        //   },
+        //   events: {
+        //     delivery: 'buffer'
         //   }
         }
         // plugins: [
