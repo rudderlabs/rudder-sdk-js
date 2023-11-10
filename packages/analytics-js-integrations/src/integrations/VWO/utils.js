@@ -14,4 +14,29 @@ import {
 const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
-export { getDestinationOptions };
+/**
+ * Sanitizes the given event name by trimming any leading or trailing whitespace and prefixing it with "rudder.".
+ *
+ * @param {string} eventName - The event name to be sanitized.
+ * @return {string} The sanitized event name.
+ */
+const sanitizeName = eventName => {
+  return `rudder.${eventName.trim()}`;
+};
+
+/**
+ * Sanitizes the properties object by formatting the keys and returning a new object with the formatted keys.
+ *
+ * @param {object} properties - The properties object to be sanitized.
+ * @return {object} - The sanitized properties object with formatted keys.
+ */
+const sanitizeAttributes = attributes => {
+  const formattedAttributes = {};
+  for (const key in attributes) {
+    const formattedKey = sanitizeName(key);
+    formattedAttributes[formattedKey] = attributes[key];
+  }
+  return formattedAttributes;
+};
+
+export { getDestinationOptions, sanitizeName, sanitizeAttributes };
