@@ -232,7 +232,6 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should retrieve all preloaded events and set to global', () => {
     expect((window as any).RudderStackGlobals.app.preloadedEventsBuffer).toEqual([
       ['track'],
-      ['load', { option1: true }],
       ['track'],
     ]);
   });

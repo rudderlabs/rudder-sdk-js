@@ -78,7 +78,7 @@ describe('Preload Buffer', () => {
     window.location.href = testUrlParams;
     (window as any).RudderStackGlobals = {
       app: {
-        preloadedEventsBuffer: [['track'], ['load', { option1: true }], ['track']],
+        preloadedEventsBuffer: [['track'], ['track']],
       },
     };
 

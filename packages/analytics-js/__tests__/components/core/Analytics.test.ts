@@ -441,10 +441,18 @@ describe('Core - Analytics', () => {
   });
 
   describe('consent', () => {
+    it('should buffer methods until loaded', () => {
+      analytics.consent({ sendPageEvent: true });
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['consent', { sendPageEvent: true }],
+      ]);
+    });
+
     it('should resume SDK processing on consent', () => {
       analytics.prepareInternalServices();
 
       state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
       state.consents.initialized.value = false;
       state.storage.type.value = 'localStorage';
       state.storage.entries.value = entriesWithMixStorage;
@@ -472,26 +480,6 @@ describe('Core - Analytics', () => {
         consentManagement: {
           provider: 'custom',
           enabled: true,
-        },
-        storage: {
-          type: 'cookieStorage',
-          entries: {
-            userId: {
-              type: 'sessionStorage',
-            },
-            userTraits: {
-              type: 'localStorage',
-            },
-            groupId: {
-              type: 'memoryStorage',
-            },
-            groupTraits: {
-              type: 'memoryStorage',
-            },
-            authToken: {
-              type: 'none',
-            },
-          },
         },
         storage: {
           type: 'cookieStorage',
@@ -579,7 +567,7 @@ describe('Core - Analytics', () => {
       });
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(6); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);

@@ -690,6 +690,13 @@ class Analytics implements IAnalytics {
   }
 
   consent(options?: ConsentOptions) {
+    const type = 'consent';
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value.push([type, options]);
+      return;
+    }
+
     this.errorHandler.leaveBreadcrumb(`New consent invocation`);
 
     batch(() => {
