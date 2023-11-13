@@ -20,7 +20,10 @@ import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContext
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
-import { getPreloadedLoadEvent } from '../components/preloadBuffer';
+import {
+  getPreloadedLoadEvent,
+  promotePreloadedConsentEventsToTop,
+} from '../components/preloadBuffer';
 import type { PreloadedEventCall } from '../components/preloadBuffer/types';
 import { setExposedGlobal } from '../components/utilities/globals';
 import type { IAnalytics } from '../components/core/IAnalytics';
@@ -55,7 +58,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
     this.load = this.load.bind(this);
     this.ready = this.ready.bind(this);
-    this.getPreloadBuffer = this.getPreloadBuffer.bind(this);
     this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
@@ -76,9 +78,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.consent = this.consent.bind(this);
 
     RudderAnalytics.globalSingleton = this;
-
-    // get the preloaded events before replacing global object
-    this.getPreloadBuffer();
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
@@ -129,28 +128,24 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   /**
-   * Get preloaded events in buffer queue if exists
-   */
-  // eslint-disable-next-line class-methods-use-this
-  getPreloadBuffer() {
-    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
-      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
-      : ([] as PreloadedEventCall[]);
-
-    // Expose buffer to global objects
-    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
-  }
-
-  /**
-   * Trigger load event in buffer queue if exists
+   * Trigger load event in buffer queue if exists and stores the
+   * remaining preloaded events array in global object
    */
   triggerBufferedLoadEvent() {
     const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
       ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
       : ([] as PreloadedEventCall[]);
 
+    // The array will be mutated in the below method
+    promotePreloadedConsentEventsToTop(preloadedEventsArray);
+
     // Get any load method call that is buffered if any
+    // BTW, load method is also removed from the array
+    // So, the Analytics object can directly consume the remaining events
     const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);
+
+    // Set the final preloaded events array in global object
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
     // Process load method if present in the buffered requests
     if (loadEvent.length > 0) {
