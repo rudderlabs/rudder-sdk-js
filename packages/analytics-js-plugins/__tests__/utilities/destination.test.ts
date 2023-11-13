@@ -110,5 +110,24 @@ describe('Destination Utilities', () => {
         },
       ]);
     });
+
+    it('should default "All" as true if not specified in the load options', () => {
+      const loadOptions = {
+        'Google Analytics 4 (GA4)': true,
+      };
+
+      const filteredDestinations = filterDestinations(loadOptions, destinations);
+
+      expect(filteredDestinations).toEqual([
+        {
+          name: 'GA4',
+          displayName: 'Google Analytics 4 (GA4)',
+        },
+        {
+          name: 'BRAZE',
+          displayName: 'Braze',
+        },
+      ]);
+    });
   });
 });

@@ -165,6 +165,9 @@ describe('deviceModeDestinations utils', () => {
           logLevel: signal('DEBUG'),
           writeKey: signal('12345678910'), // mockAnalyticsInstance_writeKey2
         },
+        consents: {
+          postConsent: signal({}),
+        },
       };
 
       const destination = {
