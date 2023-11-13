@@ -120,7 +120,6 @@ class FacebookPixel {
   }
 
   track(rudderElement) {
-    const self = this;
     const { event } = rudderElement.message;
     const properties = eventHelpers.getProperties(rudderElement.message);
     const {
@@ -135,6 +134,7 @@ class FacebookPixel {
       contentName,
       product_id: productId,
       product_name: productName,
+      delivery_category: deliveryCategory
     } = properties;
     let { value, category, currency } = properties;
 
@@ -176,12 +176,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'ViewContent',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -199,18 +199,18 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         eventHelpers.getEventName(event),
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: productInfo.value,
       });
     } else if (event === 'Order Completed') {
       const contentType = getContentType(rudderElement, 'product', this.categoryToContent);
-      const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
+      const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price, deliveryCategory);
 
       // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
       // "trackSingle" feature is :
@@ -227,12 +227,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'Purchase',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -248,8 +248,8 @@ class FacebookPixel {
         search_string: query,
       };
 
-      this.makeTrackSignalCall(self.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, { currency, value });
+      this.makeTrackSignalCall(this.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, { currency, value });
     } else if (event === 'Checkout Started') {
       let contentCategory = category;
       const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
@@ -268,12 +268,12 @@ class FacebookPixel {
       };
 
       this.makeTrackSignalCall(
-        self.pixelId,
+        this.pixelId,
         'InitiateCheckout',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -282,14 +282,14 @@ class FacebookPixel {
       if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
         logger.debug('inside custom not mapped');
         payload.value = revValue;
-        window.fbq('trackSingleCustom', self.pixelId, event, payload, {
+        window.fbq('trackSingleCustom', this.pixelId, event, payload, {
           eventID: derivedEventID,
         });
       } else {
         payload.value = revValue;
         payload.currency = currency;
-        this.makeTrackSignalCalls(self.pixelId, event, standardTo, derivedEventID, payload);
-        this.makeTrackSignalCalls(self.pixelId, event, legacyTo, derivedEventID, {
+        this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
+        this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
           currency,
           value: revValue,
         });
