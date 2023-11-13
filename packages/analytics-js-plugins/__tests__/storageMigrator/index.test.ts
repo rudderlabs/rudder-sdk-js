@@ -136,7 +136,7 @@ describe('Plugin - Storage Migrator', () => {
     );
     expect(migratedVal).toBe(null);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(
-      new SyntaxError('Unexpected token h in JSON at position 0'),
+      new SyntaxError('Unexpected token \'h\', "hello" is not valid JSON'),
       'StorageMigratorPlugin',
       'Failed to retrieve or parse data for someKey from storage.',
     );
