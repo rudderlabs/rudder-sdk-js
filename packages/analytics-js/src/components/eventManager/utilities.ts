@@ -191,7 +191,8 @@ const getMergedContext = (
  */
 const shouldUseGlobalIntegrationsConfigInEvents = () =>
   state.loadOptions.value.useGlobalIntegrationsConfigInEvents &&
-  isObjectLiteralAndNotNull(state.nativeDestinations.loadOnlyIntegrations.value);
+  (isObjectLiteralAndNotNull(state.consents.postConsent.value?.integrations) ||
+    isObjectLiteralAndNotNull(state.nativeDestinations.loadOnlyIntegrations.value));
 
 /**
  * Updates rudder event object with data from the API options
@@ -215,7 +216,10 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
 const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
   let finalIntgConfig: IntegrationOpts;
   if (shouldUseGlobalIntegrationsConfigInEvents()) {
-    finalIntgConfig = state.nativeDestinations.loadOnlyIntegrations.value;
+    finalIntgConfig = clone(
+      state.consents.postConsent.value?.integrations ??
+        state.nativeDestinations.loadOnlyIntegrations.value,
+    );
   } else if (isObjectLiteralAndNotNull(integrationsConfig)) {
     finalIntgConfig = integrationsConfig;
   } else {
