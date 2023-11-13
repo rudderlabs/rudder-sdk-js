@@ -221,19 +221,21 @@ const getContentType = (rudderElement, defaultValue, categoryToContent) => {
  * @param {*} products
  * @param {*} quantity
  * @param {*} price
+ * @param {*} [deliveryCategory]
  * @returns
  */
-const getProductsContentsAndContentIds = (products, quantity, price) => {
+const getProductsContentsAndContentIds = (products, quantity, price, deliveryCategory) => {
   const contents = products
     ? products
         .filter(product => product)
-        .map(({ product_id: prodId, sku, id, quantity: productQuantity, price: productPrice }) => {
+        .map(({ product_id: prodId, sku, id, quantity: productQuantity, price: productPrice, delivery_category: prodDeliveryCategory }) => {
           const productId = prodId || sku || id;
           return isDefined(productId)
             ? {
-                id: productId,
-                quantity: productQuantity || quantity || 1,
-                item_price: productPrice || price,
+              id: productId,
+              quantity: productQuantity || quantity || 1,
+              item_price: productPrice || price,
+              delivery_category: prodDeliveryCategory || deliveryCategory,
               }
             : null;
         })
