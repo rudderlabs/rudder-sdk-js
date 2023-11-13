@@ -1,18 +1,16 @@
-## [3.0.0-beta.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.13...@rudderstack/analytics-js@3.0.0-beta.14) (2023-10-27)
+## [3.0.0-beta.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.14...@rudderstack/analytics-js@3.0.0-beta.15) (2023-11-13)
 
 
 ### Features
 
-* alter life cycle for pre consent ([#1411](https://github.com/rudderlabs/rudder-sdk-js/issues/1411)) ([60ec092](https://github.com/rudderlabs/rudder-sdk-js/commit/60ec0924a1229678fb16d76a34a494c40a622a11))
-* auto capture timezone as a part of context ([#1464](https://github.com/rudderlabs/rudder-sdk-js/issues/1464)) ([8e66069](https://github.com/rudderlabs/rudder-sdk-js/commit/8e660693d75727d2131a57ca57859e6d0b920e84))
-* configure cookie to be fetched from exact domain ([#1468](https://github.com/rudderlabs/rudder-sdk-js/issues/1468)) ([4db1b10](https://github.com/rudderlabs/rudder-sdk-js/commit/4db1b10b45b4ffcd652aec6bd684943ca35c6c08))
-* consent api ([#1458](https://github.com/rudderlabs/rudder-sdk-js/issues/1458)) ([216b405](https://github.com/rudderlabs/rudder-sdk-js/commit/216b405f7c319d5ff2d799d2e3a5efe2ee4a03af))
+* add beacon polyfill ([#1487](https://github.com/rudderlabs/rudder-sdk-js/issues/1487)) ([8053ae2](https://github.com/rudderlabs/rudder-sdk-js/commit/8053ae2ec7c5757bb65a1881ca1b79fe08c30fc7))
+* buffer consent method invocations ([#1501](https://github.com/rudderlabs/rudder-sdk-js/issues/1501)) ([70f6f64](https://github.com/rudderlabs/rudder-sdk-js/commit/70f6f64500b6b08bbb657498ec0e1fdecf72b82c))
+* consent api wrap up ([#1477](https://github.com/rudderlabs/rudder-sdk-js/issues/1477)) ([edc78ac](https://github.com/rudderlabs/rudder-sdk-js/commit/edc78ac54235aabfc8d1d78f961fbd650a3b7c73))
+* reinitialize persistent data from consent options ([#1465](https://github.com/rudderlabs/rudder-sdk-js/issues/1465)) ([43f30b7](https://github.com/rudderlabs/rudder-sdk-js/commit/43f30b7296ae9a0862810fd0b3c520e8bddf614c))
 
 
 ### Bug Fixes
 
-* **analytics-js:** correct declared global extended type ([#1460](https://github.com/rudderlabs/rudder-sdk-js/issues/1460)) ([3f15290](https://github.com/rudderlabs/rudder-sdk-js/commit/3f1529037ba0541391b5f8033e37f867fdd7931c))
-* **analytics-js:** fix remote import error when npm package is bundled with webpack ([#1466](https://github.com/rudderlabs/rudder-sdk-js/issues/1466)) ([3a818ac](https://github.com/rudderlabs/rudder-sdk-js/commit/3a818accd24e6b3667c75a6b60fb12aba36bdf7e))
-* **monorepo:** update vulnerable dependencies ([#1457](https://github.com/rudderlabs/rudder-sdk-js/issues/1457)) ([7a4bc4c](https://github.com/rudderlabs/rudder-sdk-js/commit/7a4bc4cc641e4fff2a8f561ce6fd67d16c0cd5a0))
-* upgrade vulnerable cryptoJS dependency, rolup to v4 & NX to v17 ([#1471](https://github.com/rudderlabs/rudder-sdk-js/issues/1471)) ([b2bb21c](https://github.com/rudderlabs/rudder-sdk-js/commit/b2bb21cb3f618f6c86f593d1706abe9e6349066d))
+* gcm qa fixes ([#1499](https://github.com/rudderlabs/rudder-sdk-js/issues/1499)) ([84ca784](https://github.com/rudderlabs/rudder-sdk-js/commit/84ca784e6848e7fd8988c4a93db46d4636f2f89c))
+* storage migration to allow empty string values ([#1488](https://github.com/rudderlabs/rudder-sdk-js/issues/1488)) ([b639fa1](https://github.com/rudderlabs/rudder-sdk-js/commit/b639fa17f22d1bbad951b293c9edba36f164163e))
 

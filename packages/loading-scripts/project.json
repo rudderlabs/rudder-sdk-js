@@ -91,9 +91,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.12",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.13",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.13",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.13",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }
