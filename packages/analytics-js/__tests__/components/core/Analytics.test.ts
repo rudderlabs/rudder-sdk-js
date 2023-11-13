@@ -441,10 +441,18 @@ describe('Core - Analytics', () => {
   });
 
   describe('consent', () => {
+    it('should buffer methods until loaded', () => {
+      analytics.consent({ sendPageEvent: true });
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['consent', { sendPageEvent: true }],
+      ]);
+    });
+
     it('should resume SDK processing on consent', () => {
       analytics.prepareInternalServices();
 
       state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
       state.consents.initialized.value = false;
       state.storage.type.value = 'localStorage';
       state.storage.entries.value = entriesWithMixStorage;
@@ -472,26 +480,6 @@ describe('Core - Analytics', () => {
         consentManagement: {
           provider: 'custom',
           enabled: true,
-        },
-        storage: {
-          type: 'cookieStorage',
-          entries: {
-            userId: {
-              type: 'sessionStorage',
-            },
-            userTraits: {
-              type: 'localStorage',
-            },
-            groupId: {
-              type: 'memoryStorage',
-            },
-            groupTraits: {
-              type: 'memoryStorage',
-            },
-            authToken: {
-              type: 'none',
-            },
-          },
         },
         storage: {
           type: 'cookieStorage',
@@ -550,26 +538,6 @@ describe('Core - Analytics', () => {
             },
           },
         },
-        storage: {
-          type: 'cookieStorage',
-          entries: {
-            userId: {
-              type: 'sessionStorage',
-            },
-            userTraits: {
-              type: 'localStorage',
-            },
-            groupId: {
-              type: 'memoryStorage',
-            },
-            groupTraits: {
-              type: 'memoryStorage',
-            },
-            authToken: {
-              type: 'none',
-            },
-          },
-        },
       });
 
       expect(state.consents.initialized.value).toBe(false);
@@ -579,7 +547,7 @@ describe('Core - Analytics', () => {
       });
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(2); // 1 for consents data fetch and other for setting active destinations
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(6); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);
@@ -627,6 +595,30 @@ describe('Core - Analytics', () => {
 
       expect(trackSpy).toHaveBeenCalled();
       expect(pageSpy).toHaveBeenCalled();
+    });
+
+    it('should add consent auto tracking events to the end of the buffered events', () => {
+      analytics.prepareInternalServices();
+
+      state.eventBuffer.toBeProcessedArray.value = [['identify', { userId: 'test_user_id' }]];
+
+      state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
+      state.consents.initialized.value = false;
+
+      analytics.consent(
+        {
+          sendPageEvent: true,
+          trackConsent: true,
+        },
+        true,
+      ); // Send true to mimic buffered invocation
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['identify', { userId: 'test_user_id' }],
+        ['track', { name: 'Consent Management Interaction', properties: {} }],
+        ['page', { properties: { category: null, name: null } }],
+      ]);
     });
   });
 });
