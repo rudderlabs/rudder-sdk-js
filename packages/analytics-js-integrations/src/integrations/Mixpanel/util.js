@@ -32,6 +32,33 @@ const traitAliases = {
   phone: '$phone',
 };
 
+function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
+  // Create a copy of the original traits object
+  const traitsCopy = { ...outgoingTraits };
+
+  // Initialize setOnce object
+  const setOnceEligible = {};
+
+  // Step 1: find the k-v pairs of setOnceProperties in traits and contextTraits
+
+  setOnceProperties.forEach((propertyPath) => {
+    const pathSegments = propertyPath.split('.');
+    const propName = pathSegments[pathSegments.length - 1];
+
+    if (Object.keys(traitsCopy).length > 0 && get(traitsCopy, propertyPath)) {
+      setOnceEligible[propName] = get(traitsCopy, propertyPath);
+      lodash.unset(traitsCopy, propertyPath);
+    }
+  });
+  
+  return {
+    setTraits: traitsCopy,
+    setOnce: setOnceEligible,
+    email: traitsCopy.email || setOnceEligible.email,
+    username: traitsCopy.username || setOnceEligible.username,
+  };
+}
+
 const formatTraits = message => {
   const { email, firstName, lastName, phone, name } = getDefinedTraits(message);
   let outgoingTraits = {
@@ -47,7 +74,9 @@ const formatTraits = message => {
   } catch (err) {
     logger.debug(`Error occured at extractCustomFields ${err}`);
   }
-  return outgoingTraits;
+  // Extract setOnce K-V property from traits about user custom properties
+  return filterSetOnceTraits(outgoingTraits, setOnceProperties);
+  // return outgoingTraits;
 };
 
 const parseConfigArray = (arr, key) => {

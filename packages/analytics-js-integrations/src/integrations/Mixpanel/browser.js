@@ -118,46 +118,50 @@ class Mixpanel {
       // calling mixpanel .identify() only for known users
       userId = rudderElement.message.userId;
     }
-    let traits = formatTraits(rudderElement.message);
-    const { email, username } = traits;
+    let traits = formatTraits(rudderElement.message, setOnceProperties);
+    let traitsInfo = formatTraits(rudderElement.message, setOnceProperties);
+    // const { email, username } = traits;
     // id
     if (userId) window.mixpanel.identify(userId);
 
     // name tag
-    const nametag = email || username;
+    const nametag = traitsInfo.email || traitsInfo.username;
     if (nametag) window.mixpanel.name_tag(nametag);
 
-    traits = extractTraits(traits, this.traitAliases);
+    traits = extractTraits(traitsInfo.setTraits, this.traitAliases);
     traits = removeUndefinedAndNullValues(traits);
+    setOnceTraits = buildSetOnceTraitsPayload(traitsInfo.setOnce, this.traitAliases);
 
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
     const traitsToSet = {};
     const traitsToSetOnce = {};
-    Object.keys(traits).forEach(trait => {
+    Object.keys(traitsInfo.setTraits).forEach(trait => {
       if (!setOnceProperties.includes(trait)) {
-      if (Object.prototype.hasOwnProperty.call(traits, trait)) {
-        const value = traits[trait];
-        if (Array.isArray(value) && value.length > 0) {
-          traitsToUnion[trait] = value;
-          // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
-          // from mixpanel and manually unioning to it ourselves
-          const existingTrait = window.mixpanel.get_property(trait);
-          if (existingTrait && Array.isArray(existingTrait)) {
-            traits[trait] = unionArrays(existingTrait, value);
+        if (Object.prototype.hasOwnProperty.call(traits, trait)) {
+          const value = traitsInfo.setTraits[trait];
+          if (Array.isArray(value) && value.length > 0) {
+            traitsToUnion[trait] = value;
+            // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
+            // from mixpanel and manually unioning to it ourselves
+            const existingTrait = window.mixpanel.get_property(trait);
+            if (existingTrait && Array.isArray(existingTrait)) {
+              traitsInfo.setTraits[trait] = unionArrays(existingTrait, value);
+            }
+          } else {
+            traitsInfo.setTraits[trait] = value;
           }
-        } else {
-          traitsToSet[trait] = value;
         }
+      } else {
+        // as this set is not supposed to be set any more in the future
+        // TO DO: if we need this anymore
+        traitsToSetOnce[trait] = traits[trait];
       }
-    } else {
-      // as this set is not supposed to be set any more in the future
-      traitsToSetOnce[trait] = traits[trait];
-    }
     });
-    
-    if(traitsToSetOnce && Object.keys(traitsToSetOnce).length > 0) {
-      window.mixpanel.people.set_once(traitsToSetOnce);
+
+    // ref: https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#:~:text=mixpanel.people.set_once%20%2D%20set%20properties%20if%20they%20don%27t%20exist
+    if (traitsToSetOnce && Object.keys(traitsToSetOnce).length > 0) {
+      window.mixpanel.people.set_once(traitsInfo.setOnce);
     }
     
     if (this.setAllTraitsByDefault) {
