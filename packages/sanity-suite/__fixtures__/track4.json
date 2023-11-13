@@ -108,7 +108,10 @@
       },
       "channel": "random",
       "consentManagement": {
-        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
+        "allowedConsentIds": { "C0001": "Functional Cookies", "C0003": "Analytical Cookies" },
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
       },
       "timezone": "GMT+0530"
     },
