@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
+import get from 'get-value';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
@@ -32,6 +33,21 @@ const traitAliases = {
   phone: '$phone',
 };
 
+function unset(obj, propertyPath) {
+  const keys = propertyPath.split('.');
+  const lastKey = keys.pop();
+
+  let current = obj;
+  for (const key of keys) {
+    if (current[key] === undefined || current[key] === null) {
+      return; // Property path not valid, nothing to unset
+    }
+    current = current[key];
+  }
+
+  delete current[lastKey];
+}
+
 function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
   // Create a copy of the original traits object
   const traitsCopy = { ...outgoingTraits };
@@ -47,7 +63,7 @@ function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
 
     if (Object.keys(traitsCopy).length > 0 && get(traitsCopy, propertyPath)) {
       setOnceEligible[propName] = get(traitsCopy, propertyPath);
-      lodash.unset(traitsCopy, propertyPath);
+      unset(traitsCopy, propertyPath);
     }
   });
   
@@ -59,7 +75,7 @@ function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
   };
 }
 
-const formatTraits = message => {
+const formatTraits = (message,setOnceProperties)  => {
   const { email, firstName, lastName, phone, name } = getDefinedTraits(message);
   let outgoingTraits = {
     email,
@@ -132,6 +148,14 @@ const extractTraits = (traits, traitAliasesParam) => {
   });
   return extractedTraits;
 };
+
+
+// const buildSetOnceTraitsPayload = (setOnceProp, traitAliasesParam) => {
+//   const setOnceCopy = { ...setOnceProp };
+//   let transformedSetOnce = extractTraits(setOnceCopy,traitAliasesParam);
+//   return transformedSetOnce;
+
+// };
 
 /**
  * Return union of two arrays
