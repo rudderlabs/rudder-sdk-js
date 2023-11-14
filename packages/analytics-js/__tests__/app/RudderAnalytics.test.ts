@@ -16,7 +16,13 @@ describe('Core - Rudder Analytics Facade', () => {
   beforeEach(() => {
     Analytics.mockClear();
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
-    (window as any).rudderanalytics = [['track'], ['load', { option1: true }], ['track']];
+    (window as any).rudderanalytics = [
+      ['track'],
+      ['consent', { sendPageEvent: true }],
+      ['load', { option1: true }],
+      ['consent', { sendPageEvent: false }],
+      ['track'],
+    ];
     rudderAnalytics = new RudderAnalytics();
     (rudderAnalytics as any).analyticsInstances = { writeKey: analyticsInstanceMock };
     (rudderAnalytics as any).defaultAnalyticsKey = 'writeKey';
@@ -231,8 +237,9 @@ describe('Core - Rudder Analytics Facade', () => {
 
   it('should retrieve all preloaded events and set to global', () => {
     expect((window as any).RudderStackGlobals.app.preloadedEventsBuffer).toEqual([
+      ['consent', { sendPageEvent: true }],
+      ['consent', { sendPageEvent: false }],
       ['track'],
-      ['load', { option1: true }],
       ['track'],
     ]);
   });

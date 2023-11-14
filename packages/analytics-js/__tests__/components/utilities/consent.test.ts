@@ -109,6 +109,26 @@ describe('consent utilties', () => {
       const validOptions = getValidPostConsentOptions(consentOptions);
       expect(validOptions).toEqual(expectedOutcome);
     });
+
+    it('should return default integrations object if integrations is not an object literal', () => {
+      state.consents.enabled.value = true;
+
+      const consentOptions = {
+        integrations: [], // not an object literal
+      };
+
+      const expectedOutcome = {
+        integrations: {
+          All: true,
+        },
+        discardPreConsentEvents: false,
+        sendPageEvent: false,
+        trackConsent: false,
+      };
+
+      const validOptions = getValidPostConsentOptions(consentOptions);
+      expect(validOptions).toEqual(expectedOutcome);
+    });
   });
 
   describe('getConsentManagementData', () => {

@@ -18,7 +18,7 @@ const isDestIntgConfigFalsy = (destIntgConfig: DestinationIntgConfig): boolean =
  * @returns Destinations array filtered based on the integration options
  */
 const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination[]) => {
-  const allOptVal = intgOpts.All;
+  const allOptVal = intgOpts.All ?? true;
   return destinations.filter(dest => {
     const destDisplayName = dest.displayName;
     let isDestEnabled;

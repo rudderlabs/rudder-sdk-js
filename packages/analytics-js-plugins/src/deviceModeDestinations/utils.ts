@@ -64,7 +64,9 @@ const createDestinationInstance = (
     {
       loadIntegration: state.nativeDestinations.loadIntegration.value,
       logLevel: state.lifecycle.logLevel.value,
-      loadOnlyIntegrations: state.nativeDestinations.loadOnlyIntegrations.value,
+      loadOnlyIntegrations:
+        state.consents.postConsent.value?.integrations ??
+        state.nativeDestinations.loadOnlyIntegrations.value,
       page: (
         category?: string | Nullable<ApiObject> | ApiCallback,
         name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,

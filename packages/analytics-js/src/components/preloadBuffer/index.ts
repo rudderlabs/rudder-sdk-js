@@ -7,6 +7,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { clone } from 'ramda';
 import type { PreloadedEventCall } from './types';
 import {
   QUERY_PARAM_ANONYMOUS_ID_KEY,
@@ -92,7 +93,7 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
       preloadedEventsArray[i] &&
       (preloadedEventsArray[i] as PreloadedEventCall)[0] === loadMethodName
     ) {
-      loadEvent = preloadedEventsArray[i] as PreloadedEventCall;
+      loadEvent = clone(preloadedEventsArray[i] as PreloadedEventCall);
       preloadedEventsArray.splice(i, 1);
       break;
     }
@@ -103,20 +104,43 @@ const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): Prel
 };
 
 /**
+ * Promote consent events to the top of the preloaded events array
+ * @param preloadedEventsArray Preloaded events array
+ * @returns None
+ */
+const promotePreloadedConsentEventsToTop = (preloadedEventsArray: PreloadedEventCall[]): void => {
+  const consentMethodName = 'consent';
+  const consentEvents = preloadedEventsArray.filter(
+    bufferedEvent => bufferedEvent[0] === consentMethodName,
+  );
+
+  const nonConsentEvents = preloadedEventsArray.filter(
+    bufferedEvent => bufferedEvent[0] !== consentMethodName,
+  );
+
+  // Remove all elements and add consent events first followed by non consent events
+  // eslint-disable-next-line unicorn/no-useless-spread
+  preloadedEventsArray.splice(
+    0,
+    preloadedEventsArray.length,
+    ...consentEvents,
+    ...nonConsentEvents,
+  );
+};
+
+/**
  * Retrieve any existing events that were triggered before SDK load and enqueue in buffer
  */
 const retrievePreloadBufferEvents = (instance: IAnalytics) => {
-  const preloadedEventsArray = getExposedGlobal(GLOBAL_PRELOAD_BUFFER) || [];
+  const preloadedEventsArray = (getExposedGlobal(GLOBAL_PRELOAD_BUFFER) ||
+    []) as PreloadedEventCall[];
 
   // Get events that are pre-populated via query string params
-  retrieveEventsFromQueryString(preloadedEventsArray as PreloadedEventCall[]);
-  const sanitizedPreloadedEventsArray = (preloadedEventsArray as PreloadedEventCall[]).filter(
-    bufferedEvent => bufferedEvent[0] !== 'load',
-  );
+  retrieveEventsFromQueryString(preloadedEventsArray);
 
   // Enqueue the non load events in the buffer of the global rudder analytics singleton
-  if (sanitizedPreloadedEventsArray.length > 0) {
-    instance.enqueuePreloadBufferEvents(sanitizedPreloadedEventsArray);
+  if (preloadedEventsArray.length > 0) {
+    instance.enqueuePreloadBufferEvents(preloadedEventsArray);
     setExposedGlobal(GLOBAL_PRELOAD_BUFFER, []);
   }
 };
@@ -159,4 +183,5 @@ export {
   getPreloadedLoadEvent,
   retrievePreloadBufferEvents,
   consumePreloadBufferedEvent,
+  promotePreloadedConsentEventsToTop,
 };
