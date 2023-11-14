@@ -17,6 +17,7 @@ import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/con
 import { clone } from 'ramda';
 import { state } from '@rudderstack/analytics-js/state';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**
@@ -61,7 +62,11 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     const clonedOptions = clone(options);
 
     validOptions.storage = clonedOptions.storage;
-    validOptions.integrations = clonedOptions.integrations ?? DEFAULT_INTEGRATIONS_CONFIG;
+    if (isDefined(clonedOptions.integrations)) {
+      validOptions.integrations = isObjectLiteralAndNotNull(clonedOptions.integrations)
+        ? clonedOptions.integrations
+        : DEFAULT_INTEGRATIONS_CONFIG;
+    }
     validOptions.discardPreConsentEvents = clonedOptions.discardPreConsentEvents === true;
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;
