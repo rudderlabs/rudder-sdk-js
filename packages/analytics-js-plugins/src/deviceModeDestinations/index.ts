@@ -52,9 +52,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           return false;
         });
 
-      // Filter destinations that are disabled through load options
+      // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = destinationUtils.filterDestinations(
-        state.nativeDestinations.loadOnlyIntegrations.value,
+        state.consents.postConsent.value?.integrations ??
+          state.nativeDestinations.loadOnlyIntegrations.value,
         configSupportedDestinations,
       );
 

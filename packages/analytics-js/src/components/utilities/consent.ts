@@ -1,6 +1,7 @@
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type {
   ConsentManagementOptions,
+  ConsentManagementProvider,
   Consents,
   CookieConsentOptions,
 } from '@rudderstack/analytics-js-common/types/Consent';
@@ -15,6 +16,8 @@ import {
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
 import { state } from '@rudderstack/analytics-js/state';
+import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**
@@ -59,7 +62,11 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     const clonedOptions = clone(options);
 
     validOptions.storage = clonedOptions.storage;
-    validOptions.integrations = clonedOptions.integrations;
+    if (isDefined(clonedOptions.integrations)) {
+      validOptions.integrations = isObjectLiteralAndNotNull(clonedOptions.integrations)
+        ? clonedOptions.integrations
+        : DEFAULT_INTEGRATIONS_CONFIG;
+    }
     validOptions.discardPreConsentEvents = clonedOptions.discardPreConsentEvents === true;
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
     validOptions.trackConsent = clonedOptions.trackConsent === true;
@@ -82,23 +89,26 @@ const isValidConsentsData = (value: Consents | undefined): value is Consents =>
   isNonEmptyObject(value) || Array.isArray(value);
 
 /**
- * Retrieves the corresponding plugin name of the selected consent manager from the supported consent managers
- * @param consentProvider consent management provider name
+ * Retrieves the corresponding provider and plugin name of the selected consent manager from the supported consent managers
+ * @param consentManagementOpts consent management options
  * @param logger logger instance
- * @returns Corresponding plugin name of the selected consent manager from the supported consent managers
+ * @returns Corresponding provider and plugin name of the selected consent manager from the supported consent managers
  */
-const getConsentManagerPluginName = (consentProvider: string, logger?: ILogger) => {
-  const consentManagerPluginName = ConsentManagersToPluginNameMap[consentProvider];
-  if (consentProvider && !consentManagerPluginName) {
+const getConsentManagerInfo = (
+  consentManagementOpts: ConsentManagementOptions,
+  logger?: ILogger,
+) => {
+  let { provider }: { provider: ConsentManagementProvider | undefined } = consentManagementOpts;
+  const consentManagerPluginName = ConsentManagersToPluginNameMap[provider];
+  if (provider && !consentManagerPluginName) {
     logger?.error(
-      UNSUPPORTED_CONSENT_MANAGER_ERROR(
-        CONFIG_MANAGER,
-        consentProvider,
-        ConsentManagersToPluginNameMap,
-      ),
+      UNSUPPORTED_CONSENT_MANAGER_ERROR(CONFIG_MANAGER, provider, ConsentManagersToPluginNameMap),
     );
+
+    // Reset the provider value
+    provider = undefined;
   }
-  return consentManagerPluginName;
+  return { provider, consentManagerPluginName };
 };
 
 /**
@@ -115,12 +125,12 @@ const getConsentManagementData = (
   let allowedConsentIds: Consents = [];
   let deniedConsentIds: Consents = [];
   let initialized = false;
+  let provider: ConsentManagementProvider | undefined;
 
   let enabled = consentManagementOpts?.enabled === true;
   if (isNonEmptyObject<ConsentManagementOptions>(consentManagementOpts) && enabled) {
-    const consentProvider = consentManagementOpts.provider;
     // Get the corresponding plugin name of the selected consent manager from the supported consent managers
-    consentManagerPluginName = getConsentManagerPluginName(consentProvider, logger);
+    ({ provider, consentManagerPluginName } = getConsentManagerInfo(consentManagementOpts, logger));
 
     if (isValidConsentsData(consentManagementOpts.allowedConsentIds)) {
       allowedConsentIds = consentManagementOpts.allowedConsentIds;
@@ -142,6 +152,7 @@ const getConsentManagementData = (
   enabled = enabled && Boolean(consentManagerPluginName);
 
   return {
+    provider,
     consentManagerPluginName,
     initialized,
     enabled,

@@ -157,6 +157,22 @@ const ignoredProperties = [
     key: `source.updatedAt`,
     type: 'string',
   },
+  {
+    key: `message.context.timezone`,
+    type: 'string',
+  },
+  {
+    key: `message.context.consentManagement.allowedConsentIds`,
+    optional: true,
+  },
+  {
+    key: `message.context.consentManagement.provider`,
+    optional: true,
+  },
+  {
+    key: `message.context.consentManagement.resolutionStrategy`,
+    optional: true,
+  },
 ];
 
 export { ignoredProperties };

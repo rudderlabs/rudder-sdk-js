@@ -9,12 +9,22 @@ class CustomerIO {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    const {
+      dataUseInApp = false,
+      siteID,
+      apiKey,
+      datacenterEU,
+      datacenter,
+      sendPageNameInSDK,
+    } = config;
+
     this.analytics = analytics;
-    this.siteID = config.siteID;
-    this.apiKey = config.apiKey;
-    this.datacenterEU = config.datacenterEU;
-    this.datacenter = config.datacenter;
-    this.sendPageNameInSDK = config.sendPageNameInSDK;
+    this.siteID = siteID;
+    this.apiKey = apiKey;
+    this.datacenterEU = datacenterEU;
+    this.datacenter = datacenter;
+    this.sendPageNameInSDK = sendPageNameInSDK;
+    this.dataUseInApp = dataUseInApp;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -25,8 +35,8 @@ class CustomerIO {
 
   init() {
     logger.debug('===in init Customer IO init===');
-    const { siteID, datacenter, datacenterEU } = this;
-    loadNativeSdk(siteID, datacenter, datacenterEU);
+    const { siteID, datacenter, datacenterEU, dataUseInApp } = this;
+    loadNativeSdk(siteID, datacenter, datacenterEU, dataUseInApp);
   }
 
   identify(rudderElement) {

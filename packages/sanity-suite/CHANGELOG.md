@@ -2,6 +2,19 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.15...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.16) (2023-11-13)
+
+
+### Features
+
+* buffer consent method invocations ([#1501](https://github.com/rudderlabs/rudder-sdk-js/issues/1501)) ([70f6f64](https://github.com/rudderlabs/rudder-sdk-js/commit/70f6f64500b6b08bbb657498ec0e1fdecf72b82c))
+* reinitialize persistent data from consent options ([#1465](https://github.com/rudderlabs/rudder-sdk-js/issues/1465)) ([43f30b7](https://github.com/rudderlabs/rudder-sdk-js/commit/43f30b7296ae9a0862810fd0b3c520e8bddf614c))
+
+
+### Bug Fixes
+
+* gcm qa fixes ([#1499](https://github.com/rudderlabs/rudder-sdk-js/issues/1499)) ([84ca784](https://github.com/rudderlabs/rudder-sdk-js/commit/84ca784e6848e7fd8988c4a93db46d4636f2f89c))
+
 ## [3.0.0-beta.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.14...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.15) (2023-10-27)
 
 

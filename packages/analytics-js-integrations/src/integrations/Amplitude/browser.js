@@ -15,6 +15,7 @@ class Amplitude {
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
+    this.residencyServer = config.residencyServer;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.trackCategorizedPages = config.trackCategorizedPages || false;
@@ -43,13 +44,20 @@ class Amplitude {
     if (this.analytics.loadIntegration) {
       loadNativeSdk(window, document);
     }
-
+    
     const initOptions = {
       attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+
+    // EU data residency
+    // Relevant doc: https://www.docs.developers.amplitude.com/data/sdks/typescript-browser/#eu-data-residency
+    if (this.residencyServer === 'EU') {
+      initOptions.serverZone = 'EU';
+    }
+
     if (
       navigator.userAgent.indexOf('MSIE') !== -1 ||
       navigator.appVersion.indexOf('Trident/') > -1
