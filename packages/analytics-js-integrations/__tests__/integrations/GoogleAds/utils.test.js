@@ -12,32 +12,9 @@ import {
 } from './__fixtures__/data';
 
 describe('GoogleAds utilities shouldSendEvent function tests', () => {
-  // Old Config
-  test('dynamicRemarketing flag disabled', () => {
-    const eventToSend = shouldSendConversionEvent(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      false,
-    );
-    expect(eventToSend).toEqual(true);
-  });
-
-  test('dynamicRemarketing flag enabled', () => {
-    const eventToSend = shouldSendDynamicRemarketingEvent(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      true,
-    );
-    expect(eventToSend).toEqual(true);
-  });
-
   // New Config
   test('event tracking is enabled and event filtering is disabled', () => {
-    const eventToSend = shouldSendConversionEvent(productAdded, true, false, mockEvents, undefined);
+    const eventToSend = shouldSendConversionEvent(productAdded, true, false, mockEvents);
     expect(eventToSend).toEqual(true);
   });
 
@@ -46,8 +23,7 @@ describe('GoogleAds utilities shouldSendEvent function tests', () => {
       'Product Viewed',
       false,
       false,
-      mockEvents,
-      undefined,
+      mockEvents
     );
     expect(eventToSend).toEqual(false);
   });
@@ -57,8 +33,7 @@ describe('GoogleAds utilities shouldSendEvent function tests', () => {
       'Product Added',
       true,
       true,
-      mockEvents,
-      undefined,
+      mockEvents
     );
     expect(eventToSend).toEqual(false);
   });
@@ -68,24 +43,7 @@ describe('GoogleAds utilities shouldSendEvent function tests', () => {
       orderCompleted,
       true,
       true,
-      mockEvents,
-      undefined,
-    );
-    expect(eventToSend).toEqual(true);
-  });
-
-  test('when both config (new + old) is present, new config should be given first priority', () => {
-    const eventToSend = shouldSendConversionEvent('Cart Checkout', true, true, mockEvents, false);
-    expect(eventToSend).toEqual(false);
-  });
-
-  test('when both config (new + old) is present, new config should be given first priority', () => {
-    const eventToSend = shouldSendDynamicRemarketingEvent(
-      orderCompleted,
-      true,
-      true,
-      mockEvents,
-      true,
+      mockEvents
     );
     expect(eventToSend).toEqual(true);
   });

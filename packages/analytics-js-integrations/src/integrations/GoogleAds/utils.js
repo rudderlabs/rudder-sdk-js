@@ -46,8 +46,7 @@ function shouldSendConversionEvent(
   eventName,
   trackConversions,
   enableConversionEventsFiltering,
-  eventsToTrackConversions,
-  dynamicRemarketing,
+  eventsToTrackConversions
 ) {
   if (isDefinedAndNotNull(trackConversions)) {
     return shouldSendEvent(
@@ -57,7 +56,7 @@ function shouldSendConversionEvent(
       eventsToTrackConversions,
     );
   }
-  return !dynamicRemarketing;
+  return false;
 }
 
 /**
@@ -73,8 +72,7 @@ function shouldSendDynamicRemarketingEvent(
   eventName,
   trackDynamicRemarketing,
   enableDynamicRemarketingEventsFiltering,
-  eventsToTrackDynamicRemarketing,
-  dynamicRemarketing,
+  eventsToTrackDynamicRemarketing
 ) {
   if (isDefinedAndNotNull(trackDynamicRemarketing)) {
     return shouldSendEvent(
@@ -84,7 +82,7 @@ function shouldSendDynamicRemarketingEvent(
       eventsToTrackDynamicRemarketing,
     );
   }
-  return dynamicRemarketing;
+  return false;
 }
 
 /**

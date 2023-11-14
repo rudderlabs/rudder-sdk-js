@@ -39,7 +39,8 @@ const googleAdsConfigs = [
     disableAdPersonalization: false,
     eventFilteringOption: 'disable',
     sendPageView: true,
-    dynamicRemarketing: false,
+    trackConversions: true,
+    enableConversionEventsFiltering: false,
     eventMappingFromConfig: [
       { from: 'Sign Up', to: 'Signup' },
       { to: 'Lead', from: orderCompleted },
@@ -60,7 +61,8 @@ const googleAdsConfigs = [
     disableAdPersonalization: false,
     eventFilteringOption: 'disable',
     sendPageView: true,
-    dynamicRemarketing: true,
+    trackDynamicRemarketing: true,
+    enableDynamicRemarketingEventsFiltering: false,
     eventMappingFromConfig: [
       { from: 'Sign Up', to: 'Signup' },
       { to: 'Lead', from: orderCompleted },

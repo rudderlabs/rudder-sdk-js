@@ -22,7 +22,6 @@ class GoogleAds {
     }
     this.analytics = analytics;
     this.conversionId = config.conversionID;
-    this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
     this.sendPageView = config.sendPageView || true;
@@ -37,8 +36,6 @@ class GoogleAds {
     this.eventsToTrackDynamicRemarketing = config.eventsToTrackDynamicRemarketing || [];
     this.eventMappingFromConfig = config.eventMappingFromConfig;
     this.enableConversionLabel = config.enableConversionLabel || false;
-    // Depreciating: Added to make changes backward compatible
-    this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
     ({
@@ -101,8 +98,7 @@ class GoogleAds {
         event,
         this.trackConversions,
         this.enableConversionEventsFiltering,
-        this.eventsToTrackConversions,
-        this.dynamicRemarketing,
+        this.eventsToTrackConversions
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -132,8 +128,7 @@ class GoogleAds {
         event,
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
-        this.eventsToTrackDynamicRemarketing,
-        this.dynamicRemarketing,
+        this.eventsToTrackDynamicRemarketing
       )
     ) {
       // modify the event name to mapped event name from the config
@@ -179,8 +174,7 @@ class GoogleAds {
         name,
         this.trackConversions,
         this.enableConversionEventsFiltering,
-        this.eventsToTrackConversions,
-        this.dynamicRemarketing,
+        this.eventsToTrackConversions
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -202,8 +196,7 @@ class GoogleAds {
         name,
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
-        this.eventsToTrackDynamicRemarketing,
-        this.dynamicRemarketing,
+        this.eventsToTrackDynamicRemarketing
       )
     ) {
       const event = name;
