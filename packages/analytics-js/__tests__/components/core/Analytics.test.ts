@@ -508,9 +508,6 @@ describe('Core - Analytics', () => {
 
       expect(state.consents.preConsent.value.enabled).toBe(false);
       expect(state.consents.postConsent.value).toEqual({
-        integrations: {
-          All: true,
-        },
         discardPreConsentEvents: true,
         sendPageEvent: true,
         trackConsent: true,
