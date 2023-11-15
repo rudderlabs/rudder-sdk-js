@@ -96,6 +96,8 @@ class EventRepository implements IEventRepository {
       }
     });
 
+    const bufferEventsBeforeConsent = shouldBufferEventsForPreConsent(state);
+
     // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
     // However, events will be enqueued for now.
     // At the time of processing the events, the integrations config data from destinations
@@ -112,7 +114,7 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        !shouldBufferEventsForPreConsent(state) &&
+        !bufferEventsBeforeConsent &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);

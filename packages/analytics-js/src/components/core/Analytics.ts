@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -23,12 +24,14 @@ import {
   ANALYTICS_CORE,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type {
-  AliasCallOptions,
-  GroupCallOptions,
-  IdentifyCallOptions,
-  PageCallOptions,
-  TrackCallOptions,
+import {
+  pageArgumentsToCallOptions,
+  type AliasCallOptions,
+  type GroupCallOptions,
+  type IdentifyCallOptions,
+  type PageCallOptions,
+  type TrackCallOptions,
+  trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
@@ -52,7 +55,12 @@ import type { PreloadedEventCall } from '../preloadBuffer/types';
 import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import type { IEventRepository } from '../eventRepository/types';
-import { ADBLOCK_PAGE_CATEGORY, ADBLOCK_PAGE_NAME, ADBLOCK_PAGE_PATH } from '../../constants/app';
+import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+  CONSENT_TRACK_EVENT_NAME,
+} from '../../constants/app';
 import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
@@ -347,14 +355,24 @@ class Analytics implements IAnalytics {
    * Consume preloaded events buffer
    */
   processBufferedEvents() {
-    // Process buffered events
-    state.eventBuffer.toBeProcessedArray.value.forEach((bufferedItem: BufferedEvent) => {
-      const methodName = bufferedItem[0];
-      if (isFunction((this as any)[methodName])) {
-        (this as any)[methodName](...bufferedItem.slice(1));
+    // This logic has been intentionally implemented without a simple
+    // for-loop as the individual events that are processed may
+    // add more events to the buffer (this is needed for the consent API)
+    let bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
+    while (bufferedEvents.length > 0) {
+      const bufferedEvent = bufferedEvents.shift();
+      state.eventBuffer.toBeProcessedArray.value = bufferedEvents;
+
+      if (bufferedEvent) {
+        const methodName = bufferedEvent[0];
+        if (isFunction((this as any)[methodName])) {
+          // Send additional arg 'true' to indicate that this is a buffered invocation
+          (this as any)[methodName](...bufferedEvent.slice(1), true);
+        }
       }
-    });
-    state.eventBuffer.toBeProcessedArray.value = [];
+
+      bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
+    }
   }
 
   /**
@@ -422,11 +440,14 @@ class Analytics implements IAnalytics {
   // End lifecycle methods
 
   // Start consumer exposed methods
-  ready(callback: ApiCallback) {
+  ready(callback: ApiCallback, isBufferedInvocation = false) {
     const type = 'ready';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, callback],
+      ];
       return;
     }
 
@@ -453,11 +474,14 @@ class Analytics implements IAnalytics {
     }
   }
 
-  page(payload: PageCallOptions) {
+  page(payload: PageCallOptions, isBufferedInvocation = false) {
     const type = 'page';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -481,26 +505,29 @@ class Analytics implements IAnalytics {
       state.capabilities.isAdBlocked.value === true &&
       payload.category !== ADBLOCK_PAGE_CATEGORY
     ) {
-      const pageCallArgs = {
-        category: ADBLOCK_PAGE_CATEGORY,
-        name: ADBLOCK_PAGE_NAME,
-        properties: {
-          // 'title' is intentionally omitted as it does not make sense
-          // in v3 implementation
-          path: ADBLOCK_PAGE_PATH,
-        },
-        options: state.loadOptions.value.sendAdblockPageOptions,
-      } as PageCallOptions;
-
-      this.page(pageCallArgs);
+      this.page(
+        pageArgumentsToCallOptions(
+          ADBLOCK_PAGE_CATEGORY,
+          ADBLOCK_PAGE_NAME,
+          {
+            // 'title' is intentionally omitted as it does not make sense
+            // in v3 implementation
+            path: ADBLOCK_PAGE_PATH,
+          },
+          state.loadOptions.value.sendAdblockPageOptions,
+        ),
+      );
     }
   }
 
-  track(payload: TrackCallOptions) {
+  track(payload: TrackCallOptions, isBufferedInvocation = false) {
     const type = 'track';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -516,11 +543,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  identify(payload: IdentifyCallOptions) {
+  identify(payload: IdentifyCallOptions, isBufferedInvocation = false) {
     const type = 'identify';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -550,11 +580,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  alias(payload: AliasCallOptions) {
+  alias(payload: AliasCallOptions, isBufferedInvocation = false) {
     const type = 'alias';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -575,11 +608,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  group(payload: GroupCallOptions) {
+  group(payload: GroupCallOptions, isBufferedInvocation = false) {
     const type = 'group';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, payload],
+      ];
       return;
     }
 
@@ -602,11 +638,14 @@ class Analytics implements IAnalytics {
     });
   }
 
-  reset(resetAnonymousId?: boolean) {
+  reset(resetAnonymousId?: boolean, isBufferedInvocation = false) {
     const type = 'reset';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, resetAnonymousId],
+      ];
       return;
     }
 
@@ -620,11 +659,18 @@ class Analytics implements IAnalytics {
     return this.userSessionManager?.getAnonymousId(options);
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void {
+  setAnonymousId(
+    anonymousId?: string,
+    rudderAmpLinkerParam?: string,
+    isBufferedInvocation = false,
+  ): void {
     const type = 'setAnonymousId';
     // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, anonymousId, rudderAmpLinkerParam]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, anonymousId, rudderAmpLinkerParam],
+      ];
       return;
     }
 
@@ -652,11 +698,14 @@ class Analytics implements IAnalytics {
     return state.session.groupTraits.value;
   }
 
-  startSession(sessionId?: number): void {
+  startSession(sessionId?: number, isBufferedInvocation = false): void {
     const type = 'startSession';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type, sessionId]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, sessionId],
+      ];
       return;
     }
 
@@ -664,11 +713,14 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.start(sessionId);
   }
 
-  endSession(): void {
+  endSession(isBufferedInvocation = false): void {
     const type = 'endSession';
 
     if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value.push([type]);
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type],
+      ];
       return;
     }
 
@@ -682,7 +734,17 @@ class Analytics implements IAnalytics {
     return sessionId ?? null;
   }
 
-  consent(options?: ConsentOptions) {
+  consent(options?: ConsentOptions, isBufferedInvocation = false) {
+    const type = 'consent';
+
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, options],
+      ];
+      return;
+    }
+
     this.errorHandler.leaveBreadcrumb(`New consent invocation`);
 
     batch(() => {
@@ -718,6 +780,36 @@ class Analytics implements IAnalytics {
     this.eventManager?.resume();
 
     this.loadDestinations();
+
+    this.sendTrackingEvents(isBufferedInvocation);
+  }
+
+  sendTrackingEvents(isBufferedInvocation: boolean) {
+    // If isBufferedInvocation is true, then the tracking events will be added to the end of the
+    // events buffer array so that any other preload events (mainly from query string API) will be processed first.
+    if (state.consents.postConsent.value.trackConsent) {
+      const trackOptions = trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME);
+      if (isBufferedInvocation) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          ['track', trackOptions],
+        ];
+      } else {
+        this.track(trackOptions);
+      }
+    }
+
+    if (state.consents.postConsent.value.sendPageEvent) {
+      const pageOptions = pageArgumentsToCallOptions();
+      if (isBufferedInvocation) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          ['page', pageOptions],
+        ];
+      } else {
+        this.page(pageOptions);
+      }
+    }
   }
 
   setAuthToken(token: string): void {

@@ -317,9 +317,6 @@ describe('Event Manager - Utilities', () => {
           },
           userAgent: 'test',
           timezone: 'GMT+0530',
-          consentManagement: {
-            deniedConsentIds: ['id1', 'id2'],
-          },
           page: {
             path: '/test',
             referrer: 'https://www.google.com/test',
@@ -1011,9 +1008,6 @@ describe('Event Manager - Utilities', () => {
           traits: { test: 'test' },
           sessionId: 1234,
           sessionStart: true,
-          consentManagement: {
-            deniedConsentIds: ['id1', 'id2'],
-          },
           campaign: {},
           library: {
             name: 'test',

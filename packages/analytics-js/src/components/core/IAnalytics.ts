@@ -124,32 +124,32 @@ export interface IAnalytics {
   /**
    * To register a callback for SDK ready state
    */
-  ready(callback: ApiCallback): void;
+  ready(callback: ApiCallback, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a page view event
    */
-  page(pageOptions: PageCallOptions): void;
+  page(pageOptions: PageCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user track event
    */
-  track(trackCallOptions: TrackCallOptions): void;
+  track(trackCallOptions: TrackCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user identification event
    */
-  identify(identifyCallOptions: IdentifyCallOptions): void;
+  identify(identifyCallOptions: IdentifyCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user alias event
    */
-  alias(aliasCallOptions: AliasCallOptions): void;
+  alias(aliasCallOptions: AliasCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user group event
    */
-  group(groupCallOptions: GroupCallOptions): void;
+  group(groupCallOptions: GroupCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To get anonymousId set in the SDK
@@ -159,12 +159,16 @@ export interface IAnalytics {
   /**
    * To set anonymousId
    */
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
+  setAnonymousId(
+    anonymousId?: string,
+    rudderAmpLinkerParam?: string,
+    isBufferedInvocation?: boolean,
+  ): void;
 
   /**
    * Clear user information, optionally anonymousId as well
    */
-  reset(resetAnonymousId?: boolean): void;
+  reset(resetAnonymousId?: boolean, isBufferedInvocation?: boolean): void;
 
   /**
    * To get userId set in the SDK
@@ -189,12 +193,12 @@ export interface IAnalytics {
   /**
    * To manually start user session in the SDK
    */
-  startSession(sessionId?: number): void;
+  startSession(sessionId?: number, isBufferedInvocation?: boolean): void;
 
   /**
    * To manually end user session in the SDK
    */
-  endSession(): void;
+  endSession(isBufferedInvocation?: boolean): void;
 
   /**
    * To fetch the current sessionId
@@ -205,7 +209,7 @@ export interface IAnalytics {
    * To record consent
    * @param options Consent API options
    */
-  consent(options?: ConsentOptions): void;
+  consent(options?: ConsentOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To set auth token
