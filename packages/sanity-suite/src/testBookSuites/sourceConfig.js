@@ -3,10 +3,10 @@ import sourceConfig1ExpectedData from '../../__fixtures__/sourceConfig1.json';
 const CONFIG_URL =
   'https://api.rudderlabs.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__';
 
-const getConfigUrl = writeKey => {
-  return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
-    writeKey ? `writeKey=${writeKey}` : '',
-  );
+const getConfigUrl = (configUrl, writeKey) => {
+  return configUrl
+    .concat(configUrl.includes('?') ? '&' : '?')
+    .concat(writeKey ? `writeKey=${writeKey}` : '');
 };
 
 const getJSONTrimmed = (context, url, writeKey, callback) => {
@@ -64,7 +64,7 @@ const sourceConfigAPISuite = {
               resultCallback({}, true);
             }
           };
-          let configUrl = getConfigUrl(window.userWriteKey);
+          let configUrl = getConfigUrl(CONFIG_URL, window.userWriteKey);
 
           if (window.userConfigUrl) {
             configUrl = getUserProvidedConfigUrl(window.userConfigUrl, configUrl);
@@ -81,4 +81,4 @@ const sourceConfigAPISuite = {
   ],
 };
 
-export { sourceConfigAPISuite };
+export { getConfigUrl, getJSONTrimmed, getUserProvidedConfigUrl, sourceConfigAPISuite };
