@@ -56,6 +56,24 @@ describe('VWO Track Event', () => {
     });
   });
 
+  test('Testing Track Events without event', () => {
+    try {
+      mockVWO.track({
+        message: {
+          context: {},
+          properties: {
+            order_id: '140021222',
+            products: 'sports_shoes',
+            revenue: 77.95,
+            currency: 'USD',
+          },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('Event name is required');
+    }
+  });
+
   test('Track call without parameters', async () => {
     mockVWO.init();
     mockVWO.track({
