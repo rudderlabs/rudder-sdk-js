@@ -1,8 +1,7 @@
-## [3.0.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.0...@rudderstack/analytics-js-service-worker@3.0.1) (2023-10-27)
+## [3.0.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.1...@rudderstack/analytics-js-service-worker@3.0.2) (2023-11-13)
 
 
 ### Bug Fixes
 
-* **monorepo:** update vulnerable dependencies ([#1457](https://github.com/rudderlabs/rudder-sdk-js/issues/1457)) ([7a4bc4c](https://github.com/rudderlabs/rudder-sdk-js/commit/7a4bc4cc641e4fff2a8f561ce6fd67d16c0cd5a0))
-* upgrade vulnerable cryptoJS dependency, rolup to v4 & NX to v17 ([#1471](https://github.com/rudderlabs/rudder-sdk-js/issues/1471)) ([b2bb21c](https://github.com/rudderlabs/rudder-sdk-js/commit/b2bb21cb3f618f6c86f593d1706abe9e6349066d))
+* **analytics-js-service-worker:** update axios to non vulnerable version ([#1492](https://github.com/rudderlabs/rudder-sdk-js/issues/1492)) ([8ff50ac](https://github.com/rudderlabs/rudder-sdk-js/commit/8ff50acd0e2b8482c082151f61547de16d9bb494))
 
