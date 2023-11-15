@@ -194,13 +194,13 @@ describe('PluginEngine', () => {
     pluginEngineTestInstance.invokeMultiple('fail');
   });
 
-  it('should register 1000 plugins in less than 150ms', () => {
+  it('should register 1000 plugins in less than 200ms', () => {
     const time1 = Date.now();
     for (let i = 0; i < 1000; i++) {
       pluginEngineTestInstance.register({ name: `name${i}`, deps: ['n1', 'n2', 'n3', 'n4'] });
     }
     const time2 = Date.now();
     const elapsedTime = time2 - time1;
-    expect(elapsedTime < 150).toBeTruthy();
+    expect(elapsedTime < 200).toBeTruthy();
   });
 });

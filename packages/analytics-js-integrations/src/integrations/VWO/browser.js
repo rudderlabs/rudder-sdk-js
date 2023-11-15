@@ -4,7 +4,7 @@
 /* eslint-disable camelcase */
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
-import { getDestinationOptions } from './utils';
+import { getDestinationOptions, sanitizeName, sanitizeAttributes } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 class VWO {
@@ -42,6 +42,17 @@ class VWO {
     } else {
       logger.debug('===[VWO]loadIntegration flag is disabled===');
     }
+
+    window.VWO = window.VWO || [];
+    window.VWO.event = window.VWO.event || function (...args) {
+        window.VWO.push(['event', ...args]);
+    };
+ 
+    
+    window.VWO.visitor = window.VWO.visitor || function (...args) {
+        window.VWO.push(['visitor', ...args]);
+    };
+
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
       this.experimentViewed();
@@ -98,21 +109,31 @@ class VWO {
     ]);
   }
 
-  identify() {
-    logger.debug('[VWO] identify:: method not supported');
+  identify(rudderElement) {
+    logger.debug('===In VWO Identify===');
+    const { message } = rudderElement;
+    const { traits } = message.context || message;
+    const payload = traits || {};
+    const formattedAttributes = sanitizeAttributes(payload);
+
+    window.VWO.visitor(formattedAttributes, { source: 'rudderstack' });
   }
 
   track(rudderElement) {
     logger.debug('===In VWO track===');
     const eventName = rudderElement.message.event;
+    const properties = (rudderElement.message && rudderElement.message.properties) || {};
+    window.VWO = window.VWO || [];
     if (eventName === 'Order Completed') {
       const total = rudderElement.message.properties
         ? rudderElement.message.properties.total || rudderElement.message.properties.revenue
         : 0;
       logger.debug('Revenue', total);
-      window.VWO = window.VWO || [];
       window.VWO.push(['track.revenueConversion', total]);
     }
+    const sanitizedEventName = sanitizeName(eventName);
+    logger.debug(`[VWO] eventName: ${sanitizedEventName}`);
+    window.VWO.event(sanitizedEventName, properties, { source: 'rudderstack', ogName: eventName });
   }
 
   page() {

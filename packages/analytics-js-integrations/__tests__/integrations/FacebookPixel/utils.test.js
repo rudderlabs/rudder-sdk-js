@@ -1,4 +1,4 @@
-import { buildPayLoad, getHashedStatus } from '../../../src/integrations/FacebookPixel/utils';
+import { buildPayLoad, getHashedStatus, getProductsContentsAndContentIds } from '../../../src/integrations/FacebookPixel/utils';
 
 const blacklistPiiPropertiesMock = [
   {
@@ -735,6 +735,41 @@ describe('buildPayLoad_function', () => {
     );
     expect(payload).toEqual({
       email: 'acb@gmail.com',
+    });
+  });
+
+  it('test getProductsContentsAndContentIds', () => {
+    const products = [
+      {
+        product_id: "prodid1",
+        quantity: 5,
+        price: 55,
+        delivery_category: "in_store",
+      },
+      {
+        product_id: "prodid2",
+        quantity: 7,
+        price: 77,
+        delivery_category: "home_delivery",
+      }
+    ];
+    const payload = getProductsContentsAndContentIds(products, 10, 100);
+    expect(payload).toEqual({
+      contents: [
+        {
+          id: "prodid1",
+          quantity: 5,
+          item_price: 55,
+          delivery_category: "in_store",
+        },
+        {
+          id: "prodid2",
+          quantity: 7,
+          item_price: 77,
+          delivery_category: "home_delivery",
+        }
+      ],
+      contentIds: ["prodid1", "prodid2"],
     });
   });
 });
