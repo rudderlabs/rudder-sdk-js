@@ -11,5 +11,6 @@ declare global {
     RudderStackGlobals: IRudderStackGlobals;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';
+    RudderSnippetVersion?: string;
   }
 }

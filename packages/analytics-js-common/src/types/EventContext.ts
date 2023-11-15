@@ -7,6 +7,7 @@ export type AppInfo = {
 export type LibraryInfo = {
   readonly name: string;
   readonly version: string;
+  readonly snippetVersion?: string;
 };
 
 export type OSInfo = {
