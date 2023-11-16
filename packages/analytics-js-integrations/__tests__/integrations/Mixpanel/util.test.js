@@ -5,6 +5,8 @@ import {
   inverseObjectArrays,
   extendTraits,
   mapTraits,
+  filterSetOnceTraits,
+  unset,
 } from '../../../src/integrations/Mixpanel/util';
 
 describe('parseConfigArray', () => {
@@ -213,3 +215,226 @@ describe('mapTraits', () => {
     expect(result).toEqual(expectedOutput);
   });
 });
+
+
+describe('filterSetOnceTraits', () => {
+
+  // Should return an object with setTraits, setOnce, email, and username keys when given valid outgoingTraits and setOnceProperties inputs
+  it('should return an object with setTraits, setOnce, email, and username keys', () => {
+
+    const outgoingTraits = {
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      username: 'johndoe',
+    };
+    const setOnceProperties = ['email', 'username'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(result).toHaveProperty('setTraits');
+    expect(result).toHaveProperty('setOnce');
+    expect(result).toHaveProperty('email');
+    expect(result).toHaveProperty('username');
+  });
+
+  // Should correctly extract and remove setOnceProperties from the outgoingTraits object
+  it('should correctly extract and remove setOnceProperties', () => {
+
+    const outgoingTraits = {
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      username: 'johndoe',
+    };
+    const setOnceProperties = ['email', 'username'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(result.setTraits).not.toHaveProperty('email');
+    expect(result.setTraits).not.toHaveProperty('username');
+    expect(result.setOnce).toHaveProperty('email', 'test@example.com');
+    expect(result.setOnce).toHaveProperty('username', 'johndoe');
+  });
+
+  // Should correctly handle cases where setOnceProperties are not present in the outgoingTraits object
+  it('should correctly handle cases where setOnceProperties are not present', () => {
+
+    const outgoingTraits = {
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+    };
+    const setOnceProperties = ['email', 'username'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+    console.log(result);
+
+
+    expect(result).toHaveProperty('setTraits');
+    expect(result).toHaveProperty('setOnce');
+    expect(result).toHaveProperty('email');
+    expect(result).toHaveProperty('username');
+  });
+
+  // Should correctly handle cases where the outgoingTraits object is empty
+  it('should return an object with empty setTraits and setOnce properties when given an empty outgoingTraits object', () => {
+
+    const outgoingTraits = {};
+    const setOnceProperties = ['email', 'username'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(result.setTraits).toEqual({});
+    expect(result.setOnce).toEqual({});
+  });
+
+  // Should correctly handle cases where setOnceProperties are present in the outgoingTraits object but have non-string values
+  it('should exclude non-string setOnceProperties from the setOnce property in the result object', () => {
+
+    const outgoingTraits = {
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      username: 'johndoe',
+      age: 25,
+      gender: 'male',
+    };
+    const setOnceProperties = ['email', 'username', 'age', 'gender'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(result.setOnce).toEqual({
+      age: 25,
+      gender: 'male',
+      email: 'test@example.com',
+      username: 'johndoe',
+    });
+
+    expect(result.setTraits).toEqual({
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+    });
+  });
+
+  // Should not modify the original outgoingTraits object
+  it('should not modify the original outgoingTraits object', () => {
+
+    const outgoingTraits = {
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      username: 'johndoe',
+    };
+    const setOnceProperties = ['email', 'username'];
+
+
+    filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(outgoingTraits).toEqual({
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      username: 'johndoe',
+    });
+  });
+
+  // Should correctly handle cases where setOnceProperties contain nested properties
+  it('should correctly handle cases where setOnceProperties contain nested properties', () => {
+
+    const outgoingTraits = {
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      address: {
+        street: '123 Main St',
+        city: 'New York',
+        state: 'NY',
+        zip: '10001',
+      },
+    };
+    const setOnceProperties = ['address.street', 'address.city'];
+
+
+    const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
+
+
+    expect(result.setTraits).toEqual({
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+      name: 'John Doe',
+      address: {
+        state: 'NY',
+        zip: '10001',
+      },
+    });
+    expect(result.setOnce).toEqual({
+      street: '123 Main St',
+      city: 'New York',
+    });
+    expect(result.email).toBe('test@example.com');
+    expect(result.username).toBeUndefined();
+  });
+});
+
+// Generated by CodiumAI
+
+describe('unset', () => {
+
+  // Can unset a property at the top level of an object
+  it('should unset a property at the top level of an object', () => {
+    const obj = { name: 'John', age: 30 };
+    unset(obj, 'name');
+    expect(obj).toEqual({ age: 30 });
+  });
+
+  // Can unset a property at a nested level of an object
+  it('should unset a property at a nested level of an object', () => {
+    const obj = { person: { name: 'John', age: 30 } };
+    unset(obj, 'person.name');
+    expect(obj).toEqual({ person: { age: 30 } });
+  });
+
+  // Can unset a property that has a value of null
+  it('should unset a property that has a value of null', () => {
+    const obj = { name: null, age: 30 };
+    unset(obj, 'name');
+    expect(obj).toEqual({ age: 30 });
+  });
+
+  // Does not throw an error when trying to unset a property that does not exist
+  it('should not throw an error when trying to unset a property that does not exist', () => {
+    const obj = { name: 'John', age: 30 };
+    expect(() => unset(obj, 'address')).not.toThrow();
+    expect(obj).toEqual({ name: 'John', age: 30 });
+  });
+});
+
+

@@ -69,9 +69,9 @@ function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
   
   return {
     setTraits: traitsCopy,
-    setOnce: setOnceEligible,
-    email: traitsCopy.email || setOnceEligible.email,
-    username: traitsCopy.username || setOnceEligible.username,
+    setOnce:  setOnceEligible,
+    email: outgoingTraits.email,
+    username: outgoingTraits.username,
   };
 }
 
@@ -149,14 +149,6 @@ const extractTraits = (traits, traitAliasesParam) => {
   return extractedTraits;
 };
 
-
-// const buildSetOnceTraitsPayload = (setOnceProp, traitAliasesParam) => {
-//   const setOnceCopy = { ...setOnceProp };
-//   let transformedSetOnce = extractTraits(setOnceCopy,traitAliasesParam);
-//   return transformedSetOnce;
-
-// };
-
 /**
  * Return union of two arrays
  *
@@ -231,4 +223,6 @@ export {
   parseConfigArray,
   inverseObjectArrays,
   getConsolidatedPageCalls,
+  filterSetOnceTraits,
+  unset
 };
