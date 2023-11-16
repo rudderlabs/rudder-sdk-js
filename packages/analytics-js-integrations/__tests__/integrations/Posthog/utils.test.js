@@ -45,13 +45,13 @@ describe("Posthog Util test", () => {
             const config = {
                 xhrHeaders: [
                     { key: 'Content-Type', value: 'application/json' },
-                    { key: 'Authorization', value: 'Bearer token123' },
+                    { key: 'Authorization', value: 'Bearer *******' },
                 ],
             };
             const result = getXhrHeaders(config);
             expect(result).toEqual({
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer token123',
+                'Authorization': 'Bearer *******',
             });
         });
 
@@ -59,7 +59,7 @@ describe("Posthog Util test", () => {
             const config = {
                 xhrHeaders: [
                     { key: 'Content-Type', value: 'application/json' },
-                    { key: '', value: 'Bearer token123' }, // Invalid header with empty key
+                    { key: '', value: 'Bearer *******' }, // Invalid header with empty key
                     { key: 'Authorization', value: '' }, // Invalid header with empty value
                 ],
             };
