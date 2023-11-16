@@ -20,9 +20,7 @@ const getDestinationOptions = integrationsOptions =>
  * @param {string} eventName - The event name to be sanitized.
  * @return {string} The sanitized event name.
  */
-const sanitizeName = eventName => {
-  return `rudder.${eventName.trim()}`;
-};
+const sanitizeName = eventName => `rudder.${eventName?.trim()}`;
 
 /**
  * Sanitizes the properties object by formatting the keys and returning a new object with the formatted keys.

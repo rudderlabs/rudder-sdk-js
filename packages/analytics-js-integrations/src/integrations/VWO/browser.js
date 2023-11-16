@@ -47,8 +47,7 @@ class VWO {
     window.VWO.event = window.VWO.event || function (...args) {
         window.VWO.push(['event', ...args]);
     };
- 
-    
+
     window.VWO.visitor = window.VWO.visitor || function (...args) {
         window.VWO.push(['visitor', ...args]);
     };
@@ -122,6 +121,10 @@ class VWO {
   track(rudderElement) {
     logger.debug('===In VWO track===');
     const eventName = rudderElement.message.event;
+    if (!eventName) {
+      logger.error('Event name is required');
+      return;
+    }
     const properties = (rudderElement.message && rudderElement.message.properties) || {};
     window.VWO = window.VWO || [];
     if (eventName === 'Order Completed') {
