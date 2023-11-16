@@ -1,0 +1,810 @@
+{
+  "source": {
+    "id": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+    "name": "JS-SDK",
+    "writeKey": "2L5xLF1bgviN1mRCrvfNf7bTHtd",
+    "config": {
+      "statsCollection": {
+        "errors": {
+          "enabled": false
+        },
+        "metrics": {
+          "enabled": false
+        }
+      }
+    },
+    "enabled": true,
+    "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+    "sourceDefinitionId": "2CCxgViQJACgWABA6h83wlXnE1k",
+    "destinations": [
+      {
+        "id": "2L5yPlp2MHnx0DWaC2SafwM87dY",
+        "name": "Amplitude",
+        "enabled": true,
+        "config": {
+          "apiKey": "1b0a913109d21ccaa5e315d9ef925dc2",
+          "groupTypeTrait": "",
+          "groupValueTrait": "",
+          "trackAllPages": false,
+          "trackCategorizedPages": true,
+          "trackNamedPages": true,
+          "traitsToIncrement": [
+            {
+              "traits": ""
+            }
+          ],
+          "traitsToSetOnce": [
+            {
+              "traits": ""
+            }
+          ],
+          "traitsToAppend": [
+            {
+              "traits": ""
+            }
+          ],
+          "traitsToPrepend": [
+            {
+              "traits": ""
+            }
+          ],
+          "trackProductsOnce": false,
+          "trackRevenuePerProduct": false,
+          "preferAnonymousIdForDeviceId": false,
+          "versionName": "",
+          "blacklistedEvents": [
+            {
+              "eventName": ""
+            }
+          ],
+          "whitelistedEvents": [
+            {
+              "eventName": ""
+            }
+          ],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "mapDeviceBrand": false,
+          "residencyServer": "standard",
+          "userProvidedPageEventString": "",
+          "useUserDefinedPageEventName": false,
+          "attribution": false,
+          "eventUploadThreshold": "1",
+          "eventUploadPeriodMillis": "0",
+          "trackNewCampaigns": true
+        },
+        "liveEventsConfig": {},
+        "destinationDefinitionId": "1Q8kZdhlglB9q8gsD4xryMyWg1i",
+        "destinationDefinition": {
+          "id": "1Q8kZdhlglB9q8gsD4xryMyWg1i",
+          "name": "AM",
+          "displayName": "Amplitude",
+          "createdAt": "2019-08-30T10:07:47.170Z",
+          "updatedAt": "2023-10-25T08:42:14.009Z",
+          "config": {
+            "destConfig": {
+              "ios": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "trackSessionEvents",
+                "useIdfaAsDeviceId"
+              ],
+              "web": [
+                "useNativeSDK",
+                "connectionMode",
+                "preferAnonymousIdForDeviceId",
+                "attribution",
+                "eventUploadThreshold",
+                "eventUploadPeriodMillis",
+                "trackNewCampaigns"
+              ],
+              "android": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "enableLocationListening",
+                "trackSessionEvents",
+                "useAdvertisingIdForDeviceId"
+              ],
+              "flutter": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "enableLocationListening",
+                "trackSessionEvents",
+                "useAdvertisingIdForDeviceId",
+                "useIdfaAsDeviceId"
+              ],
+              "reactnative": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "enableLocationListening",
+                "trackSessionEvents",
+                "useAdvertisingIdForDeviceId",
+                "useIdfaAsDeviceId"
+              ],
+              "defaultConfig": [
+                "apiKey",
+                "groupTypeTrait",
+                "groupValueTrait",
+                "trackAllPages",
+                "trackCategorizedPages",
+                "trackNamedPages",
+                "traitsToIncrement",
+                "traitsToSetOnce",
+                "traitsToAppend",
+                "traitsToPrepend",
+                "trackProductsOnce",
+                "trackRevenuePerProduct",
+                "versionName",
+                "apiSecret",
+                "residencyServer",
+                "blacklistedEvents",
+                "whitelistedEvents",
+                "eventFilteringOption",
+                "mapDeviceBrand",
+                "oneTrustCookieCategories",
+                "userProvidedPageEventString",
+                "useUserDefinedPageEventName"
+              ]
+            },
+            "secretKeys": ["apiKey", "apiSecret"],
+            "excludeKeys": [],
+            "includeKeys": [
+              "apiKey",
+              "groupTypeTrait",
+              "groupValueTrait",
+              "trackAllPages",
+              "trackCategorizedPages",
+              "trackNamedPages",
+              "traitsToIncrement",
+              "traitsToSetOnce",
+              "traitsToAppend",
+              "traitsToPrepend",
+              "trackProductsOnce",
+              "trackRevenuePerProduct",
+              "preferAnonymousIdForDeviceId",
+              "versionName",
+              "enableLocationListening",
+              "useAdvertisingIdForDeviceId",
+              "trackSessionEvents",
+              "useIdfaAsDeviceId",
+              "blacklistedEvents",
+              "whitelistedEvents",
+              "oneTrustCookieCategories",
+              "eventFilteringOption",
+              "mapDeviceBrand",
+              "residencyServer",
+              "userProvidedPageEventString",
+              "useUserDefinedPageEventName",
+              "attribution",
+              "eventUploadThreshold",
+              "eventUploadPeriodMillis",
+              "trackNewCampaigns"
+            ],
+            "transformAt": "processor",
+            "transformAtV1": "processor",
+            "isAudienceSupported": false,
+            "supportedSourceTypes": [
+              "android",
+              "ios",
+              "web",
+              "unity",
+              "amp",
+              "cloud",
+              "warehouse",
+              "reactnative",
+              "flutter",
+              "cordova",
+              "shopify"
+            ],
+            "supportsVisualMapper": true,
+            "supportedMessageTypes": ["alias", "group", "identify", "page", "screen", "track"],
+            "saveDestinationResponse": true,
+            "supportedConnectionModes": {
+              "ios": ["cloud", "device"],
+              "web": ["cloud", "device"],
+              "android": ["cloud", "device"],
+              "flutter": ["cloud", "device"],
+              "reactnative": ["cloud", "device"]
+            }
+          },
+          "responseRules": null,
+          "category": null,
+          "options": null
+        },
+        "deleted": false,
+        "createdAt": "2023-01-31T14:26:56.685Z",
+        "updatedAt": "2023-10-03T12:10:01.855Z",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "revisionId": "2WFj0nwXdxV3QNSCPAKpAFLy1OI",
+        "secretConfig": {},
+        "secretVersion": 9,
+        "shouldApplyDeviceModeTransformation": false,
+        "propagateEventsUntransformedOnError": false
+      },
+      {
+        "id": "2SgVD0o1zCgEukNjJ4HgvRjWYti",
+        "name": "GA",
+        "enabled": true,
+        "config": {
+          "trackingID": "UA-123456789-1",
+          "doubleClick": false,
+          "enhancedLinkAttribution": false,
+          "includeSearch": false,
+          "trackCategorizedPages": true,
+          "trackNamedPages": true,
+          "useRichEventNames": false,
+          "sampleRate": "100",
+          "siteSpeedSampleRate": "1",
+          "resetCustomDimensionsOnPage": [],
+          "setAllMappedProps": true,
+          "anonymizeIp": false,
+          "domain": "auto",
+          "enhancedEcommerce": false,
+          "nonInteraction": false,
+          "optimize": "",
+          "sendUserId": false,
+          "useGoogleAmpClientId": false,
+          "namedTracker": false,
+          "blacklistedEvents": [],
+          "whitelistedEvents": [],
+          "oneTrustCookieCategories": [],
+          "eventFilteringOption": "disable",
+          "ketchConsentPurposes": []
+        },
+        "liveEventsConfig": {},
+        "destinationDefinitionId": "1Q8kZOyJE87ECoQ8kc26TOpgpXl",
+        "destinationDefinition": {
+          "id": "1Q8kZOyJE87ECoQ8kc26TOpgpXl",
+          "name": "GA",
+          "displayName": "Google Analytics",
+          "createdAt": "2019-08-30T10:07:45.868Z",
+          "updatedAt": "2023-10-27T12:52:32.380Z",
+          "config": {
+            "auth": {
+              "role": "google_analytics",
+              "type": "OAuth",
+              "provider": "Google",
+              "rudderScopes": ["delete"]
+            },
+            "destConfig": {
+              "web": [
+                "useNativeSDK",
+                "trackCategorizedPages",
+                "trackNamedPages",
+                "useRichEventNames",
+                "sampleRate",
+                "siteSpeedSampleRate",
+                "resetCustomDimensionsOnPage",
+                "setAllMappedProps",
+                "domain",
+                "optimize",
+                "useGoogleAmpClientId",
+                "namedTracker"
+              ],
+              "defaultConfig": [
+                "trackingID",
+                "rudderDeleteAccountId",
+                "customMappings",
+                "doubleClick",
+                "enhancedLinkAttribution",
+                "includeSearch",
+                "dimensions",
+                "metrics",
+                "contentGroupings",
+                "enableServerSideIdentify",
+                "serverSideIdentifyEventCategory",
+                "serverSideIdentifyEventAction",
+                "anonymizeIp",
+                "enhancedEcommerce",
+                "nonInteraction",
+                "sendUserId",
+                "disableMd5",
+                "blacklistedEvents",
+                "whitelistedEvents",
+                "eventFilteringOption",
+                "oneTrustCookieCategories",
+                "ketchConsentPurposes"
+              ]
+            },
+            "secretKeys": [],
+            "excludeKeys": [],
+            "includeKeys": [
+              "trackingID",
+              "doubleClick",
+              "enhancedLinkAttribution",
+              "includeSearch",
+              "trackCategorizedPages",
+              "trackNamedPages",
+              "useRichEventNames",
+              "sampleRate",
+              "siteSpeedSampleRate",
+              "dimensions",
+              "metrics",
+              "resetCustomDimensionsOnPage",
+              "setAllMappedProps",
+              "contentGroupings",
+              "anonymizeIp",
+              "domain",
+              "enhancedEcommerce",
+              "nonInteraction",
+              "optimize",
+              "sendUserId",
+              "useGoogleAmpClientId",
+              "namedTracker",
+              "blacklistedEvents",
+              "whitelistedEvents",
+              "oneTrustCookieCategories",
+              "eventFilteringOption",
+              "ketchConsentPurposes"
+            ],
+            "transformAt": "processor",
+            "transformAtV1": "processor",
+            "isAudienceSupported": false,
+            "supportedSourceTypes": [
+              "android",
+              "ios",
+              "web",
+              "unity",
+              "amp",
+              "cloud",
+              "warehouse",
+              "reactnative",
+              "flutter",
+              "cordova",
+              "shopify"
+            ],
+            "supportsVisualMapper": true,
+            "supportedMessageTypes": ["identify", "page", "screen", "track"],
+            "saveDestinationResponse": false
+          },
+          "responseRules": null,
+          "category": null,
+          "options": {
+            "deprecated": true,
+            "deprecationLabel": "Google sunsetted Google Analytics (UA). Please set up Google Analytics 4 instead"
+          }
+        },
+        "deleted": false,
+        "createdAt": "2023-07-17T04:28:07.671Z",
+        "updatedAt": "2023-07-17T04:28:07.671Z",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "revisionId": "2SgVD2mSrot9vDDWOliSYaLRm5h",
+        "secretConfig": {},
+        "secretVersion": 1,
+        "shouldApplyDeviceModeTransformation": false,
+        "propagateEventsUntransformedOnError": false
+      },
+      {
+        "id": "2Xmqg1aW0cRNyOMNxqvyqH762Ex",
+        "name": "FB pixel dev",
+        "enabled": false,
+        "config": {
+          "pixelId": "3626159724376295",
+          "valueFieldIdentifier": "properties.price",
+          "blacklistedEvents": [
+            {
+              "eventName": ""
+            }
+          ],
+          "whitelistedEvents": [
+            {
+              "eventName": ""
+            }
+          ],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "useUpdatedMapping": false,
+          "ketchConsentPurposes": [
+            {
+              "purpose": ""
+            }
+          ]
+        },
+        "liveEventsConfig": {},
+        "destinationDefinitionId": "1aHtCsG9wxv4i3a6gtDdbSxYg8m",
+        "destinationDefinition": {
+          "id": "1aHtCsG9wxv4i3a6gtDdbSxYg8m",
+          "name": "FACEBOOK_PIXEL",
+          "displayName": "Facebook Pixel",
+          "createdAt": "2020-04-09T03:50:22.245Z",
+          "updatedAt": "2023-11-07T07:01:17.981Z",
+          "config": {
+            "destConfig": {
+              "web": ["useNativeSDK", "legacyConversionPixelId", "connectionMode"],
+              "defaultConfig": [
+                "blacklistPiiProperties",
+                "categoryToContent",
+                "pixelId",
+                "eventsToEvents",
+                "valueFieldIdentifier",
+                "advancedMapping",
+                "whitelistPiiProperties",
+                "limitedDataUSage",
+                "accessToken",
+                "testDestination",
+                "testEventCode",
+                "standardPageCall",
+                "blacklistedEvents",
+                "whitelistedEvents",
+                "eventFilteringOption",
+                "removeExternalId",
+                "useUpdatedMapping",
+                "oneTrustCookieCategories",
+                "ketchConsentPurposes"
+              ]
+            },
+            "secretKeys": [],
+            "excludeKeys": [],
+            "includeKeys": [
+              "blacklistPiiProperties",
+              "categoryToContent",
+              "pixelId",
+              "eventsToEvents",
+              "valueFieldIdentifier",
+              "advancedMapping",
+              "legacyConversionPixelId",
+              "whitelistPiiProperties",
+              "blacklistedEvents",
+              "whitelistedEvents",
+              "oneTrustCookieCategories",
+              "eventFilteringOption",
+              "useUpdatedMapping",
+              "ketchConsentPurposes"
+            ],
+            "transformAt": "processor",
+            "transformAtV1": "processor",
+            "supportedSourceTypes": [
+              "android",
+              "ios",
+              "web",
+              "unity",
+              "amp",
+              "cloud",
+              "warehouse",
+              "reactnative",
+              "flutter",
+              "cordova",
+              "shopify"
+            ],
+            "supportedMessageTypes": ["identify", "page", "screen", "track"],
+            "saveDestinationResponse": true,
+            "supportedConnectionModes": {
+              "web": ["cloud", "device"]
+            }
+          },
+          "responseRules": null,
+          "category": null,
+          "options": null
+        },
+        "deleted": false,
+        "createdAt": "2023-11-06T04:25:09.799Z",
+        "updatedAt": "2023-11-06T04:27:06.179Z",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "revisionId": "2XmqujI0LynIZ1v9fTplfHea0YL",
+        "secretConfig": {},
+        "secretVersion": 3,
+        "shouldApplyDeviceModeTransformation": false,
+        "propagateEventsUntransformedOnError": false
+      },
+      {
+        "id": "2Xmr8aWnqjvOZANQVTUI3S4AUUw",
+        "name": "Braze js",
+        "enabled": false,
+        "config": {
+          "appKey": "f2c7c97a-48d1-11ea-8e07-faffc22c7c7f",
+          "dataCenter": "US-03",
+          "trackAnonymousUser": false,
+          "enableSubscriptionGroupInGroupCall": false,
+          "enableBrazeLogging": false,
+          "enableNestedArrayOperations": false,
+          "supportDedup": false,
+          "blacklistedEvents": [],
+          "whitelistedEvents": [],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "connectionMode": "device"
+        },
+        "liveEventsConfig": {},
+        "destinationDefinitionId": "1eM0CHgYSVDHntxZDwNoDmzuUQi",
+        "destinationDefinition": {
+          "id": "1eM0CHgYSVDHntxZDwNoDmzuUQi",
+          "name": "BRAZE",
+          "displayName": "Braze",
+          "createdAt": "2020-07-07T10:00:24.586Z",
+          "updatedAt": "2023-10-31T17:51:48.218Z",
+          "config": {
+            "destConfig": {
+              "ios": ["useNativeSDK", "connectionMode"],
+              "web": ["useNativeSDK", "enableBrazeLogging", "connectionMode"],
+              "android": ["useNativeSDK", "connectionMode"],
+              "flutter": ["useNativeSDK", "connectionMode"],
+              "reactnative": ["useNativeSDK", "connectionMode"],
+              "defaultConfig": [
+                "appKey",
+                "dataCenter",
+                "restApiKey",
+                "trackAnonymousUser",
+                "enableSubscriptionGroupInGroupCall",
+                "enableNestedArrayOperations",
+                "supportDedup",
+                "blacklistedEvents",
+                "whitelistedEvents",
+                "eventFilteringOption",
+                "oneTrustCookieCategories"
+              ]
+            },
+            "secretKeys": ["restApiKey"],
+            "excludeKeys": [],
+            "includeKeys": [
+              "appKey",
+              "dataCenter",
+              "trackAnonymousUser",
+              "enableSubscriptionGroupInGroupCall",
+              "enableBrazeLogging",
+              "enableNestedArrayOperations",
+              "supportDedup",
+              "blacklistedEvents",
+              "whitelistedEvents",
+              "oneTrustCookieCategories",
+              "eventFilteringOption",
+              "connectionMode"
+            ],
+            "transformAt": "router",
+            "transformAtV1": "router",
+            "isAudienceSupported": true,
+            "supportedSourceTypes": [
+              "android",
+              "ios",
+              "web",
+              "unity",
+              "amp",
+              "cloud",
+              "warehouse",
+              "reactnative",
+              "flutter",
+              "cordova",
+              "shopify"
+            ],
+            "supportsVisualMapper": true,
+            "supportedMessageTypes": ["group", "identify", "page", "screen", "track", "alias"],
+            "saveDestinationResponse": true,
+            "supportedConnectionModes": {
+              "ios": ["cloud", "device", "hybrid"],
+              "web": ["cloud", "device"],
+              "android": ["cloud", "device", "hybrid"],
+              "flutter": ["cloud", "device"],
+              "reactnative": ["cloud", "device"]
+            }
+          },
+          "responseRules": {},
+          "category": null,
+          "options": {}
+        },
+        "deleted": false,
+        "createdAt": "2023-11-06T04:28:57.375Z",
+        "updatedAt": "2023-11-06T04:29:14.700Z",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "revisionId": "2XmrAjXALt3J2qAl4AtKxAzNw00",
+        "secretConfig": {},
+        "secretVersion": 3,
+        "shouldApplyDeviceModeTransformation": false,
+        "propagateEventsUntransformedOnError": false
+      },
+      {
+        "id": "2XmrPUYit0LsoG1S5tozSfI5XkM",
+        "name": "Google Ads dev",
+        "enabled": true,
+        "config": {
+          "conversionID": "AW-11099263080",
+          "eventMappingFromConfig": [
+            {
+              "from": "",
+              "to": ""
+            }
+          ],
+          "defaultPageConversion": "",
+          "sendPageView": true,
+          "conversionLinker": true,
+          "disableAdPersonalization": false,
+          "blacklistedEvents": [],
+          "whitelistedEvents": [],
+          "oneTrustCookieCategories": [],
+          "eventFilteringOption": "disable",
+          "dynamicRemarketing": {},
+          "trackConversions": true,
+          "enableConversionEventsFiltering": false,
+          "trackDynamicRemarketing": false,
+          "allowEnhancedConversions": false,
+          "enableConversionLabel": false
+        },
+        "liveEventsConfig": {},
+        "destinationDefinitionId": "1WKMf5COr1KBI6PmVxuc9zaR7DV",
+        "destinationDefinition": {
+          "id": "1WKMf5COr1KBI6PmVxuc9zaR7DV",
+          "name": "GOOGLEADS",
+          "displayName": "Google Ads",
+          "createdAt": "2020-01-13T05:38:52.604Z",
+          "updatedAt": "2023-11-07T09:37:03.052Z",
+          "config": {
+            "destConfig": {
+              "web": ["useNativeSDK", "dynamicRemarketing"],
+              "defaultConfig": [
+                "conversionID",
+                "eventMappingFromConfig",
+                "pageLoadConversions",
+                "clickEventConversions",
+                "defaultPageConversion",
+                "sendPageView",
+                "conversionLinker",
+                "dynamicRemarketing",
+                "trackConversions",
+                "enableConversionEventsFiltering",
+                "eventsToTrackConversions",
+                "trackDynamicRemarketing",
+                "enableDynamicRemarketingEventsFiltering",
+                "eventsToTrackDynamicRemarketing",
+                "disableAdPersonalization",
+                "blacklistedEvents",
+                "whitelistedEvents",
+                "eventFilteringOption",
+                "allowEnhancedConversions",
+                "oneTrustCookieCategories",
+                "enableConversionLabel"
+              ]
+            },
+            "secretKeys": [],
+            "excludeKeys": [],
+            "includeKeys": [
+              "conversionID",
+              "eventMappingFromConfig",
+              "pageLoadConversions",
+              "clickEventConversions",
+              "defaultPageConversion",
+              "sendPageView",
+              "conversionLinker",
+              "disableAdPersonalization",
+              "blacklistedEvents",
+              "whitelistedEvents",
+              "oneTrustCookieCategories",
+              "eventFilteringOption",
+              "dynamicRemarketing",
+              "trackConversions",
+              "enableConversionEventsFiltering",
+              "eventsToTrackConversions",
+              "trackDynamicRemarketing",
+              "enableDynamicRemarketingEventsFiltering",
+              "eventsToTrackDynamicRemarketing",
+              "allowEnhancedConversions",
+              "enableConversionLabel"
+            ],
+            "transformAt": "processor",
+            "transformAtV1": "processor",
+            "supportedSourceTypes": ["web"],
+            "saveDestinationResponse": false
+          },
+          "responseRules": null,
+          "category": null,
+          "options": null
+        },
+        "deleted": false,
+        "createdAt": "2023-11-06T04:31:11.813Z",
+        "updatedAt": "2023-11-06T04:31:11.813Z",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "revisionId": "2XmrPRk1w75LvESB7ESv3KqUySC",
+        "secretConfig": {},
+        "secretVersion": 1,
+        "shouldApplyDeviceModeTransformation": false,
+        "propagateEventsUntransformedOnError": false
+      }
+    ],
+    "updatedAt": "2023-01-31T14:18:06.412Z",
+    "createdAt": "2023-01-31T14:18:06.412Z",
+    "liveEventsConfig": {},
+    "sourceDefinition": {
+      "options": {},
+      "config": null,
+      "configSchema": null,
+      "uiConfig": null,
+      "id": "2CCxgViQJACgWABA6h83wlXnE1k",
+      "name": "Javascript",
+      "displayName": "Javascript",
+      "category": "",
+      "type": "web",
+      "createdAt": "2022-07-20T12:34:38.073Z",
+      "updatedAt": "2023-04-26T11:00:22.766Z"
+    },
+    "createdBy": "2L5tkiPslLEaplRRjzFuVHhHNPH",
+    "secretVersion": null,
+    "connections": [
+      {
+        "id": "2L5yQ2fZGH9HshtHCF1iopcvxvo",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2L5yPlp2MHnx0DWaC2SafwM87dY",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-01-31T14:26:58.013Z",
+        "updatedAt": "2023-01-31T14:26:58.013Z"
+      },
+      {
+        "id": "2L5zUqBuA61FQoheWMRsaNDTNLA",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2L5zUinuRqCeislUXNheBg2AnBR",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-01-31T14:35:49.816Z",
+        "updatedAt": "2023-01-31T14:35:49.816Z"
+      },
+      {
+        "id": "2SgVD7HMxh7RQ9lwcVwE556rQX2",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2SgVD0o1zCgEukNjJ4HgvRjWYti",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-07-17T04:28:08.950Z",
+        "updatedAt": "2023-07-17T04:28:08.950Z"
+      },
+      {
+        "id": "2XmqgENgHQYUaeL0nhdpRio1769",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2Xmqg1aW0cRNyOMNxqvyqH762Ex",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-11-06T04:25:11.267Z",
+        "updatedAt": "2023-11-06T04:25:11.267Z"
+      },
+      {
+        "id": "2Xmr8iohrSw6pq5HFgt64pD4xV3",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2Xmr8aWnqjvOZANQVTUI3S4AUUw",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-11-06T04:28:58.633Z",
+        "updatedAt": "2023-11-06T04:28:58.633Z"
+      },
+      {
+        "id": "2XmrPiAGUU71bEpkNkyEbZww4gq",
+        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
+        "destinationId": "2XmrPUYit0LsoG1S5tozSfI5XkM",
+        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2023-11-06T04:31:13.236Z",
+        "updatedAt": "2023-11-06T04:31:13.236Z"
+      }
+    ],
+    "deleted": false,
+    "transient": false
+  },
+  "updatedAt": "2023-11-07T12:05:19.874Z"
+}
