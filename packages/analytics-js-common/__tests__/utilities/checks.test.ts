@@ -101,7 +101,7 @@ describe('Common Utils - Checks', () => {
       };
       expect(isSDKRunningInChromeExtension()).toBeTruthy();
     });
-    it('should return true if SDK is running inside chrome extension', () => {
+    it('should return false if SDK is not running inside chrome extension', () => {
       (window as any).chrome = {
         runtime: { id: undefined },
       };
