@@ -7,7 +7,6 @@ import {
   isTypeOfError,
   isDefined,
   isDefinedAndNotNull,
-  isSDKRunningInChromeExtension,
 } from '../../src/utilities/checks';
 
 describe('Common Utils - Checks', () => {
@@ -91,21 +90,6 @@ describe('Common Utils - Checks', () => {
       expect(isDefinedAndNotNull([])).toBeTruthy();
       expect(isDefinedAndNotNull(null)).toBeFalsy();
       expect(isDefinedAndNotNull(undefined)).toBeFalsy();
-    });
-  });
-
-  describe('isSDKRunningInChromeExtension', () => {
-    it('should return true if SDK is running inside chrome extension', () => {
-      (window as any).chrome = {
-        runtime: { id: 'sample-id' },
-      };
-      expect(isSDKRunningInChromeExtension()).toBeTruthy();
-    });
-    it('should return false if SDK is not running inside chrome extension', () => {
-      (window as any).chrome = {
-        runtime: { id: undefined },
-      };
-      expect(isSDKRunningInChromeExtension()).toBeFalsy();
     });
   });
 });

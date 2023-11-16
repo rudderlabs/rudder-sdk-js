@@ -64,13 +64,6 @@ const isDefinedNotNullAndNotEmptyString = (value: any): boolean =>
  */
 const isTypeOfError = (obj: any): obj is Error => obj instanceof Error;
 
-/**
- * Determines if the SDK is running inside a chrome extension
- * @returns boolean
- */
-const isSDKRunningInChromeExtension = (): boolean =>
-  !!((window as any).chrome && (window as any).chrome.runtime && (window as any).chrome.runtime.id);
-
 export {
   isFunction,
   isString,
@@ -81,5 +74,4 @@ export {
   isDefined,
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
-  isSDKRunningInChromeExtension,
 };

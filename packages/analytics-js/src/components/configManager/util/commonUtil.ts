@@ -1,11 +1,8 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
-import {
-  isDefined,
-  isSDKRunningInChromeExtension,
-  isUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,

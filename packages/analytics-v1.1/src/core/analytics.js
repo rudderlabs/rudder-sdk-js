@@ -26,7 +26,7 @@ import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import {
   getJSONTrimmed,
   generateUUID,
