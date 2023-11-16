@@ -48,7 +48,7 @@ function unset(obj, propertyPath) {
   delete current[lastKey];
 }
 
-function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
+function filterSetOnceTraits(outgoingTraits, setOnceProperties) {
   // Create a copy of the original traits object
   const traitsCopy = { ...outgoingTraits };
 
@@ -66,16 +66,16 @@ function filterSetOnceTraits( outgoingTraits, setOnceProperties) {
       unset(traitsCopy, propertyPath);
     }
   });
-  
+
   return {
     setTraits: traitsCopy,
-    setOnce:  setOnceEligible,
+    setOnce: setOnceEligible,
     email: outgoingTraits.email,
     username: outgoingTraits.username,
   };
 }
 
-const formatTraits = (message,setOnceProperties)  => {
+const formatTraits = (message, setOnceProperties) => {
   const { email, firstName, lastName, phone, name } = getDefinedTraits(message);
   let outgoingTraits = {
     email,
