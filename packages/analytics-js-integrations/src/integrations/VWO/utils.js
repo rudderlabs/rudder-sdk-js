@@ -25,15 +25,15 @@ const sanitizeName = eventName => `rudder.${eventName?.trim()}`;
 /**
  * Sanitizes the properties object by formatting the keys and returning a new object with the formatted keys.
  *
- * @param {object} properties - The properties object to be sanitized.
+ * @param {object} attributes - The properties object to be sanitized.
  * @return {object} - The sanitized properties object with formatted keys.
  */
 const sanitizeAttributes = attributes => {
   const formattedAttributes = {};
-  for (const key in attributes) {
+  Object.keys(attributes).forEach(key => {
     const formattedKey = sanitizeName(key);
     formattedAttributes[formattedKey] = attributes[key];
-  }
+  });
   return formattedAttributes;
 };
 
