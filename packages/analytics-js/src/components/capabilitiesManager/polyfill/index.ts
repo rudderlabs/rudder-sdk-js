@@ -1,6 +1,6 @@
 import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
 
-const POLYFILL_URL = `https://polyfill.io/v3/polyfill.min.js?features=${Object.keys(
+const POLYFILL_URL = `https://polyfill.io/v3/polyfill.min.js?version=3.111.0&features=${Object.keys(
   legacyJSEngineRequiredPolyfills,
 ).join('%2C')}`;
 
