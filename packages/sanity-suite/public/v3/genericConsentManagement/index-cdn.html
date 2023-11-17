@@ -58,16 +58,6 @@
       }
       // New addition to load script ends
 
-      // Identify call
-      rudderanalytics.identify("12345", {
-        name: "Automation QA"
-      });
-
-      // Track call
-      rudderanalytics.track("test event", {
-        testProp: "automationQA_prop1"
-      });
-
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
