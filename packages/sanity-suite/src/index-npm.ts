@@ -19,6 +19,17 @@ const getWriteKey = () => {
 const getLoadOptions = (): Partial<LoadOptions> => {
   // eslint-disable-next-line sonarjs/no-all-duplicated-branches
   switch ('FEATURE' as string) {
+    case 'genericConsentManagement':
+      return {
+        logLevel: 'DEBUG',
+        configUrl: 'CONFIG_SERVER_HOST',
+        lockIntegrationsVersion: true,
+        destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
+        consentManagement: {
+          enabled: true,
+          provider: 'oneTrust',
+        },
+      };
     case 'dataResidency':
       return {
         logLevel: 'DEBUG',
