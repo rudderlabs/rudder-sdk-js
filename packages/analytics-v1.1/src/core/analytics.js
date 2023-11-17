@@ -26,6 +26,7 @@ import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -224,9 +225,12 @@ class Analytics {
         return;
       }
 
-      // Initialise error reporting provider if set in source config
+      // Initialize error reporting provider if set in source config
       try {
-        this.errorReporting.init(response.source.config, response.source.id);
+        // Initialize error reporting provider only if SDK is not running inside chrome extension
+        if (!isSDKRunningInChromeExtension()) {
+          this.errorReporting.init(response.source.config, response.source.id);
+        }
       } catch (err) {
         handleError(err);
       }
