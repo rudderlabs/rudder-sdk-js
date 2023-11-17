@@ -87,7 +87,7 @@
           "name": "AM",
           "displayName": "Amplitude",
           "createdAt": "2019-09-02T08:08:05.613Z",
-          "updatedAt": "2023-10-03T10:41:25.398Z",
+          "updatedAt": "2023-11-16T11:02:34.093Z",
           "config": {
             "destConfig": {
               "ios": [
@@ -158,7 +158,9 @@
                 "mapDeviceBrand",
                 "oneTrustCookieCategories",
                 "userProvidedPageEventString",
-                "useUserDefinedPageEventName"
+                "useUserDefinedPageEventName",
+                "userProvidedScreenEventString",
+                "useUserDefinedScreenEventName"
               ]
             },
             "secretKeys": ["apiKey", "apiSecret"],
@@ -193,7 +195,9 @@
               "attribution",
               "eventUploadThreshold",
               "eventUploadPeriodMillis",
-              "trackNewCampaigns"
+              "trackNewCampaigns",
+              "userProvidedScreenEventString",
+              "useUserDefinedScreenEventName"
             ],
             "transformAt": "processor",
             "transformAtV1": "processor",
@@ -581,11 +585,17 @@
           "name": "BRAZE",
           "displayName": "Braze",
           "createdAt": "2020-02-06T11:13:09.246Z",
-          "updatedAt": "2023-09-12T05:56:58.636Z",
+          "updatedAt": "2023-11-15T08:22:06.946Z",
           "config": {
             "destConfig": {
               "ios": ["useNativeSDK", "connectionMode"],
-              "web": ["useNativeSDK", "enableBrazeLogging", "connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "enableBrazeLogging",
+                "connectionMode",
+                "enablePushNotification",
+                "allowUserSuppliedJavascript"
+              ],
               "android": ["useNativeSDK", "connectionMode"],
               "flutter": ["useNativeSDK", "connectionMode"],
               "reactnative": ["useNativeSDK", "connectionMode"],
@@ -617,7 +627,9 @@
               "whitelistedEvents",
               "oneTrustCookieCategories",
               "eventFilteringOption",
-              "connectionMode"
+              "connectionMode",
+              "enablePushNotification",
+              "allowUserSuppliedJavascript"
             ],
             "transformAt": "router",
             "transformAtV1": "router",
@@ -640,10 +652,15 @@
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
               "ios": ["cloud", "device", "hybrid"],
-              "web": ["cloud", "device"],
+              "web": ["cloud", "device", "hybrid"],
               "android": ["cloud", "device", "hybrid"],
               "flutter": ["cloud", "device"],
               "reactnative": ["cloud", "device"]
+            },
+            "hybridModeCloudEventsFilter": {
+              "web": {
+                "messageType": ["identify", "track", "page"]
+              }
             }
           },
           "responseRules": null,
@@ -1212,7 +1229,6 @@
         "id": "2L8KCfcreKPAOBJzkCBRNvNOqwG",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2L8KCafGlZAVf1LChEGfeyrELbK",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1223,7 +1239,6 @@
         "id": "2L8KyWqouw4ze0f4afsrxlC0sHw",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2L8KyN0Fo6CmtL1jZ7Rccas42ry",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1234,7 +1249,6 @@
         "id": "2LoR1iFP1UnEedz0A4druIjrKdv",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoR1TbVG2bcISXvy7DamldfkgO",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1245,7 +1259,6 @@
         "id": "2LoUx4n5pGXTZOLnAugGaX6gmcG",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoUwsaZMiRBsdhwc3zXcNk4oOw",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1256,7 +1269,6 @@
         "id": "2LoXyxr2J8DgOyLT4bwi1Rtikx1",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoXypOO5xdh7R5xJynzIyWeYJf",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1267,7 +1279,6 @@
         "id": "2LUHxiGlQWQOJP8DiKidSKdyosg",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LUHxbh8aM2B1ODT2RGBetg6tDW",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": true,
@@ -1278,7 +1289,6 @@
         "id": "2M2I7zu5UDw16zeFGgjxrkOIPMd",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M2I7gZ9L474wHE0mzMdIo84gIK",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1289,7 +1299,6 @@
         "id": "2M5amTXpCHhxORC175ZTkzb1JML",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5amK3AVQ31yy9uxD8Usk0y34Q",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1300,7 +1309,6 @@
         "id": "2M5beUNhGIEQrnTyRBqYcTG53Vd",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5beBXLTjTto62OdCBwFNejrkY",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1311,7 +1319,6 @@
         "id": "2M5dOoljKQXLKg0z7L1qFpAGAvp",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5dOW6kipDywRHHLJy8blGeaIM",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1322,7 +1329,6 @@
         "id": "2MB1bO3hTkzCoEdc7NVEC1rhGGd",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2MB1bEpAABLRC9oI5G3IXrrBTos",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1333,7 +1339,6 @@
         "id": "2MBKP4UdjetHMRrToJFCmKHpGOg",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2MBKOwDUcq0pKzHDNWL4NZH1nvW",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -1344,7 +1349,6 @@
         "id": "2R9DmCRrtLFY88YGXdhz2wr5GPf",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2R9Dm3WHB6dkXuRnA0j3Amjo5Xw",
-        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
         "deleted": true,
@@ -1355,5 +1359,17 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-10T19:03:41.643Z"
+  "updatedAt": "2023-11-17T06:26:57.327Z",
+  "consentManagementMetadata": {
+    "providers": [
+      {
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      {
+        "provider": "ketch",
+        "resolutionStrategy": "or"
+      }
+    ]
+  }
 }

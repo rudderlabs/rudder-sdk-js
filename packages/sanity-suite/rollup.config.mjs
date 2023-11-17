@@ -19,8 +19,8 @@ const serverPort = 3003;
 const prodCDNURL = 'https://cdn.rudderlabs.com';
 const defaultVersion = 'v1.1';
 const isV3 = process.env.CDN_VERSION_PATH === 'v3';
-// TODO: get this list from public folder subfolders
-const featuresList = ['eventFiltering', 'preloadBuffer', 'dataResidency'];
+// TODO: get this list from public folder sub-folders
+const featuresList = ['eventFiltering', 'preloadBuffer', 'dataResidency', 'genericConsentManagement'];
 
 const getDistPath = () => {
   let distPath = process.env.TEST_PACKAGE ? `/${process.env.TEST_PACKAGE}` : '/npm';
@@ -153,6 +153,7 @@ const getBuildConfig = featureName => ({
       CDN_VERSION_PATH:
         `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
       FEATURE: featureName,
+      IS_DEV_TESTBOOK: Boolean(process.env.IS_DEV_TESTBOOK)
     }),
     resolve({
       jsnext: true,
@@ -193,6 +194,7 @@ const getBuildConfig = featureName => ({
         __FEATURE_PRELOAD_BUFFER_WRITE_KEY__: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
         __FEATURE_EVENT_FILTERING_WRITE_KEY__: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
         __FEATURE_DATA_RESIDENCY_WRITE_KEY__: process.env.FEATURE_DATA_RESIDENCY_WRITE_KEY,
+        __FEATURE_GCM_WRITE_KEY__: process.env.FEATURE_GCM_WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
@@ -200,6 +202,7 @@ const getBuildConfig = featureName => ({
         __CDN_VERSION_PATH__:
           `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}` || '',
         __FEATURE__: featureName,
+        __IS_DEV_TESTBOOK__: Boolean(process.env.IS_DEV_TESTBOOK)
       },
     }),
     !featureName &&

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RudderStack JS SDK Sanity Suite - Generic Consent Management</title>
+
+    <script>
+      var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
+      var sdkName = "rsa.min.js";
+      var asyncScript = true;
+      window.rudderAnalyticsBuildType = "legacy";
+      window.rudderanalytics = [];
+      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        window.rudderanalytics[method] = function(methodName) {
+          return function() {
+            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+          };
+        }(method);
+      }
+      try {
+        new Function('return import("")');
+        window.rudderAnalyticsBuildType = "modern";
+      } catch (e) {}
+      window.rudderAnalyticsMount = function() {
+        if (typeof globalThis === 'undefined') {
+          Object.defineProperty(Object.prototype, '__globalThis_magic__', {
+            get: function get() {
+              return this;
+            },
+            configurable: true
+          });
+          __globalThis_magic__.globalThis = __globalThis_magic__;
+          delete Object.prototype.__globalThis_magic__;
+        }
+        var rudderAnalyticsScript = document.createElement("script");
+        rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+        rudderAnalyticsScript.async = asyncScript;
+        // if (document.head) {
+        //   document.head.appendChild(rudderAnalyticsScript);
+        // } else {
+        //   document.body.appendChild(rudderAnalyticsScript);
+        // }
+      };
+      if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
+        var rudderAnalyticsPromisesScript = document.createElement("script");
+        rudderAnalyticsPromisesScript.src = "https://polyfill.io/v3/polyfill.min.js?features=Symbol%2CPromise&callback=rudderAnalyticsMount";
+        rudderAnalyticsPromisesScript.async = asyncScript;
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsPromisesScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsPromisesScript);
+        }
+      } else {
+        window.rudderAnalyticsMount();
+      }
+      // New addition to load script ends
+
+      rudderanalytics.ready(function () {
+        console.log('We are all set!!!');
+      });
+
+      window.userWriteKey = '__FEATURE_GCM_WRITE_KEY__';
+      window.userConfigUrl = '__CONFIG_SERVER_HOST__';
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js"></script>
+    <style>
+      .collapsed-row pre {
+        height: 124px;
+        overflow: hidden;
+      }
+
+      .collapsed-row .table-heading pre {
+        height: 0px;
+        overflow: hidden;
+      }
+    </style>
+    <script async src="../rsa.min.js"></script>
+</head>
+<body>
+
+<div class="container-xxl">
+    <div class="row px-4">
+        <div class="col" id="testBook">
+        </div>
+    </div>
+</div>
+</body>
+</html>
