@@ -1358,7 +1358,8 @@ class Analytics {
         !Object.values ||
         !String.prototype.replaceAll ||
         !this.isDatasetAvailable() ||
-        typeof TextDecoder !== 'function')
+        typeof TextDecoder !== 'function' ||
+        typeof TextEncoder !== 'function')
     );
   }
 
