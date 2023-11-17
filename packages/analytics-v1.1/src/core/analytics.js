@@ -1359,7 +1359,7 @@ class Analytics {
         !String.prototype.replaceAll ||
         !this.isDatasetAvailable() ||
         typeof TextDecoder !== 'function' ||
-        typeof Uint8Array !== 'function')
+        typeof TextEncoder !== 'function')
     );
   }
 
