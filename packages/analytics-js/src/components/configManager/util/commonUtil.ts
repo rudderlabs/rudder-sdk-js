@@ -2,6 +2,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
@@ -72,7 +73,8 @@ const getSDKUrl = (): string | undefined => {
  * @param logger Logger instance
  */
 const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void => {
-  state.reporting.isErrorReportingEnabled.value = isErrorReportingEnabled(res.source.config);
+  state.reporting.isErrorReportingEnabled.value =
+    isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 
   if (state.reporting.isErrorReportingEnabled.value) {
