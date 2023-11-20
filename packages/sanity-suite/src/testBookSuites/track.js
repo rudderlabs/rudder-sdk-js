@@ -1,5 +1,6 @@
 import track1ExpectedData from '../../__fixtures__/track1.json';
 import track2ExpectedData from '../../__fixtures__/track2.json';
+import track3ExpectedData from '../../__fixtures__/track3.json';
 import track4ExpectedData from '../../__fixtures__/track4.json';
 import track5ExpectedData from '../../__fixtures__/track5.json';
 import track6ExpectedData from '../../__fixtures__/track6.json';
@@ -269,7 +270,7 @@ const trackMethodSuite = {
           null,
         ],
       ],
-      expectedResult: track2ExpectedData,
+      expectedResult: track3ExpectedData,
       triggerHandler: ['identify', 'track'],
     },
     {
@@ -440,10 +441,6 @@ const trackMethodSuite = {
       ],
       expectedResult: track7ExpectedData,
       triggerHandler: ['reset', 'track'],
-      // resetWindow: () => {
-      //   window.OneTrust = undefined;
-      //   window.OnetrustActiveGroups = undefined;
-      // },
     },
   ],
 };

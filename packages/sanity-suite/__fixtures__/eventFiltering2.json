@@ -1,115 +1,72 @@
 {
   "message": {
+    "properties": {},
+    "event": "AllowListed_DenyListed_Event_Name",
+    "type": "track",
     "channel": "web",
     "context": {
+      "traits": {},
+      "sessionId": 1700443292249,
+      "sessionStart": true,
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
+        "allowedConsentIds": {
+          "C0001": "Functional Cookies",
+          "C0003": "Analytical Cookies"
+        },
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
       "app": {
         "name": "RudderLabs JavaScript SDK",
         "namespace": "com.rudderlabs.javascript",
-        "version": "2.22.2"
-      },
-      "traits": {
-        "subscribed": true,
-        "plan": "Gold",
-        "endDate": "2023-04-13T08:13:58.548Z",
-        "startDate": "2023-01-13T08:13:58.548Z"
+        "version": "3.0.0-beta.15"
       },
       "library": {
         "name": "RudderLabs JavaScript SDK",
-        "version": "2.22.2"
+        "version": "3.0.0-beta.15"
       },
-      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-      "device": {
-        "id": "sdfghj567-cghj5678-fghjvbn888"
-      },
-      "network": null,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
       "os": {
         "name": "",
         "version": ""
       },
       "locale": "en-US",
       "screen": {
-        "density": 2,
         "width": 1728,
         "height": 1117,
+        "density": 2,
         "innerWidth": 1728,
-        "innerHeight": 969
+        "innerHeight": 479
       },
-      "sessionId": 1673747756719,
       "campaign": {},
       "page": {
-        "path": "/index.html",
-        "referrer": "http://localhost:3001/index.html",
-        "referring_domain": "localhost:3001",
+        "path": "/dist/cdn/v3/index.html",
+        "referrer": "http://localhost:3000/dist/cdn/v3",
+        "referring_domain": "localhost:3000",
         "search": "",
         "title": "RudderStack JS SDK Sanity Suite",
-        "url": "http://localhost:3001/index.html",
-        "tab_url": "http://localhost:3001/index.html",
-        "initial_referrer": "$direct",
-        "initial_referring_domain": ""
+        "url": "http://localhost:3000/dist/cdn/v3/index.html",
+        "tab_url": "http://localhost:3000/dist/cdn/v3/index.html",
+        "initial_referrer": "http://localhost:3003/index.html",
+        "initial_referring_domain": "localhost:3003"
       },
-      "key1": [1, 2, 3, 4],
-      "key2": "sample text",
-      "key3": false,
-      "key4": 9087654,
-      "key5": {
-        "key6": "sample text 2",
-        "key7": [
-          {
-            "color": "#3456789",
-            "name": null
-          },
-          {
-            "color": "#3456767",
-            "name": "Red"
-          }
-        ]
-      },
-      "key8": null,
-      "metaData": {
-        "appVersion": "2.8.0",
-        "appId": "1hKOmRA4GRlm",
-        "release_stage": "Production"
-      },
-      "channel": "random",
-      "consentManagement": {
-        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
-        "allowedConsentIds": { "C0001": "Functional Cookies", "C0003": "Analytical Cookies" },
-        "provider": "oneTrust",
-        "resolutionStrategy": "and"
-      },
-      "timezone": "GMT+0530"
+      "timezone": "GMT+0200"
     },
-    "type": "track",
-    "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
-    "originalTimestamp": "2023-01-13T08:13:58.548Z",
-    "anonymousId": "sample anonymousId",
-    "userId": "customUserID",
-    "event": "OrderCompleted_AutomationQA_1",
-    "properties": {
-      "order_id": "Test123",
-      "products": [],
-      "revenue": 30,
-      "currency": "USD",
-      "user_actual_id": 12345,
-      "productId": "234567-sdfghj-345tygh-567890dfghj",
-      "productCategory": "clothing",
-      "paid": true,
-      "paymentMode": 4,
-      "paymentModeName": "online",
-      "productSizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "sampleObj": {
-        "sampleObj1": {
-          "newKey": "sample text"
-        },
-        "newKey1": 3456789009876543
-      }
-    },
+    "originalTimestamp": "2023-11-20T01:21:32.251Z",
     "integrations": {
+      "Google Analytics 4 (GA4)": {
+        "clientId": "automationqa_123",
+        "sessionId": 1700442946773,
+        "sessionNumber": 17
+      },
       "All": false,
       "Google Analytics": true,
       "Amplitude": true
     },
-    "user_properties": null,
-    "sentAt": "2023-01-15T02:37:59.230Z"
+    "messageId": "c1834949-6bcd-41e1-94a2-eb9f2bd0db96",
+    "userId": "",
+    "anonymousId": "dbf3f517-72ba-473a-9ba2-a48d3387a56a",
+    "sentAt": "2023-11-20T01:21:32.251Z"
   }
 }
