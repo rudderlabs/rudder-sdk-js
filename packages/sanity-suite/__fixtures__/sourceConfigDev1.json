@@ -6,7 +6,7 @@
     "config": {
       "statsCollection": {
         "errors": {
-          "enabled": false
+          "enabled": true
         },
         "metrics": {
           "enabled": false
@@ -84,7 +84,7 @@
           "name": "AM",
           "displayName": "Amplitude",
           "createdAt": "2019-08-30T10:07:47.170Z",
-          "updatedAt": "2023-10-25T08:42:14.009Z",
+          "updatedAt": "2023-11-17T04:46:43.946Z",
           "config": {
             "destConfig": {
               "ios": [
@@ -155,7 +155,9 @@
                 "mapDeviceBrand",
                 "oneTrustCookieCategories",
                 "userProvidedPageEventString",
-                "useUserDefinedPageEventName"
+                "useUserDefinedPageEventName",
+                "userProvidedScreenEventString",
+                "useUserDefinedScreenEventName"
               ]
             },
             "secretKeys": ["apiKey", "apiSecret"],
@@ -190,7 +192,9 @@
               "attribution",
               "eventUploadThreshold",
               "eventUploadPeriodMillis",
-              "trackNewCampaigns"
+              "trackNewCampaigns",
+              "userProvidedScreenEventString",
+              "useUserDefinedScreenEventName"
             ],
             "transformAt": "processor",
             "transformAtV1": "processor",
@@ -423,7 +427,7 @@
           "name": "FACEBOOK_PIXEL",
           "displayName": "Facebook Pixel",
           "createdAt": "2020-04-09T03:50:22.245Z",
-          "updatedAt": "2023-11-07T07:01:17.981Z",
+          "updatedAt": "2023-11-08T13:51:28.324Z",
           "config": {
             "destConfig": {
               "web": ["useNativeSDK", "legacyConversionPixelId", "connectionMode"],
@@ -531,11 +535,17 @@
           "name": "BRAZE",
           "displayName": "Braze",
           "createdAt": "2020-07-07T10:00:24.586Z",
-          "updatedAt": "2023-10-31T17:51:48.218Z",
+          "updatedAt": "2023-11-13T10:07:47.176Z",
           "config": {
             "destConfig": {
               "ios": ["useNativeSDK", "connectionMode"],
-              "web": ["useNativeSDK", "enableBrazeLogging", "connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "enableBrazeLogging",
+                "connectionMode",
+                "enablePushNotification",
+                "allowUserSuppliedJavascript"
+              ],
               "android": ["useNativeSDK", "connectionMode"],
               "flutter": ["useNativeSDK", "connectionMode"],
               "reactnative": ["useNativeSDK", "connectionMode"],
@@ -567,7 +577,9 @@
               "whitelistedEvents",
               "oneTrustCookieCategories",
               "eventFilteringOption",
-              "connectionMode"
+              "connectionMode",
+              "enablePushNotification",
+              "allowUserSuppliedJavascript"
             ],
             "transformAt": "router",
             "transformAtV1": "router",
@@ -590,10 +602,15 @@
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
               "ios": ["cloud", "device", "hybrid"],
-              "web": ["cloud", "device"],
+              "web": ["cloud", "device", "hybrid"],
               "android": ["cloud", "device", "hybrid"],
               "flutter": ["cloud", "device"],
               "reactnative": ["cloud", "device"]
+            },
+            "hybridModeCloudEventsFilter": {
+              "web": {
+                "messageType": ["identify", "track", "page"]
+              }
             }
           },
           "responseRules": {},
@@ -644,7 +661,7 @@
           "name": "GOOGLEADS",
           "displayName": "Google Ads",
           "createdAt": "2020-01-13T05:38:52.604Z",
-          "updatedAt": "2023-11-07T09:37:03.052Z",
+          "updatedAt": "2023-11-14T11:53:12.297Z",
           "config": {
             "destConfig": {
               "web": ["useNativeSDK", "dynamicRemarketing"],
@@ -740,7 +757,6 @@
         "id": "2L5yQ2fZGH9HshtHCF1iopcvxvo",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2L5yPlp2MHnx0DWaC2SafwM87dY",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -751,7 +767,6 @@
         "id": "2L5zUqBuA61FQoheWMRsaNDTNLA",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2L5zUinuRqCeislUXNheBg2AnBR",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -762,7 +777,6 @@
         "id": "2SgVD7HMxh7RQ9lwcVwE556rQX2",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2SgVD0o1zCgEukNjJ4HgvRjWYti",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -773,7 +787,6 @@
         "id": "2XmqgENgHQYUaeL0nhdpRio1769",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2Xmqg1aW0cRNyOMNxqvyqH762Ex",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -784,7 +797,6 @@
         "id": "2Xmr8iohrSw6pq5HFgt64pD4xV3",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2Xmr8aWnqjvOZANQVTUI3S4AUUw",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -795,7 +807,6 @@
         "id": "2XmrPiAGUU71bEpkNkyEbZww4gq",
         "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
         "destinationId": "2XmrPUYit0LsoG1S5tozSfI5XkM",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
         "enabled": true,
         "config": null,
         "deleted": false,
@@ -806,5 +817,17 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-07T12:05:19.874Z"
+  "updatedAt": "2023-11-20T07:20:32.017Z",
+  "consentManagementMetadata": {
+    "providers": [
+      {
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      {
+        "provider": "ketch",
+        "resolutionStrategy": "or"
+      }
+    ]
+  }
 }
