@@ -1,12 +1,12 @@
 {
   "message": {
     "properties": {},
-    "event": "AllowListed_Event_Name",
+    "event": "DenyListed_Event_Name",
     "type": "track",
     "channel": "web",
     "context": {
       "traits": {},
-      "sessionId": 1700443279724,
+      "sessionId": 1700443301353,
       "sessionStart": true,
       "consentManagement": {
         "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
@@ -53,7 +53,7 @@
       },
       "timezone": "GMT+0200"
     },
-    "originalTimestamp": "2023-11-20T01:21:19.728Z",
+    "originalTimestamp": "2023-11-20T01:21:41.355Z",
     "integrations": {
       "Google Analytics 4 (GA4)": {
         "clientId": "automationqa_123",
@@ -64,9 +64,9 @@
       "Google Analytics": true,
       "Amplitude": true
     },
-    "messageId": "bc6373b6-b952-4585-890a-15bf5163454e",
+    "messageId": "7bd32bab-20a3-4df6-ab22-425fe72e1efd",
     "userId": "",
-    "anonymousId": "bbdd541d-97ca-4970-b648-048d95dc4bb3",
-    "sentAt": "2023-11-20T01:21:19.728Z"
+    "anonymousId": "0e5ec374-01c4-408c-bdd0-f75fa2e5655e",
+    "sentAt": "2023-11-20T01:21:41.356Z"
   }
 }

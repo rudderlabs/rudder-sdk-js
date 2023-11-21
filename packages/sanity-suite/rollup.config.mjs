@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { readdir } from 'fs/promises';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -19,14 +20,24 @@ const serverPort = 3003;
 const prodCDNURL = 'https://cdn.rudderlabs.com';
 const defaultVersion = 'v1.1';
 const isV3 = process.env.CDN_VERSION_PATH === 'v3';
-// TODO: get this list from public folder sub-folders
-const featuresList = ['eventFiltering', 'preloadBuffer', 'dataResidency', 'genericConsentManagement'];
+const cdnVersionPath = process.env.CDN_VERSION_PATH ?? defaultVersion;
+const isStaging = process.env.STAGING === 'true';
+const isDMT = process.env.IS_DMT === 'true';
+const isDevEnvTestbook = process.env.IS_DEV_TESTBOOK === 'true';
+const distributionType = process.env.DISTRIBUTION_TYPE === 'npm' ? 'npm' : 'cdn';
+const getDirectoryNames = async sourcePath =>
+  (await readdir(sourcePath, { withFileTypes: true }))
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
+const featuresList = await getDirectoryNames(`./public/${cdnVersionPath}`);
+console.log('featuresList', featuresList)
 
 const getDistPath = () => {
-  let distPath = process.env.TEST_PACKAGE ? `/${process.env.TEST_PACKAGE}` : '/npm';
-  distPath += `/${process.env.CDN_VERSION_PATH || defaultVersion}`;
+  let distPath = distributionType? `/${distributionType}` : '/npm';
+  distPath += `/${cdnVersionPath}`;
 
-  if (process.env.STAGING) {
+  if (isStaging) {
     distPath += '/staging';
   }
 
@@ -37,7 +48,7 @@ const getHTMLSource = featureName => {
   const versionPath = isV3 ? '/v3/' : '/v1.1/';
   const folderPath = featureName ? `public${versionPath}${featureName}/` : `public${versionPath}`;
 
-  switch (process.env.TEST_PACKAGE) {
+  switch (distributionType) {
     case 'cdn':
       return `${folderPath}index-cdn.html`;
     case 'npm':
@@ -48,7 +59,7 @@ const getHTMLSource = featureName => {
 };
 
 const getJSSource = () => {
-  switch (process.env.TEST_PACKAGE) {
+  switch (distributionType) {
     case 'cdn':
       return 'src/index.ts';
     case 'npm':
@@ -63,13 +74,11 @@ const getDestinationsURL = () => {
     return process.env.DEST_SDK_BASE_URL;
   }
 
-  let versionPath = defaultVersion;
+  let versionPath = cdnVersionPath;
 
-  switch (process.env.TEST_PACKAGE) {
+  switch (distributionType) {
     case 'cdn':
-      versionPath = process.env.CDN_VERSION_PATH || defaultVersion;
-
-      if (process.env.STAGING) {
+      if (isStaging) {
         versionPath = 'staging/latest/' + versionPath;
       }
       return `${prodCDNURL}/${versionPath}/js-integrations/`;
@@ -81,7 +90,7 @@ const getDestinationsURL = () => {
 };
 
 const getCopyTargets = () => {
-  switch (process.env.TEST_PACKAGE) {
+  switch (distributionType) {
     case 'cdn':
       return [];
     case 'npm':
@@ -140,20 +149,18 @@ const getBuildConfig = featureName => ({
   plugins: [
     replace({
       preventAssignment: true,
-      __PACKAGE_VERSION__: process.env.CDN_VERSION_PATH || defaultVersion,
-      __MODULE_TYPE__: process.env.TEST_PACKAGE,
+      __PACKAGE_VERSION__: cdnVersionPath,
+      __MODULE_TYPE__: distributionType,
       WRITE_KEY: process.env.WRITE_KEY,
-      FEATURE_PRELOAD_BUFFER_WRITE_KEY: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
-      FEATURE_EVENT_FILTERING_WRITE_KEY: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
-      FEATURE_DATA_RESIDENCY_WRITE_KEY: process.env.FEATURE_DATA_RESIDENCY_WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
       APP_DEST_SDK_BASE_URL: getDestinationsURL() || '',
       REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH || '',
       CDN_VERSION_PATH:
-        `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}/` || '',
+        `${isStaging ? 'staging/latest/' : ''}${cdnVersionPath}/` || '',
       FEATURE: featureName,
-      IS_DEV_TESTBOOK: Boolean(process.env.IS_DEV_TESTBOOK)
+      IS_DEV_TESTBOOK: isDevEnvTestbook,
+      IS_DMT: isDMT
     }),
     resolve({
       jsnext: true,
@@ -191,18 +198,15 @@ const getBuildConfig = featureName => ({
       attrs: ['async', 'defer'],
       replaceVars: {
         __WRITE_KEY__: process.env.WRITE_KEY,
-        __FEATURE_PRELOAD_BUFFER_WRITE_KEY__: process.env.FEATURE_PRELOAD_BUFFER_WRITE_KEY,
-        __FEATURE_EVENT_FILTERING_WRITE_KEY__: process.env.FEATURE_EVENT_FILTERING_WRITE_KEY,
-        __FEATURE_DATA_RESIDENCY_WRITE_KEY__: process.env.FEATURE_DATA_RESIDENCY_WRITE_KEY,
-        __FEATURE_GCM_WRITE_KEY__: process.env.FEATURE_GCM_WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
         __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
         __CDN_VERSION_PATH__:
-          `${process.env.STAGING ? 'staging/latest/' : ''}${process.env.CDN_VERSION_PATH || defaultVersion}` || '',
+          `${isStaging ? 'staging/latest/' : ''}${cdnVersionPath}` || '',
         __FEATURE__: featureName,
-        __IS_DEV_TESTBOOK__: Boolean(process.env.IS_DEV_TESTBOOK)
+        __IS_DEV_TESTBOOK__: isDevEnvTestbook,
+        __IS_DMT__: isDMT
       },
     }),
     !featureName &&

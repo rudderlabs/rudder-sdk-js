@@ -7,56 +7,13 @@
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"
       },
-      "traits": {
-        "name": "John Doe",
-        "title": "CEO",
-        "email": "name.surname@domain.com",
-        "company": "Company123",
-        "phone": "123-456-7890",
-        "rating": "Hot",
-        "dob": "1990-01-12T00:00:00.000Z",
-        "address": [
-          {
-            "city": "Austin",
-            "postalCode": 12345,
-            "country": "US",
-            "street": "Sample Address",
-            "state": "TX",
-            "label": "Home",
-            "defaultAddress": true
-          },
-          {
-            "city": "Houston",
-            "postalCode": 345678,
-            "country": "US",
-            "street": "Sample Address 2",
-            "state": "TX",
-            "label": "Office",
-            "defaultAddress": false
-          },
-          {
-            "city": "Dallas",
-            "postalCode": 987654,
-            "country": "US",
-            "street": "Sample Address 3",
-            "state": "TX",
-            "label": "Toms place",
-            "defaultAddress": false
-          }
-        ],
-        "subscribed": true,
-        "plan": "Gold",
-        "endDate": "2023-04-13T08:13:58.548Z",
-        "startDate": "2023-01-13T08:13:58.548Z"
-      },
+      "traits": {},
       "library": {
         "name": "RudderLabs JavaScript SDK",
         "version": "2.22.2"
       },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-      "device": {
-        "id": "sdfghj567-cghj5678-fghjvbn888"
-      },
+      "device": null,
       "network": null,
       "os": {
         "name": "",
@@ -79,34 +36,10 @@
         "search": "estore bestseller",
         "title": "The best sellers offered by EStore",
         "url": "https://www.estore.com/best-seller/1",
-        "tab_url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:4000/",
         "initial_referrer": "$direct",
         "initial_referring_domain": ""
       },
-      "key1": [1, 2, 3, 4],
-      "key2": "sample text",
-      "key3": false,
-      "key4": 9087654,
-      "key5": {
-        "key6": "sample text 2",
-        "key7": [
-          {
-            "color": "#3456789",
-            "name": null
-          },
-          {
-            "color": "#3456767",
-            "name": "Red"
-          }
-        ]
-      },
-      "key8": null,
-      "metaData": {
-        "appVersion": "2.8.0",
-        "appId": "1hKOmRA4GRlm",
-        "release_stage": "Production"
-      },
-      "channel": "random",
       "consentManagement": {
         "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
         "allowedConsentIds": { "C0001": "Functional Cookies", "C0003": "Analytical Cookies" },
@@ -119,7 +52,7 @@
     "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "userId": "customUserID",
+    "userId": "",
     "event": null,
     "properties": {
       "initial_referrer": "$direct",
@@ -142,9 +75,7 @@
       "category": "Cart"
     },
     "integrations": {
-      "All": false,
-      "Google Analytics": true,
-      "Amplitude": true,
+      "All": true,
       "Google Analytics 4 (GA4)": {
         "clientId": "284269621.1683957866",
         "sessionId": 1683957866,
