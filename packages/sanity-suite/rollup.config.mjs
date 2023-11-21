@@ -83,7 +83,7 @@ const getDestinationsURL = () => {
       }
       return `${prodCDNURL}/${versionPath}/js-integrations/`;
     case 'npm':
-      return `${prodCDNURL}/${versionPath}/js-integrations/`;
+      return isV3 ? `${prodCDNURL}/${versionPath}/legacy/js-integrations/` : `${prodCDNURL}/${versionPath}/js-integrations/`;
     default:
       return `http://localhost:${serverPort}/js-integrations/`;
   }

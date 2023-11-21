@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rudderstack/analytics-js": "*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@rudderstack/analytics-js": "*"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
