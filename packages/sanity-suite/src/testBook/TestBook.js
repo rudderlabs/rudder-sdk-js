@@ -150,6 +150,15 @@ class TestBook {
 
   attachHtml(suiteGroupsData) {
     const totalSuiteGroups = suiteGroupsData.length;
+    const isManualLoadCallPage = window.location.href.includes('manualLoadCall');
+    const menuItemUrl = isManualLoadCallPage
+      ? `${window.location.pathname.replace('/manualLoadCall', '')}`
+      : `${window.location.pathname.replace('/index.html', '')}/manualLoadCall/index.html`;
+    const menuItemTitle = isManualLoadCallPage
+      ? 'Auto SDK Load'
+      : 'Manual SDK Load. Use window.manualLoad with your desired load method arguments to start';
+    const menuItemText = isManualLoadCallPage ? 'Auto SDK Load' : 'Manual SDK Load';
+
     const headerMarkup = `
             <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #FFFFFF;">
                 <div class="col">
@@ -162,6 +171,9 @@ class TestBook {
                         <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
                             Reset/Reload
                         </button>
+                        <a href="${menuItemUrl}" title="${menuItemTitle}" class="btn btn-secondary">
+                            ${menuItemText}
+                        </a>
                         <button type="button" class="btn btn-outline-dark">
                             Tests Case pass/total: <span class="badge" id="resultSummary">-</span>
                         </button>

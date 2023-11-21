@@ -59,7 +59,10 @@
           ],
           "whitelistedEvents": [
             {
-              "eventName": ""
+              "eventName": "AllowListed_DenyListed_Event_Name"
+            },
+            {
+              "eventName": "AllowListed_Event_Name"
             }
           ],
           "oneTrustCookieCategories": [
@@ -67,7 +70,7 @@
               "oneTrustCookieCategory": ""
             }
           ],
-          "eventFilteringOption": "disable",
+          "eventFilteringOption": "whitelistedEvents",
           "mapDeviceBrand": false,
           "residencyServer": "standard",
           "userProvidedPageEventString": "",
@@ -232,11 +235,11 @@
         },
         "deleted": false,
         "createdAt": "2023-02-01T10:32:02.827Z",
-        "updatedAt": "2023-11-08T09:23:52.561Z",
+        "updatedAt": "2023-11-17T11:00:17.351Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2Xt5FcyLb5YxsYqPPb56dL4rOhy",
+        "revisionId": "2YIh5QzecWUFolFOCitMRT52DKK",
         "secretConfig": {},
-        "secretVersion": 19,
+        "secretVersion": 21,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -398,7 +401,14 @@
           "sendUserId": false,
           "useGoogleAmpClientId": false,
           "namedTracker": false,
-          "blacklistedEvents": [],
+          "blacklistedEvents": [
+            {
+              "eventName": "DenyListed_Event_Name"
+            },
+            {
+              "eventName": "AllowListed_DenyListed_Event_Name"
+            }
+          ],
           "whitelistedEvents": [
             {
               "eventName": ""
@@ -412,13 +422,13 @@
               "oneTrustCookieCategory": "Functional Cookies"
             }
           ],
-          "eventFilteringOption": "whitelistedEvents",
+          "eventFilteringOption": "blacklistedEvents",
           "ketchConsentPurposes": [
             {
               "purpose": "analytics"
             },
             {
-              "purpose": "asdfghj"
+              "purpose": "another_purpose_id"
             }
           ]
         },
@@ -540,11 +550,11 @@
         },
         "deleted": false,
         "createdAt": "2023-02-16T08:46:10.062Z",
-        "updatedAt": "2023-11-06T10:42:27.440Z",
+        "updatedAt": "2023-11-17T11:24:40.377Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2XnaYnBcEzjWs26wOdMANiDDFXd",
+        "revisionId": "2YIk3OEzS8vCi5UWuy4P3HCmsWt",
         "secretConfig": {},
-        "secretVersion": 20,
+        "secretVersion": 24,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -1346,6 +1356,16 @@
         "updatedAt": "2023-11-02T11:39:41.151Z"
       },
       {
+        "id": "2YIcXH98w4tz8aX89rq4fFldl3c",
+        "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
+        "destinationId": "2PujzZ64sYMuhdBFgO3E4kFtjoK",
+        "enabled": true,
+        "config": null,
+        "deleted": true,
+        "createdAt": "2023-11-17T10:22:51.758Z",
+        "updatedAt": "2023-11-17T10:46:38.826Z"
+      },
+      {
         "id": "2R9DmCRrtLFY88YGXdhz2wr5GPf",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2R9Dm3WHB6dkXuRnA0j3Amjo5Xw",
@@ -1359,7 +1379,7 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-17T06:26:57.327Z",
+  "updatedAt": "2023-11-17T11:43:29.059Z",
   "consentManagementMetadata": {
     "providers": [
       {
