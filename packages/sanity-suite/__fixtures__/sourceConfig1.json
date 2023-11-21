@@ -78,7 +78,9 @@
           "attribution": false,
           "eventUploadThreshold": "30",
           "eventUploadPeriodMillis": "1000",
-          "trackNewCampaigns": true
+          "trackNewCampaigns": true,
+          "userProvidedScreenEventString": "",
+          "useUserDefinedScreenEventName": false
         },
         "liveEventsConfig": {
           "eventDelivery": false,
@@ -235,11 +237,11 @@
         },
         "deleted": false,
         "createdAt": "2023-02-01T10:32:02.827Z",
-        "updatedAt": "2023-11-17T11:00:17.351Z",
+        "updatedAt": "2023-11-20T11:25:55.490Z",
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
-        "revisionId": "2YIh5QzecWUFolFOCitMRT52DKK",
+        "revisionId": "2YRDZfooM9okKGWshBaEiFW3euH",
         "secretConfig": {},
-        "secretVersion": 21,
+        "secretVersion": 23,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -1379,7 +1381,7 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-17T11:43:29.059Z",
+  "updatedAt": "2023-11-21T11:42:35.947Z",
   "consentManagementMetadata": {
     "providers": [
       {
