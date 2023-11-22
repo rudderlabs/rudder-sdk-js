@@ -13,6 +13,8 @@ const modName = 'script';
 const shouldUglify = process.env.UGLIFY === 'true';
 
 export function getDefaultConfig(distName) {
+  const version = process.env.VERSION || 'dev-snapshot';
+
   return {
     watch: {
       include: ['src/**'],
@@ -36,6 +38,7 @@ export function getDefaultConfig(distName) {
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
         __PLUGINS_BASE_URL__: remotePluginsBasePath,
+        __PACKAGE_VERSION__: version,
       }),
       typescript({
         tsconfig: './tsconfig.json',

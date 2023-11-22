@@ -12,6 +12,7 @@ const contextState: ContextState = {
   library: signal({
     name: APP_NAME,
     version: APP_VERSION,
+    snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   }),
   userAgent: signal(''),
   device: signal(null),
