@@ -7,8 +7,7 @@ const isDatasetAvailable = (): boolean => {
 };
 
 const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
-  URLSearchParams: () => !globalThis.URLSearchParams,
-  URL: () => !isFunction(globalThis.URL),
+  URL: () => !isFunction(globalThis.URL) || !globalThis.URLSearchParams,
   MutationObserver: () => isUndefined(MutationObserver),
   Promise: () => isUndefined(Promise),
   'Number.isNaN': () => !Number.isNaN,
@@ -24,14 +23,14 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'Object.assign': () => typeof Object.assign !== 'function',
   'Element.prototype.dataset': () => !isDatasetAvailable(),
   'String.prototype.replaceAll': () => !String.prototype.replaceAll,
-  TextEncoder: () => isUndefined(TextEncoder),
-  TextDecoder: () => isUndefined(TextDecoder),
+  TextEncoder: () => isUndefined(TextEncoder) || isUndefined(TextDecoder),
   'String.fromCodePoint': () => !String.fromCodePoint,
-  requestAnimationFrame: () => !isFunction(globalThis.requestAnimationFrame),
-  cancelAnimationFrame: () => !isFunction(globalThis.cancelAnimationFrame),
+  requestAnimationFrame: () =>
+    !isFunction(globalThis.requestAnimationFrame) || !isFunction(globalThis.cancelAnimationFrame),
   CustomEvent: () => !isFunction(globalThis.CustomEvent),
   /* eslint-disable-next-line */
   'navigator.sendBeacon': () => !isFunction(navigator.sendBeacon),
+  ArrayBuffer: () => !isFunction(Uint8Array),
 };
 
 const isLegacyJSEngine = (): boolean => {

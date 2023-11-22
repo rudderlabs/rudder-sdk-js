@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RudderStack JS SDK Sanity Suite</title>
 
     <script>
@@ -22,7 +22,7 @@
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
 
-      var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
+      var sdkBaseUrl = "https://cdn.rudderlabs.com/__CDN_VERSION_PATH__";
       var sdkName = "rsa.min.js";
       var asyncScript = true;
       window.rudderAnalyticsBuildType = "legacy";
@@ -54,11 +54,11 @@
         var rudderAnalyticsScript = document.createElement("script");
         rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
         rudderAnalyticsScript.async = asyncScript;
-        // if (document.head) {
-        //   document.head.appendChild(rudderAnalyticsScript);
-        // } else {
-        //   document.body.appendChild(rudderAnalyticsScript);
-        // }
+        if (document.head) {
+          document.head.appendChild(rudderAnalyticsScript);
+        } else {
+          document.body.appendChild(rudderAnalyticsScript);
+        }
       };
       if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement("script");
@@ -74,26 +74,11 @@
       }
       // New addition to load script ends
 
-      // Sets the user ID/anonymous ID
-      // Sending these Identify and Track event to test the preload buffer
-      rudderanalytics.setAnonymousId("automationqa_123");
-
-      // Identify call
-      rudderanalytics.identify("12345", {
-        name: "Automation QA"
-      });
-
-      // Track call
-      rudderanalytics.track("test event", {
-        testProp: "automationQA_prop1"
-      });
-
       var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        lockIntegrationsVersion: true,
+        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust'
@@ -103,18 +88,22 @@
         }
       };
 
-      rudderanalytics.load(
-        '__FEATURE_EVENT_FILTERING_WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions
-      );
+      window.manualLoad = function(writeKey, dataplane, manualLoadOptions) {
+        var loadOpts = manualLoadOptions || loadOptions;
+
+        rudderanalytics.load(
+          writeKey,
+          dataplane,
+          loadOpts
+        );
+
+        window.userWriteKey = writeKey;
+        window.userConfigUrl = loadOpts.configUrl;
+      };
 
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');
       });
-
-      window.userWriteKey = '__FEATURE_EVENT_FILTERING_WRITE_KEY__';
-      window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
       rel="stylesheet"
@@ -151,15 +140,59 @@
         overflow: hidden;
       }
     </style>
-    <script async src="../rsa.min.js"></script>
-</head>
-<body>
-
-<div class="container-xxl">
-    <div class="row px-4">
+    <script>
+      $(document).ready(function(){
+        $("#manualLoadForm").submit(function(event){
+          event.preventDefault();
+          window.manualLoad(
+            $("#writeKey").val(),
+            $("#dataplaneURL").val(),
+            JSON.parse($("#loadOptions").val() ? $("#loadOptions").val() : {})
+          );
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container-xxl">
+      <div class="row px-4">
         <div class="col" id="testBook">
+          <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #FFFFFF;">
+            <div class="col">
+              <h1>RudderStack JS SDK Sanity Suite</h1>
+              <p>
+                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">
+                  Reset/Reload
+                </button>
+                <a href="/index.html" title="Auto SDK Load" class="btn btn-secondary">
+                  Auto SDK Load
+                </a>
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mt-4 pt-2 pb-2">
+              <h2>Manual JS SDK load</h2>
+              <p>Fill in the form or invoke method "window.manualLoad" to load the SDk and start the Testbook</p>
+              <form id="manualLoadForm">
+                <div class="form-group">
+                  <label for="writeKey">WriteKey</label>
+                  <input type="text" class="form-control" id="writeKey" placeholder="<writeKey>">
+                </div>
+                <div class="form-group">
+                  <label for="dataplaneURL">Dataplane URL</label>
+                  <input type="text" class="form-control" id="dataplaneURL" placeholder="<dataplaneURL>">
+                </div>
+                <div class="form-group">
+                  <label for="loadOptions">LoadOptions (as JSON string)</label>
+                  <textarea class="form-control" id="loadOptions" rows="8" >{}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Load JS SDK</button>
+              </form>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>
