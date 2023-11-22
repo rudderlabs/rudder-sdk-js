@@ -1,5 +1,6 @@
 import group1ExpectedData from '../../__fixtures__/group1.json';
 import group2ExpectedData from '../../__fixtures__/group2.json';
+import group3ExpectedData from '../../__fixtures__/group3.json';
 import group4ExpectedData from '../../__fixtures__/group4.json';
 import group5ExpectedData from '../../__fixtures__/group5.json';
 import group6ExpectedData from '../../__fixtures__/group6.json';
@@ -155,7 +156,7 @@ const groupMethodSuite = {
           null,
         ],
       ],
-      expectedResult: group2ExpectedData,
+      expectedResult: group3ExpectedData,
       triggerHandler: ['reset', 'group'],
     },
     {
