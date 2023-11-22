@@ -63,6 +63,7 @@ const isRudderSDKError = (event: any) => {
 const enhanceErrorEventMutator = (event: any, metadataSource: any) => {
   event.updateMetaData('source', {
     metadataSource,
+    snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
 
   const { errorMessage } = event;
