@@ -133,6 +133,7 @@ class FacebookPixel {
       contentName,
       product_id: productId,
       product_name: productName,
+      delivery_category: deliveryCategory
     } = properties;
     let { value, category, currency } = properties;
 
@@ -208,7 +209,7 @@ class FacebookPixel {
       });
     } else if (event === 'Order Completed') {
       const contentType = getContentType(rudderElement, 'product', this.categoryToContent);
-      const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
+      const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price, deliveryCategory);
 
       // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
       // "trackSingle" feature is :

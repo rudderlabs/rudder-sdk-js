@@ -49,11 +49,10 @@ jobs:
         if: inputs.environment == 'staging'
         env:
           WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
-          FEATURE_PRELOAD_BUFFER_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_PRELOAD_BUFFER_WRITE_KEY }}
-          FEATURE_EVENT_FILTERING_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_EVENT_FILTERING_WRITE_KEY }}
-          FEATURE_DATA_RESIDENCY_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_DATA_RESIDENCY_WRITE_KEY }}
           DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'development'
           HUSKY: 0
         run: |
           npm run build:package
@@ -63,11 +62,10 @@ jobs:
         if: inputs.environment == 'production'
         env:
           WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
-          FEATURE_PRELOAD_BUFFER_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_PRELOAD_BUFFER_WRITE_KEY }}
-          FEATURE_EVENT_FILTERING_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_EVENT_FILTERING_WRITE_KEY }}
-          FEATURE_DATA_RESIDENCY_WRITE_KEY: ${{ secrets.SANITY_SUITE_FEATURE_DATA_RESIDENCY_WRITE_KEY }}
           DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
           HUSKY: 0
         run: |
           npm run build:package

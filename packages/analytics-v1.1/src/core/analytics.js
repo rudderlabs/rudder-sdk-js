@@ -26,6 +26,7 @@ import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -224,9 +225,12 @@ class Analytics {
         return;
       }
 
-      // Initialise error reporting provider if set in source config
+      // Initialize error reporting provider if set in source config
       try {
-        this.errorReporting.init(response.source.config, response.source.id);
+        // Initialize error reporting provider only if SDK is not running inside chrome extension
+        if (!isSDKRunningInChromeExtension()) {
+          this.errorReporting.init(response.source.config, response.source.id);
+        }
       } catch (err) {
         handleError(err);
       }
@@ -236,18 +240,9 @@ class Analytics {
 
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
-      this.loaded = true;
+
       // Initialize transformation handler once we determine the dataPlaneUrl
       this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
-
-      // Execute onLoaded callback if provided in load options
-      if (this.options && typeof this.options.onLoaded === 'function') {
-        this.options.onLoaded(this);
-      }
-
-      // Execute any pending buffered requests
-      // (needed if the load call was not previously buffered)
-      processDataInAnalyticsArray(this);
 
       response.source.destinations.forEach(function (destination) {
         // logger.debug(
@@ -292,6 +287,18 @@ class Analytics {
           handleError(e);
         }
       }
+
+      // set loaded flag to true
+      this.loaded = true;
+
+      // Execute onLoaded callback if provided in load options
+      if (this.options && typeof this.options.onLoaded === 'function') {
+        this.options.onLoaded(this);
+      }
+
+      // Execute any pending buffered requests
+      // (needed if the load call was not previously buffered)
+      processDataInAnalyticsArray(this);
 
       // filter destination that doesn't have mapping config-->Integration names
       this.clientIntegrations = this.clientIntegrations.filter(intg => {
@@ -1356,7 +1363,7 @@ class Analytics {
         !String.prototype.replaceAll ||
         !this.isDatasetAvailable() ||
         typeof TextDecoder !== 'function' ||
-        typeof Uint8Array !== 'function')
+        typeof TextEncoder !== 'function')
     );
   }
 
