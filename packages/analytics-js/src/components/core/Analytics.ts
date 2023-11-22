@@ -175,7 +175,9 @@ class Analytics implements IAnalytics {
             this.onDestinationsReady();
             break;
           case 'ready':
-            this.onReady();
+            (globalThis as typeof window).setTimeout(() => {
+              this.onReady();
+            }, 1);
             break;
           default:
             break;
