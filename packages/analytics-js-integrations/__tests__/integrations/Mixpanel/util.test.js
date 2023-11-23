@@ -7,6 +7,7 @@ import {
   mapTraits,
   filterSetOnceTraits,
   unset,
+  formatTraits
 } from '../../../src/integrations/Mixpanel/util';
 
 describe('parseConfigArray', () => {
@@ -438,6 +439,46 @@ describe('unset', () => {
     const obj = { name: 'John', age: 30, key1: undefined, key2: false, key3: true };
     expect(() => unset(obj, 'key2')).not.toThrow();
     expect(obj).toEqual({ name: 'John', age: 30, key1: undefined, key3: true });
+  });
+});
+
+
+describe('formatTraits', () => {
+
+  // Extracts defined traits from message and sets them as outgoing traits
+  it('should extract defined traits from message and set them as outgoing traits', () => {
+    // Arrange
+    const message = {
+      context: {
+        traits: {
+          email: 'test@example.com',
+          firstName: 'John',
+          lastName: 'Doe',
+          phone: '1234567890',
+          name: 'John Doe',
+          customField1: 'value1',
+          customField2: 'value2'
+        }
+      }
+
+    };
+    const setOnceProperties = ['firstName'];
+
+    // Act
+    const result = formatTraits(message, setOnceProperties);
+
+    // Assert
+    expect(result.setTraits).toEqual({
+      lastName: 'Doe',
+      phone: '1234567890',
+      email: 'test@example.com',
+      name: 'John Doe',
+      customField1: 'value1',
+      customField2: 'value2'
+    });
+    expect(result.setOnce).toEqual({
+      firstName: 'John'
+    });
   });
 });
 
