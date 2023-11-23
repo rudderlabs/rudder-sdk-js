@@ -33,6 +33,28 @@ const traitAliases = {
   phone: '$phone',
 };
 
+/**
+ * Removes a property from an object based on a given property path.
+ * 
+ * @param {object} obj - The object from which the property needs to be removed.
+ * @param {string} propertyPath - The path of the property to be removed, using dot notation.
+ * @returns {undefined} - This function does not return anything.
+ *
+ * @example
+ * const obj = {
+ *   person: {
+ *     name: 'John',
+ *     age: 30,
+ *     address: {
+ *       city: 'New York',
+ *       state: 'NY'
+ *     }
+ *   }
+ * };
+ * 
+ * unset(obj, 'person.address.city');
+ *  Output: { person: { name: 'John', age: 30, address: { state: 'NY' } } }
+ */
 function unset(obj, propertyPath) {
   const keys = propertyPath.split('.');
   const lastKey = keys.pop();

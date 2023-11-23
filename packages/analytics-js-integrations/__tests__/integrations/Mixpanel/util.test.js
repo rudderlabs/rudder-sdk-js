@@ -433,6 +433,12 @@ describe('unset', () => {
     expect(() => unset(obj, 'address')).not.toThrow();
     expect(obj).toEqual({ name: 'John', age: 30 });
   });
+
+  it('should not throw an error when trying to unset a property that does not exist', () => {
+    const obj = { name: 'John', age: 30, key1: undefined, key2: false, key3: true };
+    expect(() => unset(obj, 'key2')).not.toThrow();
+    expect(obj).toEqual({ name: 'John', age: 30, key1: undefined, key3: true });
+  });
 });
 
 
