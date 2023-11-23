@@ -176,6 +176,7 @@ class Analytics implements IAnalytics {
           case 'ready':
             this.onReady();
             break;
+          case 'readyExecuted':
           default:
             break;
         }
@@ -338,6 +339,7 @@ class Analytics implements IAnalytics {
    */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
+    state.lifecycle.status.value = 'readyExecuted';
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
       try {
         callback();
@@ -469,7 +471,10 @@ class Analytics implements IAnalytics {
         this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {
-      state.eventBuffer.readyCallbacksArray.value.push(callback);
+      state.eventBuffer.readyCallbacksArray.value = [
+        ...state.eventBuffer.readyCallbacksArray.value,
+        callback,
+      ];
     }
   }
 
