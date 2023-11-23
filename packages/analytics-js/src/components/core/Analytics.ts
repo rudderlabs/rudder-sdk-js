@@ -471,7 +471,10 @@ class Analytics implements IAnalytics {
         this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {
-      state.eventBuffer.readyCallbacksArray.value = [callback];
+      state.eventBuffer.readyCallbacksArray.value = [
+        ...state.eventBuffer.readyCallbacksArray.value,
+        callback,
+      ];
     }
   }
 
