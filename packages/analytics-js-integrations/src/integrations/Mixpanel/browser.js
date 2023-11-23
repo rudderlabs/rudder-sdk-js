@@ -118,7 +118,7 @@ class Mixpanel {
       // calling mixpanel .identify() only for known users
       userId = rudderElement.message.userId;
     }
-    let traitsInfo = formatTraits(rudderElement.message, setOnceProperties);
+    const traitsInfo = formatTraits(rudderElement.message, setOnceProperties);
     // id
     if (userId) window.mixpanel.identify(userId);
 
