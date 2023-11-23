@@ -8,4 +8,5 @@ export type LifecycleStatus =
   | 'loaded'
   | 'destinationsLoading'
   | 'destinationsReady'
-  | 'ready';
+  | 'ready'
+  | 'readyExecuted';
