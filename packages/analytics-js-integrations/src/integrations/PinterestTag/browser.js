@@ -228,9 +228,8 @@ export default class PinterestTag {
     window.pintrk('track', event, pageObject);
   }
 
-  identify(rudderElement) {
-    const { context } = rudderElement.message;
-    const userTraits = context?.traits || {};
+  identify() {
+    const userTraits = this.analytics.getUserTraits();
     const { email } = userTraits;
     if (email) {
       const ldpObject = this.generateLdpObject();

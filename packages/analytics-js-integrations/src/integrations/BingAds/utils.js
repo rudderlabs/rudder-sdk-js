@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const EXCLUSION_KEYS = [
   'event',
   'category',
@@ -41,8 +42,8 @@ const handleProductsArray = properties => {
   const products = Array.isArray(properties.products) ? properties.products : [properties];
 
   products.forEach(product => {
-    const { product_id: pId, sku, price, quantity = 1 } = product;
-    const productId = pId || sku;
+    const { product_id, sku, price, quantity = 1 } = product;
+    const productId = product_id || sku;
 
     if (productId) {
       productIds.push(productId);
@@ -66,14 +67,14 @@ const handleProductsArray = properties => {
 const buildEcommPayload = message => {
   const { properties = {} } = message;
   const {
-    category_id: categoryId,
+    category_id,
     total,
     value,
-    ecomm_category: ecommCategory,
-    transaction_id: transactionId,
-    order_id: orderId,
-    checkout_id: checkoutId,
-    ecomm_pagetype: ecommPageType,
+    ecomm_category,
+    transaction_id,
+    order_id,
+    checkout_id,
+    ecomm_pagetype,
     pagetype,
     query,
   } = properties;
@@ -82,9 +83,9 @@ const buildEcommPayload = message => {
     ecomm_totalvalue: total || value,
     search_term: query,
     ecomm_query: query,
-    ecomm_category: ecommCategory || categoryId,
-    transaction_id: transactionId || orderId || checkoutId,
-    ecomm_pagetype: ecommPageType || pagetype || DEFAULT_PAGETYPE,
+    ecomm_category: ecomm_category || category_id,
+    transaction_id: transaction_id || order_id || checkout_id,
+    ecomm_pagetype: ecomm_pagetype || pagetype || DEFAULT_PAGETYPE,
   };
   const payload = handleProductsArray(properties);
 

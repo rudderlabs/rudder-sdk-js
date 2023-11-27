@@ -42,16 +42,17 @@ class MoEngage {
   }
 
   init() {
+    const self = this;
     loadNativeSdk();
     // setting the region if us then not needed.
     if (this.region !== 'US') {
-      this.moeClient = window.moe({
+      self.moeClient = window.moe({
         app_id: this.apiId,
         debug_logs: this.debug ? 1 : 0,
         cluster: this.region === 'EU' ? 'eu' : 'in',
       });
     } else {
-      this.moeClient = window.moe({
+      self.moeClient = window.moe({
         app_id: this.apiId,
         debug_logs: this.debug ? 1 : 0,
       });
@@ -96,6 +97,7 @@ class MoEngage {
   }
 
   identify(rudderElement) {
+    const self = this;
     const { userId, context } = rudderElement.message;
     let traits = null;
     if (context) {
@@ -115,13 +117,13 @@ class MoEngage {
       each((value, key) => {
         // check if name is present
         if (key === 'name') {
-          this.moeClient.add_user_name(value);
+          self.moeClient.add_user_name(value);
         }
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
-          this.moeClient[method](value);
+          self.moeClient[method](value);
         } else {
-          this.moeClient.add_user_attribute(key, value);
+          self.moeClient.add_user_attribute(key, value);
         }
       }, traits);
     }
