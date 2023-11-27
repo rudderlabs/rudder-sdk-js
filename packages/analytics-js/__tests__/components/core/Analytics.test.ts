@@ -58,6 +58,7 @@ describe('Core - Analytics', () => {
       const onInitializedSpy = jest.spyOn(analytics, 'onInitialized');
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
       const onDestinationsReadySpy = jest.spyOn(analytics, 'onDestinationsReady');
+      const onReadySpy = jest.spyOn(analytics, 'onReady');
 
       state.lifecycle.status.value = 'mounted';
       expect(onMountedSpy).toHaveBeenCalledTimes(1);
@@ -77,19 +78,23 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = 'pluginsReady';
       expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'initialized';
       expect(onInitializedSpy).toHaveBeenCalledTimes(2);
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'loaded';
       expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'destinationsReady';
       expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
+
+      state.lifecycle.status.value = 'ready';
+      expect(onReadySpy).toHaveBeenCalledTimes(5);
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
 
     it('should short circuit the lifecycle when pre-consent behavior is enabled', () => {
@@ -101,7 +106,7 @@ describe('Core - Analytics', () => {
       state.lifecycle.status.value = 'loaded';
       expect(processBufferedEventsSpy).toHaveBeenCalledTimes(1);
       expect(loadDestinationsSpy).not.toHaveBeenCalled();
-      expect(state.lifecycle.status.value).toBe('ready');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
   });
 
