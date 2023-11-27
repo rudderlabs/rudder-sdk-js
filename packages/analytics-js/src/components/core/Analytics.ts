@@ -18,7 +18,6 @@ import type {
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
-import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ANALYTICS_CORE,

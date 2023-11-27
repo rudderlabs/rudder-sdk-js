@@ -58,14 +58,18 @@ class StoreLocal {
    * @returns boolean
    */
   checkSupportAvailability() {
-    const name = 'test_rudder_ls';
-    this.set(name, true);
+    try {
+      const name = 'test_rudder_ls';
+      this.set(name, true);
 
-    if (this.get(name)) {
-      this.remove(name);
-      return true;
+      if (this.get(name)) {
+        this.remove(name);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
-    return false;
   }
 }
 

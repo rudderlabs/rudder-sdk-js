@@ -13,6 +13,11 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.library.snippetVersion',
+    type: 'string',
+    optional: true,
+  },
+  {
     key: 'message.context.locale',
     type: 'string',
   },
