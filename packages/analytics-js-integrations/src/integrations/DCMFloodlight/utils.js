@@ -99,7 +99,7 @@ const mapFlagValue = (key, value) => {
     return 0;
   }
 
-  throw Error(`[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`);
+  return 0;
 };
 
 const calculateQuantity = products => {
