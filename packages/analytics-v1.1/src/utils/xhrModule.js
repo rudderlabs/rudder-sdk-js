@@ -86,8 +86,10 @@ class XHRQueue {
           }
         }
       };
-
-      xhr.send(stringifyWithoutCircularV1(message, true));
+      const sanitizedPayload = stringifyWithoutCircularV1(message, true);
+      if (sanitizedPayload) {
+        xhr.send(sanitizedPayload);
+      }
     } catch (error) {
       queueFn(error);
     }

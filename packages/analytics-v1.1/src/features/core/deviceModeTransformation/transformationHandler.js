@@ -129,7 +129,10 @@ class TransformationsHandler {
             }
           }
         };
-        xhr.send(stringifyWithoutCircularV1(payload, true));
+        const sanitizedPayload = stringifyWithoutCircularV1(payload, true);
+        if (sanitizedPayload) {
+          xhr.send(sanitizedPayload);
+        }
       } catch (error) {
         reject(error);
       }
