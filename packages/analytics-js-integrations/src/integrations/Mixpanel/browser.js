@@ -28,6 +28,7 @@ class Mixpanel {
     this.dataResidency = config.dataResidency || 'us';
     this.setAllTraitsByDefault = config.setAllTraitsByDefault || false;
     this.superProperties = config.superProperties || [];
+    this.setOnceProperties = config.setOnceProperties || [];
     this.eventIncrements = config.eventIncrements || [];
     this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
@@ -110,23 +111,25 @@ class Mixpanel {
     let peopleProperties = parseConfigArray(this.peopleProperties, 'property');
     peopleProperties = extendTraits(peopleProperties);
     const superProperties = parseConfigArray(this.superProperties, 'property');
+    const setOnceProperties = parseConfigArray(this.setOnceProperties, 'property');
 
     let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (this.identityMergeApi === 'simplified') {
       // calling mixpanel .identify() only for known users
       userId = rudderElement.message.userId;
     }
-    let traits = formatTraits(rudderElement.message);
-    const { email, username } = traits;
+    const traitsInfo = formatTraits(rudderElement.message, setOnceProperties);
     // id
     if (userId) window.mixpanel.identify(userId);
 
     // name tag
-    const nametag = email || username;
+    const nametag = traitsInfo.email || traitsInfo.username;
     if (nametag) window.mixpanel.name_tag(nametag);
 
-    traits = extractTraits(traits, this.traitAliases);
+    let traits = extractTraits(traitsInfo.setTraits, this.traitAliases);
     traits = removeUndefinedAndNullValues(traits);
+    let setOnceTraits = extractTraits(traitsInfo.setOnce, this.traitAliases);
+    setOnceTraits = removeUndefinedAndNullValues(setOnceTraits);
 
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
@@ -147,6 +150,11 @@ class Mixpanel {
         }
       }
     });
+
+    // ref: https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#:~:text=mixpanel.people.set_once%20%2D%20set%20properties%20if%20they%20don%27t%20exist
+    if (this.people && setOnceTraits && Object.keys(setOnceTraits).length > 0) {
+      window.mixpanel.people.set_once(setOnceTraits);
+    }
 
     if (this.setAllTraitsByDefault) {
       window.mixpanel.register(traits);
