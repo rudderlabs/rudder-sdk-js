@@ -107,12 +107,6 @@ export default class GA4 {
       window.gtag('config', measurementId, gtagParameterObject);
     }
 
-    const userTraits = flattenJsonPayload(this.analytics.getUserTraits());
-    const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, userTraits);
-    if (Object.keys(piiFilteredUserTraits).length > 0) {
-      window.gtag('set', 'user_properties', piiFilteredUserTraits);
-    }
-
     /**
      * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
