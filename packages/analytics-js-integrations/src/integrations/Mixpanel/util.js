@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
+import get from 'get-value';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
@@ -35,7 +36,71 @@ const traitAliases = {
   phone: '$phone',
 };
 
-const formatTraits = message => {
+/**
+ * Removes a property from an object based on a given property path.
+ * 
+ * @param {object} obj - The object from which the property needs to be removed.
+ * @param {string} propertyPath - The path of the property to be removed, using dot notation.
+ * @returns {undefined} - This function does not return anything.
+ *
+ * @example
+ * const obj = {
+ *   person: {
+ *     name: 'John',
+ *     age: 30,
+ *     address: {
+ *       city: 'New York',
+ *       state: 'NY'
+ *     }
+ *   }
+ * };
+ * 
+ * unset(obj, 'person.address.city');
+ *  Output: { person: { name: 'John', age: 30, address: { state: 'NY' } } }
+ */
+function unset(obj, propertyPath) {
+  const keys = propertyPath.split('.');
+  const lastKey = keys.pop();
+
+  let current = obj;
+  for (const key of keys) {
+    if (current[key] === undefined || current[key] === null) {
+      return; // Property path not valid, nothing to unset
+    }
+    current = current[key];
+  }
+
+  delete current[lastKey];
+}
+
+function filterSetOnceTraits(outgoingTraits, setOnceProperties) {
+  // Create a copy of the original traits object
+  const traitsCopy = { ...outgoingTraits };
+
+  // Initialize setOnce object
+  const setOnceEligible = {};
+
+  // Step 1: find the k-v pairs of setOnceProperties in traits and contextTraits
+
+  setOnceProperties.forEach((propertyPath) => {
+    const pathSegments = propertyPath.split('.');
+    const propName = pathSegments[pathSegments.length - 1];
+
+    if (Object.keys(traitsCopy).length > 0 && get(traitsCopy, propertyPath)) {
+      setOnceEligible[propName] = get(traitsCopy, propertyPath);
+      unset(traitsCopy, propertyPath);
+    }
+  });
+
+  return {
+    setTraits: traitsCopy,
+    setOnce: setOnceEligible,
+    email: outgoingTraits.email,
+    username: outgoingTraits.username,
+  };
+}
+
+const formatTraits = (message, setOnceProperties) => {
   const { email, firstName, lastName, phone, name } = getDefinedTraits(message);
   let outgoingTraits = {
     email,
@@ -50,7 +115,9 @@ const formatTraits = message => {
   } catch (err) {
     logger.error(`Error occured at extractCustomFields ${err}`);
   }
-  return outgoingTraits;
+  // Extract setOnce K-V property from traits about user custom properties
+  return filterSetOnceTraits(outgoingTraits, setOnceProperties);
+  // return outgoingTraits;
 };
 
 const parseConfigArray = (arr, key) => {
@@ -181,4 +248,6 @@ export {
   parseConfigArray,
   inverseObjectArrays,
   getConsolidatedPageCalls,
+  filterSetOnceTraits,
+  unset
 };
