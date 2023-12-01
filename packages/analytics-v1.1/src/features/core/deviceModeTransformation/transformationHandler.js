@@ -5,6 +5,7 @@
 /* eslint-disable consistent-return */
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { removeTrailingSlashes } from '../../../utils/utils';
 import { createPayload } from './util';
 
@@ -129,7 +130,12 @@ class TransformationsHandler {
             }
           }
         };
-        xhr.send(stringifyWithoutCircularV1(payload, true));
+        const sanitizedPayload = stringifyWithoutCircularV1(payload, true);
+        if (sanitizedPayload) {
+          xhr.send(sanitizedPayload);
+        } else {
+          logger.error(`Invalid payload: Event dropped`);
+        }
       } catch (error) {
         reject(error);
       }
