@@ -66,8 +66,9 @@ class EventRepository {
     message.originalTimestamp = message.originalTimestamp || getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
+    const sanitizedMessage = stringifyWithoutCircularV1(message, true);
     // check message size, if greater log an error
-    if (stringifyWithoutCircularV1(message, true).length > MESSAGE_LENGTH) {
+    if (sanitizedMessage && sanitizedMessage.length > MESSAGE_LENGTH) {
       logger.error('[EventRepository] enqueue:: message length greater 32 Kb ', message);
     }
 
