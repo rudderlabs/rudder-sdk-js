@@ -9,6 +9,7 @@ import Queue from '@segment/localstorage-retry';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getCurrentTimeFormatted } from './utils';
 
 const queueOptions = {
@@ -89,6 +90,8 @@ class XHRQueue {
       const sanitizedPayload = stringifyWithoutCircularV1(message, true);
       if (sanitizedPayload) {
         xhr.send(sanitizedPayload);
+      } else {
+        logger.error(`Invalid payload: Event dropped`);
       }
     } catch (error) {
       queueFn(error);

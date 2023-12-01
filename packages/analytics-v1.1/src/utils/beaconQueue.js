@@ -3,6 +3,7 @@
 import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 const defaults = {
   queue: 'queue',
@@ -109,6 +110,8 @@ class BeaconQueue {
           e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
           handleError(e);
         }
+      } else {
+        logger.error(`Invalid payload: Event dropped`);
       }
     }
     this.setQueue([]);
