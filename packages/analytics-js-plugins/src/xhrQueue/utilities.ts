@@ -6,13 +6,14 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 
 const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
-  const batchPayload: XHRBatchPayload = { batch: events };
+  const batchPayload: XHRBatchPayload = { batch: events, sentAt: getCurrentTimeFormatted() };
   return json.stringifyWithoutCircular(batchPayload, true, undefined, logger);
 };
 

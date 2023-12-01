@@ -90,10 +90,11 @@ class BeaconQueue {
   flushQueue(batch) {
     // check batch payload has data before flushing
     if (batch && batch.length > 0) {
+      const currentTime = new Date().toISOString();
       batch.forEach(event => {
-        event.sentAt = new Date().toISOString();
+        event.sentAt = currentTime;
       });
-      const data = { batch };
+      const data = { batch, sentAt: currentTime };
       const payload = stringifyWithoutCircularV1(data, true);
       if (payload !== null) {
         const blob = new Blob([payload], { type: 'text/plain' });
