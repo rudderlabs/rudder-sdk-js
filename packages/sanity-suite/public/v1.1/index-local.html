@@ -49,28 +49,48 @@
             })(method);
         }
 
-        window.userWriteKey = '__WRITE_KEY__';
-        window.userConfigUrl = '__CONFIG_SERVER_HOST__';
+        // Sets the user ID/anonymous ID
+        // Sending these Identify and Track event to test the preload buffer
+        rudderanalytics.setAnonymousId("automationqa_123");
+
+        // Identify call
+        rudderanalytics.identify("12345", {
+          name: "Automation_QA"
+        });
+
+        // Track call
+        rudderanalytics.track("test_event", {
+          testProp: "automationQA_prop1"
+        });
 
         rudderanalytics.load(
             '__WRITE_KEY__',
             '__DATAPLANE_URL__',
             {
-                logLevel: 'DEBUG',
-                configUrl: '__CONFIG_SERVER_HOST__',
-                lockIntegrationsVersion: true,
-                destSDKBaseURL: '__DEST_SDK_BASE_URL__',
-                cookieConsentManager: {
-                    oneTrust: {
-                        enabled: true,
-                    }
+              logLevel: 'DEBUG',
+              configUrl: '__CONFIG_SERVER_HOST__',
+              lockIntegrationsVersion: true,
+              destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+              cookieConsentManager: {
+                oneTrust: {
+                  enabled: true,
                 }
+              },
+              anonymousIdOptions: {
+                autoCapture: {
+                  enabled: true,
+                  source: "segment"
+                }
+              }
             }
         );
 
         rudderanalytics.ready(function() {
             console.log('We are all set!!!');
         });
+
+        window.userWriteKey = '__WRITE_KEY__';
+        window.userConfigUrl = '__CONFIG_SERVER_HOST__';
     </script>
     <link
       rel="stylesheet"

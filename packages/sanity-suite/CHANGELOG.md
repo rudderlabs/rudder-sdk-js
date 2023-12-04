@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.16...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.17) (2023-12-01)
+
+
+### Features
+
+* **analytics-js-loading-scripts:** add loading snippet version in event context ([#1483](https://github.com/rudderlabs/rudder-sdk-js/issues/1483)) ([4873cbc](https://github.com/rudderlabs/rudder-sdk-js/commit/4873cbc183879c0c1825cf939a53b6cf570cdf4e))
+* **analytics-js-sanity-suite:** add IS_DEV_TESTBOOK to allow dev env tests only ([dfbe496](https://github.com/rudderlabs/rudder-sdk-js/commit/dfbe4967ef6b5b0b650054743b0e7e03bb667ed4))
+* **analytics-js-sanity-suite:** maintenance cleanup, new manual load page with ui ([#1519](https://github.com/rudderlabs/rudder-sdk-js/issues/1519)) ([0bb5ac7](https://github.com/rudderlabs/rudder-sdk-js/commit/0bb5ac7e845efc412502b67d2517ed928a3b4115))
+
 ## [3.0.0-beta.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.15...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.16) (2023-11-13)
 
 

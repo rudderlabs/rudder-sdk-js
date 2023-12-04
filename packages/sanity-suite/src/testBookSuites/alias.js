@@ -1,5 +1,7 @@
 import alias1ExpectedData from '../../__fixtures__/alias1.json';
 import alias2ExpectedData from '../../__fixtures__/alias2.json';
+import alias3ExpectedData from '../../__fixtures__/alias3.json';
+import alias4ExpectedData from '../../__fixtures__/alias4.json';
 import alias5ExpectedData from '../../__fixtures__/alias5.json';
 import alias6ExpectedData from '../../__fixtures__/alias6.json';
 
@@ -121,14 +123,14 @@ const aliasMethodSuite = {
       id: 'alias3',
       description: 'Call with to and from and null apiOption as arguments',
       inputData: ['newCustomUserID', 'customUserID', null],
-      expectedResult: alias2ExpectedData,
+      expectedResult: alias3ExpectedData,
       triggerHandler: 'alias',
     },
     {
       id: 'alias4',
       description: 'Call with to as argument',
       inputData: ['newCustomUserID'],
-      expectedResult: alias2ExpectedData,
+      expectedResult: alias4ExpectedData,
       triggerHandler: 'alias',
     },
     {

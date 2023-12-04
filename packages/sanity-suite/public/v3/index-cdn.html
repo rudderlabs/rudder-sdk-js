@@ -22,6 +22,7 @@
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
 
+      window.RudderSnippetVersion = "3.0.0-beta.13";
       var sdkBaseUrl = "https://cdn.rudderlabs.com/__CDN_VERSION_PATH__";
       var sdkName = "rsa.min.js";
       var asyncScript = true;
@@ -74,6 +75,20 @@
       }
       // New addition to load script ends
 
+      // Sets the user ID/anonymous ID
+      // Sending these Identify and Track event to test the preload buffer
+      rudderanalytics.setAnonymousId("automationqa_123");
+
+      // Identify call
+      rudderanalytics.identify("12345", {
+        name: "Automation_QA"
+      });
+
+      // Track call
+      rudderanalytics.track("test_event", {
+        testProp: "automationQA_prop1"
+      });
+
       var loadOptions={
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
@@ -87,10 +102,11 @@
           migrate: true
         },
         anonymousIdOptions: {
-        autoCapture: {
-          enabled: true,
-          source: "segment"
-        }}
+          autoCapture: {
+            enabled: true,
+            source: "segment"
+          }
+        }
       };
 
       rudderanalytics.load(

@@ -6,6 +6,7 @@ import { logger } from '../logUtil';
 import { Cookie } from './cookie';
 import { Store } from './store';
 import { fromBase64 } from './v3DecryptionUtils';
+import { stringifyWithoutCircularV1 } from '../ObjectUtils';
 
 const defaults = {
   user_storage_key: 'rl_user_id',
@@ -25,14 +26,6 @@ const defaults = {
 const anonymousIdKeyMap = {
   segment: 'ajs_anonymous_id',
 };
-
-/**
- * Json stringify the given value
- * @param {*} value
- */
-function stringify(value) {
-  return JSON.stringify(value);
-}
 
 /**
  * JSON parse the value
@@ -120,7 +113,10 @@ class Storage {
    * @param {*} value
    */
   setItem(key, value) {
-    this.storage.set(key, encryptValue(stringify(value)));
+    const sanitizedValue = stringifyWithoutCircularV1(value);
+    if (sanitizedValue !== null) {
+      this.storage.set(key, encryptValue(sanitizedValue));
+    }
   }
 
   /**

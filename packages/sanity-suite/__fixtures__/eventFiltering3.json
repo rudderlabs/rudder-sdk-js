@@ -1,0 +1,72 @@
+{
+  "message": {
+    "properties": {},
+    "event": "DenyListed_Event_Name",
+    "type": "track",
+    "channel": "web",
+    "context": {
+      "traits": {},
+      "sessionId": 1700443301353,
+      "sessionStart": true,
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
+        "allowedConsentIds": {
+          "C0001": "Functional Cookies",
+          "C0003": "Analytical Cookies"
+        },
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "3.0.0-beta.15"
+      },
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "3.0.0-beta.15"
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+      "os": {
+        "name": "",
+        "version": ""
+      },
+      "locale": "en-US",
+      "screen": {
+        "width": 1728,
+        "height": 1117,
+        "density": 2,
+        "innerWidth": 1728,
+        "innerHeight": 479
+      },
+      "campaign": {},
+      "page": {
+        "path": "/dist/cdn/v3/index.html",
+        "referrer": "http://localhost:3000/dist/cdn/v3",
+        "referring_domain": "localhost:3000",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3000/dist/cdn/v3/index.html",
+        "tab_url": "http://localhost:3000/dist/cdn/v3/index.html",
+        "initial_referrer": "http://localhost:3003/index.html",
+        "initial_referring_domain": "localhost:3003"
+      },
+      "timezone": "GMT+0200"
+    },
+    "originalTimestamp": "2023-11-20T01:21:41.355Z",
+    "integrations": {
+      "Google Analytics 4 (GA4)": {
+        "clientId": "automationqa_123",
+        "sessionId": 1700442946773,
+        "sessionNumber": 17
+      },
+      "All": false,
+      "Google Analytics": true,
+      "Amplitude": true
+    },
+    "messageId": "7bd32bab-20a3-4df6-ab22-425fe72e1efd",
+    "userId": "",
+    "anonymousId": "0e5ec374-01c4-408c-bdd0-f75fa2e5655e",
+    "sentAt": "2023-11-20T01:21:41.356Z"
+  }
+}

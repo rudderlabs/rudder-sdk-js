@@ -1,5 +1,6 @@
 import page1ExpectedData from '../../__fixtures__/page1.json';
 import page2ExpectedData from '../../__fixtures__/page2.json';
+import page3ExpectedData from '../../__fixtures__/page3.json';
 import page4ExpectedData from '../../__fixtures__/page4.json';
 import page5ExpectedData from '../../__fixtures__/page5.json';
 import page6ExpectedData from '../../__fixtures__/page6.json';
@@ -158,7 +159,7 @@ const pageMethodSuite = {
           null,
         ],
       ],
-      expectedResult: page2ExpectedData,
+      expectedResult: page3ExpectedData,
       triggerHandler: ['reset', 'page'],
     },
     {

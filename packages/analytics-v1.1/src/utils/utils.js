@@ -5,6 +5,7 @@ import { clientToServerNames } from '@rudderstack/analytics-js-common/v1.1/utils
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -281,7 +282,9 @@ const countDigits = number => (number ? number.toString().length : 0);
  * @returns
  */
 const getStringId = id =>
-  typeof id === 'string' || typeof id === 'undefined' || id === null ? id : JSON.stringify(id);
+  typeof id === 'string' || typeof id === 'undefined' || id === null
+    ? id
+    : stringifyWithoutCircularV1(id);
 
 /**
  * A function to validate and return Residency server input

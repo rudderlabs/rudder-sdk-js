@@ -1,10 +1,12 @@
 import { TestBook } from './TestBook';
-import { sanityTestBookData } from '../testBookSuites';
+import { devSanityTestBookData, sanityTestBookData } from '../testBookSuites';
 
 const initSanitySuite = () => {
   setTimeout(() => {
     console.log('Mount sanity suite test book');
-    return new TestBook(sanityTestBookData, 1500);
+    // eslint-disable-next-line no-undef
+    const testBookData = IS_DEV_TESTBOOK === true ? devSanityTestBookData : sanityTestBookData;
+    return new TestBook(testBookData, 1500);
   }, 1);
 };
 
