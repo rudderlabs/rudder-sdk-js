@@ -4,6 +4,10 @@ const sourceConfigIgnoredProperties = [
     type: 'string',
   },
   {
+    key: `source.updatedAt`,
+    type: 'string',
+  },
+  {
     key: `source.liveEventsConfig.eventUploadTS`,
     type: 'number',
   },
