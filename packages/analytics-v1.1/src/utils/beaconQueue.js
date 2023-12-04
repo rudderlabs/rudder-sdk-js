@@ -3,6 +3,7 @@
 import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 const defaults = {
   queue: 'queue',
@@ -59,7 +60,7 @@ class BeaconQueue {
     let batch = queue.slice(0);
     const data = { batch };
     const dataToSend = stringifyWithoutCircularV1(data, true);
-    if (dataToSend.length > defaults.maxPayloadSize) {
+    if (dataToSend && dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
       this.flushQueue(batch);
       queue = this.getQueue();
@@ -94,19 +95,23 @@ class BeaconQueue {
       });
       const data = { batch };
       const payload = stringifyWithoutCircularV1(data, true);
-      const blob = new Blob([payload], { type: 'text/plain' });
-      const targetUrl = `${this.url}?writeKey=${this.writekey}`;
-      try {
-        if (typeof navigator.sendBeacon !== 'function') {
-          handleError(new Error('Beacon API is not supported by browser'));
+      if (payload !== null) {
+        const blob = new Blob([payload], { type: 'text/plain' });
+        const targetUrl = `${this.url}?writeKey=${this.writekey}`;
+        try {
+          if (typeof navigator.sendBeacon !== 'function') {
+            handleError(new Error('Beacon API is not supported by browser'));
+          }
+          const isPushed = navigator.sendBeacon(targetUrl, blob);
+          if (!isPushed) {
+            handleError(new Error("Unable to queue data to browser's beacon queue"));
+          }
+        } catch (e) {
+          e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
+          handleError(e);
         }
-        const isPushed = navigator.sendBeacon(targetUrl, blob);
-        if (!isPushed) {
-          handleError(new Error("Unable to queue data to browser's beacon queue"));
-        }
-      } catch (e) {
-        e.message = `${e.message} - While sending Beacon data to: ${targetUrl}`;
-        handleError(e);
+      } else {
+        logger.error(`Invalid payload: Event dropped`);
       }
     }
     this.setQueue([]);
