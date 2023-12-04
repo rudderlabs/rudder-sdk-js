@@ -58,7 +58,7 @@ class BeaconQueue {
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
     let batch = queue.slice(0);
-    const data = { batch };
+    const data = { batch, sentAt: new Date().toISOString() };
     const dataToSend = stringifyWithoutCircularV1(data, true);
     if (dataToSend && dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
