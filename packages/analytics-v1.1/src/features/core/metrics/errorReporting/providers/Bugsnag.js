@@ -8,7 +8,7 @@ import {
 import get from 'get-value';
 
 // Using the Bugsnag integration version to avoid version issues
-const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+const BUGSNAG_CDN_URL = '__RS_BUGSNAG_SDK_URL__';
 const BUGSNAG_VALID_MAJOR_VERSION = '6';
 const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
 const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and bellow
@@ -121,10 +121,11 @@ class BugsnagProvider {
    * If already loaded initialize the SDK.
    */
   init() {
-    // Return if RS Bugsnag instance is already initialized
+    // Return if RS Bugsnag instance is already initialized or should not init
     if (
       window.RudderStackGlobals &&
-      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]
+      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME] &&
+      BUGSNAG_CDN_URL
     ) {
       return;
     }

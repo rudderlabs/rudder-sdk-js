@@ -6,7 +6,7 @@ import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/servic
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_API_KEY_VALIDATION_ERROR } from './logMessages';
+import { BUGSNAG_API_KEY_VALIDATION_ERROR, BUGSNAG_SDK_URL_ERROR } from './logMessages';
 import { API_KEY } from './constants';
 import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';
 
@@ -28,6 +28,13 @@ const Bugsnag = (): ExtensionPlugin => ({
         // If API key token is not parsed or invalid, don't proceed to initialize the client
         if (!isApiKeyValid(API_KEY)) {
           reject(new Error(BUGSNAG_API_KEY_VALIDATION_ERROR(API_KEY)));
+          return;
+        }
+
+        // If SDK URL is empty, don't proceed to initialize the client
+        // eslint-disable-next-line no-constant-condition
+        if (!'__RS_BUGSNAG_SDK_URL__') {
+          reject(new Error(BUGSNAG_SDK_URL_ERROR));
           return;
         }
 

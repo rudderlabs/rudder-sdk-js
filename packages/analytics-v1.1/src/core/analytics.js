@@ -683,7 +683,7 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === 'string' && typeof name !== 'string')
       (name = category), (category = null);
-    if (this.sendAdblockPage && category != 'RudderJS-Initiated') {
+    if (this.sendAdblockPage && category != 'RudderJS-Initiated' && '__RS_GOOGLE_ADS_SDK_URL__') {
       this.sendSampleRequest();
     }
     let clonedProperties = R.clone(properties);
@@ -1379,7 +1379,7 @@ class Analytics {
 
     // clone options
     const clonedOptions = R.clone(options);
-    if (this.arePolyfillsRequired(clonedOptions)) {
+    if (this.arePolyfillsRequired(clonedOptions) && POLYFILL_URL) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
@@ -1472,7 +1472,7 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+    ScriptLoader('ad-block', '__RS_GOOGLE_ADS_SDK_URL__', {
       isNonNativeSDK: true,
     });
   }
