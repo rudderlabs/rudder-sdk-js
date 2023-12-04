@@ -27,8 +27,14 @@ const getCircularReplacer = excludeNull => {
   };
 };
 
-const stringifyWithoutCircularV1 = (obj, excludeNull) =>
-  JSON.stringify(obj, getCircularReplacer(excludeNull));
+const stringifyWithoutCircularV1 = (obj, excludeNull) => {
+  try {
+    return JSON.stringify(obj, getCircularReplacer(excludeNull));
+  } catch (err) {
+    logger.warn(`Failed to convert the value to a JSON string.`);
+    return null;
+  }
+};
 
 const isInstanceOfEvent = value => typeof value === 'object' && value !== null && 'target' in value;
 
