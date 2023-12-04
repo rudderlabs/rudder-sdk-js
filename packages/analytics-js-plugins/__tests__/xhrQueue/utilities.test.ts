@@ -2,6 +2,7 @@ import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -272,6 +273,7 @@ describe('xhrQueue Plugin Utilities', () => {
   });
 
   describe('getBatchDeliveryPayload', () => {
+    const currentTime = getCurrentTimeFormatted();
     it('should return stringified batch event payload', () => {
       const events = [
         {
@@ -292,7 +294,7 @@ describe('xhrQueue Plugin Utilities', () => {
         } as unknown as RudderEvent,
       ];
 
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBe(
+      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBe(
         '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1"}}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
     });
@@ -322,8 +324,7 @@ describe('xhrQueue Plugin Utilities', () => {
           },
         } as unknown as RudderEvent,
       ];
-
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBe(
+      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBe(
         '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1","test3":{}}}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
     });
@@ -356,7 +357,9 @@ describe('xhrQueue Plugin Utilities', () => {
 
       events[1].properties.test5 = events[1];
 
-      expect(getBatchDeliveryPayload(events, mockLogger)).toContain('[Circular Reference]');
+      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toContain(
+        '[Circular Reference]',
+      );
     });
 
     it('should return null if the payload cannot be stringified', () => {
@@ -379,7 +382,7 @@ describe('xhrQueue Plugin Utilities', () => {
         } as unknown as RudderEvent,
       ];
 
-      expect(getBatchDeliveryPayload(events, mockLogger)).toBeNull();
+      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBeNull();
     });
   });
 });

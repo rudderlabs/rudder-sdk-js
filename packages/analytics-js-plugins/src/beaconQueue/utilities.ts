@@ -2,7 +2,6 @@ import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/objec
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { json, url } from '../shared-chunks/common';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
@@ -21,10 +20,14 @@ import type { BeaconBatchData } from './types';
  * @param logger Logger instance
  * @returns stringified events payload as Blob, undefined if error occurs.
  */
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
+const getBatchDeliveryPayload = (
+  events: RudderEvent[],
+  currentTime: string,
+  logger?: ILogger,
+): Blob | undefined => {
   const data: BeaconBatchData = {
     batch: events,
-    sentAt: getCurrentTimeFormatted(),
+    sentAt: currentTime,
   };
 
   try {

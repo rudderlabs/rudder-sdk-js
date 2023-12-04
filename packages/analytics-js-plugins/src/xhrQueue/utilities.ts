@@ -12,8 +12,12 @@ import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN }
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Nullable<string> => {
-  const batchPayload: XHRBatchPayload = { batch: events, sentAt: getCurrentTimeFormatted() };
+const getBatchDeliveryPayload = (
+  events: RudderEvent[],
+  currentTime: string,
+  logger?: ILogger,
+): Nullable<string> => {
+  const batchPayload: XHRBatchPayload = { batch: events, sentAt: currentTime };
   return json.stringifyWithoutCircular(batchPayload, true, undefined, logger);
 };
 
@@ -70,16 +74,17 @@ const getRequestInfo = (
   let data;
   let headers;
   let url: string;
+  const currentTime = getCurrentTimeFormatted();
   if (Array.isArray(itemData)) {
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
-      eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event),
+      eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
     );
-    data = getBatchDeliveryPayload(finalEvents, logger);
+    data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
     headers = itemData[0] ? clone(itemData[0].headers) : {};
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
-    const finalEvent = eventsDelivery.getFinalEventForDeliveryMutator(event);
+    const finalEvent = eventsDelivery.getFinalEventForDeliveryMutator(event, currentTime);
 
     data = eventsDelivery.getDeliveryPayload(finalEvent, logger);
     headers = clone(eventHeaders);
