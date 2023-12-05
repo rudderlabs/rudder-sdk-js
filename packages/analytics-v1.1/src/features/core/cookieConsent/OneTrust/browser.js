@@ -3,6 +3,8 @@ import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 /* eslint-disable class-methods-use-this */
 class OneTrust {
   isInitialized = false;
+  name = 'oneTrust';
+  resolutionStrategy = 'and';
 
   constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
@@ -91,11 +93,17 @@ class OneTrust {
     }
   }
 
-  getDeniedList() {
+  getConsentManagementInfo() {
     if (!this.isInitialized) {
-      return [];
+      return {};
     }
-    return this.userDeniedConsentGroupIds;
+
+    return {
+      allowedConsentIds: this.userSetConsentGroupIds,
+      deniedConsentIds: this.userDeniedConsentGroupIds,
+      provider: this.name,
+      resolutionStrategy: this.resolutionStrategy,
+    };
   }
 }
 
