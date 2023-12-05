@@ -1,7 +1,9 @@
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'
 import useRudderStackAnalytics from '../useRudderAnalytics';
 
 export default function Home() {
+  const router = useRouter();
   const analytics = useRudderStackAnalytics();
 
   const page = () => {
@@ -120,6 +122,14 @@ export default function Home() {
           <h2 className={`mb-3 text-2xl font-semibold`}>Alias</h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
             Clicking this tile will trigger an alias event.
+          </p>
+        </button>
+        <button
+          onClick={() => router.push('/page2')}
+          className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
+          <h2 className={`mb-3 text-2xl font-semibold`}>Change router page</h2>
+          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
+            Clicking this tile will use router to navigate to another page.
           </p>
         </button>
       </div>

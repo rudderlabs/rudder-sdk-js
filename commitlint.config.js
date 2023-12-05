@@ -19,6 +19,7 @@ module.exports = {
         // Insert custom scopes below:
         'release',
         'monorepo',
+        'examples',
       ],
     ],
   },
