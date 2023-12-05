@@ -9,6 +9,7 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
@@ -102,9 +103,10 @@ const XhrQueue = (): ExtensionPlugin => ({
         storages.LOCAL_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
+          const currentTime = getCurrentTimeFormatted();
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
           // type casting to string as we know that the event has already been validated prior to enqueue
-          return (getBatchDeliveryPayload(events, logger) as string)?.length;
+          return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
         },
       );
 
