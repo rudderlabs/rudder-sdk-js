@@ -124,9 +124,12 @@ class BugsnagProvider {
     // Return if RS Bugsnag instance is already initialized or should not init
     if (
       window.RudderStackGlobals &&
-      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME] &&
-      BUGSNAG_CDN_URL
+      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]
     ) {
+      return;
+    }
+
+    if (!BUGSNAG_CDN_URL) {
       return;
     }
 

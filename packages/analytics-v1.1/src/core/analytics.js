@@ -683,7 +683,7 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === 'string' && typeof name !== 'string')
       (name = category), (category = null);
-    if (this.sendAdblockPage && category != 'RudderJS-Initiated' && '__RS_GOOGLE_ADS_SDK_URL__') {
+    if (this.sendAdblockPage && category !== 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
     let clonedProperties = R.clone(properties);
@@ -1472,6 +1472,11 @@ class Analytics {
   }
 
   sendSampleRequest() {
+    // eslint-disable-next-line no-constant-condition
+    if (!'__RS_GOOGLE_ADS_SDK_URL__') {
+      return;
+    }
+
     ScriptLoader('ad-block', '__RS_GOOGLE_ADS_SDK_URL__', {
       isNonNativeSDK: true,
     });
