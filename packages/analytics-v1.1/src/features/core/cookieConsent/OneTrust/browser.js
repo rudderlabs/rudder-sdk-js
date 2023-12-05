@@ -26,6 +26,7 @@ class OneTrust {
     const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
     this.userSetConsentGroupNames = [];
     this.userDeniedConsentGroupIds = [];
+    this.userSetConsentGroups = {};
 
     // Get the names of the cookies consented by the user in the browser.
 
@@ -33,6 +34,7 @@ class OneTrust {
       const { CustomGroupId, GroupName } = group;
       if (this.userSetConsentGroupIds.includes(CustomGroupId)) {
         this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
+        this.userSetConsentGroups[CustomGroupId] = GroupName;
       } else {
         this.userDeniedConsentGroupIds.push(CustomGroupId);
       }
@@ -99,7 +101,7 @@ class OneTrust {
     }
 
     return {
-      allowedConsentIds: this.userSetConsentGroupIds,
+      allowedConsentIds: this.userSetConsentGroups,
       deniedConsentIds: this.userDeniedConsentGroupIds,
       provider: this.name,
       resolutionStrategy: this.resolutionStrategy,

@@ -15,7 +15,10 @@ window.OneTrust = {
 window.OnetrustActiveGroups = ',C0001,C0003,';
 
 const expectedDeniedConsentIds = ['C0002', 'C0004', 'C0005', 'C0006'];
-const expectedConsentedConsentIds = ['C0001', 'C0003'];
+const expectedConsentedConsentIds = {
+  C0001: 'Functional Cookies',
+  C0003: 'Analytical Cookies',
+};
 const provider = 'oneTrust';
 const resolutionStrategy = 'and';
 
