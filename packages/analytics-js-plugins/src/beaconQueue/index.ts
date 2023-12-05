@@ -11,6 +11,7 @@ import type {
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type { DoneCallback, IQueue } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
@@ -62,10 +63,11 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
       const queueProcessCallback = (itemData: BeaconQueueBatchItemData, done: DoneCallback) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
+        const currentTime = getCurrentTimeFormatted();
         const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
-          eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event),
+          eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
         );
-        const data = getBatchDeliveryPayload(finalEvents, logger);
+        const data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
 
         if (data) {
           try {
@@ -101,9 +103,10 @@ const BeaconQueue = (): ExtensionPlugin => ({
         storages.LOCAL_STORAGE,
         logger,
         (itemData: BeaconQueueItemData[]): number => {
+          const currentTime = getCurrentTimeFormatted();
           const events = itemData.map((queueItemData: BeaconQueueItemData) => queueItemData.event);
           // type casting to Blob as we know that the event has already been validated prior to enqueue
-          return (getBatchDeliveryPayload(events, logger) as Blob).size;
+          return (getBatchDeliveryPayload(events, currentTime, logger) as Blob).size;
         },
       );
 

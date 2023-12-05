@@ -3,6 +3,8 @@ import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 /* eslint-disable class-methods-use-this */
 class OneTrust {
   isInitialized = false;
+  name = 'oneTrust';
+  resolutionStrategy = 'and';
 
   constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
@@ -24,6 +26,7 @@ class OneTrust {
     const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
     this.userSetConsentGroupNames = [];
     this.userDeniedConsentGroupIds = [];
+    this.userSetConsentGroups = {};
 
     // Get the names of the cookies consented by the user in the browser.
 
@@ -31,6 +34,7 @@ class OneTrust {
       const { CustomGroupId, GroupName } = group;
       if (this.userSetConsentGroupIds.includes(CustomGroupId)) {
         this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
+        this.userSetConsentGroups[CustomGroupId] = GroupName;
       } else {
         this.userDeniedConsentGroupIds.push(CustomGroupId);
       }
@@ -91,11 +95,17 @@ class OneTrust {
     }
   }
 
-  getDeniedList() {
+  getConsentManagementInfo() {
     if (!this.isInitialized) {
-      return [];
+      return {};
     }
-    return this.userDeniedConsentGroupIds;
+
+    return {
+      allowedConsentIds: this.userSetConsentGroups,
+      deniedConsentIds: this.userDeniedConsentGroupIds,
+      provider: this.name,
+      resolutionStrategy: this.resolutionStrategy,
+    };
   }
 }
 
