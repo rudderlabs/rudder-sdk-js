@@ -464,7 +464,7 @@ class Analytics implements IAnalytics {
      * execute the callback immediately else push the callbacks to a queue that
      * will be executed after loading completes
      */
-    if (state.lifecycle.status.value === 'ready') {
+    if (state.lifecycle.status.value === 'readyExecuted') {
       try {
         callback();
       } catch (err) {
