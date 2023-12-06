@@ -218,7 +218,9 @@ describe('Core - Analytics', () => {
       const callback = jest.fn();
 
       state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = 'ready';
+      // Using the next lifecycle state ('readyExecuted') here as lifecycle is not started in this test
+      // In the real scenario, once the SDK is ready, the lifecycle state will be 'readyExecuted'
+      state.lifecycle.status.value = 'readyExecuted';
       analytics.ready(callback);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(callback).toHaveBeenCalledTimes(1);
