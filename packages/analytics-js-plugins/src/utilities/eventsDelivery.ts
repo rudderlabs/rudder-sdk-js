@@ -3,7 +3,6 @@ import { clone } from 'ramda';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import type { TransformationRequestPayload } from '../deviceModeTransformation/types';
@@ -69,11 +68,11 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
  * @param event RudderEvent object
  * @returns Final event ready to be delivered
  */
-const getFinalEventForDeliveryMutator = (event: RudderEvent): RudderEvent => {
+const getFinalEventForDeliveryMutator = (event: RudderEvent, currentTime: string): RudderEvent => {
   const finalEvent = clone(event);
 
   // Update sentAt timestamp to the latest timestamp
-  finalEvent.sentAt = getCurrentTimeFormatted();
+  finalEvent.sentAt = currentTime;
 
   return finalEvent;
 };

@@ -8,4 +8,5 @@ export type BeaconQueueBatchItemData = BeaconQueueItemData[];
 
 export type BeaconBatchData = {
   batch: RudderEvent[];
+  sentAt: string;
 };
