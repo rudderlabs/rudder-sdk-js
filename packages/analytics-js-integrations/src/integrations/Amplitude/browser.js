@@ -73,7 +73,7 @@ class Amplitude {
   }
 
   isLoaded() {
-    return Boolean(window?.amplitude && window.amplitude?.getDeviceId());
+    return Boolean(window.amplitude && window.amplitude.getDeviceId());
   }
 
   isReady() {
