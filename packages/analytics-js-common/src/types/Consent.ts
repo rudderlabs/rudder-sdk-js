@@ -24,7 +24,7 @@ export type ConsentManagementProviderMetadata = {
   resolutionStrategy: ConsentResolutionStrategy;
 };
 
-export type ConsentManagementProvider = 'oneTrust' | 'ketch' | 'custom';
+export type ConsentManagementProvider = 'iubenda' | 'oneTrust' | 'ketch' | 'custom';
 
 export type ConsentResolutionStrategy = 'and' | 'or';
 

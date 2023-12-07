@@ -294,7 +294,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "oneTrust,ketch,custom".',
+        'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "iubenda,oneTrust,ketch,custom".',
       );
     });
 
