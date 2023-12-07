@@ -104,7 +104,7 @@ class Storage {
   }
 
   options(options = {}) {
-    this.storage.options(options);
+    this.storage?.options(options);
   }
 
   /**
@@ -115,7 +115,7 @@ class Storage {
   setItem(key, value) {
     const sanitizedValue = stringifyWithoutCircularV1(value);
     if (sanitizedValue !== null) {
-      this.storage.set(key, encryptValue(sanitizedValue));
+      this.storage?.set(key, encryptValue(sanitizedValue));
     }
   }
 
@@ -207,7 +207,7 @@ class Storage {
    * @param {*} key
    */
   getItem(key) {
-    return parse(decryptValue(this.storage.get(key)));
+    return parse(decryptValue(this.storage?.get(key)));
   }
 
   /**
@@ -295,7 +295,7 @@ class Storage {
    */
   getAnonymousId(anonymousIdOptions) {
     // fetch the rl_anonymous_id from storage
-    const rlAnonymousId = parse(decryptValue(this.storage.get(defaults.user_storage_anonymousId)));
+    const rlAnonymousId = parse(decryptValue(this.storage?.get(defaults.user_storage_anonymousId)));
     /**
      * If RS's anonymous ID is available, return from here.
      *
@@ -359,7 +359,7 @@ class Storage {
    * @param {*} key
    */
   removeItem(key) {
-    return this.storage.remove(key);
+    return this.storage?.remove(key);
   }
 
   removeSessionInfo() {
@@ -370,13 +370,13 @@ class Storage {
    * remove stored keys
    */
   clear(flag) {
-    this.storage.remove(defaults.user_storage_key);
-    this.storage.remove(defaults.user_storage_trait);
-    this.storage.remove(defaults.group_storage_key);
-    this.storage.remove(defaults.group_storage_trait);
-    this.storage.remove(defaults.auth_token);
+    this.storage?.remove(defaults.user_storage_key);
+    this.storage?.remove(defaults.user_storage_trait);
+    this.storage?.remove(defaults.group_storage_key);
+    this.storage?.remove(defaults.group_storage_trait);
+    this.storage?.remove(defaults.auth_token);
     if (flag) {
-      this.storage.remove(defaults.user_storage_anonymousId);
+      this.storage?.remove(defaults.user_storage_anonymousId);
     }
   }
 }

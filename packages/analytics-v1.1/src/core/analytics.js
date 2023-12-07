@@ -1205,9 +1205,7 @@ class Analytics {
     if (!this.isValidWriteKey(writeKey)) {
       throw Error('Unable to load the SDK due to invalid writeKey');
     }
-    if (!this.storage || Object.keys(this.storage).length === 0) {
-      throw Error('Cannot proceed as no storage is available');
-    }
+
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = options.cookieConsentManager;
 
