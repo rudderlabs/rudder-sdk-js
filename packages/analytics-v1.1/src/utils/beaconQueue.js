@@ -4,6 +4,7 @@ import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { getCurrentTimeFormatted } from './utils';
 
 const defaults = {
   queue: 'queue',
@@ -58,7 +59,7 @@ class BeaconQueue {
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
     let batch = queue.slice(0);
-    const data = { batch };
+    const data = { batch, sentAt: getCurrentTimeFormatted() };
     const dataToSend = stringifyWithoutCircularV1(data, true);
     if (dataToSend && dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
@@ -90,10 +91,11 @@ class BeaconQueue {
   flushQueue(batch) {
     // check batch payload has data before flushing
     if (batch && batch.length > 0) {
+      const currentTime = getCurrentTimeFormatted();
       batch.forEach(event => {
-        event.sentAt = new Date().toISOString();
+        event.sentAt = currentTime;
       });
-      const data = { batch };
+      const data = { batch, sentAt: currentTime };
       const payload = stringifyWithoutCircularV1(data, true);
       if (payload !== null) {
         const blob = new Blob([payload], { type: 'text/plain' });
