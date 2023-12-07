@@ -6,6 +6,7 @@ import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/devi
 import { ErrorReporting } from '@rudderstack/analytics-js-plugins/errorReporting';
 import { ExternalAnonymousId } from '@rudderstack/analytics-js-plugins/externalAnonymousId';
 import { GoogleLinker } from '@rudderstack/analytics-js-plugins/googleLinker';
+import { IubendaConsentManager } from '@rudderstack/analytics-js-plugins/iubendaConsentManager';
 import { KetchConsentManager } from '@rudderstack/analytics-js-plugins/ketchConsentManager';
 import { NativeDestinationQueue } from '@rudderstack/analytics-js-plugins/nativeDestinationQueue';
 import { OneTrustConsentManager } from '@rudderstack/analytics-js-plugins/oneTrustConsentManager';
@@ -27,6 +28,7 @@ const getBundledBuildPluginImports = (): PluginMap => ({
   ErrorReporting,
   ExternalAnonymousId,
   GoogleLinker,
+  IubendaConsentManager,
   KetchConsentManager,
   NativeDestinationQueue,
   OneTrustConsentManager,

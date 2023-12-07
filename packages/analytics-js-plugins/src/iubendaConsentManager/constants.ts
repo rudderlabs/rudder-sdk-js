@@ -1,0 +1,3 @@
+const IUBENDA_CONSENT_MANAGER_PLUGIN = 'IubendaConsentManagerPlugin';
+
+export { IUBENDA_CONSENT_MANAGER_PLUGIN };
