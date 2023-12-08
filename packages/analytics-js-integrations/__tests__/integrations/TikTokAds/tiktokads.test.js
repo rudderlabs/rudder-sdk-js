@@ -16,8 +16,7 @@ const basicConfig = {
     { to: 'Lead', from: 'orderCompleted' },
     { from: 'Page View', to: 'PageVisit' },
     { from: 'product_added', to: 'AddToCart' },
-  ],
-  sendCustomEvents: true,
+  ]
 };
 
 describe('tiktokads init tests', () => {
