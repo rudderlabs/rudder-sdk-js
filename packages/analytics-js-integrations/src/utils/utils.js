@@ -126,24 +126,36 @@ function rejectArr(obj, fn) {
  * condition 2: Array
  * condition 3: Nested object
  */
-function recurse(cur, prop, result) {
+function recurse(cur, prop, result, visited = new Set()) {
   const res = result;
+
+  // Check for circular references
+  if (visited.has(cur)) {
+    res[prop] = "[Circular Reference]";
+    return;
+  }
+
+  visited.add(cur);
+
   if (Object(cur) !== cur) {
     res[prop] = cur;
   } else if (Array.isArray(cur)) {
     const l = cur.length;
-    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res, visited);
     if (l === 0) res[prop] = [];
   } else {
     let isEmpty = true;
     Object.keys(cur).forEach(key => {
       isEmpty = false;
-      recurse(cur[key], prop ? `${prop}.${key}` : key, res);
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res, visited);
     });
     if (isEmpty) res[prop] = {};
   }
+
+  visited.delete(cur); // Remove current object from the set before returning
   return res;
 }
+
 
 function flattenJsonPayload(data, property = '') {
   return recurse(data, property, {});
