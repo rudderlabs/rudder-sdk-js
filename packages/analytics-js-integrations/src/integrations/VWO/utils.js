@@ -21,7 +21,7 @@ const getDestinationOptions = integrationsOptions =>
  * @return {string} The sanitized event name.
  */
 const sanitizeName = eventName => {
-  return `rudder.${eventName.trim()}`;
+  return `rudder.${eventName?.trim() || "event"}`;
 };
 
 /**
