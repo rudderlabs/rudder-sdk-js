@@ -45,3 +45,7 @@ export type ConsentsInfo = {
 export type KetchConsentPurpose = {
   purpose: string;
 };
+
+export type IubendaConsentPurpose = {
+  purpose: string;
+};
