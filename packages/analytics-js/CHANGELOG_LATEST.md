@@ -1,14 +1,7 @@
-## [3.0.0-beta.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.15...@rudderstack/analytics-js@3.0.0-beta.16) (2023-12-01)
-
-
-### Features
-
-* **analytics-js-loading-scripts:** add loading snippet version in event context ([#1483](https://github.com/rudderlabs/rudder-sdk-js/issues/1483)) ([4873cbc](https://github.com/rudderlabs/rudder-sdk-js/commit/4873cbc183879c0c1825cf939a53b6cf570cdf4e))
+## [3.0.0-beta.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.16...@rudderstack/analytics-js@3.0.0-beta.17) (2023-12-06)
 
 
 ### Bug Fixes
 
-* initialisation of bugsnag in chrome extension ([#1516](https://github.com/rudderlabs/rudder-sdk-js/issues/1516)) ([af970c9](https://github.com/rudderlabs/rudder-sdk-js/commit/af970c94ad45c50fcbbca0d0e7597fdefa08b154))
-* multiple onReady invocation ([#1522](https://github.com/rudderlabs/rudder-sdk-js/issues/1522)) ([bf3b09b](https://github.com/rudderlabs/rudder-sdk-js/commit/bf3b09bef82eaf13f34bd538a080fd9f5e557e78))
-* update polyfill list and add version ([#1518](https://github.com/rudderlabs/rudder-sdk-js/issues/1518)) ([653d58e](https://github.com/rudderlabs/rudder-sdk-js/commit/653d58e782c7449c7f7afe851665a59912287750))
+* **analytics-js:** post ready callback invocations ([#1535](https://github.com/rudderlabs/rudder-sdk-js/issues/1535)) ([996fb9a](https://github.com/rudderlabs/rudder-sdk-js/commit/996fb9ad47bd9a28da533c5807873ea71f2f1f24))
 
