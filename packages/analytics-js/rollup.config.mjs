@@ -27,6 +27,7 @@ const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
+const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
@@ -34,7 +35,7 @@ const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle`: `cdn`
 const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
 const outDirNpmRoot = `dist/npm`;
 const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}`: `dist/${cdnPath}`;
-const outDirNpm = `${outDirNpmRoot}${variantSubfolder}${isDynamicCustomBuild ? '/bundled' :''}`;
+let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
@@ -43,6 +44,22 @@ const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && w
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
+let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+let polyfillIoUrl = 'https://polyfill.io/v3/polyfill.min.js';
+
+// For Chrome extension as content script any references in code to third party URLs
+// throw violations at approval phase even if relevant code is not used
+if(isContentScriptBuild) {
+  bugsnagSDKUrl = '';
+  polyfillIoUrl = '';
+}
+
+// Set paths for other bundling variant named exports contents
+if(isContentScriptBuild) {
+  outDirNpm = `${outDirNpm}/content-script`;
+} else if(isDynamicCustomBuild) {
+  outDirNpm = `${outDirNpm}/bundled`;
+}
 
 // Configuration to exclude plugin imports for generated bundle
 const getExternalsConfig = () => {
@@ -175,6 +192,8 @@ export function getDefaultConfig(distName) {
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __SDK_BUNDLE_FILENAME__: distName,
+        __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
+        __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
       }),
       resolve({
         jsnext: true,

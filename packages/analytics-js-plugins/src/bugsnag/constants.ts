@@ -4,7 +4,7 @@ const GLOBAL_LIBRARY_OBJECT_NAMES = [
   BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
 ];
-const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+const BUGSNAG_CDN_URL = '__RS_BUGSNAG_SDK_URL__';
 const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
 // This API key token is parsed in the CI pipeline
 const API_KEY = '__RS_BUGSNAG_API_KEY__';
