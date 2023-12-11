@@ -53,6 +53,8 @@ const pluginsMap = {
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 
+const bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
@@ -79,6 +81,7 @@ export function getDefaultConfig(distName) {
         __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
       }),
       resolve({
         jsnext: true,
