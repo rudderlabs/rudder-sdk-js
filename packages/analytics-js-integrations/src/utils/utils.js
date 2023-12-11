@@ -129,10 +129,25 @@ function rejectArr(obj, fn) {
 function recurse(cur, prop, result, visited = new Set()) {
   const res = result;
 
-  // Check for circular references
+  const processArray = () => {
+    const l = cur.length;
+    for (let i = 0; i < l; i += 1) {
+      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res, visited);
+    }
+    if (l === 0) res[prop] = [];
+  };
+
+  const processObject = () => {
+    let isEmpty = true;
+    Object.keys(cur).forEach(key => {
+      isEmpty = false;
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res, visited);
+    });
+    if (isEmpty) res[prop] = {};
+  };
+
   if (visited.has(cur)) {
     res[prop] = "[Circular Reference]";
-    return;
   }
 
   visited.add(cur);
@@ -140,22 +155,14 @@ function recurse(cur, prop, result, visited = new Set()) {
   if (Object(cur) !== cur) {
     res[prop] = cur;
   } else if (Array.isArray(cur)) {
-    const l = cur.length;
-    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res, visited);
-    if (l === 0) res[prop] = [];
+    processArray();
   } else {
-    let isEmpty = true;
-    Object.keys(cur).forEach(key => {
-      isEmpty = false;
-      recurse(cur[key], prop ? `${prop}.${key}` : key, res, visited);
-    });
-    if (isEmpty) res[prop] = {};
+    processObject();
   }
 
-  visited.delete(cur); // Remove current object from the set before returning
+  visited.delete(cur);
   return res;
 }
-
 
 function flattenJsonPayload(data, property = '') {
   return recurse(data, property, {});
