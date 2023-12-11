@@ -9,6 +9,11 @@
       "types": "./dist/npm/index.d.ts",
       "import": "./dist/npm/index.es.js",
       "require": "./dist/npm/index.js"
+    },
+    "./content-script": {
+      "types": "./dist/npm/index.d.ts",
+      "require": "./dist/npm/content-script/index.js",
+      "import": "./dist/npm/content-script/index.es.js"
     }
   },
   "typesVersions": {
@@ -34,7 +39,8 @@
     "build:browser:modern": "BROWSERSLIST_ENV=modern rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
     "build:browser": "rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
     "build:npm": "rollup --config rollup-configs/rollup.sdk.npm.mjs --environment VERSION:$npm_package_version,UGLIFY,ENV:prod,NPM",
-    "build:package": "npm run build:npm",
+    "build:npm:content-script": "NO_EXTERNAL_HOST=true npm run build:npm",
+    "build:package": "npm run build:npm && npm run build:npm:content-script",
     "build:browser:test": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
     "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
