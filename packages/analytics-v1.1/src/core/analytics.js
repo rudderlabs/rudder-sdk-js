@@ -111,7 +111,7 @@ class Analytics {
     this.version = '__PACKAGE_VERSION__';
     this.lockIntegrationsVersion = false;
     this.errorReporting = new ErrorReportingService(logger);
-    this.deniedConsentIds = [];
+    this.consentManagementInfo = {};
     this.transformationHandler = DeviceModeTransformations;
   }
 
@@ -275,7 +275,7 @@ class Analytics {
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
           // Fetch denied consent group Ids and pass it to cloud mode
-          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
+          this.consentManagementInfo = cookieConsent && cookieConsent.getConsentManagementInfo();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
@@ -683,7 +683,7 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === 'string' && typeof name !== 'string')
       (name = category), (category = null);
-    if (this.sendAdblockPage && category != 'RudderJS-Initiated') {
+    if (this.sendAdblockPage && category !== 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
     let clonedProperties = R.clone(properties);
@@ -949,7 +949,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds || [],
+          ...R.clone(this.consentManagementInfo),
         };
       }
 
@@ -1379,7 +1379,7 @@ class Analytics {
 
     // clone options
     const clonedOptions = R.clone(options);
-    if (this.arePolyfillsRequired(clonedOptions)) {
+    if (this.arePolyfillsRequired(clonedOptions) && POLYFILL_URL) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
@@ -1472,7 +1472,12 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+    // eslint-disable-next-line no-constant-condition
+    if (!'__RS_GOOGLE_ADS_SDK_URL__') {
+      return;
+    }
+
+    ScriptLoader('ad-block', '__RS_GOOGLE_ADS_SDK_URL__', {
       isNonNativeSDK: true,
     });
   }

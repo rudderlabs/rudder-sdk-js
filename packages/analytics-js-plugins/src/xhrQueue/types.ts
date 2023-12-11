@@ -12,4 +12,5 @@ export type XHRRetryQueueItemData = XHRQueueItemData | XHRQueueBatchItemData;
 
 export type XHRBatchPayload = {
   batch: RudderEvent[];
+  sentAt: string;
 };

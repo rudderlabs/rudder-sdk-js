@@ -20,9 +20,14 @@ import type { BeaconBatchData } from './types';
  * @param logger Logger instance
  * @returns stringified events payload as Blob, undefined if error occurs.
  */
-const getBatchDeliveryPayload = (events: RudderEvent[], logger?: ILogger): Blob | undefined => {
+const getBatchDeliveryPayload = (
+  events: RudderEvent[],
+  currentTime: string,
+  logger?: ILogger,
+): Blob | undefined => {
   const data: BeaconBatchData = {
     batch: events,
+    sentAt: currentTime,
   };
 
   try {
