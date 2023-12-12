@@ -19,6 +19,19 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 
 dotenv.config();
 
+const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
+let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+let polyfillIoUrl = 'https://polyfill.io/v3/polyfill.min.js';
+let googleAdsSDKUrl = '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+// For Chrome extension as content script any references in code to third party URLs
+// throw violations at approval phase even if relevant code is not used
+if(isContentScriptBuild) {
+  bugsnagSDKUrl = '';
+  polyfillIoUrl = '';
+  googleAdsSDKUrl = '';
+}
+
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
@@ -60,6 +73,9 @@ export function getDefaultConfig(distName) {
         __MODULE_TYPE__: moduleType,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
+        __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
+        __RS_GOOGLE_ADS_SDK_URL__: googleAdsSDKUrl
       }),
       alias({
         entries: [
