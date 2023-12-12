@@ -303,6 +303,7 @@ describe('flattenJsonPayload Tests', () => {
     const result = utils.flattenJsonPayload(testObj);
     expect(result).toStrictEqual({ '': [] });
   });
+
   test('simple array of object returns single object with indexed keys', () => {
     const testObj = [{ prop1: 'val1' }, { prop2: 'val2' }];
     const result = utils.flattenJsonPayload(testObj);
@@ -322,6 +323,12 @@ describe('flattenJsonPayload Tests', () => {
     const testObj = { prop1: { prop2: 'abc' } };
     const result = utils.flattenJsonPayload(testObj);
     expect(result).toStrictEqual({ 'prop1.prop2': 'abc' });
+  });
+  test('test case with circular referenced object', () => {
+    const testObj = { prop1: { prop2: 'abc' } };
+    testObj.prop3 = testObj;
+    const result = utils.flattenJsonPayload(testObj);
+    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', "prop3": "[Circular Reference]" });
   });
   test('test case with specified delimeter', () => {
     const testObj = { prop1: { prop2: 'abc' } };

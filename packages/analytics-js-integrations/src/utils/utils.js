@@ -148,6 +148,7 @@ function recurse(cur, prop, result, visited = new Set()) {
 
   if (visited.has(cur)) {
     res[prop] = "[Circular Reference]";
+    return result;
   }
 
   visited.add(cur);
