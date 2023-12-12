@@ -88,7 +88,7 @@ function flattenJson(data, separator = '.', mode = 'normal') {
       result[prop] = "[Circular Reference]";
       return;
     }
-  
+
     visited.add(cur);
     if (Object(cur) !== cur) {
       result[prop] = cur;
