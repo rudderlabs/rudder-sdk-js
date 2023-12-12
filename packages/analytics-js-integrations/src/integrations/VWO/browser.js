@@ -44,14 +44,17 @@ class VWO {
     }
 
     window.VWO = window.VWO || [];
-    window.VWO.event = window.VWO.event || function (...args) {
+    window.VWO.event =
+      window.VWO.event ||
+      function (...args) {
         window.VWO.push(['event', ...args]);
-    };
- 
-    
-    window.VWO.visitor = window.VWO.visitor || function (...args) {
+      };
+
+    window.VWO.visitor =
+      window.VWO.visitor ||
+      function (...args) {
         window.VWO.push(['visitor', ...args]);
-    };
+      };
 
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
@@ -122,6 +125,11 @@ class VWO {
   track(rudderElement) {
     logger.debug('===In VWO track===');
     const eventName = rudderElement.message.event;
+    // throw error if event name is not present
+    if (!eventName) {
+      logger.error('[VWO] track:: event name is required');
+      return;
+    }
     const properties = (rudderElement.message && rudderElement.message.properties) || {};
     window.VWO = window.VWO || [];
     if (eventName === 'Order Completed') {
