@@ -282,6 +282,7 @@ class FacebookPixel {
           eventID: derivedEventID,
         });
       } else {
+      logger.info('Not standard event & no custom mapping available');
         payload.value = revValue;
         payload.currency = currency;
         this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);

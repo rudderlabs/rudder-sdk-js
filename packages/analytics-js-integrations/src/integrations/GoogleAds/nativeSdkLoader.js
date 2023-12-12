@@ -14,7 +14,6 @@ function loadNativeSdk(sourceUrl) {
     js.type = 'text/javascript';
     js.id = id;
     const e = document.getElementsByTagName('head')[0];
-    logger.info('script', e);
     e.appendChild(js);
   })('googleAds-integration', sourceUrl, document);
 
