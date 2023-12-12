@@ -3,9 +3,14 @@ import copy from 'rollup-plugin-copy';
 import { getDefaultConfig } from './rollup.utilities.mjs';
 
 const outDir = `dist`;
-const npmPackageOutDir = `${outDir}/npm`;
+let npmPackageOutDir = `${outDir}/npm`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
+const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
+
+if(isContentScriptBuild) {
+  npmPackageOutDir = `${npmPackageOutDir}/content-script`
+}
 
 const outputFiles = [
   {
