@@ -102,7 +102,7 @@ class TiktokAds {
     window.ttq.track(event, updatedProperties);
   }
 
-  page() {
+  page(rudderElement) {
     logger.debug('===In Tiktok Ads Page===');
     window.ttq.page();
   }
