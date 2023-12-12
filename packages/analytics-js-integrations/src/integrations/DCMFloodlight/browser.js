@@ -99,6 +99,10 @@ class DCMFloodlight {
     return this.isLoaded();
   }
 
+  identify() {
+    logger.debug('[DCM Floodlight] identify:: method not supported');
+  }
+
   track(rudderElement) {
     const { message } = rudderElement;
     const { event } = message;
