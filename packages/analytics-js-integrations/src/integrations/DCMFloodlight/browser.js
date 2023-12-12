@@ -100,7 +100,7 @@ class DCMFloodlight {
   }
 
   identify() {
-    logger.debug('[DCM Floodlight] identify:: method not supported');
+    logger.debug('identify:: method not supported');
   }
 
   track(rudderElement) {
