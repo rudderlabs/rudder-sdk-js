@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-function loadNativeSdk(apiKey) {
+function loadNativeSdk(environmentId) {
     (function (l, e, a, p) {
         if (window.Sprig) return;
         window.Sprig = function () { S._queue.push(arguments) }
@@ -13,7 +13,7 @@ function loadNativeSdk(apiKey) {
         a.setAttribute('data-loader', LOAD_ORIGIN);
         p = l.getElementsByTagName('script')[0];
         p.parentNode.insertBefore(a, p);
-    })(document, 'https://cdn.sprig.com/shim.js', apiKey);
+    })(document, 'https://cdn.sprig.com/shim.js', environmentId);
 }
 
 export { loadNativeSdk };

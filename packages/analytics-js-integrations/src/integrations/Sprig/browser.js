@@ -12,7 +12,7 @@ class Sprig {
             logger.setLogLevel(analytics.logLevel);
         }
         this.analytics = analytics;
-        this.apiKey = config.apiKey;
+        this.environmentId = config.environmentId;
         this.name = NAME;
         ({
             shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -22,7 +22,7 @@ class Sprig {
     }
 
     loadScript() {
-        loadNativeSdk(this.apiKey);
+        loadNativeSdk(this.environmentId);
     }
 
     init() {
