@@ -23,6 +23,7 @@ class TiktokAds {
     this.analytics = analytics;
     this.eventsToStandard = config.eventsToStandard;
     this.pixelCode = config.pixelCode;
+    this.sendCustomEvents = config.sendCustomEvents;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -77,7 +78,11 @@ class TiktokAds {
     }
     event = event.toLowerCase().trim();
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
-    if (eventNameMapping[event] === undefined && !standardEventsMap[event]) {
+    if (
+      !this.sendCustomEvents &&
+      eventNameMapping[event] === undefined &&
+      !standardEventsMap[event]
+    ) {
       logger.error(`Event name (${event}) is not valid, must be mapped to one of standard events`);
       return;
     }
@@ -90,11 +95,11 @@ class TiktokAds {
           });
         }
       });
-    } else {
-      event = eventNameMapping[event];
-      const updatedProperties = getTrackResponse(message);
-      window.ttq.track(event, updatedProperties);
+      return;
     }
+    event = eventNameMapping[event] || event;
+    const updatedProperties = getTrackResponse(message);
+    window.ttq.track(event, updatedProperties);
   }
 
   page(rudderElement) {
