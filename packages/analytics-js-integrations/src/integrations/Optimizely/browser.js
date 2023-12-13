@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import Logger from '../../utils/logger';
 import { mapRudderPropsToOptimizelyProps } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Optimizely {
   constructor(config, analytics, destinationInfo) {
@@ -30,7 +35,6 @@ class Optimizely {
   }
 
   init() {
-    logger.debug('=== in optimizely init ===');
     this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }
 
@@ -39,7 +43,7 @@ class Optimizely {
   }
 
   isReady() {
-    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   referrerOverride = referrer => {
@@ -51,7 +55,6 @@ class Optimizely {
   };
 
   sendDataToRudder = campaignState => {
-    logger.debug(campaignState);
     const { experiment, variation } = campaignState;
     const context = { integrations: { All: true } };
     const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
@@ -123,7 +126,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.debug('Page loaded without Optimizely.')
+        logger.error('Page loaded without Optimizely.')
       }
     };
 
@@ -198,7 +201,6 @@ class Optimizely {
   }
 
   track(rudderElement) {
-    logger.debug('in Optimizely web track');
     const eventProperties = rudderElement.message.properties;
     const { event } = rudderElement.message;
     if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
@@ -219,8 +221,6 @@ class Optimizely {
   }
 
   page(rudderElement) {
-    logger.debug('in Optimizely web page');
-
     const clonedRudderElement = rudderElement;
     const { category } = clonedRudderElement.message.properties;
     const { name } = clonedRudderElement.message;

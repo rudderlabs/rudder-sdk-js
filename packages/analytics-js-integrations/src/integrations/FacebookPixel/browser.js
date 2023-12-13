@@ -6,12 +6,13 @@
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   traitsMapper,
   reserveTraits,
+  DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import Logger from '../../utils/logger';
 import {
   merge,
   getEventId,
@@ -27,6 +28,8 @@ import {
 } from './utils';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class FacebookPixel {
   constructor(config, analytics, destinationInfo) {
@@ -54,8 +57,6 @@ class FacebookPixel {
   }
 
   init() {
-    logger.debug('===in init FbPixel===');
-
     window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
@@ -103,13 +104,11 @@ class FacebookPixel {
   }
 
   isLoaded() {
-    logger.debug('in FBPixel isLoaded');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug('in FBPixel isReady');
-    return !!(window.fbq && window.fbq.callMethod);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
@@ -277,15 +276,13 @@ class FacebookPixel {
         currency,
         value: revValue,
       });
-    } else {
-      logger.debug('inside custom');
-      if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
-        logger.debug('inside custom not mapped');
+    } else if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
         payload.value = revValue;
         window.fbq('trackSingleCustom', this.pixelId, event, payload, {
           eventID: derivedEventID,
         });
       } else {
+      logger.info('Not standard event & no custom mapping available');
         payload.value = revValue;
         payload.currency = currency;
         this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
@@ -294,7 +291,6 @@ class FacebookPixel {
           value: revValue,
         });
       }
-    }
   }
 
   makeTrackSignalCalls(pixelId, event, array, derivedEventID, payload) {

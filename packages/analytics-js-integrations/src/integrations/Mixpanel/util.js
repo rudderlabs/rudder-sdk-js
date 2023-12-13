@@ -2,8 +2,11 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 const keysToExtract = ['context.traits'];
 const exclusionKeys = [
@@ -110,7 +113,7 @@ const formatTraits = (message, setOnceProperties) => {
   try {
     outgoingTraits = extractCustomFields(message, outgoingTraits, keysToExtract, exclusionKeys);
   } catch (err) {
-    logger.debug(`Error occured at extractCustomFields ${err}`);
+    logger.error(`Error occured at extractCustomFields ${err}`);
   }
   // Extract setOnce K-V property from traits about user custom properties
   return filterSetOnceTraits(outgoingTraits, setOnceProperties);
@@ -119,7 +122,7 @@ const formatTraits = (message, setOnceProperties) => {
 
 const parseConfigArray = (arr, key) => {
   if (!arr) {
-    logger.debug('===Mixpanel: arr is undefined or null===');
+    logger.error('arr is undefined or null');
     return;
   }
   // eslint-disable-next-line consistent-return

@@ -1,9 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/HubSpot/constants';
+import Logger from '../../utils/logger';
 import { getDefinedTraits } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class HubSpot {
   constructor(config, analytics, destinationInfo) {
@@ -23,21 +28,17 @@ class HubSpot {
   init() {
     const hubSpotJs = `https://js.hs-scripts.com/${this.hubId}.js`;
     ScriptLoader('hubspot-integration', hubSpotJs);
-    logger.debug('===in init HS===');
   }
 
   isLoaded() {
-    logger.debug('in HubSpotAnalyticsManager isLoaded');
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 
   isReady() {
-    return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager identify');
-
     const { message } = rudderElement;
     const { traits } = message.context;
 
@@ -62,16 +63,12 @@ class HubSpot {
       });
     }
 
-    logger.debug(traitsValue);
-
     if (typeof window !== 'undefined') {
       window._hsq.push(['identify', traitsValue]);
     }
   }
 
   track(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager track');
-
     const { properties, event } = rudderElement.message;
     const eventValue = {
       name: event,
@@ -82,8 +79,6 @@ class HubSpot {
   }
 
   page(rudderElement) {
-    logger.debug('in HubSpotAnalyticsManager page');
-
     const { properties } = rudderElement.message;
     const { path } = properties;
     if (path) {

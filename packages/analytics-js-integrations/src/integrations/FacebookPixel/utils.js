@@ -1,12 +1,14 @@
 import is from 'is';
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import Logger from '../../utils/logger';
 import { isDefined } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 function getEventId(message) {
   return (
@@ -130,8 +132,8 @@ const buildPayLoad = (
     } else if ((!isPropertyPii || isProperyWhiteListed) && !isDateProp) {
       acc[currPropName] = currPropValue;
     } else {
-      logger.debug(
-        `[Facebook Pixel] PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
+      logger.info(
+        `PII Property '${currPropValue}' is neither hashed nor whitelisted and will be ignored`,
       );
     }
 
