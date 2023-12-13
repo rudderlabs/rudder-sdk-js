@@ -44,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 };
               })(method);
             }
+            // Below line is only for demonstration purpose, SPA code is better place for auto page call
             window.rudderanalytics.page('sample page call');
         `}
         </Script>
