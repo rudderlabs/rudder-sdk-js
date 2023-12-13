@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/ActiveCampaign/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/ActiveCampaign/constants';
 import get from 'get-value';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class ActiveCampaign {
   constructor(config, analytics, destinationInfo) {
@@ -19,23 +24,19 @@ class ActiveCampaign {
   }
 
   init() {
-    logger.debug('===In init ActiveCampaign===');
-
     if (!this.actId) {
-      logger.debug('actId missing');
+      logger.error('actId is required');
       return;
     }
     loadNativeSdk(this.actId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded ActiveCampaign===');
     return !!window.vgo;
   }
 
   isReady() {
-    logger.debug('===In isReady ActiveCampaign===');
-    return !!window.vgo;
+    return this.isLoaded();
   }
 
   page(rudderElement) {

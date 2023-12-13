@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-expressions */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+/* eslint-disable class-methods-use-this */
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   NAME,
+  DISPLAY_NAME,
   supportedEvents,
 } from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
-/* eslint-disable class-methods-use-this */
+import Logger from '../../utils/logger';
 import {
   getDeviceType,
   handleListView,
@@ -15,6 +16,8 @@ import {
   handleCommonFields,
 } from './utils';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Criteo {
   constructor(config, analytics, destinationInfo) {
@@ -38,9 +41,8 @@ class Criteo {
   }
 
   init() {
-    logger.debug('===in init Criteo===');
     if (!this.accountId) {
-      logger.debug('Account ID missing');
+      logger.error('Account Id is required');
       return;
     }
     window.criteo_q = window.criteo_q || [];
@@ -51,13 +53,11 @@ class Criteo {
   }
 
   isLoaded() {
-    logger.debug('===in Criteo isLoaded===');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('===in Criteo isReady===');
-    return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
@@ -76,7 +76,7 @@ class Criteo {
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.debug('[Criteo] Home page is not detected');
+      logger.error('Home page is not detected');
       return;
     }
 
@@ -86,21 +86,6 @@ class Criteo {
     }
 
     window.criteo_q.push(finalPayload);
-
-    // Final example payload supported by destination
-    // window.criteo_q.push(
-    //   { event: "setAccount", account: YOUR_PARTNER_ID},
-    //   {
-    //     event: "setEmail",
-    //     email: "##Email Address##",
-    //     hash_method: "##Hash Method##",
-    //   },
-    //   { event: "setSiteType", type: deviceType},
-    //   { event: "setCustomerId", id: "##Customer Id##" },
-    //   { event: "setRetailerVisitorId", id: "##Visitor Id##"},
-    //   { event: "setZipcode", zipcode: "##Zip Code##" },
-    //   { event: "viewHome" }
-    // );
   }
 
   track(rudderElement) {
@@ -109,12 +94,12 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (!event) {
-      logger.debug('[Criteo] Event name from track call is missing!!===');
+      logger.error('Event name from track call is missing');
       return;
     }
 
     if (!properties || Object.keys(properties).length === 0) {
-      logger.debug('[Criteo] Either properties object is missing or empty in the track call');
+      logger.error('Either properties object is missing or empty in the track call');
       return;
     }
 
@@ -122,7 +107,7 @@ class Criteo {
     const trimmedEvent = event.toLowerCase().trim();
 
     if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
-      logger.debug(`[Criteo] event ${trimmedEvent} is not supported`);
+      logger.error(`event ${trimmedEvent} is not supported`);
       return;
     }
     let events = [];

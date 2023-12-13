@@ -1,7 +1,10 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { eventMapping } from './propertyMappingConfig';
+
+const logger = new Logger(DISPLAY_NAME);
 
 function getDestinationEventName(event, userDefinedEventsMapping, sendAsCustomEvent) {
   let eventNames;

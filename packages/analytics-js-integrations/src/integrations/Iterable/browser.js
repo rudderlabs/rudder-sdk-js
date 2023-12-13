@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
 import Logger from '../../utils/logger';
 import {
   formPurchaseEventPayload,
@@ -11,7 +14,7 @@ import {
 } from './utils';
 import { isNotEmpty, removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 const iterableWebSdk = '@iterable/web-sdk';
 class Iterable {
   constructor(config, analytics, destinationInfo) {
@@ -53,23 +56,18 @@ class Iterable {
   }
 
   init() {
-    logger.debug('===In init Iterable===');
     ScriptLoader('iterable-web', 'https://unpkg.com/@iterable/web-sdk/index.js');
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Iterable===');
     return !!window[iterableWebSdk];
   }
 
   isReady() {
-    logger.debug('===In isReady Iterable===');
-    return !!window[iterableWebSdk];
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In identify Iterable');
-
     const { message } = rudderElement;
     const { integrations, traits, context, userId } = message;
     const userEmail = traits?.email || context?.traits?.email;
@@ -77,7 +75,7 @@ class Iterable {
     const jwtToken = extractJWT(integrations);
 
     if (!jwtToken) {
-      logger.error('The JWT token was not passed, The SDK could not be initialised');
+      logger.error('The JWT token was not passed, The SDK could not be initialized');
       return;
     }
 
@@ -86,11 +84,11 @@ class Iterable {
 
     if (this.initialisationIdentifier === 'userId') {
       wd.setUserID(userId).then(() => {
-        logger.debug('userId set');
+        logger.info('userId set');
       });
     } else {
       wd.setEmail(userEmail).then(() => {
-        logger.debug('userEmail set');
+        logger.info('userEmail set');
       });
     }
     /* Available pop-up push notification settings configurable from UI
@@ -123,8 +121,6 @@ class Iterable {
   }
 
   track(rudderElement) {
-    logger.debug('===In track Iterable===');
-
     const { message } = rudderElement;
     const { event, properties } = message;
     const eventPayload = removeUndefinedAndNullValues(properties);
@@ -148,7 +144,7 @@ class Iterable {
             eventName: 'Track getInAppMessages',
             dataFields: eventPayload,
           })
-          .then(logger.debug('Web in-app push triggered'));
+          .then(logger.info('Web in-app push triggered'));
       }
     } else if (
       isNotEmpty(this.purchaseEventMapping) &&
@@ -173,10 +169,9 @@ class Iterable {
         */
       // Either email or userId must be passed in to identify the user.
       // If both are passed in, email takes precedence.
-      logger.debug(`The event ${event} is not mapped in the dashboard, firing a custom event`);
       window[iterableWebSdk]
         .track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
-        .then(logger.debug('Track a custom event.'));
+        .then(logger.info('Track a custom event'));
     }
   }
 }

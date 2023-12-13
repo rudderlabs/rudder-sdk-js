@@ -1,11 +1,14 @@
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import Logger from '../../utils/logger';
 import {
   isNotEmpty,
   isDefinedAndNotNull,
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 const orderIdKey = 'properties.order_id';
 const itemIdKey = 'properties.item_ids';
@@ -115,7 +118,7 @@ const getItemIds = message => {
       if (productId) {
         itemIds.push(productId);
       } else {
-        logger.debug(`product_id not present for product at index ${index}`);
+        logger.info(`product_id not present for product at index ${index}`);
       }
     });
   } else {
@@ -135,7 +138,7 @@ const getItemId = message => {
   if (isDefinedAndNotNull(productId)) {
     itemIds.push(productId);
   } else {
-    logger.debug(productIdNotPresentMessage);
+    logger.info(productIdNotPresentMessage);
     itemIds = null;
   }
   return itemIds;

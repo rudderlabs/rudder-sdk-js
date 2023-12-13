@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 // Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import Logger from '../../utils/logger';
 import {
   goalIdMapping,
   ecommerceEventsMapping,
@@ -12,6 +16,8 @@ import {
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Matomo {
   constructor(config, analytics, destinationInfo) {
@@ -61,12 +67,10 @@ class Matomo {
   }
 
   init() {
-    logger.debug('===In init Matomo===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Matomo===');
     return !!(window._paq && window._paq.push !== Array.prototype.push);
   }
 
@@ -77,8 +81,6 @@ class Matomo {
   }
 
   isReady() {
-    logger.debug('===In isReady Matomo===');
-
     // Dashboard Event Settings
     if (window._paq && window._paq.push !== Array.prototype.push) {
       // Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has been triggered.
@@ -127,7 +129,6 @@ class Matomo {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Matomo Identify===');
     const { anonymousId, userId } = rudderElement.message;
     const matomoUserId = userId || anonymousId;
     if (!matomoUserId) {
@@ -138,8 +139,6 @@ class Matomo {
   }
 
   track(rudderElement) {
-    logger.debug('===In Matomo track===');
-
     const { message } = rudderElement;
     const { event } = message;
     const goalListMap = getHashFromArrayWithDuplicate(this.eventsMapToGoalId);
@@ -177,8 +176,7 @@ class Matomo {
     ecommerceEventsMapping(ecommerceMapping[trimmedEvent] || 'trackEvent', message);
   }
 
-  page() {
-    logger.debug('=== In Matomo Page ===');
+  page(rudderElement) {
     window._paq.push(['trackPageView']);
   }
 }

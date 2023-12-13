@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/INTERCOM/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/INTERCOM/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { flattenJsonPayload } from '../../utils/utils';
 import { processNameField, processCompanyField, processIdentityVerificationProps } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class INTERCOM {
   constructor(config, analytics, destinationInfo) {
@@ -29,7 +35,7 @@ class INTERCOM {
   }
 
   isReady() {
-    return !!window.intercom_code;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
@@ -98,8 +104,7 @@ class INTERCOM {
     window.Intercom('trackEvent', rawPayload.event_name, rawPayload);
   }
 
-  page() {
-    // Get new messages of the current user
+  page(rudderElement) {
     window.Intercom('update');
   }
 }

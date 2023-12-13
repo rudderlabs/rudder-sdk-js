@@ -2,10 +2,15 @@
 /* eslint-disable no-unused-expressions */
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
+import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Qualtrics {
   constructor(config, analytics, destinationInfo) {
@@ -25,14 +30,13 @@ class Qualtrics {
   }
 
   init() {
-    logger.debug('===in init Qualtrics===');
     if (!this.projectId) {
-      logger.debug('Project ID missing');
+      logger.error('Project ID missing');
       return;
     }
 
     if (!this.brandId) {
-      logger.debug('Brand ID missing');
+      logger.error(`${DISPLAY_NAME} :Brand ID missing`);
       return;
     }
 
@@ -40,20 +44,17 @@ class Qualtrics {
   }
 
   isLoaded() {
-    logger.debug('===in Qualtrics isLoaded===');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   isReady() {
-    logger.debug('===in Qualtrics isReady===');
-    return !!(window._qsie && window.QSI && window.QSI.API);
+    return this.isLoaded();
   }
 
   page(rudderElement) {
-    logger.debug('===in Qualtrics page===');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug('Message field is missing');
+      logger.error('Message field is missing');
       return;
     }
 
@@ -66,7 +67,7 @@ class Qualtrics {
     const categoryField = category || properties?.category || null;
 
     if (!categoryField && !name) {
-      logger.debug('generic title is disabled and no name or category field found');
+      logger.error('generic title is disabled and no name or category field found');
       return;
     }
     const dynamicTitle =
@@ -76,14 +77,13 @@ class Qualtrics {
   }
 
   track(rudderElement) {
-    logger.debug('===in Qualtrics track===');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug('Message field is missing');
+      logger.error('Message field is missing');
       return;
     }
     if (!message.event) {
-      logger.debug('Event field is undefined');
+      logger.error('Event field is undefined');
       return;
     }
     window._qsie.push(message.event);
