@@ -6,7 +6,7 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 function App() {
   useEffect(() => {
-    if (window.rudderanalytics as RudderAnalytics) {
+    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
       return;
     }
     const analytics = new RudderAnalytics();
