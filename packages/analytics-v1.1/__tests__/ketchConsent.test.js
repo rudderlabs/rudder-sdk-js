@@ -7,9 +7,6 @@ window.ketchConsent = {
 };
 
 const expectedDeniedPurposes = ['email_mktg', 'behavioral_advertising'];
-const expectedConsentedPurposes = ['analytics'];
-const provider = 'ketch';
-const resolutionStrategy = 'or';
 
 const ketch = new Ketch();
 
@@ -41,13 +38,12 @@ describe('Test suit for Ketch consent manager', () => {
     const allowEvent = ketch.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should return the entire consent information', () => {
-    const cmInfo = ketch.getConsentManagementInfo();
-    expect(cmInfo).toEqual({
-      allowedConsentIds: expectedConsentedPurposes,
-      deniedConsentIds: expectedDeniedPurposes,
-      provider,
-      resolutionStrategy,
-    });
+  it('Should return the category IDs that the user has not consented for', () => {
+    const actualDeniedPurposes = ketch.getDeniedList();
+    expect(actualDeniedPurposes).toEqual(expectedDeniedPurposes);
+  });
+  it('Should return the category IDs that the user has not consented for', () => {
+    const actualDeniedPurposes = ketch.getDeniedList();
+    expect(actualDeniedPurposes).toEqual(expectedDeniedPurposes);
   });
 });
