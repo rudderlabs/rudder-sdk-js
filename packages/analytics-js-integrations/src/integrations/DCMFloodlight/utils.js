@@ -3,7 +3,7 @@ import {
   DISPLAY_NAME,
   NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import Logger from '../../utils/logger';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {
   isNotEmpty,
@@ -12,6 +12,7 @@ import {
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
 
+const logger = new Logger(DISPLAY_NAME);
 const matchIdKey = 'properties.matchId';
 
 /**

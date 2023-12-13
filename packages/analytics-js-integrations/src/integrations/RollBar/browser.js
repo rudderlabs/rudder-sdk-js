@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/RollBar/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/RollBar/constants';
+import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class RollBar {
   constructor(config, analytics, destinationInfo) {
@@ -28,7 +34,6 @@ class RollBar {
   }
 
   init() {
-    logger.debug('===in init RollBar===');
     const _rollbarConfig = {
       accessToken: this.accessToken,
       captureUncaught: this.captureUncaughtException,
@@ -62,18 +67,14 @@ class RollBar {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded RollBar===');
     return !!(window.Rollbar && isObject(window.Rollbar));
   }
 
   isReady() {
-    logger.debug('===In isReady RollBar===');
-
     return !!window.Rollbar;
   }
 
   identify(rudderElement) {
-    logger.debug('===In RollBar Identify===');
     const { message } = rudderElement;
     const { userId, context } = message;
     const { traits } = context;
@@ -84,7 +85,7 @@ class RollBar {
       delete person.name;
     }
     if (userId) person.id = userId;
-    else logger.debug('=== userId is not found. no new user will be created in rollbar');
+    else logger.info('userId is not found. no new user will be created in rollbar');
     window.Rollbar.configure({ payload: { person } });
   }
 }

@@ -1,7 +1,10 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
+import Logger from '../../utils/logger';
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
@@ -14,6 +17,8 @@ import {
   newCustomerAcquisitionReporting,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class GoogleAds {
   constructor(config, analytics, destinationInfo) {
@@ -69,8 +74,6 @@ class GoogleAds {
     }
 
     window.gtag('config', this.conversionId, config);
-
-    logger.debug('===in init Google Ads===');
   }
 
   isLoaded() {
@@ -81,14 +84,8 @@ class GoogleAds {
     return this.isLoaded();
   }
 
-  identify() {
-    logger.debug('[GoogleAds] identify:: method not supported');
-  }
-
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    logger.debug('in GoogleAdsAnalyticsManager track');
-
     const { event } = rudderElement.message;
     const conversionData = getConversionData(
       this.clickEventConversions,
@@ -123,7 +120,7 @@ class GoogleAds {
     }
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error('Event name is not present');
       return;
     }
 
@@ -165,8 +162,6 @@ class GoogleAds {
   }
 
   page(rudderElement) {
-    logger.debug('in GoogleAdsAnalyticsManager page');
-
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
       this.clickEventConversions,
@@ -193,7 +188,7 @@ class GoogleAds {
     }
 
     if (!name) {
-      logger.error('Event name not present');
+      logger.error('Event name is not present');
       return;
     }
 

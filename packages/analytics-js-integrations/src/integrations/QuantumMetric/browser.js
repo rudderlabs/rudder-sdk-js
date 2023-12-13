@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/QuantumMetric/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/QuantumMetric/constants';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class QuantumMetric {
   constructor(config, analytics, destinationInfo) {
@@ -32,20 +37,6 @@ class QuantumMetric {
     if (window.QuantumMetricAPI) {
       this._ready = true;
     }
-
-    logger.debug('===in init Quantum Metric===');
-  }
-
-  identify() {
-    logger.debug('[QuantumMetric] track:: method not supported');
-  }
-
-  track() {
-    logger.debug('[QuantumMetric] track:: method not supported');
-  }
-
-  page() {
-    logger.debug('[QuantumMetric] page:: method not supported');
   }
 
   isLoaded() {

@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MoEngage/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/MoEngage/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -37,7 +42,6 @@ class MoEngage {
   }
 
   init() {
-    logger.debug('===in init MoEngage===');
     loadNativeSdk();
     // setting the region if us then not needed.
     if (this.region !== 'US') {
@@ -56,17 +60,14 @@ class MoEngage {
   }
 
   isLoaded() {
-    logger.debug('in MoEngage isLoaded');
     return !!window.moeBannerText;
   }
 
   isReady() {
-    logger.debug('in MoEngage isReady');
-    return !!window.moeBannerText;
+    return this.isLoaded();
   }
 
   track(rudderElement) {
-    logger.debug('inside track');
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
       logger.error('Payload not correct');
@@ -78,7 +79,7 @@ class MoEngage {
     }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
-      logger.error('Event name not present');
+      logger.error('Event name is not present');
       return;
     }
     if (properties) {
@@ -89,7 +90,6 @@ class MoEngage {
   }
 
   reset() {
-    logger.debug('inside reset');
     // reset the user id
     this.initialUserId = this.analytics.getUserId();
     this.moeClient.destroy_session();

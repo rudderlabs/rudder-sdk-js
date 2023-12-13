@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Pendo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Pendo/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Pendo {
   constructor(config, analytics, destinationInfo) {
@@ -17,13 +22,11 @@ class Pendo {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    logger.debug('Config ', config);
   }
 
   init() {
     loadNativeSdk(this.apiKey);
     this.initializeMe();
-    logger.debug('===in init Pendo===');
   }
 
   initializeMe() {
@@ -39,13 +42,12 @@ class Pendo {
     window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
 
-  /* utility functions ---Start here ---  */
   isLoaded() {
     return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   isReady() {
-    return !!(window.pendo && window.pendo.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   constructPendoAnonymousId(id) {
