@@ -2,13 +2,18 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import onBody from 'on-body';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Chartbeat/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Chartbeat/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Chartbeat {
   constructor(config, analytics, destinationInfo) {
@@ -35,12 +40,9 @@ class Chartbeat {
     } = destinationInfo ?? {});
   }
 
-  init() {
-    logger.debug('===in init Chartbeat===');
-  }
+  init() {}
 
   isLoaded() {
-    logger.debug('in Chartbeat isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -56,7 +58,6 @@ class Chartbeat {
   }
 
   page(rudderElement) {
-    logger.debug('in Chartbeat page');
     this.loadConfig(rudderElement);
 
     if (!this.isFirstPageCallMade) {
@@ -64,16 +65,13 @@ class Chartbeat {
       this.initAfterPage();
     } else {
       if (this.failed) {
-        logger.debug('===ignoring cause failed integration===');
         this.replayEvents = [];
         return;
       }
       if (!this.isLoaded() && !this.failed) {
-        logger.debug('===pushing to replay queue for chartbeat===');
         this.replayEvents.push(['page', rudderElement]);
         return;
       }
-      logger.debug('===processing page event in chartbeat===');
       const { properties } = rudderElement.message;
       window.pSUPERFLY.virtualPage(properties.path);
     }
@@ -93,7 +91,7 @@ class Chartbeat {
     if (title) window._sf_async_config.title = title;
 
     window._cbq = window._cbq || [];
-    const { _cbq } = window;
+    const { _cbq: cbq } = window;
 
     Object.keys(properties)
       .filter(
@@ -102,7 +100,7 @@ class Chartbeat {
           this.subscriberEngagementKeys.includes(key),
       )
       .forEach(key => {
-        _cbq.push([key, properties[key]]);
+        cbq.push([key, properties[key]]);
       });
   }
 
@@ -113,7 +111,6 @@ class Chartbeat {
     });
 
     this._isReady(this).then(instance => {
-      logger.debug('===replaying on chartbeat===');
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
       });
@@ -130,12 +127,10 @@ class Chartbeat {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
-        logger.debug('===chartbeat loaded successfully===');
         resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
-        logger.debug('===chartbeat failed===');
         resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>

@@ -1,8 +1,13 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
 /* eslint-disable func-names */
 /* eslint-disable compat/compat */
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
+import Logger from '../../utils/logger';
 import { generateUUID } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Shynet {
   constructor(config, analytics, destinationInfo) {
@@ -69,18 +74,15 @@ class Shynet {
   }
 
   init() {
-    logger.debug('=== in init Shynet ===');
     return this.scriptCheck;
   }
 
   isLoaded() {
-    logger.debug('=== in Shynet isLoaded= ==');
     return this.scriptCheck;
   }
 
   isReady() {
-    logger.debug('=== in Shynet is Ready===');
-    return this.scriptCheck;
+    return this.isLoaded();
   }
 
   page(rudderElement) {

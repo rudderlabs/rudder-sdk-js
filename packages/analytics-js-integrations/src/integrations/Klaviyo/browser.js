@@ -1,12 +1,17 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Klaviyo/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Klaviyo/constants';
+import Logger from '../../utils/logger';
 import { extractCustomFields, getDefinedTraits } from '../../utils/utils';
 import ecommEventPayload from './util';
 import { isNotEmpty } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Klaviyo {
   constructor(config, analytics, destinationInfo) {
@@ -81,7 +86,6 @@ class Klaviyo {
   }
 
   init() {
-    logger.debug('===in init Klaviyo===');
     ScriptLoader(
       'klaviyo-integration',
       `https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${this.publicApiKey}`,
@@ -89,15 +93,11 @@ class Klaviyo {
   }
 
   isLoaded() {
-    logger.debug('===in isLoaded Klaviyo===');
-
     return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('===in isReady Klaviyo===');
-
-    return !!(window._learnq && window._learnq.push !== Array.prototype.push);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
@@ -134,7 +134,7 @@ class Klaviyo {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`Error occured at extractCustomFields ${err}`);
+      logger.error(`Error occured at extractCustomFields ${err}`);
     }
     window._learnq.push(['identify', payload]);
   }

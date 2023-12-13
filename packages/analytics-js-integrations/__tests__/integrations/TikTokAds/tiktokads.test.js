@@ -9,29 +9,20 @@ beforeEach(() => {
   headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
 });
 
-afterEach(() => {
-  // Reset DOM to original state
-  document.getElementById('dummyScript')?.remove();
-});
+const basicConfig = {
+  pixelCode: '12567839',
+  eventsToStandard: [
+    { from: 'Sign Up', to: 'Signup' },
+    { to: 'Lead', from: 'orderCompleted' },
+    { from: 'Page View', to: 'PageVisit' },
+    { from: 'product_added', to: 'AddToCart' },
+  ]
+};
 
-afterAll(() => {
-  jest.restoreAllMocks();
-});
 describe('tiktokads init tests', () => {
   let tiktokads;
   test('Testing init call of TiktokAds', () => {
-    tiktokads = new TiktokAds(
-      {
-        pixelCode: '12567839',
-        eventsToStandard: [
-          { from: 'Sign Up', to: 'Signup' },
-          { to: 'Lead', from: 'orderCompleted' },
-          { from: 'Page View', to: 'PageVisit' },
-          { from: 'productAdded', to: 'AddToCart' },
-        ],
-      },
-      { loglevel: 'debug' },
-    );
+    tiktokads = new TiktokAds(basicConfig, { loglevel: 'debug' });
     tiktokads.init();
     expect(typeof window.ttq).toBe('object');
   });
@@ -40,18 +31,7 @@ describe('tiktokads init tests', () => {
 describe('tiktokads page', () => {
   let tiktokads;
   beforeEach(() => {
-    tiktokads = new TiktokAds(
-      {
-        pixelCode: '12567839',
-        eventsToStandard: [
-          { from: 'Sign Up', to: 'Signup' },
-          { to: 'Lead', from: 'orderCompleted' },
-          { from: 'Page View', to: 'PageVisit' },
-          { from: 'productAdded', to: 'AddToCart' },
-        ],
-      },
-      { loglevel: 'debug' },
-    );
+    tiktokads = new TiktokAds(basicConfig, { loglevel: 'debug' });
     tiktokads.init();
     window.ttq.page = jest.fn();
   });
@@ -76,30 +56,17 @@ describe('tiktokads page', () => {
 
 describe('TiktokAds Track event', () => {
   let tiktokads;
-  beforeEach(() => {
-    tiktokads = new TiktokAds(
-      {
-        pixelCode: '12567839',
-        eventsToStandard: [
-          { from: 'Sign Up', to: 'Signup' },
-          { to: 'Lead', from: 'orderCompleted' },
-          { from: 'Page View', to: 'PageVisit' },
-          { from: 'Custom', to: 'AddToCart' },
-        ],
-      },
-      { loglevel: 'DEBUG' },
-    );
+  test('Testing Track product_added with no content_type in payload', () => {
+    tiktokads = new TiktokAds(basicConfig, { loglevel: 'DEBUG' });
     tiktokads.init();
     window.ttq.track = jest.fn();
-  });
-  test('Testing Track Custom Events with no content_type in payload', () => {
     tiktokads.track({
       message: {
         context: {},
-        event: 'Custom',
+        event: 'product_added',
         properties: {
           customProp: 'testProp',
-          checkout_id: 'what is checkout id here??',
+          checkout_id: 'some_checkout_id',
           event_id: 'purchaseId',
           order_id: 'transactionId',
           value: 35.0,
@@ -113,7 +80,7 @@ describe('TiktokAds Track event', () => {
               category: 'Merch',
               name: 'Food',
               brand: '',
-              variant: 'Extra topped',
+              variant: 'Extra topped 1',
               price: 3.0,
               quantity: 2,
               currency: 'GBP',
@@ -143,11 +110,176 @@ describe('TiktokAds Track event', () => {
       ],
     });
   });
-  test('Testing Track Custom Events with content type in payload and multiple products', () => {
+  test('Testing Track product_added with content type in payload and multiple products', () => {
+    tiktokads = new TiktokAds(basicConfig, { loglevel: 'DEBUG' });
+    tiktokads.init();
+    window.ttq.track = jest.fn();
     tiktokads.track({
       message: {
         context: {},
-        event: 'Custom',
+        event: 'product_added',
+        properties: {
+          customProp: 'testProp',
+          checkout_id: 'some_checkout_id',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+          products: [
+            {
+              customPropProd: 'testPropProd',
+              product_id: 'abc',
+              category: 'Merch',
+              name: 'Drink',
+              brand: '',
+              variant: 'Extra topped2',
+              price: 3.0,
+              quantity: 2,
+              currency: 'GBP',
+              position: 1,
+              value: 6.0,
+              typeOfProduct: 'Food',
+              url: 'https://www.example.com/product/some_product',
+              image_url: 'https://www.example.com/product/some_product.jpg',
+            },
+            {
+              product_id: 'PRODUCT_ID',
+              category: 'Wholesaler',
+              name: 'Drink',
+              brand: '',
+              variant: 'Extra Cheese2',
+              price: 50.0,
+              quantity: 1,
+              currency: 'GBP',
+              position: 1,
+              value: 30.0,
+              typeOfProduct: 'Food',
+              content_type: 'CONTENT_TYPE',
+              url: 'https://www.example.com/product/some_product2',
+              image_url: 'https://www.example.com/product/some_product2.jpg',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.ttq.track.mock.calls[0][0]).toEqual('AddToCart');
+    expect(window.ttq.track.mock.calls[0][1]).toEqual({
+      value: 35.0,
+      currency: 'GBP',
+      event_id: 'purchaseId',
+      partner_name: 'RudderStack',
+      contents: [
+        {
+          content_category: 'Merch',
+          content_id: 'abc',
+          content_name: 'Drink',
+          content_type: 'product',
+          price: 3.0,
+          quantity: 2,
+        },
+        {
+          content_category: 'Wholesaler',
+          content_id: 'PRODUCT_ID',
+          content_name: 'Drink',
+          content_type: 'CONTENT_TYPE',
+          price: 50.0,
+          quantity: 1,
+        },
+      ],
+    });
+  });
+
+  test('Testing Track custom_event with no mapping and sendCustomEvents flag as true', () => {
+    tiktokads = new TiktokAds({ ...basicConfig, sendCustomEvents: true }, { loglevel: 'DEBUG' });
+    tiktokads.init();
+    window.ttq.track = jest.fn();
+    tiktokads.track({
+      message: {
+        context: {},
+        event: 'custom_event',
+        properties: {
+          customProp: 'testProp',
+          checkout_id: 'what is checkout id here??',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+          products: [
+            {
+              customPropProd: 'testPropProd',
+              product_id: 'abc',
+              category: 'Merch',
+              name: 'Drink',
+              brand: '',
+              variant: 'Extra topped',
+              price: 3.0,
+              quantity: 2,
+              currency: 'GBP',
+              position: 1,
+              value: 6.0,
+              typeOfProduct: 'Food',
+              url: 'https://www.example.com/product/bacon-jam1',
+              image_url: 'https://www.example.com/product/bacon-jam1.jpg',
+            },
+            {
+              product_id: 'PRODUCT_ID',
+              category: 'Wholesaler',
+              name: 'Drink',
+              brand: '',
+              variant: 'Extra Cheese',
+              price: 50.0,
+              quantity: 1,
+              currency: 'GBP',
+              position: 1,
+              value: 30.0,
+              typeOfProduct: 'Food',
+              content_type: 'CONTENT_TYPE',
+              url: 'https://www.example.com/product/bacon-jam2',
+              image_url: 'https://www.example.com/product/bacon-jam2.jpg',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.ttq.track.mock.calls[0][0]).toEqual('custom_event');
+    expect(window.ttq.track.mock.calls[0][1]).toEqual({
+      value: 35.0,
+      currency: 'GBP',
+      event_id: 'purchaseId',
+      partner_name: 'RudderStack',
+      contents: [
+        {
+          content_category: 'Merch',
+          content_id: 'abc',
+          content_name: 'Drink',
+          content_type: 'product',
+          price: 3.0,
+          quantity: 2,
+        },
+        {
+          content_category: 'Wholesaler',
+          content_id: 'PRODUCT_ID',
+          content_name: 'Drink',
+          content_type: 'CONTENT_TYPE',
+          price: 50.0,
+          quantity: 1,
+        },
+      ],
+    });
+  });
+
+  test('Testing Track custom_event with no mapping and sendCustomEvents flag as false', () => {
+    tiktokads = new TiktokAds({ ...basicConfig, sendCustomEvents: false }, { loglevel: 'DEBUG' });
+    tiktokads.init();
+    window.ttq.track = jest.fn();
+    tiktokads.track({
+      message: {
+        context: {},
+        event: 'custom_event',
         properties: {
           customProp: 'testProp',
           checkout_id: 'what is checkout id here??',
@@ -194,31 +326,7 @@ describe('TiktokAds Track event', () => {
         },
       },
     });
-    expect(window.ttq.track.mock.calls[0][0]).toEqual('AddToCart');
-    expect(window.ttq.track.mock.calls[0][1]).toEqual({
-      value: 35.0,
-      currency: 'GBP',
-      event_id: 'purchaseId',
-      partner_name: 'RudderStack',
-      contents: [
-        {
-          content_category: 'Merch',
-          content_id: 'abc',
-          content_name: 'Drink',
-          content_type: 'product',
-          price: 3.0,
-          quantity: 2,
-        },
-        {
-          content_category: 'Wholesaler',
-          content_id: 'PRODUCT_ID',
-          content_name: 'Drink',
-          content_type: 'CONTENT_TYPE',
-          price: 50.0,
-          quantity: 1,
-        },
-      ],
-    });
+    expect(window.ttq.track).not.toHaveBeenCalledWith();
   });
 });
 

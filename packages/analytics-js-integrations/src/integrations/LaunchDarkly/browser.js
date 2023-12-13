@@ -1,8 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/LaunchDarkly/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/LaunchDarkly/constants';
+import Logger from '../../utils/logger';
 import { createUser, getDestinationOptions } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class LaunchDarkly {
   constructor(config, analytics, destinationInfo) {
@@ -21,7 +26,6 @@ class LaunchDarkly {
   }
 
   init() {
-    logger.debug('===in init LaunchDarkly===');
     if (!this.clientSideId) {
       logger.error(
         `${this.name} :: Unable to initialize destination - clientSideId is missing in config`,
@@ -32,12 +36,10 @@ class LaunchDarkly {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded LaunchDarkly===');
     return !!window.LDClient;
   }
 
   isReady() {
-    logger.debug('===In isReady LaunchDarkly===');
     return this.isLoaded();
   }
 
@@ -58,7 +60,7 @@ class LaunchDarkly {
     const { event, properties } = rudderElement.message;
     if (window.ldclient) {
       window.ldclient.track(event, properties);
-    } else logger.error('=== In LaunchDarkly, track is not supported before identify ===');
+    } else logger.error('track is not supported before identify');
   }
 
   alias(rudderElement) {
@@ -67,7 +69,7 @@ class LaunchDarkly {
 
     if (window.ldclient) {
       window.ldclient.alias(newUser, this.launchDarklyUser);
-    } else logger.error('=== In LaunchDarkly, alias is not supported before identify ===');
+    } else logger.error('alias is not supported before identify');
   }
 }
 export default LaunchDarkly;

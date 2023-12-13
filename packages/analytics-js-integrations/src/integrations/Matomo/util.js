@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import each from '@ndhoule/each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArray } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 /**
  * Get destination specific options from integrations options

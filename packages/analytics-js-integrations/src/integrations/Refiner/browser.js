@@ -1,8 +1,13 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Refiner/constants';
 /* eslint-disable no-underscore-dangle */
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Refiner/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { replaceUserTraits, replaceAccountTraits } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Refiner {
   constructor(config, analytics, destinationInfo) {
@@ -26,27 +31,23 @@ class Refiner {
   }
 
   init() {
-    logger.debug('===In init Refiner===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Refiner===');
     return !!this._refiner;
   }
 
   isReady() {
-    logger.debug('===In isReady Refiner===');
-    return !!this._refiner;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Refiner Identify===');
     const { message } = rudderElement;
     const { userId, traits, context } = message;
     const email = traits?.email || context?.traits?.email;
     if (!userId && !email) {
-      logger.error('either one userId or email is required');
+      logger.error('Either userId or email is required');
       return;
     }
     let userTraits = {
@@ -62,7 +63,6 @@ class Refiner {
   }
 
   track(rudderElement) {
-    logger.debug('===In Refiner track===');
     const { event } = rudderElement.message;
 
     if (!event) {
@@ -79,12 +79,11 @@ class Refiner {
   }
 
   group(rudderElement) {
-    logger.debug('===In Refiner Group===');
     const { message } = rudderElement;
     const { userId, groupId, traits, context } = message;
     const userEmail = context?.traits?.email;
     if (!userId && !userEmail) {
-      logger.error('either one userId or email is required');
+      logger.error('Either one userId or email is required');
       return;
     }
     let accountTraits = { ...traits };
@@ -100,7 +99,6 @@ class Refiner {
   }
 
   page(rudderElement) {
-    logger.debug('===In Refiner page===');
     const { message } = rudderElement;
     let pageFullName;
     if (!message.name && !message.category) {

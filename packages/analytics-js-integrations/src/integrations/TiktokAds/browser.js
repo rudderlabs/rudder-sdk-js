@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import {
   NAME,
+  DISPLAY_NAME,
   eventNameMapping,
 } from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
+import Logger from '../../utils/logger';
 import {
   isDefinedAndNotNull,
   getDestinationExternalID,
@@ -12,6 +14,8 @@ import {
 } from '../../utils/commonUtils';
 import { getTrackResponse } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 // Docs : https://ads.tiktok.com/gateway/docs/index
 class TiktokAds {
@@ -23,6 +27,7 @@ class TiktokAds {
     this.analytics = analytics;
     this.eventsToStandard = config.eventsToStandard;
     this.pixelCode = config.pixelCode;
+    this.sendCustomEvents = config.sendCustomEvents;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -31,22 +36,18 @@ class TiktokAds {
   }
 
   init() {
-    logger.debug('===In init Tiktok Ads===');
     loadNativeSdk(this.pixelCode);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Tiktok Ads===');
     return !!window.ttq;
   }
 
   isReady() {
-    logger.debug('===In isReady Tiktok Ads===');
-    return !!window.ttq;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Tiktok Ads Identify===');
     const { message } = rudderElement;
     const { traits } = message.context;
     const { email, phone, number } = traits;
@@ -68,7 +69,6 @@ class TiktokAds {
   }
 
   track(rudderElement) {
-    logger.debug('===In Tiktok Ads Track===');
     const { message } = rudderElement;
     let event = message?.event;
     if (!event) {
@@ -77,7 +77,11 @@ class TiktokAds {
     }
     event = event.toLowerCase().trim();
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
-    if (eventNameMapping[event] === undefined && !standardEventsMap[event]) {
+    if (
+      !this.sendCustomEvents &&
+      eventNameMapping[event] === undefined &&
+      !standardEventsMap[event]
+    ) {
       logger.error(`Event name (${event}) is not valid, must be mapped to one of standard events`);
       return;
     }
@@ -90,15 +94,14 @@ class TiktokAds {
           });
         }
       });
-    } else {
-      event = eventNameMapping[event];
-      const updatedProperties = getTrackResponse(message);
-      window.ttq.track(event, updatedProperties);
+      return;
     }
+    event = eventNameMapping[event] || event;
+    const updatedProperties = getTrackResponse(message);
+    window.ttq.track(event, updatedProperties);
   }
 
   page(rudderElement) {
-    logger.debug('===In Tiktok Ads Page===');
     window.ttq.page();
   }
 }

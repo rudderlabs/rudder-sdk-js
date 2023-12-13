@@ -1,9 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/ConvertFlow/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/ConvertFlow/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import Logger from '../../utils/logger';
 import { trigger } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class ConvertFlow {
   constructor(config, analytics, destinationInfo) {
@@ -24,7 +29,6 @@ class ConvertFlow {
   }
 
   init() {
-    logger.debug('===In init convertflow===');
     ScriptLoader(
       'convertflow-integration',
       `https://js.convertflow.co/production/websites/${this.websiteId}.js`,
@@ -32,7 +36,6 @@ class ConvertFlow {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded convertflow===');
     if (this.toggleToSendData) {
       trigger(this.eventsMappping, this.eventsList, this.analytics);
     }
@@ -40,12 +43,10 @@ class ConvertFlow {
   }
 
   isReady() {
-    logger.debug('===In isReady convertflow===');
     return !!window.convertflow;
   }
 
   identify(rudderElement) {
-    logger.debug('===In convertflow Identify===');
     const { message } = rudderElement;
     const email = message.context.traits?.email || message.traits?.email;
     if (!email) {

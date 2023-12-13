@@ -1,10 +1,15 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
+import Logger from '../../utils/logger';
 import { refinePayload, getDestinationExternalID } from './utils';
 import { getDefinedTraits } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Engage {
   constructor(config, analytics, destinationInfo) {
@@ -24,10 +29,7 @@ class Engage {
   }
 
   init() {
-    logger.debug('===In init Engage===');
-
     loadNativeSdk();
-
     window.Engage.init({
       key: this.api_key,
       secret: this.api_secret,
@@ -35,24 +37,19 @@ class Engage {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Engage===');
-
     return !!window.Engage;
   }
 
   isReady() {
-    logger.debug('===In isReady Engage===');
-    return !!window.Engage;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Engage identify');
-
     const { message } = rudderElement;
     const engageId = getDestinationExternalID(message, 'engageId');
     const { userIdOnly, firstName, phone, lastName } = getDefinedTraits(message);
     if (!engageId && !userIdOnly) {
-      logger.error('externalId or userId is required for Identify call.');
+      logger.error('externalId or userId is required for Identify call');
       return;
     }
     const { originalTimestamp, context } = message;
@@ -70,7 +67,6 @@ class Engage {
   }
 
   track(rudderElement) {
-    logger.debug('===In Engage track===');
     const { message } = rudderElement;
     const { event, properties, originalTimestamp } = message;
     let engageId = getDestinationExternalID(message, 'engageId');
@@ -79,11 +75,11 @@ class Engage {
       engageId = userIdOnly || null;
     }
     if (!engageId) {
-      logger.error('externalId or userId is required for track call.');
+      logger.error('externalId or userId is required for track call');
       return;
     }
     if (!event) {
-      logger.error('[ Engage ]:: Event name not present');
+      logger.error('Event name is not present');
       return;
     }
     let payload = refinePayload(properties);
@@ -96,7 +92,6 @@ class Engage {
   }
 
   page(rudderElement) {
-    logger.debug('===In Engage page===');
     const { message } = rudderElement;
     const { name, properties, originalTimestamp, category } = message;
     let engageId = getDestinationExternalID(message, 'engageId');
@@ -105,7 +100,7 @@ class Engage {
       engageId = userIdOnly || null;
     }
     if (!engageId) {
-      logger.error('externalId or userId is required for page call.');
+      logger.error('externalId or userId is required for page call');
       return;
     }
     let payload = refinePayload(properties);
