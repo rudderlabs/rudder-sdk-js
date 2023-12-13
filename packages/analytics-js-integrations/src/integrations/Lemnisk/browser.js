@@ -1,9 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Lemnisk/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Lemnisk/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class Lemnisk {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -21,26 +24,21 @@ class Lemnisk {
   }
 
   init() {
-    logger.debug('===in init Lemnisk Marketing Automation===');
     loadNativeSdk(this.accountId, this.sdkWriteKey);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Lemnisk Marketing Automation===');
     return !!window.lmSMTObj;
   }
 
   isReady() {
-    logger.debug('===In isReady Lemnisk Marketing Automation===');
-    return !!window.lmSMTObj;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Lemnisk Marketing Automation identify===');
-
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('[Lemnisk] identify:: user id is required');
+      logger.error('user id is required');
       return;
     }
     const { message } = rudderElement;
@@ -51,11 +49,10 @@ class Lemnisk {
   }
 
   track(rudderElement) {
-    logger.debug('===In Lemnisk Marketing Automation track===');
     const { event, properties } = rudderElement.message;
 
     if (!event) {
-      logger.error('[Lemnisk] track:: Event name is missing!');
+      logger.error('Event name is missing');
       return;
     }
     if (properties) {
@@ -67,7 +64,6 @@ class Lemnisk {
   }
 
   page(rudderElement) {
-    logger.debug('===In Lemnisk Marketing Automation page===');
     const { name, properties } = rudderElement.message;
     if (name && !properties) {
       window.lmSMTObj.page(name, { isRudderEvents: true });

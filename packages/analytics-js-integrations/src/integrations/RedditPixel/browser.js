@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable prefer-rest-params */
@@ -7,10 +8,15 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
+import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -29,32 +35,25 @@ class RedditPixel {
   }
 
   init() {
-    logger.debug('===In init RedditPixel===');
-
     loadNativeSdk(this.advertiserId);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded RedditPixel===');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
-    logger.debug('===In isReady RedditPixel===');
-    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In RedditPixel identify===');
     window.rdt('track', 'SignUp');
   }
 
   track(rudderElement) {
-    logger.debug('===In RedditPixel track===');
-
     const { event } = rudderElement.message;
     if (!event) {
-      logger.error('Event name is not present');
+      logger.error('Event name is required');
       return;
     }
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
@@ -97,7 +96,6 @@ class RedditPixel {
   }
 
   page(rudderElement) {
-    logger.debug('===In RedditPixel page===');
     window.rdt('track', 'PageVisit');
   }
 }

@@ -1,6 +1,7 @@
 /* eslint-disable guard-for-in */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { isEmptyObject } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import Logger from '../../utils/logger';
 import {
   eventsConfig,
   itemsArrayParams,
@@ -9,6 +10,8 @@ import {
 } from './config';
 import { isBlank, flattenJson } from '../../utils/commonUtils';
 import { constructPayload, extractCustomFields } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 /**
  * Extracts last word after . from string
@@ -26,9 +29,9 @@ const shouldSendUserId = integrations => integrations?.GA4?.sendUserId ?? true;
 
 /**
  * Returns user traits
- * @param {*} piiPropertiesToIgnore 
- * @param {*} userTraits 
- * @returns 
+ * @param {*} piiPropertiesToIgnore
+ * @param {*} userTraits
+ * @returns
  */
 const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
   const piiKeys = [];
@@ -44,17 +47,17 @@ const filterUserTraits = (piiPropertiesToIgnore, userTraits) => {
     });
   }
 
-  Object.keys(traits).forEach((key) => {
+  Object.keys(traits).forEach(key => {
     const value = traits[key];
     if (!piiKeys.includes(key)) {
       nonPiiProperties[key] = value;
     } else {
       piiProperties[key] = null;
     }
-  })
+  });
 
   return { ...piiProperties, ...nonPiiProperties };
-}
+};
 
 /**
  * Reserved event names cannot be used
