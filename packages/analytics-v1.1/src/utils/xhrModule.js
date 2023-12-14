@@ -42,7 +42,7 @@ class XHRQueue {
         item.url,
         item.headers,
         item.message,
-        10 * 1000,
+        30 * 1000,
         // eslint-disable-next-line consistent-return
         (err, res) => {
           if (err) {
