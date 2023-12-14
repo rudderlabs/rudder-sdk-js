@@ -1,8 +1,13 @@
-## [3.0.0-beta.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.16...@rudderstack/analytics-js-integrations@3.0.0-beta.17) (2023-12-01)
+## [3.0.0-beta.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.17...@rudderstack/analytics-js-integrations@3.0.0-beta.18) (2023-12-13)
 
 
 ### Features
 
-* adding set_once feature for Mixpanel ([#1497](https://github.com/rudderlabs/rudder-sdk-js/issues/1497)) ([60f9f6f](https://github.com/rudderlabs/rudder-sdk-js/commit/60f9f6f657121131e8eab4cbdcafefa00c11cc9a))
-* **analytics-js-loading-scripts:** add loading snippet version in event context ([#1483](https://github.com/rudderlabs/rudder-sdk-js/issues/1483)) ([4873cbc](https://github.com/rudderlabs/rudder-sdk-js/commit/4873cbc183879c0c1825cf939a53b6cf570cdf4e))
+* tiktok_ads: add support for custom events ([#1542](https://github.com/rudderlabs/rudder-sdk-js/issues/1542)) ([98bcdf7](https://github.com/rudderlabs/rudder-sdk-js/commit/98bcdf7aaaec1ed4512352d8fb8982312c1fcef3))
+* updated logger utility across all integrations ([#1434](https://github.com/rudderlabs/rudder-sdk-js/issues/1434)) ([1e23c30](https://github.com/rudderlabs/rudder-sdk-js/commit/1e23c30e219108ac7671f85913dab5ce6f33ed56))
+
+
+### Bug Fixes
+
+* add check to disallow track events without event name ([#1538](https://github.com/rudderlabs/rudder-sdk-js/issues/1538)) ([c9c128a](https://github.com/rudderlabs/rudder-sdk-js/commit/c9c128a9eb45070d0e5dcd41594b8aea0ffadd90))
 
