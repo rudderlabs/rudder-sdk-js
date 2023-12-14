@@ -1,11 +1,17 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import Logger from '../../utils/logger';
 import { getDestinationOptions, sanitizeName, sanitizeAttributes } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class VWO {
   constructor(config, analytics, destinationInfo) {
@@ -26,11 +32,9 @@ class VWO {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-    logger.debug('Config ', config);
   }
 
   init() {
-    logger.debug('===In init VWO===');
     const vwoIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     if (vwoIntgConfig?.loadIntegration) {
       const account_id = this.accountId;
@@ -40,18 +44,21 @@ class VWO {
       const { isSPA } = this;
       loadNativeSdk(account_id, settings_tolerance, library_tolerance, use_existing_jquery, isSPA);
     } else {
-      logger.debug('===[VWO]loadIntegration flag is disabled===');
+      logger.info('loadIntegration flag is disabled');
     }
 
     window.VWO = window.VWO || [];
-    window.VWO.event = window.VWO.event || function (...args) {
+    window.VWO.event =
+      window.VWO.event ||
+      function (...args) {
         window.VWO.push(['event', ...args]);
-    };
- 
-    
-    window.VWO.visitor = window.VWO.visitor || function (...args) {
+      };
+
+    window.VWO.visitor =
+      window.VWO.visitor ||
+      function (...args) {
         window.VWO.push(['visitor', ...args]);
-    };
+      };
 
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
@@ -59,19 +66,25 @@ class VWO {
     }
   }
 
+  isLoaded() {
+    return !!window._vwo_code;
+  }
+
+  isReady() {
+    return this.isLoaded();
+  }
+
   experimentViewed() {
     window.VWO = window.VWO || [];
-    const self = this;
     window.VWO.push([
       'onVariationApplied',
       data => {
         if (!data) {
           return;
         }
-        logger.debug('Variation Applied');
         const expId = data[1];
         const variationId = data[2];
-        logger.debug(
+        logger.info(
           'experiment id:',
           expId,
           'Variation Name:',
@@ -82,8 +95,7 @@ class VWO {
           ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(_vwo_exp[expId].type) > -1
         ) {
           try {
-            if (self.sendExperimentTrack) {
-              logger.debug('Tracking...');
+            if (this.sendExperimentTrack) {
               this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
@@ -92,17 +104,16 @@ class VWO {
               });
             }
           } catch (error) {
-            logger.error('[VWO] experimentViewed:: ', error);
+            logger.error('experimentViewed', error);
           }
           try {
-            if (self.sendExperimentIdentify) {
-              logger.debug('Identifying...');
+            if (this.sendExperimentIdentify) {
               this.analytics.identify({
                 [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId],
               });
             }
           } catch (error) {
-            logger.error('[VWO] experimentViewed:: ', error);
+            logger.error('experimentViewed', error);
           }
         }
       },
@@ -110,7 +121,6 @@ class VWO {
   }
 
   identify(rudderElement) {
-    logger.debug('===In VWO Identify===');
     const { message } = rudderElement;
     const { traits } = message.context || message;
     const payload = traits || {};
@@ -120,34 +130,25 @@ class VWO {
   }
 
   track(rudderElement) {
-    logger.debug('===In VWO track===');
+
     const eventName = rudderElement.message.event;
+    // throw error if event name is not present
+    if (!eventName) {
+      logger.error('[VWO] track:: event name is required');
+      return;
+    }
     const properties = (rudderElement.message && rudderElement.message.properties) || {};
     window.VWO = window.VWO || [];
     if (eventName === 'Order Completed') {
       const total = rudderElement.message.properties
         ? rudderElement.message.properties.total || rudderElement.message.properties.revenue
         : 0;
-      logger.debug('Revenue', total);
+      window.VWO = window.VWO || [];
       window.VWO.push(['track.revenueConversion', total]);
     }
     const sanitizedEventName = sanitizeName(eventName);
     logger.debug(`[VWO] eventName: ${sanitizedEventName}`);
     window.VWO.event(sanitizedEventName, properties, { source: 'rudderstack', ogName: eventName });
-  }
-
-  page() {
-    logger.debug('[VWO] page:: method not supported');
-  }
-
-  isLoaded() {
-    logger.debug('===In isLoaded VWO===');
-    return !!window._vwo_code;
-  }
-
-  isReady() {
-    logger.debug('===In isReady VWO===');
-    return !!window._vwo_code;
   }
 }
 

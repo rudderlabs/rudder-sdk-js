@@ -1,10 +1,15 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/June/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/June/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import Logger from '../../utils/logger';
 import { getDestinationExternalID } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class June {
   constructor(config, analytics, destinationInfo) {
@@ -31,28 +36,23 @@ class June {
   }
 
   init() {
-    logger.debug('===In init June===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded June===');
-    return !!window.analytics && typeof window.analytics === 'object';
+    return !!(window.analytics && window.analytics.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug('===In isReady June===');
-    return !!window.analytics && typeof window.analytics === 'object';
+    return this.isLoaded();
   }
 
   page(rudderElement) {
-    logger.debug('===In June page===');
     const { name, properties } = rudderElement.message;
     window.analytics.page(name, properties);
   }
 
   identify(rudderElement) {
-    logger.debug('===In June identify===');
     const { message } = rudderElement;
     const userId =
       get(message, 'userId') ||
@@ -67,7 +67,6 @@ class June {
   }
 
   track(rudderElement) {
-    logger.debug('===In June track===');
     let groupId;
     const { message } = rudderElement;
     const externalGroupId = getDestinationExternalID(message, 'juneGroupId');
@@ -84,7 +83,6 @@ class June {
   }
 
   group(rudderElement) {
-    logger.debug('===In June group===');
     const { groupId } = rudderElement.message;
     if (!groupId) {
       logger.error('groupId is required for group call');

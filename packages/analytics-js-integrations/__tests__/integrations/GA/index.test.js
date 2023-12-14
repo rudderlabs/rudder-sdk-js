@@ -1,4 +1,3 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import GA from '../../../src/integrations/GA/browser';
 
 beforeAll(() => {});
@@ -94,7 +93,6 @@ describe('GA init tests', () => {
           },
         },
       });
-      logger.debug(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
       expect(window.ga.mock.calls[0][0]).toEqual('set');
       expect(window.ga.mock.calls[0][1]).toEqual({ dimension1: null });
       expect(window.ga.mock.calls[1][0]).toEqual('set');
@@ -108,7 +106,6 @@ describe('GA init tests', () => {
         title: 'test cat',
         location: 'http://localhost',
       });
-      logger.debug(JSON.stringify(window.ga.mock.calls));
       // TODO: call another page, check location not set
     });
   });
@@ -140,7 +137,6 @@ describe('GA init tests', () => {
           },
         },
       });
-      // logger.debug(JSON.stringify(window.ga.mock.calls));
 
       expect(window.ga.mock.calls[0][0]).toEqual('send');
       expect(window.ga.mock.calls[0][1]).toEqual('event');
@@ -167,7 +163,6 @@ describe('GA init tests', () => {
           },
         },
       });
-      // logger.debug(JSON.stringify(window.ga.mock.calls));
 
       expect(window.ga.mock.calls[0][0]).toEqual('send');
       expect(window.ga.mock.calls[0][1]).toEqual('event');

@@ -5,9 +5,10 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 function App() {
   useEffect(() => {
-    if (window.rudderanalytics) {
+    if (window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
       return;
     }
+
     const analytics = new RudderAnalytics();
 
     analytics.load('<writeKey>', '<dataplaneUrl>');

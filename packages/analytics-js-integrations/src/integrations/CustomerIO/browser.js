@@ -1,8 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/CustomerIO/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/CustomerIO/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class CustomerIO {
   constructor(config, analytics, destinationInfo) {
@@ -34,17 +39,23 @@ class CustomerIO {
   }
 
   init() {
-    logger.debug('===in init Customer IO init===');
-    const { siteID, datacenter, datacenterEU, dataUseInApp } = this;
-    loadNativeSdk(siteID, datacenter, datacenterEU, dataUseInApp);
+    const { siteID, datacenter, datacenterEU } = this;
+    loadNativeSdk(siteID, datacenter, datacenterEU);
+  }
+
+  isLoaded() {
+    return !!(window._cio && window._cio.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('in Customer IO identify');
     const { userId, context } = rudderElement.message;
     const { traits } = context || {};
     if (!userId) {
-      logger.error('userId is required for Identify call.');
+      logger.error('userId is required for Identify call');
       return;
     }
     const createAt = traits.createdAt;
@@ -56,29 +67,18 @@ class CustomerIO {
   }
 
   track(rudderElement) {
-    logger.debug('in Customer IO track');
-
     const eventName = rudderElement.message.event;
     const { properties } = rudderElement.message;
     window._cio.track(eventName, properties);
   }
 
   page(rudderElement) {
-    logger.debug('in Customer IO page');
     if (this.sendPageNameInSDK === false) {
       window._cio.page(rudderElement.message.properties);
     } else {
       const name = rudderElement.message.name || rudderElement.message.properties.url;
       window._cio.page(name, rudderElement.message.properties);
     }
-  }
-
-  isLoaded() {
-    return !!(window._cio && window._cio.push !== Array.prototype.push);
-  }
-
-  isReady() {
-    return !!(window._cio && window._cio.push !== Array.prototype.push);
   }
 }
 

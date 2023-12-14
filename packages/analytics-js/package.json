@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.0-beta.17",
+  "version": "3.0.0-beta.18",
   "description": "RudderStack Javascript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -19,6 +19,11 @@
       "types": "./dist/npm/index.d.ts",
       "require": "./dist/npm/modern/bundled/cjs/index.js",
       "import": "./dist/npm/modern/bundled/esm/index.js"
+    },
+    "./content-script": {
+      "types": "./dist/npm/index.d.ts",
+      "require": "./dist/npm/modern/content-script/cjs/index.js",
+      "import": "./dist/npm/modern/content-script/esm/index.js"
     }
   },
   "types": "./dist/npm/index.d.ts",
@@ -55,8 +60,9 @@
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
     "build:npm:bundled": "BUNDLED_PLUGINS=all npm run build:npm:modern",
+    "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled",
+    "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
     "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDKv3.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
     "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",

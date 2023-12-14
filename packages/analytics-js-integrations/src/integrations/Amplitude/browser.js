@@ -1,11 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 class Amplitude {
   constructor(config, analytics, destinationInfo) {
@@ -69,9 +72,15 @@ class Amplitude {
     window.amplitude.init(this.apiKey, null, initOptions);
   }
 
-  identify(rudderElement) {
-    logger.debug('in Amplitude identify');
+  isLoaded() {
+    return Boolean(window.amplitude && window.amplitude.getDeviceId());
+  }
 
+  isReady() {
+    return this.isLoaded();
+  }
+
+  identify(rudderElement) {
     this.setDeviceId(rudderElement);
 
     // rudderElement.message.context will always be present as part of identify event payload.
@@ -104,7 +113,6 @@ class Amplitude {
   }
 
   track(rudderElement) {
-    logger.debug('in Amplitude track');
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -205,7 +213,6 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug('in Amplitude page');
     this.setDeviceId(rudderElement);
 
     const { properties, name, category, integrations } = rudderElement.message;
@@ -235,8 +242,6 @@ class Amplitude {
   }
 
   group(rudderElement) {
-    logger.debug('in Amplitude group');
-
     this.setDeviceId(rudderElement);
 
     const { groupId, traits } = rudderElement.message;
@@ -297,7 +302,7 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
+      logger.error('Neither "revenue" nor "price" is available. Hence, aborting');
       return;
     }
 
@@ -336,15 +341,6 @@ class Amplitude {
       quantity: product.quantity,
       category: product.category,
     };
-  }
-
-  isLoaded() {
-    logger.debug('in Amplitude isLoaded');
-    return !!(window.amplitude && window.amplitude.getDeviceId());
-  }
-
-  isReady() {
-    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 }
 

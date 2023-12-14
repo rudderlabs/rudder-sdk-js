@@ -1,10 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Clevertap/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Clevertap/constants';
+import Logger from '../../utils/logger';
 import { getDestinationOptions } from './utils';
 import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../utils/utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Clevertap {
   constructor(config, analytics, destinationInfo) {
@@ -50,14 +55,10 @@ class Clevertap {
   }
 
   init() {
-    logger.debug('===in init Clevertap===');
-    // START-NO-SONAR-SCAN
-    // disabled sonar scan here as http endpoint is discouraged by sonar
     const sourceUrl =
       document.location.protocol === 'https:'
         ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
         : 'http://static.clevertap.com/js/clevertap.min.js';
-    // END-NO-SONAR-SCAN
 
     window.clevertap = {
       event: [],
@@ -87,22 +88,18 @@ class Clevertap {
   }
 
   isLoaded() {
-    logger.debug('in clevertap isLoaded');
     return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   isReady() {
-    logger.debug('in clevertap isReady');
-    return !!window.clevertap && window.clevertap.logout !== undefined;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('in clevertap identify');
-
     const { message } = rudderElement;
     const { context } = message;
     if (!context?.traits) {
-      logger.error('user traits not present');
+      logger.error('user traits is not present');
       return;
     }
     const { userId, email, phone, name } = getDefinedTraits(message);
@@ -131,11 +128,11 @@ class Clevertap {
     try {
       payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
     } catch (err) {
-      logger.debug(`Error occured at extractCustomFields ${err}`);
+      logger.error(`Error occured at extractCustomFields ${err}`);
     }
     Object.keys(payload).forEach(key => {
       if (isObject(payload[key])) {
-        logger.debug('cannot process, unsupported traits');
+        logger.info(`cannot process, unsupported traits - ${payload[key]}`);
       }
     });
     window.clevertap.onUserLogin.push({
@@ -144,7 +141,6 @@ class Clevertap {
   }
 
   track(rudderElement) {
-    logger.debug('in clevertap track');
     const { event, properties } = rudderElement.message;
     if (properties) {
       if (event === 'Order Completed') {
@@ -162,13 +158,13 @@ class Clevertap {
             ['checkout_id', 'revenue', 'products'],
           );
         } catch (err) {
-          logger.debug(`Error occured at extractCustomFields ${err}`);
+          logger.error(`Error occured at extractCustomFields ${err}`);
         }
         window.clevertap.event.push('Charged', ecomProperties);
       } else {
         Object.keys(properties).forEach(key => {
           if (isObject(properties[key]) || isArray(properties[key])) {
-            logger.debug('cannot process, unsupported event');
+            logger.info(`cannot process, unsupported event - ${properties[key]}`);
           }
         });
         window.clevertap.event.push(event, properties);
@@ -181,7 +177,6 @@ class Clevertap {
   }
 
   page(rudderElement) {
-    logger.debug('in clevertap page');
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties?.category && name) {
@@ -194,7 +189,7 @@ class Clevertap {
     if (properties) {
       Object.keys(properties).forEach(key => {
         if (isObject(properties[key]) || isArray(properties[key])) {
-          logger.debug('cannot process, unsupported event');
+          logger.info(`cannot process, unsupported event - ${properties[key]}`);
         }
       });
       window.clevertap.event.push(eventName, properties);

@@ -323,3 +323,33 @@ We would love to see you contribute to this project. Get more information on how
 ## Contact us
 
 For more information on any of the sections covered in this readme, you can [**contact us**](mailto:%20docs@rudderstack.com) or start a conversation on our [**Slack**](https://resources.rudderstack.com/join-rudderstack-slack) channel.
+
+## Follow Us
+
+- [RudderStack Blog][rudderstack-blog]
+- [Slack][slack]
+- [Twitter][twitter]
+- [LinkedIn][linkedin]
+- [dev.to][devto]
+- [Medium][medium]
+- [YouTube][youtube]
+- [HackerNews][hackernews]
+- [Product Hunt][producthunt]
+
+## :clap: Our Supporters
+
+[![Stargazers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/stars/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/stargazers)
+
+[![Forkers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/forks/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/network/members)
+
+<!----variables---->
+
+[rudderstack-blog]: https://rudderstack.com/blog/
+[slack]: https://resources.rudderstack.com/join-rudderstack-slack
+[twitter]: https://twitter.com/rudderstack
+[linkedin]: https://www.linkedin.com/company/rudderlabs/
+[devto]: https://dev.to/rudderstack
+[medium]: https://rudderstack.medium.com/
+[youtube]: https://www.youtube.com/channel/UCgV-B77bV_-LOmKYHw8jvBw
+[hackernews]: https://news.ycombinator.com/item?id=21081756
+[producthunt]: https://www.producthunt.com/posts/rudderstack

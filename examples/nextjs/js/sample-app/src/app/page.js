@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 export default function Home() {
   useEffect(() => {
-    if (window.rudderanalytics) {
+    if (window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
       return;
     }
 

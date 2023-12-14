@@ -1,8 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Hotjar/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Hotjar/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Hotjar {
   constructor(config, analytics, destinationInfo) {
@@ -21,27 +26,22 @@ class Hotjar {
   }
 
   init() {
-    logger.debug('===In init Hotjar===');
     loadNativeSdk(this.siteId);
     this._ready = true;
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Hotjar===');
     return this._ready;
   }
 
   isReady() {
-    logger.debug('===In isReady Hotjar===');
-    return this._ready;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Hotjar identify===');
-
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('[Hotjar] identify:: user id is required');
+      logger.error('user id is required for an identify call');
       return;
     }
 
@@ -51,8 +51,6 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.debug('===In Hotjar track===');
-
     let { event } = rudderElement.message;
 
     if (!event) {
@@ -75,11 +73,6 @@ class Hotjar {
     if (event) {
       window.hj('event', event);
     }
-  }
-
-  page() {
-    logger.debug('===In Hotjar page===');
-    logger.debug('[Hotjar] page:: method not supported');
   }
 }
 

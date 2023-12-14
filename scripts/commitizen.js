@@ -21,5 +21,6 @@ module.exports = custom({
     'analytics-js-sanity-suite',
     'analytics-js-loading-scripts',
     'deps',
+    'examples',
   ],
 });

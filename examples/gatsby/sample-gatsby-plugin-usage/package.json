@@ -1,0 +1,31 @@
+{
+  "name": "sample-using-gatsby-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "sample-using-gatsby-plugin",
+  "author": "George Bardis",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "gatsby": "^5.12.4",
+    "gatsby-plugin-rudderstack": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.3",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "typescript": "^5.1.6"
+  }
+}
