@@ -2,11 +2,11 @@
 
 import Image from 'next/image';
 import { useEffect } from 'react';
-import type { RudderAnalytics } from "@rudderstack/analytics-js";
+import type { RudderAnalytics } from '@rudderstack/analytics-js';
 
 export default function Home() {
   useEffect(() => {
-    if (window.rudderanalytics as RudderAnalytics) {
+    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
       return;
     }
     const initialize = async () => {

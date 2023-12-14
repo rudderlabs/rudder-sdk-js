@@ -15,12 +15,6 @@ window.OneTrust = {
 window.OnetrustActiveGroups = ',C0001,C0003,';
 
 const expectedDeniedConsentIds = ['C0002', 'C0004', 'C0005', 'C0006'];
-const expectedConsentedConsentIds = {
-  C0001: 'Functional Cookies',
-  C0003: 'Analytical Cookies',
-};
-const provider = 'oneTrust';
-const resolutionStrategy = 'and';
 
 const oneTrust = new OneTrust();
 
@@ -88,13 +82,8 @@ describe('Test suit for OneTrust cookie consent manager', () => {
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
-  it('Should return the entire consent information', () => {
-    const cmInfo = oneTrust.getConsentManagementInfo();
-    expect(cmInfo).toEqual({
-      allowedConsentIds: expectedConsentedConsentIds,
-      deniedConsentIds: expectedDeniedConsentIds,
-      provider,
-      resolutionStrategy,
-    });
+  it('Should return the category IDs that the user has not consented for', () => {
+    const actualDeniedConsentIds = oneTrust.getDeniedList();
+    expect(actualDeniedConsentIds).toEqual(expectedDeniedConsentIds);
   });
 });

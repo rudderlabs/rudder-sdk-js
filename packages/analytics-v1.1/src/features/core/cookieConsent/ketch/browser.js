@@ -3,9 +3,6 @@ import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cook
 
 /* eslint-disable class-methods-use-this */
 class Ketch {
-  name = 'ketch';
-  resolutionStrategy = 'or';
-
   constructor() {
     this.userConsentedPurposes = [];
     this.userDeniedPurposes = [];
@@ -78,18 +75,13 @@ class Ketch {
       );
       return containsAnyOfConsent;
     } catch (e) {
-      logger.error(`Error occurred checking ketch consent state ${e}`);
+      logger.error(`Error occured checking ketch consent state ${e}`);
       return true;
     }
   }
 
-  getConsentManagementInfo() {
-    return {
-      allowedConsentIds: this.userConsentedPurposes,
-      deniedConsentIds: this.userDeniedPurposes,
-      provider: this.name,
-      resolutionStrategy: this.resolutionStrategy,
-    };
+  getDeniedList() {
+    return this.userDeniedPurposes;
   }
 
   getConsent() {

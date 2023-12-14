@@ -25,7 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
-    if (window.rudderanalytics as RudderAnalytics) {
+    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
       return;
     }
     this.analytics = new RudderAnalytics();
