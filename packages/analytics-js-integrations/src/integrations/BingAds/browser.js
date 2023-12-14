@@ -1,7 +1,7 @@
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/BingAds/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { extractCustomFields } from '../../utils/utils';
