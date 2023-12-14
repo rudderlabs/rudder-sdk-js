@@ -1,8 +1,11 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
+import Logger from '../../utils/logger';
 import {
   removeUndefinedAndNullValues,
   removeUndefinedAndNullAndEmptyValues,
 } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 // This function is used for sending the track event to yandex.metrica
 const sendEvent = (container, payload) => {
@@ -101,7 +104,7 @@ const getResponsePayload = (properties, eventType) => {
       }
     });
   } else if (!(productId || name)) {
-    logger.error(`None of product_id or name is present for the product`);
+    logger.error('None of product_id or name is present for the product');
   } else {
     responsePayload = populatePayload(eventType, properties, productsArray);
   }

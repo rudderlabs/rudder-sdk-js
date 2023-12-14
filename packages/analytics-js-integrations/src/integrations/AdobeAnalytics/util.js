@@ -1,14 +1,17 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
-import each from '@ndhoule/each';
 import get from 'lodash.get';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import each from '@ndhoule/each';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
+import Logger from '../../utils/logger';
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
 } from '../../utils/commonUtils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 let dynamicKeys = [];
 

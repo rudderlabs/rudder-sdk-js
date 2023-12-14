@@ -17,8 +17,8 @@ beforeEach(() => {
   delete window.Sprig;
 });
 describe('Sprig init tests', () => {
-  test('Testing init call of Sprig with apiKey', () => {
-    const sprig = new Sprig({ apiKey: '12345' }, {}, destinationInfo);
+  test('Testing init call of Sprig with environmentId', () => {
+    const sprig = new Sprig({ environmentId: '12345' }, {}, destinationInfo);
     sprig.init();
     expect(typeof window.Sprig).toBe('function');
   });
@@ -27,7 +27,7 @@ describe('Sprig init tests', () => {
 describe('Sprig tests', () => {
   let sprig;
   beforeEach(() => {
-    sprig = new Sprig({ apiKey: '12345' }, {}, destinationInfo);
+    sprig = new Sprig({ environmentId: '12345' }, {}, destinationInfo);
     sprig.init();
   });
 

@@ -1,14 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import isEqual from 'lodash.isequal';
 import { isEmpty } from 'ramda';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -44,12 +48,9 @@ class Braze {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
-
-    logger.debug('Config ', config);
   }
 
   init() {
-    logger.debug('===in init Braze===');
     loadNativeSdk();
     window.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
@@ -66,6 +67,14 @@ class Braze {
       window.braze.requestPushPermission();
     }
     window.braze.openSession();
+  }
+
+  isLoaded() {
+    return window.brazeQueue === null;
+  }
+
+  isReady() {
+    return this.isLoaded();
   }
 
   /**
@@ -104,7 +113,7 @@ class Braze {
     if (this.isHybridModeEnabled) {
       return;
     }
-    logger.debug('in Braze identify');
+
     const { message } = rudderElement;
     const { userId } = message;
     const { context } = message;
@@ -151,7 +160,7 @@ class Braze {
           .getUser()
           .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
-        logger.error('Error in setting birthday', error);
+        logger.error(`Error in setting birthday - ${stringifyWithoutCircularV1(error, true)}`);
       }
     }
     // function set Email
@@ -282,14 +291,6 @@ class Braze {
     } else {
       window.braze.logCustomEvent('Page View', properties);
     }
-  }
-
-  isLoaded() {
-    return this.appKey && window.brazeQueue === null;
-  }
-
-  isReady() {
-    return this.appKey && window.brazeQueue === null;
   }
 }
 

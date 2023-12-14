@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Woopra/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Woopra/constants';
+import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Woopra {
   constructor(config, analytics, destinationInfo) {
@@ -29,7 +34,6 @@ class Woopra {
   }
 
   init() {
-    logger.debug('===In init Woopra===');
     loadNativeSdk();
     window.Woopra.config({
       domain: this.projectName,
@@ -47,17 +51,14 @@ class Woopra {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Woopra===');
     return !!window?.Woopra?.loaded;
   }
 
   isReady() {
-    logger.debug('===In isReady Woopra===');
     return !!window.Woopra;
   }
 
   identify(rudderElement) {
-    logger.debug('===In Woopra Identify===');
     const { traits } = rudderElement.message.context;
     if (traits) {
       window.Woopra.identify(traits).push();
@@ -65,13 +66,11 @@ class Woopra {
   }
 
   track(rudderElement) {
-    logger.debug('===In Woopra Track===');
     const { event, properties } = rudderElement.message;
     window.Woopra.track(event, properties);
   }
 
   page(rudderElement) {
-    logger.debug('===In Woopra Page ===');
     const { name, properties, category } = rudderElement.message;
     const pageCat = category ? `${category} ` : '';
     const pageName = name ? `${name} ` : '';

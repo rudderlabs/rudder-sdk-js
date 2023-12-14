@@ -111,7 +111,7 @@ class Analytics {
     this.version = '__PACKAGE_VERSION__';
     this.lockIntegrationsVersion = false;
     this.errorReporting = new ErrorReportingService(logger);
-    this.consentManagementInfo = {};
+    this.deniedConsentIds = [];
     this.transformationHandler = DeviceModeTransformations;
   }
 
@@ -275,7 +275,7 @@ class Analytics {
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
           // Fetch denied consent group Ids and pass it to cloud mode
-          this.consentManagementInfo = cookieConsent && cookieConsent.getConsentManagementInfo();
+          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
@@ -949,7 +949,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          ...R.clone(this.consentManagementInfo),
+          deniedConsentIds: this.deniedConsentIds || [],
         };
       }
 

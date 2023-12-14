@@ -1,15 +1,22 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
+import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
 import { constructPayload, flattenJsonPayload } from '../../utils/utils';
-import { shouldSendUserId, prepareParamsAndEventName, filterUserTraits, formatAndValidateEventName } from './utils';
+import {
+  shouldSendUserId,
+  prepareParamsAndEventName,
+  filterUserTraits,
+  formatAndValidateEventName,
+} from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 export default class GA4 {
   constructor(config, analytics, destinationInfo) {
@@ -147,14 +154,12 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug('In Google Analytics 4 Identify');
-
     const { message } = rudderElement;
     const { traits } = message.context;
     const piiFilteredUserTraits = filterUserTraits(this.piiPropertiesToIgnore, traits);
     if (Object.keys(piiFilteredUserTraits).length > 0) {
       window.gtag('set', 'user_properties', piiFilteredUserTraits);
-    } 
+    }
 
     if (this.sendUserId && message.userId) {
       const { userId } = message;
@@ -171,8 +176,6 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
-
-    logger.debug('In Google Analytics 4 Track');
 
     const { message } = rudderElement;
 
@@ -198,8 +201,6 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug('In Google Analytics 4 Page');
-
     if (this.capturePageView === 'rs') {
       const { message } = rudderElement;
       const { properties } = message;
@@ -227,8 +228,6 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
-
-    logger.debug('In Google Analytics 4 Group');
 
     const { groupId, traits } = rudderElement.message;
     let payload = traits;

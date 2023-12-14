@@ -1,13 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Olark/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Olark/constants';
 import Logger from '../../utils/logger';
 import { recordingLiveChatEvents } from './utils';
 import { getHashFromArray } from '../../utils/commonUtils';
 import { getDefinedTraits } from '../../utils/utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class Olark {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -38,18 +41,14 @@ class Olark {
   }
 
   init() {
-    logger.debug('===In init Olark===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Olark===');
     return !!window.olark;
   }
 
   isReady() {
-    logger.debug('===In isReady Olark===');
-
     // Dashboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.standardToEvent, 'from', 'to', false);
@@ -60,7 +59,6 @@ class Olark {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Olark Identify===');
     const { message } = rudderElement;
     const { context } = message;
 

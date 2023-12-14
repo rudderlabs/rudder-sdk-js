@@ -1,9 +1,12 @@
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(DISPLAY_NAME);
 
 function loadNativeSdk(sourceUrl) {
   (function (id, src, document) {
-    logger.debug(`in script loader=== ${id}`);
+    logger.info(`in script loader=== ${id}`);
     const js = document.createElement('script');
     js.src = src;
     js.async = 1;
@@ -11,7 +14,6 @@ function loadNativeSdk(sourceUrl) {
     js.type = 'text/javascript';
     js.id = id;
     const e = document.getElementsByTagName('head')[0];
-    logger.debug('==script==', e);
     e.appendChild(js);
   })('googleAds-integration', sourceUrl, document);
 

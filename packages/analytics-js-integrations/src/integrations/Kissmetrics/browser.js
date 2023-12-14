@@ -3,10 +3,15 @@
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
+import Logger from '../../utils/logger';
 import { getRevenue } from '../../utils/utils';
 import { loadeNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Kissmetrics {
   constructor(config, analytics, destinationInfo) {
@@ -25,7 +30,6 @@ class Kissmetrics {
   }
 
   init() {
-    logger.debug('===in init Kissmetrics===');
     loadeNativeSdk(this.apiKey);
 
     if (this.isEnvMobile()) {
@@ -38,7 +42,7 @@ class Kissmetrics {
   }
 
   isReady() {
-    return is.object(window.KM);
+    return this.isLoaded();
   }
 
   isEnvMobile() {
@@ -67,7 +71,6 @@ class Kissmetrics {
           ret[key] = value;
         } else if (value.toString() !== '[object Object]') {
           // convert non objects to strings
-          logger.debug(value.toString());
           ret[key] = value.toString();
         } else {
           // json
@@ -94,7 +97,6 @@ class Kissmetrics {
   // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   flatten(target, opts) {
     const options = opts || {};
-
     const delimiter = options.delimiter || '.';
     let { maxDepth } = options;
     const { safe } = options;
@@ -157,8 +159,6 @@ class Kissmetrics {
   }
 
   identify(rudderElement) {
-    logger.debug('in KissMetrics identify');
-
     const { userId, context } = rudderElement.message;
     const { traits } = context;
     const userTraits = this.clean(traits);
@@ -172,8 +172,6 @@ class Kissmetrics {
   }
 
   track(rudderElement) {
-    logger.debug('in KissMetrics track');
-
     const { event } = rudderElement.message;
     let properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
     const timestamp = this.toUnixTimestamp(new Date());
@@ -189,7 +187,6 @@ class Kissmetrics {
     }
 
     properties = this.clean(properties);
-    logger.debug(JSON.stringify(properties));
 
     if (this.prefixProperties) {
       properties = this.prefix(event, properties);
@@ -212,8 +209,6 @@ class Kissmetrics {
   }
 
   page(rudderElement) {
-    logger.debug('in KissMetrics page');
-
     let { properties } = rudderElement.message;
     const pageName = rudderElement.message.name;
     const pageCategory = properties.category || undefined;
@@ -233,15 +228,11 @@ class Kissmetrics {
   }
 
   alias(rudderElement) {
-    logger.debug('in KissMetrics alias');
-
     const { previousId, userId } = rudderElement.message;
     window._kmq.push(['alias', userId, previousId]);
   }
 
   group(rudderElement) {
-    logger.debug('in KissMetrics group');
-
     const { groupId, traits } = rudderElement.message;
     const groupTraits = this.prefix('Group', traits);
     if (groupId) {

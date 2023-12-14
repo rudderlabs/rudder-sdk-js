@@ -1,12 +1,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   NAME,
   GTAG,
+  DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
+import Logger from '../../utils/logger';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import {
   transformCustomVariable,
@@ -15,6 +16,8 @@ import {
   buildIframeTrackPayload,
   isValidCountingMethod,
 } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class DCMFloodlight {
   constructor(config, analytics, destinationInfo) {
@@ -43,8 +46,6 @@ class DCMFloodlight {
    * Ref - https://support.google.com/campaignmanager/answer/7554821
    */
   init() {
-    logger.debug('===In init DCMFloodlight===');
-
     if (this.tagFormat === GTAG) {
       const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
       ScriptLoader('DCMFloodlight-integration', sourceUrl);
@@ -79,18 +80,15 @@ class DCMFloodlight {
    * Ref - https://developers.google.com/authorized-buyers/rtb/cookie-guide
    */
   loadCookieMatching() {
-    logger.debug('===In loadCookieMatching DCMFloodlight===');
     if (this.doubleclickId && this.googleNetworkId) {
       const image = document.createElement('img');
-      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
-        this.googleNetworkId
-      }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
+      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${this.googleNetworkId
+        }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
       document.getElementsByTagName('head')[0].appendChild(image);
     }
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded DCMFloodlight===');
     if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
@@ -98,33 +96,27 @@ class DCMFloodlight {
   }
 
   isReady() {
-    logger.debug('===In isReady DCMFloodlight===');
-    if (this.tagFormat === GTAG) {
-      return window.dataLayer.push !== Array.prototype.push;
-    }
-    return true;
+    return this.isLoaded();
   }
 
   identify() {
-    logger.debug('[DCM Floodlight] identify:: method not supported');
+    logger.debug('identify:: method not supported');
   }
 
   track(rudderElement) {
-    logger.debug('===In DCMFloodlight track===');
-
     const { message } = rudderElement;
     const { event } = message;
     let customFloodlightVariable;
 
     if (!event) {
-      logger.error('[DCM Floodlight]:: event is required for track call');
+      logger.error('event is required for track call');
       return;
     }
 
     // Specifies how conversions will be counted for a Floodlight activity
     let countingMethod = get(message, 'properties.countingMethod');
     if (!countingMethod) {
-      logger.error('[DCM Floodlight]:: countingMethod is required for track call');
+      logger.error('countingMethod is required for track call');
       return;
     }
     countingMethod = countingMethod.trim().toLowerCase().replace(/\s+/g, '_');
@@ -136,7 +128,7 @@ class DCMFloodlight {
     );
 
     if (!conversionEvent) {
-      logger.error('[DCM Floodlight]:: Conversion event not found');
+      logger.error('Conversion event not found');
       return;
     }
 
@@ -148,9 +140,7 @@ class DCMFloodlight {
     const { salesTag, customVariables } = conversionEvent;
 
     if (!isValidCountingMethod(salesTag, countingMethod)) {
-      logger.error(
-        `[DCM Floodlight] ${salesTag ? 'Sales' : 'Counter'} Tag:: invalid counting method`,
-      );
+      logger.error(`${salesTag ? 'Sales' : 'Counter'} Tag:: invalid counting method`);
       return;
     }
 
@@ -167,8 +157,6 @@ class DCMFloodlight {
   }
 
   trackWithGtag(message, salesTag, customFloodlightVariable, countingMethod) {
-    logger.debug('===In DCMFloodlight trackWithGtag===');
-
     let eventSnippetPayload = buildGtagTrackPayload(
       message,
       salesTag,
@@ -184,7 +172,6 @@ class DCMFloodlight {
     };
 
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
-    logger.debug(`[DCM] eventSnippetPayload:: ${JSON.stringify(eventSnippetPayload)}`);
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
@@ -192,7 +179,6 @@ class DCMFloodlight {
   }
 
   trackWithIframe(message, salesTag, customFloodlightVariable, countingMethod) {
-    logger.debug('===In DCMFloodlight trackWithIframe===');
     let eventSnippetPayload = buildIframeTrackPayload(
       message,
       salesTag,
@@ -211,7 +197,6 @@ class DCMFloodlight {
   }
 
   addIframe(src) {
-    logger.debug('===In DCMFloodlight addIframe===');
     const iframe = document.createElement('iframe');
     iframe.src = src;
     iframe.style.width = '1px';
@@ -222,12 +207,12 @@ class DCMFloodlight {
   }
 
   page(rudderElement) {
-    logger.debug('===In DCMFloodlight page===');
+
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message || rudderElement.message.properties;
 
     if (!category && !name) {
-      logger.error('[DCM Floodlight]:: category or name is required for page');
+      logger.error('category or name is required for page');
       return;
     }
 

@@ -2,11 +2,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import Logger from '../../utils/logger';
 import { removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class Posthog {
   constructor(config, analytics, destinationInfo) {
@@ -34,7 +39,6 @@ class Posthog {
   init() {
     const options = getDestinationOptions(this.analytics.loadOnlyIntegrations);
     if (options && !options.loadIntegration) {
-      logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
       return;
     }
     loadNativeSdk();
@@ -62,12 +66,11 @@ class Posthog {
   }
 
   isLoaded() {
-    logger.debug('in Posthog isLoaded');
     return !!window?.posthog?.__loaded;
   }
 
   isReady() {
-    return !!window?.posthog?.__loaded;
+    return this.isLoaded();
   }
 
   /**
@@ -96,8 +99,6 @@ class Posthog {
   }
 
   identify(rudderElement) {
-    logger.debug('in Posthog identify');
-
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
     const { userId } = rudderElement.message;
@@ -110,12 +111,8 @@ class Posthog {
   }
 
   track(rudderElement) {
-    logger.debug('in Posthog track');
-
     const { event, properties } = rudderElement.message;
-
     this.processSuperProperties(rudderElement);
-
     posthog.capture(event, properties);
   }
 
@@ -125,15 +122,11 @@ class Posthog {
    * @memberof Posthog
    */
   page(rudderElement) {
-    logger.debug('in Posthog page');
-
     this.processSuperProperties(rudderElement);
-
     posthog.capture('$pageview');
   }
 
   group(rudderElement) {
-    logger.debug('in Posthog group');
     const traits = get(rudderElement.message, 'traits');
     const groupKey = get(rudderElement.message, 'groupId');
     let groupType;

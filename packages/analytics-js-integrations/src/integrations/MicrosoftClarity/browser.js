@@ -1,10 +1,13 @@
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
 import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 
 import { loadNativeSdk } from './nativeSdkLoader';
 
-const logger = new Logger(NAME);
+const logger = new Logger(DISPLAY_NAME);
 class MicrosoftClarity {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -26,26 +29,22 @@ class MicrosoftClarity {
   }
 
   init() {
-    logger.debug('===In init Microsoft Clarity===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Microsoft Clarity===');
     return !!window.clarity;
   }
 
   isReady() {
-    logger.debug('===In isReady Microsoft Clarity===');
-    return !!window.clarity;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In Microsoft Clarity Identify===');
     const { message } = rudderElement;
     const { userId, context } = message;
     if (!userId) {
-      logger.error('[Microsoft Clarity] :: userId is required for an identify call');
+      logger.error('userId is required for an identify call');
       return;
     }
     let sessionId;

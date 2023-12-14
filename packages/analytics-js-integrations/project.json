@@ -96,9 +96,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.17",
-        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.17",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.17",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.19",
+        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.19",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.19",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }
