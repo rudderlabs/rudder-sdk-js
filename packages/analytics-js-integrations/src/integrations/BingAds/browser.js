@@ -1,9 +1,14 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/BingAds/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/BingAds/constants';
+import Logger from '../../utils/logger';
+import { loadNativeSdk } from './nativeSdkLoader';
+import { extractCustomFields } from '../../utils/utils';
 import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
-import { extractCustomFields } from '../../utils/utils';
-import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class BingAds {
   constructor(config, analytics, destinationInfo) {
@@ -21,22 +26,19 @@ class BingAds {
     this.uniqueId = `bing${this.tagID}`;
   }
 
-  init = () => {
-    logger.debug('===in init BingAds===');
+  init() {
     loadNativeSdk(this.uniqueId, this.tagID);
-  };
+  }
 
-  isLoaded = () => {
-    logger.debug('in BingAds isLoaded');
+  isLoaded() {
     return (
       !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
     );
-  };
+  }
 
-  isReady = () => {
-    logger.debug('in BingAds isReady');
+  isReady() {
     return !!(window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
-  };
+  }
 
   /*
     Visit here(for details Parameter details): https://help.ads.microsoft.com/#apex/3/en/53056/2
@@ -49,7 +51,7 @@ class BingAds {
     const { type, properties } = rudderElement.message;
     const eventToSend = properties?.event_action || type;
     if (!eventToSend) {
-      logger.error('Event type not present');
+      logger.error('Event type is not present');
       return;
     }
     let payload = {
@@ -71,9 +73,9 @@ class BingAds {
     window[this.uniqueId].push('event', eventToSend, payload);
   };
 
-  page = () => {
+  page() {
     window[this.uniqueId].push('pageLoad');
-  };
+  }
 }
 
 export { BingAds };

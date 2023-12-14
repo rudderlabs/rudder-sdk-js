@@ -2,9 +2,14 @@
 /* eslint-disable no-underscore-dangle */
 import get from 'get-value';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/PostAffiliatePro/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/PostAffiliatePro/constants';
+import Logger from '../../utils/logger';
 import { updateSaleObject, getMergedProductIds } from './utils';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class PostAffiliatePro {
   constructor(config, analytics, destinationInfo) {
@@ -35,22 +40,18 @@ class PostAffiliatePro {
   }
 
   init() {
-    logger.debug('===in init Post Affiliate Pro===');
     if (!this.url) {
-      logger.debug('URL is missing');
+      logger.error('URL is missing');
       return;
     }
     ScriptLoader('pap_x2s6df8d', this.url);
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Post Affiliate Pro===');
     return !!window.PostAffTracker;
   }
 
   isReady() {
-    logger.debug('===In isReady Post Affiliate Pro===');
-
     if (window.PostAffTracker) {
       if (!this.disableTrackingMethod) window.PostAffTracker.disableTrackingMethod('F');
       if (this.paramNameUserId) window.PostAffTracker.setParamNameUserId(this.paramNameUserId);
@@ -72,14 +73,12 @@ class PostAffiliatePro {
   }
 
   identify(rudderElement) {
-    logger.debug('===In Post Affiliate Pro identify===');
     const { message } = rudderElement;
     const visitorId = get(message, 'userId');
     window.PostAffTracker.setVisitorId(visitorId);
   }
 
   track(rudderElement) {
-    logger.debug('===In Post Affiliate Pro track===');
     const clickEventsArr = this.clickEvents ? this.clickEvents.split(',') : null;
     const { message } = rudderElement;
     const { event } = message;

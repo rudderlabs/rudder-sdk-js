@@ -1,8 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import Logger from '../../utils/logger';
 import {
   getEventMappingFromConfig,
   removeUndefinedAndNullValues,
@@ -10,6 +13,8 @@ import {
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 class SnapPixel {
   constructor(config, analytics, destinationInfo) {
@@ -67,8 +72,6 @@ class SnapPixel {
   }
 
   init() {
-    logger.debug('===In init SnapPixel===');
-
     loadNativeSdk();
 
     const userTraits = Storage.getUserTraits();
@@ -83,18 +86,14 @@ class SnapPixel {
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded SnapPixel===');
     return !!window.snaptr;
   }
 
   isReady() {
-    logger.debug('===In isReady SnapPixel===');
-    return !!window.snaptr;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {
-    logger.debug('===In SnapPixel identify');
-
     const { message } = rudderElement;
 
     const userEmail = get(message, 'context.traits.email');
@@ -104,7 +103,7 @@ class SnapPixel {
 
     if (!userEmail && !userPhoneNumber && !ipAddress) {
       logger.error(
-        'User parameter (email or phone number or ip address) is required for Identify call.',
+        'User parameter (email or phone number or ip address) is required for Identify call',
       );
       return;
     }
@@ -117,8 +116,6 @@ class SnapPixel {
   }
 
   track(rudderElement) {
-    logger.debug('===In SnapPixel track===');
-
     const { message } = rudderElement;
     const { event } = message;
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
@@ -129,7 +126,7 @@ class SnapPixel {
     );
 
     if (!event) {
-      logger.error('Event name not present');
+      logger.error('Event name is not present');
       return;
     }
 
@@ -205,7 +202,7 @@ class SnapPixel {
               !this.trackEvents.includes(event.trim().toUpperCase()) &&
               !this.customEvents.includes(event.trim().toLowerCase())
             ) {
-              logger.error("Event doesn't match with Snap Pixel Events!");
+              logger.error("Event doesn't match with Snap Pixel Events");
               return;
             }
             sendEvent(
@@ -216,13 +213,11 @@ class SnapPixel {
         }
       }
     } catch (err) {
-      logger.error('[Snap Pixel] track failed with following error', err);
+      logger.error('track failed with following error', err);
     }
   }
 
   page(rudderElement) {
-    logger.debug('===In SnapPixel page===');
-
     const { message } = rudderElement;
     sendEvent('PAGE_VIEW', eventPayload(message, this.deduplicationKey, this.enableDeduplication));
   }

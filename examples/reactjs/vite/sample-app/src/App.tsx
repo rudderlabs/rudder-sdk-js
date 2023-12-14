@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
@@ -7,7 +6,7 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 function App() {
   useEffect(() => {
-    if (window.rudderanalytics as RudderAnalytics) {
+    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
       return;
     }
     const analytics = new RudderAnalytics();

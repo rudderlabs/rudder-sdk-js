@@ -1,7 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
 function loadNativeSdk() {
-  // loading the script for moengage web sdk
   (function (i, s, o, g, r, a, m, n) {
     i.moengage_object = r;
     var t = {};

@@ -1,8 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/PinterestTag/constants';
 import sha256 from 'crypto-js/sha256';
+import Logger from '../../utils/logger';
 import {
   propertyMapping,
   searchPropertyMapping,
@@ -17,6 +20,8 @@ import {
 } from '../../utils/utils';
 import { getDestinationEventName } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+const logger = new Logger(DISPLAY_NAME);
 
 export default class PinterestTag {
   constructor(config, analytics, destinationInfo) {
@@ -56,16 +61,16 @@ export default class PinterestTag {
   }
 
   init() {
-    logger.debug('===in init Pinterest Tag===');
     this.loadScript();
     this.handleEnhancedMatch();
   }
 
-  /* utility functions ---Start here ---  */
   isLoaded() {
-    logger.debug('===in isLoaded Pinterest Tag===');
-
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    return this.isLoaded();
   }
 
   // ref :- https://developers.pinterest.com/docs/conversions/conversion-management/#Understanding%20Limited%20Data%20Processing#%0A%2CCPRA%20Related%20Data%20Fields:~:text=using%20SHA%2D256.-,%3C,%3E,-To%20specifically%20not
@@ -104,13 +109,6 @@ export default class PinterestTag {
   setLdp(message) {
     window.pintrk('set', this.generateLdpObject(message));
   }
-
-  isReady() {
-    logger.debug('===in isReady Pinterest Tag===');
-
-    return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
-  }
-  /* utility functions --- Ends here ---  */
 
   sendPinterestTrack(eventName, pinterestObject) {
     window.pintrk('track', eventName, pinterestObject);
