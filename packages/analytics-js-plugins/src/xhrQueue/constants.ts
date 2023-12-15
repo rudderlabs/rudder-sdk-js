@@ -6,7 +6,7 @@ const DEFAULT_RETRY_QUEUE_OPTIONS = {
   maxItems: 100,
 };
 
-const REQUEST_TIMEOUT_MS = 10 * 1000; // 10 seconds
+const REQUEST_TIMEOUT_MS = 30 * 1000; // 30 seconds
 
 const DATA_PLANE_API_VERSION = 'v1';
 
