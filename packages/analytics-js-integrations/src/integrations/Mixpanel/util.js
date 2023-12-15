@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
