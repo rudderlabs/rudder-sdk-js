@@ -11,6 +11,7 @@ import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { getCurrentTimeFormatted } from './utils';
+import { REQUEST_TIMEOUT_MS } from './constants';
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -42,7 +43,7 @@ class XHRQueue {
         item.url,
         item.headers,
         item.message,
-        30 * 1000,
+        REQUEST_TIMEOUT_MS,
         // eslint-disable-next-line consistent-return
         (err, res) => {
           if (err) {

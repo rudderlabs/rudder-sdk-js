@@ -42,6 +42,9 @@ const UA_CH_LEVELS = ['none', 'default', 'full'];
 
 const DEFAULT_INTEGRATIONS_CONFIG = { All: true };
 
+// xhr request timeout
+const REQUEST_TIMEOUT_MS = 30 * 1000;
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -63,4 +66,5 @@ export {
   UA_CH_LEVELS,
   DEFAULT_INTEGRATIONS_CONFIG,
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
+  REQUEST_TIMEOUT_MS,
 };
