@@ -35,6 +35,10 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         return;
       }
 
+      // Get the groups (cookie categorization), user has created in OneTrust account.
+      const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
+        .Groups;
+
       // OneTrustConsentManager SDK populates a data layer object OnetrustActiveGroups with
       // the cookie categories Ids that the user has consented to.
       // Eg: ',C0001,C0003,'
@@ -42,27 +46,16 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       const allowedConsentIds = (globalThis as any).OnetrustActiveGroups.split(',').filter(
         (n: string) => n,
       );
-      const allowedConsents: Record<string, string> = {};
+
       const deniedConsentIds: string[] = [];
-
-      // Get the groups (cookie categorization), user has created in OneTrust account.
-      const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
-        .Groups;
-
-      oneTrustAllGroupsInfo.forEach((group: OneTrustGroup) => {
-        const { CustomGroupId, GroupName } = group;
-        if (allowedConsentIds.includes(CustomGroupId)) {
-          allowedConsents[CustomGroupId] = GroupName;
-        } else {
+      oneTrustAllGroupsInfo.forEach(({ CustomGroupId }: OneTrustGroup) => {
+        if (!allowedConsentIds.includes(CustomGroupId)) {
           deniedConsentIds.push(CustomGroupId);
         }
       });
 
       state.consents.initialized.value = true;
-
-      // In case of OneTrust, as we still support both category names and IDs, the allowed consents
-      // are stored as an object with key as the category ID and value as the category name.
-      state.consents.data.value = { allowedConsentIds: allowedConsents, deniedConsentIds };
+      state.consents.data.value = { allowedConsentIds, deniedConsentIds };
     },
 
     isDestinationConsented(
@@ -74,18 +67,13 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       if (!state.consents.initialized.value) {
         return true;
       }
-      const allowedConsents = state.consents.data.value.allowedConsentIds as Record<string, string>;
+      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
 
       try {
         // mapping of the destination with the consent group name
         const { oneTrustCookieCategories, consentManagement } = destConfig;
 
-        const allowedConsentIds = Object.keys(allowedConsents);
-        const allowedConsentNames = Object.values(allowedConsents);
-
-        // Match the consent in both IDs and names
-        const matchPredicate = (consent: string) =>
-          allowedConsentIds.includes(consent) || allowedConsentNames.includes(consent);
+        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
 
         // Generic consent management
         if (consentManagement) {
