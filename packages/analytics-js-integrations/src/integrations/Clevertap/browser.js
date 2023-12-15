@@ -67,7 +67,7 @@ class Clevertap {
       onUserLogin: [],
       notifications: [],
       privacy: [],
-      region: [],
+      region: 'none',
     };
     /*
       Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
@@ -82,7 +82,7 @@ class Clevertap {
     window.clevertap.privacy.push({ useIP: this.useIP || false });
     window.clevertap.account.push({ id: this.accountId });
     if (this.region && this.region !== 'none') {
-      window.clevertap.region.push(this.region);
+      window.clevertap.region = this.region;
     }
 
     ScriptLoader('clevertap-integration', sourceUrl);
