@@ -75,7 +75,7 @@ class TiktokAds {
       logger.error('Event name is required');
       return;
     }
-    event = event.toLowerCase().trim(); // Using optional chaining as we get sometime non-string event as well
+    event = event?.toLowerCase().trim(); // Using optional chaining as we get sometime non-string event as well
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
     if (
       !this.sendCustomEvents &&
