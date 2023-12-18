@@ -28,7 +28,7 @@ export type ConsentManagementProvider = 'oneTrust' | 'ketch' | 'custom';
 
 export type ConsentResolutionStrategy = 'and' | 'or';
 
-export type Consents = Record<string, string> | string[];
+export type Consents = string[];
 
 export type ConsentManagementOptions = {
   enabled: boolean;
