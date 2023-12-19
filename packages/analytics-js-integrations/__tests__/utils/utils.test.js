@@ -303,7 +303,6 @@ describe('flattenJsonPayload Tests', () => {
     const result = utils.flattenJsonPayload(testObj);
     expect(result).toStrictEqual({ '': [] });
   });
-
   test('simple array of object returns single object with indexed keys', () => {
     const testObj = [{ prop1: 'val1' }, { prop2: 'val2' }];
     const result = utils.flattenJsonPayload(testObj);
