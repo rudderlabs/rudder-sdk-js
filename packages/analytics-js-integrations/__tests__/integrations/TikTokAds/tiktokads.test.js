@@ -16,7 +16,7 @@ const basicConfig = {
     { to: 'Lead', from: 'orderCompleted' },
     { from: 'Page View', to: 'PageVisit' },
     { from: 'product_added', to: 'AddToCart' },
-  ]
+  ],
 };
 
 describe('tiktokads init tests', () => {
@@ -201,7 +201,7 @@ describe('TiktokAds Track event', () => {
         event: 'custom_event',
         properties: {
           customProp: 'testProp',
-          checkout_id: 'what is checkout id here??',
+          checkout_id: 'c_id',
           event_id: 'purchaseId',
           order_id: 'transactionId',
           value: 35.0,
@@ -230,7 +230,7 @@ describe('TiktokAds Track event', () => {
               category: 'Wholesaler',
               name: 'Drink',
               brand: '',
-              variant: 'Extra Cheese',
+              variant: 'Extra_Cheese',
               price: 50.0,
               quantity: 1,
               currency: 'GBP',
@@ -327,6 +327,63 @@ describe('TiktokAds Track event', () => {
       },
     });
     expect(window.ttq.track).not.toHaveBeenCalledWith();
+  });
+
+  test('Testing Track custom_event with no mapping and sendCustomEvents flag as true and event name is not in small-case', () => {
+    tiktokads = new TiktokAds({ ...basicConfig, sendCustomEvents: true }, { loglevel: 'DEBUG' });
+    tiktokads.init();
+    window.ttq.track = jest.fn();
+    tiktokads.track({
+      message: {
+        context: {},
+        event: 'CustomEvent',
+        properties: {
+          customProp: 'testProp',
+          checkout_id: 'what is checkout id here??',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+          products: [
+            {
+              product_id: 'PRODUCT_ID',
+              category: 'Wholesaler',
+              name: 'Drink',
+              brand: '',
+              variant: 'Extra Cheese',
+              price: 50.0,
+              quantity: 1,
+              currency: 'GBP',
+              position: 1,
+              value: 30.0,
+              typeOfProduct: 'Food',
+              content_type: 'CONTENT_TYPE',
+              url: 'https://www.example.com/product/bacon-jam2',
+              image_url: 'https://www.example.com/product/bacon-jam2.jpg',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.ttq.track.mock.calls[0][0]).toEqual('CustomEvent');
+    expect(window.ttq.track.mock.calls[0][1]).toEqual({
+      value: 35.0,
+      currency: 'GBP',
+      event_id: 'purchaseId',
+      partner_name: 'RudderStack',
+      contents: [
+        {
+          content_category: 'Wholesaler',
+          content_id: 'PRODUCT_ID',
+          content_name: 'Drink',
+          content_type: 'CONTENT_TYPE',
+          price: 50.0,
+          quantity: 1,
+        },
+      ],
+    });
   });
 });
 
