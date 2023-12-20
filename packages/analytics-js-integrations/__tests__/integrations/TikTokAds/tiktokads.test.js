@@ -378,6 +378,7 @@ describe('TiktokAds Track event', () => {
       partner_name: 'RudderStack',
       contents: [
         {
+          brand: '',
           content_category: 'Wholesaler',
           content_id: 'PRODUCT_ID',
           content_name: 'Drink',
