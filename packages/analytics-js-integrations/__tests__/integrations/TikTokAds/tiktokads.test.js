@@ -79,7 +79,6 @@ describe('TiktokAds Track event', () => {
               product_id: 'abc',
               category: 'Merch',
               name: 'Food',
-              brand: '',
               variant: 'Extra topped 1',
               price: 3.0,
               quantity: 2,
@@ -178,6 +177,7 @@ describe('TiktokAds Track event', () => {
           content_type: 'product',
           price: 3.0,
           quantity: 2,
+          brand: '',
         },
         {
           content_category: 'Wholesaler',
@@ -186,6 +186,7 @@ describe('TiktokAds Track event', () => {
           content_type: 'CONTENT_TYPE',
           price: 50.0,
           quantity: 1,
+          brand: '',
         },
       ],
     });
@@ -259,6 +260,7 @@ describe('TiktokAds Track event', () => {
           content_type: 'product',
           price: 3.0,
           quantity: 2,
+          brand: '',
         },
         {
           content_category: 'Wholesaler',
@@ -267,6 +269,7 @@ describe('TiktokAds Track event', () => {
           content_type: 'CONTENT_TYPE',
           price: 50.0,
           quantity: 1,
+          brand: '',
         },
       ],
     });
