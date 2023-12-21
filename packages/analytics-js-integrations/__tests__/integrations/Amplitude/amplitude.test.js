@@ -247,7 +247,7 @@ describe('Amplitude identify tests', () => {
 
     // Add assertions here
   });
-  it('should identify user with only traits', () => {
+  it('should identify user with no traits and unset field only', () => {
     const config = {
       apiKey: 'YOUR_AMPLITUDE_API_KEY',
       trackAllPages: true,
@@ -304,6 +304,55 @@ describe('Amplitude identify tests', () => {
         name: 'unset',
       },
     ]);
+  });
+  it('should identify user with no traits and empty unset field', () => {
+    const config = {
+      apiKey: 'YOUR_AMPLITUDE_API_KEY',
+      trackAllPages: true,
+      trackNamedPages: true,
+      trackCategorizedPages: true,
+      attribution: true,
+      flushQueueSize: 30,
+      flushIntervalMillis: 1000,
+      trackNewCampaigns: true,
+      trackRevenuePerProduct: false,
+      preferAnonymousIdForDeviceId: false,
+      traitsToSetOnce: ['email', 'name'],
+      traitsToIncrement: ['age'],
+      appendFieldsToEventProps: false,
+      unsetParamsReferrerOnNewSession: false,
+      trackProductsOnce: false,
+      versionName: '1.0.0',
+      groupTypeTrait: 'groupType',
+      groupValueTrait: 'groupValue',
+    };
+
+    const analytics = {
+      logLevel: 'debug',
+      getAnonymousId: () => 'ANONYMOUS_ID',
+    };
+
+    const destinationInfo = {
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      destinationId: 'DESTINATION_ID',
+    };
+
+    const rudderElement = {
+      message: {
+        context: {},
+        integrations: {
+          Amplitude: {
+            fieldsToUnset: [],
+          },
+        },
+      },
+    };
+    window.amplitude.identify = jest.fn();
+    const amplitude = new Amplitude(config, analytics, destinationInfo);
+    amplitude.init();
+    amplitude.identify(rudderElement);
+    expect(window.amplitude.identify).toHaveBeenCalledTimes(0);
   });
 });
 

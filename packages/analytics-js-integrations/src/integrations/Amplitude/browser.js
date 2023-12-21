@@ -90,7 +90,7 @@ class Amplitude {
     const fieldsToUnset = amplitudeIntgConfig?.fieldsToUnset || undefined;
     const amplitudeIdentify = new window.amplitude.Identify();
     let sendIdentifyCall = false;
-    if (fieldsToUnset) {
+    if (fieldsToUnset && Array.isArray(fieldsToUnset) && fieldsToUnset.length > 0) {
       sendIdentifyCall = true;
       fieldsToUnset.forEach(fieldToUnset => {
         amplitudeIdentify.unset(fieldToUnset);
