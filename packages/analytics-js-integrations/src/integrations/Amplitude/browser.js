@@ -47,7 +47,7 @@ class Amplitude {
     if (this.analytics.loadIntegration) {
       loadNativeSdk(window, document);
     }
-    
+
     const initOptions = {
       attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
@@ -85,14 +85,23 @@ class Amplitude {
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
-    const { userId } = rudderElement.message;
-
+    const { userId, integrations } = rudderElement.message;
+    const amplitudeIntgConfig = getDestinationOptions(integrations);
+    const fieldsToUnset = amplitudeIntgConfig?.fieldsToUnset || undefined;
+    const amplitudeIdentify = new window.amplitude.Identify();
+    let sendIdentifyCall = false;
+    if (fieldsToUnset) {
+      sendIdentifyCall = true;
+      fieldsToUnset.forEach(fieldToUnset => {
+        amplitudeIdentify.unset(fieldToUnset);
+      });
+    }
     if (userId) {
       window.amplitude.setUserId(userId);
     }
 
     if (traits) {
-      const amplitudeIdentify = new window.amplitude.Identify();
+      sendIdentifyCall = true;
       Object.keys(traits).forEach(trait => {
         const shouldIncrement = this.traitsToIncrement.includes(trait);
         const shouldSetOnce = this.traitsToSetOnce.includes(trait);
@@ -108,6 +117,8 @@ class Amplitude {
           amplitudeIdentify.set(trait, traits[trait]);
         }
       });
+    }
+    if (sendIdentifyCall) {
       window.amplitude.identify(amplitudeIdentify);
     }
   }

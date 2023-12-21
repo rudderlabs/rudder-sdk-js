@@ -247,11 +247,69 @@ describe('Amplitude identify tests', () => {
 
     // Add assertions here
   });
+  it('should identify user with only traits', () => {
+    const config = {
+      apiKey: 'YOUR_AMPLITUDE_API_KEY',
+      trackAllPages: true,
+      trackNamedPages: true,
+      trackCategorizedPages: true,
+      attribution: true,
+      flushQueueSize: 30,
+      flushIntervalMillis: 1000,
+      trackNewCampaigns: true,
+      trackRevenuePerProduct: false,
+      preferAnonymousIdForDeviceId: false,
+      traitsToSetOnce: ['email', 'name'],
+      traitsToIncrement: ['age'],
+      appendFieldsToEventProps: false,
+      unsetParamsReferrerOnNewSession: false,
+      trackProductsOnce: false,
+      versionName: '1.0.0',
+      groupTypeTrait: 'groupType',
+      groupValueTrait: 'groupValue',
+    };
+
+    const analytics = {
+      logLevel: 'debug',
+      getAnonymousId: () => 'ANONYMOUS_ID',
+    };
+
+    const destinationInfo = {
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      destinationId: 'DESTINATION_ID',
+    };
+
+    const rudderElement = {
+      message: {
+        context: {},
+        integrations: {
+          Amplitude: {
+            fieldsToUnset: ['unsetField', 'objUn.innerObj.ina'],
+          },
+        },
+      },
+    };
+    window.amplitude.identify = jest.fn();
+    const amplitude = new Amplitude(config, analytics, destinationInfo);
+    amplitude.init();
+    amplitude.identify(rudderElement);
+    expect(window.amplitude.identify.mock.calls[0][0]._q).toEqual([
+      {
+        args: ['unsetField'],
+        name: 'unset',
+      },
+      {
+        args: ['objUn.innerObj.ina'],
+        name: 'unset',
+      },
+    ]);
+  });
 });
 
 describe('Amplitude track tests', () => {
-  // Track event with properties and no products array
-  it('should track event with properties and no products array', () => {
+  // Track event with properties and no products
+  it('should track event with properties and no products ', () => {
     const config = {
       apiKey: 'YOUR_AMPLITUDE_API_KEY',
       trackAllPages: true,
@@ -302,8 +360,8 @@ describe('Amplitude track tests', () => {
       key2: 'value2',
     });
   });
-  // Track event with properties and empty products array
-  it('should track event with properties and empty products array', () => {
+  // Track event with properties and empty products
+  it('should track event with properties and empty products ', () => {
     const config = {
       apiKey: 'YOUR_AMPLITUDE_API_KEY',
       trackAllPages: true,
