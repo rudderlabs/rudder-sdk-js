@@ -67,10 +67,6 @@ const trackMapping = [
     destKey: 'phone',
     sourceKeys: ['context.traits.phone', 'traits.phone', 'properties.phone'],
   },
-  {
-    destKey: 'brand',
-    sourceKeys: 'properties.brand',
-  },
 ];
 const eventNameMapping = {
   'product added to wishlist': 'AddToWishlist',
