@@ -6,7 +6,12 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
-import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
+import {
+  getTraitsToSetOnce,
+  getTraitsToIncrement,
+  getDestinationOptions,
+  getFieldsToUnset,
+} from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -86,12 +91,12 @@ class Amplitude {
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
     const { userId, integrations } = rudderElement.message;
-    const amplitudeIntgConfig = getDestinationOptions(integrations);
-    const fieldsToUnset = amplitudeIntgConfig?.fieldsToUnset || undefined;
+    const fieldsToUnset = getFieldsToUnset(integrations);
     const amplitudeIdentify = new window.amplitude.Identify();
     let sendIdentifyCall = false;
-    if (fieldsToUnset && Array.isArray(fieldsToUnset) && fieldsToUnset.length > 0) {
+    if (fieldsToUnset) {
       sendIdentifyCall = true;
+      // AM Docs: https://amplitude.github.io/Amplitude-JavaScript/Identify/#identifyunset
       fieldsToUnset.forEach(fieldToUnset => {
         amplitudeIdentify.unset(fieldToUnset);
       });
