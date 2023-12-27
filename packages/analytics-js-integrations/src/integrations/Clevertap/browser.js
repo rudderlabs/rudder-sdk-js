@@ -67,7 +67,7 @@ class Clevertap {
       onUserLogin: [],
       notifications: [],
       privacy: [],
-      region: 'none',
+      region: undefined,
     };
     /*
       Clevertap documentation: https://developer.clevertap.com/docs/web-quickstart-guide#integrate-sdk
