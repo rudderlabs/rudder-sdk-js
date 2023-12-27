@@ -23,7 +23,7 @@ class ErrorReportingService {
     this.exposeToGlobal = this.exposeToGlobal.bind(this);
   }
 
-  init(sourceConfig, sourceId) {
+  init(sourceConfig, sourceId, writeKey) {
     if (!sourceConfig || !sourceId) {
       this.logger.error(
         `[Analytics] ErrorReporting :: Invalid configuration or missing source id provided.`,
@@ -35,7 +35,7 @@ class ErrorReportingService {
     if (getErrorCollectionEnabledFromConfig(sourceConfig) === true) {
       this.enable();
       this.setProviderName(getProviderNameFromConfig(sourceConfig));
-      this.initProvider(sourceConfig, sourceId);
+      this.initProvider(sourceConfig, sourceId, writeKey);
     } else {
       this.disable();
     }
@@ -67,11 +67,11 @@ class ErrorReportingService {
     this.providerName = providerName;
   }
 
-  initProvider(sourceConfig, sourceId) {
+  initProvider(sourceConfig, sourceId, writeKey) {
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (this.providerName) {
       case ERROR_REPORT_PROVIDER_NAME_BUGSNAG:
-        this.provider = new BugsnagProvider(sourceId, this.onClientReady);
+        this.provider = new BugsnagProvider(sourceId, writeKey, this.onClientReady);
         break;
       default:
         break;
