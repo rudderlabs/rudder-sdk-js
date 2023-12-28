@@ -119,4 +119,4 @@ class Pendo {
   }
 }
 
-export { Pendo };
+export default Pendo;

@@ -1,1 +1,1 @@
-export { Chartbeat } from './browser';
+export { default as Chartbeat } from './browser';

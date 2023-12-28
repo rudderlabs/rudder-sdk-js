@@ -1,1 +1,1 @@
-export { GA360 } from './browser';
+export { default as GA360 } from './browser';

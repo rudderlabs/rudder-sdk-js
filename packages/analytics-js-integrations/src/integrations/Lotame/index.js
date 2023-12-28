@@ -1,1 +1,1 @@
-export { Lotame } from './browser';
+export { default as Lotame } from './browser';
