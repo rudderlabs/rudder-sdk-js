@@ -1,7 +1,7 @@
 import {
     payloadBuilder,
     payloadBuilderInList
-  } from '../../../src/integrations/SpotifyPixel/utils';
+  } from '../../../src/integrations/Podsights/utils';
 describe('payloadBuilder', () => {
 
     // Builds payload with line_items if present in properties

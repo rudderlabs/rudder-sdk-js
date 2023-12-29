@@ -13,7 +13,7 @@ import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
   standardEventsListMapping,
-} from '@rudderstack/analytics-js-common/constants/integrations/SpotifyPixel/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import {
@@ -21,7 +21,7 @@ import {
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
-import { payloadBuilder, payloadBuilderInList } from './utils';
+import { payloadBuilder, payloadBuilderInList } from '../Podsights/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
