@@ -518,15 +518,19 @@ class Analytics {
     // Depending on transformation is connected or not
     // create two sets of destinations
     destinations.forEach(intg => {
-      const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+      try {
+        const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
 
-      // Block the event if it is blacklisted for the device-mode destination
-      if (sendEvent) {
-        if (intg.shouldApplyDeviceModeTransformation) {
-          destWithTransformation.push(intg);
-        } else {
-          destWithoutTransformation.push(intg);
+        // Block the event if it is blacklisted for the device-mode destination
+        if (sendEvent) {
+          if (intg.shouldApplyDeviceModeTransformation) {
+            destWithTransformation.push(intg);
+          } else {
+            destWithoutTransformation.push(intg);
+          }
         }
+      } catch (e) {
+        handleError(e);
       }
     });
     // loop through destinations that doesn't have
@@ -603,30 +607,34 @@ class Analytics {
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach(event => {
-      const methodName = event[0];
-      event.shift();
+      try {
+        const methodName = event[0];
+        event.shift();
 
-      // convert common names to sdk identified name
-      if (Object.keys(event[0].message.integrations).length > 0) {
-        transformToRudderNames(event[0].message.integrations);
+        // convert common names to sdk identified name
+        if (Object.keys(event[0].message.integrations).length > 0) {
+          transformToRudderNames(event[0].message.integrations);
+        }
+
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = event[0].message.integrations;
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          object.clientIntegrationObjects,
+        );
+
+        // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+        this.processAndSendEventsToDeviceMode(
+          successfulLoadedIntersectClientSuppliedIntegrations,
+          event[0],
+          methodName,
+        );
+      } catch (e) {
+        handleError(e);
       }
-
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = event[0].message.integrations;
-
-      // get intersection between config plane native enabled destinations
-      // (which were able to successfully load on the page) vs user supplied integrations
-      const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-        clientSuppliedIntegrations,
-        object.clientIntegrationObjects,
-      );
-
-      // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      this.processAndSendEventsToDeviceMode(
-        successfulLoadedIntersectClientSuppliedIntegrations,
-        event[0],
-        methodName,
-      );
     });
     object.toBeProcessedByIntegrationArray = [];
   }
@@ -988,19 +996,23 @@ class Analytics {
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       } else {
-        // get intersection between config plane native enabled destinations
-        // (which were able to successfully load on the page) vs user supplied integrations
-        const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-          clientSuppliedIntegrations,
-          this.clientIntegrationObjects,
-        );
+        try {
+          // get intersection between config plane native enabled destinations
+          // (which were able to successfully load on the page) vs user supplied integrations
+          const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            this.clientIntegrationObjects,
+          );
 
-        // try to first send to all integrations, if list populated from BE
-        this.processAndSendEventsToDeviceMode(
-          successfulLoadedIntersectClientSuppliedIntegrations,
-          rudderElement,
-          type,
-        );
+          // try to first send to all integrations, if list populated from BE
+          this.processAndSendEventsToDeviceMode(
+            successfulLoadedIntersectClientSuppliedIntegrations,
+            rudderElement,
+            type,
+          );
+        } catch (err) {
+          handleError(err, `processAndSendEventsToDeviceMode::`);
+        }
       }
 
       const clonedRudderElement = R.clone(rudderElement);
