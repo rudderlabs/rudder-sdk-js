@@ -6,7 +6,12 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
-import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
+import {
+  getTraitsToSetOnce,
+  getTraitsToIncrement,
+  getDestinationOptions,
+  getFieldsToUnset,
+} from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -47,7 +52,7 @@ class Amplitude {
     if (this.analytics.loadIntegration) {
       loadNativeSdk(window, document);
     }
-    
+
     const initOptions = {
       attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
@@ -85,14 +90,23 @@ class Amplitude {
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
-    const { userId } = rudderElement.message;
-
+    const { userId, integrations } = rudderElement.message;
+    const fieldsToUnset = getFieldsToUnset(integrations);
+    const amplitudeIdentify = new window.amplitude.Identify();
+    let sendIdentifyCall = false;
+    if (fieldsToUnset) {
+      sendIdentifyCall = true;
+      // AM Docs: https://amplitude.github.io/Amplitude-JavaScript/Identify/#identifyunset
+      fieldsToUnset.forEach(fieldToUnset => {
+        amplitudeIdentify.unset(fieldToUnset);
+      });
+    }
     if (userId) {
       window.amplitude.setUserId(userId);
     }
 
     if (traits) {
-      const amplitudeIdentify = new window.amplitude.Identify();
+      sendIdentifyCall = true;
       Object.keys(traits).forEach(trait => {
         const shouldIncrement = this.traitsToIncrement.includes(trait);
         const shouldSetOnce = this.traitsToSetOnce.includes(trait);
@@ -108,6 +122,8 @@ class Amplitude {
           amplitudeIdentify.set(trait, traits[trait]);
         }
       });
+    }
+    if (sendIdentifyCall) {
       window.amplitude.identify(amplitudeIdentify);
     }
   }

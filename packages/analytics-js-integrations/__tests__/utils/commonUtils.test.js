@@ -286,6 +286,12 @@ describe('flattenJson Tests', () => {
     const result = utils.flattenJson(testObj);
     expect(result).toStrictEqual({ 'prop1[0]': 'val1', 'prop1[1]': 'val3', prop2: 'val2' });
   });
+  test('test case with circular referenced object', () => {
+    const testObj = { prop1: { prop2: 'abc' } };
+    testObj.prop3 = testObj;
+    const result = utils.flattenJson(testObj);
+    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', "prop3": "[Circular Reference]" });
+  });
   test('test case with nested object', () => {
     const testObj = { prop1: { prop2: 'abc' } };
     const result = utils.flattenJson(testObj);

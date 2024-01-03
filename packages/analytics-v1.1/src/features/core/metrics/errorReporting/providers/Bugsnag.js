@@ -107,9 +107,10 @@ const loadBugsnagSDKScript = name => {
 };
 
 class BugsnagProvider {
-  constructor(sourceId, onClientReady) {
+  constructor(sourceId, writeKey, onClientReady) {
     this.pluginName = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
     this.sourceId = sourceId;
+    this.writeKey = writeKey;
     this.onClientReady = onClientReady;
     this.initClientOnLibReadyInterval = undefined;
     this.init();
@@ -201,6 +202,9 @@ class BugsnagProvider {
       maxEvents: 100,
       releaseStage: getReleaseStage(),
       networkBreadcrumbsEnabled: false,
+      user: {
+        id: this.writeKey,
+      },
     });
 
     this.onClientReady();
