@@ -126,22 +126,42 @@ function rejectArr(obj, fn) {
  * condition 2: Array
  * condition 3: Nested object
  */
-function recurse(cur, prop, result) {
+function recurse(cur, prop, result, visited = new Set()) {
   const res = result;
-  if (Object(cur) !== cur) {
-    res[prop] = cur;
-  } else if (Array.isArray(cur)) {
+
+  const processArray = () => {
     const l = cur.length;
-    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    for (let i = 0; i < l; i += 1) {
+      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res, visited);
+    }
     if (l === 0) res[prop] = [];
-  } else {
+  };
+
+  const processObject = () => {
     let isEmpty = true;
     Object.keys(cur).forEach(key => {
       isEmpty = false;
-      recurse(cur[key], prop ? `${prop}.${key}` : key, res);
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res, visited);
     });
     if (isEmpty) res[prop] = {};
+  };
+
+  if (visited.has(cur)) {
+    res[prop] = "[Circular Reference]";
+    return result;
   }
+
+  visited.add(cur);
+
+  if (Object(cur) !== cur) {
+    res[prop] = cur;
+  } else if (Array.isArray(cur)) {
+    processArray();
+  } else {
+    processObject();
+  }
+
+  visited.delete(cur);
   return res;
 }
 

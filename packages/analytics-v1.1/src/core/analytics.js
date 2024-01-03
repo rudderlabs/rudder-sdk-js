@@ -229,7 +229,7 @@ class Analytics {
       try {
         // Initialize error reporting provider only if SDK is not running inside chrome extension
         if (!isSDKRunningInChromeExtension()) {
-          this.errorReporting.init(response.source.config, response.source.id);
+          this.errorReporting.init(response.source.config, response.source.id, this.writeKey);
         }
       } catch (err) {
         handleError(err);
