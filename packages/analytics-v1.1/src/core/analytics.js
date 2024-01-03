@@ -591,19 +591,23 @@ class Analytics {
     //   object.clientIntegrationObjects.length
     // );
 
-    if (object.clientIntegrationObjects.every(intg => !intg.isReady || intg.isReady())) {
-      // Integrations are ready
-      // set clientIntegrationsReady to be true
-      this.integrationsData = constructMessageIntegrationsObj(
-        this.integrationsData,
-        object.clientIntegrationObjects,
-      );
-      object.clientIntegrationsReady = true;
-      // Execute the callbacks if any
-      object.executeReadyCallback();
-    }
+    try {
+      if (object.clientIntegrationObjects.every(intg => !intg.isReady || intg.isReady())) {
+        // Integrations are ready
+        // set clientIntegrationsReady to be true
+        this.integrationsData = constructMessageIntegrationsObj(
+          this.integrationsData,
+          object.clientIntegrationObjects,
+        );
+        object.clientIntegrationsReady = true;
+        // Execute the callbacks if any
+        object.executeReadyCallback();
+      }
 
-    this.processBufferedCloudModeEvents();
+      this.processBufferedCloudModeEvents();
+    } catch (e) {
+      handleError(e, `Replay buffered cloud mode events`);
+    }
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach(event => {
