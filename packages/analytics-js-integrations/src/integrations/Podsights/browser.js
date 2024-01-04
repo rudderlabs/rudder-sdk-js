@@ -13,6 +13,7 @@ import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
   standardEventsListMapping,
+  LINE_ITEMS_CONFIG
 } from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
@@ -118,7 +119,7 @@ class Podsights {
           this.loadAliasEvent(externalId);
           break;
         case 'purchase': {
-          payload = payloadBuilder(properties, PURCHASE_EVENT);
+          payload = payloadBuilder(properties, PURCHASE_EVENT, LINE_ITEMS_CONFIG);
           window.pdst(podsightEvent, payload);
           this.loadAliasEvent(externalId);
           break;
@@ -140,7 +141,7 @@ class Podsights {
           break;
         }
         case 'checkout': {
-          payload = payloadBuilder(properties, CHECK_OUT_EVENT);
+          payload = payloadBuilder(properties, CHECK_OUT_EVENT, LINE_ITEMS_CONFIG);
           window.pdst(podsightEvent, payload);
           this.loadAliasEvent(externalId);
           break;
