@@ -13,7 +13,7 @@ import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
   standardEventsListMapping,
-} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/SpotifyPixel/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import {
