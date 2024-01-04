@@ -298,3 +298,7 @@ export {
   DISPLAY_NAME as SprigDisplayName,
   DIR_NAME as SprigDirectoryName,
 } from './integrations/Sprig/constants';
+export {
+  DISPLAY_NAME as SpotifyPixelDisplayName,
+  DIR_NAME as SpotifyPixelDirectoryName,
+} from './integrations/SpotifyPixel/constants';
