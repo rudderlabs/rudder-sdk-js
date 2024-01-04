@@ -2,6 +2,7 @@ import {
     payloadBuilder,
     payloadBuilderInList
   } from '../../../src/integrations/Podsights/utils';
+import {LINE_ITEMS_CONFIG} from '../../../../analytics-js-common/src/constants/integrations/CommonIntegrationsConstant/constants'
 describe('payloadBuilder', () => {
 
     // Builds payload with line_items if present in properties
@@ -38,7 +39,7 @@ describe('payloadBuilder', () => {
 
       const expectedPayload = {"value":10,"line_items":[{"value":10,"quantity":2}]}
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
@@ -126,7 +127,7 @@ describe('payloadBuilder', () => {
         ]
       };
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT,LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
@@ -184,7 +185,7 @@ describe('payloadBuilder', () => {
         ]
       };
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT,LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
@@ -226,7 +227,7 @@ describe('payloadBuilder', () => {
 
       const expectedPayload = {"line_items":[{}]};
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
@@ -270,7 +271,7 @@ describe('payloadBuilder', () => {
 
       const expectedPayload = {"line_items":[{}]};
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
@@ -323,7 +324,7 @@ describe('payloadBuilder', () => {
 
       const expectedPayload = {"line_items":[{}]};
 
-      const result = payloadBuilder(properties, CONFIG_EVENT);
+      const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
       expect(result).toEqual(expectedPayload);
     });
