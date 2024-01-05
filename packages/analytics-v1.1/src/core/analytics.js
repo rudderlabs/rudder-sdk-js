@@ -603,11 +603,11 @@ class Analytics {
         // Execute the callbacks if any
         object.executeReadyCallback();
       }
-
-      this.processBufferedCloudModeEvents();
     } catch (e) {
       handleError(e, `Replay buffered cloud mode events`);
     }
+
+    this.processBufferedCloudModeEvents();
 
     // send the queued events to the fetched integration
     object.toBeProcessedByIntegrationArray.forEach(event => {
