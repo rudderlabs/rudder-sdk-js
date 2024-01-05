@@ -113,23 +113,23 @@ class SpotifyPixel {
       get(message, 'context.traits.userId') ||
       get(message, 'context.traits.id');
     let payload;
-    events.forEach(podsightEvent => {
-      switch (podsightEvent.trim().toLowerCase()) {
+    events.forEach(spotifyEvent => {
+      switch (spotifyEvent.trim().toLowerCase()) {
         case 'lead':
           payload = constructPayload(properties, LEAD_EVENT);
-          window.spdt(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         case 'purchase': {
           payload = payloadBuilder(properties, PURCHASE_EVENT, LINE_ITEMS_CONFIG);
-          window.spdt(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         }
         case 'product': {
           const payloadList = payloadBuilderInList(properties, PRODUCT_EVENT);
           payloadList.forEach(payloadItem => {
-            window.spdt(podsightEvent, payloadItem);
+            window.spdt(spotifyEvent, payloadItem);
             this.loadAliasEvent(externalId);
           });
           break;
@@ -137,19 +137,19 @@ class SpotifyPixel {
         case 'addtocart': {
           const payloadList = payloadBuilderInList(properties, ADD_TO_CART_EVENT);
           payloadList.forEach(payloadItem => {
-            window.spdt(podsightEvent, payloadItem);
+            window.spdt(spotifyEvent, payloadItem);
             this.loadAliasEvent(externalId);
           });
           break;
         }
         case 'checkout': {
           payload = payloadBuilder(properties, CHECK_OUT_EVENT, LINE_ITEMS_CONFIG);
-          window.spdt(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         }
         default:
-          logger.error(`event name ${podsightEvent} not supported. Aborting`);
+          logger.error(`event name ${spotifyEvent} not supported. Aborting`);
           break;
       }
     });
