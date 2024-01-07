@@ -67,26 +67,30 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           const clonedRudderEvent = clone(rudderEvent);
 
           destinationsToSend.forEach((dest: Destination) => {
-            const sendEvent = !isEventDenyListed(
-              clonedRudderEvent.type,
-              clonedRudderEvent.event,
-              dest,
-            );
-            if (!sendEvent) {
-              logger?.warn(
-                DESTINATION_EVENT_FILTERING_WARNING(
-                  NATIVE_DESTINATION_QUEUE_PLUGIN,
-                  clonedRudderEvent.event,
-                  dest.userFriendlyId,
-                ),
+            try {
+              const sendEvent = !isEventDenyListed(
+                clonedRudderEvent.type,
+                clonedRudderEvent.event,
+                dest,
               );
-              return;
-            }
+              if (!sendEvent) {
+                logger?.warn(
+                  DESTINATION_EVENT_FILTERING_WARNING(
+                    NATIVE_DESTINATION_QUEUE_PLUGIN,
+                    clonedRudderEvent.event,
+                    dest.userFriendlyId,
+                  ),
+                );
+                return;
+              }
 
-            if (dest.shouldApplyDeviceModeTransformation) {
-              destWithTransformationEnabled.push(dest);
-            } else {
-              sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
+              if (dest.shouldApplyDeviceModeTransformation) {
+                destWithTransformationEnabled.push(dest);
+              } else {
+                sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
+              }
+            } catch (e) {
+              errorHandler?.onError(e, NATIVE_DESTINATION_QUEUE_PLUGIN);
             }
           });
           if (destWithTransformationEnabled.length > 0) {
