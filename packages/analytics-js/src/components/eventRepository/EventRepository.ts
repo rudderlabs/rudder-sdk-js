@@ -10,7 +10,14 @@ import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventAp
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { API_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
+import {
+  API_CALLBACK_INVOKE_ERROR,
+  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
+  DMT_PLUGIN_INITIALIZE_ERROR,
+  NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
+  NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
+} from '../../constants/logMessages';
 import { HttpClient } from '../../services/HttpClient';
 import { state } from '../../state';
 import type { IEventRepository } from './types';
@@ -59,34 +66,46 @@ class EventRepository implements IEventRepository {
    * Initializes the event repository
    */
   init(): void {
-    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
-      state,
-      this.httpClient,
-      this.storeManager,
-      this.errorHandler,
-      this.logger,
-    );
+    try {
+      this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
+        `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
+        state,
+        this.httpClient,
+        this.storeManager,
+        this.errorHandler,
+        this.logger,
+      );
+    } catch (e) {
+      this.onError(e, DATAPLANE_PLUGIN_INITIALIZE_ERROR);
+    }
 
-    this.dmtEventsQueue = this.pluginsManager.invokeSingle(
-      `${DMT_EXT_POINT_PREFIX}.init`,
-      state,
-      this.pluginsManager,
-      this.httpClient,
-      this.storeManager,
-      this.errorHandler,
-      this.logger,
-    );
+    try {
+      this.dmtEventsQueue = this.pluginsManager.invokeSingle(
+        `${DMT_EXT_POINT_PREFIX}.init`,
+        state,
+        this.pluginsManager,
+        this.httpClient,
+        this.storeManager,
+        this.errorHandler,
+        this.logger,
+      );
+    } catch (e) {
+      this.onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
+    }
 
-    this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
-      state,
-      this.pluginsManager,
-      this.storeManager,
-      this.dmtEventsQueue,
-      this.errorHandler,
-      this.logger,
-    );
+    try {
+      this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
+        `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
+        state,
+        this.pluginsManager,
+        this.storeManager,
+        this.dmtEventsQueue,
+        this.errorHandler,
+        this.logger,
+      );
+    } catch (e) {
+      this.onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
+    }
 
     // Start the queue once the client destinations are ready
     effect(() => {
@@ -149,25 +168,34 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    const dpQEvent = getFinalEvent(event, state);
-    this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      state,
-      this.dataplaneEventsQueue,
-      dpQEvent,
-      this.errorHandler,
-      this.logger,
-    );
+    let dpQEvent;
+    try {
+      dpQEvent = getFinalEvent(event, state);
+      this.pluginsManager.invokeSingle(
+        `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+        state,
+        this.dataplaneEventsQueue,
+        dpQEvent,
+        this.errorHandler,
+        this.logger,
+      );
+    } catch (e) {
+      this.onError(e, DATAPLANE_PLUGIN_ENQUEUE_ERROR);
+    }
 
-    const dQEvent = clone(event);
-    this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      state,
-      this.destinationsEventsQueue,
-      dQEvent,
-      this.errorHandler,
-      this.logger,
-    );
+    try {
+      const dQEvent = clone(event);
+      this.pluginsManager.invokeSingle(
+        `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+        state,
+        this.destinationsEventsQueue,
+        dQEvent,
+        this.errorHandler,
+        this.logger,
+      );
+    } catch (e) {
+      this.onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
+    }
 
     // Invoke the callback if it exists
     try {

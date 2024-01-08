@@ -191,6 +191,12 @@ const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
 const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
 
 const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
+const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
+const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
+const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
+
+const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
+const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
 
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
@@ -268,4 +274,9 @@ export {
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
+  NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
+  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
+  DMT_PLUGIN_INITIALIZE_ERROR,
+  NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
+  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
 };
