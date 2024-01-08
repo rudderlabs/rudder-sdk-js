@@ -82,16 +82,22 @@ function flattenJson(data, separator = '.', mode = 'normal') {
   let l;
 
   // a recursive function to loop through the array of the data
-  function recurse(cur, prop) {
+  function recurse(cur, prop, visited = new Set()) {
     let i;
+    if (visited.has(cur)) {
+      result[prop] = "[Circular Reference]";
+      return;
+    }
+
+    visited.add(cur);
     if (Object(cur) !== cur) {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
       for (i = 0, l = cur.length; i < l; i += 1) {
         if (mode === 'strict') {
-          recurse(cur[i], `${prop}${separator}${i}`);
+          recurse(cur[i], `${prop}${separator}${i}`, visited);
         } else {
-          recurse(cur[i], `${prop}[${i}]`);
+          recurse(cur[i], `${prop}[${i}]`, visited);
         }
       }
       if (l === 0) {
@@ -101,10 +107,11 @@ function flattenJson(data, separator = '.', mode = 'normal') {
       let isEmptyFlag = true;
       Object.keys(cur).forEach(key => {
         isEmptyFlag = false;
-        recurse(cur[key], prop ? `${prop}${separator}${key}` : key);
+        recurse(cur[key], prop ? `${prop}${separator}${key}` : key, visited);
       });
       if (isEmptyFlag && prop) result[prop] = {};
     }
+    visited.delete(cur);
   }
 
   recurse(data, '');
