@@ -10,7 +10,7 @@ const standardEventsListMapping = [
   const LEAD_EVENT = [
     {
       destKey: 'value',
-      sourceKeys: 'value',
+      sourceKeys: 'price',
     },
     {
       destKey: 'currency',
@@ -37,26 +37,26 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'product_id',
-      sourceKeys: 'productId',
+      sourceKeys: 'product_id',
     },
     {
       destKey: 'product_name',
-      sourceKeys: 'productName',
+      sourceKeys: 'name',
     },
     {
       destKey: 'product_type',
-      sourceKeys: 'productType',
+      sourceKeys: 'product_type',
     },
     {
       destKey: 'product_vendor',
-      sourceKeys: 'productVendor',
+      sourceKeys: 'brand',
     },
   ];
   
   const ADD_TO_CART_EVENT = [
     {
       destKey: 'value',
-      sourceKeys: 'value',
+      sourceKeys: 'price',
     },
     {
       destKey: 'currency',
@@ -64,19 +64,19 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'product_id',
-      sourceKeys: 'productId',
+      sourceKeys: 'product_id',
     },
     {
       destKey: 'product_name',
-      sourceKeys: 'productName',
+      sourceKeys: 'name',
     },
     {
       destKey: 'product_type',
-      sourceKeys: 'productType',
+      sourceKeys: 'product_type',
     },
     {
       destKey: 'product_vendor',
-      sourceKeys: 'productVendor',
+      sourceKeys: 'brand',
     },
     {
       destKey: 'quantity',
@@ -118,7 +118,7 @@ const standardEventsListMapping = [
   const PURCHASE_EVENT = [
     {
       destKey: 'value',
-      sourceKeys: 'value',
+      sourceKeys: ['total', 'revenue'],
     },
     {
       destKey: 'currency',
@@ -126,7 +126,7 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'discount_code',
-      sourceKeys: 'discountCode',
+      sourceKeys: 'discount_code',
     },
     {
       destKey: 'line_items',
@@ -134,11 +134,11 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'order_id',
-      sourceKeys: 'orderId',
+      sourceKeys: 'order_id',
     },
     {
       destKey: 'is_new_customer',
-      sourceKeys: 'isNewCustomer',
+      sourceKeys: 'is_new_customer',
     },
     {
       destKey: 'quantity',
