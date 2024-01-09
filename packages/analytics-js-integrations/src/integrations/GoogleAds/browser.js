@@ -77,7 +77,7 @@ class GoogleAds {
   }
 
   isLoaded() {
-    return window.dataLayer && window.dataLayer.push !== Array.prototype.push;
+    return !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
   }
 
   isReady() {
