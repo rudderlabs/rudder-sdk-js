@@ -1377,7 +1377,7 @@ const trackEvents = [
 
 const pageEvents = [
   {
-    description: 'Call with properties',
+    description: 'Scenario to test page_view event with extendPageViewParams toggle disabled',
     input: {
       message: {
         channel: 'web',
@@ -1405,6 +1405,7 @@ const pageEvents = [
             path: '/destinations/mixpanel',
             url: 'https://docs.rudderstack.com/destinations/mixpanel',
             category: 'destination',
+            title: 'Document',
             initial_referrer: 'https://docs.rudderstack.com',
             initial_referring_domain: 'docs.rudderstack.com',
           },
@@ -1416,7 +1417,7 @@ const pageEvents = [
         },
         properties: {
           path: '/destinations/mixpanel',
-          url: 'https://docs.rudderstack.com/destinations/mixpanel',
+          referrer: '$direct',
           category: 'destination',
           initial_referrer: 'https://docs.rudderstack.com',
           initial_referring_domain: 'docs.rudderstack.com',
@@ -1428,11 +1429,75 @@ const pageEvents = [
     output: {
       event: 'page_view',
       params: {
-        path: '/destinations/mixpanel',
-        url: 'https://docs.rudderstack.com/destinations/mixpanel',
+        page_location: 'https://docs.rudderstack.com/destinations/mixpanel',
+        page_referrer: '$direct',
+        page_title: 'Document',
+        send_to: 'G-123456',
+        user_id: 'user@10',
+      },
+    },
+  },
+  {
+    description: 'Scenario to test page_view event with extendPageViewParams toggle enabled',
+    input: {
+      message: {
+        channel: 'web',
+        name: 'Contact Us',
+        context: {
+          app: {
+            build: '1.0.0',
+            name: 'RudderLabs JavaScript SDK',
+            namespace: 'com.rudderlabs.javascript',
+            version: '1.0.5',
+          },
+          ip: '0.0.0.0',
+          library: {
+            name: 'RudderLabs JavaScript SDK',
+            version: '1.0.5',
+          },
+          locale: 'en-GB',
+          screen: {
+            density: 2,
+          },
+          traits: {
+            email: 'abc@gmail.com',
+          },
+          page: {
+            path: '/destinations/mixpanel',
+            url: 'https://docs.rudderstack.com/destinations/mixpanel',
+            category: 'destination',
+            title: 'Document',
+            initial_referrer: 'https://docs.rudderstack.com',
+            initial_referring_domain: 'docs.rudderstack.com',
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
+        },
+        integrations: {
+          All: true,
+        },
+        properties: {
+          path: '/destinations/mixpanel',
+          referrer: '$direct',
+          category: 'destination',
+          initial_referrer: 'https://docs.rudderstack.com',
+          initial_referring_domain: 'docs.rudderstack.com',
+        },
+        type: 'page',
+        userId: 'user@10',
+      },
+    },
+    output: {
+      event: 'page_view',
+      params: {
         category: 'destination',
         initial_referrer: 'https://docs.rudderstack.com',
         initial_referring_domain: 'docs.rudderstack.com',
+        page_location: 'https://docs.rudderstack.com/destinations/mixpanel',
+        path: '/destinations/mixpanel',
+        referrer: '$direct',
+        page_referrer: '$direct',
+        page_title: 'Document',
         send_to: 'G-123456',
         user_id: 'user@10',
       },
@@ -1451,7 +1516,7 @@ const groupEvents = [
             name: 'rudder-analytics-php',
             version: '2.0.1',
             consumer: 'LibCurl',
-          }
+          },
         },
         traits: {
           companySize: 100,

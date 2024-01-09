@@ -52,18 +52,23 @@ describe('Google Analytics 4 Track events tests', () => {
 });
 
 describe('Google Analytics 4 Page events tests', () => {
-  let ga4;
-  beforeEach(() => {
-    ga4 = new GA4(
-      { measurementId: 'G-123456', extendPageViewParams: true, capturePageView: 'rs', piiPropertiesToIgnore: [{ piiProperty: '' }] },
-      { getUserId: () => '1234', getUserTraits: () => { } },
-      destinationInfo,
-    );
-    ga4.init();
-    window.gtag = jest.fn();
-  });
+  pageEvents.forEach((event, index) => {
+    let ga4;
+    beforeEach(() => {
+      ga4 = new GA4(
+        {
+          measurementId: 'G-123456',
+          extendPageViewParams: index !== 0,
+          capturePageView: 'rs',
+          piiPropertiesToIgnore: [{ piiProperty: '' }],
+        },
+        { getUserId: () => '1234', getUserTraits: () => { } },
+        destinationInfo,
+      );
+      ga4.init();
+      window.gtag = jest.fn();
+    });
 
-  pageEvents.forEach(event => {
     test(`Page : ${event.description}`, () => {
       const { input, output } = event;
       try {
@@ -75,8 +80,8 @@ describe('Google Analytics 4 Page events tests', () => {
         expect(error.message).toEqual(output.message);
       }
     });
-  });
-})
+  })
+});
 
 describe('Google Analytics 4 Group events tests', () => {
   let ga4;
