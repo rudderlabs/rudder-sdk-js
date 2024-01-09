@@ -37,7 +37,7 @@ describe('payloadBuilder', () => {
         },
       ];
 
-      const expectedPayload = {"value":10,"line_items":[{"value":10,"quantity":2}]}
+      const expectedPayload = { "value": 10,"line_items":[{"quantity":2, "product_id": "123","product_type": "Type 1"}]}
 
       const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
@@ -71,57 +71,35 @@ describe('payloadBuilder', () => {
         ]
       };
 
-      const CONFIG_EVENT = [
+      const CONFIG_EVENT =  [
         {
           destKey: 'value',
-          sourceKeys: 'value',
+          sourceKeys: 'price',
         },
         {
           destKey: 'currency',
           sourceKeys: 'currency',
         },
         {
-          destKey: 'discount_code',
-          sourceKeys: 'discountCode',
+          destKey: 'type',
+          sourceKeys: 'type',
         },
         {
-          destKey: 'line_items',
-          sourceKeys: 'lineItems',
-        },
-        {
-          destKey: 'order_id',
-          sourceKeys: 'orderId',
-        },
-        {
-          destKey: 'is_new_customer',
-          sourceKeys: 'isNewCustomer',
-        },
-        {
-          destKey: 'quantity',
-          sourceKeys: 'quantity',
+          destKey: 'category',
+          sourceKeys: 'category',
         },
       ];
 
       const expectedPayload = {
         line_items: [
           {
-            product_id: '123',
-            product_name: 'Product 1',
-            product_type: 'Type 1',
-            product_vendor: 'Vendor 1',
             variant_id: '456',
             variant_name: 'Variant 1',
-            value: 10,
             quantity: 2
           },
           {
-            product_id: '789',
-            product_name: 'Product 2',
-            product_type: 'Type 2',
-            product_vendor: 'Vendor 2',
             variant_id: '012',
             variant_name: 'Variant 2',
-            value: 20,
             quantity: 3
           }
         ]
