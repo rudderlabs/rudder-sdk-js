@@ -149,19 +149,19 @@ const standardEventsListMapping = [
   const LINE_ITEMS_CONFIG = [
     {
       destKey: 'product_id',
-      sourceKeys: 'productId',
+      sourceKeys: 'product_id',
     },
     {
       destKey: 'product_name',
-      sourceKeys: 'productName',
+      sourceKeys: 'name',
     },
     {
       destKey: 'product_type',
-      sourceKeys: 'productType',
+      sourceKeys: 'product_type',
     },
     {
       destKey: 'product_vendor',
-      sourceKeys: 'productVendor',
+      sourceKeys: 'brand',
     },
     {
       destKey: 'variant_id',
@@ -173,7 +173,7 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'value',
-      sourceKeys: 'value',
+      sourceKeys: 'price',
     },
     {
       destKey: 'quantity',
