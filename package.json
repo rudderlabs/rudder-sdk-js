@@ -206,7 +206,6 @@
     "@nx/nx-win32-x64-msvc": "17.2.8"
   },
   "overrides": {
-    "@babel/traverse": "7.23.2",
     "debug": "4.3.4"
   },
   "lint-staged": {
