@@ -10,7 +10,7 @@
 		"wrangler": "^3.0.0"
 	},
 	"dependencies": {
-		"@rudderstack/analytics-js-service-worker": "*",
+		"@rudderstack/analytics-js-service-worker": "3.0.3",
 		"@vespaiach/axios-fetch-adapter": "^0.3.1",
 		"host-proxy": "^1.0.2",
 		"http-forward": "^0.1.3"
