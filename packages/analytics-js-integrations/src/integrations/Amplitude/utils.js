@@ -38,4 +38,16 @@ const getTraitsToIncrement = config => {
 const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
-export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions };
+/**
+ * Checks if there is any fieldsTounset provided and returns that list
+ * @param {*} integrations integrations object
+ */
+const getFieldsToUnset = integrations => {
+  const amplitudeIntgConfig = getDestinationOptions(integrations);
+  const fieldsToUnset = amplitudeIntgConfig?.fieldsToUnset || undefined;
+  if (fieldsToUnset && Array.isArray(fieldsToUnset) && fieldsToUnset.length > 0) {
+    return fieldsToUnset;
+  }
+  return undefined;
+};
+export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions, getFieldsToUnset };

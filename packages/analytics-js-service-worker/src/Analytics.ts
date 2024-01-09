@@ -514,7 +514,7 @@ class Analytics implements IAnalytics {
           retryCondition: this._isErrorRetryable.bind(this),
           retryDelay: axiosRetry.exponentialDelay,
         },
-      })
+      } as any)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .then((response: AxiosResponse) => {
           this.timer = setTimeout(this.flush.bind(this), this.flushInterval);
