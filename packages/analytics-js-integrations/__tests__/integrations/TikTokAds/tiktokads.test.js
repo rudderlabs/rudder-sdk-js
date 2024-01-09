@@ -79,6 +79,7 @@ describe('TiktokAds Track event', () => {
               product_id: 'abc',
               category: 'Merch',
               name: 'Food',
+              brand: '',
               variant: 'Extra topped 1',
               price: 3.0,
               quantity: 2,
@@ -132,7 +133,7 @@ describe('TiktokAds Track event', () => {
               product_id: 'abc',
               category: 'Merch',
               name: 'Drink',
-              brand: 'some_brand1',
+              brand: '',
               variant: 'Extra topped2',
               price: 3.0,
               quantity: 2,
@@ -147,7 +148,7 @@ describe('TiktokAds Track event', () => {
               product_id: 'PRODUCT_ID',
               category: 'Wholesaler',
               name: 'Drink',
-              brand: 'some_brand2',
+              brand: '',
               variant: 'Extra Cheese2',
               price: 50.0,
               quantity: 1,
@@ -177,7 +178,6 @@ describe('TiktokAds Track event', () => {
           content_type: 'product',
           price: 3.0,
           quantity: 2,
-          brand: 'some_brand1',
         },
         {
           content_category: 'Wholesaler',
@@ -186,7 +186,6 @@ describe('TiktokAds Track event', () => {
           content_type: 'CONTENT_TYPE',
           price: 50.0,
           quantity: 1,
-          brand: 'some_brand2',
         },
       ],
     });
@@ -260,7 +259,6 @@ describe('TiktokAds Track event', () => {
           content_type: 'product',
           price: 3.0,
           quantity: 2,
-          brand: '',
         },
         {
           content_category: 'Wholesaler',
@@ -269,7 +267,6 @@ describe('TiktokAds Track event', () => {
           content_type: 'CONTENT_TYPE',
           price: 50.0,
           quantity: 1,
-          brand: '',
         },
       ],
     });
@@ -378,7 +375,6 @@ describe('TiktokAds Track event', () => {
       partner_name: 'RudderStack',
       contents: [
         {
-          brand: '',
           content_category: 'Wholesaler',
           content_id: 'PRODUCT_ID',
           content_name: 'Drink',
