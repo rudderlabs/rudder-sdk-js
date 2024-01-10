@@ -1438,7 +1438,7 @@ const pageEvents = [
     },
   },
   {
-    description: 'Scenario to test page_view event with extendPageViewParams toggle enabled',
+    description: 'page_view event with extendPageViewParams toggle enabled',
     input: {
       message: {
         channel: 'web',
