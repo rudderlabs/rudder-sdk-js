@@ -64,6 +64,8 @@ import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../con
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent } from './utilities';
+import type { IErrorListener } from '../errorListener/types';
+import { ErrorListener } from '../errorListener';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -83,6 +85,7 @@ class Analytics implements IAnalytics {
   eventManager?: IEventManager;
   userSessionManager?: IUserSessionManager;
   clientDataStore?: Store;
+  errorListener?: IErrorListener;
 
   /**
    * Initialize services and components or use default ones if singletons
@@ -235,6 +238,7 @@ class Analytics implements IAnalytics {
 
   prepareInternalServices() {
     this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
+    this.errorListener = new ErrorListener(this.pluginsManager, this.logger);
     this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
@@ -273,7 +277,8 @@ class Analytics implements IAnalytics {
    */
   onPluginsReady() {
     this.errorHandler.init(this.externalSrcLoader);
-
+    // Set plugins loaded flag to true
+    state.reporting.isErrorReportingPluginLoaded.value = true;
     // Initialize storage
     this.storeManager?.init();
     this.userSessionManager?.init();

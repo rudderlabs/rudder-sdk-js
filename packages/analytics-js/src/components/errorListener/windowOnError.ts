@@ -1,10 +1,10 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state } from '../../state';
-import type { JqueryErrorEvent } from './types';
+import type { ErrorMetaData, JqueryErrorEvent } from './types';
 
 const attachOnError = (pluginsManager: IPluginsManager, logger?: ILogger) => {
-  // const prevOnError = (globalThis as any).onerror;
+  const prevOnError = (globalThis as any).onerror;
 
   function onerror(
     messageOrEvent: string | Event | JqueryErrorEvent | unknown,
@@ -29,7 +29,7 @@ const attachOnError = (pluginsManager: IPluginsManager, logger?: ILogger) => {
       };
 
       let errorEvent;
-
+      const metaData: ErrorMetaData = { url, lineNo, charNo };
       // window.onerror can be called in a number of ways. This big if-else is how we
       // figure out which arguments were supplied, and what kind of values it received.
 
@@ -53,30 +53,33 @@ const attachOnError = (pluginsManager: IPluginsManager, logger?: ILogger) => {
         !charNo &&
         !error
       ) {
+        const event = messageOrEvent as JqueryErrorEvent;
         // The jQuery event may have a "type" property, if so use it as part of the error message
-        const name = 'Error';
+        const name = event.type ? `Event: ${event.type}` : 'Error';
         // attempt to find a message from one of the conventional properties, but
         // default to empty string (the event will fill it with a placeholder)
-        const message = '';
+        const message = event.message || event.detail || '';
 
-        errorEvent = { name, message, originalError: messageOrEvent };
+        errorEvent = { name, message };
+        metaData.originalError = messageOrEvent;
       } else {
         // Lastly, if there was no "error" parameter this event was probably from an old
         // browser that doesn't support that. Instead we need to generate a stacktrace.
         errorEvent = messageOrEvent;
       }
-      if (!state.reporting.isErrorReportingEnabled) {
+      if (!state.reporting.isErrorReportingEnabled.value) {
         // just log the error
         logger?.error(errorEvent);
-      } else if (!state.reporting.errorReportingProviderPluginName) {
+      } else if (!state.reporting.isErrorReportingPluginLoaded.value) {
         // buffer the error
-        // errorBuffer.push([errorEvent, errorState]);
+        // errorBuffer.push([errorEvent, errorState, metaData]);
       } else {
         // send it to plugin
       }
     }
-
-    // if (typeof prevOnError === 'function') prevOnError.apply(this, arguments);
+    // @ts-expect-error avoid error on this
+    // eslint-disable-next-line prefer-rest-params
+    if (typeof prevOnError === 'function') prevOnError.apply(this, arguments);
   }
 
   (globalThis as any).onerror = onerror;

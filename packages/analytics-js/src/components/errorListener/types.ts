@@ -2,14 +2,12 @@ export interface IErrorListener {
   attachErrorListeners(): void;
 }
 
-export type ErrorState = {
-  severity: string;
-  unhandled: boolean;
-  severityReason: {
-    type: string;
-  };
+export type ErrorMetaData = {
   isBluebird?: boolean;
   originalError?: unknown;
+  url?: string;
+  lineNo?: number;
+  charNo?: number;
 };
 
 export type JqueryErrorEvent = {

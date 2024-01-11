@@ -1,7 +1,7 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state } from '../../state';
-import type { ErrorState } from './types';
+import type { ErrorMetaData } from './types';
 
 const attachUnhandledRejection = (pluginsManager: IPluginsManager, logger?: ILogger) => {
   const listener = (evt: any) => {
@@ -20,32 +20,33 @@ const attachUnhandledRejection = (pluginsManager: IPluginsManager, logger?: ILog
 
     const errorEvent = error;
 
-    const errorState: ErrorState = {
+    const errorState = {
       severity: 'error',
       unhandled: true,
       severityReason: { type: 'unhandledPromiseRejection' },
     };
+    const metaData: ErrorMetaData = {};
 
     if (isBluebird) {
-      errorState.isBluebird = true;
+      metaData.isBluebird = true;
     }
 
-    if (!state.reporting.isErrorReportingEnabled) {
+    if (!state.reporting.isErrorReportingEnabled.value) {
       // just log the error
       logger?.error(errorEvent);
-    } else if (!state.reporting.errorReportingProviderPluginName) {
+    } else if (!state.reporting.isErrorReportingPluginLoaded.value) {
       // buffer the error
-      // errorBuffer.push([errorEvent, errorState]);
+      // errorBuffer.push([errorEvent, errorState,metaData ]);
     } else {
       // send it to plugin
     }
   };
-  if ('addEventListener' in window) {
-    window.addEventListener('unhandledrejection', listener);
+  if ('addEventListener' in (globalThis as any)) {
+    (globalThis as any).addEventListener('unhandledrejection', listener);
   } else {
-    // window.onunhandledrejection = (reason, promise) => {
-    //   listener({ detail: { reason, promise } });
-    // };
+    (globalThis as any).onunhandledrejection = (reason: any) => {
+      listener({ detail: { reason } });
+    };
   }
 };
 
