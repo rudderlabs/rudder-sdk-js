@@ -1377,7 +1377,7 @@ const trackEvents = [
 
 const pageEvents = [
   {
-    description: 'Scenario to test page_view event with extendPageViewParams toggle disabled',
+    description: 'page_view event with extendPageViewParams toggle disabled',
     input: {
       message: {
         channel: 'web',
