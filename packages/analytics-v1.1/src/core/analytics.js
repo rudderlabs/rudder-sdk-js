@@ -1340,7 +1340,7 @@ class Analytics {
       return;
     }
 
-    let configUrl = getConfigUrl(writeKey);
+    let configUrl = getConfigUrl(writeKey, this.lockIntegrationsVersion);
     if (options && options.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
