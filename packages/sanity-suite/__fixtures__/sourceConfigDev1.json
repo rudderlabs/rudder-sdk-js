@@ -84,7 +84,7 @@
           "name": "AM",
           "displayName": "Amplitude",
           "createdAt": "2019-08-30T10:07:47.170Z",
-          "updatedAt": "2023-11-17T04:46:43.946Z",
+          "updatedAt": "2024-01-04T07:52:30.774Z",
           "config": {
             "destConfig": {
               "ios": [
@@ -196,7 +196,6 @@
               "userProvidedScreenEventString",
               "useUserDefinedScreenEventName"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "isAudienceSupported": false,
             "supportedSourceTypes": [
@@ -213,13 +212,26 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": ["alias", "group", "identify", "page", "screen", "track"],
+            "supportedMessageTypes": {
+              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
+              "device": {
+                "ios": ["identify", "track", "page", "group"],
+                "web": ["identify", "track", "page", "group"],
+                "android": ["identify", "track", "page", "group"],
+                "flutter": ["identify", "track", "page", "group"],
+                "reactnative": ["identify", "track", "page", "group"]
+              }
+            },
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
+              "amp": ["cloud"],
               "ios": ["cloud", "device"],
               "web": ["cloud", "device"],
+              "unity": ["cloud"],
               "android": ["cloud", "device"],
+              "cordova": ["cloud"],
               "flutter": ["cloud", "device"],
+              "shopify": ["cloud"],
               "reactnative": ["cloud", "device"]
             }
           },
@@ -274,7 +286,7 @@
           "name": "GA",
           "displayName": "Google Analytics",
           "createdAt": "2019-08-30T10:07:45.868Z",
-          "updatedAt": "2023-10-27T12:52:32.380Z",
+          "updatedAt": "2024-01-04T07:52:23.645Z",
           "config": {
             "auth": {
               "role": "google_analytics",
@@ -353,7 +365,6 @@
               "eventFilteringOption",
               "ketchConsentPurposes"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "isAudienceSupported": false,
             "supportedSourceTypes": [
@@ -370,8 +381,24 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": ["identify", "page", "screen", "track"],
-            "saveDestinationResponse": false
+            "supportedMessageTypes": {
+              "cloud": ["identify", "page", "screen", "track"],
+              "device": {
+                "web": ["track", "page"]
+              }
+            },
+            "saveDestinationResponse": false,
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "ios": ["cloud"],
+              "web": ["cloud", "device"],
+              "unity": ["cloud"],
+              "android": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "shopify": ["cloud"],
+              "reactnative": ["cloud"]
+            }
           },
           "responseRules": null,
           "category": null,
@@ -427,7 +454,7 @@
           "name": "FACEBOOK_PIXEL",
           "displayName": "Facebook Pixel",
           "createdAt": "2020-04-09T03:50:22.245Z",
-          "updatedAt": "2023-11-08T13:51:28.324Z",
+          "updatedAt": "2024-01-04T07:54:10.390Z",
           "config": {
             "destConfig": {
               "web": ["useNativeSDK", "legacyConversionPixelId", "connectionMode"],
@@ -471,7 +498,6 @@
               "useUpdatedMapping",
               "ketchConsentPurposes"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "supportedSourceTypes": [
               "android",
@@ -486,10 +512,23 @@
               "cordova",
               "shopify"
             ],
-            "supportedMessageTypes": ["identify", "page", "screen", "track"],
+            "supportedMessageTypes": {
+              "cloud": ["identify", "page", "screen", "track"],
+              "device": {
+                "web": ["track", "page"]
+              }
+            },
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
-              "web": ["cloud", "device"]
+              "amp": ["cloud"],
+              "ios": ["cloud"],
+              "web": ["cloud", "device"],
+              "unity": ["cloud"],
+              "android": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "shopify": ["cloud"],
+              "reactnative": ["cloud"]
             }
           },
           "responseRules": null,
@@ -535,7 +574,7 @@
           "name": "BRAZE",
           "displayName": "Braze",
           "createdAt": "2020-07-07T10:00:24.586Z",
-          "updatedAt": "2023-11-13T10:07:47.176Z",
+          "updatedAt": "2024-01-05T14:31:18.621Z",
           "config": {
             "destConfig": {
               "ios": ["useNativeSDK", "connectionMode"],
@@ -557,6 +596,7 @@
                 "enableSubscriptionGroupInGroupCall",
                 "enableNestedArrayOperations",
                 "supportDedup",
+                "sendPurchaseEventWithExtraProperties",
                 "blacklistedEvents",
                 "whitelistedEvents",
                 "eventFilteringOption",
@@ -581,7 +621,6 @@
               "enablePushNotification",
               "allowUserSuppliedJavascript"
             ],
-            "transformAt": "router",
             "transformAtV1": "router",
             "isAudienceSupported": true,
             "supportedSourceTypes": [
@@ -598,13 +637,26 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": ["group", "identify", "page", "screen", "track", "alias"],
+            "supportedMessageTypes": {
+              "cloud": ["group", "identify", "page", "screen", "track", "alias"],
+              "device": {
+                "ios": ["identify", "track", "page"],
+                "web": ["identify", "track", "page"],
+                "android": ["identify", "track", "page"],
+                "flutter": ["identify", "track", "page"],
+                "reactnative": ["identify", "track", "page"]
+              }
+            },
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
+              "amp": ["cloud"],
               "ios": ["cloud", "device", "hybrid"],
               "web": ["cloud", "device", "hybrid"],
+              "unity": ["cloud"],
               "android": ["cloud", "device", "hybrid"],
+              "cordova": ["cloud"],
               "flutter": ["cloud", "device"],
+              "shopify": ["cloud"],
               "reactnative": ["cloud", "device"]
             },
             "hybridModeCloudEventsFilter": {
@@ -661,7 +713,7 @@
           "name": "GOOGLEADS",
           "displayName": "Google Ads",
           "createdAt": "2020-01-13T05:38:52.604Z",
-          "updatedAt": "2023-11-14T11:53:12.297Z",
+          "updatedAt": "2024-01-08T14:44:03.124Z",
           "config": {
             "destConfig": {
               "web": ["useNativeSDK", "dynamicRemarketing"],
@@ -714,10 +766,17 @@
               "allowEnhancedConversions",
               "enableConversionLabel"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "supportedSourceTypes": ["web"],
-            "saveDestinationResponse": false
+            "supportedMessageTypes": {
+              "device": {
+                "web": ["identify", "track", "page"]
+              }
+            },
+            "saveDestinationResponse": false,
+            "supportedConnectionModes": {
+              "web": ["device"]
+            }
           },
           "responseRules": null,
           "category": null,
@@ -817,7 +876,7 @@
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-20T07:20:32.017Z",
+  "updatedAt": "2024-01-09T11:18:54.378Z",
   "consentManagementMetadata": {
     "providers": [
       {

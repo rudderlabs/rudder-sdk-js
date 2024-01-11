@@ -3,6 +3,13 @@ export default {
   displayName: '@rudderstack/analytics-js-integrations',
   preset: '../../jest.preset.js',
   rootDir: './',
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/__tests__/",
+    "/__fixtures__/",
+    "/__mocks__/",
+    ".test.js",
+  ],
   coverageThreshold: {
     global: {
       branches: 0,

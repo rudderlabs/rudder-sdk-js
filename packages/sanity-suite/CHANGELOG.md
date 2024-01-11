@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.19...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.20) (2024-01-08)
+
+
+### Features
+
+* remove support for category names in onetrust plugin ([#1556](https://github.com/rudderlabs/rudder-sdk-js/issues/1556)) ([2977c19](https://github.com/rudderlabs/rudder-sdk-js/commit/2977c194ec6ef877547687f3f48a161c69dace3c))
+
 ## [3.0.0-beta.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.18...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.19) (2023-12-13)
 
 
