@@ -14,6 +14,7 @@ import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
 import { isAllowedToBeNotified, processError } from './processError';
+import type { ErrorState } from './types';
 
 /**
  * A service to handle errors
@@ -27,6 +28,19 @@ class ErrorHandler implements IErrorHandler {
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
+  }
+
+  attachErrorListeners() {
+    if ('addEventListener' in (globalThis as any)) {
+      (globalThis as any).addEventListener('error', (event: any) => {
+        this.onError(event, undefined, undefined, undefined, 'unhandledException');
+      });
+    }
+    if ('addEventListener' in (globalThis as any)) {
+      (globalThis as any).addEventListener('unhandledrejection', (event: any) => {
+        this.onError(event.reason, undefined, undefined, undefined, 'unhandledPromiseRejection');
+      });
+    }
   }
 
   init(externalSrcLoader: IExternalSrcLoader) {
@@ -57,7 +71,13 @@ class ErrorHandler implements IErrorHandler {
     }
   }
 
-  onError(error: SDKError, context = '', customMessage = '', shouldAlwaysThrow = false) {
+  onError(
+    error: SDKError,
+    context = '',
+    customMessage = '',
+    shouldAlwaysThrow = false,
+    errorType = 'handled',
+  ) {
     // Error handling is already implemented in processError method
     let errorMessage = processError(error);
 
@@ -65,7 +85,12 @@ class ErrorHandler implements IErrorHandler {
     if (!errorMessage) {
       return;
     }
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const errorState: ErrorState = {
+      severity: 'error',
+      unhandled: errorType !== 'handled',
+      severityReason: { type: errorType },
+    };
     errorMessage = removeDoubleSpaces(
       `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
     );
@@ -77,17 +102,26 @@ class ErrorHandler implements IErrorHandler {
     } else {
       normalizedError = new Error(errorMessage);
     }
+    if (errorType === 'handled') {
+      this.notifyError(normalizedError as Error);
 
-    this.notifyError(normalizedError as Error);
+      if (this.logger) {
+        this.logger.error(errorMessage);
 
-    if (this.logger) {
-      this.logger.error(errorMessage);
-
-      if (shouldAlwaysThrow) {
+        if (shouldAlwaysThrow) {
+          throw normalizedError;
+        }
+      } else {
         throw normalizedError;
       }
+    } else if (!state.reporting.isErrorReportingEnabled.value) {
+      // just log the error
+      this.logger?.error(error);
+    } else if (!state.reporting.isErrorReportingPluginLoaded.value) {
+      // buffer the error
+      // errorBuffer.push([errorEvent, errorState]);
     } else {
-      throw normalizedError;
+      // send it to plugin
     }
   }
 

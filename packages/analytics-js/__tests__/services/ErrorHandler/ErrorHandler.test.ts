@@ -258,4 +258,10 @@ describe('ErrorHandler', () => {
       onErrorSpy.mockRestore();
     });
   });
+
+  it('should attach error listeners', () => {
+    const unhandledRejectionListener = jest.spyOn(window, 'addEventListener');
+    errorHandlerInstance.attachErrorListeners();
+    expect(unhandledRejectionListener).toHaveBeenCalledTimes(2);
+  });
 });

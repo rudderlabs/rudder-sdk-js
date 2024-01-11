@@ -16,4 +16,5 @@ export interface IErrorHandler {
   ): void;
   leaveBreadcrumb(breadcrumb: string): void;
   notifyError(error: Error): void;
+  attachErrorListeners(): void;
 }

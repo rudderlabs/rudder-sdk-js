@@ -2,6 +2,8 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ERROR_MESSAGES_TO_BE_FILTERED } from '../../constants/errors';
+import { LOAD_ORIGIN } from './constant';
+import type { EventTarge } from './types';
 
 /**
  * Utility method to normalise errors
@@ -14,6 +16,21 @@ const processError = (error: SDKError): string => {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
+    } else if (error instanceof Event) {
+      const eventTarget = error.target as EventTarge;
+      // Discard all the non-script loading errors
+      if (eventTarget && eventTarget.localName !== 'script') {
+        return '';
+      }
+      // Discard script errors that are not originated at SDK or from native SDKs
+      if (
+        eventTarget?.dataset &&
+        (eventTarget.dataset.loader !== LOAD_ORIGIN ||
+          eventTarget.dataset.isnonnativesdk !== 'true')
+      ) {
+        return '';
+      }
+      errorMessage = `error in script loading:: src:: ${eventTarget?.src} id:: ${eventTarget?.id}`;
     } else {
       errorMessage = (error as any).message
         ? (error as any).message
