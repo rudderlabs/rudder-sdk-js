@@ -105,8 +105,18 @@ describe('Edge scenarios', () => {
     googleAds.init();
     window.gtag = jest.fn();
   });
-  test('Scenario to test no event name', () => {
+  test('Scenario to test no event name for track call', () => {
     googleAds.track(noEventNameTrackCallPayload);
+    // Validating no error is thrown in console if event name is not present
+    expect(errMock).toHaveBeenLastCalledWith('in script loader=== googleAds-integration');
+    // Validating no conversion event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[0]).toBeUndefined();
+    // Validating no dynamic remarketing event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[1]).toBeUndefined();
+  });
+
+  test('Scenario to test no event name for page call', () => {
+    googleAds.page({message: {}});
     // Validating no error is thrown in console if event name is not present
     expect(errMock).toHaveBeenLastCalledWith('in script loader=== googleAds-integration');
     // Validating no conversion event is sent to google ads if event name is not present
