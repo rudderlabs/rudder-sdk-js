@@ -91,7 +91,6 @@ class Analytics implements IAnalytics {
     this.preloadBuffer = new BufferQueue();
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
-    this.errorHandler.attachErrorListeners();
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);

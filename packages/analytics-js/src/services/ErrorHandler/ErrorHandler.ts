@@ -31,14 +31,14 @@ class ErrorHandler implements IErrorHandler {
   }
 
   attachErrorListeners() {
-    if ('addEventListener' in (globalThis as any)) {
-      (globalThis as any).addEventListener('error', (event: any) => {
+    if ('addEventListener' in (globalThis as typeof window)) {
+      (globalThis as typeof window).addEventListener('error', (event: any) => {
         this.onError(event, undefined, undefined, undefined, 'unhandledException');
       });
     }
-    if ('addEventListener' in (globalThis as any)) {
-      (globalThis as any).addEventListener('unhandledrejection', (event: any) => {
-        this.onError(event.reason, undefined, undefined, undefined, 'unhandledPromiseRejection');
+    if ('addEventListener' in (globalThis as typeof window)) {
+      (globalThis as typeof window).addEventListener('unhandledrejection', (event: any) => {
+        this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
       });
     }
   }

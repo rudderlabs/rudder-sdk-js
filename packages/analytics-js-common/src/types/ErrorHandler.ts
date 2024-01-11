@@ -13,6 +13,7 @@ export interface IErrorHandler {
     context?: string,
     customMessage?: string,
     shouldAlwaysThrow?: boolean,
+    errorType?: string,
   ): void;
   leaveBreadcrumb(breadcrumb: string): void;
   notifyError(error: Error): void;

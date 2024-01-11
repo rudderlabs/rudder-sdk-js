@@ -4,7 +4,7 @@ export type ErrorState = {
   severityReason: { type: string };
 };
 
-export type EventTarge = {
+export type EventTarget = {
   localName?: string;
   dataset?: { loader?: string; isnonnativesdk?: string };
   src?: string;
