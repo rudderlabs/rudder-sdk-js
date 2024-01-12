@@ -1,4 +1,4 @@
-import { VWO } from '../../../src/integrations/VWO/browser';
+import VWO from '../../../src/integrations/VWO/browser';
 
 const destinationInfo = {
   areTransformationsConnected: false,

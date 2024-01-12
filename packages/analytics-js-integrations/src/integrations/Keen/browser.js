@@ -147,4 +147,4 @@ class Keen {
   }
 }
 
-export { Keen };
+export default Keen;

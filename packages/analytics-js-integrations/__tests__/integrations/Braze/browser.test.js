@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import * as R from 'ramda';
 import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { Braze } from '../../../src/integrations/Braze/browser';
+import Braze from '../../../src/integrations/Braze/browser';
 
 // Mock dependencies
 jest.mock('../../../src/utils/logger', () =>

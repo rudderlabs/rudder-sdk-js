@@ -1,1 +1,1 @@
-export { Comscore } from './browser';
+export { default as Comscore } from './browser';
