@@ -54,7 +54,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       return RudderAnalytics.globalSingleton;
       // END-NO-SONAR-SCAN
     }
-    // attach error listeners
     defaultErrorHandler.attachErrorListeners();
 
     this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
