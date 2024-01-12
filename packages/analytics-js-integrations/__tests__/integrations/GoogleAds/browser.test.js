@@ -6,11 +6,33 @@ import {
   googleAdsConfigs,
   trackCallPayload,
   mockConversionId,
+  noEventNameTrackCallPayload,
 } from './__fixtures__/data';
+
+let errMock;
+
+// Mock dependencies
+jest.mock('../../../src/utils/logger', () => {
+  const originalModule = jest.requireActual('../../../src/utils/logger');
+  return {
+    ...originalModule,
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({
+      setLogLevel: jest.fn(),
+      error: jest.fn().mockImplementation((...args) => errMock(...args)),
+      info: jest.fn().mockImplementation((...args) => errMock(...args)),
+    })),
+  };
+});
 
 afterAll(() => {
   jest.restoreAllMocks();
 });
+
+beforeEach(() => {
+  errMock = jest.fn();
+});
+
 const destinationInfo = {
   areTransformationsConnected: false,
   destinationId: 'sample-destination-id',
@@ -76,6 +98,34 @@ describe('Scenario to test dynamic remarketing event by enabling the dynamicRema
 });
 
 // New Config Test Cases
+describe('Edge scenarios', () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[2], {  }, destinationInfo);
+    googleAds.init();
+    window.gtag = jest.fn();
+  });
+  test('Scenario to test no event name for track call', () => {
+    googleAds.track(noEventNameTrackCallPayload);
+    // Validating no error is thrown in console if event name is not present
+    expect(errMock).toHaveBeenLastCalledWith('in script loader=== googleAds-integration');
+    // Validating no conversion event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[0]).toBeUndefined();
+    // Validating no dynamic remarketing event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[1]).toBeUndefined();
+  });
+
+  test('Scenario to test no event name for page call', () => {
+    googleAds.page({message: {}});
+    // Validating no error is thrown in console if event name is not present
+    expect(errMock).toHaveBeenLastCalledWith('in script loader=== googleAds-integration');
+    // Validating no conversion event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[0]).toBeUndefined();
+    // Validating no dynamic remarketing event is sent to google ads if event name is not present
+    expect(window.gtag.mock.calls[1]).toBeUndefined();
+  });
+})
+
 describe('Scenario to test conversion and dynamic remarketing events', () => {
   let googleAds;
   beforeEach(() => {
