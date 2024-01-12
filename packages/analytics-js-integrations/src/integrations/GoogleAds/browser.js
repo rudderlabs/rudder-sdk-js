@@ -119,11 +119,6 @@ class GoogleAds {
       window.gtag('event', eventLabel, properties);
     }
 
-    if (!event) {
-      logger.error('Event name is not present');
-      return;
-    }
-
     if (
       shouldSendDynamicRemarketingEvent(
         event,
@@ -185,11 +180,6 @@ class GoogleAds {
       window.gtag('event', eventLabel, {
         send_to: `${this.conversionId}/${conversionLabel}`,
       });
-    }
-
-    if (!name) {
-      logger.error('Event name is not present');
-      return;
     }
 
     if (

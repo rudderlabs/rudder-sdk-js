@@ -294,4 +294,4 @@ class Braze {
   }
 }
 
-export { Braze };
+export default Braze;

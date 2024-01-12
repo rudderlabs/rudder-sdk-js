@@ -140,4 +140,4 @@ class Chartbeat {
   }
 }
 
-export { Chartbeat };
+export default Chartbeat;

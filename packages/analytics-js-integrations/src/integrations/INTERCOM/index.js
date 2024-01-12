@@ -1,1 +1,1 @@
-export { INTERCOM } from './browser';
+export { default as INTERCOM } from './browser';

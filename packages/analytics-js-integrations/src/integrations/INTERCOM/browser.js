@@ -109,4 +109,4 @@ class INTERCOM {
   }
 }
 
-export { INTERCOM };
+export default INTERCOM;
