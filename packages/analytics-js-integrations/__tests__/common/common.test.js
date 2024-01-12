@@ -26,4 +26,24 @@ describe('Destination generic tests', () => {
       expect(integration.name).toBe(expectedIntegrationName);
     });
   });
+
+  it('Verify all integrations export is done correctly and all integration contains init, isReady and isLoaded method', () => {
+    integrations.forEach(async (integrationName) => {
+      const IntegrationsClass = await import(`../../src/integrations/${integrationName}/browser`);
+      const Class = IntegrationsClass.default;
+      const integration = new Class(
+        {},
+        { loglevel: 'debug', loadIntegration: true },
+        destinationInfo,
+      );
+  
+      expect(typeof IntegrationsClass).toBe('object');
+      expect(integration.init).toBeDefined();
+      expect(integration.isReady).toBeDefined();
+      expect(integration.isLoaded).toBeDefined();
+      expect(typeof integration.init).toBe('function');
+      expect(typeof integration.isReady).toBe('function');
+      expect(typeof integration.isLoaded).toBe('function');
+    });
+  });
 });
