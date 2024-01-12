@@ -18,7 +18,9 @@ const processError = (error: SDKError): string => {
       errorMessage = error.message;
     } else if (error instanceof ErrorEvent) {
       errorMessage = error.message;
-    } else if (error instanceof Event) {
+    }
+    // TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
+    else if (error instanceof Event) {
       const eventTarget = error.target as EventTarget;
       // Discard all the non-script loading errors
       if (eventTarget && eventTarget.localName !== 'script') {
@@ -32,7 +34,7 @@ const processError = (error: SDKError): string => {
       ) {
         return '';
       }
-      errorMessage = `error in script loading:: src:: ${eventTarget?.src} id:: ${eventTarget?.id}`;
+      errorMessage = `Error in loading a third-party script from URL ${eventTarget?.src} with ID ${eventTarget?.id}.`;
     } else {
       errorMessage = (error as any).message
         ? (error as any).message

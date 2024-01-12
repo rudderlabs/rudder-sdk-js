@@ -35,14 +35,15 @@ class ErrorHandler implements IErrorHandler {
       (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
         this.onError(event, undefined, undefined, undefined, 'unhandledException');
       });
-    }
-    if ('addEventListener' in (globalThis as typeof window)) {
+
       (globalThis as typeof window).addEventListener(
         'unhandledrejection',
         (event: PromiseRejectionEvent) => {
           this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
         },
       );
+    } else {
+      this.logger?.debug(`Can not attach error listener`);
     }
   }
 
