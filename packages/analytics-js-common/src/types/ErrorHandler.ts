@@ -2,7 +2,7 @@ import type { IPluginEngine } from './PluginEngine';
 import type { ILogger } from './Logger';
 import type { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
-export type SDKError = unknown;
+export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEvent;
 
 export interface IErrorHandler {
   logger?: ILogger;

@@ -16,6 +16,8 @@ const processError = (error: SDKError): string => {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
+    } else if (error instanceof ErrorEvent) {
+      errorMessage = error.message;
     } else if (error instanceof Event) {
       const eventTarget = error.target as EventTarget;
       // Discard all the non-script loading errors

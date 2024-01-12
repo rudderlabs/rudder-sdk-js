@@ -32,14 +32,17 @@ class ErrorHandler implements IErrorHandler {
 
   attachErrorListeners() {
     if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('error', (event: any) => {
+      (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
         this.onError(event, undefined, undefined, undefined, 'unhandledException');
       });
     }
     if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('unhandledrejection', (event: any) => {
-        this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
-      });
+      (globalThis as typeof window).addEventListener(
+        'unhandledrejection',
+        (event: PromiseRejectionEvent) => {
+          this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
+        },
+      );
     }
   }
 
@@ -103,6 +106,7 @@ class ErrorHandler implements IErrorHandler {
       normalizedError = new Error(errorMessage);
     }
     if (errorType === 'handled') {
+      // TODO: Remove the below line once the new Reporting plugin is ready
       this.notifyError(normalizedError as Error);
 
       if (this.logger) {
@@ -114,10 +118,12 @@ class ErrorHandler implements IErrorHandler {
       } else {
         throw normalizedError;
       }
-    } else if (!state.reporting.isErrorReportingEnabled.value) {
-      // just log the error
-      this.logger?.error(error);
-    } else if (!state.reporting.isErrorReportingPluginLoaded.value) {
+    }
+    // eslint-disable-next-line sonarjs/no-all-duplicated-branches
+    if (
+      state.reporting.isErrorReportingEnabled.value &&
+      !state.reporting.isErrorReportingPluginLoaded.value
+    ) {
       // buffer the error
       // errorBuffer.push([errorEvent, errorState]);
     } else {
