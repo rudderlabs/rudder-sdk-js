@@ -1,1 +1,1 @@
-export { Kissmetrics } from './browser';
+export { default as Kissmetrics } from './browser';

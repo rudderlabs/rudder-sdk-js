@@ -93,4 +93,4 @@ class GoogleTagManager {
   }
 }
 
-export { GoogleTagManager };
+export default GoogleTagManager;

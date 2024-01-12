@@ -152,4 +152,4 @@ class VWO {
   }
 }
 
-export { VWO };
+export default VWO;

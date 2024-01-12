@@ -78,4 +78,4 @@ class BingAds {
   }
 }
 
-export { BingAds };
+export default BingAds;

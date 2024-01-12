@@ -1,1 +1,1 @@
-export { Pendo } from './browser';
+export { default as Pendo } from './browser';
