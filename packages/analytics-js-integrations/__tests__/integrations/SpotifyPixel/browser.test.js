@@ -17,7 +17,7 @@ describe('SpotifyPixel', () => {
     // Initialize SpotifyPixel instance
     const config = {
       pixelId: 'your-pixel-id',
-      eventsToSpotifyPixelEvents: [{ from: 'event1', to: 'lead' }],
+      eventsToSpotifyPixelEvents: [{ from: 'event1', to: 'lead' }, { from: 'Multi Map', to: 'purchase' }, { from: 'Multi Map', to: 'checkout' }],
       enableAliasCall: true,
     };
     const analytics = {};
@@ -109,7 +109,7 @@ describe('SpotifyPixel', () => {
 describe('track', () => {
 
   // Track a standard event with valid properties
-  it('should track a standard event with valid properties', () => {
+  it('should track order completed event with product array event with valid properties', () => {
     // Mock the necessary dependencies
     const rudderElement = {
       message: {
@@ -213,6 +213,397 @@ describe('track', () => {
     expect(window.spdt).toHaveBeenCalledWith('lead', {
       type: 'typeVal',
       value: 'val',
+    });
+  });
+
+    // Track multi mapped event with valid properties
+    it('should track a custom event with valid properties is mapped with multiple events', () => {
+      // Mock the necessary dependencies
+      const rudderElement = {
+        message: {
+          event: 'Multi Map',
+          properties: {
+           price: 'val',
+           type: 'typeVal',
+          },
+        },
+      };
+  
+      // Invoke the track method
+      spotifyPixel.track(rudderElement);
+  
+      // Assertions
+      expect(window.spdt).toHaveBeenCalledWith('purchase',{line_items : [{
+        value: 'val',
+      }]});
+      expect(window.spdt).toHaveBeenCalledWith('checkout',{line_items : [{
+        value: 'val',
+      }]});
+    });
+
+    it('should track order completed event with product array and line_items with valid properties', () => {
+      // Mock the necessary dependencies
+      const rudderElement = {
+        message: {
+          event: 'Order Completed',
+          properties: {
+            total: 100,
+            currency: 'USD',
+            discount_code: 'DISCOUNT',
+            products: [
+              {
+                product_id: '123',
+                name: 'Product A',
+                product_type: 'Type A',
+                brand: 'Brand A',
+              },
+              {
+                product_id: '456',
+                name: 'Product B',
+                product_type: 'Type B',
+                brand: 'Brand B',
+              },
+            ],
+            line_items:[{product_id: 1, name: "lineItem"}],
+            order_id: '123456',
+            is_new_customer: true,
+            quantity: 2,
+          },
+        },
+      };
+  
+      // Initialize the SpotifyPixel class object
+      const config = {
+        pixelId: 'your_pixel_id',
+        eventsToSpotifyPixelEvents: [],
+        enableAliasCall: true,
+      };
+  
+      const analytics = {
+        logLevel: 'debug',
+      };
+  
+      const destinationInfo = {
+        shouldApplyDeviceModeTransformation: true,
+        propagateEventsUntransformedOnError: false,
+        destinationId: 'spotify_pixel_destination',
+      };
+  
+      const spotifyPixel = new SpotifyPixel(config, analytics, destinationInfo);
+  
+      // Mock the necessary methods
+      spotifyPixel.init = jest.fn();
+      spotifyPixel.loadAliasEvent = jest.fn();
+  
+      // Invoke the track method
+      spotifyPixel.track(rudderElement);
+  
+      // Assertions
+      expect(spotifyPixel.loadAliasEvent).toHaveBeenCalled();
+      expect(window.spdt).toHaveBeenCalledWith('purchase', {
+        value: 100,
+        currency: 'USD',
+        discount_code: 'DISCOUNT',
+        line_items: [
+          {
+            "name": "lineItem",
+           "product_id": 1,
+          },
+        ],
+        order_id: '123456',
+        is_new_customer: true,
+        quantity: 2,
+      });
+    });
+
+    it('should track order completed event with only line_items with valid properties', () => {
+      // Mock the necessary dependencies
+      const rudderElement = {
+        message: {
+          event: 'Order Completed',
+          properties: {
+            total: 100,
+            currency: 'USD',
+            discount_code: 'DISCOUNT',
+            line_items:[{product_id: 1, name: "lineItem"}],
+            order_id: '123456',
+            is_new_customer: true,
+            quantity: 2,
+          },
+        },
+      };
+  
+      // Initialize the SpotifyPixel class object
+      const config = {
+        pixelId: 'your_pixel_id',
+        eventsToSpotifyPixelEvents: [],
+        enableAliasCall: true,
+      };
+  
+      const analytics = {
+        logLevel: 'debug',
+      };
+  
+      const destinationInfo = {
+        shouldApplyDeviceModeTransformation: true,
+        propagateEventsUntransformedOnError: false,
+        destinationId: 'spotify_pixel_destination',
+      };
+  
+      const spotifyPixel = new SpotifyPixel(config, analytics, destinationInfo);
+  
+      // Mock the necessary methods
+      spotifyPixel.init = jest.fn();
+      spotifyPixel.loadAliasEvent = jest.fn();
+  
+      // Invoke the track method
+      spotifyPixel.track(rudderElement);
+  
+      // Assertions
+      expect(spotifyPixel.loadAliasEvent).toHaveBeenCalled();
+      expect(window.spdt).toHaveBeenCalledWith('purchase', {
+        value: 100,
+        currency: 'USD',
+        discount_code: 'DISCOUNT',
+        line_items: [
+          {
+            "name": "lineItem",
+           "product_id": 1,
+          },
+        ],
+        order_id: '123456',
+        is_new_customer: true,
+        quantity: 2,
+      });
+    });
+
+    it('should track order completed event without line_items or product array with valid properties', () => {
+      // Mock the necessary dependencies
+      const rudderElement = {
+        message: {
+          event: 'Order Completed',
+          properties: {
+            total: 100,
+            currency: 'USD',
+            discount_code: 'DISCOUNT',
+            order_id: '123456',
+            is_new_customer: true,
+            quantity: 2,
+          },
+        },
+      };
+  
+      // Initialize the SpotifyPixel class object
+      const config = {
+        pixelId: 'your_pixel_id',
+        eventsToSpotifyPixelEvents: [],
+        enableAliasCall: true,
+      };
+  
+      const analytics = {
+        logLevel: 'debug',
+      };
+  
+      const destinationInfo = {
+        shouldApplyDeviceModeTransformation: true,
+        propagateEventsUntransformedOnError: false,
+        destinationId: 'spotify_pixel_destination',
+      };
+  
+      const spotifyPixel = new SpotifyPixel(config, analytics, destinationInfo);
+  
+      // Mock the necessary methods
+      spotifyPixel.init = jest.fn();
+      spotifyPixel.loadAliasEvent = jest.fn();
+  
+      // Invoke the track method
+      spotifyPixel.track(rudderElement);
+  
+      // Assertions
+      expect(spotifyPixel.loadAliasEvent).toHaveBeenCalled();
+      expect(window.spdt).toHaveBeenCalledWith('purchase', {
+        value: 100,
+        currency: 'USD',
+        discount_code: 'DISCOUNT',
+        line_items: [
+          {
+            quantity: 2,
+          },
+        ],
+        order_id: '123456',
+        is_new_customer: true,
+        quantity: 2,
+      });
+    });
+
+  it('should track a Product Viewed event with valid properties', () => {
+    // Mock the necessary dependencies
+    const rudderElement = {
+      message: {
+        event: 'Product Viewed',
+        properties: { price : 20, currency : 'USD', brand : 'test', product_id : 1 },
+      },
+    };
+
+    // Invoke the track method
+    spotifyPixel.track(rudderElement);
+
+    // Assertions
+    expect(window.spdt).toHaveBeenCalledWith('product', { value : 20, currency : 'USD', product_id : 1, 'product_vendor': 'test', });
+  });
+  
+  it('should track a Product Viewed event with valid properties', () => {
+    // Mock the necessary dependencies
+    const rudderElement = {
+      message: {
+        event: 'Checkout Started',
+        properties: { price : 20, currency : 'USD', brand : 'test', product_id : 1 },
+      },
+    };
+
+    // Invoke the track method
+    spotifyPixel.track(rudderElement);
+
+    // Assertions
+    expect(window.spdt).toHaveBeenCalledWith('checkout', { currency : 'USD',line_items: [{value : 20, product_id : 1, 'product_vendor': 'test', }]});
+  });
+
+  it('should track checkout started event with product array event with valid properties', () => {
+    // Mock the necessary dependencies
+    const rudderElement = {
+      message: {
+        event: 'Checkout Started',
+        properties: {
+          value: 100,
+          currency: 'USD',
+          discount_code: 'DISCOUNT',
+          products: [
+            {
+              product_id: '123',
+              name: 'Product A',
+              product_type: 'Type A',
+              brand: 'Brand A',
+            },
+            {
+              product_id: '456',
+              name: 'Product B',
+              product_type: 'Type B',
+              brand: 'Brand B',
+            },
+          ],
+          order_id: '123456',
+          is_new_customer: true,
+          quantity: 2,
+        },
+      },
+    };
+
+    // Initialize the SpotifyPixel class object
+    const config = {
+      pixelId: 'your_pixel_id',
+      eventsToSpotifyPixelEvents: [],
+      enableAliasCall: true,
+    };
+
+    const analytics = {
+      logLevel: 'debug',
+    };
+
+    const destinationInfo = {
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      destinationId: 'spotify_pixel_destination',
+    };
+
+    const spotifyPixel = new SpotifyPixel(config, analytics, destinationInfo);
+
+    // Mock the necessary methods
+    spotifyPixel.init = jest.fn();
+    spotifyPixel.loadAliasEvent = jest.fn();
+
+    // Invoke the track method
+    spotifyPixel.track(rudderElement);
+
+    // Assertions
+    expect(spotifyPixel.loadAliasEvent).toHaveBeenCalled();
+    expect(window.spdt).toHaveBeenCalledWith('checkout', {
+      value: 100,
+      currency: 'USD',
+      discount_code: 'DISCOUNT',
+      line_items: [
+        {
+          product_id: '123',
+          product_name: 'Product A',
+          product_type: 'Type A',
+          product_vendor: 'Brand A',
+          quantity: 2,
+        },
+        {
+          product_id: '456',
+          product_name: 'Product B',
+          product_type: 'Type B',
+          product_vendor: 'Brand B',
+          quantity: 2,
+        },
+      ],
+      quantity: 2,
+    });
+  });
+
+  it('should track checkout started event without product array event with valid properties', () => {
+    // Mock the necessary dependencies
+    const rudderElement = {
+      message: {
+        event: 'Checkout Started',
+        properties: {
+          value: 100,
+          currency: 'USD',
+          discount_code: 'DISCOUNT',
+          order_id: '123456',
+          is_new_customer: true,
+          quantity: 2,
+        },
+      },
+    };
+
+    // Initialize the SpotifyPixel class object
+    const config = {
+      pixelId: 'your_pixel_id',
+      eventsToSpotifyPixelEvents: [],
+      enableAliasCall: true,
+    };
+
+    const analytics = {
+      logLevel: 'debug',
+    };
+
+    const destinationInfo = {
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      destinationId: 'spotify_pixel_destination',
+    };
+
+    const spotifyPixel = new SpotifyPixel(config, analytics, destinationInfo);
+
+    // Mock the necessary methods
+    spotifyPixel.init = jest.fn();
+    spotifyPixel.loadAliasEvent = jest.fn();
+
+    // Invoke the track method
+    spotifyPixel.track(rudderElement);
+
+    // Assertions
+    expect(spotifyPixel.loadAliasEvent).toHaveBeenCalled();
+    expect(window.spdt).toHaveBeenCalledWith('checkout', {
+      value: 100,
+      currency: 'USD',
+      discount_code: 'DISCOUNT',
+      line_items: [
+        {
+          quantity: 2,
+        },
+      ],
+      quantity: 2,
     });
   });
 });

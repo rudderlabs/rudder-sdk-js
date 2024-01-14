@@ -29,7 +29,7 @@ const standardEventsListMapping = [
   const PRODUCT_EVENT = [
     {
       destKey: 'value',
-      sourceKeys: 'value',
+      sourceKeys: 'price',
     },
     {
       destKey: 'currency',
@@ -84,11 +84,11 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'variant_id',
-      sourceKeys: 'variantId',
+      sourceKeys: 'variant_id',
     },
     {
       destKey: 'variant_name',
-      sourceKeys: 'variantName',
+      sourceKeys: 'variant_name',
     },
   ];
   
@@ -103,7 +103,7 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'discount_code',
-      sourceKeys: 'discountCode',
+      sourceKeys: 'discount_code',
     },
     {
       destKey: 'quantity',
@@ -111,7 +111,7 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'line_items',
-      sourceKeys: 'lineItems',
+      sourceKeys: 'line_items',
     },
   ];
   
@@ -130,7 +130,7 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'line_items',
-      sourceKeys: 'lineItems',
+      sourceKeys: 'line_items',
     },
     {
       destKey: 'order_id',
@@ -165,11 +165,11 @@ const standardEventsListMapping = [
     },
     {
       destKey: 'variant_id',
-      sourceKeys: 'variantId',
+      sourceKeys: 'variant_id',
     },
     {
       destKey: 'variant_name',
-      sourceKeys: 'variantName',
+      sourceKeys: 'variant_name',
     },
     {
       destKey: 'value',
