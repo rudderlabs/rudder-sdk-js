@@ -37,7 +37,8 @@ describe('payloadBuilder', () => {
         },
       ];
 
-      const expectedPayload = { "value": 10,"line_items":[{"quantity":2, "product_id": "123","product_type": "Type 1"}]}
+      const expectedPayload = { "value": 10,"line_items":[{"quantity":2, "product_id": "123","product_type": "Type 1", "variant_id": "456",
+       "variant_name": "Variant 1",}]}
 
       const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
@@ -53,8 +54,8 @@ describe('payloadBuilder', () => {
             productName: 'Product 1',
             productType: 'Type 1',
             productVendor: 'Vendor 1',
-            variantId: '456',
-            variantName: 'Variant 1',
+            variant_id: '456',
+            variant_name: 'Variant 1',
             value: 10,
             quantity: 2
           },
@@ -63,8 +64,8 @@ describe('payloadBuilder', () => {
             productName: 'Product 2',
             productType: 'Type 2',
             productVendor: 'Vendor 2',
-            variantId: '012',
-            variantName: 'Variant 2',
+            variant_id: '012',
+            variant_name: 'Variant 2',
             value: 20,
             quantity: 3
           }
@@ -118,8 +119,8 @@ describe('payloadBuilder', () => {
           productName: 'Product 1',
           productType: 'Type 1',
           productVendor: 'Vendor 1',
-          variantId: '456',
-          variantName: 'Variant 1',
+          variant_id: '456',
+          variant_name: 'Variant 1',
           value: 10,
           quantity: 2
         }
