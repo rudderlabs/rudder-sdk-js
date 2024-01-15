@@ -1,1 +1,1 @@
-export { VWO } from './browser';
+export { default as VWO } from './browser';

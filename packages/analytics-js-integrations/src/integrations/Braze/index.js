@@ -1,1 +1,1 @@
-export { Braze } from './browser';
+export { default as Braze } from './browser';

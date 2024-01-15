@@ -76,4 +76,4 @@ class Hotjar {
   }
 }
 
-export { Hotjar };
+export default Hotjar;

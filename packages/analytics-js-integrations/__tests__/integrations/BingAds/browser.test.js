@@ -1,4 +1,4 @@
-import { BingAds } from '../../../src/integrations/BingAds';
+import BingAds from '../../../src/integrations/BingAds/browser';
 import { event, query, products } from './__fixtures__/data';
 
 beforeEach(() => {

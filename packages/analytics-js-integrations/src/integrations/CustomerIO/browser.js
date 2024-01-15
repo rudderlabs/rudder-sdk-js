@@ -82,4 +82,4 @@ class CustomerIO {
   }
 }
 
-export { CustomerIO };
+export default CustomerIO;

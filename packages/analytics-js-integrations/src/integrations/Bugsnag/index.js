@@ -1,1 +1,1 @@
-export { Bugsnag } from './browser';
+export { default as Bugsnag } from './browser';

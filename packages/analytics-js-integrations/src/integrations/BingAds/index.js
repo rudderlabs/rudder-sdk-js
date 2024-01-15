@@ -1,1 +1,1 @@
-export { BingAds } from './browser';
+export { default as BingAds } from './browser';
