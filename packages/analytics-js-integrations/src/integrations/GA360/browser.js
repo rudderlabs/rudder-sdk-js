@@ -55,4 +55,4 @@ class GA360 extends GA {
   }
 }
 
-export { GA360 };
+export default GA360;

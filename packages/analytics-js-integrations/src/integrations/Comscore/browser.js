@@ -123,4 +123,4 @@ class Comscore {
   }
 }
 
-export { Comscore };
+export default Comscore;

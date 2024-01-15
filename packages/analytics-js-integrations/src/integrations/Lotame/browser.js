@@ -149,4 +149,4 @@ class Lotame {
   }
 }
 
-export { Lotame };
+export default Lotame;

@@ -24,7 +24,7 @@ const cdnVersionPath = process.env.CDN_VERSION_PATH ?? defaultVersion;
 const isStaging = process.env.STAGING === 'true';
 const isDMT = process.env.IS_DMT === 'true';
 const isDevEnvTestbook = process.env.IS_DEV_TESTBOOK === 'true';
-const distributionType = process.env.DISTRIBUTION_TYPE === 'npm' ? 'npm' : 'cdn';
+const distributionType = process.env.DISTRIBUTION_TYPE || 'cdn';
 const getDirectoryNames = async sourcePath =>
   (await readdir(sourcePath, { withFileTypes: true }))
     .filter(dirent => dirent.isDirectory())
@@ -34,7 +34,7 @@ const featuresList = await getDirectoryNames(`./public/${cdnVersionPath}`);
 console.log('featuresList', featuresList)
 
 const getDistPath = () => {
-  let distPath = distributionType? `/${distributionType}` : '/npm';
+  let distPath = distributionType ? `/${distributionType}` : '/npm';
   distPath += `/${cdnVersionPath}`;
 
   if (isStaging) {

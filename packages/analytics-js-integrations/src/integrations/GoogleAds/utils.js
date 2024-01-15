@@ -12,6 +12,10 @@ import { isDefinedAndNotNull } from '../../utils/utils';
  * @returns
  */
 function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
+  if(!eventName || eventName.trim() === ''){
+    return false;
+  }
+  
   if (!trackEvents) {
     return false;
   }

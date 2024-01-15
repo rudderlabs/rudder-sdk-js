@@ -1,1 +1,1 @@
-export { CustomerIO } from './browser';
+export { default as CustomerIO } from './browser';

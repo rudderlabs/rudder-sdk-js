@@ -242,4 +242,4 @@ class Kissmetrics {
   }
 }
 
-export { Kissmetrics };
+export default Kissmetrics;

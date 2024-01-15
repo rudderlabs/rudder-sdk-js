@@ -77,7 +77,7 @@ class GoogleAds {
   }
 
   isLoaded() {
-    return window.dataLayer.push !== Array.prototype.push;
+    return !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
   }
 
   isReady() {
@@ -117,11 +117,6 @@ class GoogleAds {
 
       const eventLabel = this.enableConversionLabel ? 'conversion' : eventName;
       window.gtag('event', eventLabel, properties);
-    }
-
-    if (!event) {
-      logger.error('Event name is not present');
-      return;
     }
 
     if (
@@ -185,11 +180,6 @@ class GoogleAds {
       window.gtag('event', eventLabel, {
         send_to: `${this.conversionId}/${conversionLabel}`,
       });
-    }
-
-    if (!name) {
-      logger.error('Event name is not present');
-      return;
     }
 
     if (
