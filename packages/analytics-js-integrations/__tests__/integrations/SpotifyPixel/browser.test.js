@@ -610,5 +610,21 @@ describe('SpotifyPixel', () => {
         quantity: 2,
       });
     });
+
+    it('should track a Product Added event with valid properties', () => {
+      // Mock the necessary dependencies
+      const rudderElement = {
+        message: {
+          event: 'Product Added',
+          properties: { price: 20, currency: 'USD', brand: 'test', product_id: 1, name : 'name of product', quantity : 2 },
+        },
+      };
+
+      // Invoke the track method
+      spotifyPixel.track(rudderElement);
+
+      // Assertions
+      expect(window.spdt).toHaveBeenCalledWith('addtocart', { value: 20, currency: 'USD', product_id: 1, 'product_vendor': 'test', "product_name": 'name of product','quantity': 2, });
+    });
   });
 });
