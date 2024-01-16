@@ -59,4 +59,4 @@ class Bugsnag {
     window.bugsnagClient.notify(new Error('error in identify'));
   }
 }
-export { Bugsnag };
+export default Bugsnag;

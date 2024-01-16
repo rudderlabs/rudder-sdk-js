@@ -88,4 +88,4 @@ class HubSpot {
   }
 }
 
-export { HubSpot };
+export default HubSpot;

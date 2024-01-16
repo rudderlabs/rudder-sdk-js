@@ -252,10 +252,23 @@ const isDefined = x => x !== undefined;
 const isNotNull = x => x !== null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 
-const getConfigUrl = writeKey =>
-  CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
-    writeKey ? `writeKey=${writeKey}` : '',
-  );
+const getConfigUrl = (writeKey, lockIntegrationsVersion) => {
+  let configUrl = CONFIG_URL;
+  const queryParamStrings = [];
+  if (writeKey) {
+    queryParamStrings.push(`writeKey=${writeKey}`);
+  }
+
+  if (lockIntegrationsVersion) {
+    queryParamStrings.push(`lockIntegrationsVersion=${lockIntegrationsVersion}`);
+  }
+
+  if (queryParamStrings.length > 0) {
+    configUrl = CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?');
+    configUrl = configUrl.concat(queryParamStrings.join('&'));
+  }
+  return configUrl;
+};
 
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');

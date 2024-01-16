@@ -1,4 +1,4 @@
-import { Hotjar } from '../../../src/integrations/Hotjar/browser';
+import Hotjar from '../../../src/integrations/Hotjar/browser';
 
 afterAll(() => {
   jest.restoreAllMocks();
