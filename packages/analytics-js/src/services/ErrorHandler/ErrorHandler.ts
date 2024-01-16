@@ -145,12 +145,14 @@ class ErrorHandler implements IErrorHandler {
       }
     }
 
+    // eslint-disable-next-line sonarjs/no-all-duplicated-branches
     if (
       state.reporting.isErrorReportingEnabled.value &&
       !state.reporting.isErrorReportingPluginLoaded.value
     ) {
       // buffer the error
-      this.errorBuffer.enqueue({ error, errorState });
+      // TODO: un-comment the below line once the plugin is ready
+      // this.errorBuffer.enqueue({ error, errorState });
     } else {
       // send it to plugin
     }
