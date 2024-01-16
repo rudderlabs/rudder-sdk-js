@@ -2,6 +2,7 @@ import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/Plugi
 import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
+  ErrorState,
   IErrorHandler,
   PreloadedError,
   SDKError,
@@ -19,7 +20,6 @@ import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
 import { isAllowedToBeNotified, processError } from './processError';
-import type { ErrorState } from './types';
 
 /**
  * A service to handle errors

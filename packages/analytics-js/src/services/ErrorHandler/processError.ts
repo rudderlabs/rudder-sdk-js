@@ -1,9 +1,8 @@
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { SDKError, EventTarget } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { ERROR_MESSAGES_TO_BE_FILTERED } from '../../constants/errors';
 import { LOAD_ORIGIN } from './constant';
-import type { EventTarget } from './types';
 
 /**
  * Utility method to normalise errors
