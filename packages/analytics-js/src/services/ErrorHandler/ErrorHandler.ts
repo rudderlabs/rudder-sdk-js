@@ -1,11 +1,16 @@
 import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type {
+  IErrorHandler,
+  PreloadedError,
+  SDKError,
+} from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import {
   NOTIFY_FAILURE_ERROR,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
@@ -23,11 +28,26 @@ class ErrorHandler implements IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
   errReportingClient?: any;
+  errorBuffer: BufferQueue<PreloadedError>;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
+    this.errorBuffer = new BufferQueue();
+    this.attachEffect();
+  }
+
+  attachEffect() {
+    if (state.reporting.isErrorReportingPluginLoaded.value === true) {
+      while (this.errorBuffer.size() > 0) {
+        const errorToProcess = this.errorBuffer.dequeue();
+
+        if (errorToProcess) {
+          // send it to the plugin
+        }
+      }
+    }
   }
 
   attachErrorListeners() {
@@ -43,7 +63,7 @@ class ErrorHandler implements IErrorHandler {
         },
       );
     } else {
-      this.logger?.debug(`Can not attach error listener`);
+      this.logger?.debug(`Failed to attach global error listeners.`);
     }
   }
 
@@ -120,13 +140,13 @@ class ErrorHandler implements IErrorHandler {
         throw normalizedError;
       }
     }
-    // eslint-disable-next-line sonarjs/no-all-duplicated-branches
+
     if (
       state.reporting.isErrorReportingEnabled.value &&
       !state.reporting.isErrorReportingPluginLoaded.value
     ) {
       // buffer the error
-      // errorBuffer.push([errorEvent, errorState]);
+      this.errorBuffer.enqueue([error, errorState]);
     } else {
       // send it to plugin
     }
