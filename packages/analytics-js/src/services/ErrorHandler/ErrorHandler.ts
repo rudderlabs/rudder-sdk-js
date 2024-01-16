@@ -122,7 +122,11 @@ class ErrorHandler implements IErrorHandler {
     let normalizedError = error;
     // Enhance error message
     if (isTypeOfError(error)) {
-      (normalizedError as Error).message = errorMessage;
+      try {
+        (normalizedError as Error).message = errorMessage;
+      } catch (e) {
+        // ignore if message property can not be updated
+      }
     } else {
       normalizedError = new Error(errorMessage);
     }
