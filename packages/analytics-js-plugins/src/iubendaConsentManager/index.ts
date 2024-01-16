@@ -47,7 +47,9 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
         const deniedConsentIds: string[] = [];
 
         // eslint-disable-next-line no-underscore-dangle
-        Object.entries((globalThis as any)._iub.cs.api.getPreferences()).forEach(e => {
+        const { purposes = {} } = (globalThis as any)._iub.cs.api.getPreferences();
+
+        Object.entries(purposes).forEach(e => {
           const purposeCode = e[0];
           const isConsented = e[1];
           if (isConsented) {
