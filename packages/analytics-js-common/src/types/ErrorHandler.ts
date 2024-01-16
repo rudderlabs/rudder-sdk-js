@@ -35,4 +35,7 @@ export type EventTarget = {
   id?: string;
 };
 
-export type PreloadedError = Array<SDKError | ErrorState>;
+export type PreloadedError = {
+  error: SDKError;
+  errorState: ErrorState;
+};

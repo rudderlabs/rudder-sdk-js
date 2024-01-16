@@ -150,7 +150,7 @@ class ErrorHandler implements IErrorHandler {
       !state.reporting.isErrorReportingPluginLoaded.value
     ) {
       // buffer the error
-      this.errorBuffer.enqueue([error, errorState]);
+      this.errorBuffer.enqueue({ error, errorState });
     } else {
       // send it to plugin
     }
