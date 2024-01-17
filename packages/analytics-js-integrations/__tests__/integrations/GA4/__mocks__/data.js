@@ -1405,7 +1405,6 @@ const pageEvents = [
             path: '/destinations/mixpanel',
             url: 'https://docs.rudderstack.com/destinations/mixpanel',
             category: 'destination',
-            title: 'Document',
             initial_referrer: 'https://docs.rudderstack.com',
             initial_referring_domain: 'docs.rudderstack.com',
           },
@@ -1418,6 +1417,7 @@ const pageEvents = [
         properties: {
           path: '/destinations/mixpanel',
           referrer: '$direct',
+          title: 'Document',
           category: 'destination',
           initial_referrer: 'https://docs.rudderstack.com',
           initial_referring_domain: 'docs.rudderstack.com',
@@ -1425,6 +1425,12 @@ const pageEvents = [
         type: 'page',
         userId: 'user@10',
       },
+      config: {
+        measurementId: 'G-123456',
+        extendPageViewParams: false,
+        capturePageView: 'rs',
+        piiPropertiesToIgnore: [{ piiProperty: '' }],
+      }
     },
     output: {
       event: 'page_view',
@@ -1440,6 +1446,12 @@ const pageEvents = [
   {
     description: 'page_view event with extendPageViewParams toggle enabled',
     input: {
+      config: {
+        measurementId: 'G-123456',
+        extendPageViewParams: true,
+        capturePageView: 'rs',
+        piiPropertiesToIgnore: [{ piiProperty: '' }],
+      },
       message: {
         channel: 'web',
         name: 'Contact Us',
