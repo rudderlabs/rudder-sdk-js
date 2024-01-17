@@ -8,7 +8,7 @@ export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEv
 export interface IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
-  errorBuffer: BufferQueue<PreloadedError>;
+  errorBuffer: BufferQueue<PreLoadErrorData>;
   init(externalSrcLoader: IExternalSrcLoader): void;
   onError(
     error: SDKError,
@@ -35,7 +35,7 @@ export type EventTarget = {
   id?: string;
 };
 
-export type PreloadedError = {
+export type PreLoadErrorData = {
   error: SDKError;
   errorState: ErrorState;
 };

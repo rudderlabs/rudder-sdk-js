@@ -4,7 +4,7 @@ import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks
 import type {
   ErrorState,
   IErrorHandler,
-  PreloadedError,
+  PreLoadErrorData,
   SDKError,
 } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -28,7 +28,7 @@ class ErrorHandler implements IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
   errReportingClient?: any;
-  errorBuffer: BufferQueue<PreloadedError>;
+  errorBuffer: BufferQueue<PreLoadErrorData>;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
