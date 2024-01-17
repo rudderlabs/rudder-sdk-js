@@ -119,16 +119,11 @@ class ErrorHandler implements IErrorHandler {
       `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
     );
 
-    let normalizedError = error;
-    // Enhance error message
+    let normalizedError = new Error(errorMessage);
     if (isTypeOfError(error)) {
-      try {
-        (normalizedError as Error).message = errorMessage;
-      } catch (e) {
-        // ignore if message property can not be updated
-      }
-    } else {
-      normalizedError = new Error(errorMessage);
+      normalizedError = Object.create(error, {
+        message: { value: errorMessage },
+      });
     }
     if (errorType === 'handled') {
       // TODO: Remove the below line once the new Reporting plugin is ready

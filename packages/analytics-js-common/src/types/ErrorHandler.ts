@@ -28,12 +28,10 @@ export type ErrorState = {
   severityReason: { type: string };
 };
 
-export type EventTarget = {
-  localName?: string;
+export interface ErrorTarget extends Element {
   dataset?: { loader?: string; isnonnativesdk?: string };
   src?: string;
-  id?: string;
-};
+}
 
 export type PreLoadErrorData = {
   error: SDKError;
