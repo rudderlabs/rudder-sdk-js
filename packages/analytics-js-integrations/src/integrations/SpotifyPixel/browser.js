@@ -63,6 +63,7 @@ class SpotifyPixel {
     return this.isLoaded();
   }
 
+  // ref :  https://help.adanalytics.spotify.com/technical-pixel-docs#:~:text=these%20specific%20events.-,Alias,alias%20event%20script%20and%20Spotify%20Ad%20Analytics%C2%A0will%20send%20encrypted%20data.,-spdt(%27alias%27%2C%20%7B
   loadAliasEvent(externalId) {
     if (this.enableAliasCall && externalId) {
       window.spdt('alias', {
@@ -72,7 +73,7 @@ class SpotifyPixel {
   }
 
   /**
-   * ref: https://SpotifyPixel.com/docs#conversion-event-pixel-scripts
+   * ref: https://help.adanalytics.spotify.com/technical-pixel-docs
    * Track - tracks an event for an user
    * @param {Track} track
    */

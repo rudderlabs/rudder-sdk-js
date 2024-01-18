@@ -15,7 +15,10 @@ describe('payloadBuilder', () => {
             variant_id: '456',
             variant_name: 'Variant 1',
             value: 10,
-            quantity: 2    
+            quantity: 2  ,
+            line_items: {
+              product_id: '123',
+            } 
       };
 
       const CONFIG_EVENT = [
@@ -35,10 +38,13 @@ describe('payloadBuilder', () => {
           destKey: 'category',
           sourceKeys: 'category',
         },
+        {
+          destKey: 'line_items',
+          sourceKeys: 'line_items',
+        }
       ];
 
-      const expectedPayload = { "value": 10,"line_items":[{"quantity":2, "product_id": "123","product_type": "Type 1", "variant_id": "456",
-       "variant_name": "Variant 1",}]}
+      const expectedPayload = { "value": 10,"line_items":{ "product_id": "123"}}
 
       const result = payloadBuilder(properties, CONFIG_EVENT, LINE_ITEMS_CONFIG);
 
