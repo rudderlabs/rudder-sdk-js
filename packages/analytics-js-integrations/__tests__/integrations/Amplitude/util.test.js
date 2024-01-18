@@ -164,13 +164,13 @@ describe('getDestinationOptions', () => {
 describe('formatUrl', () => {
 
   // Returns the same URL if it starts with "http://" or "https://"
-  it('should return the same URL when it starts with "http://" or "https://"', () => {
+  it('should return the same URL when it starts with "https://"', () => {
     const url = 'https://example.com';
     expect(formatUrl(url)).toBe(url);
   });
 
   // Adds "https://" prefix to the URL if it doesn't start with "http://" or "https://"
-  it('should add https:// prefix to the URL if it does not start with http:// or "https://"', () => {
+  it('should add https:// prefix to the URL if it does not start with "https://"', () => {
     const url = 'example.com';
     expect(formatUrl(url)).toBe('https://example.com');
   });

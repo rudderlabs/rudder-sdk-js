@@ -58,7 +58,7 @@ const getFieldsToUnset = integrations => {
  * @returns {string} - The formatted URL.
  */
 function formatUrl(url) {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith('https://')) {
     return url;
   } else {
     return `https://${url}`;
