@@ -6,6 +6,7 @@ import {
   getTraitsToSetOnce,
   getTraitsToIncrement,
   getDestinationOptions,
+  formatUrl
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -159,3 +160,31 @@ describe('getDestinationOptions', () => {
     expect(result).toEqual({ option3: 'value3', option4: 'value4' });
   });
 });
+
+describe('formatUrl', () => {
+
+  // Returns the same URL if it starts with "http://" or "https://"
+  it('should return the same URL when it starts with "http://" or "https://"', () => {
+    const url = 'https://example.com';
+    expect(formatUrl(url)).toBe(url);
+  });
+
+  // Adds "https://" prefix to the URL if it doesn't start with "http://" or "https://"
+  it('should add https:// prefix to the URL if it does not start with http:// or "https://"', () => {
+    const url = 'example.com';
+    expect(formatUrl(url)).toBe('https://example.com');
+  });
+
+  // Returns "https://" if the input URL is an empty string
+  it('should return "https://" when the input URL is an empty string', () => {
+    const url = '';
+    expect(formatUrl(url)).toBe('https://');
+  });
+
+  // Returns "https://example.com" if the input URL is "example.com"
+  it('should return "https://example.com" when the input URL is "example.com"', () => {
+    const url = 'example.com';
+    expect(formatUrl(url)).toBe('https://example.com');
+  });
+});
+

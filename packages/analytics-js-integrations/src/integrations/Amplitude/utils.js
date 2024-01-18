@@ -50,4 +50,18 @@ const getFieldsToUnset = integrations => {
   }
   return undefined;
 };
-export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions, getFieldsToUnset };
+
+/**
+ * Formats the given URL by adding the "https://" prefix if it doesn't already have it.
+ * 
+ * @param {string} url - The URL to be formatted.
+ * @returns {string} - The formatted URL.
+ */
+function formatUrl(url) {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  } else {
+    return `https://${url}`;
+  }
+}
+export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions, getFieldsToUnset, formatUrl };

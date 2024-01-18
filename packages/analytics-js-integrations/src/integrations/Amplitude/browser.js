@@ -11,6 +11,7 @@ import {
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
+  formatUrl
 } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -23,6 +24,7 @@ class Amplitude {
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
+    this.proxyServerUrl = config.proxyServerUrl;
     this.residencyServer = config.residencyServer;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
@@ -59,6 +61,10 @@ class Amplitude {
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+
+    if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
+        initOptions.serverUrl = formatUrl(this.proxyServerUrl);
+    }
 
     // EU data residency
     // Relevant doc: https://www.docs.developers.amplitude.com/data/sdks/typescript-browser/#eu-data-residency
