@@ -60,8 +60,8 @@ const getFieldsToUnset = integrations => {
 function formatUrl(url) {
   if (url.startsWith('https://')) {
     return url;
-  } else {
+  } 
     return `https://${url}`;
-  }
+  
 }
 export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions, getFieldsToUnset, formatUrl };
