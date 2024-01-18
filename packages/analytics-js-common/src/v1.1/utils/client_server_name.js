@@ -74,7 +74,7 @@ const clientToServerNames = {
   TIKTOK_ADS: 'TikTok Ads',
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
   SPRIG: 'Sprig',
-  SPOTIFYPIXEL:'SpotifyPixel',
+  SPOTIFYPIXEL:'Spotify Pixel',
 };
 
 export { clientToServerNames };
