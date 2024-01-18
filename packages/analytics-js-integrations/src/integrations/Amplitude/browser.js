@@ -65,7 +65,7 @@ class Amplitude {
 
     if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
         if (this.proxyServerUrl.startsWith('http://')) {
-          logger.info('Please use a secured proxy server URL');
+          logger.error('Please use a secured proxy server URL');
         } else {
           initOptions.serverUrl =  formatUrl(this.proxyServerUrl);
         }  
