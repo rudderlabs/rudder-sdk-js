@@ -4,6 +4,7 @@ import Amplitude from '../../../src/integrations/Amplitude/browser';
 
 const amplitudeConfig = {
   apiKey: 'abcde',
+  proxyServerUrl : 'https://example.com',
   groupTypeTrait: 'email',
   groupValueTrait: 'age',
   traitsToIncrement: [
@@ -41,6 +42,7 @@ const amplitudeConfig = {
 };
 const amplitudeEUConfig = {
   apiKey: 'abcde',
+  proxyServerUrl: 'https://example.com/',
   residencyServer: 'EU',
   groupTypeTrait: 'email',
   groupValueTrait: 'age',
