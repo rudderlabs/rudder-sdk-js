@@ -1,1 +1,1 @@
-export { GoogleTagManager } from './browser';
+export { default as GoogleTagManager } from './browser';

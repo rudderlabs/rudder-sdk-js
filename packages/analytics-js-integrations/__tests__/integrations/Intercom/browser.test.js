@@ -1,4 +1,4 @@
-import { INTERCOM } from '../../../src/integrations/INTERCOM/browser';
+import INTERCOM from '../../../src/integrations/INTERCOM/browser';
 
 afterAll(() => {
   jest.restoreAllMocks();

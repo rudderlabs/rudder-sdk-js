@@ -118,6 +118,7 @@ export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
   errorReportingProviderPluginName: Signal<PluginName | undefined>;
+  isErrorReportingPluginLoaded: Signal<boolean>;
 };
 
 export type SessionState = {

@@ -5,15 +5,18 @@
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
 import {
-  ADD_TO_CART_EVENT,
-  CHECK_OUT_EVENT,
-  LEAD_EVENT,
   NAME,
   DISPLAY_NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
   standardEventsListMapping,
-} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+  LINE_ITEMS_CONFIG,
+  ADD_TO_CART_EVENT,
+  CHECK_OUT_EVENT,
+  LEAD_EVENT,
+} from '@rudderstack/analytics-js-common/constants/integrations/CommonIntegrationsConstant/constants'
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import {
@@ -118,7 +121,7 @@ class Podsights {
           this.loadAliasEvent(externalId);
           break;
         case 'purchase': {
-          payload = payloadBuilder(properties, PURCHASE_EVENT);
+          payload = payloadBuilder(properties, PURCHASE_EVENT, LINE_ITEMS_CONFIG);
           window.pdst(podsightEvent, payload);
           this.loadAliasEvent(externalId);
           break;
@@ -140,7 +143,7 @@ class Podsights {
           break;
         }
         case 'checkout': {
-          payload = payloadBuilder(properties, CHECK_OUT_EVENT);
+          payload = payloadBuilder(properties, CHECK_OUT_EVENT, LINE_ITEMS_CONFIG);
           window.pdst(podsightEvent, payload);
           this.loadAliasEvent(externalId);
           break;

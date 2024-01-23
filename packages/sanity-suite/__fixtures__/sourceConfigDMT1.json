@@ -88,7 +88,7 @@
           "name": "AM",
           "displayName": "Amplitude",
           "createdAt": "2019-09-02T08:08:05.613Z",
-          "updatedAt": "2023-11-16T11:02:34.093Z",
+          "updatedAt": "2023-12-14T08:23:40.261Z",
           "config": {
             "destConfig": {
               "ios": [
@@ -200,7 +200,6 @@
               "userProvidedScreenEventString",
               "useUserDefinedScreenEventName"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "isAudienceSupported": false,
             "supportedSourceTypes": [
@@ -217,13 +216,26 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": ["alias", "group", "identify", "page", "screen", "track"],
+            "supportedMessageTypes": {
+              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
+              "device": {
+                "ios": ["identify", "track", "page", "group"],
+                "web": ["identify", "track", "page", "group"],
+                "android": ["identify", "track", "page", "group"],
+                "flutter": ["identify", "track", "page", "group"],
+                "reactnative": ["identify", "track", "page", "group"]
+              }
+            },
             "saveDestinationResponse": true,
             "supportedConnectionModes": {
+              "amp": ["cloud"],
               "ios": ["cloud", "device"],
               "web": ["cloud", "device"],
+              "unity": ["cloud"],
               "android": ["cloud", "device"],
+              "cordova": ["cloud"],
               "flutter": ["cloud", "device"],
+              "shopify": ["cloud"],
               "reactnative": ["cloud", "device"]
             }
           },
@@ -293,7 +305,7 @@
           "name": "GA",
           "displayName": "Google Analytics",
           "createdAt": "2019-09-02T08:08:04.178Z",
-          "updatedAt": "2023-10-31T07:58:01.957Z",
+          "updatedAt": "2023-12-14T08:23:41.909Z",
           "config": {
             "auth": {
               "role": "google_analytics",
@@ -372,7 +384,6 @@
               "eventFilteringOption",
               "ketchConsentPurposes"
             ],
-            "transformAt": "processor",
             "transformAtV1": "processor",
             "isAudienceSupported": false,
             "supportedSourceTypes": [
@@ -389,8 +400,24 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": ["identify", "page", "screen", "track"],
-            "saveDestinationResponse": false
+            "supportedMessageTypes": {
+              "cloud": ["identify", "page", "screen", "track"],
+              "device": {
+                "web": ["track", "page"]
+              }
+            },
+            "saveDestinationResponse": false,
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "ios": ["cloud"],
+              "web": ["cloud", "device"],
+              "unity": ["cloud"],
+              "android": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "shopify": ["cloud"],
+              "reactnative": ["cloud"]
+            }
           },
           "responseRules": null,
           "category": null,
@@ -446,7 +473,7 @@
           "name": "MP",
           "displayName": "Mixpanel",
           "createdAt": "2019-09-13T12:05:16.230Z",
-          "updatedAt": "2023-11-15T08:21:58.543Z",
+          "updatedAt": "2023-12-14T08:23:24.633Z",
           "config": {
             "destConfig": {
               "web": ["useNativeSDK"],
@@ -458,6 +485,7 @@
                 "people",
                 "setAllTraitsByDefault",
                 "superProperties",
+                "setOnceProperties",
                 "peopleProperties",
                 "eventIncrements",
                 "propIncrements",
@@ -496,6 +524,7 @@
               "people",
               "setAllTraitsByDefault",
               "superProperties",
+              "setOnceProperties",
               "peopleProperties",
               "eventIncrements",
               "propIncrements",
@@ -516,7 +545,6 @@
               "identityMergeApi",
               "ignoreDnt"
             ],
-            "transformAt": "router",
             "transformAtV1": "router",
             "supportedSourceTypes": [
               "android",
@@ -531,8 +559,24 @@
               "cordova",
               "shopify"
             ],
-            "supportedMessageTypes": ["alias", "group", "identify", "page", "screen", "track"],
-            "saveDestinationResponse": true
+            "supportedMessageTypes": {
+              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
+              "device": {
+                "web": ["identify", "track", "page", "group", "alias"]
+              }
+            },
+            "saveDestinationResponse": true,
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "ios": ["cloud"],
+              "web": ["cloud", "device"],
+              "unity": ["cloud"],
+              "android": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "shopify": ["cloud"],
+              "reactnative": ["cloud"]
+            }
           },
           "responseRules": null,
           "category": null,
@@ -572,16 +616,6 @@
     "secretVersion": null,
     "connections": [
       {
-        "id": "25bHzttPBy5HESR54KCID885Pm5",
-        "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
-        "destinationId": "20Pa0T3VoQZZYPgh5LQS2vuwg3N",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2022-02-25T11:38:51.835Z",
-        "updatedAt": "2022-09-27T09:30:38.289Z"
-      },
-      {
         "id": "2FRVvdtwbbvKUSVthPAgNQqGp2O",
         "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
         "destinationId": "2FRVvO6ySmzXKiRl3o7I5BZqacK",
@@ -600,12 +634,22 @@
         "deleted": false,
         "createdAt": "2023-04-19T11:48:37.603Z",
         "updatedAt": "2023-04-19T11:48:37.603Z"
+      },
+      {
+        "id": "25bHzttPBy5HESR54KCID885Pm5",
+        "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
+        "destinationId": "20Pa0T3VoQZZYPgh5LQS2vuwg3N",
+        "enabled": true,
+        "config": null,
+        "deleted": false,
+        "createdAt": "2022-02-25T11:38:51.835Z",
+        "updatedAt": "2022-09-27T09:30:38.289Z"
       }
     ],
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2023-11-20T08:15:56.546Z",
+  "updatedAt": "2024-01-09T11:27:50.223Z",
   "consentManagementMetadata": {
     "providers": [
       {
