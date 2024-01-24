@@ -49,6 +49,12 @@ class LinkedInInsightTag {
       logger.error('Event name is missing for track call');
       return;
     }
+
+    if (typeof event !== 'string') {
+      logger.error('Event type should be string');
+      return;
+    }
+
     const trimmedEvent = event.trim();
     const eventMapping = getHashFromArrayWithDuplicate(
       this.eventToConversionIdMap,

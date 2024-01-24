@@ -44,6 +44,17 @@ class QuoraPixel {
   track(rudderElement) {
     const { event } = rudderElement.message;
     const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
+
+    if (!event) {
+      logger.error('Event name is missing for track call');
+      return;
+    }
+
+    if (typeof event !== 'string') {
+      logger.error('Event type should be string');
+      return;
+    }
+
     const trimmedEvent = event.toLowerCase().trim();
     const events = eventsMapping[trimmedEvent] || [];
 
