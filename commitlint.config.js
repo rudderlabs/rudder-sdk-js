@@ -1,9 +1,9 @@
 const {
-  utils: { getPackages },
-} = require('@commitlint/config-lerna-scopes');
+  utils: { getProjects },
+} = require('@commitlint/config-nx-scopes');
 
 module.exports = {
-  extends: ['@commitlint/config-conventional', '@commitlint/config-lerna-scopes'],
+  extends: ['@commitlint/config-conventional', '@commitlint/config-nx-scopes'],
   parserPreset: {
     parserOpts: {
       referenceActions: null,
@@ -15,11 +15,12 @@ module.exports = {
       2,
       'always',
       [
-        ...(await getPackages(ctx)),
+        ...(await getProjects(ctx)),
         // Insert custom scopes below:
         'release',
         'monorepo',
         'examples',
+        'deps',
       ],
     ],
   },
