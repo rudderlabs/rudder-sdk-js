@@ -1,4 +1,4 @@
-import { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
 
@@ -31,6 +31,20 @@ describe('Core - Rudder Analytics Facade', () => {
   afterEach(() => {
     (rudderAnalytics as any).globalSingleton = null;
     jest.resetAllMocks();
+  });
+
+  it('should return the global singleton from "rudderanalytics" global object', done => {
+    const expectedPreloadedEvents = [
+      ['consent', { sendPageEvent: true }],
+      ['consent', { sendPageEvent: false }],
+      ['track'],
+      ['track'],
+    ];
+    const globalSingleton = rudderAnalytics;
+
+    expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual(expectedPreloadedEvents);
+    expect(window.rudderanalytics).toEqual(globalSingleton);
+    done();
   });
 
   it('should return the global singleton if it exists', () => {
