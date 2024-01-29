@@ -35,8 +35,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.analytics.ready(() => {
       console.log('We are all set!!!');
     });
-
-    window.rudderanalytics = this.analytics;
   }
 
   page() {

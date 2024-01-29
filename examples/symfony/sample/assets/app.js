@@ -11,6 +11,5 @@ import './styles/app.css';
 
 const analytics = new RudderAnalytics();
 analytics.load('<writeKey>', '<dataplaneUrl');
-window.rudderanalytics = analytics;
 
 window.rudderanalytics.page();

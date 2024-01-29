@@ -13,7 +13,6 @@ const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
         console.log('We are all set!!!');
       });
 
-      window.rudderanalytics = analyticsInstance;
       setAnalytics(analyticsInstance);
     }
   }, [analytics]);
