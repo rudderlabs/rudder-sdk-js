@@ -6,31 +6,26 @@ module.exports = [
   {
     name: 'Core ESM - NPM',
     path: 'dist/npm/modern/esm/index.js',
-    gzip: true,
     limit: '9 KiB',
   },
   {
     name: 'Core CJS - NPM',
     path: 'dist/npm/modern/cjs/index.js',
-    gzip: true,
     limit: '26 KiB',
   },
   {
     name: 'Core - NPM',
     path: 'dist/npm/modern/umd/index.js',
-    gzip: true,
     limit: '26 KiB',
   },
   {
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
-    gzip: true,
     limit: '52 KiB',
   },
   {
     name: 'Core - CDN',
     path: 'dist/cdn/modern/iife/rsa.min.js',
-    gzip: true,
     limit: '26 KiB',
   },
 ];
