@@ -4,6 +4,7 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import {
@@ -11,6 +12,7 @@ import {
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
+  formatUrl
 } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -23,6 +25,7 @@ class Amplitude {
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
+    this.proxyServerUrl = config.proxyServerUrl;
     this.residencyServer = config.residencyServer;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
@@ -59,6 +62,14 @@ class Amplitude {
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+
+    if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
+        if (this.proxyServerUrl.startsWith('http://')) {
+          logger.error('Please use a secured proxy server URL');
+        } else {
+          initOptions.serverUrl =  formatUrl(this.proxyServerUrl);
+        }  
+    }
 
     // EU data residency
     // Relevant doc: https://www.docs.developers.amplitude.com/data/sdks/typescript-browser/#eu-data-residency

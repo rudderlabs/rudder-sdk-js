@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.21](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.20...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.21) (2024-01-19)
+
+
+### Features
+
+* **analytics-v1.1:** add lock integrations version as query param in source config url ([#1584](https://github.com/rudderlabs/rudder-sdk-js/issues/1584)) ([4163514](https://github.com/rudderlabs/rudder-sdk-js/commit/4163514b968fb33945e8b75c1c4f9a10dd4677fc))
+
+
+### Bug Fixes
+
+* **analytics-js-sanity-suite:** update sourceConfig fixtures ([#1577](https://github.com/rudderlabs/rudder-sdk-js/issues/1577)) ([955afa6](https://github.com/rudderlabs/rudder-sdk-js/commit/955afa609d1586ed0154273e334220ccdd819a1f))
+
 ## [3.0.0-beta.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.19...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.20) (2024-01-08)
 
 

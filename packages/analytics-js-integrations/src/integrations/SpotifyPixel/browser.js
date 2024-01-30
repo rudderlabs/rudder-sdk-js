@@ -7,7 +7,7 @@ import sha256 from 'crypto-js/sha256';
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/SpotifyPixel/constants';
 import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
@@ -24,18 +24,18 @@ import {
   removeUndefinedAndNullValues,
 } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
-import { payloadBuilder, payloadBuilderInList } from './utils';
+import { payloadBuilder, payloadBuilderInList } from '../Podsights/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
-class Podsights {
+class SpotifyPixel {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
     this.pixelId = config.pixelId;
-    this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
+    this.eventsToSpotifyPixelEvents = config.eventsToSpotifyPixelEvents;
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
     ({
@@ -46,33 +46,34 @@ class Podsights {
   }
 
   init() {
-    window.pdst =
-      window.pdst ||
+    window.spdt =
+      window.spdt ||
       function () {
-        (window.pdst.q = window.pdst.q || []).push(arguments);
+        (window.spdt.q = window.spdt.q || []).push(arguments);
       };
-    ScriptLoader('pdst-capture', 'https://cdn.pdst.fm/ping.min.js');
-    window.pdst('conf', { key: `${this.pixelId}` });
+    ScriptLoader('spdt-capture', 'https://pixel.byspotify.com/ping.min.js');
+    window.spdt('conf', { key: `${this.pixelId}` });
   }
 
   isLoaded() {
-    return !!(window.pdst && typeof window.pdst === 'function');
+    return !!(window.spdt && typeof window.spdt === 'function');
   }
 
   isReady() {
     return this.isLoaded();
   }
 
+  // ref :  https://help.adanalytics.spotify.com/technical-pixel-docs#:~:text=these%20specific%20events.-,Alias,alias%20event%20script%20and%20Spotify%20Ad%20Analytics%C2%A0will%20send%20encrypted%20data.,-spdt(%27alias%27%2C%20%7B
   loadAliasEvent(externalId) {
     if (this.enableAliasCall && externalId) {
-      window.pdst('alias', {
+      window.spdt('alias', {
         id: sha256(externalId).toString(),
       });
     }
   }
 
   /**
-   * ref: https://podsights.com/docs#conversion-event-pixel-scripts
+   * ref: https://help.adanalytics.spotify.com/technical-pixel-docs
    * Track - tracks an event for an user
    * @param {Track} track
    */
@@ -85,7 +86,7 @@ class Podsights {
     }
 
     const eventsMappingFromCustomEvents = getHashFromArrayWithDuplicate(
-      this.eventsToPodsightsEvents,
+      this.eventsToSpotifyPixelEvents,
       'from',
       'to',
       false,
@@ -105,7 +106,7 @@ class Podsights {
     } else if (standardEvents.length > 0) {
       events = standardEvents;
     } else {
-      logger.error('No Podsights Pixel mapped event found. Aborting');
+      logger.error('No Spotify Pixel mapped event found. Aborting');
       return;
     }
     const externalId =
@@ -113,23 +114,23 @@ class Podsights {
       get(message, 'context.traits.userId') ||
       get(message, 'context.traits.id');
     let payload;
-    events.forEach(podsightEvent => {
-      switch (podsightEvent.trim().toLowerCase()) {
+    events.forEach(spotifyEvent => {
+      switch (spotifyEvent.trim().toLowerCase()) {
         case 'lead':
           payload = constructPayload(properties, LEAD_EVENT);
-          window.pdst(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         case 'purchase': {
           payload = payloadBuilder(properties, PURCHASE_EVENT, LINE_ITEMS_CONFIG);
-          window.pdst(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         }
         case 'product': {
           const payloadList = payloadBuilderInList(properties, PRODUCT_EVENT);
           payloadList.forEach(payloadItem => {
-            window.pdst(podsightEvent, payloadItem);
+            window.spdt(spotifyEvent, payloadItem);
             this.loadAliasEvent(externalId);
           });
           break;
@@ -137,19 +138,19 @@ class Podsights {
         case 'addtocart': {
           const payloadList = payloadBuilderInList(properties, ADD_TO_CART_EVENT);
           payloadList.forEach(payloadItem => {
-            window.pdst(podsightEvent, payloadItem);
+            window.spdt(spotifyEvent, payloadItem);
             this.loadAliasEvent(externalId);
           });
           break;
         }
         case 'checkout': {
           payload = payloadBuilder(properties, CHECK_OUT_EVENT, LINE_ITEMS_CONFIG);
-          window.pdst(podsightEvent, payload);
+          window.spdt(spotifyEvent, payload);
           this.loadAliasEvent(externalId);
           break;
         }
         default:
-          logger.error(`event name ${podsightEvent} not supported. Aborting`);
+          logger.error(`event name ${spotifyEvent} not supported. Aborting`);
           break;
       }
     });
@@ -172,8 +173,8 @@ class Podsights {
       };
     }
     payload = removeUndefinedAndNullValues(payload);
-    window.pdst('view', payload);
+    window.spdt('view', payload);
   }
 }
 
-export default Podsights;
+export default SpotifyPixel;

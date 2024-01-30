@@ -1,4 +1,3 @@
-import { LINE_ITEMS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
@@ -10,7 +9,7 @@ import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
  * @param {*} CONFIG_EVENT
  * return payload
  */
-const payloadBuilder = (properties, CONFIG_EVENT) => {
+const payloadBuilder = (properties, CONFIG_EVENT, LINE_ITEMS_CONFIG) => {
   const payload = constructPayload(properties, CONFIG_EVENT);
   // if line_items is present in message.properties
   if (payload.line_items) {

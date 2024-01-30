@@ -110,7 +110,8 @@
                 "attribution",
                 "eventUploadThreshold",
                 "eventUploadPeriodMillis",
-                "trackNewCampaigns"
+                "trackNewCampaigns",
+                "proxyServerUrl"
               ],
               "android": [
                 "eventUploadPeriodMillis",
@@ -202,7 +203,8 @@
               "eventUploadPeriodMillis",
               "trackNewCampaigns",
               "userProvidedScreenEventString",
-              "useUserDefinedScreenEventName"
+              "useUserDefinedScreenEventName",
+              "proxyServerUrl"
             ],
             "transformAtV1": "processor",
             "isAudienceSupported": false,
