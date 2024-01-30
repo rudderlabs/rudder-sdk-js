@@ -51,8 +51,8 @@ const processError = (error: SDKError): string => {
  * @param {Error} error
  * @returns
  */
-const isAllowedToBeNotified = (error: Error) => {
-  if (error.message) {
+const isAllowedToBeNotified = (error: SDKError) => {
+  if ((error instanceof Error || error instanceof ErrorEvent) && error.message) {
     return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
   }
   return true;

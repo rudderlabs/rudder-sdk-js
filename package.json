@@ -64,6 +64,7 @@
   },
   "dependencies": {
     "@bugsnag/js": "6.5.2",
+    "@bugsnag/core": "7.19.0",
     "@lukeed/uuid": "2.0.1",
     "@ndhoule/defaults": "2.0.1",
     "@ndhoule/each": "2.0.1",

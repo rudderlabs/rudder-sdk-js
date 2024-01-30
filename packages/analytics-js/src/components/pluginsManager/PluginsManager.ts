@@ -16,7 +16,6 @@ import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
-  ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
@@ -95,24 +94,9 @@ class PluginsManager implements IPluginsManager {
     }
 
     // Error reporting related plugins
-    const supportedErrReportingProviderPluginNames: string[] = Object.values(
-      ErrorReportingProvidersToPluginNameMap,
-    );
-    if (state.reporting.errorReportingProviderPluginName.value) {
+    if (!state.reporting.isErrorReportingEnabled.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName !== state.reporting.errorReportingProviderPluginName.value &&
-            supportedErrReportingProviderPluginNames.includes(pluginName)
-          ),
-      );
-    } else {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName === 'ErrorReporting' ||
-            supportedErrReportingProviderPluginNames.includes(pluginName)
-          ),
+        pluginName => !(pluginName === 'ErrorReporting'),
       );
     }
 

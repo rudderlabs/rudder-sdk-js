@@ -2,7 +2,6 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
 import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
@@ -22,7 +21,6 @@ import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
-  UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
@@ -30,14 +28,11 @@ import {
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
-  getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
-  DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
-  ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 import { isValidStorageType } from './validate';
@@ -72,35 +67,9 @@ const getSDKUrl = (): string | undefined => {
  * @param res Source config
  * @param logger Logger instance
  */
-const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void => {
-  state.reporting.isErrorReportingEnabled.value =
-    isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
+const updateReportingState = (res: SourceConfigResponse): void => {
+  state.reporting.isErrorReportingEnabled.value = isErrorReportingEnabled(res.source.config);
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
-
-  if (state.reporting.isErrorReportingEnabled.value) {
-    const errReportingProvider = getErrorReportingProviderNameFromConfig(res.source.config);
-
-    // Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
-    const errReportingProviderPlugin = errReportingProvider
-      ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
-      : undefined;
-
-    if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
-      // set the default error reporting provider
-      logger?.warn(
-        UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(
-          CONFIG_MANAGER,
-          errReportingProvider,
-          ErrorReportingProvidersToPluginNameMap,
-          DEFAULT_ERROR_REPORTING_PROVIDER,
-        ),
-      );
-    }
-
-    state.reporting.errorReportingProviderPluginName.value =
-      errReportingProviderPlugin ??
-      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
-  }
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {

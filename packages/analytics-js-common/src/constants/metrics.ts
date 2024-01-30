@@ -1,0 +1,3 @@
+const METRIC_PAYLOAD_VERSION = '1';
+
+export { METRIC_PAYLOAD_VERSION };

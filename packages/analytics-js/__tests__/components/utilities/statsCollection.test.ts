@@ -34,25 +34,6 @@ describe('Stats Collection Utilities', () => {
     });
   });
 
-  describe('getErrorReportingProviderNameFromConfig', () => {
-    it('should return the provider name when it is defined', () => {
-      const sourceConfig = {
-        statsCollection: {
-          errors: {
-            enabled: true,
-            provider: 'bugsnag',
-          },
-        },
-      };
-      expect(getErrorReportingProviderNameFromConfig(sourceConfig)).toBe('bugsnag');
-    });
-
-    it('should return undefined when error reporting is not configured', () => {
-      const sourceConfig = {};
-      expect(getErrorReportingProviderNameFromConfig(sourceConfig)).toBe(undefined);
-    });
-  });
-
   describe('isMetricsReportingEnabled', () => {
     it('should return true when metrics reporting is enabled', () => {
       const sourceConfig = {

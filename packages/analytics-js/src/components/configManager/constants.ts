@@ -9,10 +9,6 @@ export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   custom: 'CustomConsentManager',
 };
 
-export const ErrorReportingProvidersToPluginNameMap: Record<string, PluginName> = {
-  [DEFAULT_ERROR_REPORTING_PROVIDER]: 'Bugsnag',
-};
-
 export const StorageEncryptionVersionsToPluginNameMap: Record<string, PluginName> = {
   [DEFAULT_STORAGE_ENCRYPTION_VERSION]: 'StorageEncryption',
   legacy: 'StorageEncryptionLegacy',

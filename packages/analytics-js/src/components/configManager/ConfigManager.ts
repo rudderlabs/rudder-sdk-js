@@ -137,7 +137,7 @@ class ConfigManager implements IConfigManager {
     }
 
     // set the values in state for reporting slice
-    updateReportingState(res, this.logger);
+    updateReportingState(res);
 
     // determine the dataPlane url
     const dataPlaneUrl = resolveDataPlaneUrl(

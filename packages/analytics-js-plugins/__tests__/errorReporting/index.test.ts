@@ -1,5 +1,6 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ErrorReporting } from '../../src/errorReporting';
 
 describe('Plugin - ErrorReporting', () => {
@@ -10,6 +11,14 @@ describe('Plugin - ErrorReporting', () => {
     lifecycle: {
       writeKey: signal('dummy-write-key'),
     },
+    reporting: {
+      isErrorReportingPluginLoaded: signal(false),
+      breadCrumbs: signal([]),
+    },
+    context: {
+      locale: signal('en-GB'),
+      userAgent: signal('sample user agent'),
+    },
     source: signal({
       id: 'test-source-id',
       config: {},
@@ -18,20 +27,6 @@ describe('Plugin - ErrorReporting', () => {
 
   let state: any;
 
-  const mockPluginEngine = {
-    invokeSingle: jest.fn(() => Promise.resolve()),
-  };
-  const mockExtSrcLoader = {
-    loadJSFile: jest.fn(() => Promise.resolve()),
-  };
-  const mockLogger = {
-    error: jest.fn(),
-  };
-  const mockErrReportingProviderClient = {
-    notify: jest.fn(),
-    leaveBreadcrumb: jest.fn(),
-  };
-
   beforeEach(() => {
     state = clone(originalState);
   });
@@ -39,64 +34,40 @@ describe('Plugin - ErrorReporting', () => {
   it('should add ErrorReporting plugin in the loaded plugin list', () => {
     ErrorReporting().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('ErrorReporting')).toBe(true);
-  });
-
-  it('should reject the promise if source information is not available', async () => {
-    state.source.value = null;
-
-    const pluginInitPromise = ErrorReporting().errorReporting.init(state);
-
-    await expect(pluginInitPromise).rejects.toThrow('Invalid source configuration or source id.');
-  });
-
-  it('should invoke the error reporting provider plugin on init', async () => {
-    const pluginInitPromise = ErrorReporting().errorReporting.init(
-      state,
-      mockPluginEngine,
-      mockExtSrcLoader,
-      mockLogger,
-    );
-
-    await expect(pluginInitPromise).resolves.toBeUndefined(); // because it's just a mock
-    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
-      'errorReportingProvider.init',
-      state,
-      mockExtSrcLoader,
-      mockLogger,
-    );
+    expect(state.reporting.isErrorReportingPluginLoaded.value).toBe(true);
+    expect(state.reporting.breadCrumbs.value[0].message).toBe('Error Reporting Plugin Loaded');
   });
 
   it('should invoke the error reporting provider plugin on notify', () => {
+    const mockHttpClient = {
+      getAsyncData: jest.fn(),
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+    const newError = new Error();
+    const normalizedError = Object.create(newError, {
+      message: { value: 'ReferenceError: testUndefinedFn is not defined' },
+      stack: {
+        value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1666:84)`,
+      },
+    });
     ErrorReporting().errorReporting.notify(
-      mockPluginEngine,
-      mockErrReportingProviderClient,
-      new Error('dummy error'),
+      normalizedError,
+      {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
       state,
-      mockLogger,
+      mockHttpClient,
     );
 
-    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
-      'errorReportingProvider.notify',
-      mockErrReportingProviderClient,
-      new Error('dummy error'),
-      state,
-      mockLogger,
-    );
+    expect(mockHttpClient.getAsyncData).toHaveBeenCalled();
   });
 
-  it('should invoke the error reporting provider plugin on breadcrumb', () => {
-    ErrorReporting().errorReporting.breadcrumb(
-      mockPluginEngine,
-      mockErrReportingProviderClient,
-      'dummy breadcrumb',
-      mockLogger,
-    );
+  it('should add a new breadcrumb', () => {
+    const breadcrumbLength = state.reporting.breadCrumbs.value.length;
+    ErrorReporting().errorReporting.breadcrumb('dummy breadcrumb', state);
 
-    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
-      'errorReportingProvider.breadcrumb',
-      mockErrReportingProviderClient,
-      'dummy breadcrumb',
-      mockLogger,
-    );
+    expect(state.reporting.breadCrumbs.value.length).toBe(breadcrumbLength + 1);
   });
 });

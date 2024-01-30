@@ -71,7 +71,7 @@
     "@preact/signals-core": "1.5.1",
     "ramda": "0.29.1",
     "crypto-es": "2.0.4",
-    "@bugsnag/js": "6.5.2"
+    "@bugsnag/core": "7.19.0"
   },
   "devDependencies": {
     "@bugsnag/js": "6.5.2",
