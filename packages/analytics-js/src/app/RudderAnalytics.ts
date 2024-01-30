@@ -83,6 +83,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
+
+    // Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
+    // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
+    (globalThis as typeof window).rudderanalytics = this;
   }
 
   /**
