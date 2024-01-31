@@ -3,6 +3,7 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/QuoraPixel/constants';
+import { isDefinedAndNotNull } from '@rudderstack/analytics-js-integrations/utils/utils';
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -45,13 +46,13 @@ class QuoraPixel {
     const { event } = rudderElement.message;
     const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
 
-    if (!event) {
-      logger.error('Event name is missing for track call');
+    if (!isDefinedAndNotNull(event)) {
+      logger.error('Event name is either null or undefined');
       return;
     }
 
     if (typeof event !== 'string') {
-      logger.error('Event type should be string');
+      logger.error('Event name should be a string');
       return;
     }
 
