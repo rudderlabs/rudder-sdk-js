@@ -73,7 +73,7 @@ jobs:
 
       - name: Send message to Slack channel for v3
         id: slack
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v3 NPM Package'
@@ -105,7 +105,7 @@ jobs:
 
       - name: Send message to Slack channel for v1.1
         id: slackv1
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v1.1 NPM Package'
@@ -138,7 +138,7 @@ jobs:
 
       - name: Send message to Slack channel for Service Worker
         id: slackSw
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Service Worker NPM Package'

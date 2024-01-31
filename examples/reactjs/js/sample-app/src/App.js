@@ -16,8 +16,6 @@ function App() {
     analytics.ready(() => {
       console.log('We are all set!!!');
     });
-
-    window.rudderanalytics = analytics;
   }, []);
 
   const page = () => {
