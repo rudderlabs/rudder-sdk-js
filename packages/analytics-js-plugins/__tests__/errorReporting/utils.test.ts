@@ -313,7 +313,7 @@ describe('Error Reporting utilities', () => {
       console.log(JSON.stringify(enhancedError));
       const expectedOutcome = {
         notifier: {
-          name: 'Rudderstack JavaScript SDK Error Notifier',
+          name: 'RudderStack JavaScript SDK Error Notifier',
           version: '__PACKAGE_VERSION__',
           url: 'https://github.com/rudderlabs/rudder-sdk-js',
         },

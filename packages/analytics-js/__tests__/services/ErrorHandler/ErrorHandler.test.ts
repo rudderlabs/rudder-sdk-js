@@ -1,9 +1,9 @@
-import { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultLogger } from '../../../src/services/Logger';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
-import { state } from '../../../src/state';
+import { state, resetState } from '../../../src/state';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -43,6 +43,7 @@ describe('ErrorHandler', () => {
   let errorHandlerInstance: ErrorHandler;
 
   beforeEach(() => {
+    resetState();
     errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine, defaultHttpClient);
   });
 
@@ -78,6 +79,8 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error for Errors with context and custom message if logger exists', () => {
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
 
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
@@ -101,6 +104,8 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error for messages with context and custom message if logger exists', () => {
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
 
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
@@ -125,6 +130,8 @@ describe('ErrorHandler', () => {
 
   it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
     try {
+      state.reporting.isErrorReportingEnabled.value = true;
+      state.reporting.isErrorReportingPluginLoaded.value = true;
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message', true);
     } catch (err) {
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);

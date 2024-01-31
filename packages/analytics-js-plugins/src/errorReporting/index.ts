@@ -10,6 +10,7 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { Event } from '@bugsnag/core';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { clone } from 'ramda';
 import {
   createNewBreadCrumb,
   getConfigForPayloadCreation,
@@ -56,7 +57,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
 
       // attach breadcrumbs
       if (state.reporting.breadCrumbs.value.length > 0) {
-        errorPayload.breadcrumbs = state.reporting.breadCrumbs.value;
+        errorPayload.breadcrumbs = clone(state.reporting.breadCrumbs.value);
       }
 
       // enrich error payload

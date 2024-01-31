@@ -19,7 +19,7 @@ const APP_STATE_EXCLUDE_KEYS = [
   'traits',
 ];
 const REQUEST_TIMEOUT_MS = 10 * 1000; // 10 seconds
-const NOTIFIER_NAME = 'Rudderstack JavaScript SDK Error Notifier';
+const NOTIFIER_NAME = 'RudderStack JavaScript SDK Error Notifier';
 const SDK_GITHUB_URL = 'https://github.com/rudderlabs/rudder-sdk-js';
 const SOURCE_NAME = 'js';
 

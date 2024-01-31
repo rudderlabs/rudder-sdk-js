@@ -101,20 +101,22 @@ class ErrorHandler implements IErrorHandler {
       });
     }
 
-    if (
-      state.reporting.isErrorReportingEnabled.value &&
-      !state.reporting.isErrorReportingPluginLoaded.value
-    ) {
-      // buffer the error
-      this.errorBuffer.enqueue({ error, errorState });
-    } else {
-      // send it to plugin
-      // eslint-disable-next-line no-lonely-if
-      if (errorType === 'handledException') {
-        this.notifyError(normalizedError, errorState);
-      } else {
-        this.notifyError(error, errorState);
+    const isErrorReportingEnabled = state.reporting.isErrorReportingEnabled.value;
+    const isErrorReportingPluginLoaded = state.reporting.isErrorReportingPluginLoaded.value;
+    try {
+      if (isErrorReportingEnabled) {
+        if (!isErrorReportingPluginLoaded) {
+          // buffer the error
+          this.errorBuffer.enqueue({
+            error: errorType === 'handledException' ? normalizedError : error,
+            errorState,
+          });
+        } else {
+          this.notifyError(errorType === 'handledException' ? normalizedError : error, errorState);
+        }
       }
+    } catch (e) {
+      this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
     }
 
     if (errorType === 'handledException') {
