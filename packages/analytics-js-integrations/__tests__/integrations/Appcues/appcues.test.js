@@ -13,6 +13,15 @@ const destinationInfo = {
   areTransformationsConnected: false,
   destinationId: 'sample-destination-id',
 };
+const testEmail = 'test@email.com';
+
+const mockAppcuesSDK = () => {
+  window.Appcues = {
+    identify: jest.fn(),
+    track: jest.fn(),
+    page: jest.fn(),
+  };
+};
 
 beforeEach(() => {
   // Add a dummy script as it is required by the init script
@@ -40,133 +49,115 @@ describe('Appcues init tests', () => {
 
 describe('Amplitude identify tests', () => {
   let appcues;
-  it('Testing identify call of Appcues', () => {
+  const rudderElement = {
+    message: {
+      type: 'identify',
+      context: {
+        traits: {
+          name: 'test',
+          email: testEmail,
+          address: {
+            city: 'testCity',
+            state: 'testState',
+          },
+        },
+      },
+      userId: 'testUserId',
+    },
+  };
+  it('Testing identify call of Appcues with nested object traits', () => {
     appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
     appcues.init();
-    const spy = jest.spyOn(appcues, 'identify');
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'identify');
+    appcues.identify(rudderElement);
+    expect(spy).toHaveBeenCalledWith('testUserId', {
+      name: 'test',
+      email: testEmail,
+      'address.city': 'testCity',
+      'address.state': 'testState',
+    });
+  });
+
+  it('Testing missing user id for identify calls', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'identify');
     appcues.identify({
       message: {
         type: 'identify',
         context: {
           traits: {
-            name: 'test',
-            email: 'test@email.com',
+            email: 'test2@email.com',
           },
         },
-        userId: 'testUserId',
       },
     });
-    expect(spy).toHaveBeenCalledWith('identify', {
-      name: 'test',
-      email: 'test@email.com',
-    });
+    expect(spy).not.toHaveBeenCalled();
   });
 });
 
-// describe('Appcues init tests', () => {
-//   let appcues;
+describe('Amplitude track tests', () => {
+  let appcues;
+  const rudderElement = {
+    message: {
+      type: 'track',
+      event: 'testEvent',
+      properties: {
+        name: 'test',
+        email: testEmail,
+      },
+    },
+  };
+  it('Testing track call of Appcues', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'track');
+    appcues.track(rudderElement);
+    expect(spy).toHaveBeenCalledWith('testEvent', {
+      name: 'test',
+      email: testEmail,
+    });
+  });
 
-//   beforeEach(() => {
-//     appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
-//     appcues.init();
-//   });
+  it('Testing missing event name for track calls', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'track');
+    appcues.track({
+      message: {
+        type: 'track',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
 
-//   test('Testing identify call of Appcues', () => {
-//     beforeEach(() => {
-//       appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
-//       appcues.init();
-//     });
-
-//     appcues.identify({
-//       message: {
-//         type: 'identify',
-//         context: {
-//           traits: {
-//             name: 'test',
-//             email: 'test@email.com',
-//           },
-//         },
-//         userId: 'testUserId',
-//       },
-//     });
-//     expect(appcues.identify).toHaveBeenCalledWith('testUserId', {
-//       name: 'test',
-//       email: 'test@email.com',
-//     });
-//   });
-
-//   test('Testing track call of Appcues', () => {
-//     appcues.track({
-//       message: {
-//         type: 'track',
-//         event: 'testEvent',
-//         properties: {
-//           testProperty: 'test',
-//         },
-//       },
-//     });
-//     expect(appcues.track).toHaveBeenCalledWith('testEvent', {
-//       testProperty: 'test',
-//     });
-//   });
-
-//   test('Testing page call of Appcues', () => {
-//     appcues.page({
-//       message: {
-//         type: 'page',
-//         name: 'testPage',
-//         properties: {
-//           testProperty: 'test',
-//         },
-//       },
-//     });
-//     expect(appcues.page).toHaveBeenCalledWith('testPage', {
-//       testProperty: 'test',
-//     });
-//   });
-
-//   test('Testing nested objects in traits for identify calls', () => {
-//     appcues.identify({
-//       message: {
-//         type: 'identify',
-//         traits: {
-//           name: 'test',
-//           address: {
-//             city: 'testCity',
-//             state: 'testState',
-//           },
-//         },
-//         userId: 'testUserId',
-//       },
-//     });
-//     expect(appcues.identify).toHaveBeenCalledWith('testUserId', {
-//       name: 'test',
-//       'address.city': 'testCity',
-//       'address.state': 'testState',
-//     });
-//   });
-
-//   test('Testing missing user id for identify calls', () => {
-//     appcues.identify({
-//       message: {
-//         type: 'identify',
-//         traits: {
-//           name: 'test',
-//         },
-//       },
-//     });
-//     expect(appcues.identify).not.toHaveBeenCalled();
-//   });
-
-//   test('Testing missing event name for track calls', () => {
-//     appcues.track({
-//       message: {
-//         type: 'track',
-//         properties: {
-//           testProperty: 'test',
-//         },
-//       },
-//     });
-//     expect(appcues.track).not.toHaveBeenCalled();
-//   });
-// });
+describe('Amplitude page tests', () => {
+  let appcues;
+  const rudderElement = {
+    message: {
+      type: 'page',
+      name: 'testPage',
+      properties: {
+        name: 'test',
+      },
+    },
+  };
+  it('Testing page call of Appcues', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'page');
+    appcues.page(rudderElement);
+    expect(spy).toHaveBeenCalledWith('testPage', {
+      name: 'test',
+    });
+  });
+});
