@@ -302,13 +302,15 @@ describe('Error Reporting utilities', () => {
         context: {
           locale: signal('en-GB'),
           userAgent: signal('sample user agent'),
+          app: signal({ version: 'sample_version' }),
         },
         lifecycle: {
           writeKey: signal('sample-write-key'),
         },
         breadCrumbs: signal([]),
+        source: signal({ id: 'sample_source_id' }),
       };
-
+      (window as any).RudderSnippetVersion = 'sample_snippet_version';
       const enhancedError = enhanceErrorEvent(errorPayload, errorState, appState);
       console.log(JSON.stringify(enhancedError));
       const expectedOutcome = {
@@ -343,7 +345,7 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: '__PACKAGE_VERSION__',
+              version: 'sample_version',
               releaseStage: 'development',
             },
             device: {
@@ -366,11 +368,21 @@ describe('Error Reporting utilities', () => {
                 context: {
                   userAgent: 'sample user agent',
                   locale: 'en-GB',
+                  app: {
+                    version: 'sample_version',
+                  },
                 },
                 lifecycle: {
                   writeKey: 'sample-write-key',
                 },
                 breadCrumbs: [],
+                source: {
+                  id: 'sample_source_id',
+                },
+              },
+              SOURCE: {
+                id: 'sample_source_id',
+                snippetVersion: 'sample_snippet_version',
               },
             },
             user: {
@@ -388,6 +400,9 @@ describe('Error Reporting utilities', () => {
       const appState = {
         lifecycle: {
           writeKey: signal('sample-write-key'),
+        },
+        context: {
+          app: signal({ version: 'sample_version' }),
         },
       };
       const enhancedErrorPayload = {
@@ -422,7 +437,7 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: '__PACKAGE_VERSION__',
+              version: 'sample_version',
               releaseStage: 'development',
             },
             device: {
@@ -445,6 +460,7 @@ describe('Error Reporting utilities', () => {
                 context: {
                   userAgent: 'sample user agent',
                   locale: 'en-GB',
+                  app: 'sample_version',
                 },
                 lifecycle: {
                   writeKey: 'sample-write-key',
@@ -466,7 +482,7 @@ describe('Error Reporting utilities', () => {
           message_id: 'test_uuid',
           source: {
             name: 'js',
-            sdk_version: '__PACKAGE_VERSION__',
+            sdk_version: 'sample_version',
             write_key: 'sample-write-key',
             install_type: '__MODULE_TYPE__',
           },

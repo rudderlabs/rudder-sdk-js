@@ -107,7 +107,7 @@ const enhanceErrorEvent = (
       unhandled: errorState.unhandled,
       severityReason: errorState.severityReason,
       app: {
-        version: '__PACKAGE_VERSION__',
+        version: state.context.app.value.version,
         releaseStage: getReleaseStage(),
       },
       device: {
@@ -127,6 +127,10 @@ const enhanceErrorEvent = (
           installType: '__MODULE_TYPE__',
         },
         STATE: getAppStateForMetadata(state),
+        SOURCE: {
+          id: state.source.value?.id,
+          snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
+        },
       },
       user: {
         id: state.lifecycle.writeKey.value as string,
@@ -160,7 +164,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
     message_id: generateUUID(),
     source: {
       name: SOURCE_NAME,
-      sdk_version: '__PACKAGE_VERSION__',
+      sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
       install_type: '__MODULE_TYPE__',
     },

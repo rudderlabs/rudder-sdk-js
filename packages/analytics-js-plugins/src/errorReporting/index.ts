@@ -65,7 +65,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
 
       // send it to metrics service
       httpClient.getAsyncData({
-        url: `https://sdk-metrics.dev-rudder.rudderlabs.com/sdkmetrics`, // metrics endpoint: dev
+        url: `https://sdk-metrics.rudderstack.com/sdkmetrics`,
         // url: `${state.lifecycle.dataPlaneUrl.value}/sdk-metrics`,
         options: {
           method: 'POST',

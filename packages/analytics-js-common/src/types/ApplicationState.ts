@@ -137,7 +137,7 @@ export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
   isErrorReportingPluginLoaded: Signal<boolean>;
-  breadCrumbs: Signal<BreadCrumb[] | []>;
+  breadCrumbs: Signal<BreadCrumb[]>;
 };
 
 export type SessionState = {

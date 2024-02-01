@@ -18,6 +18,7 @@ describe('Plugin - ErrorReporting', () => {
     context: {
       locale: signal('en-GB'),
       userAgent: signal('sample user agent'),
+      app: signal({ version: 'sample_version' }),
     },
     source: signal({
       id: 'test-source-id',
