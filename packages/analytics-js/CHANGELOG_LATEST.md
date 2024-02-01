@@ -1,7 +1,7 @@
-## [3.0.0-beta.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.17...@rudderstack/analytics-js@3.0.0-beta.18) (2023-12-13)
+## [3.0.0-beta.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.0-beta.19...@rudderstack/analytics-js@3.0.0-beta.20) (2024-01-19)
 
 
-### Bug Fixes
+### Features
 
-* **analytics-js:** new export that excludes all third party host scripts ([#1533](https://github.com/rudderlabs/rudder-sdk-js/issues/1533)) ([999d8fa](https://github.com/rudderlabs/rudder-sdk-js/commit/999d8fa0262e7cd7b021404ec28a99fc64dd323d))
+* attach global error listeners ([#1586](https://github.com/rudderlabs/rudder-sdk-js/issues/1586)) ([b416897](https://github.com/rudderlabs/rudder-sdk-js/commit/b416897445c0e27b13853af44ed203daefd3f720))
 

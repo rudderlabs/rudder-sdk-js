@@ -2,6 +2,50 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.21](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.20...@rudderstack/analytics-js-integrations@3.0.0-beta.21) (2024-01-19)
+
+
+### Features
+
+* adding proxy server url for amplitude ([#1590](https://github.com/rudderlabs/rudder-sdk-js/issues/1590)) ([988a146](https://github.com/rudderlabs/rudder-sdk-js/commit/988a146037e9929259acf94000951edd546df91e))
+* onboard new destination spotify pixel ([#1567](https://github.com/rudderlabs/rudder-sdk-js/issues/1567)) ([92de4e0](https://github.com/rudderlabs/rudder-sdk-js/commit/92de4e01b6da989126061844c3f8f8ebe05caaf8))
+
+
+### Bug Fixes
+
+* bugsnag alert for google ads ([#1576](https://github.com/rudderlabs/rudder-sdk-js/issues/1576)) ([42e9fd3](https://github.com/rudderlabs/rudder-sdk-js/commit/42e9fd32e33fe7331e83bfbebb050d090315dae2))
+* ga4 page call mappings ([#1579](https://github.com/rudderlabs/rudder-sdk-js/issues/1579)) ([6deb94c](https://github.com/rudderlabs/rudder-sdk-js/commit/6deb94ce2e367750ed8406732f979a6f5082e24e))
+* **googleads:** added validation to discard event if event name is no event name is present ([#1570](https://github.com/rudderlabs/rudder-sdk-js/issues/1570)) ([3bd4eb6](https://github.com/rudderlabs/rudder-sdk-js/commit/3bd4eb65016c72ddd9f84a0d56363dd7df2ca8d9))
+
+## [3.0.0-beta.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.19...@rudderstack/analytics-js-integrations@3.0.0-beta.20) (2024-01-08)
+
+
+### Features
+
+* amplitude add support for unset ([#1562](https://github.com/rudderlabs/rudder-sdk-js/issues/1562)) ([22b79cd](https://github.com/rudderlabs/rudder-sdk-js/commit/22b79cd51e5c17c8eb26c5bdfd9f06e1decf18bd))
+
+
+### Bug Fixes
+
+* **analytics-js-integrations:** remove updating user_properties as part of loadScript call for ga4 ([#1527](https://github.com/rudderlabs/rudder-sdk-js/issues/1527)) ([8667d17](https://github.com/rudderlabs/rudder-sdk-js/commit/8667d1789b56852d332bd54af2489b7d7e5909ff))
+* **analytics-js-integrations:** resolved tech debt items ([#1523](https://github.com/rudderlabs/rudder-sdk-js/issues/1523)) ([6924f6c](https://github.com/rudderlabs/rudder-sdk-js/commit/6924f6c1e49336e6b8dbc604bfd8cf5d9322944a))
+* **clevertap:** region undefined issue ([#1557](https://github.com/rudderlabs/rudder-sdk-js/issues/1557)) ([9f1fc0d](https://github.com/rudderlabs/rudder-sdk-js/commit/9f1fc0d1939e4abc439c8d02dd790745f1efe519))
+* infinite recursion error by tracking visited nodes ([#1541](https://github.com/rudderlabs/rudder-sdk-js/issues/1541)) ([d006eb7](https://github.com/rudderlabs/rudder-sdk-js/commit/d006eb708b7bacfdb2571bbb4841a0f1f2e67bc3))
+* tiktok add missing field brand ([#1561](https://github.com/rudderlabs/rudder-sdk-js/issues/1561)) ([dd08664](https://github.com/rudderlabs/rudder-sdk-js/commit/dd086640a05da480d579b1580aad110b14c6165d))
+* tiktok remove lowercasing for custom events ([#1558](https://github.com/rudderlabs/rudder-sdk-js/issues/1558)) ([09e00f6](https://github.com/rudderlabs/rudder-sdk-js/commit/09e00f668240a9443115a24f86d3f68f91efb95c))
+
+
+### Reverts
+
+* Revert "fix: tiktok add missing field brand" (#1571) ([5d11ebb](https://github.com/rudderlabs/rudder-sdk-js/commit/5d11ebbd44b50839b727a6ae028ae5b6f95bd2d1)), closes [#1571](https://github.com/rudderlabs/rudder-sdk-js/issues/1571) [#1561](https://github.com/rudderlabs/rudder-sdk-js/issues/1561)
+
+## [3.0.0-beta.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.18...@rudderstack/analytics-js-integrations@3.0.0-beta.19) (2023-12-14)
+
+
+### Bug Fixes
+
+* **bing_ads:** name and display name import ([#1553](https://github.com/rudderlabs/rudder-sdk-js/issues/1553)) ([371e4b4](https://github.com/rudderlabs/rudder-sdk-js/commit/371e4b419c306d79cec728dd3533c2aaec7f2bed))
+
 ## [3.0.0-beta.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.17...@rudderstack/analytics-js-integrations@3.0.0-beta.18) (2023-12-13)
 
 

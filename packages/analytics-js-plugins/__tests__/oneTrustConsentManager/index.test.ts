@@ -47,7 +47,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
       deniedConsentIds: ['C0002', 'C0004', 'C0005', 'C0006'],
     });
   });
@@ -68,7 +68,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   it('should return true if destination specific category is consented', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
 
     const destConfig = {
@@ -77,7 +77,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
-          oneTrustCookieCategory: 'Functional Cookies',
+          oneTrustCookieCategory: 'C0001',
         },
         {
           oneTrustCookieCategory: 'C0003',
@@ -107,7 +107,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
-          oneTrustCookieCategory: 'Functional Cookies',
+          oneTrustCookieCategory: 'C0001',
         },
         {
           oneTrustCookieCategory: '',
@@ -128,7 +128,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   it('should return true if destination config does not have any mapping', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -149,7 +149,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   it('should return false if destination categories are not consented', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -157,7 +157,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       eventFilteringOption: 'disable',
       oneTrustCookieCategories: [
         {
-          oneTrustCookieCategory: 'Functional Cookies',
+          oneTrustCookieCategory: 'C0001',
         },
         {
           oneTrustCookieCategory: 'C0004',
@@ -177,7 +177,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   it('should return true and log error if an exception occurs during destination consent status check', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -206,7 +206,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     state.consents.resolutionStrategy.value = 'and';
     state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -217,7 +217,7 @@ describe('Plugin - OneTrustConsentManager', () => {
           provider: 'oneTrust',
           consents: [
             {
-              consent: 'Functional Cookies',
+              consent: 'C0001',
             },
             {
               consent: 'C0004',
@@ -248,7 +248,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     state.consents.resolutionStrategy.value = 'and';
     state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -279,7 +279,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     state.consents.provider.value = 'oneTrust';
     state.consents.resolutionStrategy.value = 'and';
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -290,7 +290,7 @@ describe('Plugin - OneTrustConsentManager', () => {
           provider: 'oneTrust',
           consents: [
             {
-              consent: 'Functional Cookies',
+              consent: 'C0001',
             },
             {
               consent: 'C0003',
@@ -321,7 +321,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     state.consents.provider.value = 'oneTrust';
     state.consents.resolutionStrategy.value = 'or';
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],
@@ -332,7 +332,7 @@ describe('Plugin - OneTrustConsentManager', () => {
           provider: 'oneTrust',
           consents: [
             {
-              consent: 'Functional Cookies',
+              consent: 'C0001',
             },
             {
               consent: 'C0004',
@@ -363,7 +363,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     state.consents.provider.value = 'oneTrust';
     state.consents.resolutionStrategy.value = 'or';
     state.consents.data.value = {
-      allowedConsentIds: { C0001: 'Functional Cookies', C0003: 'Analytical Cookies' },
+      allowedConsentIds: ['C0001', 'C0003'],
     };
     const destConfig = {
       blacklistedEvents: [],

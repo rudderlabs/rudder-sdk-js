@@ -1,13 +1,10 @@
-## [2.46.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.45.1...rudder-sdk-js@2.46.0) (2023-12-13)
+## [2.48.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.47.0...rudder-sdk-js@2.48.0) (2024-01-19)
 
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.47.0`
 
 ### Features
 
-* **analytics-js:** add additional consent management fields ([#1534](https://github.com/rudderlabs/rudder-sdk-js/issues/1534)) ([1e5d26f](https://github.com/rudderlabs/rudder-sdk-js/commit/1e5d26f89cc1151b40f6202d69086514607dc10c))
-* introduced root level sentat for batch request ([#1531](https://github.com/rudderlabs/rudder-sdk-js/issues/1531)) ([24297f2](https://github.com/rudderlabs/rudder-sdk-js/commit/24297f2e48205ec4b8d780ff148d2d143a9f4eb0))
-
-
-### Bug Fixes
-
-* **analytics-js:** new export that excludes all third party host scripts ([#1533](https://github.com/rudderlabs/rudder-sdk-js/issues/1533)) ([999d8fa](https://github.com/rudderlabs/rudder-sdk-js/commit/999d8fa0262e7cd7b021404ec28a99fc64dd323d))
+* **analytics-v1.1:** add lock integrations version as query param in source config url ([#1584](https://github.com/rudderlabs/rudder-sdk-js/issues/1584)) ([4163514](https://github.com/rudderlabs/rudder-sdk-js/commit/4163514b968fb33945e8b75c1c4f9a10dd4677fc))
 

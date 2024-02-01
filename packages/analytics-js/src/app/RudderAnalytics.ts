@@ -30,6 +30,7 @@ import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
+import { defaultErrorHandler } from '../services/ErrorHandler';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -53,6 +54,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       return RudderAnalytics.globalSingleton;
       // END-NO-SONAR-SCAN
     }
+    defaultErrorHandler.attachErrorListeners();
 
     this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
     this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
@@ -81,6 +83,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
+
+    // Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
+    // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
+    (globalThis as typeof window).rudderanalytics = this;
   }
 
   /**

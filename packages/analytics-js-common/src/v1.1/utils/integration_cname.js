@@ -73,7 +73,7 @@ import { CNameMapping as Lemnisk } from '../../constants/integrations/Lemnisk/co
 import { CNameMapping as TiktokAds } from '../../constants/integrations/TiktokAds/constants';
 import { CNameMapping as ActiveCampaign } from '../../constants/integrations/ActiveCampaign/constants';
 import { CNameMapping as Sprig } from '../../constants/integrations/Sprig/constants';
-
+import { CNameMapping as SpotifyPixel } from '../../constants/integrations/SpotifyPixel/constants';
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
@@ -152,7 +152,8 @@ const commonNames = {
   ...Lemnisk,
   ...TiktokAds,
   ...ActiveCampaign,
-  ...Sprig
+  ...Sprig,
+  ...SpotifyPixel
 };
 
 export { commonNames };

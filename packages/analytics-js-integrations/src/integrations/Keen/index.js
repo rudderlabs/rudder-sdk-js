@@ -1,1 +1,1 @@
-export { Keen } from './browser';
+export { default as Keen } from './browser';

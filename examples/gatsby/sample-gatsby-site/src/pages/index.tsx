@@ -180,8 +180,6 @@ const IndexPage: React.FC<PageProps> = () => {
     analytics.ready(() => {
       console.log('We are all set!!!');
     });
-
-    window.rudderanalytics = analytics;
   }, []);
 
   return (

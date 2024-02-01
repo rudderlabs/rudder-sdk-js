@@ -5,6 +5,7 @@ const reportingState: ReportingState = {
   isErrorReportingEnabled: signal(false),
   isMetricsReportingEnabled: signal(false),
   errorReportingProviderPluginName: signal(undefined),
+  isErrorReportingPluginLoaded: signal(false),
 };
 
 export { reportingState };

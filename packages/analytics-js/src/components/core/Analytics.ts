@@ -32,6 +32,7 @@ import {
   type TrackCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
+import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
@@ -51,7 +52,6 @@ import { setExposedGlobal } from '../utilities/globals';
 import { normalizeLoadOptions } from '../utilities/loadOptions';
 import { consumePreloadBufferedEvent, retrievePreloadBufferEvents } from '../preloadBuffer';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
-import { BufferQueue } from './BufferQueue';
 import { EventRepository } from '../eventRepository';
 import type { IEventRepository } from '../eventRepository/types';
 import {
@@ -273,7 +273,6 @@ class Analytics implements IAnalytics {
    */
   onPluginsReady() {
     this.errorHandler.init(this.externalSrcLoader);
-
     // Initialize storage
     this.storeManager?.init();
     this.userSessionManager?.init();

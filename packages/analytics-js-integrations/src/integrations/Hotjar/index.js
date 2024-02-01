@@ -1,1 +1,1 @@
-export { Hotjar } from './browser';
+export { default as Hotjar } from './browser';

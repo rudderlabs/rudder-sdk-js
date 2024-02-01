@@ -1,4 +1,4 @@
-import { BufferQueue } from '../../../src/components/core/BufferQueue';
+import { BufferQueue } from '../../../src/services/BufferQueue/BufferQueue';
 
 describe('Core - BufferQueue', () => {
   let bufferQueue: BufferQueue<number>;

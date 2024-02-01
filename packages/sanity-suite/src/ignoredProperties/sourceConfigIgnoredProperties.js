@@ -100,6 +100,42 @@ const sourceConfigIgnoredProperties = [
     type: 'string',
   },
   {
+    key: `source.destinations.7.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.7.revisionId`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.7.destinationDefinition.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.8.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.8.revisionId`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.8.destinationDefinition.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.9.updatedAt`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.9.revisionId`,
+    type: 'string',
+  },
+  {
+    key: `source.destinations.9.destinationDefinition.updatedAt`,
+    type: 'string',
+  },
+  {
     key: `source.updatedAt`,
     type: 'string',
   },

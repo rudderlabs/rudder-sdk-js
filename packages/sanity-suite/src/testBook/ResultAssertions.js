@@ -1,5 +1,6 @@
 import objectPath from 'object-path';
 import { diff } from 'deep-object-diff';
+import { sortBy, sortWith, ascend, prop, clone } from 'ramda';
 import { ignoredProperties } from '../ignoredProperties/ignoredProperties';
 import { sourceConfigIgnoredProperties } from '../ignoredProperties/sourceConfigIgnoredProperties';
 
@@ -31,6 +32,13 @@ const ResultsAssertions = {
           ignoredProperties,
         );
       } else if (isSourceConfigAPIPayload) {
+        // Sort destinations array by id
+        const sortByDestId = sortBy(prop('id'));
+        resultData.source.destinations = sortByDestId([].concat(resultData.source.destinations));
+        expectedResultData.source.destinations = sortByDestId(
+          [].concat(expectedResultData.source.destinations),
+        );
+
         ResultsAssertions.resultDataIgnoredPropertiesMutator(
           resultData,
           expectedResultData,

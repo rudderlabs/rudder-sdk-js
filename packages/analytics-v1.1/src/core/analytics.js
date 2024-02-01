@@ -229,7 +229,7 @@ class Analytics {
       try {
         // Initialize error reporting provider only if SDK is not running inside chrome extension
         if (!isSDKRunningInChromeExtension()) {
-          this.errorReporting.init(response.source.config, response.source.id);
+          this.errorReporting.init(response.source.config, response.source.id, this.writeKey);
         }
       } catch (err) {
         handleError(err);
@@ -518,15 +518,19 @@ class Analytics {
     // Depending on transformation is connected or not
     // create two sets of destinations
     destinations.forEach(intg => {
-      const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+      try {
+        const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
 
-      // Block the event if it is blacklisted for the device-mode destination
-      if (sendEvent) {
-        if (intg.shouldApplyDeviceModeTransformation) {
-          destWithTransformation.push(intg);
-        } else {
-          destWithoutTransformation.push(intg);
+        // Block the event if it is blacklisted for the device-mode destination
+        if (sendEvent) {
+          if (intg.shouldApplyDeviceModeTransformation) {
+            destWithTransformation.push(intg);
+          } else {
+            destWithoutTransformation.push(intg);
+          }
         }
+      } catch (e) {
+        handleError(e);
       }
     });
     // loop through destinations that doesn't have
@@ -587,16 +591,20 @@ class Analytics {
     //   object.clientIntegrationObjects.length
     // );
 
-    if (object.clientIntegrationObjects.every(intg => !intg.isReady || intg.isReady())) {
-      // Integrations are ready
-      // set clientIntegrationsReady to be true
-      this.integrationsData = constructMessageIntegrationsObj(
-        this.integrationsData,
-        object.clientIntegrationObjects,
-      );
-      object.clientIntegrationsReady = true;
-      // Execute the callbacks if any
-      object.executeReadyCallback();
+    try {
+      if (object.clientIntegrationObjects.every(intg => !intg.isReady || intg.isReady())) {
+        // Integrations are ready
+        // set clientIntegrationsReady to be true
+        this.integrationsData = constructMessageIntegrationsObj(
+          this.integrationsData,
+          object.clientIntegrationObjects,
+        );
+        object.clientIntegrationsReady = true;
+        // Execute the callbacks if any
+        object.executeReadyCallback();
+      }
+    } catch (e) {
+      handleError(e, `Replay buffered cloud mode events`);
     }
 
     this.processBufferedCloudModeEvents();
@@ -980,27 +988,30 @@ class Analytics {
       } catch (err) {
         handleError(err);
       }
+      try {
+        // config plane native enabled destinations, still not completely loaded
+        // in the page, add the events to a queue and process later
+        if (!this.clientIntegrationObjects) {
+          // logger.debug("pushing in replay queue")
+          // new event processing after analytics initialized  but integrations not fetched from BE
+          this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+        } else {
+          // get intersection between config plane native enabled destinations
+          // (which were able to successfully load on the page) vs user supplied integrations
+          const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            this.clientIntegrationObjects,
+          );
 
-      // config plane native enabled destinations, still not completely loaded
-      // in the page, add the events to a queue and process later
-      if (!this.clientIntegrationObjects) {
-        // logger.debug("pushing in replay queue")
-        // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-      } else {
-        // get intersection between config plane native enabled destinations
-        // (which were able to successfully load on the page) vs user supplied integrations
-        const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-          clientSuppliedIntegrations,
-          this.clientIntegrationObjects,
-        );
-
-        // try to first send to all integrations, if list populated from BE
-        this.processAndSendEventsToDeviceMode(
-          successfulLoadedIntersectClientSuppliedIntegrations,
-          rudderElement,
-          type,
-        );
+          // try to first send to all integrations, if list populated from BE
+          this.processAndSendEventsToDeviceMode(
+            successfulLoadedIntersectClientSuppliedIntegrations,
+            rudderElement,
+            type,
+          );
+        }
+      } catch (err) {
+        handleError(err, `processAndSendEventsToDeviceMode::`);
       }
 
       const clonedRudderElement = R.clone(rudderElement);
@@ -1329,7 +1340,7 @@ class Analytics {
       return;
     }
 
-    let configUrl = getConfigUrl(writeKey);
+    let configUrl = getConfigUrl(writeKey, this.lockIntegrationsVersion);
     if (options && options.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }

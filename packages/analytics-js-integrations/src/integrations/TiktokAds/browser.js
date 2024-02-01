@@ -75,7 +75,7 @@ class TiktokAds {
       logger.error('Event name is required');
       return;
     }
-    event = event.toLowerCase().trim();
+    event = event?.toLowerCase().trim(); // Using optional chaining as we get sometime non-string event as well
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
     if (
       !this.sendCustomEvents &&
@@ -96,7 +96,9 @@ class TiktokAds {
       });
       return;
     }
-    event = eventNameMapping[event] || event;
+    // Doc https://ads.tiktok.com/help/article/standard-events-parameters?lang=en
+    // For custom event we do not want to lower case the event or trim it we just want to send those as it is
+    event = eventNameMapping[event] || message.event;
     const updatedProperties = getTrackResponse(message);
     window.ttq.track(event, updatedProperties);
   }

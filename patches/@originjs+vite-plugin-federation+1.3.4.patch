@@ -1,17 +1,17 @@
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-index 4e00196..b302ffb 100644
+index 980b8e3..cd113f4 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-@@ -378,7 +378,7 @@ function prodRemotePlugin(options) {
+@@ -391,7 +391,7 @@ function prodRemotePlugin(options) {
                              return new Promise((resolve, reject) => {
                                  const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
                                  getUrl().then(url => {
 -                                    import(/* @vite-ignore */ url).then(lib => {
 +                                    import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
                                          if (!remote.inited) {
-                                             const shareScope = wrapShareModule(remote.from)
+                                             const shareScope = wrapShareModule(remote.from);
                                              lib.init(shareScope);
-@@ -873,12 +873,11 @@ function prodExposePlugin(options) {
+@@ -886,12 +886,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -20,17 +20,17 @@ index 4e00196..b302ffb 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
--      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}', ${item[1].dontAppendStylesToHead}, '${item[0]}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
    return {
      name: "originjs:expose-production",
-@@ -887,23 +886,6 @@ function prodExposePlugin(options) {
+@@ -900,29 +899,6 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
--    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths) => {
+-    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths, dontAppendStylesToHead, exposeItemName) => {
 -      const metaUrl = import.meta.url
 -      if (typeof metaUrl == 'undefined') {
 -        console.warn('The remote style takes effect only when the build.target option in the vite.config.ts file is higher than that of "es2020".')
@@ -42,15 +42,21 @@ index 4e00196..b302ffb 100644
 -        const href = curUrl + cssFilePath
 -        if (href in seen) return
 -        seen[href] = true
--        const element = document.head.appendChild(document.createElement('link'))
--        element.href = href
--        element.rel = 'stylesheet'
+-        if (dontAppendStylesToHead) {
+-          const key = 'css__${options.name}__' + exposeItemName;
+-          if (window[key] == null) window[key] = []
+-          window[key].push(href);
+-        } else {
+-          const element = document.head.appendChild(document.createElement('link'))
+-          element.href = href
+-          element.rel = 'stylesheet'
+-        }
 -      })
 -    };
      async function __federation_import(name) {
          return import(name);
      };
-@@ -1015,7 +997,7 @@ function prodExposePlugin(options) {
+@@ -1034,7 +1010,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -59,7 +65,7 @@ index 4e00196..b302ffb 100644
                `./${slashPath}`
              );
            }
-@@ -1087,7 +1069,7 @@ const loadJS = async (url, fn) => {
+@@ -1106,7 +1082,7 @@ const loadJS = async (url, fn) => {
    document.getElementsByTagName('head')[0].appendChild(script);
  }
  function get(name, ${REMOTE_FROM_PARAMETER}){
@@ -68,7 +74,7 @@ index 4e00196..b302ffb 100644
      if (${REMOTE_FROM_PARAMETER} === 'webpack') {
        return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
      }
-@@ -1121,7 +1103,7 @@ async function __federation_method_ensure(remoteId) {
+@@ -1140,7 +1116,7 @@ async function __federation_method_ensure(remoteId) {
        return new Promise((resolve, reject) => {
          const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
          getUrl().then(url => {
@@ -78,19 +84,19 @@ index 4e00196..b302ffb 100644
                const shareScope = wrapShareScope(remote.from)
                lib.init(shareScope);
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-index 573a237..5513825 100644
+index 57bae8f..8593467 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-@@ -361,7 +361,7 @@ function prodRemotePlugin(options) {
+@@ -374,7 +374,7 @@ function prodRemotePlugin(options) {
                              return new Promise((resolve, reject) => {
                                  const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
                                  getUrl().then(url => {
 -                                    import(/* @vite-ignore */ url).then(lib => {
 +                                    import(/* webpackIgnore: true */ /* @vite-ignore */ url).then(lib => {
                                          if (!remote.inited) {
-                                             const shareScope = wrapShareModule(remote.from)
+                                             const shareScope = wrapShareModule(remote.from);
                                              lib.init(shareScope);
-@@ -856,12 +856,11 @@ function prodExposePlugin(options) {
+@@ -869,12 +869,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -99,17 +105,17 @@ index 573a237..5513825 100644
      );
      moduleMap += `
  "${item[0]}":()=>{
--      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}')
+-      ${DYNAMIC_LOADING_CSS}('${DYNAMIC_LOADING_CSS_PREFIX}${exposeFilepath}', ${item[1].dontAppendStylesToHead}, '${item[0]}')
 -      return __federation_import('\${__federation_expose_${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
 +      return __federation_import('\${remote-${item[0]}}').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},`;
    }
    return {
      name: "originjs:expose-production",
-@@ -870,23 +869,6 @@ function prodExposePlugin(options) {
+@@ -883,29 +882,6 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
--    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths) => {
+-    export const ${DYNAMIC_LOADING_CSS} = (cssFilePaths, dontAppendStylesToHead, exposeItemName) => {
 -      const metaUrl = import.meta.url
 -      if (typeof metaUrl == 'undefined') {
 -        console.warn('The remote style takes effect only when the build.target option in the vite.config.ts file is higher than that of "es2020".')
@@ -121,15 +127,21 @@ index 573a237..5513825 100644
 -        const href = curUrl + cssFilePath
 -        if (href in seen) return
 -        seen[href] = true
--        const element = document.head.appendChild(document.createElement('link'))
--        element.href = href
--        element.rel = 'stylesheet'
+-        if (dontAppendStylesToHead) {
+-          const key = 'css__${options.name}__' + exposeItemName;
+-          if (window[key] == null) window[key] = []
+-          window[key].push(href);
+-        } else {
+-          const element = document.head.appendChild(document.createElement('link'))
+-          element.href = href
+-          element.rel = 'stylesheet'
+-        }
 -      })
 -    };
      async function __federation_import(name) {
          return import(name);
      };
-@@ -998,7 +980,7 @@ function prodExposePlugin(options) {
+@@ -1017,7 +993,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -138,7 +150,7 @@ index 573a237..5513825 100644
                `./${slashPath}`
              );
            }
-@@ -1070,7 +1052,7 @@ const loadJS = async (url, fn) => {
+@@ -1089,7 +1065,7 @@ const loadJS = async (url, fn) => {
    document.getElementsByTagName('head')[0].appendChild(script);
  }
  function get(name, ${REMOTE_FROM_PARAMETER}){
@@ -147,7 +159,7 @@ index 573a237..5513825 100644
      if (${REMOTE_FROM_PARAMETER} === 'webpack') {
        return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
      }
-@@ -1104,7 +1086,7 @@ async function __federation_method_ensure(remoteId) {
+@@ -1123,7 +1099,7 @@ async function __federation_method_ensure(remoteId) {
        return new Promise((resolve, reject) => {
          const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
          getUrl().then(url => {

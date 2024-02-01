@@ -4,9 +4,16 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
-import { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions } from './utils';
+import {
+  getTraitsToSetOnce,
+  getTraitsToIncrement,
+  getDestinationOptions,
+  getFieldsToUnset,
+  formatUrl
+} from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -18,6 +25,7 @@ class Amplitude {
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
+    this.proxyServerUrl = config.proxyServerUrl;
     this.residencyServer = config.residencyServer;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
@@ -47,13 +55,21 @@ class Amplitude {
     if (this.analytics.loadIntegration) {
       loadNativeSdk(window, document);
     }
-    
+
     const initOptions = {
       attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+
+    if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
+        if (this.proxyServerUrl.startsWith('http://')) {
+          logger.error('Please use a secured proxy server URL');
+        } else {
+          initOptions.serverUrl =  formatUrl(this.proxyServerUrl);
+        }  
+    }
 
     // EU data residency
     // Relevant doc: https://www.docs.developers.amplitude.com/data/sdks/typescript-browser/#eu-data-residency
@@ -85,14 +101,23 @@ class Amplitude {
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
-    const { userId } = rudderElement.message;
-
+    const { userId, integrations } = rudderElement.message;
+    const fieldsToUnset = getFieldsToUnset(integrations);
+    const amplitudeIdentify = new window.amplitude.Identify();
+    let sendIdentifyCall = false;
+    if (fieldsToUnset) {
+      sendIdentifyCall = true;
+      // AM Docs: https://amplitude.github.io/Amplitude-JavaScript/Identify/#identifyunset
+      fieldsToUnset.forEach(fieldToUnset => {
+        amplitudeIdentify.unset(fieldToUnset);
+      });
+    }
     if (userId) {
       window.amplitude.setUserId(userId);
     }
 
     if (traits) {
-      const amplitudeIdentify = new window.amplitude.Identify();
+      sendIdentifyCall = true;
       Object.keys(traits).forEach(trait => {
         const shouldIncrement = this.traitsToIncrement.includes(trait);
         const shouldSetOnce = this.traitsToSetOnce.includes(trait);
@@ -108,6 +133,8 @@ class Amplitude {
           amplitudeIdentify.set(trait, traits[trait]);
         }
       });
+    }
+    if (sendIdentifyCall) {
       window.amplitude.identify(amplitudeIdentify);
     }
   }

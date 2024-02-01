@@ -38,4 +38,30 @@ const getTraitsToIncrement = config => {
 const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
-export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions };
+/**
+ * Checks if there is any fieldsTounset provided and returns that list
+ * @param {*} integrations integrations object
+ */
+const getFieldsToUnset = integrations => {
+  const amplitudeIntgConfig = getDestinationOptions(integrations);
+  const fieldsToUnset = amplitudeIntgConfig?.fieldsToUnset || undefined;
+  if (fieldsToUnset && Array.isArray(fieldsToUnset) && fieldsToUnset.length > 0) {
+    return fieldsToUnset;
+  }
+  return undefined;
+};
+
+/**
+ * Formats the given URL by adding the "https://" prefix if it doesn't already have it.
+ * 
+ * @param {string} url - The URL to be formatted.
+ * @returns {string} - The formatted URL.
+ */
+function formatUrl(url) {
+  if (url.startsWith('https://')) {
+    return url;
+  } 
+    return `https://${url}`;
+  
+}
+export { getTraitsToSetOnce, getTraitsToIncrement, getDestinationOptions, getFieldsToUnset, formatUrl };

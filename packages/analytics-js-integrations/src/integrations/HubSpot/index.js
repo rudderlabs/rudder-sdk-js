@@ -1,1 +1,1 @@
-export { HubSpot } from './browser';
+export { default as HubSpot } from './browser';

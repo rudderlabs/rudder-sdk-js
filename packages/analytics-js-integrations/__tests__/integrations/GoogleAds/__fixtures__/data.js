@@ -222,6 +222,20 @@ const trackCallPayload = {
   },
 };
 
+const noEventNameTrackCallPayload = {
+  message: {
+    context: {},
+    properties: {
+      event_id: 'purchaseId',
+      order_id: mockOrderId,
+      value: 35.0,
+      shipping: 4.0,
+      currency: 'IND',
+      products,
+    },
+  },
+};
+
 export {
   products,
   mockEvents,
@@ -232,4 +246,5 @@ export {
   trackCallPayload,
   mockConversionId,
   mockEventTypeConversions,
+  noEventNameTrackCallPayload
 };
