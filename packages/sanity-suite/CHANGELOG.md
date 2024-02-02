@@ -2,6 +2,19 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.0-beta.22](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.21...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.22) (2024-02-02)
+
+
+### Features
+
+* **analytics-js:** auto expose new instance to window.rudderanalytics for npm usage ([#1599](https://github.com/rudderlabs/rudder-sdk-js/issues/1599)) ([27000ec](https://github.com/rudderlabs/rudder-sdk-js/commit/27000ec81f2d221ddaf206ceb0ed87ae2a8fc4e5))
+
+
+### Bug Fixes
+
+* **analytics-js-sanity-suite:** sort sourceConfig response destinations ([dab1928](https://github.com/rudderlabs/rudder-sdk-js/commit/dab1928ea4bb91d86999c65965e0b4a87f87a0b4))
+* **sanity-suite:** add new destination config  properties in ignore list ([b935fd7](https://github.com/rudderlabs/rudder-sdk-js/commit/b935fd70565b492e53807a384f39882a3261bcf1))
+
 ## [3.0.0-beta.21](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.0-beta.20...@rudderstack/analytics-js-sanity-suite@3.0.0-beta.21) (2024-01-19)
 
 
