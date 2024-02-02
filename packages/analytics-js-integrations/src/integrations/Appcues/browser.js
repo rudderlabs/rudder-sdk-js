@@ -6,7 +6,6 @@ import {
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
-import { type } from 'os';
 
 const logger = new Logger(DISPLAY_NAME);
 
