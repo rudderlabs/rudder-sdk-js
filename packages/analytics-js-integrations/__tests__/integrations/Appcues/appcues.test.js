@@ -47,7 +47,7 @@ describe('Appcues init tests', () => {
   });
 });
 
-describe('Amplitude identify tests', () => {
+describe('Appcues identify tests', () => {
   let appcues;
   const rudderElement = {
     message: {
@@ -98,7 +98,7 @@ describe('Amplitude identify tests', () => {
   });
 });
 
-describe('Amplitude track tests', () => {
+describe('Appcues track tests', () => {
   let appcues;
   const rudderElement = {
     message: {
@@ -139,7 +139,7 @@ describe('Amplitude track tests', () => {
   });
 });
 
-describe('Amplitude page tests', () => {
+describe('Appcues page tests', () => {
   let appcues;
   const rudderElement = {
     message: {
