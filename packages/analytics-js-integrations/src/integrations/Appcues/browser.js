@@ -57,7 +57,7 @@ class Appcues {
     const { userId } = rudderElement.message;
     // iterate through traits and flatten any properties that are objects or arrays
     Object.keys(traits).forEach(key => {
-      if (typeof traits[key] === 'object' && typeof traits[key] !== null) {
+      if ( traits[key] && typeof traits[key] === 'object' ) {
         Object.keys(traits[key]).forEach(subKey => {
           traits[`${key}.${subKey}`] = traits[key][subKey];
         });
