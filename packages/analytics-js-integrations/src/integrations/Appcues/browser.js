@@ -6,6 +6,7 @@ import {
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+import { type } from 'os';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -56,7 +57,7 @@ class Appcues {
     const { userId } = rudderElement.message;
     // iterate through traits and flatten any properties that are objects or arrays
     Object.keys(traits).forEach(key => {
-      if (typeof traits[key] === 'object') {
+      if (typeof traits[key] === 'object' && typeof traits[key] !== null) {
         Object.keys(traits[key]).forEach(subKey => {
           traits[`${key}.${subKey}`] = traits[key][subKey];
         });
