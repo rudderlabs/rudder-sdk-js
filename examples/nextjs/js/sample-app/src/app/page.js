@@ -18,9 +18,8 @@ export default function Home() {
       analytics.ready(() => {
         console.log('We are all set!!!');
       });
-
-      window.rudderanalytics = analytics;
     };
+
     initialize();
   }, []);
 

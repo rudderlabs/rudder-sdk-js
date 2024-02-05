@@ -124,7 +124,7 @@ jobs:
 
       - name: Send message to Slack channel v3
         id: slack
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v3 Browser Package Rollback'
@@ -156,7 +156,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slackv1
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v1.1 Browser Package Rollback'

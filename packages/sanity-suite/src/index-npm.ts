@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { RudderAnalytics, type LoadOptions } from '@rudderstack/analytics-js/legacy';
+import { RudderAnalytics, type LoadOptions } from '@rudderstack/analytics-js';
 import { initSanitySuite } from './testBook';
 
 const getWriteKey = () => {
@@ -52,8 +52,6 @@ const sanitySuiteApp = () => {
     console.log('We are all set!!!');
     initSanitySuite();
   });
-
-  window.rudderanalytics = rudderAnalytics;
 };
 
 sanitySuiteApp();

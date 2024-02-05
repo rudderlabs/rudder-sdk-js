@@ -34,12 +34,8 @@ jobs:
           npm run check:circular
           npm run check:duplicates
 
-      - name: Execute security checks
-        run: |
-          npm run check:security
-
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.7.0
+        uses: rudderlabs/github-action-check-size-limit@v2.9.0
         env:
           HUSKY: 0
         with:
@@ -49,3 +45,7 @@ jobs:
           clean_script: clean
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
           is_monorepo: true
+
+      - name: Execute security checks
+        run: |
+          npm run check:security
