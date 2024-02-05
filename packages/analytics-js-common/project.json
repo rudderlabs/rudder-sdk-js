@@ -97,9 +97,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.16",
-        "title": "@rudderstack/analytics-js-common@3.0.0-beta.16",
-        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.16",
+        "tag": "@rudderstack/analytics-js-common@3.0.0-beta.17",
+        "title": "@rudderstack/analytics-js-common@3.0.0-beta.17",
+        "discussion-category": "@rudderstack/analytics-js-common@3.0.0-beta.17",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     }
