@@ -8,9 +8,7 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { Event } from '@bugsnag/core';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { clone } from 'ramda';
 import {
   createNewBreadCrumb,
   getConfigForPayloadCreation,
@@ -19,6 +17,7 @@ import {
   getErrorDeliveryPayload,
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
+import { ErrorFormat } from './event';
 
 const pluginName: PluginName = 'ErrorReporting';
 
@@ -42,24 +41,18 @@ const ErrorReporting = (): ExtensionPlugin => ({
         getConfigForPayloadCreation(error, errorState.severityReason.type);
 
       // Generate the error payload
-      const errorPayload = Event.create(
+      const errorPayload = ErrorFormat.create(
         normalizedError,
         tolerateNonErrors,
         errorState,
         component,
         errorFramesToSkip,
+        logger,
       );
-
       // filter errors
       if (!isRudderSDKError(errorPayload.errors[0])) {
         return;
       }
-
-      // attach breadcrumbs
-      if (state.reporting.breadCrumbs.value.length > 0) {
-        errorPayload.breadcrumbs = clone(state.reporting.breadCrumbs.value);
-      }
-
       // enrich error payload
       const enhancedError = enhanceErrorEvent(errorPayload, errorState, state);
 

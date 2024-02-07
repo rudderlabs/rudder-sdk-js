@@ -36,7 +36,7 @@ describe('Plugin - ErrorReporting', () => {
     ErrorReporting().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('ErrorReporting')).toBe(true);
     expect(state.reporting.isErrorReportingPluginLoaded.value).toBe(true);
-    expect(state.reporting.breadCrumbs.value[0].message).toBe('Error Reporting Plugin Loaded');
+    expect(state.reporting.breadCrumbs.value[0].name).toBe('Error Reporting Plugin Loaded');
   });
 
   it('should invoke the error reporting provider plugin on notify', () => {

@@ -105,14 +105,15 @@ class ErrorHandler implements IErrorHandler {
     const isErrorReportingPluginLoaded = state.reporting.isErrorReportingPluginLoaded.value;
     try {
       if (isErrorReportingEnabled) {
+        const errorToBeSend = errorType === 'handledException' ? normalizedError : error;
         if (!isErrorReportingPluginLoaded) {
           // buffer the error
           this.errorBuffer.enqueue({
-            error: errorType === 'handledException' ? normalizedError : error,
+            error: errorToBeSend,
             errorState,
           });
         } else {
-          this.notifyError(errorType === 'handledException' ? normalizedError : error, errorState);
+          this.notifyError(errorToBeSend, errorState);
         }
       }
     } catch (e) {

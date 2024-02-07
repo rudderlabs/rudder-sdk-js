@@ -117,20 +117,12 @@ export type PluginsState = {
 export type BreadCrumbMetaData = {
   [index: string]: any;
 };
-export type BreadcrumbType =
-  | 'error'
-  | 'log'
-  | 'manual'
-  | 'navigation'
-  | 'process'
-  | 'request'
-  | 'state'
-  | 'user';
+export type BreadcrumbType = 'error' | 'manual';
 export type BreadCrumb = {
   type: BreadcrumbType;
-  message: string;
+  name: string;
   timestamp: Date;
-  metadata: BreadCrumbMetaData;
+  metaData: BreadCrumbMetaData;
 };
 
 export type ReportingState = {

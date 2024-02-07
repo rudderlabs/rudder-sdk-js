@@ -50,11 +50,15 @@ export type ErrorEventType = {
   };
 };
 
+export type GeneratedEventType = {
+  errors: Exception[];
+};
+
 export interface Exception {
+  message: string;
   errorClass: string;
-  errorMessage: string;
-  stacktrace: Stackframe[];
   type: string;
+  stacktrace: Stackframe[];
 }
 export interface Stackframe {
   file: string;

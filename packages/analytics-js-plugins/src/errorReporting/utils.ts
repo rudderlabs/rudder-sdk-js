@@ -4,7 +4,6 @@ import type {
   BreadCrumbMetaData,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import type { Event } from '@bugsnag/core';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { clone } from 'ramda';
 import type {
@@ -23,6 +22,7 @@ import {
   SOURCE_NAME,
 } from './constants';
 import { json } from '../shared-chunks/common';
+import type { ErrorFormat } from './event';
 
 const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -57,9 +57,9 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
 
 const createNewBreadCrumb = (message: string, metaData?: BreadCrumbMetaData): BreadCrumb => ({
   type: 'manual',
-  message,
+  name: message,
   timestamp: new Date(),
-  metadata: metaData || {},
+  metaData: metaData || {},
 });
 
 const getReleaseStage = () => {
@@ -78,19 +78,19 @@ const getURLWithoutSearchParam = () => {
 };
 
 const getErrorContext = (event: any) => {
-  const { errorMessage } = event;
-  let context = errorMessage;
+  const { message } = event;
+  let context = message;
 
   // Hack for easily grouping the script load errors
   // on the dashboard
-  if (errorMessage.includes('error in script loading')) {
+  if (message.includes('error in script loading')) {
     context = 'Script load failures';
   }
   return context;
 };
 
 const enhanceErrorEvent = (
-  payload: Event,
+  payload: ErrorFormat,
   errorState: ErrorState,
   state: ApplicationState,
 ): ErrorEventPayload => ({
@@ -119,7 +119,7 @@ const enhanceErrorEvent = (
         url: getURLWithoutSearchParam() as string,
         clientIp: '[NOT COLLECTED]',
       },
-      breadcrumbs: payload.breadcrumbs,
+      breadcrumbs: clone(state.reporting.breadCrumbs.value),
       context: getErrorContext(payload.errors[0]),
       metaData: {
         SDK: {
@@ -173,6 +173,23 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
   return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
 
+const hasStack = (err: any) =>
+  !!err &&
+  (!!err.stack || !!err.stacktrace || !!err['opera#sourceloc']) &&
+  typeof (err.stack || err.stacktrace || err['opera#sourceloc']) === 'string' &&
+  err.stack !== `${err.name}: ${err.message}`;
+
+const isError = (value: any) => {
+  switch (Object.prototype.toString.call(value)) {
+    case '[object Error]':
+    case '[object Exception]':
+    case '[object DOMException]':
+      return true;
+    default:
+      return value instanceof Error;
+  }
+};
+
 export {
   getConfigForPayloadCreation,
   createNewBreadCrumb,
@@ -183,4 +200,6 @@ export {
   isRudderSDKError,
   getErrorDeliveryPayload,
   getErrorContext,
+  hasStack,
+  isError,
 };

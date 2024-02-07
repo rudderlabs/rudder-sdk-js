@@ -1,7 +1,6 @@
-import { state } from '@rudderstack/analytics-js/state';
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
-import { Event } from '@bugsnag/core';
+import { ErrorFormat } from '../../src/errorReporting/event';
 import * as errorReportingConstants from '../../src/errorReporting/constants';
 import {
   getReleaseStage,
@@ -25,10 +24,10 @@ describe('Error Reporting utilities', () => {
       const breadcrumb = createNewBreadCrumb(msg);
 
       expect(breadcrumb).toStrictEqual({
-        metadata: {},
+        metaData: {},
         type: 'manual',
         timestamp: expect.any(Date),
-        message: msg,
+        name: msg,
       });
     });
   });
@@ -119,7 +118,7 @@ describe('Error Reporting utilities', () => {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'test error message',
+        message: 'test error message',
       };
 
       const context = getErrorContext(event);
@@ -135,7 +134,7 @@ describe('Error Reporting utilities', () => {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
+        message: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       };
 
       const context = getErrorContext(event);
@@ -296,7 +295,7 @@ describe('Error Reporting utilities', () => {
         unhandled: false,
         severityReason: { type: 'handledException' },
       };
-      const errorPayload = Event.create(normalizedError, true, errorState, 'notify()', 2);
+      const errorPayload = ErrorFormat.create(normalizedError, true, errorState, 'notify()', 2);
 
       const appState = {
         context: {
@@ -307,7 +306,9 @@ describe('Error Reporting utilities', () => {
         lifecycle: {
           writeKey: signal('sample-write-key'),
         },
-        breadCrumbs: signal([]),
+        reporting: {
+          breadCrumbs: signal([]),
+        },
         source: signal({ id: 'sample_source_id' }),
       };
       (window as any).RudderSnippetVersion = 'sample_snippet_version';
@@ -325,7 +326,7 @@ describe('Error Reporting utilities', () => {
             exceptions: [
               {
                 errorClass: 'Error',
-                errorMessage: 'ReferenceError: testUndefinedFn is not defined',
+                message: 'ReferenceError: testUndefinedFn is not defined',
                 type: 'browserjs',
                 stacktrace: [
                   {
@@ -375,7 +376,9 @@ describe('Error Reporting utilities', () => {
                 lifecycle: {
                   writeKey: 'sample-write-key',
                 },
-                breadCrumbs: [],
+                reporting: {
+                  breadCrumbs: [],
+                },
                 source: {
                   id: 'sample_source_id',
                 },
