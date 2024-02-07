@@ -35,7 +35,7 @@ jobs:
           npm run check:duplicates
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.7.0
+        uses: rudderlabs/github-action-check-size-limit@v2.9.0
         env:
           HUSKY: 0
         with:
