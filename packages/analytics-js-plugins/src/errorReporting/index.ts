@@ -17,7 +17,7 @@ import {
   getErrorDeliveryPayload,
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
-import { ErrorFormat } from './event';
+import { ErrorFormat } from './event/event';
 
 const pluginName: PluginName = 'ErrorReporting';
 
@@ -40,6 +40,11 @@ const ErrorReporting = (): ExtensionPlugin => ({
       const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
         getConfigForPayloadCreation(error, errorState.severityReason.type);
 
+      // filter errors
+      if (!isRudderSDKError(normalizedError)) {
+        return;
+      }
+
       // Generate the error payload
       const errorPayload = ErrorFormat.create(
         normalizedError,
@@ -49,10 +54,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
         errorFramesToSkip,
         logger,
       );
-      // filter errors
-      if (!isRudderSDKError(errorPayload.errors[0])) {
-        return;
-      }
+
       // enrich error payload
       const enhancedError = enhanceErrorEvent(errorPayload, errorState, state);
 

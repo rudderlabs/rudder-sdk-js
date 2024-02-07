@@ -22,7 +22,7 @@ import {
   SOURCE_NAME,
 } from './constants';
 import { json } from '../shared-chunks/common';
-import type { ErrorFormat } from './event';
+import type { ErrorFormat } from './event/event';
 
 const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -32,7 +32,7 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
         component: 'unhandledException handler',
         tolerateNonErrors: true,
         errorFramesToSkip: 1,
-        normalizedError: error,
+        normalizedError: error || err,
       };
     }
     case 'unhandledPromiseRejection': {
@@ -83,7 +83,7 @@ const getErrorContext = (event: any) => {
 
   // Hack for easily grouping the script load errors
   // on the dashboard
-  if (message.includes('error in script loading')) {
+  if (message.includes('Error in loading a third-party script')) {
     context = 'Script load failures';
   }
   return context;
@@ -139,23 +139,23 @@ const enhanceErrorEvent = (
   ],
 });
 
+const hasStack = (err: any) =>
+  !!err &&
+  (!!err.stack || !!err.stacktrace || !!err['opera#sourceloc']) &&
+  typeof (err.stack || err.stacktrace || err['opera#sourceloc']) === 'string' &&
+  err.stack !== `${err.name}: ${err.message}`;
+
 const isRudderSDKError = (event: any) => {
-  const errorOrigin = event.stacktrace?.[0]?.file;
-
-  if (!errorOrigin || typeof errorOrigin !== 'string') {
-    return false;
+  if (hasStack(event)) {
+    const errorOrigin = event.stack || event.stacktrace;
+    // Prefix folder for all the destination SDK scripts
+    const isDestinationIntegrationBundle = errorOrigin.includes(CDN_INT_DIR);
+    return (
+      isDestinationIntegrationBundle ||
+      SDK_FILE_NAME_PREFIXES().some(prefix => errorOrigin.includes(prefix))
+    );
   }
-
-  // Prefix folder for all the destination SDK scripts
-  const isDestinationIntegrationBundle = errorOrigin.includes(CDN_INT_DIR);
-  const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
-
-  return (
-    isDestinationIntegrationBundle ||
-    SDK_FILE_NAME_PREFIXES().some(
-      prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
-    )
-  );
+  return true;
 };
 
 const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {
@@ -172,12 +172,6 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
   };
   return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
-
-const hasStack = (err: any) =>
-  !!err &&
-  (!!err.stack || !!err.stacktrace || !!err['opera#sourceloc']) &&
-  typeof (err.stack || err.stacktrace || err['opera#sourceloc']) === 'string' &&
-  err.stack !== `${err.name}: ${err.message}`;
 
 const isError = (value: any) => {
   switch (Object.prototype.toString.call(value)) {

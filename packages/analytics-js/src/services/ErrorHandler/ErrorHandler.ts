@@ -85,11 +85,7 @@ class ErrorHandler implements IErrorHandler {
     if (!errorMessage) {
       return;
     }
-    const errorState: ErrorState = {
-      severity: 'error',
-      unhandled: errorType !== 'handledException',
-      severityReason: { type: errorType },
-    };
+
     errorMessage = removeDoubleSpaces(
       `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
     );
@@ -105,7 +101,17 @@ class ErrorHandler implements IErrorHandler {
     const isErrorReportingPluginLoaded = state.reporting.isErrorReportingPluginLoaded.value;
     try {
       if (isErrorReportingEnabled) {
-        const errorToBeSend = errorType === 'handledException' ? normalizedError : error;
+        const errorState: ErrorState = {
+          severity: 'error',
+          unhandled: errorType !== 'handledException',
+          severityReason: { type: errorType },
+        };
+        const errorToBeSend =
+          errorType === 'handledException' ||
+          errorMessage.startsWith('Error in loading a third-party script')
+            ? normalizedError
+            : error;
+
         if (!isErrorReportingPluginLoaded) {
           // buffer the error
           this.errorBuffer.enqueue({

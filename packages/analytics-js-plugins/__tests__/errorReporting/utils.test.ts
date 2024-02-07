@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
-import { ErrorFormat } from '../../src/errorReporting/event';
+import { ErrorFormat } from '../../src/errorReporting/event/event';
 import * as errorReportingConstants from '../../src/errorReporting/constants';
 import {
   getReleaseStage,
@@ -75,38 +75,40 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('isRudderSDKError', () => {
-    const domain = 'https://invalid-domain.com';
-    const testCaseData = [
-      [`${domain}/rsa.min.js`, true],
-      [`${domain}/rss.min.js`, false],
-      [`${domain}/rsa-plugins-Beacon.min.js`, true],
-      [`${domain}/Amplitude.min.js`, false],
-      [`${domain}/js-integrations/Amplitude.min.js`, true],
-      [`${domain}/js-integrations/Qualaroo.min.js`, true],
-      [`${domain}/test.js`, false],
-      [`${domain}/rsa.css`, false],
-      [undefined, false],
-      [null, false],
-      [1, false],
-      ['', false],
-      ['asdf.com', false],
-    ];
+    const newError = new Error('ReferenceError: testUndefinedFn is not defined');
 
-    it.each(testCaseData)(
-      'if script src is "%s" then it should return the value as "%s" ',
-      (scriptSrc, expectedValue) => {
-        // Bugsnag error event object structure
-        const event = {
-          stacktrace: [
-            {
-              file: scriptSrc,
-            },
-          ],
-        };
-
-        expect(isRudderSDKError(event)).toBe(expectedValue);
-      },
-    );
+    it('should return true if error generate from sdk', () => {
+      const normalizedError = Object.create(newError, {
+        stack: {
+          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1666:84)`,
+        },
+      });
+      expect(isRudderSDKError(normalizedError)).toBe(true);
+    });
+    it('should return false if error generate from sdk', () => {
+      const normalizedError = Object.create(newError, {
+        stack: {
+          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/abc.js:1666:84)`,
+        },
+      });
+      expect(isRudderSDKError(normalizedError)).toBe(false);
+    });
+    it('should return true if error generate from integration sdk', () => {
+      const normalizedError = Object.create(newError, {
+        stack: {
+          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/js-integrations/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/js-integrations/abc.js:1666:84)`,
+        },
+      });
+      expect(isRudderSDKError(normalizedError)).toBe(true);
+    });
+    it('should return false if error generate from integration sdk', () => {
+      const normalizedError = Object.create(newError, {
+        stack: {
+          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/abc.js:1666:84)`,
+        },
+      });
+      expect(isRudderSDKError(normalizedError)).toBe(false);
+    });
   });
 
   describe('getErrorContext', () => {
@@ -134,7 +136,7 @@ describe('Error Reporting utilities', () => {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        message: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
+        message: 'Error in loading a third-party script "https://invalid-domain.com/rsa.min.js"',
       };
 
       const context = getErrorContext(event);
