@@ -96,7 +96,7 @@ class PluginsManager implements IPluginsManager {
     // Error reporting related plugins
     if (!state.reporting.isErrorReportingEnabled.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => !(pluginName === 'ErrorReporting'),
+        pluginName => pluginName !== 'ErrorReporting',
       );
     }
 

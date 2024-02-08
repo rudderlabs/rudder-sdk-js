@@ -59,7 +59,7 @@ const createNewBreadCrumb = (message: string, metaData?: BreadCrumbMetaData): Br
   type: 'manual',
   name: message,
   timestamp: new Date(),
-  metaData: metaData || {},
+  metaData: metaData ?? {},
 });
 
 const getReleaseStage = () => {
@@ -111,7 +111,7 @@ const enhanceErrorEvent = (
         releaseStage: getReleaseStage(),
       },
       device: {
-        locale: state.context.locale.value || undefined,
+        locale: state.context.locale.value ?? undefined,
         userAgent: state.context.userAgent.value || undefined,
         time: new Date(),
       },
@@ -122,12 +122,12 @@ const enhanceErrorEvent = (
       breadcrumbs: clone(state.reporting.breadCrumbs.value),
       context: getErrorContext(payload.errors[0]),
       metaData: {
-        SDK: {
+        sdk: {
           name: 'JS',
           installType: '__MODULE_TYPE__',
         },
-        STATE: getAppStateForMetadata(state),
-        SOURCE: {
+        state: getAppStateForMetadata(state),
+        source: {
           id: state.source.value?.id,
           snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
         },

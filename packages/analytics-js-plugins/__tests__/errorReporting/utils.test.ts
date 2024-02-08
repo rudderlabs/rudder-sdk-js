@@ -363,11 +363,11 @@ describe('Error Reporting utilities', () => {
             breadcrumbs: [],
             context: 'ReferenceError: testUndefinedFn is not defined',
             metaData: {
-              SDK: {
+              sdk: {
                 name: 'JS',
                 installType: '__MODULE_TYPE__',
               },
-              STATE: {
+              state: {
                 context: {
                   userAgent: 'sample user agent',
                   locale: 'en-GB',
@@ -385,7 +385,7 @@ describe('Error Reporting utilities', () => {
                   id: 'sample_source_id',
                 },
               },
-              SOURCE: {
+              source: {
                 id: 'sample_source_id',
                 snippetVersion: 'sample_snippet_version',
               },
@@ -457,11 +457,11 @@ describe('Error Reporting utilities', () => {
             breadcrumbs: [],
             context: 'ReferenceError: testUndefinedFn is not defined',
             metaData: {
-              SDK: {
+              sdk: {
                 name: 'JS',
                 installType: '__MODULE_TYPE__',
               },
-              STATE: {
+              state: {
                 context: {
                   userAgent: 'sample user agent',
                   locale: 'en-GB',

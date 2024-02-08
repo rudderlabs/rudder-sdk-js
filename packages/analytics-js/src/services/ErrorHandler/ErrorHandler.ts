@@ -16,7 +16,11 @@ import { NOTIFY_FAILURE_ERROR } from '../../constants/logMessages';
 import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
-import { isAllowedToBeNotified, processError } from './processError';
+import {
+  isAllowedToBeNotified,
+  normalizeErrorMessageForUnhandledError,
+  processError,
+} from './processError';
 
 /**
  * A service to handle errors
@@ -78,23 +82,36 @@ class ErrorHandler implements IErrorHandler {
     shouldAlwaysThrow = false,
     errorType = 'handledException',
   ) {
-    // Error handling is already implemented in processError method
-    let errorMessage = processError(error);
+    let normalizedError;
+    let errorMessage;
+    if (errorType === 'handledException') {
+      errorMessage = processError(error);
 
-    // If no error message after we normalize, then we swallow/ignore the errors
-    if (!errorMessage) {
-      return;
-    }
+      // If no error message after we normalize, then we swallow/ignore the errors
+      if (!errorMessage) {
+        return;
+      }
 
-    errorMessage = removeDoubleSpaces(
-      `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
-    );
+      errorMessage = removeDoubleSpaces(
+        `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
+      );
 
-    let normalizedError = new Error(errorMessage);
-    if (isTypeOfError(error)) {
-      normalizedError = Object.create(error, {
-        message: { value: errorMessage },
-      });
+      normalizedError = new Error(errorMessage);
+      if (isTypeOfError(error)) {
+        normalizedError = Object.create(error, {
+          message: { value: errorMessage },
+        });
+      }
+    } else {
+      errorMessage = normalizeErrorMessageForUnhandledError(error);
+      if (!errorMessage) {
+        return;
+      }
+      normalizedError = errorMessage.startsWith('Error in loading a third-party script')
+        ? Object.create(error as Event, {
+            message: { value: errorMessage },
+          })
+        : error;
     }
 
     const isErrorReportingEnabled = state.reporting.isErrorReportingEnabled.value;
@@ -106,20 +123,15 @@ class ErrorHandler implements IErrorHandler {
           unhandled: errorType !== 'handledException',
           severityReason: { type: errorType },
         };
-        const errorToBeSend =
-          errorType === 'handledException' ||
-          errorMessage.startsWith('Error in loading a third-party script')
-            ? normalizedError
-            : error;
 
         if (!isErrorReportingPluginLoaded) {
           // buffer the error
           this.errorBuffer.enqueue({
-            error: errorToBeSend,
+            error: normalizedError,
             errorState,
           });
         } else {
-          this.notifyError(errorToBeSend, errorState);
+          this.notifyError(normalizedError, errorState);
         }
       }
     } catch (e) {

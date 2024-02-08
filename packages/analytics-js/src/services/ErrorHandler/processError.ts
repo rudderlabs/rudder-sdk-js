@@ -17,23 +17,6 @@ const processError = (error: SDKError): string => {
       errorMessage = error.message;
     } else if (error instanceof ErrorEvent) {
       errorMessage = error.message;
-    }
-    // TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
-    else if (error instanceof Event) {
-      const eventTarget = error.target as ErrorTarget;
-      // Discard all the non-script loading errors
-      if (eventTarget && eventTarget.localName !== 'script') {
-        return '';
-      }
-      // Discard script errors that are not originated at SDK or from native SDKs
-      if (
-        eventTarget?.dataset &&
-        (eventTarget.dataset.loader !== LOAD_ORIGIN ||
-          eventTarget.dataset.isnonnativesdk !== 'true')
-      ) {
-        return '';
-      }
-      errorMessage = `Error in loading a third-party script from URL ${eventTarget?.src} with ID ${eventTarget?.id}.`;
     } else {
       errorMessage = (error as any).message
         ? (error as any).message
@@ -44,6 +27,30 @@ const processError = (error: SDKError): string => {
   }
 
   return errorMessage;
+};
+
+const normalizeErrorMessageForUnhandledError = (error: SDKError): string => {
+  let errorMessage;
+  if (error instanceof PromiseRejectionEvent && error.reason) {
+    return error.reason;
+  }
+  // TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
+  if (error instanceof Event) {
+    const eventTarget = error.target as ErrorTarget;
+    // Discard all the non-script loading errors
+    if (eventTarget && eventTarget.localName !== 'script') {
+      return '';
+    }
+    // Discard script errors that are not originated at SDK or from native SDKs
+    if (
+      eventTarget?.dataset &&
+      (eventTarget.dataset.loader !== LOAD_ORIGIN || eventTarget.dataset.isnonnativesdk !== 'true')
+    ) {
+      return '';
+    }
+    errorMessage = `Error in loading a third-party script from URL ${eventTarget?.src} with ID ${eventTarget?.id}.`;
+  }
+  return errorMessage ?? '';
 };
 
 /**
@@ -61,4 +68,4 @@ const isAllowedToBeNotified = (error: SDKError) => {
   return true;
 };
 
-export { processError, isAllowedToBeNotified };
+export { processError, isAllowedToBeNotified, normalizeErrorMessageForUnhandledError };
