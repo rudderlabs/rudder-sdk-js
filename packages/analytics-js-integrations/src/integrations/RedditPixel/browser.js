@@ -24,7 +24,7 @@ class RedditPixel {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.advertiserId = config.advertiserId;
+    this.pixelId = config.advertiserId;
     this.name = NAME;
     this.eventMappingFromConfig = config.eventMappingFromConfig;
     ({
@@ -35,11 +35,11 @@ class RedditPixel {
   }
 
   init() {
-    loadNativeSdk(this.advertiserId);
+    loadNativeSdk(this.pixelId);
   }
 
   isLoaded() {
-    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
+    return !!(window.rdt && window.rdt.pixelId === this.pixelId);
   }
 
   isReady() {
