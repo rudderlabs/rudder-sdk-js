@@ -39,7 +39,7 @@ class RedditPixel {
   }
 
   isLoaded() {
-    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
+    return !!(window.rdt && window.rdt.pixelId === this.advertiserId);
   }
 
   isReady() {
