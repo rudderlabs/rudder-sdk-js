@@ -19,7 +19,7 @@ import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
 import {
   isAllowedToBeNotified,
-  normalizeErrorMessageForUnhandledError,
+  getNormalizedErrorForUnhandledError,
   processError,
 } from './processError';
 
@@ -104,15 +104,7 @@ class ErrorHandler implements IErrorHandler {
         });
       }
     } else {
-      errorMessage = normalizeErrorMessageForUnhandledError(error);
-      if (!errorMessage) {
-        return;
-      }
-      normalizedError = errorMessage.startsWith('Error in loading a third-party script')
-        ? Object.create(error as Event, {
-            message: { value: errorMessage },
-          })
-        : error;
+      normalizedError = getNormalizedErrorForUnhandledError(error);
     }
 
     const isErrorReportingEnabled = state.reporting.isErrorReportingEnabled.value;

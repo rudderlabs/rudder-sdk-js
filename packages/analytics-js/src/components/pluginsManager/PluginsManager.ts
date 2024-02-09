@@ -19,8 +19,11 @@ import {
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
-import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
-import { pluginNamesList } from './pluginNames';
+import {
+  DEPRECATED_PLUGIN_WARNING,
+  UNSUPPORTED_BEACON_API_WARNING,
+} from '../../constants/logMessages';
+import { deprecatedPluginsList, pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -92,6 +95,15 @@ class PluginsManager implements IPluginsManager {
     if (!pluginsToLoadFromConfig) {
       return [];
     }
+
+    // Filter deprecated plugins
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+      if (deprecatedPluginsList.includes(pluginName)) {
+        this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+        return true;
+      }
+      return false;
+    });
 
     // Error reporting related plugins
     if (!state.reporting.isErrorReportingEnabled.value) {
