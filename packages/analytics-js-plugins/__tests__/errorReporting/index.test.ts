@@ -13,7 +13,7 @@ describe('Plugin - ErrorReporting', () => {
     },
     reporting: {
       isErrorReportingPluginLoaded: signal(false),
-      breadCrumbs: signal([]),
+      breadcrumbs: signal([]),
     },
     context: {
       locale: signal('en-GB'),
@@ -36,7 +36,7 @@ describe('Plugin - ErrorReporting', () => {
     ErrorReporting().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('ErrorReporting')).toBe(true);
     expect(state.reporting.isErrorReportingPluginLoaded.value).toBe(true);
-    expect(state.reporting.breadCrumbs.value[0].name).toBe('Error Reporting Plugin Loaded');
+    expect(state.reporting.breadcrumbs.value[0].name).toBe('Error Reporting Plugin Loaded');
   });
 
   it('should invoke the error reporting provider plugin on notify', () => {
@@ -66,9 +66,9 @@ describe('Plugin - ErrorReporting', () => {
   });
 
   it('should add a new breadcrumb', () => {
-    const breadcrumbLength = state.reporting.breadCrumbs.value.length;
+    const breadcrumbLength = state.reporting.breadcrumbs.value.length;
     ErrorReporting().errorReporting.breadcrumb('dummy breadcrumb', state);
 
-    expect(state.reporting.breadCrumbs.value.length).toBe(breadcrumbLength + 1);
+    expect(state.reporting.breadcrumbs.value.length).toBe(breadcrumbLength + 1);
   });
 });

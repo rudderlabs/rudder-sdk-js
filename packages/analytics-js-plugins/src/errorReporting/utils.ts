@@ -1,9 +1,13 @@
 import type {
   ApplicationState,
-  BreadCrumb,
-  BreadCrumbMetaData,
+  Breadcrumb,
+  BreadcrumbMetaData,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import {
+  ErrorType,
+  type ErrorState,
+  type SDKError,
+} from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { clone } from 'ramda';
 import type {
@@ -11,7 +15,7 @@ import type {
   MetricServicePayload,
 } from '@rudderstack/analytics-js-common/types/Metrics';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { METRIC_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
+import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   APP_STATE_EXCLUDE_KEYS,
@@ -23,10 +27,11 @@ import {
 } from './constants';
 import { json } from '../shared-chunks/common';
 import type { ErrorFormat } from './event/event';
+import { hasStack } from './event/utils';
 
 const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
   switch (errorType) {
-    case 'unhandledException': {
+    case ErrorType.UNHANDLEDEXCEPTION: {
       const { error } = err as ErrorEvent;
       return {
         component: 'unhandledException handler',
@@ -35,7 +40,7 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
         normalizedError: error || err,
       };
     }
-    case 'unhandledPromiseRejection': {
+    case ErrorType.UNHANDLEDREJECTION: {
       const error = err as PromiseRejectionEvent;
       return {
         component: 'unhandledrejection handler',
@@ -44,7 +49,7 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
         normalizedError: error.reason,
       };
     }
-    case 'handledException':
+    case ErrorType.HANDLEDEXCEPTION:
     default:
       return {
         component: 'notify()',
@@ -55,7 +60,7 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
   }
 };
 
-const createNewBreadCrumb = (message: string, metaData?: BreadCrumbMetaData): BreadCrumb => ({
+const createNewBreadcrumb = (message: string, metaData?: BreadcrumbMetaData): Breadcrumb => ({
   type: 'manual',
   name: message,
   timestamp: new Date(),
@@ -72,7 +77,7 @@ const getAppStateForMetadata = (state: ApplicationState): Record<string, any> =>
   return stateStr !== null ? JSON.parse(stateStr) : {};
 };
 
-const getURLWithoutSearchParam = () => {
+const getURLWithoutQueryString = () => {
   const url = globalThis.location.href.split('?');
   return url[0];
 };
@@ -89,7 +94,7 @@ const getErrorContext = (event: any) => {
   return context;
 };
 
-const enhanceErrorEvent = (
+const getBugsnagErrorEvent = (
   payload: ErrorFormat,
   errorState: ErrorState,
   state: ApplicationState,
@@ -116,10 +121,10 @@ const enhanceErrorEvent = (
         time: new Date(),
       },
       request: {
-        url: getURLWithoutSearchParam() as string,
+        url: getURLWithoutQueryString() as string,
         clientIp: '[NOT COLLECTED]',
       },
-      breadcrumbs: clone(state.reporting.breadCrumbs.value),
+      breadcrumbs: clone(state.reporting.breadcrumbs.value),
       context: getErrorContext(payload.errors[0]),
       metaData: {
         sdk: {
@@ -128,7 +133,7 @@ const enhanceErrorEvent = (
         },
         state: getAppStateForMetadata(state),
         source: {
-          id: state.source.value?.id,
+          id: state.source?.value?.id,
           snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
         },
       },
@@ -138,12 +143,6 @@ const enhanceErrorEvent = (
     },
   ],
 });
-
-const hasStack = (err: any) =>
-  !!err &&
-  (!!err.stack || !!err.stacktrace || !!err['opera#sourceloc']) &&
-  typeof (err.stack || err.stacktrace || err['opera#sourceloc']) === 'string' &&
-  err.stack !== `${err.name}: ${err.message}`;
 
 const isRudderSDKError = (event: any) => {
   if (hasStack(event)) {
@@ -160,7 +159,7 @@ const isRudderSDKError = (event: any) => {
 
 const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {
   const data = {
-    version: METRIC_PAYLOAD_VERSION,
+    version: METRICS_PAYLOAD_VERSION,
     message_id: generateUUID(),
     source: {
       name: SOURCE_NAME,
@@ -173,27 +172,14 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
   return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
 
-const isError = (value: any) => {
-  switch (Object.prototype.toString.call(value)) {
-    case '[object Error]':
-    case '[object Exception]':
-    case '[object DOMException]':
-      return true;
-    default:
-      return value instanceof Error;
-  }
-};
-
 export {
   getConfigForPayloadCreation,
-  createNewBreadCrumb,
+  createNewBreadcrumb,
   getReleaseStage,
   getAppStateForMetadata,
-  enhanceErrorEvent,
-  getURLWithoutSearchParam,
+  getBugsnagErrorEvent,
+  getURLWithoutQueryString,
   isRudderSDKError,
   getErrorDeliveryPayload,
   getErrorContext,
-  hasStack,
-  isError,
 };

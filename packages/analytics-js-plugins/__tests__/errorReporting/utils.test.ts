@@ -7,9 +7,9 @@ import {
   isRudderSDKError,
   getAppStateForMetadata,
   getErrorContext,
-  createNewBreadCrumb,
-  getURLWithoutSearchParam,
-  enhanceErrorEvent,
+  createNewBreadcrumb,
+  getURLWithoutQueryString,
+  getBugsnagErrorEvent,
   getErrorDeliveryPayload,
 } from '../../src/errorReporting/utils';
 
@@ -18,10 +18,10 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 describe('Error Reporting utilities', () => {
-  describe('createNewBreadCrumb', () => {
+  describe('createNewBreadcrumb', () => {
     it('should create and return a breadcrumb ', () => {
       const msg = 'sample message';
-      const breadcrumb = createNewBreadCrumb(msg);
+      const breadcrumb = createNewBreadcrumb(msg);
 
       expect(breadcrumb).toStrictEqual({
         metaData: {},
@@ -32,10 +32,10 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('getURLWithoutSearchParam', () => {
+  describe('getURLWithoutQueryString', () => {
     it('should return url without query param ', () => {
       (window as any).location.href = 'http://www.test-host.com?key1=1234&key2=true';
-      const urlWithoutSearchParam = getURLWithoutSearchParam();
+      const urlWithoutSearchParam = getURLWithoutQueryString();
       expect(urlWithoutSearchParam).toEqual('http://www.test-host.com/');
     });
   });
@@ -283,7 +283,7 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('enhanceErrorEvent', () => {
+  describe('getBugsnagErrorEvent', () => {
     it('should return enhanced error event payload', () => {
       const newError = new Error();
       const normalizedError = Object.create(newError, {
@@ -309,12 +309,12 @@ describe('Error Reporting utilities', () => {
           writeKey: signal('sample-write-key'),
         },
         reporting: {
-          breadCrumbs: signal([]),
+          breadcrumbs: signal([]),
         },
         source: signal({ id: 'sample_source_id' }),
       };
       (window as any).RudderSnippetVersion = 'sample_snippet_version';
-      const enhancedError = enhanceErrorEvent(errorPayload, errorState, appState);
+      const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, appState);
       console.log(JSON.stringify(enhancedError));
       const expectedOutcome = {
         notifier: {
@@ -379,7 +379,7 @@ describe('Error Reporting utilities', () => {
                   writeKey: 'sample-write-key',
                 },
                 reporting: {
-                  breadCrumbs: [],
+                  breadcrumbs: [],
                 },
                 source: {
                   id: 'sample_source_id',
@@ -470,7 +470,7 @@ describe('Error Reporting utilities', () => {
                 lifecycle: {
                   writeKey: 'sample-write-key',
                 },
-                breadCrumbs: [],
+                breadcrumbs: [],
               },
             },
             user: {

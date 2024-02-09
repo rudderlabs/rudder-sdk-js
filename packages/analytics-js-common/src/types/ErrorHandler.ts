@@ -37,3 +37,9 @@ export type PreLoadErrorData = {
   error: SDKError;
   errorState: ErrorState;
 };
+
+export enum ErrorType {
+  HANDLEDEXCEPTION = 'handledException',
+  UNHANDLEDEXCEPTION = 'unhandledException',
+  UNHANDLEDREJECTION = 'unhandledPromiseRejection',
+}

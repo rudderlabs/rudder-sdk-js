@@ -1,11 +1,12 @@
 import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
-import type {
-  ErrorState,
-  IErrorHandler,
-  PreLoadErrorData,
-  SDKError,
+import {
+  ErrorType,
+  type ErrorState,
+  type IErrorHandler,
+  type PreLoadErrorData,
+  type SDKError,
 } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
@@ -57,13 +58,13 @@ class ErrorHandler implements IErrorHandler {
   attachErrorListeners() {
     if ('addEventListener' in (globalThis as typeof window)) {
       (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, undefined, 'unhandledException');
+        this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
       });
 
       (globalThis as typeof window).addEventListener(
         'unhandledrejection',
         (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
+          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
         },
       );
     } else {
@@ -80,11 +81,11 @@ class ErrorHandler implements IErrorHandler {
     context = '',
     customMessage = '',
     shouldAlwaysThrow = false,
-    errorType = 'handledException',
+    errorType = ErrorType.HANDLEDEXCEPTION,
   ) {
     let normalizedError;
     let errorMessage;
-    if (errorType === 'handledException') {
+    if (errorType === ErrorType.HANDLEDEXCEPTION) {
       errorMessage = processError(error);
 
       // If no error message after we normalize, then we swallow/ignore the errors
@@ -120,7 +121,7 @@ class ErrorHandler implements IErrorHandler {
       if (isErrorReportingEnabled) {
         const errorState: ErrorState = {
           severity: 'error',
-          unhandled: errorType !== 'handledException',
+          unhandled: errorType !== ErrorType.HANDLEDEXCEPTION,
           severityReason: { type: errorType },
         };
 
@@ -138,7 +139,7 @@ class ErrorHandler implements IErrorHandler {
       this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
     }
 
-    if (errorType === 'handledException') {
+    if (errorType === ErrorType.HANDLEDEXCEPTION) {
       if (this.logger) {
         this.logger.error(errorMessage);
 

@@ -11,6 +11,6 @@ module.exports = [
   {
     name: 'Remote Module Federated Plugins - CDN',
     path: 'dist/cdn/modern/plugins/rsa-plugins-*.js',
-    limit: '8.5 KiB',
+    limit: '7.5 KiB',
   },
 ];

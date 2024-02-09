@@ -114,22 +114,22 @@ export type PluginsState = {
   totalPluginsToLoad: Signal<number>;
 };
 
-export type BreadCrumbMetaData = {
+export type BreadcrumbMetaData = {
   [index: string]: any;
 };
 export type BreadcrumbType = 'error' | 'manual';
-export type BreadCrumb = {
+export type Breadcrumb = {
   type: BreadcrumbType;
   name: string;
   timestamp: Date;
-  metaData: BreadCrumbMetaData;
+  metaData: BreadcrumbMetaData;
 };
 
 export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
   isErrorReportingPluginLoaded: Signal<boolean>;
-  breadCrumbs: Signal<BreadCrumb[]>;
+  breadcrumbs: Signal<Breadcrumb[]>;
 };
 
 export type SessionState = {

@@ -1,4 +1,4 @@
-import type { BreadCrumb } from './ApplicationState';
+import type { Breadcrumb } from './ApplicationState';
 
 export type MetricServicePayload = {
   version: string;
@@ -40,7 +40,7 @@ export type ErrorEventType = {
     url: string;
     clientIp: string;
   };
-  breadcrumbs: BreadCrumb[] | [];
+  breadcrumbs: Breadcrumb[] | [];
   context: string;
   metaData: {
     [index: string]: any;

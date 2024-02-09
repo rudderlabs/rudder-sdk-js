@@ -5,7 +5,7 @@ const reportingState: ReportingState = {
   isErrorReportingEnabled: signal(false),
   isMetricsReportingEnabled: signal(false),
   isErrorReportingPluginLoaded: signal(false),
-  breadCrumbs: signal([]),
+  breadcrumbs: signal([]),
 };
 
 export { reportingState };

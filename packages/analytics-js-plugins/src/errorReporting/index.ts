@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 import type {
   ApplicationState,
-  BreadCrumbMetaData,
+  BreadcrumbMetaData,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -10,10 +10,10 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import {
-  createNewBreadCrumb,
+  createNewBreadcrumb,
   getConfigForPayloadCreation,
   isRudderSDKError,
-  enhanceErrorEvent,
+  getBugsnagErrorEvent,
   getErrorDeliveryPayload,
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
@@ -27,7 +27,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
     state.reporting.isErrorReportingPluginLoaded.value = true;
-    state.reporting.breadCrumbs.value = [createNewBreadCrumb('Error Reporting Plugin Loaded')];
+    state.reporting.breadcrumbs.value = [createNewBreadcrumb('Error Reporting Plugin Loaded')];
   },
   errorReporting: {
     notify: (
@@ -56,7 +56,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
       );
 
       // enrich error payload
-      const enhancedError = enhanceErrorEvent(errorPayload, errorState, state);
+      const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState, state);
 
       // send it to metrics service
       httpClient.getAsyncData({
@@ -64,7 +64,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
         // url: `${state.lifecycle.dataPlaneUrl.value}/sdk-metrics`,
         options: {
           method: 'POST',
-          data: getErrorDeliveryPayload(enhancedError, state),
+          data: getErrorDeliveryPayload(bugsnagPayload, state),
           sendRawData: true,
         },
         isRawResponse: true,
@@ -74,13 +74,13 @@ const ErrorReporting = (): ExtensionPlugin => ({
         },
       });
     },
-    breadcrumb: (message: string, state: ApplicationState, metaData?: BreadCrumbMetaData): void => {
+    breadcrumb: (message: string, state: ApplicationState, metaData?: BreadcrumbMetaData): void => {
       if (!message) {
         return;
       }
-      state.reporting.breadCrumbs.value = [
-        ...state.reporting.breadCrumbs.value,
-        createNewBreadCrumb(message, metaData),
+      state.reporting.breadcrumbs.value = [
+        ...state.reporting.breadcrumbs.value,
+        createNewBreadcrumb(message, metaData),
       ];
     },
   },
