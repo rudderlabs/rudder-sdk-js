@@ -28,7 +28,7 @@ class CommandBar {
   }
 
   isLoaded() {
-    return !!(window.CommandBar && typeof window.CommandBar === 'object');
+    return window.CommandBar && typeof window.CommandBar.shareState === 'function';
   }
 
   isReady() {
