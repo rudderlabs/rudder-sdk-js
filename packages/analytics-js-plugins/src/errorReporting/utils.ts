@@ -145,16 +145,24 @@ const getBugsnagErrorEvent = (
 });
 
 const isRudderSDKError = (event: any) => {
-  if (hasStack(event)) {
-    const errorOrigin = event.stack || event.stacktrace;
-    // Prefix folder for all the destination SDK scripts
-    const isDestinationIntegrationBundle = errorOrigin.includes(CDN_INT_DIR);
-    return (
-      isDestinationIntegrationBundle ||
-      SDK_FILE_NAME_PREFIXES().some(prefix => errorOrigin.includes(prefix))
-    );
+  const errorOrigin = event.stacktrace?.[0]?.file;
+
+  if (!errorOrigin || typeof errorOrigin !== 'string') {
+    return false;
   }
-  return true;
+
+  const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
+  const paths = errorOrigin.split('/');
+  // extract the parent folder name from the error origin file path
+  // Ex: parentFolderName will be 'sample' for url: https://example.com/sample/file.min.js
+  const parentFolderName = paths[paths.length - 2];
+
+  return (
+    parentFolderName === CDN_INT_DIR ||
+    SDK_FILE_NAME_PREFIXES().some(
+      prefix => srcFileName.startsWith(prefix) && srcFileName.endsWith('.js'),
+    )
+  );
 };
 
 const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {

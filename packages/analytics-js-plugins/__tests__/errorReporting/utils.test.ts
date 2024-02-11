@@ -75,40 +75,38 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('isRudderSDKError', () => {
-    const newError = new Error('ReferenceError: testUndefinedFn is not defined');
+    const testCaseData = [
+      ['https://invalid-domain.com/rsa.min.js', true],
+      ['https://invalid-domain.com/rss.min.js', false],
+      ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
+      ['https://invalid-domain.com/Amplitude.min.js', false],
+      ['https://invalid-domain.com/js-integrations/Amplitude.min.js', true],
+      ['https://invalid-domain.com/js-integrations/Qualaroo.min.js', true],
+      ['https://invalid-domain.com/mjs-integrations/Qualaroo.min.js', false],
+      ['https://invalid-domain.com/test.js', false],
+      ['https://invalid-domain.com/rsa.css', false],
+      [undefined, false],
+      [null, false],
+      [1, false],
+      ['', false],
+      ['asdf.com', false],
+    ];
 
-    it('should return true if error generate from sdk', () => {
-      const normalizedError = Object.create(newError, {
-        stack: {
-          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1666:84)`,
-        },
-      });
-      expect(isRudderSDKError(normalizedError)).toBe(true);
-    });
-    it('should return false if error generate from sdk', () => {
-      const normalizedError = Object.create(newError, {
-        stack: {
-          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/abc.js:1666:84)`,
-        },
-      });
-      expect(isRudderSDKError(normalizedError)).toBe(false);
-    });
-    it('should return true if error generate from integration sdk', () => {
-      const normalizedError = Object.create(newError, {
-        stack: {
-          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/js-integrations/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/js-integrations/abc.js:1666:84)`,
-        },
-      });
-      expect(isRudderSDKError(normalizedError)).toBe(true);
-    });
-    it('should return false if error generate from integration sdk', () => {
-      const normalizedError = Object.create(newError, {
-        stack: {
-          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/abc.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/abc.js:1666:84)`,
-        },
-      });
-      expect(isRudderSDKError(normalizedError)).toBe(false);
-    });
+    it.each(testCaseData)(
+      'if script src is "%s" then it should return the value as "%s" ',
+      (scriptSrc, expectedValue) => {
+        // Bugsnag error event object structure
+        const event = {
+          stacktrace: [
+            {
+              file: scriptSrc,
+            },
+          ],
+        };
+
+        expect(isRudderSDKError(event)).toBe(expectedValue);
+      },
+    );
   });
 
   describe('getErrorContext', () => {
