@@ -18,6 +18,7 @@ import {
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
+import { prepareParamsAndEventName } from '../GA4/utils';
 const logger = new Logger(DISPLAY_NAME);
 
 class GoogleAds {
@@ -45,6 +46,7 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
+    this.v2 = config.v2 || true;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -112,6 +114,11 @@ class GoogleAds {
         transaction_id: rudderElement.message?.properties?.order_id,
         send_to: sendToValue,
       };
+      if (this.v2) {
+        const ecomPayload = prepareParamsAndEventName(event, event?.event)
+        properties = ecomPayload.params;
+        eventName = ecomPayload.event;
+      }
       properties = removeUndefinedAndNullValues(properties);
       properties = newCustomerAcquisitionReporting(properties);
 
