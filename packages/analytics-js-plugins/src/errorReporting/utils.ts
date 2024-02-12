@@ -27,7 +27,6 @@ import {
 } from './constants';
 import { json } from '../shared-chunks/common';
 import type { ErrorFormat } from './event/event';
-import { hasStack } from './event/utils';
 
 const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
   switch (errorType) {

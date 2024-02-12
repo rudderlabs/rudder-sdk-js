@@ -100,9 +100,9 @@ class PluginsManager implements IPluginsManager {
     pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
       if (deprecatedPluginsList.includes(pluginName)) {
         this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
-        return true;
+        return false;
       }
-      return false;
+      return true;
     });
 
     // Error reporting related plugins

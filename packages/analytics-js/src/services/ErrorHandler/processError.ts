@@ -31,7 +31,11 @@ const processError = (error: SDKError): string => {
 
 const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefined => {
   try {
-    if (error instanceof PromiseRejectionEvent && error.reason) {
+    if (
+      error instanceof Error ||
+      error instanceof ErrorEvent ||
+      (error instanceof PromiseRejectionEvent && error.reason)
+    ) {
       return error;
     }
     // TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
@@ -54,6 +58,7 @@ const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefi
         message: { value: errorMessage },
       });
     }
+    return error;
   } catch (e) {
     return e;
   }
@@ -68,7 +73,7 @@ const isAllowedToBeNotified = (error: SDKError) => {
   if ((error instanceof Error || error instanceof ErrorEvent) && error.message) {
     return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
   }
-  if (error instanceof PromiseRejectionEvent && error.reason) {
+  if (error instanceof PromiseRejectionEvent && typeof error.reason === 'string') {
     return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.reason.includes(e));
   }
   return true;
