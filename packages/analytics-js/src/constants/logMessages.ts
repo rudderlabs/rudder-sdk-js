@@ -221,7 +221,7 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
 const DEPRECATED_PLUGIN_WARNING = (context: string, pluginName: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} Plugin is deprecated.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} plugin is deprecated. Please exclude it from the load API options.`;
 
 // DEBUG
 
