@@ -115,9 +115,8 @@ class GoogleAds {
         send_to: sendToValue,
       };
       if (this.v2) {
-        const ecomPayload = prepareParamsAndEventName(event, event?.event)
-        properties = ecomPayload.params;
-        eventName = ecomPayload.event;
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, event);
+        properties = { ...properties, ...ecomPayload?.params };
       }
       properties = removeUndefinedAndNullValues(properties);
       properties = newCustomerAcquisitionReporting(properties);
@@ -144,6 +143,11 @@ class GoogleAds {
       );
 
       let { properties } = rudderElement.message;
+
+      if (this.v2) {
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, event);
+        properties = { ...properties, ...ecomPayload?.params };
+      }
 
       // set new customer acquisition reporting
       // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager
