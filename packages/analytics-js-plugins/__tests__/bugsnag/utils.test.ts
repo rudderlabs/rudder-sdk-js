@@ -290,6 +290,7 @@ describe('Bugsnag utilities', () => {
     const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
 
     const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
+    const origExtSrcLoadTimeout = timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS;
 
     beforeEach(() => {
       insertBeforeSpy = jest.spyOn(document.head, 'insertBefore');
@@ -303,6 +304,7 @@ describe('Bugsnag utilities', () => {
       delete (window as any).Bugsnag;
       delete (window as any).bugsnag;
       bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
+      timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = origExtSrcLoadTimeout;
     });
 
     it('should not load Bugsnag SDK if it (<=v6) is already loaded', () => {
