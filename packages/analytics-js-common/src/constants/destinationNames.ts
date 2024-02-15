@@ -302,3 +302,7 @@ export {
   DISPLAY_NAME as SpotifyPixelDisplayName,
   DIR_NAME as SpotifyPixelDirectoryName,
 } from './integrations/SpotifyPixel/constants';
+export {
+  DISPLAY_NAME as CommandBarDisplayName,
+  DIR_NAME as CommandBarDirectoryName,
+} from './integrations/CommandBar/constants';
