@@ -154,6 +154,8 @@ import {
   SpotifyPixelDirectoryName,
   CommandBarDisplayName,
   CommandBarDirectoryName,
+  NinetailedDisplayName,
+  NinetailedDirectoryName,
 } from './destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
@@ -235,6 +237,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [SprigDisplayName]: SprigDirectoryName,
   [SpotifyPixelDisplayName]: SpotifyPixelDirectoryName,
   [CommandBarDisplayName]: CommandBarDirectoryName,
+  [NinetailedDisplayName]: NinetailedDirectoryName,
 };
 
 export { destDisplayNamesToFileNamesMap };
