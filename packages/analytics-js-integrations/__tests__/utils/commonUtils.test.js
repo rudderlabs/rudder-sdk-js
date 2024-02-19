@@ -290,11 +290,58 @@ describe('flattenJson Tests', () => {
     const testObj = { prop1: { prop2: 'abc' } };
     testObj.prop3 = testObj;
     const result = utils.flattenJson(testObj);
-    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', "prop3": "[Circular Reference]" });
+    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', prop3: '[Circular Reference]' });
   });
   test('test case with nested object', () => {
     const testObj = { prop1: { prop2: 'abc' } };
     const result = utils.flattenJson(testObj);
     expect(result).toStrictEqual({ 'prop1.prop2': 'abc' });
+  });
+});
+
+describe('pick', () => {
+  test('should return an object with only the specified keys', () => {
+    const obj = { a: 1, b: 2, c: 3 };
+    const result = utils.pick(obj, ['a', 'c']);
+    expect(result).toEqual({ a: 1, c: 3 });
+  });
+
+  test('should return an empty object if the input object is empty', () => {
+    const obj = {};
+    const result = utils.pick(obj, ['a', 'c']);
+    expect(result).toEqual({});
+  });
+
+  test('should throw an error if the input object is null', () => {
+    const obj = null;
+    expect(() => {
+      utils.pick(obj, ['a', 'c']);
+    }).toThrow(new TypeError("Cannot use 'in' operator to search for 'a' in null"));
+  });
+
+  test('should throw an error if the input object is undefined', () => {
+    const obj = undefined;
+    expect(() => {
+      utils.pick(obj, ['a', 'c']);
+    }).toThrow(new TypeError("Cannot use 'in' operator to search for 'a' in undefined"));
+  });
+
+  test('should throw an error if the input object is not an object', () => {
+    const obj = 'string';
+    expect(() => {
+      utils.pick(obj, ['a', 'c']);
+    }).toThrow(new TypeError("Cannot use 'in' operator to search for 'a' in string"));
+  });
+
+  test('should not return any value if the provided keys are not present in the object', () => {
+    const obj = { a: 1, b: 2, c: 3 };
+    const result = utils.pick(obj, ['a', 'd', 'e']);
+    expect(result).toEqual({ a: 1 });
+  });
+
+  test('should return an object by picking fields case sensitively', () => {
+    const obj = { a: 1, b: 2, c: 3, A: 4, B: 5, C: 6 };
+    const result = utils.pick(obj, ['a', 'c', 'A', 'C']);
+    expect(result).toEqual({ a: 1, c: 3, A: 4, C: 6 });
   });
 });

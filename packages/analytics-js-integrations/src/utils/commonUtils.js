@@ -1,8 +1,8 @@
 import _isUndefined from 'lodash.isundefined';
 import _isEmpty from 'lodash.isempty';
 import _pickBy from 'lodash.pickby';
-import _pick from 'lodash.pick';
 import _toString from 'lodash.tostring';
+import { pick as ramdaPick } from 'ramda';
 
 const isDefined = x => !_isUndefined(x);
 const isNotEmpty = x => !_isEmpty(x);
@@ -14,7 +14,7 @@ const removeNullValues = obj => _pickBy(obj, isNotNull);
 const removeUndefinedAndNullValues = obj => _pickBy(obj, isDefinedAndNotNull);
 const removeUndefinedAndNullAndEmptyValues = obj => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = value => _isEmpty(_toString(value).trim());
-const pick = (argObj, argArr) => _pick(argObj, argArr);
+const pick = (argObj, argArr) => ramdaPick(argArr, argObj);
 
 /**
  *
@@ -85,7 +85,7 @@ function flattenJson(data, separator = '.', mode = 'normal') {
   function recurse(cur, prop, visited = new Set()) {
     let i;
     if (visited.has(cur)) {
-      result[prop] = "[Circular Reference]";
+      result[prop] = '[Circular Reference]';
       return;
     }
 
