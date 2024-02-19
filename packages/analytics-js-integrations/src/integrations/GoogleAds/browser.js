@@ -115,7 +115,8 @@ class GoogleAds {
         send_to: sendToValue,
       };
       if (this.v2) {
-        const ecomPayload = prepareParamsAndEventName(rudderElement.message, event);
+        const updatedEventName = eventName.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
         properties = { ...properties, ...ecomPayload?.params };
       }
       properties = removeUndefinedAndNullValues(properties);
@@ -142,10 +143,11 @@ class GoogleAds {
         false,
       );
 
-      let { properties } = rudderElement.message;
+      let { properties, event } = rudderElement.message;
 
       if (this.v2) {
-        const ecomPayload = prepareParamsAndEventName(rudderElement.message, event);
+        const updatedEventName = event.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
         properties = { ...properties, ...ecomPayload?.params };
       }
 
