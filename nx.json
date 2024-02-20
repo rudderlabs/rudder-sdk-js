@@ -7,10 +7,12 @@
   "release": {
     "projects": ["*"],
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "projectsRelationship": "independent",
+      "releaseTagPattern": "{projectName}@{version}"
     },
     "changelog": {
-      "workspaceChangelog": {
+      "projectChangelogs": {
         "createRelease": "github"
       }
     }
