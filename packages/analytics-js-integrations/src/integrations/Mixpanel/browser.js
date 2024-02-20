@@ -15,6 +15,7 @@ import {
   parseConfigArray,
   inverseObjectArrays,
   getConsolidatedPageCalls,
+  generatePageOrScreenCustomEventName,
 } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -63,6 +64,8 @@ class Mixpanel {
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
     this.ignoreDnt = config.ignoreDnt || false;
+    this.useUserDefinedPageEventName = config.useUserDefinedPageEventName || false;
+    this.userDefinedPageEventTemplate = config.userDefinedPageEventTemplate;
   }
 
   init() {
@@ -181,7 +184,24 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    const { name, properties } = rudderElement.message;
+    const { properties } = rudderElement.message;
+
+    if (this.useUserDefinedPageEventName) {
+      if (!this.userDefinedPageEventTemplate) {
+        logger.error(
+          'Event template is missing. Please provide a valid event template in `Page/Screen Event Name Template` setting',
+        );
+        return;
+      }
+      const eventName = generatePageOrScreenCustomEventName(
+        rudderElement.message,
+        this.userDefinedPageEventTemplate,
+      );
+      window.mixpanel.track(eventName, properties);
+      return;
+    }
+
+    const { name } = rudderElement.message;
     const { category } = properties;
     // consolidated Page Calls
     if (this.consolidatedPageCalls) {

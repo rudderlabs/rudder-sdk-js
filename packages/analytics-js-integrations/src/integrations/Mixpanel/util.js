@@ -3,6 +3,7 @@
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
+import Handlebars from 'handlebars';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
@@ -38,7 +39,7 @@ const traitAliases = {
 
 /**
  * Removes a property from an object based on a given property path.
- * 
+ *
  * @param {object} obj - The object from which the property needs to be removed.
  * @param {string} propertyPath - The path of the property to be removed, using dot notation.
  * @returns {undefined} - This function does not return anything.
@@ -54,7 +55,7 @@ const traitAliases = {
  *     }
  *   }
  * };
- * 
+ *
  * unset(obj, 'person.address.city');
  *  Output: { person: { name: 'John', age: 30, address: { state: 'NY' } } }
  */
@@ -82,7 +83,7 @@ function filterSetOnceTraits(outgoingTraits, setOnceProperties) {
 
   // Step 1: find the k-v pairs of setOnceProperties in traits and contextTraits
 
-  setOnceProperties.forEach((propertyPath) => {
+  setOnceProperties.forEach(propertyPath => {
     const pathSegments = propertyPath.split('.');
     const propName = pathSegments[pathSegments.length - 1];
 
@@ -239,6 +240,18 @@ const getConsolidatedPageCalls = config =>
     ? config.consolidatedPageCalls
     : true;
 
+/**
+ * Generates a custom event name for a page or screen.
+ *
+ * @param {Object} message - The message object
+ * @param {string} userDefinedEventTemplate - The user-defined event template to be used for generating the event name.
+ * @returns {string} The generated custom event name.
+ */
+const generatePageOrScreenCustomEventName = (message, userDefinedEventTemplate) => {
+  const eventTemplate = Handlebars.compile(userDefinedEventTemplate || '');
+  return eventTemplate(message);
+};
+
 export {
   mapTraits,
   unionArrays,
@@ -249,5 +262,6 @@ export {
   inverseObjectArrays,
   getConsolidatedPageCalls,
   filterSetOnceTraits,
-  unset
+  unset,
+  generatePageOrScreenCustomEventName,
 };

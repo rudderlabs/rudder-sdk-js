@@ -7,7 +7,8 @@ import {
   mapTraits,
   filterSetOnceTraits,
   unset,
-  formatTraits
+  formatTraits,
+  generatePageOrScreenCustomEventName,
 } from '../../../src/integrations/Mixpanel/util';
 
 describe('parseConfigArray', () => {
@@ -217,12 +218,9 @@ describe('mapTraits', () => {
   });
 });
 
-
 describe('filterSetOnceTraits', () => {
-
   // Should return an object with setTraits, setOnce, email, and username keys when given valid outgoingTraits and setOnceProperties inputs
   it('should return an object with setTraits, setOnce, email, and username keys', () => {
-
     const outgoingTraits = {
       email: 'test@example.com',
       firstName: 'John',
@@ -233,9 +231,7 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['email', 'username'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(result).toHaveProperty('setTraits');
     expect(result).toHaveProperty('setOnce');
@@ -245,7 +241,6 @@ describe('filterSetOnceTraits', () => {
 
   // Should correctly extract and remove setOnceProperties from the outgoingTraits object
   it('should correctly extract and remove setOnceProperties', () => {
-
     const outgoingTraits = {
       email: 'test@example.com',
       firstName: 'John',
@@ -256,9 +251,7 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['email', 'username'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(result.setTraits).not.toHaveProperty('email');
     expect(result.setTraits).not.toHaveProperty('username');
@@ -268,7 +261,6 @@ describe('filterSetOnceTraits', () => {
 
   // Should correctly handle cases where setOnceProperties are not present in the outgoingTraits object
   it('should correctly handle cases where setOnceProperties are not present', () => {
-
     const outgoingTraits = {
       firstName: 'John',
       lastName: 'Doe',
@@ -277,10 +269,8 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['email', 'username'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
     console.log(result);
-
 
     expect(result).toHaveProperty('setTraits');
     expect(result).toHaveProperty('setOnce');
@@ -290,13 +280,10 @@ describe('filterSetOnceTraits', () => {
 
   // Should correctly handle cases where the outgoingTraits object is empty
   it('should return an object with empty setTraits and setOnce properties when given an empty outgoingTraits object', () => {
-
     const outgoingTraits = {};
     const setOnceProperties = ['email', 'username'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(result.setTraits).toEqual({});
     expect(result.setOnce).toEqual({});
@@ -304,7 +291,6 @@ describe('filterSetOnceTraits', () => {
 
   // Should correctly handle cases where setOnceProperties are present in the outgoingTraits object but have non-string values
   it('should exclude non-string setOnceProperties from the setOnce property in the result object', () => {
-
     const outgoingTraits = {
       email: 'test@example.com',
       firstName: 'John',
@@ -317,9 +303,7 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['email', 'username', 'age', 'gender'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(result.setOnce).toEqual({
       age: 25,
@@ -338,7 +322,6 @@ describe('filterSetOnceTraits', () => {
 
   // Should not modify the original outgoingTraits object
   it('should not modify the original outgoingTraits object', () => {
-
     const outgoingTraits = {
       email: 'test@example.com',
       firstName: 'John',
@@ -349,9 +332,7 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['email', 'username'];
 
-
     filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(outgoingTraits).toEqual({
       email: 'test@example.com',
@@ -365,7 +346,6 @@ describe('filterSetOnceTraits', () => {
 
   // Should correctly handle cases where setOnceProperties contain nested properties
   it('should correctly handle cases where setOnceProperties contain nested properties', () => {
-
     const outgoingTraits = {
       email: 'test@example.com',
       firstName: 'John',
@@ -381,9 +361,7 @@ describe('filterSetOnceTraits', () => {
     };
     const setOnceProperties = ['address.street', 'address.city'];
 
-
     const result = filterSetOnceTraits(outgoingTraits, setOnceProperties);
-
 
     expect(result.setTraits).toEqual({
       email: 'test@example.com',
@@ -406,7 +384,6 @@ describe('filterSetOnceTraits', () => {
 });
 
 describe('unset', () => {
-
   // Can unset a property at the top level of an object
   it('should unset a property at the top level of an object', () => {
     const obj = { name: 'John', age: 30 };
@@ -442,9 +419,7 @@ describe('unset', () => {
   });
 });
 
-
 describe('formatTraits', () => {
-
   // Extracts defined traits from message and sets them as outgoing traits
   it('should extract defined traits from message and set them as outgoing traits', () => {
     // Arrange
@@ -457,10 +432,9 @@ describe('formatTraits', () => {
           phone: '1234567890',
           name: 'John Doe',
           customField1: 'value1',
-          customField2: 'value2'
-        }
-      }
-
+          customField2: 'value2',
+        },
+      },
     };
     const setOnceProperties = ['firstName'];
 
@@ -474,12 +448,44 @@ describe('formatTraits', () => {
       email: 'test@example.com',
       name: 'John Doe',
       customField1: 'value1',
-      customField2: 'value2'
+      customField2: 'value2',
     });
     expect(result.setOnce).toEqual({
-      firstName: 'John'
+      firstName: 'John',
     });
   });
 });
 
+describe('generatePageOrScreenCustomEventName', () => {
+  it('should generate a custom event name when userDefinedEventTemplate contains handlebars and message object is provided', () => {
+    const message = { name: 'Home' };
+    const userDefinedEventTemplate = 'Viewed a {{ name }} page';
+    const expected = 'Viewed a Home page';
+    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
 
+  it('should generate a empty event name when userDefinedEventTemplate is undefined/null/empty', () => {
+    const message = { name: 'Home' };
+    const userDefinedEventTemplate = undefined;
+    const expected = '';
+    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
+
+  it('should return the userDefinedEventTemplate when it does not contain handlebars', () => {
+    const message = { name: 'Home' };
+    const userDefinedEventTemplate = 'Viewed a Home page';
+    const expected = 'Viewed a Home page';
+    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
+
+  it('should return a event name when message object is not provided', () => {
+    const message = undefined;
+    const userDefinedEventTemplate = 'Viewed a {{ path }} page';
+    const expected = 'Viewed a  page';
+    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
+});
