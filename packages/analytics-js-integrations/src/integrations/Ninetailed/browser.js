@@ -13,8 +13,6 @@ class Ninetailed {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.organisationId = config.organisationId;
-    this.environment = config.environment;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -40,17 +38,27 @@ class Ninetailed {
     const { message } = rudderElement;
     const { userId, traits, context } = message;
     const userTraits = { ...traits, ...context?.traits };
+    // for userId: until we don't pass the id to ninetailed, it will not make server identify call but is accepting the data
     window.ninetailed.identify(userId, userTraits);
   }
   track(rudderElement) {
     const { message } = rudderElement;
     const { properties, event } = message;
+    if (!event) {
+      logger.error('Event name is required');
+      return;
+    }
     window.ninetailed.track(event, properties);
   }
   page(rudderElement) {
     const { message } = rudderElement;
     const { properties } = message;
-    window.ninetailed.page(properties);
+    if (properties) {
+      properties.url = window.location.href;
+      window.ninetailed.page(properties);
+      return;
+    }
+    window.ninetailed.page();
   }
 }
 
