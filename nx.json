@@ -4,6 +4,17 @@
     "libsDir": "packages"
   },
   "defaultBase": "main",
+  "release": {
+    "projects": ["*"],
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": "github"
+      }
+    }
+  },
   "pluginsConfig": {
     "@nx/js": {
       "analyzeSourceFiles": true

@@ -1,55 +1,50 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-index 9d2050a..e9588a1 100644
+index 96573a7..bc412e5 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-@@ -161,6 +161,10 @@ function withRunManyOptions(yargs) {
+@@ -166,6 +166,10 @@ function withRunManyOptions(yargs) {
          describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
          type: 'boolean',
          default: true,
 +    })
-+    .option('silent', {
-+      type: 'boolean',
-+      default: false,
++      .option('silent', {
++        type: 'boolean',
++        default: false,
      });
  }
  exports.withRunManyOptions = withRunManyOptions;
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index 3969321..ecf5345 100644
+index f37463b..0c8ee47 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-@@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          this.allCompletedTasks = new Map();
      }
      startCommand() {
 +        if (this.args.silent) {
 +          return;
 +        }
-+
          if (this.projectNames.length <= 0) {
              output_1.output.logSingleLine(`No projects with ${(0, formatting_utils_1.formatTargetsAndProjects)(this.projectNames, this.args.targets, this.tasks)} were run`);
              return;
-@@ -44,6 +48,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -44,6 +47,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
      }
      endCommand() {
 +        if (this.args.silent) {
 +          return;
 +        }
-+
          output_1.output.addNewline();
          if (this.failedTasks.length === 0) {
              output_1.output.addVerticalSeparatorWithoutNewLines('green');
-@@ -92,8 +100,11 @@ class StaticRunManyTerminalOutputLifeCycle {
-         }
-     }
+@@ -94,6 +100,10 @@ class StaticRunManyTerminalOutputLifeCycle {
      printTaskTerminalOutput(task, cacheStatus, terminalOutput) {
--        const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
--        output_1.output.logCommand(args.join(' '), cacheStatus);
+         const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
+         output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
 +        if (this.args.silent !== true) {
 +          const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
-+          output_1.output.logCommand(args.join(' '), cacheStatus);
-+          output_1.output.addNewline();
++          output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
 +        }
-         process.stdout.write(terminalOutput);
      }
  }
+ exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
