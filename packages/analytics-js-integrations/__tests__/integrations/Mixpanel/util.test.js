@@ -8,7 +8,7 @@ import {
   filterSetOnceTraits,
   unset,
   formatTraits,
-  generatePageOrScreenCustomEventName,
+  generatePageCustomEventName,
 } from '../../../src/integrations/Mixpanel/util';
 
 describe('parseConfigArray', () => {
@@ -456,12 +456,12 @@ describe('formatTraits', () => {
   });
 });
 
-describe('generatePageOrScreenCustomEventName', () => {
+describe('generatePageCustomEventName', () => {
   it('should generate a custom event name when userDefinedEventTemplate contains handlebars and message object is provided', () => {
     const message = { name: 'Home' };
     const userDefinedEventTemplate = 'Viewed a {{ name }} page';
     const expected = 'Viewed a Home page';
-    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
 
@@ -469,7 +469,7 @@ describe('generatePageOrScreenCustomEventName', () => {
     const message = { name: 'Home' };
     const userDefinedEventTemplate = undefined;
     const expected = '';
-    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
 
@@ -477,7 +477,7 @@ describe('generatePageOrScreenCustomEventName', () => {
     const message = { name: 'Home' };
     const userDefinedEventTemplate = 'Viewed a Home page';
     const expected = 'Viewed a Home page';
-    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
 
@@ -485,7 +485,7 @@ describe('generatePageOrScreenCustomEventName', () => {
     const message = undefined;
     const userDefinedEventTemplate = 'Viewed a {{ path }} page';
     const expected = 'Viewed a  page';
-    const result = generatePageOrScreenCustomEventName(message, userDefinedEventTemplate);
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
 });

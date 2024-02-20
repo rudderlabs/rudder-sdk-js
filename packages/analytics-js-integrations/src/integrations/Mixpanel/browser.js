@@ -15,7 +15,7 @@ import {
   parseConfigArray,
   inverseObjectArrays,
   getConsolidatedPageCalls,
-  generatePageOrScreenCustomEventName,
+  generatePageCustomEventName,
 } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -189,16 +189,17 @@ class Mixpanel {
     if (this.useUserDefinedPageEventName) {
       if (!this.userDefinedPageEventTemplate) {
         logger.error(
-          'Event template is missing. Please provide a valid event template in `Page/Screen Event Name Template` setting',
+          'Event template is missing. Please provide a valid event template in `Page Event Name Template` setting',
         );
         return;
       }
-      const eventName = generatePageOrScreenCustomEventName(
+      const eventName = generatePageCustomEventName(
         rudderElement.message,
         this.userDefinedPageEventTemplate,
       );
       window.mixpanel.track(eventName, properties);
       return;
+      d;
     }
 
     const { name } = rudderElement.message;

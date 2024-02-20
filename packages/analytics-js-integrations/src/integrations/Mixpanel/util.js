@@ -241,13 +241,13 @@ const getConsolidatedPageCalls = config =>
     : true;
 
 /**
- * Generates a custom event name for a page or screen.
+ * Generates a custom event name for a page calls.
  *
  * @param {Object} message - The message object
  * @param {string} userDefinedEventTemplate - The user-defined event template to be used for generating the event name.
  * @returns {string} The generated custom event name.
  */
-const generatePageOrScreenCustomEventName = (message, userDefinedEventTemplate) => {
+const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
   const eventTemplate = Handlebars.compile(userDefinedEventTemplate || '');
   return eventTemplate(message);
 };
@@ -263,5 +263,5 @@ export {
   getConsolidatedPageCalls,
   filterSetOnceTraits,
   unset,
-  generatePageOrScreenCustomEventName,
+  generatePageCustomEventName,
 };
