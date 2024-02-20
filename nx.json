@@ -6,10 +6,10 @@
   "defaultBase": "main",
   "release": {
     "projects": ["*"],
+    "projectsRelationship": "independent",
+    "releaseTagPattern": "{projectName}@{version}",
     "version": {
-      "conventionalCommits": true,
-      "projectsRelationship": "independent",
-      "releaseTagPattern": "{projectName}@{version}"
+      "conventionalCommits": true
     },
     "changelog": {
       "projectChangelogs": {
