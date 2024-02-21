@@ -248,8 +248,14 @@ const getConsolidatedPageCalls = config =>
  * @returns {string} The generated custom event name.
  */
 const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
-  const eventTemplate = Handlebars.compile(userDefinedEventTemplate || '');
-  return eventTemplate(message);
+  try {
+    const eventTemplate = Handlebars.compile(userDefinedEventTemplate);
+    return eventTemplate(message);
+  } catch (error) {
+    logger.error(`Error generating custom event name: ${error.message}`);
+    // Return a default or empty string as a fallback
+    return 'Loaded a Page';
+  }
 };
 
 export {

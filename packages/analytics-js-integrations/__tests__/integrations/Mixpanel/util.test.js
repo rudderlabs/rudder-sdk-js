@@ -465,10 +465,10 @@ describe('generatePageCustomEventName', () => {
     expect(result).toBe(expected);
   });
 
-  it('should generate a empty event name when userDefinedEventTemplate is undefined/null/empty', () => {
+  it('should generate a default `Loaded a Page` event name when userDefinedEventTemplate is undefined/null/empty', () => {
     const message = { name: 'Home' };
     const userDefinedEventTemplate = undefined;
-    const expected = '';
+    const expected = 'Loaded a Page';
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
@@ -493,6 +493,14 @@ describe('generatePageCustomEventName', () => {
     const message = { a: { b: 'abc' } };
     const userDefinedEventTemplate = 'Viewed a {{ a.b }} page';
     const expected = 'Viewed a abc page';
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
+
+  it('should return a default `Loaded a Page` event name when userDefinedEventTemplate contains invalid handlebars and message object is provided', () => {
+    const message = { name: 'Home' };
+    const userDefinedEventTemplate = 'Viewed a {{ name } page';
+    const expected = 'Loaded a Page';
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
