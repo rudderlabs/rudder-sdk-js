@@ -488,4 +488,12 @@ describe('generatePageCustomEventName', () => {
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
+
+  it('should return a custom event name when userDefinedEventTemplate contains handlebars and message object is nested', () => {
+    const message = { a: { b: 'abc' } };
+    const userDefinedEventTemplate = 'Viewed a {{ a.b }} page';
+    const expected = 'Viewed a abc page';
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
 });
