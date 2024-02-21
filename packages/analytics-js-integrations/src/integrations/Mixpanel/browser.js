@@ -199,7 +199,6 @@ class Mixpanel {
       );
       window.mixpanel.track(eventName, properties);
       return;
-      d;
     }
 
     const { name } = rudderElement.message;
