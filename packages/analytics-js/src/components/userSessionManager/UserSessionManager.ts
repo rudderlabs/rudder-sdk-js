@@ -100,9 +100,7 @@ class UserSessionManager implements IUserSessionManager {
       isDefinedAndNotNull(externalAnonymousIdCookieName) &&
       typeof externalAnonymousIdCookieName === 'string'
     ) {
-      externalAnonymousId = this.getExternalAnonymousIdByCookieName(
-        externalAnonymousIdCookieName as string,
-      );
+      externalAnonymousId = this.getExternalAnonymousIdByCookieName(externalAnonymousIdCookieName);
     }
     this.setAnonymousId(externalAnonymousId ?? this.getAnonymousId(anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
