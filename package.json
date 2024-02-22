@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.0.0-beta.26",
+  "version": "3.0.0-beta.27",
   "private": true,
   "description": "Monorepo accommodating Rudderstack Analytics JS SDK",
   "workspaces": [
@@ -90,7 +90,6 @@
     "lodash.isempty": "4.4.0",
     "lodash.isequal": "4.5.0",
     "lodash.isundefined": "3.0.1",
-    "lodash.pick": "4.4.0",
     "lodash.pickby": "4.6.0",
     "lodash.tostring": "4.1.4",
     "md5": "2.3.0",
@@ -207,7 +206,8 @@
     "@rollup/rollup-linux-x64-gnu": "4.9.6"
   },
   "overrides": {
-    "debug": "4.3.4"
+    "debug": "4.3.4",
+    "ip": "2.0.1"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
