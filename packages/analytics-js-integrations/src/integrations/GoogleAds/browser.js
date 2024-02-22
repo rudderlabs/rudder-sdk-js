@@ -19,6 +19,7 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
+
 const logger = new Logger(DISPLAY_NAME);
 
 class GoogleAds {
@@ -143,7 +144,8 @@ class GoogleAds {
         false,
       );
 
-      let { properties, event } = rudderElement.message;
+      let { properties } = rudderElement.message;
+      const { event } = rudderElement.message;
 
       if (this.v2) {
         const updatedEventName = event.trim().replace(/\s+/g, '_');
