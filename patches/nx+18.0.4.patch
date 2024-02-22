@@ -50,10 +50,10 @@ index f37463b..a218628 100644
  }
  exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
 diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
-index 31e47e1..7c994bd 100644
+index 31e47e1..e4f16f7 100644
 --- a/node_modules/nx/src/utils/output.js
 +++ b/node_modules/nx/src/utils/output.js
-@@ -158,9 +158,9 @@ class CLIOutput {
+@@ -158,18 +158,20 @@ class CLIOutput {
          this.addNewline();
          this.addNewline();
      }
@@ -65,9 +65,16 @@ index 31e47e1..7c994bd 100644
              const icon = this.getStatusIcon(taskStatus);
              commandOutputWithStatus = `${GH_GROUP_PREFIX}${icon} ${commandOutputWithStatus}`;
          }
-@@ -169,7 +169,7 @@ class CLIOutput {
-         this.addNewline();
-         this.addNewline();
+-        this.addNewline();
+-        this.writeToStdOut(commandOutputWithStatus);
+-        this.addNewline();
+-        this.addNewline();
++        if (!isSilent) {
++          this.addNewline();
++          this.writeToStdOut(commandOutputWithStatus);
++          this.addNewline();
++          this.addNewline();
++        }
          this.writeToStdOut(output);
 -        if (process.env.GITHUB_ACTIONS) {
 +        if (process.env.GITHUB_ACTIONS && !isSilent) {
