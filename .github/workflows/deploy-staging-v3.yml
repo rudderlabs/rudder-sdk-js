@@ -13,10 +13,13 @@ env:
 jobs:
   deploy-tag:
     name: Deploy to STAGING v3
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/v3-hotfix-release') || startsWith(github.ref, 'refs/heads/v3-release') || startsWith(github.ref, 'refs/heads/v3-hotfix/')
 
     steps:
+      - name: Install AWS cli
+        uses: unfor19/install-aws-cli-action@master
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
