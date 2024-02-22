@@ -129,6 +129,29 @@ describe('User session manager', () => {
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
+    it('should set anonymousId from external name if externalAnonymousIdCookieName load option is provided', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      document.cookie = 'key=sample1234';
+      state.loadOptions.value.externalAnonymousIdCookieName = 'key';
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+
+      expect(state.session.anonymousId.value).toBe('sample1234');
+    });
+    it('should set anonymousId with existing logic if external name is not string', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = 12345;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
   });
 
   describe('init', () => {
@@ -1303,6 +1326,20 @@ describe('User session manager', () => {
       const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
       userSessionManager.reset(true, true);
       expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
+    });
+  });
+
+  describe('getExternalAnonymousIdByCookieName', () => {
+    it('Should return null if the cookie value does not exists', () => {
+      const externalAnonymousId =
+        userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
+      expect(externalAnonymousId).toEqual(null);
+    });
+    it('Should return the cookie value if exists', () => {
+      document.cookie = 'anonId_cookie=sampleAnonymousId12345';
+      const externalAnonymousId =
+        userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
+      expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
     });
   });
 });
