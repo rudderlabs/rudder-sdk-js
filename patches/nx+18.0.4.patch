@@ -1,0 +1,83 @@
+diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
+index 96573a7..7fce053 100644
+--- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
++++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
+@@ -166,6 +166,10 @@ function withRunManyOptions(yargs) {
+         describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
+         type: 'boolean',
+         default: true,
++    })
++      .option('silent', {
++        type: 'boolean',
++        default: false,
+     });
+ }
+ exports.withRunManyOptions = withRunManyOptions;
+diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+index f37463b..a218628 100644
+--- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
++++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+@@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         this.allCompletedTasks = new Map();
+     }
+     startCommand() {
++        if (this.args.silent) {
++          return;
++        }
+         if (this.projectNames.length <= 0) {
+             output_1.output.logSingleLine(`No projects with ${(0, formatting_utils_1.formatTargetsAndProjects)(this.projectNames, this.args.targets, this.tasks)} were run`);
+             return;
+@@ -44,6 +47,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
+     }
+     endCommand() {
++        if (this.args.silent) {
++          return;
++        }
+         output_1.output.addNewline();
+         if (this.failedTasks.length === 0) {
+             output_1.output.addVerticalSeparatorWithoutNewLines('green');
+@@ -92,8 +98,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         }
+     }
+     printTaskTerminalOutput(task, cacheStatus, terminalOutput) {
+-        const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
+-        output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
++      const isSilent = this.args.silent === true;
++      const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
++      output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput, isSilent);
+     }
+ }
+ exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
+diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
+index 31e47e1..e4f16f7 100644
+--- a/node_modules/nx/src/utils/output.js
++++ b/node_modules/nx/src/utils/output.js
+@@ -158,18 +158,20 @@ class CLIOutput {
+         this.addNewline();
+         this.addNewline();
+     }
+-    logCommandOutput(message, taskStatus, output) {
++    logCommandOutput(message, taskStatus, output, isSilent) {
+         let commandOutputWithStatus = this.getCommandWithStatus(message, taskStatus);
+-        if (process.env.GITHUB_ACTIONS) {
++        if (process.env.GITHUB_ACTIONS && !isSilent) {
+             const icon = this.getStatusIcon(taskStatus);
+             commandOutputWithStatus = `${GH_GROUP_PREFIX}${icon} ${commandOutputWithStatus}`;
+         }
+-        this.addNewline();
+-        this.writeToStdOut(commandOutputWithStatus);
+-        this.addNewline();
+-        this.addNewline();
++        if (!isSilent) {
++          this.addNewline();
++          this.writeToStdOut(commandOutputWithStatus);
++          this.addNewline();
++          this.addNewline();
++        }
+         this.writeToStdOut(output);
+-        if (process.env.GITHUB_ACTIONS) {
++        if (process.env.GITHUB_ACTIONS && !isSilent) {
+             this.writeToStdOut(GH_GROUP_SUFFIX);
+         }
+     }
