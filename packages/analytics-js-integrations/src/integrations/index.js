@@ -74,6 +74,7 @@ import * as TiktokAds from './TiktokAds';
 import * as ActiveCampaign from './ActiveCampaign';
 import * as Sprig from './Sprig';
 import * as SpotifyPixel from './SpotifyPixel';
+import * as CommandBar from './CommandBar';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -88,6 +89,7 @@ const integrations = {
   CLEVERTAP: Clevertap.default,
   COMSCORE: Comscore.default,
   CRITEO: Criteo.default,
+  COMMANDBAR: CommandBar.default,
   CUSTOMERIO: CustomerIO.default,
   DCM_FLOODLIGHT: DCMFloodlight.default,
   DRIP: Drip.default,

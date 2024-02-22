@@ -75,6 +75,7 @@ const clientToServerNames = {
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
   SPRIG: 'Sprig',
   SPOTIFYPIXEL:'Spotify Pixel',
+  COMMANDBAR:'CommandBar',
 };
 
 export { clientToServerNames };
