@@ -154,6 +154,45 @@ describe('User session manager', () => {
       expect(spy).not.toHaveBeenCalled();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+    it('should set anonymousId with existing logic if external name is null', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = null;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
+      userSessionManager.syncStorageDataToState();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
+    it('should set anonymousId with existing logic if external name is undefined', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = undefined;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
+      userSessionManager.syncStorageDataToState();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
+    it('should set anonymousId with existing logic if anonymousId fetch by the external name is null', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.getExternalAnonymousIdByCookieName = jest.fn(() => null);
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
   });
 
   describe('init', () => {
