@@ -504,4 +504,12 @@ describe('generatePageCustomEventName', () => {
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
+
+  it('should return a custom event name when userDefinedEventTemplate contains multiple handlebar and message object is provided', () => {
+    const message = { name: 'Home', properties: { category: 'Index' } };
+    const userDefinedEventTemplate = 'Viewed a {{ properties.category }} {{ name }} page';
+    const expected = 'Viewed a Index Home page';
+    const result = generatePageCustomEventName(message, userDefinedEventTemplate);
+    expect(result).toBe(expected);
+  });
 });
