@@ -114,14 +114,6 @@
         "discussion-category": "rudder-sdk-js@2.48.2",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public",
-        "distFolderPath": "packages/analytics-v1.1",
-        "noBuild": true
-      }
     }
   }
 }
