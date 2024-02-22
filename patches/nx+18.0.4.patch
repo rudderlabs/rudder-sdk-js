@@ -14,7 +14,7 @@ index 96573a7..7fce053 100644
  }
  exports.withRunManyOptions = withRunManyOptions;
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index f37463b..8206a92 100644
+index f37463b..a218628 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 @@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
@@ -37,18 +37,40 @@ index f37463b..8206a92 100644
          output_1.output.addNewline();
          if (this.failedTasks.length === 0) {
              output_1.output.addVerticalSeparatorWithoutNewLines('green');
-@@ -92,8 +98,12 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -92,8 +98,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          }
      }
      printTaskTerminalOutput(task, cacheStatus, terminalOutput) {
 -        const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
 -        output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
-+        const isSilent = this.args.silent === true;
-+
-+        if (!isSilent) {
-+          const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
-+          output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
-+        }
++      const isSilent = this.args.silent === true;
++      const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
++      output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput, isSilent);
      }
  }
  exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
+diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
+index 31e47e1..7c994bd 100644
+--- a/node_modules/nx/src/utils/output.js
++++ b/node_modules/nx/src/utils/output.js
+@@ -158,9 +158,9 @@ class CLIOutput {
+         this.addNewline();
+         this.addNewline();
+     }
+-    logCommandOutput(message, taskStatus, output) {
++    logCommandOutput(message, taskStatus, output, isSilent) {
+         let commandOutputWithStatus = this.getCommandWithStatus(message, taskStatus);
+-        if (process.env.GITHUB_ACTIONS) {
++        if (process.env.GITHUB_ACTIONS && !isSilent) {
+             const icon = this.getStatusIcon(taskStatus);
+             commandOutputWithStatus = `${GH_GROUP_PREFIX}${icon} ${commandOutputWithStatus}`;
+         }
+@@ -169,7 +169,7 @@ class CLIOutput {
+         this.addNewline();
+         this.addNewline();
+         this.writeToStdOut(output);
+-        if (process.env.GITHUB_ACTIONS) {
++        if (process.env.GITHUB_ACTIONS && !isSilent) {
+             this.writeToStdOut(GH_GROUP_SUFFIX);
+         }
+     }
