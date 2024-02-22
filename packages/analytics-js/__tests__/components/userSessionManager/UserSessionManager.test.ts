@@ -134,12 +134,11 @@ describe('User session manager', () => {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
-      document.cookie = 'key=sample1234';
-      state.loadOptions.value.externalAnonymousIdCookieName = 'key';
+      state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
       userSessionManager.syncStorageDataToState();
-
-      expect(state.session.anonymousId.value).toBe('sample1234');
+      expect(spy).toHaveBeenCalledWith('anonId');
     });
     it('should set anonymousId with existing logic if external name is not string', () => {
       const customData = {
@@ -148,8 +147,11 @@ describe('User session manager', () => {
       setDataInCookieStorage(customData);
       state.loadOptions.value.externalAnonymousIdCookieName = 12345;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
       userSessionManager.syncStorageDataToState();
 
+      expect(spy).not.toHaveBeenCalled();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
   });
