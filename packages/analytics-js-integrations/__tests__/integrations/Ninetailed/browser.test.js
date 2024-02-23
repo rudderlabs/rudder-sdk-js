@@ -5,7 +5,7 @@ const destinationInfo = {
   destinationId: 'sample-destination-id',
 };
 
-describe('Ninetailed Integration Intialization Test Cases', () => {
+describe('Ninetailed Intialization', () => {
   let nt;
   beforeEach(() => {
     nt = new Ninetailed({}, { loglevel: 'DEBUG' }, destinationInfo);
@@ -39,11 +39,11 @@ describe('Ninetailed Integration Intialization Test Cases', () => {
     });
   });
 });
-describe('Ninetailed Event Calls Test Cases', () => {
+describe('Ninetailed Event APIs', () => {
   beforeEach(() => {
     window.ninetailed = {};
   });
-  describe('Page Calls', () => {
+  describe('Page', () => {
     let nt;
     beforeEach(() => {
       nt = new Ninetailed({}, { loglevel: 'DEBUG' }, destinationInfo);
@@ -80,7 +80,7 @@ describe('Ninetailed Event Calls Test Cases', () => {
       expect(window.ninetailed.page.mock.calls[0][0]).toEqual(undefined);
     });
   });
-  describe('Track Calls', () => {
+  describe('Track', () => {
     let nt;
     beforeEach(() => {
       nt = new Ninetailed({}, { loglevel: 'DEBUG' }, destinationInfo);
@@ -119,7 +119,7 @@ describe('Ninetailed Event Calls Test Cases', () => {
       expect(window.ninetailed.track).not.toHaveBeenCalledWith();
     });
   });
-  describe('Identify calls', () => {
+  describe('Identify', () => {
     let nt;
     beforeEach(() => {
       nt = new Ninetailed({}, { loglevel: 'DEBUG' }, destinationInfo);
