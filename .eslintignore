@@ -11,8 +11,10 @@ stats/
 *.config.js
 examples/chrome-extension/**/rudderAnalytics.js
 examples/chrome-extension/**/foreground.js
+/integrations/Ninetailed/sample-app/*
 testBookSuites/
 tsconfig.build.tsbuildinfo
 nativeSdkLoader.js
 nativeSdkLoader.ts
+
 assets/
