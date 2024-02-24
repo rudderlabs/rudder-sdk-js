@@ -36,8 +36,8 @@ class Ninetailed {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    const { userId, traits, context } = message;
-    const userTraits = { ...traits, ...context?.traits };
+    const { userId, context } = message;
+    const userTraits = { ...context?.traits };
     // for userId: until we don't pass the id to ninetailed, it will not make server identify call but is accepting the data
     window.ninetailed.identify(userId, userTraits);
   }
