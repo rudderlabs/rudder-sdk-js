@@ -14,7 +14,7 @@ index 96573a7..7fce053 100644
  }
  exports.withRunManyOptions = withRunManyOptions;
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index f37463b..a218628 100644
+index dd9fdf4..a0fb655 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 @@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
@@ -50,10 +50,10 @@ index f37463b..a218628 100644
  }
  exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
 diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
-index 31e47e1..e4f16f7 100644
+index c8bee50..7d78755 100644
 --- a/node_modules/nx/src/utils/output.js
 +++ b/node_modules/nx/src/utils/output.js
-@@ -158,18 +158,20 @@ class CLIOutput {
+@@ -157,18 +157,20 @@ class CLIOutput {
          this.addNewline();
          this.addNewline();
      }
