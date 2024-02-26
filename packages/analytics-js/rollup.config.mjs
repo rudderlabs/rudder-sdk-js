@@ -41,12 +41,7 @@ const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
-const remotePluginsHostPromise =
-  'Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? "" + window.RudderStackGlobals.app.pluginsCDNPath + "/' +
-  `${remotePluginsExportsFilename}.js` +
-  '" : ' +
-  `"${remotePluginsBasePath}/${remotePluginsExportsFilename}.js` +
-  '")';
+const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
