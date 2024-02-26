@@ -129,6 +129,70 @@ describe('User session manager', () => {
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
+    it('should set anonymousId from external name if externalAnonymousIdCookieName load option is provided', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+      userSessionManager.syncStorageDataToState();
+      expect(spy).toHaveBeenCalledWith('anonId');
+    });
+    it('should set anonymousId with existing logic if external name is not string', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = 12345;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
+      userSessionManager.syncStorageDataToState();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
+    it('should set anonymousId with existing logic if external name is null', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = null;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
+      userSessionManager.syncStorageDataToState();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
+    it('should set anonymousId with existing logic if external name is undefined', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = undefined;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
+
+      userSessionManager.syncStorageDataToState();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
+    it('should set anonymousId with existing logic if anonymousId fetch by the external name is null', () => {
+      const customData = {
+        rl_anonymous_id: 'dummy-anonymousId',
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.getExternalAnonymousIdByCookieName = jest.fn(() => null);
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
+    });
   });
 
   describe('init', () => {
@@ -1303,6 +1367,20 @@ describe('User session manager', () => {
       const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
       userSessionManager.reset(true, true);
       expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
+    });
+  });
+
+  describe('getExternalAnonymousIdByCookieName', () => {
+    it('Should return null if the cookie value does not exists', () => {
+      const externalAnonymousId =
+        userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
+      expect(externalAnonymousId).toEqual(null);
+    });
+    it('Should return the cookie value if exists', () => {
+      document.cookie = 'anonId_cookie=sampleAnonymousId12345';
+      const externalAnonymousId =
+        userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
+      expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
     });
   });
 });
