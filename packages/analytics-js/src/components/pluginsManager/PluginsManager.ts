@@ -16,12 +16,14 @@ import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
-  ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
-import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
-import { pluginNamesList } from './pluginNames';
+import {
+  DEPRECATED_PLUGIN_WARNING,
+  UNSUPPORTED_BEACON_API_WARNING,
+} from '../../constants/logMessages';
+import { deprecatedPluginsList, pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -94,25 +96,19 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
+    // Filter deprecated plugins
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+      if (deprecatedPluginsList.includes(pluginName)) {
+        this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+        return false;
+      }
+      return true;
+    });
+
     // Error reporting related plugins
-    const supportedErrReportingProviderPluginNames: string[] = Object.values(
-      ErrorReportingProvidersToPluginNameMap,
-    );
-    if (state.reporting.errorReportingProviderPluginName.value) {
+    if (!state.reporting.isErrorReportingEnabled.value) {
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName !== state.reporting.errorReportingProviderPluginName.value &&
-            supportedErrReportingProviderPluginNames.includes(pluginName)
-          ),
-      );
-    } else {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName === 'ErrorReporting' ||
-            supportedErrReportingProviderPluginNames.includes(pluginName)
-          ),
+        pluginName => pluginName !== 'ErrorReporting',
       );
     }
 

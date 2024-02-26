@@ -234,6 +234,7 @@ class Analytics implements IAnalytics {
   }
 
   prepareInternalServices() {
+    this.errorHandler.init(this.httpClient);
     this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
     this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
@@ -272,7 +273,6 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   onPluginsReady() {
-    this.errorHandler.init(this.externalSrcLoader);
     // Initialize storage
     this.storeManager?.init();
     this.userSessionManager?.init();

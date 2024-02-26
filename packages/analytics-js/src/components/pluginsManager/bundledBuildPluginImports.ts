@@ -1,5 +1,4 @@
 import { BeaconQueue } from '@rudderstack/analytics-js-plugins/beaconQueue';
-import { Bugsnag } from '@rudderstack/analytics-js-plugins/bugsnag';
 import { CustomConsentManager } from '@rudderstack/analytics-js-plugins/customConsentManager';
 import { DeviceModeDestinations } from '@rudderstack/analytics-js-plugins/deviceModeDestinations';
 import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
@@ -20,7 +19,6 @@ import type { PluginMap } from './types';
  */
 const getBundledBuildPluginImports = (): PluginMap => ({
   BeaconQueue,
-  Bugsnag,
   CustomConsentManager,
   DeviceModeDestinations,
   DeviceModeTransformation,
