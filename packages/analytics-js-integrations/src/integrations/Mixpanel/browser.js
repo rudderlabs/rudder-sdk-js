@@ -189,7 +189,7 @@ class Mixpanel {
     if (this.useUserDefinedPageEventName) {
       if (!this.userDefinedPageEventTemplate) {
         logger.error(
-          'Event template is missing. Please provide a valid event template in `Page Event Name Template` setting',
+          'Event name template is not configured. Please provide a valid value for the `Page Event Name Template` in the destination dashboard.',
         );
         return;
       }
