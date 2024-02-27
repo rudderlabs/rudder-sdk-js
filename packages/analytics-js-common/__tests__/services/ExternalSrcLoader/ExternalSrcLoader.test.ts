@@ -39,12 +39,12 @@ describe('External Source Loader', () => {
       expect(loadedScript).toStrictEqual('dummyScript');
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
-      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
       done();
     };
 
     externalSrcLoaderInstance.loadJSFile({
-      url: `${dummyDataplaneHost}/jsFileSample`,
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
       id: 'dummyScript',
       callback: cb,
     });
@@ -78,7 +78,7 @@ describe('External Source Loader', () => {
       expect(loadedScript).toBeUndefined();
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
-      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new Error(
@@ -90,11 +90,14 @@ describe('External Source Loader', () => {
       done();
     };
 
-    const dummyElement = createScriptElement(`${dummyDataplaneHost}/jsFileSample`, 'dummyScript');
+    const dummyElement = createScriptElement(
+      `${dummyDataplaneHost}/jsFileSample.js`,
+      'dummyScript',
+    );
     insertScript(dummyElement);
     const scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
-    expect(scriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
+    expect(scriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
 
     externalSrcLoaderInstance.loadJSFile({
       url: `${dummyDataplaneHost}/noConnectionSample`,
@@ -104,10 +107,13 @@ describe('External Source Loader', () => {
   });
 
   it(`should append the script in DOM in correct place`, () => {
-    const dummyElement = createScriptElement(`${dummyDataplaneHost}/jsFileSample`, 'dummyScript');
+    const dummyElement = createScriptElement(
+      `${dummyDataplaneHost}/jsFileSample.js`,
+      'dummyScript',
+    );
 
     // If head exists should be placed as first script
-    insertScript(createScriptElement(`${dummyDataplaneHost}/jsFileEmpty`, 'dummyScript1'));
+    insertScript(createScriptElement(`${dummyDataplaneHost}/jsFileEmpty.js`, 'dummyScript1'));
     insertScript(dummyElement);
     let scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
@@ -120,7 +126,7 @@ describe('External Source Loader', () => {
     document.getElementsByTagName('head')[0].remove();
     const scriptElement1 = document.createElement('script');
     scriptElement1.type = 'text/javascript';
-    scriptElement1.src = `${dummyDataplaneHost}/jsFileEmpty`;
+    scriptElement1.src = `${dummyDataplaneHost}/jsFileEmpty.js`;
     scriptElement1.id = 'dummyScript1';
     document.getElementsByTagName('body')[0].append(scriptElement1);
     insertScript(dummyElement);
@@ -145,14 +151,14 @@ describe('External Source Loader', () => {
     const cb = () => {
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
-      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample`);
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
       expect(newScriptElement.crossOrigin).toStrictEqual('anonymous');
       expect(newScriptElement.getAttribute('integrity')).toStrictEqual('filehash');
       done();
     };
 
     externalSrcLoaderInstance.loadJSFile({
-      url: `${dummyDataplaneHost}/jsFileSample`,
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
       id: 'dummyScript',
       callback: cb,
       extraAttributes: {

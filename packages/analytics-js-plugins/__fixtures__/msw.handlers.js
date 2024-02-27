@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import {
   dummyDataplaneHost,
   dmtSuccessResponse,
@@ -7,27 +7,38 @@ import {
 } from './fixtures';
 
 const handlers = [
-  rest.post(`${dummyDataplaneHost}/success/transform`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(dmtSuccessResponse));
+  http.post(`${dummyDataplaneHost}/success/transform`, () => {
+    return new HttpResponse(JSON.stringify(dmtSuccessResponse), {
+      status: 200,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/partialSuccess/transform`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(dmtPartialSuccessResponse));
+  http.post(`${dummyDataplaneHost}/partialSuccess/transform`, () => {
+    return new HttpResponse(JSON.stringify(dmtPartialSuccessResponse), {
+      status: 200,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/invalidResponse/transform`, (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.text(dmtSuccessResponse),
-      ctx.set('Content-Type', 'application/json; charset=utf-8'),
-    );
+  http.post(`${dummyDataplaneHost}/invalidResponse/transform`, () => {
+    return new HttpResponse(dmtSuccessResponse, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/badRequest/transform`, (req, res, ctx) => {
-    return res(ctx.status(400), ctx.text(errorMessage));
+  http.post(`${dummyDataplaneHost}/badRequest/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 400,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/accessDenied/transform`, (req, res, ctx) => {
-    return res(ctx.status(404));
+  http.post(`${dummyDataplaneHost}/accessDenied/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 404,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
-    return res(ctx.status(500));
+  http.post(`${dummyDataplaneHost}/serverDown/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 500,
+    });
   }),
 ];
 
