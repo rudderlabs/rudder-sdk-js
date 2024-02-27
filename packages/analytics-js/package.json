@@ -76,6 +76,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
+    "check:pub": "npx publint",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
     "package": "npm pack",
     "release": "npm publish",
