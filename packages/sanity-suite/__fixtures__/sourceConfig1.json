@@ -36,17 +36,18 @@
           "name": "GTM",
           "displayName": "Google Tag Manager",
           "createdAt": "2020-01-30T08:46:11.787Z",
-          "updatedAt": "2024-01-10T11:15:19.159Z",
+          "updatedAt": "2024-02-22T03:31:39.813Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK"],
+              "web": ["useNativeSDK", "consentManagement"],
               "defaultConfig": [
                 "containerID",
                 "serverUrl",
                 "blacklistedEvents",
                 "whitelistedEvents",
                 "eventFilteringOption",
-                "oneTrustCookieCategories"
+                "oneTrustCookieCategories",
+                "ketchConsentPurposes"
               ]
             },
             "secretKeys": [],
@@ -57,6 +58,8 @@
               "blacklistedEvents",
               "whitelistedEvents",
               "oneTrustCookieCategories",
+              "ketchConsentPurposes",
+              "consentManagement",
               "eventFilteringOption"
             ],
             "transformAtV1": "processor",
@@ -216,10 +219,10 @@
           "name": "HOTJAR",
           "displayName": "Hotjar",
           "createdAt": "2019-10-31T07:49:37.450Z",
-          "updatedAt": "2024-01-10T11:15:50.746Z",
+          "updatedAt": "2024-02-22T03:31:36.973Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK"],
+              "web": ["useNativeSDK", "connectionMode"],
               "defaultConfig": [
                 "siteID",
                 "blacklistedEvents",
@@ -1361,149 +1364,163 @@
     "connections": [
       {
         "id": "2M2I7zu5UDw16zeFGgjxrkOIPMd",
+        "createdAt": "2023-02-21T05:58:06.202Z",
+        "updatedAt": "2023-11-02T10:36:49.239Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M2I7gZ9L474wHE0mzMdIo84gIK",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-21T05:58:06.202Z",
-        "updatedAt": "2023-11-02T10:36:49.239Z"
+        "deleted": false
       },
       {
         "id": "2M5amTXpCHhxORC175ZTkzb1JML",
+        "createdAt": "2023-02-22T10:00:55.733Z",
+        "updatedAt": "2023-11-02T11:20:30.335Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5amK3AVQ31yy9uxD8Usk0y34Q",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-22T10:00:55.733Z",
-        "updatedAt": "2023-11-02T11:20:30.335Z"
+        "deleted": false
       },
       {
         "id": "2MBKP4UdjetHMRrToJFCmKHpGOg",
+        "createdAt": "2023-02-24T10:45:07.442Z",
+        "updatedAt": "2023-11-02T11:39:41.151Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2MBKOwDUcq0pKzHDNWL4NZH1nvW",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-24T10:45:07.442Z",
-        "updatedAt": "2023-11-02T11:39:41.151Z"
+        "deleted": false
       },
       {
         "id": "2YIcXH98w4tz8aX89rq4fFldl3c",
+        "createdAt": "2023-11-17T10:22:51.758Z",
+        "updatedAt": "2023-11-17T10:46:38.826Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2PujzZ64sYMuhdBFgO3E4kFtjoK",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": true,
-        "createdAt": "2023-11-17T10:22:51.758Z",
-        "updatedAt": "2023-11-17T10:46:38.826Z"
+        "deleted": true
       },
       {
         "id": "2L8KCfcreKPAOBJzkCBRNvNOqwG",
+        "createdAt": "2023-02-01T10:25:43.975Z",
+        "updatedAt": "2023-02-01T10:25:43.975Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2L8KCafGlZAVf1LChEGfeyrELbK",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-01T10:25:43.975Z",
-        "updatedAt": "2023-02-01T10:25:43.975Z"
+        "deleted": false
       },
       {
         "id": "2L8KyWqouw4ze0f4afsrxlC0sHw",
+        "createdAt": "2023-02-01T10:32:04.108Z",
+        "updatedAt": "2023-11-02T06:29:48.482Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2L8KyN0Fo6CmtL1jZ7Rccas42ry",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-01T10:32:04.108Z",
-        "updatedAt": "2023-11-02T06:29:48.482Z"
+        "deleted": false
       },
       {
         "id": "2LUHxiGlQWQOJP8DiKidSKdyosg",
+        "createdAt": "2023-02-09T05:03:09.751Z",
+        "updatedAt": "2023-02-20T11:37:45.939Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LUHxbh8aM2B1ODT2RGBetg6tDW",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": true,
-        "createdAt": "2023-02-09T05:03:09.751Z",
-        "updatedAt": "2023-02-20T11:37:45.939Z"
+        "deleted": true
       },
       {
         "id": "2LoXyxr2J8DgOyLT4bwi1Rtikx1",
+        "createdAt": "2023-02-16T09:11:06.721Z",
+        "updatedAt": "2023-11-02T06:56:37.482Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoXypOO5xdh7R5xJynzIyWeYJf",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-16T09:11:06.721Z",
-        "updatedAt": "2023-11-02T06:56:37.482Z"
+        "deleted": false
       },
       {
         "id": "2LoUx4n5pGXTZOLnAugGaX6gmcG",
+        "createdAt": "2023-02-16T08:46:11.263Z",
+        "updatedAt": "2023-11-02T06:36:14.245Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoUwsaZMiRBsdhwc3zXcNk4oOw",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-16T08:46:11.263Z",
-        "updatedAt": "2023-11-02T06:36:14.245Z"
+        "deleted": false
       },
       {
         "id": "2LoR1iFP1UnEedz0A4druIjrKdv",
+        "createdAt": "2023-02-16T08:13:55.534Z",
+        "updatedAt": "2023-11-02T06:39:33.645Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2LoR1TbVG2bcISXvy7DamldfkgO",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-16T08:13:55.534Z",
-        "updatedAt": "2023-11-02T06:39:33.645Z"
+        "deleted": false
       },
       {
         "id": "2M5dOoljKQXLKg0z7L1qFpAGAvp",
+        "createdAt": "2023-02-22T10:22:27.310Z",
+        "updatedAt": "2023-11-02T09:44:10.245Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5dOW6kipDywRHHLJy8blGeaIM",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-22T10:22:27.310Z",
-        "updatedAt": "2023-11-02T09:44:10.245Z"
+        "deleted": false
       },
       {
         "id": "2M5beUNhGIEQrnTyRBqYcTG53Vd",
+        "createdAt": "2023-02-22T10:08:05.044Z",
+        "updatedAt": "2023-11-02T11:30:43.933Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2M5beBXLTjTto62OdCBwFNejrkY",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-22T10:08:05.044Z",
-        "updatedAt": "2023-11-02T11:30:43.933Z"
+        "deleted": false
       },
       {
         "id": "2MB1bO3hTkzCoEdc7NVEC1rhGGd",
+        "createdAt": "2023-02-24T08:10:31.541Z",
+        "updatedAt": "2023-11-02T06:57:01.248Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2MB1bEpAABLRC9oI5G3IXrrBTos",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": false,
-        "createdAt": "2023-02-24T08:10:31.541Z",
-        "updatedAt": "2023-11-02T06:57:01.248Z"
+        "deleted": false
       },
       {
         "id": "2R9DmCRrtLFY88YGXdhz2wr5GPf",
+        "createdAt": "2023-06-13T10:52:39.735Z",
+        "updatedAt": "2023-06-13T10:52:55.872Z",
         "sourceId": "2L8FlAECp1sEUP7NVilWLTeA2wp",
         "destinationId": "2R9Dm3WHB6dkXuRnA0j3Amjo5Xw",
+        "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "enabled": true,
         "config": null,
-        "deleted": true,
-        "createdAt": "2023-06-13T10:52:39.735Z",
-        "updatedAt": "2023-06-13T10:52:55.872Z"
+        "deleted": true
       }
     ],
     "deleted": false,
     "transient": false
   },
-  "updatedAt": "2024-02-19T10:26:47.526Z",
+  "updatedAt": "2024-02-26T21:10:27.357Z",
   "consentManagementMetadata": {
     "providers": [
       {
