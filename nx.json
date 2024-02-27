@@ -4,6 +4,19 @@
     "libsDir": "packages"
   },
   "defaultBase": "main",
+  "release": {
+    "projects": ["*"],
+    "projectsRelationship": "independent",
+    "releaseTagPattern": "{projectName}@{version}",
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "createRelease": "github"
+      }
+    }
+  },
   "pluginsConfig": {
     "@nx/js": {
       "analyzeSourceFiles": true
