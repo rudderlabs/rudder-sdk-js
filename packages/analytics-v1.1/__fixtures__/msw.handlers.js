@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import {
   dummyDataplaneHost,
   samplePayloadSuccess,
@@ -7,27 +7,44 @@ import {
 } from './fixtures';
 
 const handlers = [
-  rest.post(`${dummyDataplaneHost}/success/transform`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(samplePayloadSuccess));
+  http.post(`${dummyDataplaneHost}/success/transform`, () => {
+    return new HttpResponse(JSON.stringify(samplePayloadSuccess), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/partialSuccess/transform`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(samplePayloadPartialSuccess));
+  http.post(`${dummyDataplaneHost}/partialSuccess/transform`, () => {
+    return new HttpResponse(JSON.stringify(samplePayloadPartialSuccess), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/invalidResponse/transform`, (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.text(samplePayloadSuccess),
-      ctx.set('Content-Type', 'application/json; charset=utf-8'),
-    );
+  http.post(`${dummyDataplaneHost}/invalidResponse/transform`, () => {
+    return new HttpResponse(samplePayloadSuccess, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/badRequest/transform`, (req, res, ctx) => {
-    return res(ctx.status(400), ctx.text(errorMessage));
+  http.post(`${dummyDataplaneHost}/badRequest/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 400,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/accessDenied/transform`, (req, res, ctx) => {
-    return res(ctx.status(404));
+  http.post(`${dummyDataplaneHost}/accessDenied/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 404,
+    });
   }),
-  rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
-    return res(ctx.status(500));
+  http.post(`${dummyDataplaneHost}/serverDown/transform`, () => {
+    return new HttpResponse(errorMessage, {
+      status: 500,
+    });
   }),
 ];
 
