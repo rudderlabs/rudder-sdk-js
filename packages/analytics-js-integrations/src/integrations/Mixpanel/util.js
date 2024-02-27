@@ -3,7 +3,6 @@
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
-import Handlebars from 'handlebars';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
 
@@ -241,21 +240,32 @@ const getConsolidatedPageCalls = config =>
     : true;
 
 /**
- * Generates a custom event name for a page calls.
+ * Generates a custom event name for a page or screen.
  *
  * @param {Object} message - The message object
  * @param {string} userDefinedEventTemplate - The user-defined event template to be used for generating the event name.
+ * @throws {ConfigurationError} If the event template is missing.
  * @returns {string} The generated custom event name.
+ * @example
+ * const userDefinedEventTemplate = "Viewed {{ category }} {{ name }} Page";
+ * const message = {name: 'Home', properties: {category: 'Index'}};
+ * output: "Viewed Index Home Page"
  */
 const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
-  try {
-    const eventTemplate = Handlebars.compile(userDefinedEventTemplate);
-    return eventTemplate(message);
-  } catch (error) {
-    logger.error(`Error generating custom event name: ${error.message}`);
-    // Return a default or empty string as a fallback
-    return 'Loaded a Page';
+  let eventName = userDefinedEventTemplate
+    .replace('{{ category }}', message.properties?.category || '')
+    .trim();
+  eventName = eventName.replace('{{ name }}', message.name || '').trim();
+  // Remove any extra space between placeholders
+  eventName = eventName.replace(/\s{2,}/g, ' ');
+
+  // Check if any placeholders remain
+  if (eventName.includes('{{')) {
+    // Handle the case where either name or category is missing
+    eventName = eventName.replace(/{{\s*\w+\s*}}/g, '');
   }
+
+  return eventName.trim();
 };
 
 export {
