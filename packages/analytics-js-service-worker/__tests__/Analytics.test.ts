@@ -1,6 +1,6 @@
 import { advanceTo } from 'jest-date-mock';
 import { Analytics } from '../src/Analytics';
-import { server } from './__fixtures__/msw.server';
+import { server } from '../__fixtures__/msw.server';
 import {
   aliasRequestPayload,
   dummyDataplaneHost,
@@ -11,7 +11,7 @@ import {
   pageRequestPayload,
   screenRequestPayload,
   trackRequestPayload,
-} from './__fixtures__/fixtures';
+} from '../__fixtures__/fixtures';
 
 jest.mock('uuid', () => ({ v4: () => '123456789' }));
 
@@ -30,8 +30,11 @@ describe('JS SDK Service Worker', () => {
       dummyDataplaneHost,
       dummyInitOptions as any,
     );
-    server.events.on('request:start', req => {
-      requestBody = req.body;
+    server.events.on('request:start', async ({ request }) => {
+      const requestState = Object.getOwnPropertySymbols(request).find(
+        s => s.description === 'state',
+      );
+      requestBody = JSON.parse(request[requestState]?.body?.source);
     });
   });
 

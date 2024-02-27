@@ -74,9 +74,10 @@
     "ms": "2.1.3"
   },
   "devDependencies": {
-    "@types/node": "20.11.19",
+    "@types/ms": "0.7.34",
+    "@types/node": "20.11.20",
     "jest-date-mock": "1.0.8",
-    "msw": "1.3.2"
+    "msw": "2.2.1"
   },
   "overrides": {},
   "browserslist": {
