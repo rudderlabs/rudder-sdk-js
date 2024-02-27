@@ -74,7 +74,7 @@ module.exports = {
   },
   setupFilesAfterEnv: ['../../jest/jest.setup-dom.js'],
   setupFiles: ['core-js', 'jest-date-mock', '../../jest/jest.polyfills.js'],
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: '../../jest/jsdom-extended.js',
   testRunner: 'jest-circus/runner',
   cacheDirectory: '../../node_modules/.cache/unit-tests',
   watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
