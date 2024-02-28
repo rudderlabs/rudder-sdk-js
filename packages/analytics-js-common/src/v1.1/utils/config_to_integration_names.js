@@ -77,6 +77,7 @@ const configToIntNames = {
   SPRIG: 'Sprig',
   SPOTIFYPIXEL: 'SpotifyPixel',
   COMMANDBAR: 'CommandBar',
+  NINETAILED: 'Ninetailed',
 };
 
 export { configToIntNames };
