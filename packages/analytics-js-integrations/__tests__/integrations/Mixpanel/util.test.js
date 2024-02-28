@@ -467,8 +467,8 @@ describe('generatePageCustomEventName', () => {
 
   it('should generate a custom event name when userDefinedEventTemplate contains event template and category or name is missing in message object', () => {
     const message = { name: 'Doc' };
-    const userDefinedEventTemplate = 'Viewed {{ category }} {{ name }} page  someKeyword';
-    const expected = 'Viewed Doc page  someKeyword';
+    const userDefinedEventTemplate = 'Viewed   {{ category }}   {{ name }} page  someKeyword';
+    const expected = 'Viewed     Doc page  someKeyword';
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
@@ -491,8 +491,8 @@ describe('generatePageCustomEventName', () => {
 
   it('should return a event name when message object is not provided/empty', () => {
     const message = {};
-    const userDefinedEventTemplate = 'Viewed {{ category }} {{ name }} page  someKeyword';
-    const expected = 'Viewed page  someKeyword';
+    const userDefinedEventTemplate = 'Viewed  {{ category }}  {{ name }}  page  someKeyword';
+    const expected = 'Viewed    page  someKeyword';
     const result = generatePageCustomEventName(message, userDefinedEventTemplate);
     expect(result).toBe(expected);
   });
