@@ -252,12 +252,22 @@ const getConsolidatedPageCalls = config =>
  * output: "Viewed Index Home Page"
  */
 const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
-  let eventName = userDefinedEventTemplate
-    .replace('{{ category }}', message.properties?.category || '')
-    .replace('{{ name }}', message.name || '')
-    .trim();
-  // Remove any extra space between placeholders
-  eventName = eventName.replace(/\s{2,}/g, ' ');
+  let eventName = userDefinedEventTemplate;
+
+  // Remove extra whitespace only if placeholders value are not present
+  if (!message.properties?.category) {
+    eventName = eventName.replace(/{{\s*category\s*}}\s+/g, '');
+  }
+
+  if (!message.name) {
+    eventName = eventName.replace(/{{\s*name\s*}}\s+/g, '');
+  }
+
+  // Replace placeholders with actual values
+  eventName = eventName
+    .replace('{{ category }}', message.properties?.category)
+    .replace('{{ name }}', message.name);
+
   return eventName;
 };
 
