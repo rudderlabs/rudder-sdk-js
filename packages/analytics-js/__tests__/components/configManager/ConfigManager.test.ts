@@ -1,5 +1,5 @@
 import { batch, effect, signal } from '@preact/signals-core';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -136,9 +136,14 @@ describe('ConfigManager', () => {
 
     const counter = signal(0);
     server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfigClone`, (req, res, ctx) => {
+      http.get(`${sampleConfigUrl}/sourceConfigClone`, () => {
         counter.value = 1;
-        return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
+        return new HttpResponse(JSON.stringify(dummySourceConfigResponse), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        });
       }),
     );
 
