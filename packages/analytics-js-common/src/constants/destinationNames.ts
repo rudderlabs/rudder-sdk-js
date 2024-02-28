@@ -306,3 +306,7 @@ export {
   DISPLAY_NAME as CommandBarDisplayName,
   DIR_NAME as CommandBarDirectoryName,
 } from './integrations/CommandBar/constants';
+export {
+  DISPLAY_NAME as NinetailedDisplayName,
+  DIR_NAME as NinetailedDirectoryName,
+} from './integrations/Ninetailed/constants';
