@@ -4,7 +4,7 @@
 import get from 'get-value';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import Logger from '../../utils/logger';
-import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
+import { getDefinedTraits, extractCustomFields, isDefinedAndNotNull } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -255,12 +255,12 @@ const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
   let eventName = userDefinedEventTemplate;
 
   // find {{ category }} surrounded by whitespace characters and replace it with a single whitespace character
-  if (!message.properties?.category) {
+  if (!isDefinedAndNotNull(message.properties?.category)) {
     eventName = eventName.replace(/\s{{\s*category\s*}}\s/g, ' ');
   }
 
   // find {{ name }} surrounded by whitespace characters and replace it with a single whitespace character
-  if (!message.name) {
+  if (!isDefinedAndNotNull(message.name)) {
     eventName = eventName.replace(/\s{{\s*name\s*}}\s/g, ' ');
   }
 
