@@ -107,7 +107,8 @@ class Klaviyo {
       return;
     }
 
-    const { userId, email, phone, firstName, lastName, city, country } = getDefinedTraits(message);
+    const { userId, email, phone, firstName, lastName, city, country, state } =
+      getDefinedTraits(message);
 
     let payload = {
       $id: userId,
@@ -119,8 +120,9 @@ class Klaviyo {
       $country: country,
       $organization: get(message, 'context.traits.organization'),
       $title: get(message, 'context.traits.title'),
-      $region: get(message, 'context.traits.region'),
-      $zip: get(message, 'context.traits.zip'),
+      $region: get(message, 'context.traits.region') || state,
+      $zip: get(message, 'context.traits.zip') || get(message, 'context.traits.address.postalCode'),
+      $address1: get(message, 'context.traits.address.street'),
     };
     if (!payload.$email && !payload.$phone_number && !payload.$id) {
       logger.error('user id, phone or email not present');
