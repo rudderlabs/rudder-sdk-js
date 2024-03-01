@@ -2,6 +2,9 @@ const productAdded = 'Product Added';
 const orderCompleted = 'Order Completed';
 const mockConversionId = 'AW-11071053757';
 const mockOrderId = '771c04b-2cb8-41dd-9609-330b37bcc62c';
+const item_name = 'Food/Drink';
+const item_variant = 'Extra topped';
+const transaction_id = '771c04b-2cb8-41dd-9609-330b37bcc62c';
 
 const products = [
   {
@@ -240,11 +243,14 @@ export {
   products,
   mockEvents,
   mockOrderId,
+  item_name,
+  item_variant,
+  transaction_id,
   productAdded,
   orderCompleted,
   googleAdsConfigs,
   trackCallPayload,
   mockConversionId,
   mockEventTypeConversions,
-  noEventNameTrackCallPayload
+  noEventNameTrackCallPayload,
 };
