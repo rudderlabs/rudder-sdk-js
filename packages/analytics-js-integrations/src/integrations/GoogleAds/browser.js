@@ -18,6 +18,8 @@ import {
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
+import { prepareParamsAndEventName } from '../GA4/utils';
+
 const logger = new Logger(DISPLAY_NAME);
 
 class GoogleAds {
@@ -45,6 +47,7 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
+    this.v2 = config.v2 || true;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -112,6 +115,11 @@ class GoogleAds {
         transaction_id: rudderElement.message?.properties?.order_id,
         send_to: sendToValue,
       };
+      if (this.v2) {
+        const updatedEventName = eventName.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
+        properties = { ...properties, ...ecomPayload?.params };
+      }
       properties = removeUndefinedAndNullValues(properties);
       properties = newCustomerAcquisitionReporting(properties);
 
@@ -137,6 +145,13 @@ class GoogleAds {
       );
 
       let { properties } = rudderElement.message;
+      const { event } = rudderElement.message;
+
+      if (this.v2) {
+        const updatedEventName = event.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
+        properties = { ...properties, ...ecomPayload?.params };
+      }
 
       // set new customer acquisition reporting
       // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager

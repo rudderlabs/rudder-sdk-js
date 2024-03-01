@@ -12,6 +12,7 @@ CONTRIBUTING.md
 examples/chrome-extension/**/rudderAnalytics.js
 examples/chrome-extension/**/foreground.js
 examples/**/index.html
+packages/analytics-js-integrations/src/integrations/Ninetailed/sample-app/
 **/public/index.html
 
 /.nx/cache

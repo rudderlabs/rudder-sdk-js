@@ -1,8 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import * as timeouts from '@rudderstack/analytics-js-common/src/constants/timeouts';
 import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
@@ -158,7 +159,7 @@ describe('Bugsnag utilities', () => {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        updateMetaData: function (key, value) {
+        updateMetaData(key, value) {
           this.metadata[key] = value;
         },
         errorMessage: 'test error message',
@@ -184,7 +185,7 @@ describe('Bugsnag utilities', () => {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        updateMetaData: function (key, value) {
+        updateMetaData(key, value) {
           this.metadata[key] = value;
         },
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
@@ -289,6 +290,7 @@ describe('Bugsnag utilities', () => {
     const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
 
     const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
+    const origExtSrcLoadTimeout = timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS;
 
     beforeEach(() => {
       insertBeforeSpy = jest.spyOn(document.head, 'insertBefore');
@@ -302,6 +304,7 @@ describe('Bugsnag utilities', () => {
       delete (window as any).Bugsnag;
       delete (window as any).bugsnag;
       bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
+      timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = origExtSrcLoadTimeout;
     });
 
     it('should not load Bugsnag SDK if it (<=v6) is already loaded', () => {
@@ -330,6 +333,7 @@ describe('Bugsnag utilities', () => {
     });
 
     it('should invoke error handler and log error if Bugsnag SDK could not be loaded', done => {
+      timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = 1000; // 1 second
       bugsnagConstants.BUGSNAG_CDN_URL = 'https://asdf.com/bugsnag.min.js';
       loadBugsnagSDK(extSrcLoader, mockLogger);
 

@@ -21,9 +21,12 @@ env:
 jobs:
   deploy-tag:
     name: Deploy Sanity Suite
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
+      - name: Install AWS cli
+        uses: unfor19/install-aws-cli-action@master
+        
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -76,6 +76,8 @@ const configToIntNames = {
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
   SPRIG: 'Sprig',
   SPOTIFYPIXEL: 'SpotifyPixel',
+  COMMANDBAR: 'CommandBar',
+  NINETAILED: 'Ninetailed',
 };
 
 export { configToIntNames };
