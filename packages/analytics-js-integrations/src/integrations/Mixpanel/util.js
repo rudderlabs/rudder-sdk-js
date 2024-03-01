@@ -254,20 +254,21 @@ const getConsolidatedPageCalls = config =>
 const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
   let eventName = userDefinedEventTemplate;
 
-  // find {{ category }} surrounded by whitespace characters and replace it with a single whitespace character
-  if (!isDefinedAndNotNull(message.properties?.category)) {
+  if (isDefinedAndNotNull(message.properties?.category)) {
+    // Replace {{ category }} with actual values
+    eventName = eventName.replace(/{{\s*category\s*}}/g, message.properties.category);
+  } else {
+    // find {{ category }} surrounded by whitespace characters and replace it with a single whitespace character
     eventName = eventName.replace(/\s{{\s*category\s*}}\s/g, ' ');
   }
 
-  // find {{ name }} surrounded by whitespace characters and replace it with a single whitespace character
-  if (!isDefinedAndNotNull(message.name)) {
+  if (isDefinedAndNotNull(message.name)) {
+    // Replace {{ name }} with actual values
+    eventName = eventName.replace(/{{\s*name\s*}}/g, message.name);
+  } else {
+    // find {{ name }} surrounded by whitespace characters and replace it with a single whitespace character
     eventName = eventName.replace(/\s{{\s*name\s*}}\s/g, ' ');
   }
-
-  // Replace placeholders with actual values
-  eventName = eventName
-    .replace('{{ category }}', message.properties?.category)
-    .replace('{{ name }}', message.name);
 
   return eventName;
 };
