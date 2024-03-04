@@ -242,6 +242,69 @@ describe('Facebook Pixel Track event', () => {
     });
   });
 
+  test('Testing Ecommerce Track Events with content_type in properties', () => {
+    facebookPixel.track({
+      message: {
+        context: {},
+        event: 'Order Completed',
+        properties: {
+          content_type: 'product_group',
+          customProp: 'testProp',
+          checkout_id: 'random_id',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+          products: [
+            {
+              product_id: 'abc',
+              category: 'Merch',
+              price: 3.0,
+              quantity: 2,
+              currency: 'GBP',
+              value: 6.0,
+              typeOfProduct: 'Food',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.fbq.mock.calls[0][3]).toEqual({
+      checkout_id: 'random_id',
+      content_ids: ['abc'],
+      content_type: 'product_group',
+      currency: 'GBP',
+      content_name: undefined,
+      value: 0,
+      contents: [
+        {
+          id: 'abc',
+          quantity: 2,
+          item_price: 3,
+        },
+      ],
+      num_items: 1,
+      coupon: 'APPARELSALE',
+      customProp: 'testProp',
+      event_id: 'purchaseId',
+      order_id: 'transactionId',
+      products: [
+        {
+          product_id: 'abc',
+          category: 'Merch',
+          price: 3.0,
+          quantity: 2,
+          currency: 'GBP',
+          value: 6.0,
+          typeOfProduct: 'Food',
+        },
+      ],
+      shipping: 4,
+    });
+  });
+
   test('Testing Track Custom Events', () => {
     facebookPixel.track({
       message: {

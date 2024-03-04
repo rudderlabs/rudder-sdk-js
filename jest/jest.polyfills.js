@@ -1,5 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-
 require('isomorphic-fetch');
 
 // Mocking Math random
@@ -18,7 +16,3 @@ console.warn = jest.fn();
 console.error = jest.fn();
 // Mock browsers sendBeacon utility
 navigator.sendBeacon = jest.fn();
-
-import { TextEncoder, TextDecoder } from 'util';
-
-Object.assign(global, { TextDecoder, TextEncoder });

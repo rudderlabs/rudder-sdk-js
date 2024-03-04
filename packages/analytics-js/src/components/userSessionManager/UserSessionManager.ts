@@ -5,6 +5,7 @@ import {
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
+  isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
   isNullOrUndefined,
   isString,
@@ -93,7 +94,15 @@ class UserSessionManager implements IUserSessionManager {
     this.setUserTraits(this.getUserTraits());
     this.setGroupId(this.getGroupId());
     this.setGroupTraits(this.getGroupTraits());
-    this.setAnonymousId(this.getAnonymousId(state.loadOptions.value.anonymousIdOptions));
+    const { externalAnonymousIdCookieName, anonymousIdOptions } = state.loadOptions.value;
+    let externalAnonymousId;
+    if (
+      isDefinedAndNotNull(externalAnonymousIdCookieName) &&
+      typeof externalAnonymousIdCookieName === 'string'
+    ) {
+      externalAnonymousId = this.getExternalAnonymousIdByCookieName(externalAnonymousIdCookieName);
+    }
+    this.setAnonymousId(externalAnonymousId ?? this.getAnonymousId(anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
     this.setInitialReferrerInfo();
     this.configureSessionTracking();
@@ -348,6 +357,14 @@ class UserSessionManager implements IUserSessionManager {
       );
       const storageKey = entries[sessionKey]?.key as string;
       return store?.get(storageKey) ?? null;
+    }
+    return null;
+  }
+
+  getExternalAnonymousIdByCookieName(key: string) {
+    const storageEngine = getStorageEngine(COOKIE_STORAGE);
+    if (storageEngine?.isEnabled) {
+      return storageEngine.getItem(key) ?? null;
     }
     return null;
   }

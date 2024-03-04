@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.0-beta.22",
+  "version": "3.0.0-beta.23",
   "description": "RudderStack Javascript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -76,6 +76,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
+    "check:pub": "npx publint",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
     "package": "npm pack",
     "release": "npm publish",

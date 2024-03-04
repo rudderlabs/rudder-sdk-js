@@ -83,7 +83,7 @@ window.rudderAnalyticsMount = () => {
 if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
   const rudderAnalyticsPromisesScript = document.createElement('script');
   rudderAnalyticsPromisesScript.src =
-    'https://polyfill.io/v3/polyfill.min.js?features=Symbol%2CPromise&callback=rudderAnalyticsMount';
+    'https://polyfill.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount';
   rudderAnalyticsPromisesScript.async = asyncScript;
   if (document.head) {
     document.head.appendChild(rudderAnalyticsPromisesScript);

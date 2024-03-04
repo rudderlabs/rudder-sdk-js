@@ -4,7 +4,7 @@
 import get from 'get-value';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import Logger from '../../utils/logger';
-import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
+import { getDefinedTraits, extractCustomFields, isDefinedAndNotNull } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -38,7 +38,7 @@ const traitAliases = {
 
 /**
  * Removes a property from an object based on a given property path.
- * 
+ *
  * @param {object} obj - The object from which the property needs to be removed.
  * @param {string} propertyPath - The path of the property to be removed, using dot notation.
  * @returns {undefined} - This function does not return anything.
@@ -54,7 +54,7 @@ const traitAliases = {
  *     }
  *   }
  * };
- * 
+ *
  * unset(obj, 'person.address.city');
  *  Output: { person: { name: 'John', age: 30, address: { state: 'NY' } } }
  */
@@ -82,7 +82,7 @@ function filterSetOnceTraits(outgoingTraits, setOnceProperties) {
 
   // Step 1: find the k-v pairs of setOnceProperties in traits and contextTraits
 
-  setOnceProperties.forEach((propertyPath) => {
+  setOnceProperties.forEach(propertyPath => {
     const pathSegments = propertyPath.split('.');
     const propName = pathSegments[pathSegments.length - 1];
 
@@ -239,6 +239,40 @@ const getConsolidatedPageCalls = config =>
     ? config.consolidatedPageCalls
     : true;
 
+/**
+ * Generates a custom event name for a page or screen.
+ *
+ * @param {Object} message - The message object
+ * @param {string} userDefinedEventTemplate - The user-defined event template to be used for generating the event name.
+ * @throws {ConfigurationError} If the event template is missing.
+ * @returns {string} The generated custom event name.
+ * @example
+ * const userDefinedEventTemplate = "Viewed {{ category }} {{ name }} Page";
+ * const message = {name: 'Home', properties: {category: 'Index'}};
+ * output: "Viewed Index Home Page"
+ */
+const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
+  let eventName = userDefinedEventTemplate;
+
+  if (isDefinedAndNotNull(message.properties?.category)) {
+    // Replace {{ category }} with actual values
+    eventName = eventName.replace(/{{\s*category\s*}}/g, message.properties.category);
+  } else {
+    // find {{ category }} surrounded by whitespace characters and replace it with a single whitespace character
+    eventName = eventName.replace(/\s{{\s*category\s*}}\s/g, ' ');
+  }
+
+  if (isDefinedAndNotNull(message.name)) {
+    // Replace {{ name }} with actual values
+    eventName = eventName.replace(/{{\s*name\s*}}/g, message.name);
+  } else {
+    // find {{ name }} surrounded by whitespace characters and replace it with a single whitespace character
+    eventName = eventName.replace(/\s{{\s*name\s*}}\s/g, ' ');
+  }
+
+  return eventName;
+};
+
 export {
   mapTraits,
   unionArrays,
@@ -249,5 +283,6 @@ export {
   inverseObjectArrays,
   getConsolidatedPageCalls,
   filterSetOnceTraits,
-  unset
+  unset,
+  generatePageCustomEventName,
 };

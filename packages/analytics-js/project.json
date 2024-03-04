@@ -128,18 +128,10 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.0.0-beta.22",
-        "title": "@rudderstack/analytics-js@3.0.0-beta.22",
-        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.22",
+        "tag": "@rudderstack/analytics-js@3.0.0-beta.23",
+        "title": "@rudderstack/analytics-js@3.0.0-beta.23",
+        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.23",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
-      }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public",
-        "distFolderPath": "packages/analytics-js",
-        "noBuild": true
       }
     }
   }
