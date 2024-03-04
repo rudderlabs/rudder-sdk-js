@@ -15,5 +15,4 @@ testBookSuites/
 tsconfig.build.tsbuildinfo
 nativeSdkLoader.js
 nativeSdkLoader.ts
-packages/analytics-js-integrations/src/integrations/Ninetailed/sample-app/
 assets/
