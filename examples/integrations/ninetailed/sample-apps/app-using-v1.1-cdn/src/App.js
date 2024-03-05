@@ -1,9 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 import { useEffect } from 'react';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { Ninetailed } from '@ninetailed/experience.js';
-
+import { CDN_URL, CONFIG_URL, DATAPLANE_URL, WRITE_KEY } from './config';
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
   // OPTIONAL. Your Ninetailed environment, typically either "main" or "development"
@@ -12,18 +11,31 @@ export const ninetailed = new Ninetailed({
 });
 
 function App() {
-  useEffect(() => {
-    if (window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
-      return;
+    useEffect(() => {
+      if (window.rudderanalytics) {
+        return;
+      }
+    let e = window.rudderanalytics = window.rudderanalytics || [];
+    e.methods = ["load", "page", "track", "identify", "alias", "group", "ready", "reset", "getAnonymousId", "setAnonymousId", "getUserId", "getUserTraits", "getGroupId", "getGroupTraits", "startSession", "endSession"];
+    e.factory = function(t) {
+      return function() {
+        e.push([t].concat(Array.prototype.slice.call(arguments)));
+      };
+    };
+    for (let t = 0; t < e.methods.length; t++) {
+      let r = e.methods[t];
+      e[r] = e.factory(r);
     }
-
-    const analytics = new RudderAnalytics();
-
-    analytics.load('2PgNfU6WA50ETF5yBMpKzALATv6', 'https://rudderstacmz.dataplane.rudderstack.com');
-
-    analytics.ready(() => {
-      console.log('We are all set!!!');
-    });
+    e.loadJS = function(_e, t) {
+      let r = document.createElement("script");
+      r.type = "text/javascript";
+      r.async = true;
+      r.src = CDN_URL;
+      let a = document.getElementsByTagName("script")[0];
+      a.parentNode.insertBefore(r, a);
+    };
+    e.loadJS();
+    e.load(WRITE_KEY, DATAPLANE_URL,{configUrl: CONFIG_URL});
   }, []);
   const page = () => {
     window.rudderanalytics.page(
