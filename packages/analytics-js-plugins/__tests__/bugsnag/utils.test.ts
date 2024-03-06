@@ -17,6 +17,7 @@ import {
   onError,
   getAppStateForMetadata,
 } from '../../src/bugsnag/utils';
+import { server } from '../../__fixtures__/msw.server';
 
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
@@ -263,6 +264,13 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('loadBugsnagSDK', () => {
+    beforeAll(() => {
+      server.listen();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
     let insertBeforeSpy: any;
 
     class MockLogger implements ILogger {
