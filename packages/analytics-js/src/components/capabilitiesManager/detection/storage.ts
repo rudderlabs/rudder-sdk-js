@@ -69,7 +69,7 @@ const isStorageAvailable = (
     if (isStorageQuotaExceeded(err)) {
       reason = 'full';
     }
-    logger?.error(`${msgPrefix}${reason}.`, err);
+    logger?.warn(`${msgPrefix}${reason}.`, err);
     return false;
   }
 };
