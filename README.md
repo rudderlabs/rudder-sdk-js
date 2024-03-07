@@ -279,7 +279,7 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 });
 ```
 
-More information on obtaining the `CONTROL_PLANE_URL` can be found [**here**](https://docs.rudderstack.com/get-started/control-plane-lite#what-is-the-control-plane-url).
+More information on obtaining the `CONTROL_PLANE_URL` can be found [**here**](https://www.rudderstack.com/docs/resources/faq/#for-a-self-hosted-environment-how-do-i-obtain-the-control-plane-url).
 
 ## Adding your own integrations
 
