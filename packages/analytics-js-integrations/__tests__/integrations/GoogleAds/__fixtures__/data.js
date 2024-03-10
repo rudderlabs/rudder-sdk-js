@@ -208,6 +208,10 @@ const googleAdsConfigs = [
       { conversionLabel: 'KhF2CKvCs4gYEIXBi58p', name: productAdded },
     ],
   },
+  {
+    conversionId: 'conversionId',
+    dcfaId: 'dcfaId',
+  },
 ];
 
 const trackCallPayload = {
