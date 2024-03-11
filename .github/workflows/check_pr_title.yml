@@ -14,4 +14,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check PR title
-        uses: rudderlabs/github-action-check-pr-title@v1.0.7
+        uses: rudderlabs/github-action-check-pr-title@v1.0.8
