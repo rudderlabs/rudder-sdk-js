@@ -1,16 +1,41 @@
-name: Build & Code Quality Checks v3
+name: Security, Code Quality and Bundle Size Checks
 
 on:
   pull_request:
-    branches: ['develop', 'main', 'v3-hotfix/*']
+    branches: ['develop', 'main', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 env:
   NODE_OPTIONS: "--no-warnings"
 
 jobs:
-  build:
-    name: Build & Code Quality Checks v3
+  bundle-size-checks:
+    name: Bundle size checks
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Execute bundle size checks
+        uses: rudderlabs/github-action-check-size-limit@v2.9.0
+        env:
+          HUSKY: 0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          install_script: setup:ci
+          build_script: check:size:build
+          clean_script: clean
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
+          is_monorepo: true
+
+  security-code-quality-checks:
+    name: Security and code quality checks
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -29,23 +54,11 @@ jobs:
         run: |
           npm run setup:ci
 
-      - name: Execute security checks
-        run: |
-          npm run check:security
-
-      - name: Execute quality checks
+      - name: Execute code quality checks
         run: |
           npm run check:circular
           npm run check:duplicates
 
-      - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.9.0
-        env:
-          HUSKY: 0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          install_script: setup:ci
-          build_script: check:size:build
-          clean_script: clean
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
-          is_monorepo: true
+      - name: Execute security checks
+        run: |
+          npm run check:security
