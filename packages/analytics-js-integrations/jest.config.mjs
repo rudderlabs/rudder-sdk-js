@@ -9,6 +9,8 @@ export default {
     "/__fixtures__/",
     "/__mocks__/",
     ".test.js",
+    "nativeSdkLoader.js",
+    "/integrations/.*/index.js"
   ],
   coverageThreshold: {
     global: {
