@@ -9,14 +9,21 @@ const CONTEXT_RESERVED_ELEMENTS = ['library', 'consentManagement', 'userAgent', 
 
 // Reserved elements in the standard RudderStack event spec
 const RESERVED_ELEMENTS = [
-  'anonymousId',
-  'sentAt',
-  'receivedAt',
+  'id',
+  'anonymous_id',
+  'user_id',
+  'sent_at',
   'timestamp',
-  'originalTimestamp',
+  'received_at',
+  'original_timestamp',
   'event',
-  'messageId',
+  'event_text',
   'channel',
+  'context_ip',
+  'context_request_ip',
+  'context_passed_ip',
+  'group_id',
+  'previous_id',
 ];
 
 export { CHANNEL, TOP_LEVEL_ELEMENTS, CONTEXT_RESERVED_ELEMENTS, RESERVED_ELEMENTS };

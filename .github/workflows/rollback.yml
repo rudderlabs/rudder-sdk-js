@@ -1,0 +1,27 @@
+name: Rollback Production Deployment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+env:
+  NODE_OPTIONS: "--no-warnings"
+
+jobs:
+  deploy-tag:
+    name: Rollback production deployment
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main')
+    uses: ./.github/workflows/deploy-prod.yml
+    with:
+      action_type: ' Rollback'
+    secrets:
+      AWS_PROD_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
+      AWS_PROD_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_PROD_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+      AWS_PROD_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
