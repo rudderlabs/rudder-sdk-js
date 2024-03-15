@@ -1,17 +1,14 @@
-name: Check PR title
+name: Check PR Title
 
 on:
   pull_request:
-    branches: [ 'main', 'develop', 'hotfix/*', 'v3-hotfix/*']
+    branches: ['main', 'develop', 'hotfix/*']
     types: ['opened', 'reopened', 'edited', 'synchronize']
 
 jobs:
   check_pr_title:
     name: Check PR title
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Check PR title
-        uses: rudderlabs/github-action-check-pr-title@v1.0.9
+        uses: rudderlabs/github-action-check-pr-title@v1.0.11

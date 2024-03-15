@@ -1,19 +1,19 @@
-name: 'Unit Tests, Coverage & Sonar v3'
+name: Unit Tests and Lint
 
 on:
   workflow_dispatch:
   push:
     branches: ['main', 'develop']
   pull_request:
-    branches: ['main', 'develop', 'v3-hotfix/*']
+    branches: ['main', 'develop', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 env:
   NODE_OPTIONS: "--no-warnings"
 
 jobs:
-  build:
-    name: 'Unit Tests, Coverage & Sonar v3'
+  test:
+    name: Unit Tests and Lint
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -38,6 +38,13 @@ jobs:
         run: |
           npm run test:ci
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml
+
       - name: Execute linting check
         run: |
           npm run check:lint:ci
@@ -51,10 +58,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml
