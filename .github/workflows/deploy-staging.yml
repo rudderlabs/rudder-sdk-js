@@ -22,8 +22,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     # Only run the workflow to be manually run for tags
     # and PRs raised from release branches to main
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release')
-
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release') || startsWith(github.head_ref, 'release')
     steps:
       - name: Install AWS cli
         uses: unfor19/install-aws-cli-action@master
