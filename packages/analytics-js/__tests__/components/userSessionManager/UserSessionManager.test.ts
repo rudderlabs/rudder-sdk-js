@@ -20,6 +20,8 @@ import {
   entriesWithOnlyNoStorage,
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
+import { server } from '../../../__fixtures__/msw.server';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -84,6 +86,7 @@ describe('User session manager', () => {
       defaultLogger,
       defaultPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
     );
   });
 
@@ -1381,6 +1384,83 @@ describe('User session manager', () => {
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
+    });
+  });
+
+  describe('syncValueToStorage', () => {
+    it('Should call setServerSideCookie method in case useServerSideCookie load option is set to true', () => {
+      state.loadOptions.value.useServerSideCookie = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+      expect(spy).toHaveBeenCalledWith('rl_anonymous_id', '"dummy_anonymousId"');
+    });
+  });
+
+  describe('setServerSideCookie', () => {
+    beforeAll(() => {
+      server.listen();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+    it('Should make external request to exposed endpoint', () => {
+      state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234');
+      expect(spy).toHaveBeenCalledWith({
+        url: `https://dummy.dataplane.host.com/setCookie`,
+        options: {
+          method: 'POST',
+          data: JSON.stringify({
+            key: 'key',
+            value: 'sample_cookie_value_1234',
+            options: {
+              maxage: 10 * 60 * 1000,
+              path: '/',
+              domain: 'example.com',
+              samesite: 'Lax',
+            },
+          }),
+          sendRawData: true,
+        },
+      });
+    });
+    it('Should use provided server url to make external request for setting cookie', () => {
+      state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
+      state.loadOptions.value.cookieServerUrl = 'https://example.com';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234');
+      expect(spy).toHaveBeenCalledWith({
+        url: `https://example.com/setCookie`,
+        options: {
+          method: 'POST',
+          data: JSON.stringify({
+            key: 'key',
+            value: 'sample_cookie_value_1234',
+            options: {
+              maxage: 10 * 60 * 1000,
+              path: '/',
+              domain: 'example.com',
+              samesite: 'Lax',
+            },
+          }),
+          sendRawData: true,
+        },
+      });
     });
   });
 });

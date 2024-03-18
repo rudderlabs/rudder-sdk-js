@@ -37,6 +37,7 @@ const defaultLoadOptions: LoadOptions = {
     migrate: true,
   },
   sendAdblockPageOptions: {},
+  useServerSideCookie: false,
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

@@ -4,6 +4,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { state } from '@rudderstack/analytics-js/state';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
 import { cookie } from '../component-cookie';
 import { getDefaultCookieOptions } from './defaultOptions';
@@ -39,6 +40,8 @@ class CookieStorage implements IStorage {
     }
     this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this, this.logger);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
+    delete this.options.enabled;
+    state.storage.cookie.value = this.options;
     return this.options;
   }
 

@@ -57,6 +57,8 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
 
+  normalizedLoadOpts.useServerSideCookie = normalizedLoadOpts.useServerSideCookie === true;
+
   if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {
     delete normalizedLoadOpts.sendAdblockPageOptions;
   }

@@ -27,6 +27,8 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -59,19 +61,22 @@ import { isPositiveInteger } from '../utilities/number';
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
   pluginsManager?: IPluginsManager;
-  logger?: ILogger;
   errorHandler?: IErrorHandler;
+  httpClient?: IHttpClient;
+  logger?: ILogger;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
     pluginsManager?: IPluginsManager,
     storeManager?: IStoreManager,
+    httpClient?: IHttpClient,
   ) {
     this.storeManager = storeManager;
     this.pluginsManager = pluginsManager;
     this.logger = logger;
     this.errorHandler = errorHandler;
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
   }
 
@@ -263,6 +268,26 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to make an external request to set the cookie from server side
+   * @param key       cookie name
+   * @param value     encrypted cookie value
+   */
+  setServerSideCookie(key: string, value: string): void {
+    let baseUrl = state.lifecycle.activeDataplaneUrl.value;
+    if (typeof state.loadOptions.value.cookieServerUrl === 'string') {
+      baseUrl = state.loadOptions.value.cookieServerUrl;
+    }
+    this.httpClient?.getAsyncData({
+      url: `${baseUrl}/setCookie`,
+      options: {
+        method: 'POST',
+        data: JSON.stringify({ key, value, options: state.storage.cookie.value }),
+        sendRawData: true,
+      },
+    });
+  }
+
+  /**
    * A function to sync values in storage
    * @param sessionKey
    * @param value
@@ -272,14 +297,25 @@ class UserSessionManager implements IUserSessionManager {
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
       const curStore = this.storeManager?.getStore(
-        storageClientDataStoreNameMap[storage] as string,
+        storageClientDataStoreNameMap[storageType] as string,
       );
+      const key = entries[sessionKey]?.key as string;
       if ((value && isString(value)) || isNonEmptyObject(value)) {
-        curStore?.set(key, value);
+        // if useServerSideCookie load option is set to true
+        // set the cookie from server side
+        if (state.loadOptions.value.useServerSideCookie && storageType === 'cookieStorage') {
+          const encryptedCookieValue = curStore?.encrypt(
+            stringifyWithoutCircular(value, false, [], this.logger),
+          );
+          if (encryptedCookieValue) {
+            this.setServerSideCookie(key, encryptedCookieValue);
+          }
+        } else {
+          curStore?.set(key, value);
+        }
       } else {
         curStore?.remove(key);
       }

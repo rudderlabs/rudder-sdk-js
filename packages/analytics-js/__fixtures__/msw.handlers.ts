@@ -77,6 +77,14 @@ const handlers = [
       },
     });
   }),
+  http.post(`${dummyDataplaneHost}/setCookie`, () => {
+    return new HttpResponse(null, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+  }),
 ];
 
 export { handlers };
