@@ -12,12 +12,12 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
 
 jobs:
   deploy-tag:
     name: Deploy to NPM
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest # this runner should not be changed due to NPM publish restrictions
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
 
     steps:
