@@ -12,7 +12,7 @@ import {
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
-  formatUrl
+  formatUrl,
 } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -64,11 +64,11 @@ class Amplitude {
     };
 
     if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
-        if (this.proxyServerUrl.startsWith('http://')) {
-          logger.error('Please use a secured proxy server URL');
-        } else {
-          initOptions.serverUrl =  formatUrl(this.proxyServerUrl);
-        }  
+      if (this.proxyServerUrl.startsWith('http://')) {
+        logger.error(`Please use a secure proxy server URL: ${this.proxyServerUrl}`);
+      } else {
+        initOptions.serverUrl = formatUrl(this.proxyServerUrl);
+      }
     }
 
     // EU data residency

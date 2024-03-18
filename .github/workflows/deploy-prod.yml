@@ -1,7 +1,29 @@
-name: Deploy to PROD v3
+name: Deploy to Production Environment
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      action_type:
+        description: 'Type of action'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      AWS_PROD_ACCOUNT_ID:
+        required: true
+      AWS_PROD_S3_BUCKET_NAME:
+        required: true
+      AWS_PROD_S3_SYNC_ROLE:
+        required: true
+      AWS_PROD_CF_DISTRIBUTION_ID:
+        required: true
+      RS_PROD_BUGSNAG_API_KEY:
+        required: true
+      SLACK_BOT_TOKEN:
+        required: true
+      SLACK_RELEASE_CHANNEL_ID:
+        required: true
+
   pull_request:
     branches: ['main']
     types:
@@ -16,15 +38,15 @@ env:
 
 jobs:
   deploy-tag:
-    name: Deploy to PROD v3
+    name: Deploy to production environment
     runs-on: [self-hosted, Linux, X64]
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_call' || (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') || github.event.pull_request.merged == true)
 
     steps:
-      - name: Install AWS cli
+      - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@master
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
@@ -65,34 +87,13 @@ jobs:
           npm run build:browser
           npm run build:browser:modern
 
-      - name: Sync file to S3 adobe-analytics-js assets folder
+      - name: Sync Adobe Analytics assets to S3
         run: |
           aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
-
-      - name: Sync files to S3 v1.1 folder
-        run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/list_integration_sdks.html --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/list_integration_sdks.html --cache-control max-age=3600
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1.1*"
-
-      - name: Sync files to S3 v1.1 versioned folder
-        run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/list_integration_sdks.html --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/list_integration_sdks.html --cache-control max-age=3600
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}*"
 
       - name: Sync files to S3 v3 folder
         run: |
@@ -101,6 +102,9 @@ jobs:
           aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v3/modern/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v3/*"
 
       - name: Sync files to S3 v3 versioned folder
@@ -110,16 +114,14 @@ jobs:
           aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}/modern/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}/modern/js-integrations/ --recursive --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*"
 
+      # TODO: The '/latest' folder is unused. Might be removed in future.
       - name: Sync files to S3 latest
         run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/list_integration_sdks.html --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/list_integration_sdks.html --cache-control max-age=3600
           aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/v3/legacy/ --recursive --cache-control max-age=3600
@@ -127,6 +129,9 @@ jobs:
           aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/v3/modern/plugins/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
       - name: Send message to Slack channel v3
@@ -134,7 +139,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v3 Browser Package'
+          PROJECT_NAME: 'JS SDK v3 Browser Package${{ github.event.inputs.action_type }}'
           CDN_URL: 'https://cdn.rudderlabs.com/v3/modern/rsa.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
@@ -161,12 +166,58 @@ jobs:
               ]
             }
 
+
+      # Below steps are for v1.1 SDK (legacy)
+
+      - name: Sync files to S3 v1.1 folder
+        run: |
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/list_integration_sdks.html --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/list_integration_sdks.html --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1.1*"
+
+      - name: Sync files to S3 v1.1 versioned folder
+        run: |
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/list_integration_sdks.html --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/modern/list_integration_sdks.html --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}*"
+
+      - name: Sync files to S3 latest (v1.1)
+        run: |
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp packages/analytics-js-integrations/public/list_integration_sdks.html s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/list_integration_sdks.html --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/rudder-analytics.min.js.map --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
+
       - name: Send message to Slack channel
         id: slackv1
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v1.1 Browser Package'
+          PROJECT_NAME: 'JS SDK v1.1 Browser Package${{ github.event.inputs.action_type }}'
           CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
