@@ -1,4 +1,4 @@
-name: Publish new github release v3
+name: Publish New Release to GitHub
 
 on:
   pull_request:
@@ -8,21 +8,23 @@ on:
       - closed
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
 
 jobs:
   release:
-    name: Publish new release v3
-    runs-on: ubuntu-latest
-    if: (startsWith(github.event.pull_request.head.ref, 'v3-release/') || startsWith(github.event.pull_request.head.ref, 'v3-hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
+    name: Publish new release
+    runs-on: [self-hosted, Linux, X64]
+    # only merged pull requests must trigger this job
+    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
 
     steps:
       - name: Extract version from branch name (for release branches)
         id: extract-version
+        env:
+          BRANCH_NAME_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-          VERSION=${BRANCH_NAME#v3-}
-          VERSION=${VERSION#hotfix-}
+          BRANCH_NAME="${BRANCH_NAME_REF}"
+          VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
 
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
@@ -51,7 +53,7 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
-      - name: Create Monorepo Release Tag
+      - name: Create monorepo release tag
         id: create_monorepo_release
         run: |
           git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
@@ -69,7 +71,7 @@ jobs:
           echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
-      - name: Create GitHub Releases
+      - name: Create GitHub releases
         id: create_release
         env:
           HUSKY: 0
@@ -83,23 +85,23 @@ jobs:
           source_branch: 'main'
           destination_branch: 'develop'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pulling main into develop post release v${{ steps.extract-version.outputs.release_version }}'
+          pr_title: 'chore(release): pull main into develop post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'bardisg,MoumitaM,saikumarrs'
+          pr_reviewer: 'MoumitaM,saikumarrs'
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'v3-hotfix-release/')
+        if: startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
         with:
-          branches: 'v3-hotfix-release/*'
+          branches: 'hotfix-release/*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete release branch
         uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'v3-release/')
+        if: startsWith(github.event.pull_request.head.ref, 'release/')
         with:
-          branches: 'v3-release/*'
+          branches: 'release/*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
