@@ -641,6 +641,11 @@ class RetryQueue implements IQueue<QueueItemData> {
     (globalThis as typeof window).setTimeout(() => {
       try {
         store.remove(entry);
+
+        // clear the next entry
+        if (entryIdx + 1 < queueEntryKeys.length) {
+          this.removeStorageEntry(store, entryIdx + 1, backoff);
+        }
       } catch (err) {
         const storageBusyErr = 'NS_ERROR_STORAGE_BUSY';
         const isLocalStorageBusy =
@@ -654,11 +659,11 @@ class RetryQueue implements IQueue<QueueItemData> {
         } else {
           this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, entry, attempt), err);
         }
-      }
 
-      // clear the next entry
-      if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
-        this.removeStorageEntry(store, entryIdx + 1, backoff);
+        // clear the next entry after we've exhausted our attempts
+        if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
+          this.removeStorageEntry(store, entryIdx + 1, backoff);
+        }
       }
     }, backoff);
   }
