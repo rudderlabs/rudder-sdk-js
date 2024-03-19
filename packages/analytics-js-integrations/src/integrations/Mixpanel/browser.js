@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this */
+/* eslint-disable class-methods-use-this,no-underscore-dangle */
 import get from 'get-value';
 import {
   NAME,
@@ -98,11 +98,11 @@ class Mixpanel {
 
   isLoaded() {
     window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
-    return !!window?.mixpanel?.config;
+    return !!window?.mixpanel?.__loaded;
   }
 
   isReady() {
-    return !!window?.mixpanel?.config;
+    return !!window?.mixpanel?.__loaded;
   }
 
   /**
