@@ -48,6 +48,7 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = config.v2 || true;
+    this.dcfaId = config.dcfaId || '';
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -77,6 +78,10 @@ class GoogleAds {
     }
 
     window.gtag('config', this.conversionId, config);
+
+    if (this.dcfaId) {
+      window.gtag('config', this.dcfaId);
+    }
   }
 
   isLoaded() {

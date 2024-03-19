@@ -49,6 +49,12 @@ describe('GoogleAds init tests', () => {
     googleAds.init();
     expect(typeof window.gtag).toBe('function');
   });
+
+  test('should call window.gtag with config and dcfaId when dcfaId is truthy', () => {
+    const googleAds = new GoogleAds(googleAdsConfigs[7], {}, destinationInfo);
+    googleAds.init();
+    expect(typeof window.gtag).toBe('function');
+  });
 });
 
 // Old Config Test Cases
