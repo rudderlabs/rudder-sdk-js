@@ -98,11 +98,11 @@ class Mixpanel {
 
   isLoaded() {
     window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
-    return !!window?.mixpanel?.__loaded;
+    return !!window.mixpanel?.__loaded;
   }
 
   isReady() {
-    return !!window?.mixpanel?.__loaded;
+    return !!window.mixpanel?.__loaded;
   }
 
   /**
