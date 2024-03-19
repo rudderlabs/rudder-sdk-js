@@ -32,6 +32,8 @@ import {
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_WAIT_MS,
   DEFAULT_BATCH_FLUSH_INTERVAL_MS,
+  MIN_TIMER_SCALE_FACTOR,
+  MAX_TIMER_SCALE_FACTOR,
 } from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -97,12 +99,21 @@ class RetryQueue implements IQueue<QueueItemData> {
       jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
     };
 
+    // Limit the timer scale factor to the minimum value
+    let timerScaleFactor = Math.max(
+      options.timerScaleFactor ?? MIN_TIMER_SCALE_FACTOR,
+      MIN_TIMER_SCALE_FACTOR,
+    );
+
+    // Limit the timer scale factor to the maximum value
+    timerScaleFactor = Math.min(timerScaleFactor, MAX_TIMER_SCALE_FACTOR);
+
     // painstakingly tuned. that's why they're not "easily" configurable
     this.timeouts = {
-      ackTimer: DEFAULT_ACK_TIMER_MS,
-      reclaimTimer: DEFAULT_RECLAIM_TIMER_MS,
-      reclaimTimeout: DEFAULT_RECLAIM_TIMEOUT_MS,
-      reclaimWait: DEFAULT_RECLAIM_WAIT_MS,
+      ackTimer: Math.round(timerScaleFactor * DEFAULT_ACK_TIMER_MS),
+      reclaimTimer: Math.round(timerScaleFactor * DEFAULT_RECLAIM_TIMER_MS),
+      reclaimTimeout: Math.round(timerScaleFactor * DEFAULT_RECLAIM_TIMEOUT_MS),
+      reclaimWait: Math.round(timerScaleFactor * DEFAULT_RECLAIM_WAIT_MS),
     };
 
     this.schedule = new Schedule();
@@ -311,7 +322,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       batchQueue = batchQueue.slice(-batchQueue.length);
       batchQueue.push(entry);
 
-      const batchDispatchInfo = this.getBatchDispInfo(batchQueue);
+      const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
         let batchItems;
@@ -405,7 +416,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param batchItems Prospective batch items
    * @returns Batch dispatch info
    */
-  getBatchDispInfo(batchItems: QueueItem[]) {
+  getBatchDispatchInfo(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
     let lengthCriteriaExceeded = false;
     const configuredBatchMaxItems = this.batch?.maxItems as number;
@@ -626,7 +637,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     const maxAttempts = 2;
     const queueEntryKeys = Object.keys(QueueStatuses);
     const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
-    
+
     (globalThis as typeof window).setTimeout(() => {
       try {
         store.remove(entry);

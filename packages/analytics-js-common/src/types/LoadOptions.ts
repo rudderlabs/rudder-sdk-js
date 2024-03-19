@@ -78,6 +78,8 @@ export type QueueOpts = {
   maxItems?: number;
   // Options for batched requests
   batch?: BatchOpts;
+  // The scale factor applied to the default timer values
+  timerScaleFactor?: number;
 };
 
 /**
