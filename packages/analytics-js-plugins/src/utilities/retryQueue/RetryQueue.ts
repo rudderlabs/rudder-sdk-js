@@ -5,7 +5,7 @@ import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import type {
@@ -64,6 +64,8 @@ class RetryQueue implements IQueue<QueueItemData> {
   flushBatchTaskId?: string;
   batchingInProgress?: boolean;
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
+  reclaimStartVal?: Nullable<string>;
+  reclaimEndVal?: Nullable<string>;
 
   constructor(
     name: string,
@@ -165,17 +167,21 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   getStorageEntry(
-    name?: string,
+    name: string,
   ): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
-    return this.store.get(name ?? this.name);
+    return this.store.get(name);
   }
 
   // TODO: fix the type of different queues to be the same if possible
   setStorageEntry(
-    name?: string,
+    name: string,
     value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
   ) {
-    this.store.set(name ?? this.name, value ?? []);
+    if (isNullOrUndefined(value)) {
+      this.store.remove(name);
+    } else {
+      this.store.set(name, value);
+    }
   }
 
   /**
@@ -520,8 +526,17 @@ class RetryQueue implements IQueue<QueueItemData> {
   // Ack continuously to prevent other tabs from claiming our queue
   ack() {
     this.setStorageEntry(QueueStatuses.ACK, this.schedule.now());
-    this.setStorageEntry(QueueStatuses.RECLAIM_START, null);
-    this.setStorageEntry(QueueStatuses.RECLAIM_END, null);
+
+    if (this.reclaimStartVal != null) {
+      this.reclaimStartVal = null;
+      this.setStorageEntry(QueueStatuses.RECLAIM_START, null);
+    }
+
+    if (this.reclaimEndVal != null) {
+      this.reclaimEndVal = null;
+      this.setStorageEntry(QueueStatuses.RECLAIM_END, null);
+    }
+
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
@@ -609,16 +624,12 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   removeStorageEntry(store: IStore, entryIdx: number, backoff: number, attempt = 1) {
     const maxAttempts = 2;
+    const queueEntryKeys = Object.keys(QueueStatuses);
+    const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
+    
     (globalThis as typeof window).setTimeout(() => {
-      const queueEntryKeys = Object.keys(QueueStatuses);
-      const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
       try {
         store.remove(entry);
-
-        // clear the next entry
-        if (entryIdx + 1 < queueEntryKeys.length) {
-          this.removeStorageEntry(store, entryIdx + 1, backoff);
-        }
       } catch (err) {
         const storageBusyErr = 'NS_ERROR_STORAGE_BUSY';
         const isLocalStorageBusy =
@@ -632,11 +643,11 @@ class RetryQueue implements IQueue<QueueItemData> {
         } else {
           this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, entry, attempt), err);
         }
+      }
 
-        // clear the next entry
-        if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
-          this.removeStorageEntry(store, entryIdx + 1, backoff);
-        }
+      // clear the next entry
+      if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
+        this.removeStorageEntry(store, entryIdx + 1, backoff);
       }
     }, backoff);
   }
