@@ -8,7 +8,7 @@ on:
       - closed
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
 
 jobs:
   release:
@@ -24,7 +24,7 @@ jobs:
           BRANCH_NAME_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           BRANCH_NAME="${BRANCH_NAME_REF}"
-          VERSION=${VERSION#hotfix-}
+          VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
 
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
