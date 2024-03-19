@@ -91,6 +91,15 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
+const COOKIE_SERVER_URL_INVALID_ERROR = (key: string) =>
+  `Server side cookies functionality will not work as provided ${key} is invalid`;
+
+const COOKIE_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
+  `Server responded with status ${status}. As fallback setting cookies from client side.`;
+
+const FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR = (key: string) =>
+  `Failed to set ${key} cookie from the server side`;
+
 // WARNING
 const STORAGE_TYPE_VALIDATION_WARNING = (
   context: string,
@@ -279,4 +288,7 @@ export {
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  COOKIE_SERVER_URL_INVALID_ERROR,
+  COOKIE_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR,
 };

@@ -26,6 +26,6 @@ module.exports = [
   {
     name: 'Core - CDN',
     path: 'dist/cdn/modern/iife/rsa.min.js',
-    limit: '23 KiB',
+    limit: '23.5 KiB',
   },
 ];

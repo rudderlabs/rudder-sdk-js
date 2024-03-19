@@ -41,6 +41,8 @@ import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  COOKIE_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -52,7 +54,7 @@ import {
   hasSessionExpired,
   isStorageTypeValidForStoringData,
 } from './utils';
-import { getReferringDomain } from '../utilities/url';
+import { getReferringDomain, removeTrailingSlashes } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
@@ -272,19 +274,43 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(key: string, value: string): void {
-    let baseUrl = state.lifecycle.activeDataplaneUrl.value;
-    if (typeof state.loadOptions.value.cookieServerUrl === 'string') {
-      baseUrl = state.loadOptions.value.cookieServerUrl;
+  setServerSideCookie(key: string, value: ApiObject | string, store?: IStore): void {
+    const encryptedCookieValue = store?.encrypt(
+      stringifyWithoutCircular(value, false, [], this.logger),
+    );
+    if (encryptedCookieValue) {
+      let baseUrl = state.lifecycle.activeDataplaneUrl.value;
+      const { cookieServerUrl } = state.loadOptions.value;
+      if (cookieServerUrl) {
+        if (cookieServerUrl === 'invalid') {
+          return;
+        }
+        baseUrl = cookieServerUrl;
+      }
+      this.httpClient?.getAsyncData({
+        url: `${removeTrailingSlashes(baseUrl as string)}/setCookie`,
+        options: {
+          method: 'POST',
+          data: stringifyWithoutCircular({
+            key,
+            value: encryptedCookieValue,
+            options: state.storage.cookie.value,
+          }) as string,
+          sendRawData: true,
+        },
+        callback: (res, details) => {
+          if (details?.xhr?.status === 200) {
+            const cookieValue = store?.get(key);
+            if (cookieValue !== value) {
+              this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR(key));
+            }
+          } else {
+            this.logger?.error(COOKIE_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            store?.set(key, value);
+          }
+        },
+      });
     }
-    this.httpClient?.getAsyncData({
-      url: `${baseUrl}/setCookie`,
-      options: {
-        method: 'POST',
-        data: JSON.stringify({ key, value, options: state.storage.cookie.value }),
-        sendRawData: true,
-      },
-    });
   }
 
   /**
@@ -303,16 +329,11 @@ class UserSessionManager implements IUserSessionManager {
         storageClientDataStoreNameMap[storageType] as string,
       );
       const key = entries[sessionKey]?.key as string;
-      if ((value && isString(value)) || isNonEmptyObject(value)) {
-        // if useServerSideCookie load option is set to true
+      if (value && (isString(value) || isNonEmptyObject(value))) {
+        // if useServerSideCookies load option is set to true
         // set the cookie from server side
-        if (state.loadOptions.value.useServerSideCookie && storageType === 'cookieStorage') {
-          const encryptedCookieValue = curStore?.encrypt(
-            stringifyWithoutCircular(value, false, [], this.logger),
-          );
-          if (encryptedCookieValue) {
-            this.setServerSideCookie(key, encryptedCookieValue);
-          }
+        if (state.loadOptions.value.useServerSideCookies && storageType === COOKIE_STORAGE) {
+          this.setServerSideCookie(key, value, curStore);
         } else {
           curStore?.set(key, value);
         }

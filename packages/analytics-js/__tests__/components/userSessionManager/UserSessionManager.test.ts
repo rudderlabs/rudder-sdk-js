@@ -1374,12 +1374,12 @@ describe('User session manager', () => {
   });
 
   describe('getExternalAnonymousIdByCookieName', () => {
-    it('Should return null if the cookie value does not exists', () => {
+    it('should return null if the cookie value does not exists', () => {
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual(null);
     });
-    it('Should return the cookie value if exists', () => {
+    it('should return the cookie value if exists', () => {
       document.cookie = 'anonId_cookie=sampleAnonymousId12345';
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
@@ -1388,12 +1388,12 @@ describe('User session manager', () => {
   });
 
   describe('syncValueToStorage', () => {
-    it('Should call setServerSideCookie method in case useServerSideCookie load option is set to true', () => {
-      state.loadOptions.value.useServerSideCookie = true;
+    it('should call setServerSideCookie method in case useServerSideCookie load option is set to true', () => {
+      state.loadOptions.value.useServerSideCookies = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
-      expect(spy).toHaveBeenCalledWith('rl_anonymous_id', '"dummy_anonymousId"');
+      expect(spy).toHaveBeenCalledWith('rl_anonymous_id', 'dummy_anonymousId', expect.any(Object));
     });
   });
 
@@ -1405,7 +1405,11 @@ describe('User session manager', () => {
     afterAll(() => {
       server.close();
     });
-    it('Should make external request to exposed endpoint', () => {
+    const mockCookieStore = {
+      encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+      set: jest.fn(),
+    };
+    it('should make external request to exposed endpoint', () => {
       state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
@@ -1414,14 +1418,14 @@ describe('User session manager', () => {
         samesite: 'Lax',
       };
       const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234');
+      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234', mockCookieStore);
       expect(spy).toHaveBeenCalledWith({
         url: `https://dummy.dataplane.host.com/setCookie`,
         options: {
           method: 'POST',
           data: JSON.stringify({
             key: 'key',
-            value: 'sample_cookie_value_1234',
+            value: 'encrypted_sample_cookie_value_1234',
             options: {
               maxage: 10 * 60 * 1000,
               path: '/',
@@ -1431,9 +1435,10 @@ describe('User session manager', () => {
           }),
           sendRawData: true,
         },
+        callback: expect.any(Function),
       });
     });
-    it('Should use provided server url to make external request for setting cookie', () => {
+    it('should use provided server url to make external request for setting cookie', () => {
       state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
       state.loadOptions.value.cookieServerUrl = 'https://example.com';
       state.storage.cookie.value = {
@@ -1443,14 +1448,14 @@ describe('User session manager', () => {
         samesite: 'Lax',
       };
       const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234');
+      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234', mockCookieStore);
       expect(spy).toHaveBeenCalledWith({
         url: `https://example.com/setCookie`,
         options: {
           method: 'POST',
           data: JSON.stringify({
             key: 'key',
-            value: 'sample_cookie_value_1234',
+            value: 'encrypted_sample_cookie_value_1234',
             options: {
               maxage: 10 * 60 * 1000,
               path: '/',
@@ -1460,6 +1465,7 @@ describe('User session manager', () => {
           }),
           sendRawData: true,
         },
+        callback: expect.any(Function),
       });
     });
   });

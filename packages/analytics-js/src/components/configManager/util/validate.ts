@@ -4,9 +4,11 @@ import {
   SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
+  COOKIE_SERVER_URL_INVALID_ERROR,
 } from '../../../constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 
@@ -37,10 +39,25 @@ const isValidSourceConfig = (res: any): boolean =>
 const isValidStorageType = (storageType?: StorageType): boolean =>
   typeof storageType === 'string' && SUPPORTED_STORAGE_TYPES.includes(storageType);
 
+const validateAndReturnCookieServerUrl = (
+  useServerSideCookies?: boolean,
+  cookieServerUrl?: string,
+  logger?: ILogger,
+) => {
+  if (useServerSideCookies && cookieServerUrl) {
+    if (isValidUrl(cookieServerUrl)) {
+      return cookieServerUrl;
+    }
+    logger?.error(COOKIE_SERVER_URL_INVALID_ERROR('cookieServerUrl'));
+  }
+  return 'invalid';
+};
+
 export {
   validateLoadArgs,
   isValidSourceConfig,
   isValidStorageType,
   validateWriteKey,
   validateDataPlaneUrl,
+  validateAndReturnCookieServerUrl,
 };
