@@ -88,9 +88,7 @@
         "baseBranch": "main",
         "preset": "conventional",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true,
-        "releaseAs": "prerelease",
-        "preid": "beta"
+        "trackDeps": true
       }
     },
     "github": {
