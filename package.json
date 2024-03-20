@@ -170,7 +170,8 @@
   "overrides": {
     "debug": "4.3.4",
     "ip": "2.0.1",
-    "component-type": "2.0.0"
+    "component-type": "2.0.0",
+    "follow-redirects": "1.15.6"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"

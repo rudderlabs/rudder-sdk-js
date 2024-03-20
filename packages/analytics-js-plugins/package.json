@@ -67,7 +67,7 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "crypto-es": "2.0.4",
+    "crypto-es": "2.1.0",
     "@rudderstack/analytics-js-common": "*"
   },
   "devDependencies": {

@@ -85,7 +85,7 @@
     "obj-case": "0.2.1",
     "on-body": "0.0.1",
     "md5": "2.3.0",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "is": "3.3.0",
     "component-each": "0.2.6",
     "@ndhoule/extend": "2.0.0",
