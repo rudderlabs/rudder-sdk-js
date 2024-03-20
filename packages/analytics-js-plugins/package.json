@@ -2,7 +2,7 @@
   "name": "@rudderstack/analytics-js-plugins",
   "version": "3.0.0",
   "private": true,
-  "description": "RudderStack Javascript SDK plugins",
+  "description": "RudderStack JavaScript SDK plugins",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
   "exports": {
@@ -67,19 +67,11 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "msw": "2.2.1",
-    "@preact/signals-core": "1.5.1",
-    "ramda": "0.29.1",
-    "crypto-es": "2.0.4",
-    "@bugsnag/js": "6.5.2"
+    "crypto-es": "2.1.0",
+    "@rudderstack/analytics-js-common": "*"
   },
   "devDependencies": {
-    "@bugsnag/js": "6.5.2",
-    "@lukeed/uuid": "2.0.1",
-    "@preact/signals-core": "1.5.1",
-    "@rudderstack/analytics-js-common": "*",
-    "crypto-es": "2.1.0",
-    "ramda": "0.29.1"
+    "@bugsnag/js": "6.5.2"
   },
   "overrides": {},
   "browserslist": {

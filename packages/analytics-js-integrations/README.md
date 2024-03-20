@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js-integrations
 
-RudderStack Javascript SDK integrations code that is used to support device mode integrations.
+RudderStack JavaScript SDK integrations code that is used to support device mode integrations.
 
 ## Table of Contents
 

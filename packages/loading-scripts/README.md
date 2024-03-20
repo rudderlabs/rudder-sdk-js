@@ -21,6 +21,6 @@
 
 # @rudderstack/loading-scripts
 
-RudderStack Javascript SDK loading script snippet code.
+RudderStack JavaScript SDK loading script snippet code.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).

@@ -2,7 +2,7 @@
   "name": "@rudderstack/analytics-js-integrations",
   "version": "3.0.0",
   "private": true,
-  "description": "RudderStack Javascript SDK device mode integrations",
+  "description": "RudderStack JavaScript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
   "exports": {
@@ -78,9 +78,7 @@
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
   "dependencies": {
-    "ramda": "0.29.1",
     "@rudderstack/analytics-js-common": "*",
-    "get-value": "3.0.1",
     "@ndhoule/each": "2.0.1",
     "lodash.get": "4.4.2",
     "lodash.isequal": "4.5.0",
@@ -94,30 +92,9 @@
     "lodash.isundefined": "3.0.1",
     "lodash.isempty": "4.4.0",
     "lodash.pickby": "4.6.0",
-    "lodash.tostring": "4.1.4",
-    "@lukeed/uuid": "2.0.1"
+    "lodash.tostring": "4.1.4"
   },
-  "devDependencies": {
-    "@lukeed/uuid": "2.0.1",
-    "@ndhoule/each": "2.0.1",
-    "@ndhoule/extend": "2.0.0",
-    "@rudderstack/analytics-js-common": "*",
-    "component-each": "0.2.6",
-    "crypto-js": "4.2.0",
-    "each": "^2.6.0",
-    "get-value": "3.0.1",
-    "is": "3.3.0",
-    "lodash.get": "4.4.2",
-    "lodash.isempty": "4.4.0",
-    "lodash.isequal": "4.5.0",
-    "lodash.isundefined": "3.0.1",
-    "lodash.pickby": "4.6.0",
-    "lodash.tostring": "4.1.4",
-    "md5": "2.3.0",
-    "obj-case": "0.2.1",
-    "on-body": "0.0.1",
-    "ramda": "0.29.1"
-  },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
