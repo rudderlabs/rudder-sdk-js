@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js
 
-RudderStack Javascript SDK for browsers.
+RudderStack JavaScript SDK for browsers.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
