@@ -1,8 +1,5 @@
 import type { RudderAnalytics } from './app/RudderAnalytics';
-import type {
-  PreloadedEventCall,
-  RudderAnalyticsPreloader,
-} from './components/preloadBuffer/types';
+import type { RudderAnalyticsPreloader } from './components/preloadBuffer/types';
 import type { IRudderStackGlobals } from './app/IRudderStackGlobals';
 
 export {
@@ -26,13 +23,13 @@ export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/trai
 export { RudderAnalytics } from './app/RudderAnalytics';
 export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
 export {
-  type PreloadedEventCall,
   type RudderAnalyticsPreloader,
+  type PreloadedEventCall,
 } from './components/preloadBuffer/types';
 
 declare global {
   interface Window {
-    rudderanalytics: RudderAnalytics | PreloadedEventCall[] | RudderAnalyticsPreloader;
+    rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
     RudderStackGlobals: IRudderStackGlobals;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';

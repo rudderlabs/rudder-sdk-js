@@ -18,7 +18,7 @@ const sdkName = 'rsa.min.js';
 const asyncScript = true;
 window.rudderAnalyticsBuildType = 'legacy';
 
-window.rudderanalytics = [];
+(window.rudderanalytics as unknown as PreloadedEventCall[]) = [];
 const methods: string[] = [
   'setDefaultInstanceKey',
   'load',
@@ -39,7 +39,7 @@ for (let i = 0; i < methods.length; i++) {
   const method = methods[i] as string;
   (window.rudderanalytics as unknown as RudderAnalyticsPreloader)[method] = (methodName =>
     function () {
-      (window.rudderanalytics as PreloadedEventCall[]).push(
+      (window.rudderanalytics as unknown as PreloadedEventCall[]).push(
         [methodName].concat(Array.prototype.slice.call(arguments) as PreloadedEventCall),
       );
     })(method);
