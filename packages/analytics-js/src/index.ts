@@ -1,8 +1,5 @@
 import type { RudderAnalytics } from './app/RudderAnalytics';
-import type {
-  PreloadedEventCall,
-  RudderAnalyticsPreloader,
-} from './components/preloadBuffer/types';
+import type { RudderAnalyticsPreloader } from './components/preloadBuffer/types';
 import type { IRudderStackGlobals } from './app/IRudderStackGlobals';
 
 export {
@@ -25,10 +22,7 @@ export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 export { RudderAnalytics } from './app/RudderAnalytics';
 export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
-export {
-  type PreloadedEventCall,
-  type RudderAnalyticsPreloader,
-} from './components/preloadBuffer/types';
+export { type RudderAnalyticsPreloader } from './components/preloadBuffer/types';
 
 declare global {
   interface Window {
