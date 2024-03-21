@@ -23,7 +23,7 @@ jobs:
           cache: 'npm'
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.9.0
+        uses: rudderlabs/github-action-check-size-limit@v2.10.0
         env:
           HUSKY: 0
         with:
