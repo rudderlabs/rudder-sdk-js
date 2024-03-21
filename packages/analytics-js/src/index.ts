@@ -32,7 +32,7 @@ export {
 
 declare global {
   interface Window {
-    rudderanalytics: RudderAnalytics | PreloadedEventCall[] | RudderAnalyticsPreloader;
+    rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
     RudderStackGlobals: IRudderStackGlobals;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';
