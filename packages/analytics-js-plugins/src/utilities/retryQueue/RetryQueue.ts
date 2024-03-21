@@ -705,45 +705,31 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
     const findOtherQueues = (name: string): IStore[] => {
       const res: IStore[] = [];
-      const storage = this.store.getOriginalEngine();
+      const storageKeys = this.store.getOriginalEngine().keys();
+      storageKeys.forEach((k: string) => {
+        const keyParts: string[] = k ? k.split('.') : [];
 
-      for (let i = 0; i < storage.length; i++) {
-        const k = storage.key(i);
-        const parts: string[] = k ? k.split('.') : [];
-
-        if (parts.length !== 3) {
-          // eslint-disable-next-line no-continue
-          continue;
+        if (
+          keyParts.length >= 3 &&
+          keyParts[0] === name &&
+          keyParts[1] !== this.id &&
+          keyParts[2] === QueueStatuses.ACK
+        ) {
+          res.push(
+            this.storeManager.setStore({
+              id: keyParts[1] as string,
+              name,
+              validKeys: QueueStatuses,
+              type: LOCAL_STORAGE,
+            }),
+          );
         }
-
-        if (parts[0] !== name) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-
-        if (parts[2] !== QueueStatuses.ACK) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-
-        res.push(
-          this.storeManager.setStore({
-            id: parts[1] as string,
-            name,
-            validKeys: QueueStatuses,
-            type: LOCAL_STORAGE,
-          }),
-        );
-      }
+      });
 
       return res;
     };
 
     findOtherQueues(this.name).forEach(store => {
-      if (store.id === this.id) {
-        return;
-      }
-
       if (this.schedule.now() - store.get(QueueStatuses.ACK) < this.timeouts.reclaimTimeout) {
         return;
       }
