@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/cdn/v3/testBook.js",
