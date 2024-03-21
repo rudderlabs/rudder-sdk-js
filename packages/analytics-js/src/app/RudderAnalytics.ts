@@ -139,7 +139,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   triggerBufferedLoadEvent() {
     const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
-      ? ((globalThis as typeof window).rudderanalytics as PreloadedEventCall[])
+      ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
       : ([] as PreloadedEventCall[]);
 
     // The array will be mutated in the below method
