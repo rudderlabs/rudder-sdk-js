@@ -12,12 +12,19 @@
       "import": "./dist/npm/modern/esm/index.js"
     },
     "./legacy": {
-      "types": "./index.d.ts",
+      "types": "./dist/npm/index.d.ts",
       "require": "./dist/npm/legacy/cjs/index.js",
       "import": "./dist/npm/legacy/esm/index.js"
     }
   },
   "types": "./dist/npm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/npm/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {},
   "files": [
     "dist/npm",
