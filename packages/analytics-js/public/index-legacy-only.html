@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <script>
-      window.RudderSnippetVersion = "3.0.0-beta.18";
+      window.RudderSnippetVersion = '3.0.1';
       var sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
       var sdkName = 'rsa.min.js';
       var asyncScript = true;
@@ -21,7 +21,7 @@
         'setAnonymousId',
         'startSession',
         'endSession',
-        'consent'
+        'consent',
       ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
@@ -41,7 +41,7 @@
             get: function get() {
               return this;
             },
-            configurable: true
+            configurable: true,
           });
           __globalThis_magic__.globalThis = __globalThis_magic__;
           delete Object.prototype.__globalThis_magic__;
