@@ -10,6 +10,13 @@
     "types": "./dist/npm/index.d.ts"
   },
   "types": "./dist/npm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/npm/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -18,6 +18,13 @@
     }
   },
   "types": "./dist/npm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/npm/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {},
   "files": [
     "dist/npm",
