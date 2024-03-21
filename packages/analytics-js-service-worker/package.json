@@ -1,7 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
   "version": "3.0.5",
-  "description": "RudderStack Javascript Service Worker SDK",
+  "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/umd/index.js",
   "module": "dist/npm/esm/index.js",
   "exports": {
@@ -69,7 +69,6 @@
     "node": ">=v12"
   },
   "dependencies": {
-    "@lukeed/uuid": "2.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
     "axios": "1.6.7",
@@ -82,9 +81,10 @@
   },
   "devDependencies": {
     "@types/ms": "0.7.34",
+    "@types/lodash.clonedeep": "4.5.6",
+    "@types/lodash.isstring": "4.0.1",
     "@types/node": "20.11.20",
-    "jest-date-mock": "1.0.8",
-    "msw": "2.2.1"
+    "jest-date-mock": "1.0.8"
   },
   "overrides": {},
   "browserslist": {

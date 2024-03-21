@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js-common
 
-RudderStack Javascript SDK common code that is used within the related analytics, plugins, integrations and service
+RudderStack JavaScript SDK common code that is used within the related analytics, plugins, integrations and service
 worker packages.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).

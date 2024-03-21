@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js-service-worker
 
-RudderStack Javascript SDK service worker that can be used in browser extensions and serverless runtimes.
+RudderStack JavaScript SDK service worker that can be used in browser extensions and serverless runtimes.
 It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
