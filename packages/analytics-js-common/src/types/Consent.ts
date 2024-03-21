@@ -31,8 +31,8 @@ export type ConsentResolutionStrategy = 'and' | 'or';
 export type Consents = string[];
 
 export type ConsentManagementOptions = {
-  enabled: boolean;
-  provider: ConsentManagementProvider;
+  enabled?: boolean;
+  provider?: ConsentManagementProvider;
   allowedConsentIds?: Consents;
   deniedConsentIds?: Consents;
 };

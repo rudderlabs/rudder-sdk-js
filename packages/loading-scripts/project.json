@@ -83,17 +83,15 @@
         "baseBranch": "main",
         "preset": "conventional",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true,
-        "releaseAs": "prerelease",
-        "preid": "beta"
+        "trackDeps": true
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.22",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.22",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.0-beta.22",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.1",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.1",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.1",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }
