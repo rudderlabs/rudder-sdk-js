@@ -9,6 +9,7 @@ export type ApiObject = {
     | boolean
     | ApiObject
     | null
+    | Date
     | (string | number | boolean | null | ApiObject)[]
     | undefined;
 };
