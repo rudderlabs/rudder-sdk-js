@@ -57,7 +57,12 @@ class InMemoryStorage implements IStorage {
   }
 
   key(index: number): Nullable<string> {
-    return Object.keys(this.data)[index] ? (Object.keys(this.data)[index] as string) : null;
+    const curKeys = this.keys();
+    return curKeys[index] ?? null;
+  }
+
+  keys(): string[] {
+    return Object.keys(this.data);
   }
 }
 
