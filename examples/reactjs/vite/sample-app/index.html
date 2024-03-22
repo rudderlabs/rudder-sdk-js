@@ -7,22 +7,22 @@
     <title>Vite + React + TS</title>
     <script>
       window.RudderSnippetVersion = '3.0.1';
-    window.rudderanalytics = [];
-    var methods = [
-      'setDefaultInstanceKey',
-      'load',
-      'ready',
-      'page',
-      'track',
-      'identify',
-      'alias',
-      'group',
-      'reset',
-      'setAnonymousId',
-      'startSession',
-      'endSession',
-      'consent'
-    ];
+      window.rudderanalytics = [];
+      var methods = [
+        'setDefaultInstanceKey',
+        'load',
+        'ready',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'reset',
+        'setAnonymousId',
+        'startSession',
+        'endSession',
+        'consent'
+      ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         window.rudderanalytics[method] = (function (methodName) {
