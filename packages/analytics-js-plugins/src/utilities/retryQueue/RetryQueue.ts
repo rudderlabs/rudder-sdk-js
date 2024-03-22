@@ -5,7 +5,7 @@ import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { isDefined, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isFunction, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import type {
@@ -705,7 +705,21 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
     const findOtherQueues = (name: string): IStore[] => {
       const res: IStore[] = [];
-      const storageKeys = this.store.getOriginalEngine().keys();
+      const storageEngine = this.store.getOriginalEngine();
+      let storageKeys = [];
+      // 'keys' API is not supported by all the core SDK versions
+      // Hence, we need this backward compatibility check
+      if (isFunction(storageEngine.keys)) {
+        storageKeys = storageEngine.keys();
+      } else {
+        for (let i = 0; i < storageEngine.length; i++) {
+          const key = storageEngine.key(i);
+          if (key) {
+            storageKeys.push(key);
+          }
+        }
+      }
+
       storageKeys.forEach((k: string) => {
         const keyParts: string[] = k ? k.split('.') : [];
 
