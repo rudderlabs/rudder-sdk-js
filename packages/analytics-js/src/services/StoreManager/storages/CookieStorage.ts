@@ -68,12 +68,14 @@ class CookieStorage implements IStorage {
     // better to explicitly clear specific ones if needed
   }
 
-  // This cannot be implemented for cookies
-  // eslint-disable-next-line class-methods-use-this
   key(index: number): Nullable<string> {
-    const cookies = cookie();
-    const cookieNames = Object.keys(cookies);
-    return isUndefined(cookieNames[index]) ? null : (cookieNames[index] as string);
+    const curKeys = this.keys();
+    return curKeys[index] ?? null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  keys(): string[] {
+    return Object.keys(cookie());
   }
 }
 

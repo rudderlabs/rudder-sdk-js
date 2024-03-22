@@ -2,7 +2,7 @@
 <html>
   <head>
     <script>
-      window.RudderSnippetVersion = "3.0.0-beta.18";
+      window.RudderSnippetVersion = '3.0.1';
       var sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
       var sdkName = 'rsa.min.js';
       var asyncScript = true;
@@ -62,7 +62,7 @@
       if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
         var rudderAnalyticsPromisesScript = document.createElement('script');
         rudderAnalyticsPromisesScript.src =
-          'https://polyfill.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount';
+          'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount';
         rudderAnalyticsPromisesScript.async = asyncScript;
         if (document.head) {
           document.head.appendChild(rudderAnalyticsPromisesScript);

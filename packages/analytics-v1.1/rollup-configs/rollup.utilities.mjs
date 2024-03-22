@@ -21,7 +21,7 @@ dotenv.config();
 
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
-let polyfillIoUrl = 'https://polyfill.io/v3/polyfill.min.js';
+let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 let googleAdsSDKUrl = '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
 
 // For Chrome extension as content script any references in code to third party URLs
