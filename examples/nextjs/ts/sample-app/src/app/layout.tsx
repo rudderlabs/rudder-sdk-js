@@ -16,25 +16,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <Script id='bufferEvents'>
           {`
+            window.RudderSnippetVersion = '3.0.1';
             window.rudderanalytics = [];
             var methods = [
+              'setDefaultInstanceKey',
               'load',
+              'ready',
               'page',
               'track',
               'identify',
               'alias',
               'group',
-              'ready',
               'reset',
-              'getAnonymousId',
               'setAnonymousId',
-              'getUserId',
-              'getUserTraits',
-              'getGroupId',
-              'getGroupTraits',
               'startSession',
               'endSession',
-              'getSessionId',
+              'consent'
             ];
             for (var i = 0; i < methods.length; i++) {
               var method = methods[i];
