@@ -1,4 +1,4 @@
-import { IStorage } from '@rudderstack/analytics-js-common/types/Store';
+import type { IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import {
   getStorageEngine,
   configureCookieStorageEngine,
@@ -17,10 +17,12 @@ describe('CookieStorage', () => {
     expect(engine.getItem('test-key')).toStrictEqual('abc');
     expect(engine.length).toStrictEqual(1);
     expect(engine.key(0)).toStrictEqual('test-key');
+    expect(engine.keys()).toStrictEqual(['test-key']);
 
     engine.removeItem('test-key');
     expect(engine.getItem('test-key')).toBeNull();
     expect(engine.length).toStrictEqual(0);
+    expect(engine.keys()).toStrictEqual([]);
 
     // clear not implemented intentionally, see source code comments
     // engine.setItem('test-key', 'abc');
