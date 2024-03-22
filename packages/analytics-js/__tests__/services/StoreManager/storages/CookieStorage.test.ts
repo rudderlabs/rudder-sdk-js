@@ -17,6 +17,7 @@ describe('CookieStorage', () => {
     expect(engine.getItem('test-key')).toStrictEqual('abc');
     expect(engine.length).toStrictEqual(1);
     expect(engine.key(0)).toStrictEqual('test-key');
+    expect(engine.key(1)).toBeNull();
     expect(engine.keys()).toStrictEqual(['test-key']);
 
     engine.removeItem('test-key');
