@@ -6,6 +6,7 @@ export { default as DeviceModeTransformation } from './deviceModeTransformation'
 export { default as ErrorReporting } from './errorReporting';
 export { default as ExternalAnonymousId } from './externalAnonymousId';
 export { default as GoogleLinker } from './googleLinker';
+export { default as IubendaConsentManager } from './iubendaConsentManager';
 export { default as NativeDestinationQueue } from './nativeDestinationQueue';
 export { default as OneTrustConsentManager } from './oneTrustConsentManager';
 export { default as KetchConsentManager } from './ketchConsentManager';
