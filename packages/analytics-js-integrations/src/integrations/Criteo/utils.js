@@ -1,4 +1,5 @@
 import md5 from 'md5';
+import { SHA256 } from 'crypto-js';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
 import Logger from '../../utils/logger';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
@@ -30,6 +31,15 @@ const handleCommonFields = (rudderElement, hashMethod) => {
     setEmail.hash_method = hashMethod;
     setEmail.email = hashMethod === 'md5' ? md5(email) : email;
     finalRequest.push(setEmail);
+
+    // When using email hashes, send sha256 in addition to MD5
+    if(hashMethod === 'md5' || hashMethod === 'sha256') {
+      finalRequest.push({
+        event: 'setEmail',
+        hash_method: 'sha256',
+        email: SHA256(email).toString(),
+      })
+    }
   }
 
   if (properties?.zipCode) {
