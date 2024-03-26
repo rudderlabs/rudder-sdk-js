@@ -85,6 +85,7 @@
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
   "dependencies": {
+    "@rudderstack/analytics-js-common": "*",
     "@ndhoule/each": "2.0.1",
     "lodash.get": "4.4.2",
     "lodash.isequal": "4.5.0",
@@ -100,9 +101,7 @@
     "lodash.pickby": "4.6.0",
     "lodash.tostring": "4.1.4"
   },
-  "devDependencies": {
-    "@rudderstack/analytics-js-common": "*"
-  },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
