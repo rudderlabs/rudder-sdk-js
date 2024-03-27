@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.1.0",
+  "version": "3.4.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -47,10 +47,10 @@
     "build:sanity": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all --parallel=false --projects=@rudderstack/analytics-js-sanity-suite",
     "build:sanity:staging": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all:staging --parallel=false --projects=@rudderstack/analytics-js-sanity-suite",
     "bump-version:monorepo": "npm version minor --git-tag-version false",
-    "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,test",
+    "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "release:nx": "nx release --skip-publish --verbose --dry-run",
-    "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,test",
-    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,test",
+    "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "build:browser:LH": "nx run @rudderstack/analytics-js:build-browser && nx run @rudderstack/analytics-js:build-browser-modern"
   },
   "author": "RudderStack",

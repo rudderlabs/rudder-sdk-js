@@ -2,6 +2,23 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.48.6](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.5...rudder-sdk-js@2.48.6) (2024-03-26)
+
+
+### Bug Fixes
+
+* move analytics common pkg to dev dependencies ([#1674](https://github.com/rudderlabs/rudder-sdk-js/issues/1674)) ([18e0dfb](https://github.com/rudderlabs/rudder-sdk-js/commit/18e0dfbe43b1a6e9814840a5419b1fe00b8ccb1d))
+
+## [2.48.5](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.4...rudder-sdk-js@2.48.5) (2024-03-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.4`
+
+### Bug Fixes
+
+* replace polyfillio with fastly ([#1664](https://github.com/rudderlabs/rudder-sdk-js/issues/1664)) ([24d3a0b](https://github.com/rudderlabs/rudder-sdk-js/commit/24d3a0b383f58b79fc1970d0c74761de30bb3f4a))
+
 ## [2.48.4](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.3...rudder-sdk-js@2.48.4) (2024-03-21)
 
 ### Dependency Updates
