@@ -298,6 +298,7 @@ class UserSessionManager implements IUserSessionManager {
           }) as string,
           sendRawData: true,
         },
+        isRawResponse: true,
         callback: (res, details) => {
           if (details?.xhr?.status === 200) {
             const cookieValue = store?.get(key);

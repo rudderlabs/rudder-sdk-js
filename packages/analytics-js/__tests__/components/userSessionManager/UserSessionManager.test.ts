@@ -1435,6 +1435,7 @@ describe('User session manager', () => {
           }),
           sendRawData: true,
         },
+        isRawResponse: true,
         callback: expect.any(Function),
       });
     });
@@ -1465,6 +1466,7 @@ describe('User session manager', () => {
           }),
           sendRawData: true,
         },
+        isRawResponse: true,
         callback: expect.any(Function),
       });
     });
