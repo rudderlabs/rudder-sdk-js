@@ -12,6 +12,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { state } from '@rudderstack/analytics-js/state';
 import { defaultLogger } from '../../Logger';
 import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
@@ -42,7 +43,15 @@ const getStorageEngine = (type?: StorageType): IStorage => {
  * Configure cookie storage singleton
  */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
-  new CookieStorage({}, defaultLogger).configure(options);
+  const cookieStorage = new CookieStorage({}, defaultLogger).configure(options);
+  state.storage.cookie.value = {
+    maxage: cookieStorage.maxage,
+    path: cookieStorage.path,
+    domain: cookieStorage.domain,
+    samesite: cookieStorage.samesite,
+    expires: cookieStorage.expires,
+    secure: cookieStorage.secure,
+  };
 };
 
 /**

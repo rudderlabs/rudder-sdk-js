@@ -149,6 +149,8 @@ export type LoadOptions = {
   consentManagement?: ConsentManagementOptions;
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;
+  useServerSideCookies?: boolean;
+  cookieServerUrl?: string;
 };
 
 export type ConsentOptions = {

@@ -27,6 +27,8 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -39,6 +41,8 @@ import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  COOKIE_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -50,7 +54,7 @@ import {
   hasSessionExpired,
   isStorageTypeValidForStoringData,
 } from './utils';
-import { getReferringDomain } from '../utilities/url';
+import { getReferringDomain, removeTrailingSlashes } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
@@ -59,19 +63,22 @@ import { isPositiveInteger } from '../utilities/number';
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
   pluginsManager?: IPluginsManager;
-  logger?: ILogger;
   errorHandler?: IErrorHandler;
+  httpClient?: IHttpClient;
+  logger?: ILogger;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
     pluginsManager?: IPluginsManager,
     storeManager?: IStoreManager,
+    httpClient?: IHttpClient,
   ) {
     this.storeManager = storeManager;
     this.pluginsManager = pluginsManager;
     this.logger = logger;
     this.errorHandler = errorHandler;
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
   }
 
@@ -263,6 +270,51 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to make an external request to set the cookie from server side
+   * @param key       cookie name
+   * @param value     encrypted cookie value
+   */
+  setServerSideCookie(key: string, value: ApiObject | string, store?: IStore): void {
+    const encryptedCookieValue = store?.encrypt(
+      stringifyWithoutCircular(value, false, [], this.logger),
+    );
+    if (encryptedCookieValue) {
+      let baseUrl = state.lifecycle.activeDataplaneUrl.value;
+      const { cookieServerUrl } = state.loadOptions.value;
+      if (cookieServerUrl) {
+        if (cookieServerUrl === 'invalid') {
+          return;
+        }
+        baseUrl = cookieServerUrl;
+      }
+      this.httpClient?.getAsyncData({
+        url: `${removeTrailingSlashes(baseUrl as string)}/setCookie`,
+        options: {
+          method: 'POST',
+          data: stringifyWithoutCircular({
+            key,
+            value: encryptedCookieValue,
+            options: state.storage.cookie.value,
+          }) as string,
+          sendRawData: true,
+        },
+        isRawResponse: true,
+        callback: (res, details) => {
+          if (details?.xhr?.status === 200) {
+            const cookieValue = store?.get(key);
+            if (cookieValue !== value) {
+              this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR(key));
+            }
+          } else {
+            this.logger?.error(COOKIE_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            store?.set(key, value);
+          }
+        },
+      });
+    }
+  }
+
+  /**
    * A function to sync values in storage
    * @param sessionKey
    * @param value
@@ -272,14 +324,20 @@ class UserSessionManager implements IUserSessionManager {
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
       const curStore = this.storeManager?.getStore(
-        storageClientDataStoreNameMap[storage] as string,
+        storageClientDataStoreNameMap[storageType] as string,
       );
-      if ((value && isString(value)) || isNonEmptyObject(value)) {
-        curStore?.set(key, value);
+      const key = entries[sessionKey]?.key as string;
+      if (value && (isString(value) || isNonEmptyObject(value))) {
+        // if useServerSideCookies load option is set to true
+        // set the cookie from server side
+        if (state.loadOptions.value.useServerSideCookies && storageType === COOKIE_STORAGE) {
+          this.setServerSideCookie(key, value, curStore);
+        } else {
+          curStore?.set(key, value);
+        }
       } else {
         curStore?.remove(key);
       }

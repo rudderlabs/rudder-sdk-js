@@ -9,7 +9,11 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isValidSourceConfig, validateLoadArgs } from './util/validate';
+import {
+  isValidSourceConfig,
+  validateLoadArgs,
+  validateAndReturnCookieServerUrl,
+} from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
@@ -91,6 +95,13 @@ class ConfigManager implements IConfigManager {
         lockIntegrationsVersion,
         this.logger,
       );
+      if (state.loadOptions.value.cookieServerUrl) {
+        state.loadOptions.value.cookieServerUrl = validateAndReturnCookieServerUrl(
+          state.loadOptions.value.useServerSideCookies,
+          state.loadOptions.value.cookieServerUrl,
+          this.logger,
+        );
+      }
     });
 
     this.getConfig();

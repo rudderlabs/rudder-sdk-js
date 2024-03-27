@@ -242,6 +242,7 @@ class Analytics implements IAnalytics {
       this.logger,
       this.pluginsManager,
       this.storeManager,
+      this.httpClient,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,
