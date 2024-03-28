@@ -14,6 +14,7 @@ class Ninetailed {
     }
     this.analytics = analytics;
     this.name = NAME;
+    this.sendPageEvents = config.sendPageInDevice;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -51,14 +52,16 @@ class Ninetailed {
     window.ninetailed.track(event, properties);
   }
   page(rudderElement) {
-    const { message } = rudderElement;
-    const { properties } = message;
-    if (properties) {
-      properties.url = window.location.href;
-      window.ninetailed.page(properties);
-      return;
+    if (this.sendPageEvents) {
+      const { message } = rudderElement;
+      const { properties } = message;
+      if (properties) {
+        properties.url = window.location.href;
+        window.ninetailed.page(properties);
+        return;
+      }
+      window.ninetailed.page();
     }
-    window.ninetailed.page();
   }
 }
 
