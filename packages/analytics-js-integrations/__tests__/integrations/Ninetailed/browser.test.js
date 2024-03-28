@@ -46,7 +46,7 @@ describe('Ninetailed Event APIs', () => {
   describe('Page', () => {
     let nt;
     beforeEach(() => {
-      nt = new Ninetailed({}, { loglevel: 'DEBUG' }, destinationInfo);
+      nt = new Ninetailed({ sendPageInDevice: true }, { loglevel: 'DEBUG' }, destinationInfo);
       window.ninetailed.page = jest.fn();
     });
     afterAll(() => {
@@ -78,6 +78,15 @@ describe('Ninetailed Event APIs', () => {
         },
       });
       expect(window.ninetailed.page.mock.calls[0][0]).toEqual(undefined);
+    });
+    test('send page events toggle off', () => {
+      nt = new Ninetailed({ sendPageInDevice: false }, { loglevel: 'DEBUG' }, destinationInfo);
+      nt.page({
+        message: {
+          context: {},
+        },
+      });
+      expect(window.ninetailed.page).toHaveBeenCalledTimes(0);
     });
   });
   describe('Track', () => {
