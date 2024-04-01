@@ -6,6 +6,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { SESSION_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
 import { defaultLogger } from '../../Logger';
 import { getDefaultSessionStorageOptions } from './defaultOptions';
@@ -54,8 +55,19 @@ class SessionStorage implements IStorage {
     this.length = 0;
   }
 
-  key(index: number): string | null {
+  key(index: number): Nullable<string> {
     return this.store.key(index);
+  }
+
+  keys(): string[] {
+    const keys: string[] = [];
+    for (let i = 0; i < this.store.length; i += 1) {
+      const key = this.store.key(i);
+      if (key !== null) {
+        keys.push(key);
+      }
+    }
+    return keys;
   }
 }
 

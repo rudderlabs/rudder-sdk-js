@@ -95,7 +95,7 @@ jobs:
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
 
-      - name: Sync files to S3 v3 folder
+      - name: Sync files to S3
         run: |
           aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v3/legacy/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v3/modern/ --recursive --cache-control max-age=3600
@@ -107,7 +107,7 @@ jobs:
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v3/*"
 
-      - name: Sync files to S3 v3 versioned folder
+      - name: Sync files to S3 versioned directory
         run: |
           aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}/legacy/ --recursive --cache-control max-age=3600
           aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}/modern/ --recursive --cache-control max-age=3600
@@ -119,7 +119,7 @@ jobs:
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*"
 
-      # TODO: The '/latest' folder is unused. Might be removed in future.
+      # TODO: The '/latest' directory is unused. Might be removed in future.
       - name: Sync files to S3 latest
         run: |
           aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/js-integrations/ --recursive --cache-control max-age=3600
@@ -134,7 +134,7 @@ jobs:
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
-      - name: Send message to Slack channel v3
+      - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.25.0
         env:
@@ -169,7 +169,7 @@ jobs:
 
       # Below steps are for v1.1 SDK (legacy)
 
-      - name: Sync files to S3 v1.1 folder
+      - name: Sync files to S3 v1.1 directory
         run: |
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
@@ -184,7 +184,7 @@ jobs:
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1.1*"
 
-      - name: Sync files to S3 v1.1 versioned folder
+      - name: Sync files to S3 v1.1 versioned directory
         run: |
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}/rudder-analytics.min.js.map --cache-control max-age=3600

@@ -88,17 +88,15 @@
         "baseBranch": "main",
         "preset": "conventional",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true,
-        "releaseAs": "prerelease",
-        "preid": "beta"
+        "trackDeps": true
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.0.0-beta.26",
-        "title": "@rudderstack/analytics-js-integrations@3.0.0-beta.26",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.0-beta.26",
+        "tag": "@rudderstack/analytics-js-integrations@3.0.2",
+        "title": "@rudderstack/analytics-js-integrations@3.0.2",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.0.2",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

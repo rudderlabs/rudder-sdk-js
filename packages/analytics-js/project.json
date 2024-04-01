@@ -120,17 +120,15 @@
         "baseBranch": "main",
         "preset": "conventional",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true,
-        "releaseAs": "prerelease",
-        "preid": "beta"
+        "trackDeps": true
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.0.0-beta.24",
-        "title": "@rudderstack/analytics-js@3.0.0-beta.24",
-        "discussion-category": "@rudderstack/analytics-js@3.0.0-beta.24",
+        "tag": "@rudderstack/analytics-js@3.0.3",
+        "title": "@rudderstack/analytics-js@3.0.3",
+        "discussion-category": "@rudderstack/analytics-js@3.0.3",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }

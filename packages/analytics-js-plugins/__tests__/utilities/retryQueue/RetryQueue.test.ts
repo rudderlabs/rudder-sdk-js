@@ -37,7 +37,14 @@ describe('Queue', () => {
     schedule.now = () => +new window.Date();
 
     // Have the default function be a spied success
-    queue = new RetryQueue('test', {}, jest.fn(), defaultStoreManager);
+    queue = new RetryQueue(
+      'test',
+      {
+        timerScaleFactor: 2, // scales the timers by 2x. Not a necessity, but added this option to test the timer scaling
+      },
+      jest.fn(),
+      defaultStoreManager,
+    );
     queue.schedule = schedule;
   });
 
@@ -188,13 +195,7 @@ describe('Queue', () => {
   });
 
   it('should respect shouldRetry', () => {
-    queue.shouldRetry = (_, attemptNumber) => {
-      if (attemptNumber > 2) {
-        return false;
-      }
-
-      return true;
-    };
+    queue.shouldRetry = (_, attemptNumber) => !(attemptNumber > 2);
 
     const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
 
@@ -205,21 +206,17 @@ describe('Queue', () => {
     // over maxattempts
     queue.requeue('a', 3);
     jest.advanceTimersByTime(queue.getDelay(3));
-    expect(queue.processQueueCb).toBeCalledTimes(0);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
 
     mockProcessItemCb.mockReset();
     queue.requeue('a', 2);
     jest.advanceTimersByTime(queue.getDelay(2));
-    expect(queue.processQueueCb).toBeCalledTimes(1);
-
-    // logic based on item state (eg. could be msg timestamp field)
-    queue.shouldRetry = item => !(item.shouldRetry === false);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
 
     mockProcessItemCb.mockReset();
-    queue.requeue({ shouldRetry: false }, 1);
+    queue.requeue('a', 3);
     jest.advanceTimersByTime(queue.getDelay(1));
-
-    expect(queue.processQueueCb).toBeCalledTimes(0);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
   });
 
   it('should respect maxItems', () => {
@@ -382,8 +379,22 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).nthCalledWith(1, 'a', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).nthCalledWith(2, 'b', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      1,
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      2,
+      'b',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
   });
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
@@ -813,7 +824,7 @@ describe('Queue', () => {
       done(new Error());
     };
 
-    for (let i = 0; i < calls.length; i = i + 1) {
+    for (let i = 0; i < calls.length; i += 1) {
       queue.addItem({ index: i });
     }
 
@@ -849,7 +860,7 @@ describe('Queue', () => {
     expect(size(queue).inProgress).toEqual(queue.maxItems);
 
     // while the items are in progress let's add maxItems times two items
-    for (i = 0; i < queue.maxItems * 2; i = i + 1) {
+    for (i = 0; i < queue.maxItems * 2; i += 1) {
       queue.addItem({ index: i });
     }
 

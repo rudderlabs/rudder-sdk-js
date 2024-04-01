@@ -57,9 +57,14 @@ class LocalStorage implements IStorage {
     this.length = 0;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   key(index: number): Nullable<string> {
-    return store.keys()[index] ? (store.keys()[index] as string) : null;
+    const curKeys = this.keys();
+    return curKeys[index] ?? null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  keys(): string[] {
+    return store.keys();
   }
 }
 
