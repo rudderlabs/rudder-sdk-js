@@ -99,6 +99,22 @@ describe('isLoaded and isReady tests', () => {
       }, 1000);
     });
   });
+
+  test('isReady test', () => {
+    mixpanel = new Mixpanel({ persistence: 'none' }, { logLevel: 'debug' });
+
+    loadSDK(); // Call loadSDK to set isNativeSDKLoaded after 5 seconds
+
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (mixpanel.isReady()) {
+          clearInterval(interval);
+          expect(mixpanel.isReady()).toBe(true);
+          resolve(); // Resolve the promise once the expectation is met
+        }
+      }, 1000);
+    });
+  });
 });
 
 describe('Page tests', () => {
