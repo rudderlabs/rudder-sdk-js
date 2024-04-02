@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this,no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import {
   NAME,

@@ -2,7 +2,7 @@
 import { Mixpanel } from '../../../src/integrations/Mixpanel';
 
 beforeEach(() => {
-  window.mixpanel = [];
+  window.mixpanel = {};
 
   // Add a dummy script as it is required by the init script
   const scriptElement = document.createElement('script');
@@ -18,6 +18,9 @@ afterEach(() => {
 });
 
 describe('Init tests', () => {
+  beforeEach(() => {
+    window.mixpanel = [];
+  });
   let mixpanel;
 
   test('Persistence type is missing', () => {
@@ -118,6 +121,9 @@ describe('isLoaded and isReady tests', () => {
 });
 
 describe('Page tests', () => {
+  beforeEach(() => {
+    window.mixpanel = [];
+  });
   let mixpanel;
   test('should return a custom generated event name when useUserDefinedPageEventName setting is enabled and event template is provided', () => {
     mixpanel = new Mixpanel(
