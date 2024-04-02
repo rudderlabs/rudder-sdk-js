@@ -1,9 +1,28 @@
 import md5 from 'md5';
+import sha256 from 'crypto-js/sha256';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
 import Logger from '../../utils/logger';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
+
+/**
+ * Returns email value based on hashMethod parameter
+ * @param {*} email 
+ * @param {*} hashMethod 
+ * @returns 
+ */
+const getEmail = (email, hashMethod) => {
+  if (hashMethod === 'md5') {
+    return md5(email);
+  }
+
+  if (hashMethod === 'sha256') {
+    return sha256(email).toString();
+  }
+
+  return email;
+}
 
 /**
  * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
@@ -28,7 +47,7 @@ const handleCommonFields = (rudderElement, hashMethod) => {
     const email = properties.email.trim().toLowerCase();
     setEmail.event = 'setEmail';
     setEmail.hash_method = hashMethod;
-    setEmail.email = hashMethod === 'md5' ? md5(email) : email;
+    setEmail.email = getEmail(email, hashMethod);
     finalRequest.push(setEmail);
   }
 
