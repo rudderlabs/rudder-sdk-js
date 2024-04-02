@@ -2,7 +2,7 @@
 import { Mixpanel } from '../../../src/integrations/Mixpanel';
 
 beforeEach(() => {
-  window.mixpanel = {};
+  window.mixpanel = [];
 
   // Add a dummy script as it is required by the init script
   const scriptElement = document.createElement('script');
@@ -27,6 +27,7 @@ describe('Init tests', () => {
       cross_subdomain_cookie: false,
       secure_cookie: false,
       persistence: 'cookie',
+      loaded: expect.any(Function),
     });
   });
 
@@ -40,6 +41,7 @@ describe('Init tests', () => {
       cross_subdomain_cookie: false,
       secure_cookie: false,
       persistence: 'cookie',
+      loaded: expect.any(Function),
     });
   });
 
@@ -54,6 +56,7 @@ describe('Init tests', () => {
       secure_cookie: false,
       persistence: 'localStorage',
       persistence_name: 'abc',
+      loaded: expect.any(Function),
     });
   });
 
@@ -67,6 +70,33 @@ describe('Init tests', () => {
       cross_subdomain_cookie: false,
       secure_cookie: false,
       disable_persistence: true,
+      loaded: expect.any(Function),
+    });
+  });
+});
+
+describe('isLoaded and isReady tests', () => {
+  let mixpanel;
+
+  const loadSDK = () => {
+    setTimeout(() => {
+      mixpanel.isNativeSDKLoaded = true; // Change to true after 5 seconds
+    }, 5000); // 5 seconds
+  };
+
+  test('isLoaded test', () => {
+    mixpanel = new Mixpanel({ persistence: 'none' }, { logLevel: 'debug' });
+
+    loadSDK(); // Call loadSDK to set isNativeSDKLoaded after 5 seconds
+
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (mixpanel.isLoaded()) {
+          clearInterval(interval);
+          expect(mixpanel.isLoaded()).toBe(true);
+          resolve(); // Resolve the promise once the expectation is met
+        }
+      }, 1000);
     });
   });
 });
