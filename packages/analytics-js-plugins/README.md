@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js-plugins
 
-RudderStack Javascript SDK plugins code that is used within the related analytics package, bundles for the legacy
+RudderStack JavaScript SDK plugins code that is used within the related analytics package, bundles for the legacy
 packaging or as separate bundle chunks for dynamic imports.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
