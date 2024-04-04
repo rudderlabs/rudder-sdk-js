@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import isEqual from 'lodash.isequal';
-import { isEmpty } from 'ramda';
+import { isEmpty, equals } from 'ramda';
 import {
   NAME,
   DISPLAY_NAME,
@@ -199,17 +198,17 @@ class Braze {
 
       if (email && email !== prevEmail) setEmail();
       if (phone && phone !== prevPhone) setPhone();
-      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
+      if (birthday && !equals(birthday, prevBirthday)) setBirthday();
       if (firstName && firstName !== prevFirstname) setFirstName();
       if (lastName && lastName !== prevLastname) setLastName();
       if (gender && formatGender(gender) !== formatGender(prevGender))
         setGender(formatGender(gender));
-      if (address && !isEqual(address, prevAddress)) setAddress();
+      if (address && !equals(address, prevAddress)) setAddress();
       if (isObject(traits)) {
         Object.keys(traits)
           .filter(key => reserved.indexOf(key) === -1)
           .forEach(key => {
-            if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
+            if (!prevTraits[key] || !equals(prevTraits[key], traits[key])) {
               window.braze.getUser().setCustomUserAttribute(key, traits[key]);
             }
           });

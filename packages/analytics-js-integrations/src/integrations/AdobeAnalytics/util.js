@@ -2,13 +2,13 @@
 /* eslint-disable no-undef */
 import get from 'lodash.get';
 import each from '@ndhoule/each';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
 import Logger from '../../utils/logger';
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
-  isDefined,
 } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
