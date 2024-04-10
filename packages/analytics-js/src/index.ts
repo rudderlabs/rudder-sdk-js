@@ -1,6 +1,5 @@
 import type { RudderAnalytics } from './app/RudderAnalytics';
 import type { RudderAnalyticsPreloader } from './components/preloadBuffer/types';
-import type { IRudderStackGlobals } from './app/IRudderStackGlobals';
 
 export {
   type AnonymousIdOptions,
@@ -21,7 +20,6 @@ export { type LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 export { RudderAnalytics } from './app/RudderAnalytics';
-export { type IRudderStackGlobals } from './app/IRudderStackGlobals';
 export {
   type RudderAnalyticsPreloader,
   type PreloadedEventCall,
@@ -30,8 +28,5 @@ export {
 declare global {
   interface Window {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
-    RudderStackGlobals: IRudderStackGlobals;
-    rudderAnalyticsMount: () => void;
-    rudderAnalyticsBuildType: 'legacy' | 'modern';
   }
 }
