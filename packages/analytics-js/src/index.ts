@@ -28,7 +28,5 @@ export {
 declare global {
   interface Window {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
-    rudderAnalyticsMount: () => void;
-    rudderAnalyticsBuildType: 'legacy' | 'modern';
   }
 }

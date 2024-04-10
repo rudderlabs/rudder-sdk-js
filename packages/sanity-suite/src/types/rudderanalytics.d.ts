@@ -7,7 +7,5 @@ import type {
 declare global {
   interface Window {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
-    rudderAnalyticsBuildType: 'legacy' | 'modern';
-    RudderSnippetVersion?: string;
   }
 }
