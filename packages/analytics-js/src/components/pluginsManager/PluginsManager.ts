@@ -27,6 +27,7 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
+import { addDefaultPlugins, throwWarningForMissingPlugins } from './utils';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -124,19 +125,12 @@ class PluginsManager implements IPluginsManager {
     } else {
       if (state.loadOptions.value.useBeacon === true) {
         this.logger?.warn(UNSUPPORTED_BEACON_API_WARNING(PLUGINS_MANAGER));
+        pluginsToLoadFromConfig.push('XhrQueue');
       }
 
       pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
         pluginName => pluginName !== 'BeaconQueue',
       );
-    }
-
-    // Enforce default cloud mode event delivery queue plugin is none exists
-    if (
-      !pluginsToLoadFromConfig.includes('XhrQueue') &&
-      !pluginsToLoadFromConfig.includes('BeaconQueue')
-    ) {
-      pluginsToLoadFromConfig.push('XhrQueue');
     }
 
     // Device mode destinations related plugins
@@ -188,13 +182,19 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
+    const finalPluginsToLoadFromConfig = addDefaultPlugins(pluginsToLoadFromConfig);
+
+    return [
+      ...(Object.keys(getMandatoryPluginsMap()) as PluginName[]),
+      ...finalPluginsToLoadFromConfig,
+    ];
   }
 
   /**
    * Determine the list of plugins that should be activated
    */
   setActivePlugins() {
+    this.warnOnMisconfiguredPlugins();
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
     // Merging available mandatory and optional plugin name list
     const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
@@ -226,6 +226,95 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value = activePlugins;
       state.plugins.failedPlugins.value = failedPlugins;
     });
+  }
+
+  warnOnMisconfiguredPlugins() {
+    const pluginsToLoadFromConfig = state.plugins.pluginsToLoadFromConfig.value as PluginName[];
+
+    if (state.reporting.errorReportingProviderPluginName.value) {
+      const pluginsToConfigure = [
+        'ErrorReporting',
+        state.reporting.errorReportingProviderPluginName.value,
+      ] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Error reporting is enabled',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
+
+    // Device mode destinations related plugins
+    const nonCloudDestinations = getNonCloudDestinations(
+      state.nativeDestinations.configuredDestinations.value ?? [],
+    );
+    if (nonCloudDestinations.length > 0) {
+      const pluginsToConfigure = [
+        'DeviceModeDestinations',
+        'NativeDestinationQueue',
+      ] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Device mode destinations are connected to the source',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
+
+    const dmtEnabledDestinations = nonCloudDestinations.filter(
+      destination => destination.shouldApplyDeviceModeTransformation,
+    );
+
+    if (dmtEnabledDestinations.length > 0) {
+      const pluginsToConfigure = ['DeviceModeTransformation'] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Device mode transformation is enabled for at least one destination',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
+
+    // Consent Management related plugins
+    if (state.consents.enabled.value) {
+      const pluginsToConfigure = [
+        state.consents.activeConsentManagerPluginName.value,
+      ] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Consent management is enabled',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
+
+    // Storage encryption related plugins
+    if (state.storage.encryptionPluginName.value) {
+      const pluginsToConfigure = [state.storage.encryptionPluginName.value] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Storage encryption is enabled',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
+
+    // Storage migration related plugins
+    if (state.storage.migrate.value) {
+      const pluginsToConfigure = ['StorageMigrator'] as PluginName[];
+
+      throwWarningForMissingPlugins(
+        'Storage migration is enabled',
+        pluginsToLoadFromConfig,
+        pluginsToConfigure,
+        this.logger,
+      );
+    }
   }
 
   /**

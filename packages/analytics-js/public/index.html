@@ -129,12 +129,12 @@
         //   events: {
         //     delivery: 'buffer'
         //   }
-        }
-        // plugins: [
-        //   'StorageEncryption',
-        //   'StorageMigrator',
-        //   'XhrQueue'
-        // ]
+        },
+        plugins: [
+          'StorageEncryption',
+          'StorageMigrator',
+          'ErrorReporting'
+        ]
       };
 
       rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
