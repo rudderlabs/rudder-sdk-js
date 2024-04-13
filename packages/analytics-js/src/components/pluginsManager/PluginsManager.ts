@@ -13,6 +13,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import { clone } from 'ramda';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -20,14 +21,17 @@ import {
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../configManager/constants';
-import { UNSUPPORTED_BEACON_API_WARNING } from '../../constants/logMessages';
+import {
+  DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING,
+  UNSUPPORTED_BEACON_API_WARNING,
+} from '../../constants/logMessages';
 import { pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
-import { addDefaultPlugins, throwWarningForMissingPlugins } from './utils';
+import { getMissingPlugins } from './utils';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -182,7 +186,8 @@ class PluginsManager implements IPluginsManager {
       );
     }
 
-    const finalPluginsToLoadFromConfig = addDefaultPlugins(pluginsToLoadFromConfig);
+    let finalPluginsToLoadFromConfig = this.addDefaultPlugins(pluginsToLoadFromConfig);
+    finalPluginsToLoadFromConfig = this.addMissingPlugins(finalPluginsToLoadFromConfig);
 
     return [
       ...(Object.keys(getMandatoryPluginsMap()) as PluginName[]),
@@ -194,7 +199,6 @@ class PluginsManager implements IPluginsManager {
    * Determine the list of plugins that should be activated
    */
   setActivePlugins() {
-    this.warnOnMisconfiguredPlugins();
     const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
     // Merging available mandatory and optional plugin name list
     const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
@@ -228,19 +232,37 @@ class PluginsManager implements IPluginsManager {
     });
   }
 
-  warnOnMisconfiguredPlugins() {
-    const pluginsToLoadFromConfig = state.plugins.pluginsToLoadFromConfig.value as PluginName[];
+  addDefaultPlugins(pluginsToLoadFromConfig: PluginName[]) {
+    const finalPluginsToLoadFromConfig = clone(pluginsToLoadFromConfig);
 
+    // Enforce default cloud mode event delivery queue plugin is none exists
+    if (
+      !pluginsToLoadFromConfig.includes('XhrQueue') &&
+      !pluginsToLoadFromConfig.includes('BeaconQueue')
+    ) {
+      finalPluginsToLoadFromConfig.push('XhrQueue');
+      this.logger?.warn(DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING(PLUGINS_MANAGER));
+    }
+
+    return finalPluginsToLoadFromConfig;
+  }
+
+  addMissingPlugins(pluginsToLoadFromConfig: PluginName[]): PluginName[] {
+    const finalPluginsToLoadFromConfig = clone(pluginsToLoadFromConfig);
+    const shouldWarn = true;
+
+    // Error reporting related plugins
     if (state.reporting.errorReportingProviderPluginName.value) {
       const pluginsToConfigure = [
         'ErrorReporting',
         state.reporting.errorReportingProviderPluginName.value,
       ] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Error reporting is enabled',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
@@ -249,20 +271,23 @@ class PluginsManager implements IPluginsManager {
     const nonCloudDestinations = getNonCloudDestinations(
       state.nativeDestinations.configuredDestinations.value ?? [],
     );
+
     if (nonCloudDestinations.length > 0) {
       const pluginsToConfigure = [
         'DeviceModeDestinations',
         'NativeDestinationQueue',
       ] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Device mode destinations are connected to the source',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
 
+    // Device mode transformation related plugins
     const dmtEnabledDestinations = nonCloudDestinations.filter(
       destination => destination.shouldApplyDeviceModeTransformation,
     );
@@ -270,10 +295,11 @@ class PluginsManager implements IPluginsManager {
     if (dmtEnabledDestinations.length > 0) {
       const pluginsToConfigure = ['DeviceModeTransformation'] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Device mode transformation is enabled for at least one destination',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
@@ -284,10 +310,11 @@ class PluginsManager implements IPluginsManager {
         state.consents.activeConsentManagerPluginName.value,
       ] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Consent management is enabled',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
@@ -296,10 +323,11 @@ class PluginsManager implements IPluginsManager {
     if (state.storage.encryptionPluginName.value) {
       const pluginsToConfigure = [state.storage.encryptionPluginName.value] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Storage encryption is enabled',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
@@ -308,13 +336,16 @@ class PluginsManager implements IPluginsManager {
     if (state.storage.migrate.value) {
       const pluginsToConfigure = ['StorageMigrator'] as PluginName[];
 
-      throwWarningForMissingPlugins(
+      getMissingPlugins(
         'Storage migration is enabled',
         pluginsToLoadFromConfig,
         pluginsToConfigure,
+        shouldWarn,
         this.logger,
       );
     }
+
+    return finalPluginsToLoadFromConfig;
   }
 
   /**

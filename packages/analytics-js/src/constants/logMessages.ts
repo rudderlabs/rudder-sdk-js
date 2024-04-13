@@ -220,6 +220,16 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
+const MISCONFIGURED_PLUGINS_WARNING = (
+  context: string,
+  configurationState: string,
+  pluginsOutputString: string,
+) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}${configurationState}, but${pluginsOutputString} not configured to load. Ignore if this was intentional. Otherwise, consider adding them to the 'plugins' load API option.`;
+
+const DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING = (context: string) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}As no event delivery queue plugin was configured, XhrQueue plugin was added to the list of plugins to load.`;
+
 // DEBUG
 
 export {
@@ -279,4 +289,6 @@ export {
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  MISCONFIGURED_PLUGINS_WARNING,
+  DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING,
 };
