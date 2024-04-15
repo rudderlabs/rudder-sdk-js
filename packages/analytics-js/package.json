@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",

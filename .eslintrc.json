@@ -5,9 +5,9 @@
     },
     "lintAllEsApis": true,
     "polyfills": [
-      "Promise",
       "URL",
       "URLSearchParams",
+      "Promise",
       "Number.isNaN",
       "Number.isInteger",
       "Array.from",
@@ -16,15 +16,18 @@
       "String.prototype.endsWith",
       "String.prototype.startsWith",
       "String.prototype.includes",
+      "String.prototype.replaceAll",
+      "String.fromCodePoint",
       "Object.entries",
       "Object.values",
-      "Element.prototype.dataset",
-      "String.prototype.replaceAll",
+      "Object.assign",
       "TextEncoder",
       "TextDecoder",
-      "String.fromCodePoint",
+      "CustomEvent",
       "requestAnimationFrame",
-      "cancelAnimationFrame"
+      "cancelAnimationFrame",
+      "navigator.sendBeacon",
+      "Uint8Array"
     ]
   },
   "env": {
