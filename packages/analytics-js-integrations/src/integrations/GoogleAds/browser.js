@@ -32,8 +32,8 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-    this.sendPageView = config.sendPageView || true;
-    this.conversionLinker = config.conversionLinker || true;
+    this.sendPageView = config.sendPageView ?? true;
+    this.conversionLinker = config.conversionLinker ?? true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.trackConversions = config.trackConversions;
     this.trackDynamicRemarketing = config.trackDynamicRemarketing;
@@ -47,7 +47,7 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
-    this.v2 = config.v2 || true;
+    this.v2 = config.v2 ?? true;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,

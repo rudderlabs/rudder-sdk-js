@@ -27,11 +27,11 @@ export default class GA {
     this.enhancedLinkAttribution = config.enhancedLinkAttribution || false;
 
     this.includeSearch = config.includeSearch || false;
-    this.setAllMappedProps = config.setAllMappedProps || true;
+    this.setAllMappedProps = config.setAllMappedProps ?? true;
     this.siteSpeedSampleRate = config.siteSpeedSampleRate || 1;
     this.sampleRate = config.sampleRate || 100;
-    this.trackCategorizedPages = config.trackCategorizedPages || true;
-    this.trackNamedPages = config.trackNamedPages || true;
+    this.trackCategorizedPages = config.trackCategorizedPages ?? true;
+    this.trackNamedPages = config.trackNamedPages ?? true;
     this.useRichEventNames = config.useRichEventNames || false;
     this.optimizeContainerId = config.optimize || '';
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];

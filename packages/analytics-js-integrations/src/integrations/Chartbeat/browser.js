@@ -27,7 +27,7 @@ class Chartbeat {
     window._sf_async_config.domain = config.domain;
     this._sf_async_config = window._sf_async_config;
     this.isVideo = !!config.video;
-    this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
+    this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle ?? true;
     this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
     this.replayEvents = [];
     this.failed = false;
