@@ -13,7 +13,6 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { clone } from 'ramda';
 import { MISCONFIGURED_PLUGINS_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
@@ -29,6 +28,7 @@ import {
   pluginsInventory,
   remotePluginsInventory,
 } from './pluginsInventory';
+import type { PluginsGroup } from './types';
 
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
@@ -96,7 +96,7 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
-    const pluginGroupsToProcess = [
+    const pluginGroupsToProcess: PluginsGroup[] = [
       {
         configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
         configurationStatusStr: 'Data plane events delivery is enabled',
@@ -160,34 +160,7 @@ class PluginsManager implements IPluginsManager {
             : pluginName => isDefined(pluginName), // pass through
         );
 
-        const shouldAddMissingPlugins = group.shouldAddMissingPlugins || addMissingPlugins;
-        let pluginsToConfigure;
-        if (group.activePluginName) {
-          pluginsToConfigure = [
-            ...(group?.basePlugins || []),
-            group.activePluginName,
-          ] as PluginName[];
-        } else {
-          pluginsToConfigure = [...(group?.supportedPlugins || [])] as PluginName[];
-        }
-
-        const missingPlugins = pluginsToConfigure.filter(
-          pluginName => !pluginsToLoadFromConfig.includes(pluginName),
-        );
-        if (missingPlugins.length > 0) {
-          if (shouldAddMissingPlugins) {
-            pluginsToLoadFromConfig.push(...missingPlugins);
-          }
-
-          this.logger?.warn(
-            MISCONFIGURED_PLUGINS_WARNING(
-              PLUGINS_MANAGER,
-              group.configurationStatusStr,
-              missingPlugins,
-              shouldAddMissingPlugins,
-            ),
-          );
-        }
+        this.addMissingPlugins(group, addMissingPlugins, pluginsToLoadFromConfig);
       } else {
         pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
           group.basePlugins
@@ -202,6 +175,38 @@ class PluginsManager implements IPluginsManager {
     });
 
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
+  }
+
+  private addMissingPlugins(
+    group: PluginsGroup,
+    addMissingPlugins: boolean,
+    pluginsToLoadFromConfig: PluginName[],
+  ) {
+    const shouldAddMissingPlugins = group.shouldAddMissingPlugins || addMissingPlugins;
+    let pluginsToConfigure;
+    if (group.activePluginName) {
+      pluginsToConfigure = [...(group?.basePlugins || []), group.activePluginName] as PluginName[];
+    } else {
+      pluginsToConfigure = [...(group?.supportedPlugins || [])] as PluginName[];
+    }
+
+    const missingPlugins = pluginsToConfigure.filter(
+      pluginName => !pluginsToLoadFromConfig.includes(pluginName),
+    );
+    if (missingPlugins.length > 0) {
+      if (shouldAddMissingPlugins) {
+        pluginsToLoadFromConfig.push(...missingPlugins);
+      }
+
+      this.logger?.warn(
+        MISCONFIGURED_PLUGINS_WARNING(
+          PLUGINS_MANAGER,
+          group.configurationStatusStr,
+          missingPlugins,
+          shouldAddMissingPlugins,
+        ),
+      );
+    }
   }
 
   /**
