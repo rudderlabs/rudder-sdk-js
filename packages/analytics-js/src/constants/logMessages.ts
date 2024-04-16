@@ -222,13 +222,25 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 
 const MISCONFIGURED_PLUGINS_WARNING = (
   context: string,
-  configurationState: string,
-  pluginsOutputString: string,
-) =>
-  `${context}${LOG_CONTEXT_SEPARATOR}${configurationState}, but${pluginsOutputString} not configured to load. Ignore if this was intentional. Otherwise, consider adding them to the 'plugins' load API option.`;
+  configurationStatusStr: string,
+  missingPlugins: PluginName[],
+  shouldAddMissingPlugins: boolean,
+) => {
+  const pluginsString =
+    missingPlugins.length === 1
+      ? ` '${missingPlugins[0]}' plugin was`
+      : ` ['${missingPlugins.join("', '")}'] plugins were`;
 
-const DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING = (context: string) =>
-  `${context}${LOG_CONTEXT_SEPARATOR}As no event delivery queue plugin was configured, XhrQueue plugin was added to the list of plugins to load.`;
+  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatusStr}, but${pluginsString} not configured to load.`;
+  let warningStr;
+
+  if (shouldAddMissingPlugins) {
+    warningStr = `${baseWarning} So, ${missingPlugins.length === 1 ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
+  } else {
+    warningStr = `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${missingPlugins.length === 1 ? 'it' : 'them'} to the 'plugins' load API option.`;
+  }
+  return warningStr;
+};
 
 // DEBUG
 
@@ -290,5 +302,4 @@ export {
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
   MISCONFIGURED_PLUGINS_WARNING,
-  DEFAULT_EVENT_DELIVERY_QUEUE_PLUGIN_WARNING,
 };

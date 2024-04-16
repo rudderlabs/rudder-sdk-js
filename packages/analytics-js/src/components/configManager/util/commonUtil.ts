@@ -18,10 +18,12 @@ import type {
   ConsentResolutionStrategy,
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { state } from '../../../state';
 import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
@@ -253,10 +255,32 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
   });
 };
 
+const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
+  if (state.dataPlaneEvents.deliveryEnabled.value) {
+    const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
+    let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
+
+    if (state.loadOptions.value.useBeacon) {
+      if (state.capabilities.isBeaconAvailable.value) {
+        eventsQueuePluginName = 'BeaconQueue';
+      } else {
+        eventsQueuePluginName = defaultEventsQueuePluginName;
+
+        logger?.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));
+      }
+    }
+
+    batch(() => {
+      state.dataPlaneEvents.eventsQueuePluginName.value = eventsQueuePluginName;
+    });
+  }
+};
+
 export {
   getSDKUrl,
   updateReportingState,
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
+  updateDataPlaneEventsStateFromLoadOptions,
 };
