@@ -96,101 +96,112 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
-    // Error reporting related plugins
-    const supportedErrReportingProviderPluginNames: string[] = Object.values(
-      ErrorReportingProvidersToPluginNameMap,
-    );
-    if (state.reporting.errorReportingProviderPluginName.value) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName !== state.reporting.errorReportingProviderPluginName.value &&
-            supportedErrReportingProviderPluginNames.includes(pluginName)
+    const pluginGroupsToProcess = [
+      {
+        configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
+        configurationStatusStr: 'Data plane events delivery is enabled',
+        activePluginName: state.dataPlaneEvents.eventsQueuePluginName.value,
+        supportedPlugins: Object.values(DataPlaneEventsTransportToPluginNameMap),
+        shouldAddMissingPlugins: true,
+      },
+      {
+        configurationStatus: () =>
+          isDefined(state.reporting.errorReportingProviderPluginName.value),
+        configurationStatusStr: 'Error reporting is enabled',
+        activePluginName: state.reporting.errorReportingProviderPluginName.value,
+        basePlugins: ['ErrorReporting'],
+        supportedPlugins: Object.values(ErrorReportingProvidersToPluginNameMap),
+      },
+      {
+        configurationStatus: () =>
+          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? [])
+            .length > 0,
+        configurationStatusStr: 'Device mode destinations are connected to the source',
+        supportedPlugins: ['DeviceModeDestinations', 'NativeDestinationQueue'] as PluginName[],
+      },
+      {
+        configurationStatus: () =>
+          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? []).some(
+            destination => destination.shouldApplyDeviceModeTransformation,
           ),
-      );
-    } else {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName === 'ErrorReporting' ||
-            supportedErrReportingProviderPluginNames.includes(pluginName)
-          ),
-      );
-    }
-
-    // Cloud mode (dataplane) events queue plugins
-    const supportedDataPlaneTransportPluginNames: string[] = Object.values(
-      DataPlaneEventsTransportToPluginNameMap,
-    );
-    if (isDefined(state.dataPlaneEvents.eventsQueuePluginName.value)) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          !(
-            pluginName !== state.dataPlaneEvents.eventsQueuePluginName.value &&
-            supportedDataPlaneTransportPluginNames.includes(pluginName)
-          ),
-      );
-    } else {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => !supportedDataPlaneTransportPluginNames.includes(pluginName),
-      );
-    }
-
-    // Device mode destinations related plugins
-    if (
-      getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? [])
-        .length === 0
-    ) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName =>
-          ![
-            'DeviceModeDestinations',
-            'DeviceModeTransformation',
-            'NativeDestinationQueue',
-          ].includes(pluginName),
-      );
-    }
-
-    // Consent Management related plugins
-    const supportedConsentManagerPlugins: string[] = Object.values(ConsentManagersToPluginNameMap);
-    let filterCondition = (pluginName: PluginName) =>
-      !(
-        pluginName !== state.consents.activeConsentManagerPluginName.value &&
-        supportedConsentManagerPlugins.includes(pluginName)
-      );
-
-    if (!state.consents.enabled.value) {
-      filterCondition = (pluginName: PluginName) =>
-        !supportedConsentManagerPlugins.includes(pluginName);
-    }
-
-    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(filterCondition);
-
-    // Storage encryption related plugins
-    const supportedStorageEncryptionPlugins: string[] = Object.values(
-      StorageEncryptionVersionsToPluginNameMap,
-    );
-    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-      pluginName =>
-        !(
-          pluginName !== state.storage.encryptionPluginName.value &&
-          supportedStorageEncryptionPlugins.includes(pluginName)
-        ),
-    );
-
-    // Storage migrator related plugins
-    if (!state.storage.migrate.value) {
-      pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-        pluginName => pluginName !== 'StorageMigrator',
-      );
-    }
-
-    const finalPluginsToLoadFromConfig = this.addMissingPluginsIfNeeded(pluginsToLoadFromConfig);
-
-    return [
-      ...(Object.keys(getMandatoryPluginsMap()) as PluginName[]),
-      ...finalPluginsToLoadFromConfig,
+        configurationStatusStr:
+          'Device mode transformation is enabled for at least one destination',
+        supportedPlugins: ['DeviceModeTransformation'] as PluginName[],
+      },
+      {
+        configurationStatus: () => isDefined(state.consents.activeConsentManagerPluginName.value),
+        configurationStatusStr: 'Consent management is enabled',
+        activePluginName: state.consents.activeConsentManagerPluginName.value,
+        supportedPlugins: Object.values(ConsentManagersToPluginNameMap),
+      },
+      {
+        configurationStatus: () => isDefined(state.storage.encryptionPluginName.value),
+        configurationStatusStr: 'Storage encryption is enabled',
+        activePluginName: state.storage.encryptionPluginName.value,
+        supportedPlugins: Object.values(StorageEncryptionVersionsToPluginNameMap),
+      },
+      {
+        configurationStatus: () => state.storage.migrate.value,
+        configurationStatusStr: 'Storage migration is enabled',
+        supportedPlugins: ['StorageMigrator'],
+      },
     ];
+
+    const addMissingPlugins = false;
+    pluginGroupsToProcess.forEach(group => {
+      if (group.configurationStatus()) {
+        pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+          group.activePluginName
+            ? pluginName =>
+                !(
+                  pluginName !== group.activePluginName &&
+                  group.supportedPlugins.includes(pluginName)
+                )
+            : pluginName => isDefined(pluginName), // pass through
+        );
+
+        const shouldAddMissingPlugins = group.shouldAddMissingPlugins || addMissingPlugins;
+        let pluginsToConfigure;
+        if (group.activePluginName) {
+          pluginsToConfigure = [
+            ...(group?.basePlugins || []),
+            group.activePluginName,
+          ] as PluginName[];
+        } else {
+          pluginsToConfigure = [...(group?.supportedPlugins || [])] as PluginName[];
+        }
+
+        const missingPlugins = pluginsToConfigure.filter(
+          pluginName => !pluginsToLoadFromConfig.includes(pluginName),
+        );
+        if (missingPlugins.length > 0) {
+          if (shouldAddMissingPlugins) {
+            pluginsToLoadFromConfig.push(...missingPlugins);
+          }
+
+          this.logger?.warn(
+            MISCONFIGURED_PLUGINS_WARNING(
+              PLUGINS_MANAGER,
+              group.configurationStatusStr,
+              missingPlugins,
+              shouldAddMissingPlugins,
+            ),
+          );
+        }
+      } else {
+        pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
+          group.basePlugins
+            ? pluginName =>
+                !(
+                  group.basePlugins?.includes(pluginName) ||
+                  group.supportedPlugins.includes(pluginName)
+                )
+            : pluginName => !group.supportedPlugins.includes(pluginName),
+        );
+      }
+    });
+
+    return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }
 
   /**
@@ -228,88 +239,6 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value = activePlugins;
       state.plugins.failedPlugins.value = failedPlugins;
     });
-  }
-
-  addMissingPluginsIfNeeded(pluginsToLoadFromConfig: PluginName[]): PluginName[] {
-    const finalPluginsToLoadFromConfig = clone(pluginsToLoadFromConfig);
-    const addMissingPlugins = false;
-
-    const nonCloudDestinations = getNonCloudDestinations(
-      state.nativeDestinations.configuredDestinations.value ?? [],
-    );
-    const dmtEnabledDestinations = nonCloudDestinations.filter(
-      destination => destination.shouldApplyDeviceModeTransformation,
-    );
-
-    const pluginGroupsToCheck = [
-      {
-        configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
-        configurationStatusStr: 'Data plane events delivery is enabled',
-        pluginsToConfigure: [state.dataPlaneEvents.eventsQueuePluginName.value] as PluginName[],
-        shouldAddMissingPlugins: true,
-      },
-      {
-        configurationStatus: () =>
-          isDefined(state.reporting.errorReportingProviderPluginName.value),
-        configurationStatusStr: 'Error reporting is enabled',
-        pluginsToConfigure: [
-          'ErrorReporting',
-          state.reporting.errorReportingProviderPluginName.value,
-        ] as PluginName[],
-      },
-      {
-        configurationStatus: () => nonCloudDestinations.length > 0,
-        configurationStatusStr: 'Device mode destinations are connected to the source',
-        pluginsToConfigure: ['DeviceModeDestinations', 'NativeDestinationQueue'] as PluginName[],
-      },
-      {
-        configurationStatus: () => dmtEnabledDestinations.length > 0,
-        configurationStatusStr:
-          'Device mode transformation is enabled for at least one destination',
-        pluginsToConfigure: ['DeviceModeTransformation'] as PluginName[],
-      },
-      {
-        configurationStatus: () => state.consents.enabled.value,
-        configurationStatusStr: 'Consent management is enabled',
-        pluginsToConfigure: [state.consents.activeConsentManagerPluginName.value] as PluginName[],
-      },
-      {
-        configurationStatus: () => isDefined(state.storage.encryptionPluginName.value),
-        configurationStatusStr: 'Storage encryption is enabled',
-        pluginsToConfigure: [state.storage.encryptionPluginName.value] as PluginName[],
-      },
-      {
-        configurationStatus: () => state.storage.migrate.value,
-        configurationStatusStr: 'Storage migration is enabled',
-        pluginsToConfigure: ['StorageMigrator'] as PluginName[],
-      },
-    ];
-
-    pluginGroupsToCheck.forEach(group => {
-      if (group.configurationStatus()) {
-        const shouldAddMissingPlugins = group.shouldAddMissingPlugins || addMissingPlugins;
-        const missingPlugins = group.pluginsToConfigure.filter(
-          pluginName => !pluginsToLoadFromConfig.includes(pluginName),
-        );
-
-        if (missingPlugins.length > 0) {
-          if (shouldAddMissingPlugins) {
-            finalPluginsToLoadFromConfig.push(...missingPlugins);
-          }
-
-          this.logger?.warn(
-            MISCONFIGURED_PLUGINS_WARNING(
-              PLUGINS_MANAGER,
-              group.configurationStatusStr,
-              missingPlugins,
-              shouldAddMissingPlugins,
-            ),
-          );
-        }
-      }
-    });
-
-    return finalPluginsToLoadFromConfig;
   }
 
   /**
