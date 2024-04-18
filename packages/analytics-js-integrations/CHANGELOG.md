@@ -2,6 +2,21 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.3...@rudderstack/analytics-js-integrations@3.0.4) (2024-04-12)
+
+
+### Bug Fixes
+
+* making the error message as warn ([#1686](https://github.com/rudderlabs/rudder-sdk-js/issues/1686)) ([56e34be](https://github.com/rudderlabs/rudder-sdk-js/commit/56e34be3575f66531bfe4910ff4aa970ed2ee208))
+
+## [3.0.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.2...@rudderstack/analytics-js-integrations@3.0.3) (2024-04-02)
+
+
+### Bug Fixes
+
+* ninetailed: modify page support ([#1677](https://github.com/rudderlabs/rudder-sdk-js/issues/1677)) ([e45ef06](https://github.com/rudderlabs/rudder-sdk-js/commit/e45ef06186cb4dc1d0568f2b39d8e786d278390a))
+* updated isLoaded and isReady conditions for mixpanel ([#1650](https://github.com/rudderlabs/rudder-sdk-js/issues/1650)) ([80c76a1](https://github.com/rudderlabs/rudder-sdk-js/commit/80c76a1f7f27a93930a6146730ac94d945b19b25))
+
 ## [3.0.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.1...@rudderstack/analytics-js-integrations@3.0.2) (2024-03-22)
 
 ### Dependency Updates
