@@ -13,9 +13,9 @@ const destinationInfo = {
 // jest.mock('this.analytics.getUserId', () => '1234');
 
 describe('Google Analytics 4 init tests', () => {
-  test('Testing init call of Google Analytics 4 with MeasurementId', () => {
+  test('Testing init call of Google Analytics 4 with MeasurementId and SdkBaseUrl', () => {
     const ga4 = new GA4(
-      { measurementId: 'G-123456', debugView: true },
+      { measurementId: 'G-123456', debugView: true, sdkBaseUrl: 'https://www.example.com' },
       { getUserId: () => '1234', getUserTraits: () => {} },
       destinationInfo,
     );
@@ -56,7 +56,11 @@ describe('Google Analytics 4 Page events tests', () => {
     let ga4;
     const { description, input, output } = event;
     beforeEach(() => {
-      ga4 = new GA4(input.config, { getUserId: () => '1234', getUserTraits: () => {} }, destinationInfo);
+      ga4 = new GA4(
+        input.config,
+        { getUserId: () => '1234', getUserTraits: () => {} },
+        destinationInfo,
+      );
       ga4.init();
       window.gtag = jest.fn();
     });
