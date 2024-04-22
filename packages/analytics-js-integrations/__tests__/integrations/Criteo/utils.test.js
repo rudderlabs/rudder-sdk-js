@@ -41,7 +41,7 @@ describe('handleCommonFields', () => {
       inputEvent,
       hashMethod: 'random',
       expected: [{
-        email: 'a@gmail.com',
+        email: 'abc@gmail.com',
         hash_method: 'random',
         event: 'setEmail'
       }]
