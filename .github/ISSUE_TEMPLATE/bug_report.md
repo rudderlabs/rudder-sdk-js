@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: 'BUG : <Title>'
 labels: bug, open source
-assignees: MoumitaM
+assignees: rudderlabs/js-sdk
 ---
 
 **Describe the bug**
@@ -25,13 +25,17 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional Information (please complete the following information):**
 
-- SDK installation: NPM/CDN
-- CDN URL: (if applicable)
-- NPM Version: (if applicable)
+- SDK installation type: NPM/CDN
+- SDK CDN URL: (if applicable)
+- SDK version: (for NPM installation)
+- Node version: (if applicable)
+- NPM version: (if applicable)
+- TypeScript version: (if applicable)
 - Webpage URL: (where the SDK is installed, if applicable)
-- Share the event payload
-- Integration that has the issue (if applicable)
-- Used JS Framework (e.g: NextJS, ReactJs, Vue) (if applicable)
+- Share the event payload: (if applicable)
+- Integration that has the issue: (if applicable)
+- Framework and version(e.g: Next.js, React, Vue): (if applicable)
+- Bundling toolset (e.g: Webpack, Rollup): (if applicable)
 
 **Desktop (please complete the following information):**
 

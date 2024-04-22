@@ -38,7 +38,7 @@ class LocalStorage implements IStorage {
 
   setItem(key: string, value: any) {
     store.set(key, value);
-    this.length = store.keys().length;
+    this.length = store.len();
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -49,7 +49,7 @@ class LocalStorage implements IStorage {
 
   removeItem(key: string) {
     store.remove(key);
-    this.length = store.keys().length;
+    this.length = store.len();
   }
 
   clear() {
