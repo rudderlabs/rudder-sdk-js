@@ -21,7 +21,7 @@ describe('handleCommonFields', () => {
       inputEvent,
       hashMethod: 'md5',
       expected: [{
-        email: '70b03db954aa45fc2559e85f5d5bd13e',
+        email: '3f009d72559f51e7e454b16e5d0687a1',
         hash_method: 'md5',
         event: 'setEmail'
       }]
@@ -31,7 +31,7 @@ describe('handleCommonFields', () => {
       inputEvent,
       hashMethod: 'sha256',
       expected: [{
-        email: '75f4499b59200d38f057e967e297590ab2ebaad09283ddcb3e66ffb1f1a9f395',
+        email: '48ddb93f0b30c475423fe177832912c5bcdce3cc72872f8051627967ef278e08',
         hash_method: 'sha256',
         event: 'setEmail'
       }]
