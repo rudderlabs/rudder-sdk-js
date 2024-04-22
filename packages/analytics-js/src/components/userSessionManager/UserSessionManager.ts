@@ -57,7 +57,12 @@ import {
 import { getReferringDomain, removeTrailingSlashes } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
-import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
+import type {
+  CookieData,
+  EncryptedCookieData,
+  IUserSessionManager,
+  UserSessionStorageKeysType,
+} from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
@@ -274,40 +279,58 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(key: string, value: ApiObject | string, store?: IStore): void {
-    const encryptedCookieValue = store?.encrypt(
-      stringifyWithoutCircular(value, false, [], this.logger),
-    );
-    if (encryptedCookieValue) {
+  setServerSideCookie(cookieData: CookieData[], store?: IStore): void {
+    let encryptedCookieData: EncryptedCookieData[] = [];
+    cookieData.forEach(e => {
+      encryptedCookieData.push({
+        name: e.name,
+        value: store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger)),
+      });
+    });
+    encryptedCookieData = encryptedCookieData.filter(e => isDefinedAndNotNull(e.value));
+    if (encryptedCookieData.length > 0) {
       let baseUrl = state.lifecycle.activeDataplaneUrl.value;
-      const { cookieServerUrl } = state.loadOptions.value;
-      if (cookieServerUrl) {
-        if (cookieServerUrl === 'invalid') {
+      const { dataServerUrl } = state.loadOptions.value;
+      if (dataServerUrl) {
+        if (dataServerUrl === 'invalid') {
           return;
         }
-        baseUrl = cookieServerUrl;
+        baseUrl = dataServerUrl;
       }
       this.httpClient?.getAsyncData({
-        url: `${removeTrailingSlashes(baseUrl as string)}/setCookie`,
+        url: `${removeTrailingSlashes(baseUrl as string)}/rsaRequest`,
         options: {
           method: 'POST',
           data: stringifyWithoutCircular({
-            key,
-            value: encryptedCookieValue,
-            options: state.storage.cookie.value,
+            reqType: 'setCookies',
+            workspaceId: state.source.value?.workspaceId,
+            data: {
+              options: {
+                maxAge: state.storage.cookie.value?.maxage,
+                path: state.storage.cookie.value?.path,
+                domain: state.storage.cookie.value?.domain,
+                sameSite: state.storage.cookie.value?.samesite,
+                secure: state.storage.cookie.value?.secure,
+              },
+              cookies: encryptedCookieData,
+            },
           }) as string,
           sendRawData: true,
         },
         isRawResponse: true,
         callback: (res, details) => {
           if (details?.xhr?.status === 200) {
-            const cookieValue = store?.get(key);
-            if (cookieValue !== value) {
-              this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR(key));
-            }
+            cookieData.forEach(each => {
+              const cookieValue = store?.get(each.name);
+              if (cookieValue !== each.value) {
+                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR(each.name));
+              }
+            });
           } else {
             this.logger?.error(COOKIE_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            store?.set(key, value);
+            cookieData.forEach(each => {
+              store?.set(each.name, each.value);
+            });
           }
         },
       });
@@ -334,7 +357,7 @@ class UserSessionManager implements IUserSessionManager {
         // if useServerSideCookies load option is set to true
         // set the cookie from server side
         if (state.loadOptions.value.useServerSideCookies && storageType === COOKIE_STORAGE) {
-          this.setServerSideCookie(key, value, curStore);
+          this.setServerSideCookie([{ name: key, value }], curStore);
         } else {
           curStore?.set(key, value);
         }

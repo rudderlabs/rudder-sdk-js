@@ -95,10 +95,10 @@ class ConfigManager implements IConfigManager {
         lockIntegrationsVersion,
         this.logger,
       );
-      if (state.loadOptions.value.cookieServerUrl) {
-        state.loadOptions.value.cookieServerUrl = validateAndReturnCookieServerUrl(
+      if (state.loadOptions.value.dataServerUrl) {
+        state.loadOptions.value.dataServerUrl = validateAndReturnCookieServerUrl(
           state.loadOptions.value.useServerSideCookies,
-          state.loadOptions.value.cookieServerUrl,
+          state.loadOptions.value.dataServerUrl,
           this.logger,
         );
       }
@@ -171,6 +171,7 @@ class ConfigManager implements IConfigManager {
       state.source.value = {
         config: res.source.config,
         id: res.source.id,
+        workspaceId: res.source.workspaceId,
       };
 
       // set device mode destination related information in state

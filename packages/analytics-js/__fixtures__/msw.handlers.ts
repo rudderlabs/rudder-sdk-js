@@ -77,7 +77,7 @@ const handlers = [
       },
     });
   }),
-  http.post(`${dummyDataplaneHost}/setCookie`, () => {
+  http.post(`${dummyDataplaneHost}/rsaRequest`, () => {
     return new HttpResponse(null, {
       status: 200,
       headers: {

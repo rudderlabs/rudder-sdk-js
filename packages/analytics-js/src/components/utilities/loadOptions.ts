@@ -59,11 +59,8 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.useServerSideCookies = normalizedLoadOpts.useServerSideCookies === true;
 
-  if (
-    normalizedLoadOpts.cookieServerUrl &&
-    typeof normalizedLoadOpts.cookieServerUrl !== 'string'
-  ) {
-    delete normalizedLoadOpts.cookieServerUrl;
+  if (normalizedLoadOpts.dataServerUrl && typeof normalizedLoadOpts.dataServerUrl !== 'string') {
+    delete normalizedLoadOpts.dataServerUrl;
   }
 
   if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {

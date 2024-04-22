@@ -1388,12 +1388,21 @@ describe('User session manager', () => {
   });
 
   describe('syncValueToStorage', () => {
-    it('should call setServerSideCookie method in case useServerSideCookie load option is set to true', () => {
+    it('should not call setServerSideCookie method in case useServerSideCookies load option is not set', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it('should call setServerSideCookie method in case useServerSideCookies load option is set to true', () => {
       state.loadOptions.value.useServerSideCookies = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
-      expect(spy).toHaveBeenCalledWith('rl_anonymous_id', 'dummy_anonymousId', expect.any(Object));
+      expect(spy).toHaveBeenCalledWith(
+        [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+        expect.any(Object),
+      );
     });
   });
 
@@ -1411,6 +1420,7 @@ describe('User session manager', () => {
     };
     it('should make external request to exposed endpoint', () => {
       state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
+      state.source.value = { workspaceId: 'sample_workspaceId' };
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -1418,19 +1428,31 @@ describe('User session manager', () => {
         samesite: 'Lax',
       };
       const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234', mockCookieStore);
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
       expect(spy).toHaveBeenCalledWith({
-        url: `https://dummy.dataplane.host.com/setCookie`,
+        url: `https://dummy.dataplane.host.com/rsaRequest`,
         options: {
           method: 'POST',
           data: JSON.stringify({
-            key: 'key',
-            value: 'encrypted_sample_cookie_value_1234',
-            options: {
-              maxage: 10 * 60 * 1000,
-              path: '/',
-              domain: 'example.com',
-              samesite: 'Lax',
+            reqType: 'setCookies',
+            workspaceId: 'sample_workspaceId',
+            data: {
+              options: {
+                maxAge: 10 * 60 * 1000,
+                path: '/',
+                domain: 'example.com',
+                sameSite: 'Lax',
+                secure: undefined,
+              },
+              cookies: [
+                {
+                  name: 'key',
+                  value: 'encrypted_sample_cookie_value_1234',
+                },
+              ],
             },
           }),
           sendRawData: true,
@@ -1441,7 +1463,8 @@ describe('User session manager', () => {
     });
     it('should use provided server url to make external request for setting cookie', () => {
       state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
-      state.loadOptions.value.cookieServerUrl = 'https://example.com';
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.loadOptions.value.dataServerUrl = 'https://example.com';
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -1449,19 +1472,31 @@ describe('User session manager', () => {
         samesite: 'Lax',
       };
       const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie('key', 'sample_cookie_value_1234', mockCookieStore);
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
       expect(spy).toHaveBeenCalledWith({
-        url: `https://example.com/setCookie`,
+        url: `https://example.com/rsaRequest`,
         options: {
           method: 'POST',
           data: JSON.stringify({
-            key: 'key',
-            value: 'encrypted_sample_cookie_value_1234',
-            options: {
-              maxage: 10 * 60 * 1000,
-              path: '/',
-              domain: 'example.com',
-              samesite: 'Lax',
+            reqType: 'setCookies',
+            workspaceId: 'sample_workspaceId',
+            data: {
+              options: {
+                maxAge: 10 * 60 * 1000,
+                path: '/',
+                domain: 'example.com',
+                sameSite: 'Lax',
+                secure: undefined,
+              },
+              cookies: [
+                {
+                  name: 'key',
+                  value: 'encrypted_sample_cookie_value_1234',
+                },
+              ],
             },
           }),
           sendRawData: true,

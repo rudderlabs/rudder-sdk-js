@@ -41,14 +41,14 @@ const isValidStorageType = (storageType?: StorageType): boolean =>
 
 const validateAndReturnCookieServerUrl = (
   useServerSideCookies?: boolean,
-  cookieServerUrl?: string,
+  dataServerUrl?: string,
   logger?: ILogger,
 ) => {
-  if (useServerSideCookies && cookieServerUrl) {
-    if (isValidUrl(cookieServerUrl)) {
-      return cookieServerUrl;
+  if (useServerSideCookies && dataServerUrl) {
+    if (isValidUrl(dataServerUrl)) {
+      return dataServerUrl;
     }
-    logger?.error(COOKIE_SERVER_URL_INVALID_ERROR('cookieServerUrl'));
+    logger?.error(COOKIE_SERVER_URL_INVALID_ERROR('dataServerUrl'));
   }
   return 'invalid';
 };

@@ -27,3 +27,13 @@ export interface IUserSessionManager {
 }
 
 export type UserSessionStorageKeysType = keyof typeof USER_SESSION_STORAGE_KEYS;
+
+export type CookieData = {
+  name: string;
+  value: ApiObject | string;
+};
+
+export type EncryptedCookieData = {
+  name: string;
+  value?: string;
+};
