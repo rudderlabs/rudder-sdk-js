@@ -6,7 +6,9 @@ describe('handleCommonFields', () => {
     message: {
       userId: 'u1',
       anonymousId: 'a1',
-      properties: 'abc@gmail.com'
+      properties: {
+        email: 'abc@gmail.com'
+      }
     }
   }
   const defaultExpected = [
