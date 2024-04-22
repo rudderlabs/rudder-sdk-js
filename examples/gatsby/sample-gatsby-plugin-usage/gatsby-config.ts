@@ -17,7 +17,6 @@ const config: GatsbyConfig = {
         devKey: '<writeKey>',
         dataPlaneUrl: '<dataplaneUrl>',
         trackPage: true,
-        useLegacySDK: false,
         loadOptions: {},
       },
     },
