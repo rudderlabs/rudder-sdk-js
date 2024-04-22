@@ -6,89 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>RudderStack JS SDK v3 Beacon Example</title>
     <script>
-      window.RudderSnippetVersion = '3.0.1';
-      var sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
-      var sdkName = 'rsa.min.js';
-      var asyncScript = true;
-      window.rudderAnalyticsBuildType = 'legacy';
-      window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'setAnonymousId',
-        'startSession',
-        'endSession',
-        'consent'
-      ];
-      for (var i = 0; i < methods.length; i++) {
-        var method = methods[i];
-        window.rudderanalytics[method] = (function (methodName) {
-          return function () {
-            window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
-          };
-        })(method);
-      }
-      try {
-        new Function('return import("")');
-        window.rudderAnalyticsBuildType = 'modern';
-      } catch (e) {}
-      window.rudderAnalyticsMount = function () {
-        if (typeof globalThis === 'undefined') {
-          Object.defineProperty(Object.prototype, '__globalThis_magic__', {
-            get: function get() {
-              return this;
-            },
-            configurable: true
-          });
-          __globalThis_magic__.globalThis = __globalThis_magic__;
-          delete Object.prototype.__globalThis_magic__;
+      (function() {
+        "use strict";
+        window.RudderSnippetVersion = "3.0.4";
+        var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
+        var sdkName = "rsa.min.js";
+        var asyncScript = true;
+        window.rudderAnalyticsBuildType = "legacy";
+        window.rudderanalytics = [];
+        var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+        for (var i = 0; i < methods.length; i++) {
+          var method = methods[i];
+          window.rudderanalytics[method] = function(methodName) {
+            return function() {
+              window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+            };
+          }(method);
         }
-        var rudderAnalyticsScript = document.createElement('script');
-        rudderAnalyticsScript.src = ''
-          .concat(sdkBaseUrl, '/')
-          .concat(window.rudderAnalyticsBuildType, '/')
-          .concat(sdkName);
-        rudderAnalyticsScript.async = asyncScript;
-        if (document.head) {
-          document.head.appendChild(rudderAnalyticsScript);
+        try {
+          new Function('return import("")');
+          window.rudderAnalyticsBuildType = "modern";
+        } catch (e) {}
+        window.rudderAnalyticsMount = function() {
+          if (typeof globalThis === "undefined") {
+            Object.defineProperty(Object.prototype, "__globalThis_magic__", {
+              get: function get() {
+                return this;
+              },
+              configurable: true
+            });
+            __globalThis_magic__.globalThis = __globalThis_magic__;
+            delete Object.prototype.__globalThis_magic__;
+          }
+          var rudderAnalyticsScript = document.createElement("script");
+          rudderAnalyticsScript.src = "".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName);
+          rudderAnalyticsScript.async = asyncScript;
+          if (document.head) {
+            document.head.appendChild(rudderAnalyticsScript);
+          } else {
+            document.body.appendChild(rudderAnalyticsScript);
+          }
+        };
+        if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
+          var rudderAnalyticsPromisesScript = document.createElement("script");
+          rudderAnalyticsPromisesScript.src = "https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount";
+          rudderAnalyticsPromisesScript.async = asyncScript;
+          if (document.head) {
+            document.head.appendChild(rudderAnalyticsPromisesScript);
+          } else {
+            document.body.appendChild(rudderAnalyticsPromisesScript);
+          }
         } else {
-          document.body.appendChild(rudderAnalyticsScript);
+          window.rudderAnalyticsMount();
         }
-      };
-      if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
-        var rudderAnalyticsPromisesScript = document.createElement('script');
-        rudderAnalyticsPromisesScript.src =
-          'https://polyfill.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount';
-        rudderAnalyticsPromisesScript.async = asyncScript;
-        if (document.head) {
-          document.head.appendChild(rudderAnalyticsPromisesScript);
-        } else {
-          document.body.appendChild(rudderAnalyticsPromisesScript);
-        }
-      } else {
-        window.rudderAnalyticsMount();
-      }
-      // New addition to load script ends
-
-      var loadOptions = {
-        logLevel: 'DEBUG',
-        configUrl: 'https://api.rudderlabs.com',
-        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        useBeacon: true,
-        beaconQueueOptions: {
-          flushQueueInterval: 60 * 1000,
-        },
-      };
-
-      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+        var loadOptions = {
+          logLevel: 'DEBUG',
+          configUrl: 'https://api.rudderlabs.com',
+          destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+          pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+          useBeacon: true,
+          beaconQueueOptions: {
+            flushQueueInterval: 60 * 1000,
+          }
+        };
+        rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+      })();
 
       rudderanalytics.identify(
         'customUserID',
