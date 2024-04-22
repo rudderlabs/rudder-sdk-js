@@ -37,7 +37,7 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.sdkBaseUrl = config.sdkBaseUrl ? config.sdkBaseUrl : 'https://www.googletagmanager.com';
+    this.sdkBaseUrl = config.sdkBaseUrl || 'https://www.googletagmanager.com';
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
