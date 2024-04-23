@@ -15,12 +15,13 @@ const destinationInfo = {
 describe('Google Analytics 4 init tests', () => {
   test('Testing init call of Google Analytics 4 with MeasurementId and SdkBaseUrl', () => {
     const ga4 = new GA4(
-      { measurementId: 'G-123456', debugView: true, sdkBaseUrl: 'https://www.example.com' },
+      { measurementId: 'G-123456', debugView: true, sdkBaseUrl: 'https://www.example.com//' },
       { getUserId: () => '1234', getUserTraits: () => {} },
       destinationInfo,
     );
     ga4.init();
     expect(typeof window.gtag).toBe('function');
+    expect(ga4.sdkBaseUrl).toEqual('https://www.example.com');
   });
 });
 

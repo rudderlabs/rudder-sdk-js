@@ -8,7 +8,7 @@ import {
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
-import { constructPayload, flattenJsonPayload } from '../../utils/utils';
+import { constructPayload, flattenJsonPayload, removeTrailingSlashes } from '../../utils/utils';
 import {
   shouldSendUserId,
   prepareParamsAndEventName,
@@ -37,7 +37,8 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.sdkBaseUrl = config.sdkBaseUrl || 'https://www.googletagmanager.com';
+    this.sdkBaseUrl =
+      removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
