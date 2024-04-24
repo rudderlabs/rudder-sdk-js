@@ -29,7 +29,7 @@ beforeEach(() => {
   global.window = {
     localStorage: {
       getItem: jest.fn((key) => {
-        if (key === 'dummy') return 'hash123';
+        if (key === 'tata_customer_hash') return 'hash123';
         return null;
       }),
       setItem: jest.fn(),
