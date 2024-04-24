@@ -105,7 +105,7 @@ describe('FullStory', () => {
       jest.advanceTimersByTime(5000);
       // eslint-disable-next-line no-underscore-dangle
       expect(window._fs_identity).toHaveBeenCalled();
-      expect(window.localStorage.getItem).toHaveBeenCalledWith('dummy');
+      expect(window.localStorage.getItem).toHaveBeenCalledWith('tata_customer_hash');
       expect(window.FS.setUserVars).toHaveBeenCalledWith({
         uid: 'hash123',
         displayName: 'hash123'
