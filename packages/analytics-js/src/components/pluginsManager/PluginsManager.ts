@@ -114,18 +114,17 @@ class PluginsManager implements IPluginsManager {
       },
       {
         configurationStatus: () =>
-          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? [])
-            .length > 0,
+          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).length > 0,
         configurationStatusStr: 'Device mode destinations are connected to the source',
         supportedPlugins: ['DeviceModeDestinations', 'NativeDestinationQueue'] as PluginName[],
       },
       {
         configurationStatus: () =>
-          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value ?? []).some(
+          getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).some(
             destination => destination.shouldApplyDeviceModeTransformation,
           ),
         configurationStatusStr:
-          'Device mode transformation is enabled for at least one destination',
+          'Device mode transformations are enabled for at least one destination',
         supportedPlugins: ['DeviceModeTransformation'] as PluginName[],
       },
       {
@@ -163,10 +162,10 @@ class PluginsManager implements IPluginsManager {
         this.addMissingPlugins(group, addMissingPlugins, pluginsToLoadFromConfig);
       } else {
         pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
-          group.basePlugins
+          group.basePlugins !== undefined
             ? pluginName =>
                 !(
-                  group.basePlugins?.includes(pluginName) ||
+                  (group.basePlugins as PluginName[]).includes(pluginName) ||
                   group.supportedPlugins.includes(pluginName)
                 )
             : pluginName => !group.supportedPlugins.includes(pluginName),
@@ -185,9 +184,9 @@ class PluginsManager implements IPluginsManager {
     const shouldAddMissingPlugins = group.shouldAddMissingPlugins || addMissingPlugins;
     let pluginsToConfigure;
     if (group.activePluginName) {
-      pluginsToConfigure = [...(group?.basePlugins || []), group.activePluginName] as PluginName[];
+      pluginsToConfigure = [...(group.basePlugins || []), group.activePluginName] as PluginName[];
     } else {
-      pluginsToConfigure = [...(group?.supportedPlugins || [])] as PluginName[];
+      pluginsToConfigure = [...group.supportedPlugins];
     }
 
     const missingPlugins = pluginsToConfigure.filter(
