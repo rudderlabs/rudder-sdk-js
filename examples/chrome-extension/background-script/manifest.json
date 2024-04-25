@@ -1,7 +1,7 @@
 {
   // Comments are accepted in the manifest, even though it is JSON.
   "manifest_version": 3,
-  "name": "Rudderstack SDK: Chrome Extension Background Script Sample",
+  "name": "RudderStack SDK: Chrome Extension Background Script Sample",
   "description": "A minimal example of a chrome extension using manifest v3",
   "version": "0.0.1",
   "icons": {
@@ -11,7 +11,7 @@
   },
   "options_page": "settings/settings.html",
   "action": {
-    "default_title": "Rudderstack SDK: Chrome Extension Background Script Sample",
+    "default_title": "RudderStack SDK: Chrome Extension Background Script Sample",
     "default_popup": "popup/popup.html"
   },
   "permissions": ["storage", "tabs"],
