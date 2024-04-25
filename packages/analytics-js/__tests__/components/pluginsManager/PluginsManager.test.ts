@@ -26,13 +26,13 @@ describe('PluginsManager', () => {
       state.plugins.pluginsToLoadFromConfig.value = defaultOptionalPluginsList;
     });
 
-    it('should return empty array if no plugins were configured in the state', () => {
+    it('should return empty array if plugins list is set to undefined in the state', () => {
       state.plugins.pluginsToLoadFromConfig.value = undefined;
 
       expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual([]);
     });
 
-    it('should return all the default optional plugins if no plugins were configured in the state', () => {
+    it('should return the default optional plugins if no plugins were configured in the state', () => {
       // All other plugins require some state variables to be set which by default are not set
       expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(
         ['ExternalAnonymousId', 'GoogleLinker'].sort(),
