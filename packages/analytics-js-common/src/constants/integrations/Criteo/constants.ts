@@ -10,7 +10,7 @@ const CNameMapping = {
   criteo: NAME,
 };
 
-const supportedEvents = ['product viewed', 'cart viewed', 'order completed', 'product list viewed'];
+const supportedEvents = ['product viewed', 'cart viewed', 'order completed', 'product list viewed', 'product added'];
 
 export {
   NAME,
