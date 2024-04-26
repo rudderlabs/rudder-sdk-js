@@ -36,7 +36,7 @@ class FacebookPixel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    this.autoConfig = config.autoConfig;
+    this.autoConfig = (config.autoConfig === undefined ? true : config.autoConfig);
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent || [];
     this.pixelId = config.pixelId;
