@@ -1,6 +1,8 @@
 import FacebookPixel from '../../../src/integrations/FacebookPixel/browser';
 
-beforeAll(() => {});
+beforeAll(() => {
+  window.fbq = jest.fn();
+});
 
 afterAll(() => {
   jest.restoreAllMocks();
@@ -57,7 +59,7 @@ describe('FacebookPixel init tests', () => {
     });
   });
 
-  test('Testing init call of Facebook Pixel with identified user and updated mapping false', () => {
+  test('Testing init call of Facebook Pixel with identified user and updated mapping false and autoConfig configured', () => {
     const mockAnalytics = {
       getUserTraits: jest.fn(() => ({
         firstName: 'rudder',
@@ -68,12 +70,13 @@ describe('FacebookPixel init tests', () => {
       getUserId: jest.fn(() => 'testUserID'),
     };
     facebookPixel = new FacebookPixel(
-      { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false },
+      { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false, autoConfig: true },
       mockAnalytics,
       destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
+    expect(window.fbq).toHaveBeenCalledWith('set', 'autoConfig', true, '12567839');
     expect(facebookPixel.userPayload).toStrictEqual({
       email: 'abcd@rudderstack.com',
       firstName: 'rudder',
