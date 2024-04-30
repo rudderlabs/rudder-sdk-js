@@ -39,7 +39,7 @@
           "updatedAt": "2024-02-22T03:31:39.813Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK", "consentManagement"],
+              "web": ["useNativeSDK", "consentManagement", "connectionMode"],
               "defaultConfig": [
                 "containerID",
                 "serverUrl",
@@ -125,8 +125,8 @@
           "updatedAt": "2024-01-10T11:15:46.846Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK", "dynamicRemarketing"],
               "defaultConfig": [
+                "v2",
                 "conversionID",
                 "eventMappingFromConfig",
                 "pageLoadConversions",
@@ -148,11 +148,12 @@
                 "allowEnhancedConversions",
                 "oneTrustCookieCategories",
                 "enableConversionLabel"
-              ]
+              ],
+              "web": ["useNativeSDK", "dynamicRemarketing", "connectionMode"]
             },
-            "secretKeys": [],
             "excludeKeys": [],
             "includeKeys": [
+              "v2",
               "conversionID",
               "eventMappingFromConfig",
               "pageLoadConversions",
@@ -175,17 +176,18 @@
               "allowEnhancedConversions",
               "enableConversionLabel"
             ],
-            "transformAtV1": "processor",
-            "supportedSourceTypes": ["web"],
+            "saveDestinationResponse": false,
+            "secretKeys": [],
+            "supportedConnectionModes": {
+              "web": ["device"]
+            },
             "supportedMessageTypes": {
               "device": {
                 "web": ["identify", "track", "page"]
               }
             },
-            "saveDestinationResponse": false,
-            "supportedConnectionModes": {
-              "web": ["device"]
-            }
+            "supportedSourceTypes": ["web"],
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -222,16 +224,15 @@
           "updatedAt": "2024-02-22T03:31:36.973Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK", "connectionMode"],
               "defaultConfig": [
                 "siteID",
                 "blacklistedEvents",
                 "whitelistedEvents",
                 "eventFilteringOption",
                 "oneTrustCookieCategories"
-              ]
+              ],
+              "web": ["useNativeSDK", "connectionMode"]
             },
-            "secretKeys": [],
             "excludeKeys": [],
             "includeKeys": [
               "siteID",
@@ -240,17 +241,18 @@
               "oneTrustCookieCategories",
               "eventFilteringOption"
             ],
-            "transformAtV1": "processor",
-            "supportedSourceTypes": ["web"],
+            "saveDestinationResponse": true,
+            "secretKeys": [],
+            "supportedConnectionModes": {
+              "web": ["device"]
+            },
             "supportedMessageTypes": {
               "device": {
                 "web": ["identify", "track", "page"]
               }
             },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "web": ["device"]
-            }
+            "supportedSourceTypes": ["web"],
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -344,24 +346,7 @@
           "updatedAt": "2024-02-07T10:11:05.489Z",
           "config": {
             "destConfig": {
-              "ios": [
-                "eventUploadPeriodMillis",
-                "eventUploadThreshold",
-                "useNativeSDK",
-                "connectionMode",
-                "trackSessionEvents",
-                "useIdfaAsDeviceId"
-              ],
-              "web": [
-                "useNativeSDK",
-                "connectionMode",
-                "preferAnonymousIdForDeviceId",
-                "attribution",
-                "eventUploadThreshold",
-                "eventUploadPeriodMillis",
-                "trackNewCampaigns",
-                "proxyServerUrl"
-              ],
+              "amp": ["connectionMode"],
               "android": [
                 "eventUploadPeriodMillis",
                 "eventUploadThreshold",
@@ -371,26 +356,8 @@
                 "trackSessionEvents",
                 "useAdvertisingIdForDeviceId"
               ],
-              "flutter": [
-                "eventUploadPeriodMillis",
-                "eventUploadThreshold",
-                "useNativeSDK",
-                "connectionMode",
-                "enableLocationListening",
-                "trackSessionEvents",
-                "useAdvertisingIdForDeviceId",
-                "useIdfaAsDeviceId"
-              ],
-              "reactnative": [
-                "eventUploadPeriodMillis",
-                "eventUploadThreshold",
-                "useNativeSDK",
-                "connectionMode",
-                "enableLocationListening",
-                "trackSessionEvents",
-                "useAdvertisingIdForDeviceId",
-                "useIdfaAsDeviceId"
-              ],
+              "cloud": ["connectionMode"],
+              "cordova": ["connectionMode"],
               "defaultConfig": [
                 "apiKey",
                 "groupTypeTrait",
@@ -415,10 +382,51 @@
                 "userProvidedPageEventString",
                 "useUserDefinedPageEventName",
                 "userProvidedScreenEventString",
-                "useUserDefinedScreenEventName"
+                "useUserDefinedScreenEventName",
+                "enableEnhancedUserOperations"
+              ],
+              "flutter": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "enableLocationListening",
+                "trackSessionEvents",
+                "useAdvertisingIdForDeviceId",
+                "useIdfaAsDeviceId"
+              ],
+              "ios": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "trackSessionEvents",
+                "useIdfaAsDeviceId"
+              ],
+              "reactnative": [
+                "eventUploadPeriodMillis",
+                "eventUploadThreshold",
+                "useNativeSDK",
+                "connectionMode",
+                "enableLocationListening",
+                "trackSessionEvents",
+                "useAdvertisingIdForDeviceId",
+                "useIdfaAsDeviceId"
+              ],
+              "shopify": ["connectionMode"],
+              "unity": ["connectionMode"],
+              "warehouse": ["connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "connectionMode",
+                "preferAnonymousIdForDeviceId",
+                "attribution",
+                "eventUploadThreshold",
+                "eventUploadPeriodMillis",
+                "trackNewCampaigns",
+                "proxyServerUrl"
               ]
             },
-            "secretKeys": ["apiKey", "apiSecret"],
             "excludeKeys": [],
             "includeKeys": [
               "apiKey",
@@ -455,8 +463,32 @@
               "useUserDefinedScreenEventName",
               "proxyServerUrl"
             ],
-            "transformAtV1": "processor",
             "isAudienceSupported": false,
+            "saveDestinationResponse": true,
+            "secretKeys": ["apiKey", "apiSecret"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud", "device"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud", "device"],
+              "ios": ["cloud", "device"],
+              "reactnative": ["cloud", "device"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
+              "device": {
+                "android": ["identify", "track", "screen"],
+                "flutter": ["identify", "track", "screen"],
+                "ios": ["identify", "track", "screen"],
+                "reactnative": ["identify", "track", "screen"],
+                "web": ["identify", "track", "page", "group"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -471,28 +503,7 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": {
-              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
-              "device": {
-                "ios": ["identify", "track", "screen"],
-                "web": ["identify", "track", "page", "group"],
-                "android": ["identify", "track", "screen"],
-                "flutter": ["identify", "track", "screen"],
-                "reactnative": ["identify", "track", "screen"]
-              }
-            },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud", "device"],
-              "web": ["cloud", "device"],
-              "unity": ["cloud"],
-              "android": ["cloud", "device"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud", "device"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud", "device"]
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -548,17 +559,10 @@
           "updatedAt": "2024-02-07T10:11:17.187Z",
           "config": {
             "destConfig": {
-              "ios": ["useNativeSDK", "connectionMode"],
-              "web": [
-                "useNativeSDK",
-                "enableBrazeLogging",
-                "connectionMode",
-                "enablePushNotification",
-                "allowUserSuppliedJavascript"
-              ],
+              "amp": ["connectionMode"],
               "android": ["useNativeSDK", "connectionMode"],
-              "flutter": ["useNativeSDK", "connectionMode"],
-              "reactnative": ["useNativeSDK", "connectionMode"],
+              "cloud": ["connectionMode"],
+              "cordova": ["connectionMode"],
               "defaultConfig": [
                 "appKey",
                 "dataCenter",
@@ -572,10 +576,27 @@
                 "whitelistedEvents",
                 "eventFilteringOption",
                 "oneTrustCookieCategories"
+              ],
+              "flutter": ["useNativeSDK", "connectionMode"],
+              "ios": ["useNativeSDK", "connectionMode"],
+              "reactnative": ["useNativeSDK", "connectionMode"],
+              "shopify": ["connectionMode"],
+              "unity": ["connectionMode"],
+              "warehouse": ["connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "enableBrazeLogging",
+                "connectionMode",
+                "enablePushNotification",
+                "allowUserSuppliedJavascript"
               ]
             },
-            "secretKeys": ["restApiKey"],
             "excludeKeys": [],
+            "hybridModeCloudEventsFilter": {
+              "web": {
+                "messageType": ["identify", "track", "page"]
+              }
+            },
             "includeKeys": [
               "appKey",
               "dataCenter",
@@ -592,8 +613,32 @@
               "enablePushNotification",
               "allowUserSuppliedJavascript"
             ],
-            "transformAtV1": "router",
             "isAudienceSupported": true,
+            "saveDestinationResponse": true,
+            "secretKeys": ["restApiKey", "appKey"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud", "device", "hybrid"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud", "device"],
+              "ios": ["cloud", "device", "hybrid"],
+              "reactnative": ["cloud", "device"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device", "hybrid"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["group", "identify", "page", "screen", "track", "alias"],
+              "device": {
+                "android": ["identify", "track"],
+                "flutter": ["identify", "track"],
+                "ios": ["identify", "track"],
+                "reactnative": ["identify", "track"],
+                "web": ["identify", "track", "page"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -608,33 +653,7 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": {
-              "cloud": ["group", "identify", "page", "screen", "track", "alias"],
-              "device": {
-                "ios": ["identify", "track"],
-                "web": ["identify", "track", "page"],
-                "android": ["identify", "track"],
-                "flutter": ["identify", "track"],
-                "reactnative": ["identify", "track"]
-              }
-            },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud", "device", "hybrid"],
-              "web": ["cloud", "device", "hybrid"],
-              "unity": ["cloud"],
-              "android": ["cloud", "device", "hybrid"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud", "device"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud", "device"]
-            },
-            "hybridModeCloudEventsFilter": {
-              "web": {
-                "messageType": ["identify", "track", "page"]
-              }
-            }
+            "transformAtV1": "router"
           },
           "responseRules": null,
           "category": null,
@@ -689,10 +708,10 @@
           ],
           "oneTrustCookieCategories": [
             {
-              "oneTrustCookieCategory": "Analytical Cookies"
+              "oneTrustCookieCategory": "C0001"
             },
             {
-              "oneTrustCookieCategory": "Functional Cookies"
+              "oneTrustCookieCategory": "C0003"
             }
           ],
           "eventFilteringOption": "blacklistedEvents",
@@ -718,26 +737,16 @@
           "updatedAt": "2024-01-10T11:15:27.521Z",
           "config": {
             "auth": {
-              "role": "google_analytics",
-              "type": "OAuth",
               "provider": "Google",
-              "rudderScopes": ["delete"]
+              "role": "google_analytics",
+              "rudderScopes": ["delete"],
+              "type": "OAuth"
             },
             "destConfig": {
-              "web": [
-                "useNativeSDK",
-                "trackCategorizedPages",
-                "trackNamedPages",
-                "useRichEventNames",
-                "sampleRate",
-                "siteSpeedSampleRate",
-                "resetCustomDimensionsOnPage",
-                "setAllMappedProps",
-                "domain",
-                "optimize",
-                "useGoogleAmpClientId",
-                "namedTracker"
-              ],
+              "amp": ["consentManagement", "connectionMode"],
+              "android": ["consentManagement", "connectionMode"],
+              "cloud": ["consentManagement", "connectionMode"],
+              "cordova": ["consentManagement", "connectionMode"],
               "defaultConfig": [
                 "trackingID",
                 "rudderDeleteAccountId",
@@ -761,9 +770,30 @@
                 "eventFilteringOption",
                 "oneTrustCookieCategories",
                 "ketchConsentPurposes"
+              ],
+              "flutter": ["consentManagement", "connectionMode"],
+              "ios": ["consentManagement", "connectionMode"],
+              "reactnative": ["consentManagement", "connectionMode"],
+              "shopify": ["consentManagement", "connectionMode"],
+              "unity": ["consentManagement", "connectionMode"],
+              "warehouse": ["consentManagement", "connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "trackCategorizedPages",
+                "trackNamedPages",
+                "useRichEventNames",
+                "sampleRate",
+                "siteSpeedSampleRate",
+                "resetCustomDimensionsOnPage",
+                "setAllMappedProps",
+                "domain",
+                "optimize",
+                "useGoogleAmpClientId",
+                "namedTracker",
+                "consentManagement",
+                "connectionMode"
               ]
             },
-            "secretKeys": [],
             "excludeKeys": [],
             "includeKeys": [
               "trackingID",
@@ -791,11 +821,32 @@
               "blacklistedEvents",
               "whitelistedEvents",
               "oneTrustCookieCategories",
-              "eventFilteringOption",
-              "ketchConsentPurposes"
+              "ketchConsentPurposes",
+              "consentManagement",
+              "eventFilteringOption"
             ],
-            "transformAtV1": "processor",
             "isAudienceSupported": false,
+            "saveDestinationResponse": false,
+            "secretKeys": [],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "ios": ["cloud"],
+              "reactnative": ["cloud"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["identify", "page", "screen", "track"],
+              "device": {
+                "web": ["track", "page"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -810,24 +861,7 @@
               "shopify"
             ],
             "supportsVisualMapper": true,
-            "supportedMessageTypes": {
-              "cloud": ["identify", "page", "screen", "track"],
-              "device": {
-                "web": ["track", "page"]
-              }
-            },
-            "saveDestinationResponse": false,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud"],
-              "web": ["cloud", "device"],
-              "unity": ["cloud"],
-              "android": ["cloud"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud"]
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -842,7 +876,7 @@
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "revisionId": "2YIk3OEzS8vCi5UWuy4P3HCmsWt",
         "secretConfig": {},
-        "secretVersion": 24,
+        "secretVersion": 26,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -894,24 +928,10 @@
           "updatedAt": "2024-02-07T10:11:06.608Z",
           "config": {
             "destConfig": {
-              "amp": ["consentManagement"],
-              "ios": ["useNativeSDK", "connectionMode", "consentManagement"],
-              "web": [
-                "debugView",
-                "useNativeSDK",
-                "connectionMode",
-                "capturePageView",
-                "useNativeSDKToSend",
-                "extendPageViewParams",
-                "overrideClientAndSessionId",
-                "consentManagement"
-              ],
-              "unity": ["consentManagement"],
+              "amp": ["consentManagement", "connectionMode"],
               "android": ["useNativeSDK", "connectionMode", "consentManagement"],
-              "cordova": ["consentManagement"],
-              "flutter": ["consentManagement"],
-              "shopify": ["consentManagement"],
-              "reactnative": ["consentManagement"],
+              "cloud": ["consentManagement", "connectionMode"],
+              "cordova": ["consentManagement", "connectionMode"],
               "defaultConfig": [
                 "apiSecret",
                 "debugMode",
@@ -924,10 +944,30 @@
                 "piiPropertiesToIgnore",
                 "oneTrustCookieCategories",
                 "ketchConsentPurposes"
+              ],
+              "flutter": ["consentManagement", "connectionMode"],
+              "ios": ["useNativeSDK", "connectionMode", "consentManagement"],
+              "reactnative": ["consentManagement", "connectionMode"],
+              "shopify": ["consentManagement", "connectionMode"],
+              "unity": ["consentManagement", "connectionMode"],
+              "warehouse": ["consentManagement", "connectionMode"],
+              "web": [
+                "debugView",
+                "useNativeSDK",
+                "connectionMode",
+                "capturePageView",
+                "useNativeSDKToSend",
+                "extendPageViewParams",
+                "overrideClientAndSessionId",
+                "consentManagement"
               ]
             },
-            "secretKeys": ["apiSecret"],
             "excludeKeys": [],
+            "hybridModeCloudEventsFilter": {
+              "web": {
+                "messageType": ["track", "group"]
+              }
+            },
             "includeKeys": [
               "debugView",
               "measurementId",
@@ -944,7 +984,29 @@
               "ketchConsentPurposes",
               "consentManagement"
             ],
-            "transformAtV1": "processor",
+            "saveDestinationResponse": false,
+            "secretKeys": ["apiSecret"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud", "device"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "ios": ["cloud", "device"],
+              "reactnative": ["cloud"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device", "hybrid"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["track", "group", "page"],
+              "device": {
+                "android": ["identify", "track", "screen"],
+                "ios": ["identify", "track", "screen"],
+                "web": ["identify", "track", "page", "group"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -958,31 +1020,7 @@
               "warehouse",
               "shopify"
             ],
-            "supportedMessageTypes": {
-              "cloud": ["track", "group", "page"],
-              "device": {
-                "ios": ["identify", "track", "screen"],
-                "web": ["identify", "track", "page", "group"],
-                "android": ["identify", "track", "screen"]
-              }
-            },
-            "saveDestinationResponse": false,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud", "device"],
-              "web": ["cloud", "device", "hybrid"],
-              "unity": ["cloud"],
-              "android": ["cloud", "device"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud"]
-            },
-            "hybridModeCloudEventsFilter": {
-              "web": {
-                "messageType": ["track", "group"]
-              }
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -996,7 +1034,7 @@
         "workspaceId": "2L8FgwnU8Q4I4nQbdqmin8uP5n8",
         "revisionId": "2XnaWugKhdZhMaaq5ZQwCSB0B18",
         "secretConfig": {},
-        "secretVersion": 12,
+        "secretVersion": 14,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -1022,10 +1060,12 @@
           "createdAt": "2020-04-09T09:26:55.187Z",
           "updatedAt": "2024-02-07T10:11:21.816Z",
           "config": {
+            "cdkV2Enabled": true,
             "destConfig": {
-              "ios": ["useNativeSDK", "connectionMode"],
-              "web": ["useNativeSDK", "connectionMode", "fs_debug_mode", "fs_host"],
+              "amp": ["connectionMode"],
               "android": ["useNativeSDK", "connectionMode"],
+              "cloud": ["connectionMode"],
+              "cordova": ["connectionMode"],
               "defaultConfig": [
                 "apiKey",
                 "fs_org",
@@ -1033,9 +1073,15 @@
                 "whitelistedEvents",
                 "oneTrustCookieCategories",
                 "eventFilteringOption"
-              ]
+              ],
+              "flutter": ["connectionMode"],
+              "ios": ["useNativeSDK", "connectionMode"],
+              "reactnative": ["connectionMode"],
+              "shopify": ["connectionMode"],
+              "unity": ["connectionMode"],
+              "warehouse": ["connectionMode"],
+              "web": ["useNativeSDK", "connectionMode", "fs_debug_mode", "fs_host"]
             },
-            "secretKeys": ["apiKey"],
             "excludeKeys": [],
             "includeKeys": [
               "fs_debug_mode",
@@ -1046,8 +1092,29 @@
               "oneTrustCookieCategories",
               "eventFilteringOption"
             ],
-            "cdkV2Enabled": true,
-            "transformAtV1": "processor",
+            "saveDestinationResponse": true,
+            "secretKeys": ["apiKey"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud", "device"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "ios": ["cloud", "device"],
+              "reactnative": ["cloud"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["track", "identify"],
+              "device": {
+                "android": ["identify", "track", "screen"],
+                "ios": ["identify", "track", "screen"],
+                "web": ["identify", "track", "page"]
+              }
+            },
             "supportedSourceTypes": [
               "web",
               "android",
@@ -1061,26 +1128,7 @@
               "cordova",
               "shopify"
             ],
-            "supportedMessageTypes": {
-              "cloud": ["track", "identify"],
-              "device": {
-                "ios": ["identify", "track", "screen"],
-                "web": ["identify", "track", "page"],
-                "android": ["identify", "track", "screen"]
-              }
-            },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud", "device"],
-              "web": ["cloud", "device"],
-              "unity": ["cloud"],
-              "android": ["cloud", "device"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud"]
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -1126,15 +1174,10 @@
           "updatedAt": "2024-01-10T11:15:40.522Z",
           "config": {
             "destConfig": {
-              "web": [
-                "useNativeSDK",
-                "autocapture",
-                "capturePageView",
-                "disableSessionRecording",
-                "propertyBlackList",
-                "xhrHeaders",
-                "enableLocalStoragePersistence"
-              ],
+              "amp": ["connectionMode", "consentManagement"],
+              "android": ["connectionMode", "consentManagement"],
+              "cloud": ["connectionMode", "consentManagement"],
+              "cordova": ["connectionMode", "consentManagement"],
               "defaultConfig": [
                 "teamApiKey",
                 "yourInstance",
@@ -1143,9 +1186,25 @@
                 "eventFilteringOption",
                 "useV2Group",
                 "oneTrustCookieCategories"
+              ],
+              "flutter": ["connectionMode", "consentManagement"],
+              "ios": ["connectionMode", "consentManagement"],
+              "reactnative": ["connectionMode", "consentManagement"],
+              "shopify": ["connectionMode", "consentManagement"],
+              "unity": ["connectionMode", "consentManagement"],
+              "warehouse": ["connectionMode", "consentManagement"],
+              "web": [
+                "useNativeSDK",
+                "autocapture",
+                "capturePageView",
+                "disableSessionRecording",
+                "propertyBlackList",
+                "xhrHeaders",
+                "enableLocalStoragePersistence",
+                "consentManagement",
+                "connectionMode"
               ]
             },
-            "secretKeys": [],
             "excludeKeys": [],
             "includeKeys": [
               "teamApiKey",
@@ -1160,9 +1219,30 @@
               "oneTrustCookieCategories",
               "enableLocalStoragePersistence",
               "eventFilteringOption",
-              "useV2Group"
+              "useV2Group",
+              "consentManagement"
             ],
-            "transformAtV1": "processor",
+            "saveDestinationResponse": true,
+            "secretKeys": ["teamApiKey"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "ios": ["cloud"],
+              "reactnative": ["cloud"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
+              "device": {
+                "web": ["identify", "track", "page", "group"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -1176,24 +1256,7 @@
               "cordova",
               "shopify"
             ],
-            "supportedMessageTypes": {
-              "cloud": ["alias", "group", "identify", "page", "screen", "track"],
-              "device": {
-                "web": ["identify", "track", "page", "group"]
-              }
-            },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud"],
-              "web": ["cloud", "device"],
-              "unity": ["cloud"],
-              "android": ["cloud"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud"]
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,
@@ -1251,10 +1314,12 @@
           "updatedAt": "2024-01-10T11:15:33.215Z",
           "config": {
             "destConfig": {
-              "web": ["useNativeSDK", "legacyConversionPixelId", "connectionMode"],
+              "amp": ["consentManagement", "connectionMode"],
+              "android": ["consentManagement", "connectionMode"],
+              "cloud": ["consentManagement", "connectionMode"],
+              "cordova": ["consentManagement", "connectionMode"],
               "defaultConfig": [
                 "blacklistPiiProperties",
-                "categoryToContent",
                 "pixelId",
                 "eventsToEvents",
                 "valueFieldIdentifier",
@@ -1272,9 +1337,20 @@
                 "useUpdatedMapping",
                 "oneTrustCookieCategories",
                 "ketchConsentPurposes"
+              ],
+              "flutter": ["consentManagement", "connectionMode"],
+              "ios": ["consentManagement", "connectionMode"],
+              "reactnative": ["consentManagement", "connectionMode"],
+              "shopify": ["consentManagement", "connectionMode"],
+              "unity": ["consentManagement", "connectionMode"],
+              "warehouse": ["consentManagement", "connectionMode"],
+              "web": [
+                "useNativeSDK",
+                "legacyConversionPixelId",
+                "connectionMode",
+                "consentManagement"
               ]
             },
-            "secretKeys": [],
             "excludeKeys": [],
             "includeKeys": [
               "blacklistPiiProperties",
@@ -1288,11 +1364,32 @@
               "blacklistedEvents",
               "whitelistedEvents",
               "oneTrustCookieCategories",
+              "ketchConsentPurposes",
+              "consentManagement",
               "eventFilteringOption",
-              "useUpdatedMapping",
-              "ketchConsentPurposes"
+              "useUpdatedMapping"
             ],
-            "transformAtV1": "processor",
+            "saveDestinationResponse": true,
+            "secretKeys": ["accessToken"],
+            "supportedConnectionModes": {
+              "amp": ["cloud"],
+              "android": ["cloud"],
+              "cloud": ["cloud"],
+              "cordova": ["cloud"],
+              "flutter": ["cloud"],
+              "ios": ["cloud"],
+              "reactnative": ["cloud"],
+              "shopify": ["cloud"],
+              "unity": ["cloud"],
+              "warehouse": ["cloud"],
+              "web": ["cloud", "device"]
+            },
+            "supportedMessageTypes": {
+              "cloud": ["identify", "page", "screen", "track"],
+              "device": {
+                "web": ["track", "page"]
+              }
+            },
             "supportedSourceTypes": [
               "android",
               "ios",
@@ -1306,24 +1403,7 @@
               "cordova",
               "shopify"
             ],
-            "supportedMessageTypes": {
-              "cloud": ["identify", "page", "screen", "track"],
-              "device": {
-                "web": ["track", "page"]
-              }
-            },
-            "saveDestinationResponse": true,
-            "supportedConnectionModes": {
-              "amp": ["cloud"],
-              "ios": ["cloud"],
-              "web": ["cloud", "device"],
-              "unity": ["cloud"],
-              "android": ["cloud"],
-              "cordova": ["cloud"],
-              "flutter": ["cloud"],
-              "shopify": ["cloud"],
-              "reactnative": ["cloud"]
-            }
+            "transformAtV1": "processor"
           },
           "responseRules": null,
           "category": null,

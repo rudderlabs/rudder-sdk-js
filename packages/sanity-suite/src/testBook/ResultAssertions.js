@@ -46,7 +46,10 @@ const ResultsAssertions = {
         );
       }
 
-      return JSON.stringify(resultData, undefined, 2);
+      return {
+        resultData: JSON.stringify(resultData, undefined, 2),
+        expectedResultData: JSON.stringify(expectedResultData, undefined, 2),
+      };
     } catch (e) {
       console.error(e);
       return JSON.stringify({}, undefined, 2);
