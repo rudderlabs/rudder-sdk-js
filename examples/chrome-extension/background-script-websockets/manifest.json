@@ -1,37 +1,36 @@
 {
-    // Comments are accepted in the manifest, even though it is JSON.
-    "manifest_version": 3,
-    "name": "Rudderstack SDK: Chrome Extension Background Script Sample",
-    "description": "A minimal example of a chrome extension using manifest v3",
-    "version": "0.0.1",
-    "icons": {
-        "16": "logo/logo-16.png",
-        "48": "logo/logo-48.png",
-        "128": "logo/logo-128.png"
-    },
-    "options_page": "settings/settings.html",
-    "action": {
-        "default_title": "Rudderstack SDK: Chrome Extension Background Script Sample",
-        "default_popup": "popup/popup.html"
-    },
-    "permissions": ["storage", "tabs"],
-    "host_permissions": [
-        "https://*.dataplane.rudderstack.com/*",
-        "https://*.rudderlabs.com/*",
-        "*://*/*"
-    ],
-    "externally_connectable": {
-        "matches": [
-            "https://*.dataplane.rudderstack.com/*",
-            "https://*.rudderlabs.com/*"
-        ]
-    },
-    "background": {
-        "service_worker": "service-worker.js",
-        "type": "module"
-    },
-    "content_scripts": [{
-        "js": ["foreground.js"],
-        "matches": ["https://github.com/*"]
-    }]
+  // Comments are accepted in the manifest, even though it is JSON.
+  "manifest_version": 3,
+  "name": "RudderStack SDK: Chrome Extension Background Script Sample",
+  "description": "A minimal example of a chrome extension using manifest v3",
+  "version": "0.0.1",
+  "icons": {
+    "16": "logo/logo-16.png",
+    "48": "logo/logo-48.png",
+    "128": "logo/logo-128.png"
+  },
+  "options_page": "settings/settings.html",
+  "action": {
+    "default_title": "RudderStack SDK: Chrome Extension Background Script Sample",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "https://*.dataplane.rudderstack.com/*",
+    "https://*.rudderlabs.com/*",
+    "*://*/*"
+  ],
+  "externally_connectable": {
+    "matches": ["https://*.dataplane.rudderstack.com/*", "https://*.rudderlabs.com/*"]
+  },
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": ["foreground.js"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
 }

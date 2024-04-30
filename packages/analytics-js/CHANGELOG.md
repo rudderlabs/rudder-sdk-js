@@ -2,6 +2,26 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.4...@rudderstack/analytics-js@3.1.0) (2024-04-26)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.0.4`
+* `@rudderstack/analytics-js-plugins` updated to version `3.0.4`
+
+### Features
+
+* add a patch for storejs to expose length of the store ([#1694](https://github.com/rudderlabs/rudder-sdk-js/issues/1694)) ([36a13b0](https://github.com/rudderlabs/rudder-sdk-js/commit/36a13b017b3f95fab0aa9dfb73ec1e446ac7bb96))
+* warn users on missing plugins ([#1691](https://github.com/rudderlabs/rudder-sdk-js/issues/1691)) ([c57cf82](https://github.com/rudderlabs/rudder-sdk-js/commit/c57cf820346a7fede352f2f346db37ad51413cf8))
+
+## [3.0.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.3...@rudderstack/analytics-js@3.0.4) (2024-04-12)
+
+
+### Bug Fixes
+
+* remove MutationObserver and make polyfill checks consistent ([#1688](https://github.com/rudderlabs/rudder-sdk-js/issues/1688)) ([51b42fe](https://github.com/rudderlabs/rudder-sdk-js/commit/51b42fe51a5fbfa79df23b9b36095cc494dbcaa1))
+* remove unnecessary window globals declarations ([#1687](https://github.com/rudderlabs/rudder-sdk-js/issues/1687)) ([09e5ab8](https://github.com/rudderlabs/rudder-sdk-js/commit/09e5ab89965a0b0dc5070891288a08358c103c0e))
+
 ## [3.0.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.0.2...@rudderstack/analytics-js@3.0.3) (2024-03-22)
 
 ### Dependency Updates

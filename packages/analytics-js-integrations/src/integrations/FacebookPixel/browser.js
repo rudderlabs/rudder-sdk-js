@@ -36,6 +36,7 @@ class FacebookPixel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.autoConfig = (config.autoConfig === undefined ? true : config.autoConfig);
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent || [];
     this.pixelId = config.pixelId;
@@ -72,6 +73,7 @@ class FacebookPixel {
     window.fbq.allowDuplicatePageViews = true; // enables fb
     window.fbq.version = '2.0';
     window.fbq.queue = [];
+    window.fbq('set', 'autoConfig', this.autoConfig, this.pixelId); // toggle autoConfig : sends button click and page metadata
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
         const userData = {

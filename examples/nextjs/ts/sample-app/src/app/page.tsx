@@ -24,7 +24,7 @@ export default function Home() {
   }, []);
 
   const page = () => {
-    (window.rudderanalytics as RudderAnalytics).page(
+    window.rudderanalytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -40,7 +40,7 @@ export default function Home() {
     );
   };
   const identify = () => {
-    (window.rudderanalytics as RudderAnalytics).identify(
+    window.rudderanalytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -54,7 +54,7 @@ export default function Home() {
     );
   };
   const track = () => {
-    (window.rudderanalytics as RudderAnalytics).track(
+    window.rudderanalytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -67,12 +67,12 @@ export default function Home() {
     );
   };
   const alias = () => {
-    (window.rudderanalytics as RudderAnalytics).alias('alias-user-id', () => {
+    window.rudderanalytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    (window.rudderanalytics as RudderAnalytics).group(
+    window.rudderanalytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',
