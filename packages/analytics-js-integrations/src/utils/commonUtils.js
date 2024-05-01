@@ -1,9 +1,7 @@
-import _isEmpty from 'lodash.isempty';
-import _toString from 'lodash.tostring';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { pick as ramdaPick, pickBy } from 'ramda';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { pick as ramdaPick, pickBy, isEmpty } from 'ramda';
 
-const isNotEmpty = x => !_isEmpty(x);
+const isNotEmpty = x => !isEmpty(x);
 const isNotNull = x => x != null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 const isDefinedAndNotNullAndNotEmpty = x => isDefined(x) && isNotNull(x) && isNotEmpty(x);
@@ -11,7 +9,7 @@ const removeUndefinedValues = obj => pickBy(isDefined, obj);
 const removeNullValues = obj => pickBy(isNotNull, obj);
 const removeUndefinedAndNullValues = obj => pickBy(isDefinedAndNotNull, obj);
 const removeUndefinedAndNullAndEmptyValues = obj => pickBy(isDefinedAndNotNullAndNotEmpty, obj);
-const isBlank = value => _isEmpty(_toString(value).trim());
+const isBlank = value => isEmpty(value);
 const pick = (argObj, argArr) => ramdaPick(argArr, argObj);
 
 /**
@@ -33,6 +31,7 @@ const getHashFromArrayWithDuplicate = (
   if (Array.isArray(arrays)) {
     arrays.forEach(array => {
       if (!isNotEmpty(array[fromKey])) return;
+      if (!isString(array[fromKey])) return;
       const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {

@@ -8,8 +8,7 @@ import axios, {
 import axiosRetry from 'axios-retry';
 import ms from 'ms';
 import { v4 as uuid } from '@lukeed/uuid';
-import isString from 'lodash.isstring';
-import cloneDeep from 'lodash.clonedeep';
+import { is, clone } from 'ramda';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 import type { IAnalytics } from './IAnalytics';
 import type {
@@ -331,7 +330,7 @@ class Analytics implements IAnalytics {
     }
     // Clone the incoming message object
     // before altering the data
-    let lMessage = cloneDeep(message);
+    let lMessage = clone(message);
     callback = callback || noop;
 
     if (!this.enable) {
@@ -374,10 +373,10 @@ class Analytics implements IAnalytics {
     // Historically this library has accepted strings and numbers as IDs.
     // However, our spec only allows strings. To avoid breaking compatibility,
     // we'll coerce these to strings if they aren't already.
-    if (lMessage.anonymousId && !isString(lMessage.anonymousId)) {
+    if (lMessage.anonymousId && !is(String, lMessage.anonymousId)) {
       lMessage.anonymousId = JSON.stringify(lMessage.anonymousId);
     }
-    if (lMessage.userId && !isString(lMessage.userId)) {
+    if (lMessage.userId && !is(String, lMessage.userId)) {
       lMessage.userId = JSON.stringify(lMessage.userId);
     }
 
