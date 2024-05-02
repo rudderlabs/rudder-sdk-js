@@ -74,7 +74,7 @@ To integrate the JavaScript SDK with your website, place the following code snip
 
 > The above snippet lets you integrate the SDK with your website and load it asynchronously to keep your page load time unaffected.
 
-To load `rudder-analytics.js` on to your page synchronously, see the [**JavaScript SDK documentation**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/installation/#synchronous-loading).
+To load SDK script on to your page synchronously, see the [**JavaScript SDK documentation**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/installation/#synchronous-loading).
 
 > **IMPORTANT**: The implicit `page` call at the end of the snippet (present in the previous JavaScript SDK versions) is removed in the latest SDK v3. You need to make a `page` call explicitly, if required, as shown below:
 
@@ -114,7 +114,7 @@ export { rudderAnalytics };
 var RudderAnalytics = require("@rudderstack/analytics-js");
 
 const rudderAnalytics = new RudderAnalytics();
-rudderAnalytics.load(WRITE_KEY, DATA_PLANE_URL);
+rudderAnalytics.load(WRITE_KEY, DATA_PLANE_URL, {});
 
 exports.rudderanalytics = rudderAnalytics;
 ```
