@@ -168,7 +168,7 @@ If you are migrating the JavaScript SDK from an older version (<=v1.1), see the 
 | For detailed information on the `load()` method, see the [**JavaScript SDK documentation**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/). |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 
-You can load the JavaScript SDK using the `load` API method to track and send events from your website to RudderStack. Make sure to replace the write key and data plane URL with their actual values.
+You can load the JavaScript SDK using the `load` API method to track and send events from your website to RudderStack. Make sure to replace the "write key" and data plane URL with their actual values.
 
 ```javascript
 rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, [loadOptions]);
