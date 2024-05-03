@@ -39,7 +39,7 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
 - [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
-| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK npm package and decoupled it to a new package. <br/>If you still wish to use it for your project, see [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
+| **IMPORTANT**: The service worker export has been deprecated from the RudderStack JavaScript SDK npm package and moved to a new package. <br/>If you still wish to use it for your project, see [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
 | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## Installing the JavaScript SDK
