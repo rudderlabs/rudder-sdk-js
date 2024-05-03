@@ -148,6 +148,8 @@ See [JavaScript SDK installation workflow](https://www.rudderstack.com/docs/sour
 
 | **Browser**     | **Supported Versions** |
 | :-------------- | :--------------------- |
+| **Browser**     | **Supported Versions** |
+| :-------------- | :--------------------- |
 | Safari          | v7 and above           |
 | IE              | v11 and above          |
 | Edge            | v80 and above          |
