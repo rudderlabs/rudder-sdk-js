@@ -197,27 +197,27 @@ The [`identify`](https://www.rudderstack.com/docs/sources/event-streams/sdks/rud
 A sample `identify` call is shown below:
 
 ```javascript
-rudderanalytics.identify(
-  '1hKOmRA4el9Zt1WSfVJIVo4GRlm',
-  {
-    firstName: 'Alex',
-    lastName: 'Keener',
-    email: 'alex@example.com',
-    phone: '+1-202-555-0146',
-  },
-  {
-    page: {
-      path: '/best-seller/1',
-      referrer: 'https://www.google.com/search?q=estore+bestseller',
-      search: 'estore bestseller',
-      title: 'The best sellers offered by EStore',
-      url: 'https://www.estore.com/best-seller/1',
+  rudderanalytics.identify(
+    '1hKOmRA4el9Zt1WSfVJIVo4GRlm',
+    {
+      firstName: 'Alex',
+      lastName: 'Keener',
+      email: 'alex@example.com',
+      phone: '+1-202-555-0146',
     },
-  },
-  () => {
-    console.log('identify call');
-  },
-);
+    {
+      page: {
+        path: '/best-seller/1',
+        referrer: 'https://www.google.com/search?q=estore+bestseller',
+        search: 'estore bestseller',
+        title: 'The best sellers offered by EStore',
+        url: 'https://www.estore.com/best-seller/1',
+      },
+    },
+    () => {
+      console.log('identify call');
+    },
+  );
 ```
 
 In the above example, the JavaScript SDK captures the user information like `userId`, `firstName`, `lastName`, `email`, and `phone`, along with the [**contextual information**](https://www.rudderstack.com/docs/event-spec/standard-events/common-fields/#contextual-fields).
