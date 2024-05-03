@@ -13,6 +13,13 @@ describe('Hotjar init tests', () => {
   });
 });
 
+describe('Hotjar isReady', () => {
+  it('should return false if when init is not called', () => {
+    const hotjar = new Hotjar({}, {});
+    expect(hotjar.isReady()).toBe(false);
+  });
+});
+
 const traits = {
   name: 'Alex Keener',
   email: 'alex@example.com',
@@ -42,6 +49,18 @@ describe('Hotjar Identify event', () => {
     expect(window.hj.mock.calls[0][0]).toEqual('identify');
     expect(window.hj.mock.calls[0][1]).toEqual('rudder01');
     expect(window.hj.mock.calls[0][2]).toEqual(traits);
+  });
+  test('Testing Identify Events without userId and anonymousId', () => {
+    try {
+      hotjar.identify({
+        message: {
+          context: { traits },
+          createdAt: 'Mon May 19 2019 18:34:24 GMT0000 (UTC)',
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('user id is required for an identify call');
+    }
   });
 });
 
