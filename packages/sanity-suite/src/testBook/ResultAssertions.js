@@ -52,7 +52,10 @@ const ResultsAssertions = {
       };
     } catch (e) {
       console.error(e);
-      return JSON.stringify({}, undefined, 2);
+      return {
+        resultData: JSON.stringify({}, undefined, 2),
+        expectedResultData: JSON.stringify({}, undefined, 2),
+      };
     }
   },
 
