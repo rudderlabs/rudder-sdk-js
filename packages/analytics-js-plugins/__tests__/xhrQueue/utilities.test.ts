@@ -1,6 +1,6 @@
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import {

@@ -1,5 +1,5 @@
-import SpotifyPixel from '../../../src/integrations/SpotifyPixel/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import SpotifyPixel from '../../../src/integrations/SpotifyPixel/browser';
 
 // Mock ScriptLoader
 jest.mock('@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader', () => ({
@@ -17,7 +17,11 @@ describe('SpotifyPixel', () => {
     // Initialize SpotifyPixel instance
     const config = {
       pixelId: 'your-pixel-id',
-      eventsToSpotifyPixelEvents: [{ from: 'event1', to: 'lead' }, { from: 'Multi Map', to: 'purchase' }, { from: 'Multi Map', to: 'checkout' }],
+      eventsToSpotifyPixelEvents: [
+        { from: 'event1', to: 'lead' },
+        { from: 'Multi Map', to: 'purchase' },
+        { from: 'Multi Map', to: 'checkout' },
+      ],
       enableAliasCall: true,
     };
     const analytics = {};
@@ -31,7 +35,10 @@ describe('SpotifyPixel', () => {
   describe('init', () => {
     it('should initialize SpotifyPixel and load script', () => {
       spotifyPixel.init();
-      expect(ScriptLoader).toHaveBeenCalledWith('spdt-capture', 'https://pixel.byspotify.com/ping.min.js');
+      expect(ScriptLoader).toHaveBeenCalledWith(
+        'spdt-capture',
+        'https://pixel.byspotify.com/ping.min.js',
+      );
       expect(window.spdt).toHaveBeenCalledWith('conf', { key: 'your-pixel-id' });
     });
   });
@@ -84,11 +91,14 @@ describe('SpotifyPixel', () => {
         },
       };
       spotifyPixel.page(rudderElement);
-      expect(window.spdt).toHaveBeenCalledWith('view', expect.objectContaining({
-        url: 'https://example.com',
-        referrer: 'https://referrer.com',
-        key1: 'value1',
-      }));
+      expect(window.spdt).toHaveBeenCalledWith(
+        'view',
+        expect.objectContaining({
+          url: 'https://example.com',
+          referrer: 'https://referrer.com',
+          key1: 'value1',
+        }),
+      );
     });
 
     it('should send a view event with only properties if page context is not available', () => {
@@ -99,15 +109,17 @@ describe('SpotifyPixel', () => {
               url: 'https://example.com',
               referrer: 'https://referrer.com',
             },
-          }
+          },
         },
       };
       spotifyPixel.page(rudderElement);
-      expect(window.spdt).toHaveBeenCalledWith('view', expect.objectContaining({ "referrer": "https://referrer.com", "url": "https://example.com" }));
+      expect(window.spdt).toHaveBeenCalledWith(
+        'view',
+        expect.objectContaining({ referrer: 'https://referrer.com', url: 'https://example.com' }),
+      );
     });
   });
   describe('track', () => {
-
     // Track a standard event with valid properties
     it('should track order completed event with product array event with valid properties', () => {
       // Mock the necessary dependencies
@@ -234,14 +246,18 @@ describe('SpotifyPixel', () => {
 
       // Assertions
       expect(window.spdt).toHaveBeenCalledWith('purchase', {
-        line_items: [{
-          value: 'val',
-        }]
+        line_items: [
+          {
+            value: 'val',
+          },
+        ],
       });
       expect(window.spdt).toHaveBeenCalledWith('checkout', {
-        line_items: [{
-          value: 'val',
-        }]
+        line_items: [
+          {
+            value: 'val',
+          },
+        ],
       });
     });
 
@@ -268,7 +284,7 @@ describe('SpotifyPixel', () => {
                 brand: 'Brand B',
               },
             ],
-            line_items: [{ product_id: 1, name: "lineItem" }],
+            line_items: [{ product_id: 1, name: 'lineItem' }],
             order_id: '123456',
             is_new_customer: true,
             quantity: 2,
@@ -310,8 +326,8 @@ describe('SpotifyPixel', () => {
         discount_code: 'DISCOUNT',
         line_items: [
           {
-            "name": "lineItem",
-            "product_id": 1,
+            name: 'lineItem',
+            product_id: 1,
           },
         ],
         order_id: '123456',
@@ -329,7 +345,7 @@ describe('SpotifyPixel', () => {
             total: 100,
             currency: 'USD',
             discount_code: 'DISCOUNT',
-            line_items: [{ product_id: 1, name: "lineItem" }],
+            line_items: [{ product_id: 1, name: 'lineItem' }],
             order_id: '123456',
             is_new_customer: true,
             quantity: 2,
@@ -371,8 +387,8 @@ describe('SpotifyPixel', () => {
         discount_code: 'DISCOUNT',
         line_items: [
           {
-            "name": "lineItem",
-            "product_id": 1,
+            name: 'lineItem',
+            product_id: 1,
           },
         ],
         order_id: '123456',
@@ -453,7 +469,12 @@ describe('SpotifyPixel', () => {
       spotifyPixel.track(rudderElement);
 
       // Assertions
-      expect(window.spdt).toHaveBeenCalledWith('product', { value: 20, currency: 'USD', product_id: 1, 'product_vendor': 'test', });
+      expect(window.spdt).toHaveBeenCalledWith('product', {
+        value: 20,
+        currency: 'USD',
+        product_id: 1,
+        product_vendor: 'test',
+      });
     });
 
     it('should track a Product Viewed event with valid properties', () => {
@@ -469,7 +490,10 @@ describe('SpotifyPixel', () => {
       spotifyPixel.track(rudderElement);
 
       // Assertions
-      expect(window.spdt).toHaveBeenCalledWith('checkout', { currency: 'USD', line_items: [{ value: 20, product_id: 1, 'product_vendor': 'test', }] });
+      expect(window.spdt).toHaveBeenCalledWith('checkout', {
+        currency: 'USD',
+        line_items: [{ value: 20, product_id: 1, product_vendor: 'test' }],
+      });
     });
 
     it('should track checkout started event with product array event with valid properties', () => {
@@ -616,7 +640,14 @@ describe('SpotifyPixel', () => {
       const rudderElement = {
         message: {
           event: 'Product Added',
-          properties: { price: 20, currency: 'USD', brand: 'test', product_id: 1, name : 'name of product', quantity : 2 },
+          properties: {
+            price: 20,
+            currency: 'USD',
+            brand: 'test',
+            product_id: 1,
+            name: 'name of product',
+            quantity: 2,
+          },
         },
       };
 
@@ -624,7 +655,14 @@ describe('SpotifyPixel', () => {
       spotifyPixel.track(rudderElement);
 
       // Assertions
-      expect(window.spdt).toHaveBeenCalledWith('addtocart', { value: 20, currency: 'USD', product_id: 1, 'product_vendor': 'test', "product_name": 'name of product','quantity': 2, });
+      expect(window.spdt).toHaveBeenCalledWith('addtocart', {
+        value: 20,
+        currency: 'USD',
+        product_id: 1,
+        product_vendor: 'test',
+        product_name: 'name of product',
+        quantity: 2,
+      });
     });
   });
 });

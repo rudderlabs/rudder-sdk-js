@@ -21,13 +21,15 @@
       "Object.entries",
       "Object.values",
       "Object.assign",
+      "Object.fromEntries",
       "TextEncoder",
       "TextDecoder",
       "CustomEvent",
       "requestAnimationFrame",
       "cancelAnimationFrame",
       "navigator.sendBeacon",
-      "Uint8Array"
+      "Uint8Array",
+      "Set"
     ]
   },
   "env": {

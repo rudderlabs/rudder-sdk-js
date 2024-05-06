@@ -1,7 +1,7 @@
 import { batch } from '@preact/signals-core';
-import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import {
+import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type {
   AppInfo,
   LibraryInfo,
   OSInfo,

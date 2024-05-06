@@ -7,8 +7,8 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
