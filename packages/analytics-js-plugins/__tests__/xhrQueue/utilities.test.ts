@@ -10,7 +10,7 @@ import {
   logErrorOnFailure,
   getRequestInfo,
   getBatchDeliveryPayload,
-} from '../../src/xhrQueue/utilities';
+} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',

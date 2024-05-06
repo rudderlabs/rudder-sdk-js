@@ -16,8 +16,8 @@ import {
   dmtSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import * as utils from '../../src/deviceModeTransformation/utilities';
-import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
+import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
+import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -77,7 +77,7 @@ describe('Device mode transformation plugin', () => {
   const destinationIds = ['id1', 'id2', 'id3'];
 
   it('should add DeviceModeTransformation plugin in the loaded plugin list', () => {
-    DeviceModeTransformation().initialize(state);
+    DeviceModeTransformation().initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('DeviceModeTransformation')).toBe(true);
   });
 
@@ -183,12 +183,12 @@ describe('Device mode transformation plugin', () => {
   });
 
   it('SendTransformedEventToDestinations function is called in case of successful transformation', () => {
-    const mockHttpClient = {
+    const mockHttpClient: IHttpClient = {
       getAsyncData: ({ callback }) => {
-        callback(JSON.stringify(dmtSuccessResponse), { xhr: { status: 200 } });
+        callback?.(JSON.stringify(dmtSuccessResponse), { xhr: { status: 200 } });
       },
       setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
+    };
     const mockSendTransformedEventToDestinations = jest.spyOn(
       utils,
       'sendTransformedEventToDestinations',
@@ -232,12 +232,12 @@ describe('Device mode transformation plugin', () => {
     mockSendTransformedEventToDestinations.mockRestore();
   });
   it('SendTransformedEventToDestinations function should not be called in case of unsuccessful transformation', () => {
-    const mockHttpClient = {
+    const mockHttpClient: IHttpClient = {
       getAsyncData: ({ callback }) => {
-        callback(false, { error: 'some error', xhr: { status: 502 } });
+        callback?.(false, { error: 'some error', xhr: { status: 502 } });
       },
       setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
+    };
     const mockSendTransformedEventToDestinations = jest.spyOn(
       utils,
       'sendTransformedEventToDestinations',
