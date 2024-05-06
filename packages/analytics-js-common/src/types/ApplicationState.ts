@@ -94,6 +94,11 @@ export type MetricsState = {
   triggered: Signal<number>;
 };
 
+export type DataPlaneEventsState = {
+  eventsQueuePluginName: Signal<PluginName | undefined>;
+  readonly deliveryEnabled: Signal<boolean>;
+};
+
 export type NativeDestinationsState = {
   configuredDestinations: Signal<Destination[]>;
   activeDestinations: Signal<Destination[]>;
@@ -173,6 +178,7 @@ export interface ApplicationState {
   source: SourceConfigState;
   storage: StorageState;
   serverCookies: ServerCookiesState;
+  dataPlaneEvents: DataPlaneEventsState;
 }
 
 export type DebouncedFunction = (...args: any[]) => void;

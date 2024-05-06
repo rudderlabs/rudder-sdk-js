@@ -27,6 +27,7 @@ import type { IConfigManager, SourceConfigResponse } from './types';
 import {
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
+  updateDataPlaneEventsStateFromLoadOptions,
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
@@ -75,6 +76,7 @@ class ConfigManager implements IConfigManager {
 
     updateStorageStateFromLoadOptions(this.logger);
     updateConsentsStateFromLoadOptions(this.logger);
+    updateDataPlaneEventsStateFromLoadOptions(this.logger);
 
     const { useServerSideCookies, dataServerUrl, logLevel, configUrl } = state.loadOptions.value;
 

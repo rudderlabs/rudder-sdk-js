@@ -14,6 +14,7 @@ import {
   handleProductView,
   generateExtraData,
   handleCommonFields,
+  handleProductAdded,
 } from './utils';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 
@@ -76,7 +77,7 @@ class Criteo {
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.error('Home page is not detected');
+      logger.warn('Home page is not detected');
       return;
     }
 
@@ -99,7 +100,7 @@ class Criteo {
     }
 
     if (!properties || Object.keys(properties).length === 0) {
-      logger.error('Either properties object is missing or empty in the track call');
+      logger.warn('Either properties object is missing or empty in the track call');
       return;
     }
 
@@ -107,7 +108,7 @@ class Criteo {
     const trimmedEvent = event.toLowerCase().trim();
 
     if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
-      logger.error(`event ${trimmedEvent} is not supported`);
+      logger.warn(`event ${trimmedEvent} is not supported`);
       return;
     }
     let events = [];
@@ -128,6 +129,9 @@ class Criteo {
           break;
         case 'product list viewed':
           handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
+          break;
+        case 'product added':
+          handleProductAdded(rudderElement.message, finalPayload);
           break;
         default:
           break;

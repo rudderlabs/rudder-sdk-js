@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -68,7 +68,7 @@
     "@preact/signals-core": "1.5.1",
     "get-value": "3.0.1",
     "ramda": "0.29.1",
-    "storejs": "2.0.7"
+    "storejs": "2.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.23.9",

@@ -14,6 +14,7 @@ import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
 import { storageState } from './slices/storage';
 import { serverSideCookiesState } from './slices/serverCookies';
+import { dataPlaneEventsState } from './slices/dataPlaneEvents';
 
 const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
@@ -30,6 +31,7 @@ const defaultStateValues: ApplicationState = {
   source: sourceConfigState,
   storage: storageState,
   serverCookies: serverSideCookiesState,
+  dataPlaneEvents: dataPlaneEventsState,
 };
 
 const state: ApplicationState = {
@@ -51,6 +53,7 @@ const resetState = () => {
   state.source = clone(defaultStateValues.source);
   state.storage = clone(defaultStateValues.storage);
   state.serverCookies = clone(defaultStateValues.serverCookies);
+  state.dataPlaneEvents = clone(defaultStateValues.dataPlaneEvents);
 };
 
 export { state, resetState };
