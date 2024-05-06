@@ -1388,14 +1388,14 @@ describe('User session manager', () => {
   });
 
   describe('syncValueToStorage', () => {
-    it('should not call setServerSideCookie method in case useServerSideCookies load option is not set', () => {
+    it('should not call setServerSideCookie method in case isEnabledServerSideCookies state option is not set', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(spy).not.toHaveBeenCalled();
     });
-    it('should call setServerSideCookie method in case useServerSideCookies load option is set to true', () => {
-      state.loadOptions.value.useServerSideCookies = true;
+    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', () => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
@@ -1403,6 +1403,20 @@ describe('User session manager', () => {
         [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
         expect.any(Object),
       );
+    });
+    describe('Cookie should be removed from server side', () => {
+      const testCaseData = [null, undefined, '', {}];
+      it.each(testCaseData)('if value is "%s"', cookieValue => {
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+        userSessionManager.syncValueToStorage('anonymousId', cookieValue);
+        expect(spy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: '' }],
+          expect.any(Object),
+          true,
+        );
+      });
     });
   });
 
@@ -1417,9 +1431,10 @@ describe('User session manager', () => {
     const mockCookieStore = {
       encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
       set: jest.fn(),
+      get: jest.fn(),
     };
     it('should make external request to exposed endpoint', () => {
-      state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
+      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
       state.source.value = { workspaceId: 'sample_workspaceId' };
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
@@ -1461,10 +1476,63 @@ describe('User session manager', () => {
         callback: expect.any(Function),
       });
     });
-    it('should use provided server url to make external request for setting cookie', () => {
-      state.lifecycle.activeDataplaneUrl.value = 'https://dummy.dataplane.host.com';
+    it('should validate cookies set from the server side when data service request is successful', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.loadOptions.value.dataServerUrl = 'https://example.com';
+      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+        done();
+      }, 1);
+    });
+    it('should set cookie from client side if data service is down', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com/serverDown';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+        done();
+      }, 1);
+    });
+    it('should set cookie from client side if dataServerUrl is invalid', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com/invalidUrl';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+        done();
+      }, 1);
+    });
+    it('should send empty string as cookie value to data service if we want to remove it', () => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -1472,12 +1540,9 @@ describe('User session manager', () => {
         samesite: 'Lax',
       };
       const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
-        mockCookieStore,
-      );
+      userSessionManager.setServerSideCookie([{ name: 'key', value: '' }], mockCookieStore, true);
       expect(spy).toHaveBeenCalledWith({
-        url: `https://example.com/rsaRequest`,
+        url: `https://dummy.dataplane.host.com/rsaRequest`,
         options: {
           method: 'POST',
           data: JSON.stringify({
@@ -1494,7 +1559,7 @@ describe('User session manager', () => {
               cookies: [
                 {
                   name: 'key',
-                  value: 'encrypted_sample_cookie_value_1234',
+                  value: '',
                 },
               ],
             },

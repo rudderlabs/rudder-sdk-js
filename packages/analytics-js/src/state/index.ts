@@ -13,6 +13,7 @@ import { nativeDestinationsState } from './slices/nativeDestinations';
 import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
 import { storageState } from './slices/storage';
+import { serverSideCookiesState } from './slices/serverCookies';
 
 const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
@@ -28,6 +29,7 @@ const defaultStateValues: ApplicationState = {
   session: sessionState,
   source: sourceConfigState,
   storage: storageState,
+  serverCookies: serverSideCookiesState,
 };
 
 const state: ApplicationState = {
@@ -48,6 +50,7 @@ const resetState = () => {
   state.session = clone(defaultStateValues.session);
   state.source = clone(defaultStateValues.source);
   state.storage = clone(defaultStateValues.storage);
+  state.serverCookies = clone(defaultStateValues.serverCookies);
 };
 
 export { state, resetState };

@@ -41,8 +41,9 @@ import { defaultSessionInfo } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
-  COOKIE_SERVER_REQUEST_FAIL_ERROR,
-  FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR,
+  DATA_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -54,7 +55,7 @@ import {
   hasSessionExpired,
   isStorageTypeValidForStoringData,
 } from './utils';
-import { getReferringDomain, removeTrailingSlashes } from '../utilities/url';
+import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import type {
@@ -266,9 +267,9 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, USER_SESSION_MANAGER);
+      this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
       throw error;
     }
@@ -279,61 +280,60 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(cookieData: CookieData[], store?: IStore): void {
-    let encryptedCookieData: EncryptedCookieData[] = [];
-    cookieData.forEach(e => {
-      encryptedCookieData.push({
-        name: e.name,
-        value: store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger)),
+  setServerSideCookie(cookieData: CookieData[], store: IStore, removeCookie?: boolean): void {
+    try {
+      let encryptedCookieData: EncryptedCookieData[] = [];
+      cookieData.forEach(e => {
+        encryptedCookieData.push({
+          name: e.name,
+          value: removeCookie
+            ? (e.value as string)
+            : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger)),
+        });
       });
-    });
-    encryptedCookieData = encryptedCookieData.filter(e => isDefinedAndNotNull(e.value));
-    if (encryptedCookieData.length > 0) {
-      let baseUrl = state.lifecycle.activeDataplaneUrl.value;
-      const { dataServerUrl } = state.loadOptions.value;
-      if (dataServerUrl) {
-        if (dataServerUrl === 'invalid') {
-          return;
-        }
-        baseUrl = dataServerUrl;
-      }
-      this.httpClient?.getAsyncData({
-        url: `${removeTrailingSlashes(baseUrl as string)}/rsaRequest`,
-        options: {
-          method: 'POST',
-          data: stringifyWithoutCircular({
-            reqType: 'setCookies',
-            workspaceId: state.source.value?.workspaceId,
-            data: {
-              options: {
-                maxAge: state.storage.cookie.value?.maxage,
-                path: state.storage.cookie.value?.path,
-                domain: state.storage.cookie.value?.domain,
-                sameSite: state.storage.cookie.value?.samesite,
-                secure: state.storage.cookie.value?.secure,
+      encryptedCookieData = encryptedCookieData.filter(e => isDefinedAndNotNull(e.value));
+      if (encryptedCookieData.length > 0 || removeCookie) {
+        this.httpClient?.getAsyncData({
+          url: `${state.serverCookies.dataServerUrl.value}/rsaRequest`,
+          options: {
+            method: 'POST',
+            data: stringifyWithoutCircular({
+              reqType: 'setCookies',
+              workspaceId: state.source.value?.workspaceId,
+              data: {
+                options: {
+                  maxAge: state.storage.cookie.value?.maxage,
+                  path: state.storage.cookie.value?.path,
+                  domain: state.storage.cookie.value?.domain,
+                  sameSite: state.storage.cookie.value?.samesite,
+                  secure: state.storage.cookie.value?.secure,
+                  expires: state.storage.cookie.value?.expires,
+                },
+                cookies: encryptedCookieData,
               },
-              cookies: encryptedCookieData,
-            },
-          }) as string,
-          sendRawData: true,
-        },
-        isRawResponse: true,
-        callback: (res, details) => {
-          if (details?.xhr?.status === 200) {
-            cookieData.forEach(each => {
-              const cookieValue = store?.get(each.name);
-              if (cookieValue !== each.value) {
-                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_FAIL_ERROR(each.name));
-              }
-            });
-          } else {
-            this.logger?.error(COOKIE_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            cookieData.forEach(each => {
-              store?.set(each.name, each.value);
-            });
-          }
-        },
-      });
+            }) as string,
+            sendRawData: true,
+          },
+          isRawResponse: true,
+          callback: (res, details) => {
+            if (details?.xhr?.status === 200) {
+              cookieData.forEach(each => {
+                const cookieValue = store?.get(each.name);
+                if (cookieValue !== each.value) {
+                  this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                }
+              });
+            } else {
+              this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+              cookieData.forEach(each => {
+                store?.set(each.name, each.value);
+              });
+            }
+          },
+        });
+      }
+    } catch (e) {
+      this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
     }
   }
 
@@ -352,17 +352,28 @@ class UserSessionManager implements IUserSessionManager {
       const curStore = this.storeManager?.getStore(
         storageClientDataStoreNameMap[storageType] as string,
       );
-      const key = entries[sessionKey]?.key as string;
-      if (value && (isString(value) || isNonEmptyObject(value))) {
-        // if useServerSideCookies load option is set to true
-        // set the cookie from server side
-        if (state.loadOptions.value.useServerSideCookies && storageType === COOKIE_STORAGE) {
-          this.setServerSideCookie([{ name: key, value }], curStore);
+      if (curStore) {
+        const key = entries[sessionKey]?.key as string;
+        if (value && (isString(value) || isNonEmptyObject(value))) {
+          // if useServerSideCookies load option is set to true
+          // set the cookie from server side
+          if (
+            state.serverCookies.isEnabledServerSideCookies.value &&
+            storageType === COOKIE_STORAGE
+          ) {
+            this.setServerSideCookie([{ name: key, value }], curStore);
+          } else {
+            curStore?.set(key, value);
+          }
+        } else if (
+          state.serverCookies.isEnabledServerSideCookies.value &&
+          storageType === COOKIE_STORAGE
+        ) {
+          // remove cookie that is set from server side
+          this.setServerSideCookie([{ name: key, value: '' }], curStore, true);
         } else {
-          curStore?.set(key, value);
+          curStore?.remove(key);
         }
-      } else {
-        curStore?.remove(key);
       }
     }
   }

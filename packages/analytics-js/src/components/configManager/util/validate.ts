@@ -8,7 +8,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-  COOKIE_SERVER_URL_INVALID_ERROR,
+  DATA_SERVER_URL_INVALID_ERROR,
 } from '../../../constants/logMessages';
 import { isValidUrl } from '../../utilities/url';
 
@@ -39,18 +39,14 @@ const isValidSourceConfig = (res: any): boolean =>
 const isValidStorageType = (storageType?: StorageType): boolean =>
   typeof storageType === 'string' && SUPPORTED_STORAGE_TYPES.includes(storageType);
 
-const validateAndReturnCookieServerUrl = (
-  useServerSideCookies?: boolean,
-  dataServerUrl?: string,
-  logger?: ILogger,
-) => {
-  if (useServerSideCookies && dataServerUrl) {
+const isValidDataServerUrl = (dataServerUrl?: string, logger?: ILogger) => {
+  if (dataServerUrl) {
     if (isValidUrl(dataServerUrl)) {
-      return dataServerUrl;
+      return true;
     }
-    logger?.error(COOKIE_SERVER_URL_INVALID_ERROR('dataServerUrl'));
+    logger?.error(DATA_SERVER_URL_INVALID_ERROR('dataServerUrl'));
   }
-  return 'invalid';
+  return false;
 };
 
 export {
@@ -59,5 +55,5 @@ export {
   isValidStorageType,
   validateWriteKey,
   validateDataPlaneUrl,
-  validateAndReturnCookieServerUrl,
+  isValidDataServerUrl,
 };
