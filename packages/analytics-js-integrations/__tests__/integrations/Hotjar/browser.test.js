@@ -13,6 +13,13 @@ describe('Hotjar init tests', () => {
   });
 });
 
+describe('Hotjar isReady', () => {
+  it('should return false if when init is not called', () => {
+    const hotjar = new Hotjar({}, {});
+    expect(hotjar.isReady()).toBe(false);
+  });
+});
+
 const traits = {
   name: 'Alex Keener',
   email: 'alex@example.com',
@@ -42,6 +49,18 @@ describe('Hotjar Identify event', () => {
     expect(window.hj.mock.calls[0][0]).toEqual('identify');
     expect(window.hj.mock.calls[0][1]).toEqual('rudder01');
     expect(window.hj.mock.calls[0][2]).toEqual(traits);
+  });
+  test('Testing Identify Events without userId and anonymousId', () => {
+    try {
+      hotjar.identify({
+        message: {
+          context: { traits },
+          createdAt: 'Mon May 19 2019 18:34:24 GMT0000 (UTC)',
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('user id is required for an identify call');
+    }
   });
 });
 
@@ -104,5 +123,16 @@ describe('Hotjar Track event', () => {
     } catch (error) {
       expect(error).toEqual('Event name should be string');
     }
+  });
+  test('Testing Track Events with event name length greater than 250', () => {
+    hotjar.track({
+      message: {
+        context: {},
+        event:
+          'The event name must not exceed 250 characters and can only contain any of the following: alphanumeric characters a-z A-Z 0-9. spaces. underscores _. dashes -. periods . colons: and forward slashes /. Hotjar Filters will only support 10000 unique events per Hotjar site with an unlimited number of users associated with those events.',
+      },
+    });
+    expect(window.hj.mock.calls[0][0]).toEqual('event');
+    expect(window.hj.mock.calls[0][1].length).toEqual(250);
   });
 });
