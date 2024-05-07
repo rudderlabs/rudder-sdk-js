@@ -343,7 +343,11 @@ class UserSessionManager implements IUserSessionManager {
     } catch (e) {
       this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
       cookieData.forEach(each => {
-        store?.set(each.name, each.value);
+        if (each.value) {
+          store?.set(each.name, each.value);
+        } else {
+          store?.remove(each.name);
+        }
       });
     }
   }
