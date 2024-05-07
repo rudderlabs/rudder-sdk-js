@@ -80,7 +80,7 @@ describe('FullStory', () => {
       fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
     });
 
-    test('init call of FullStory', () => {
+    test('should initialize the destination', () => {
       fullstory.init();
       expect(typeof window.FS).toBe('object');
     });
