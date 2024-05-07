@@ -124,4 +124,15 @@ describe('Hotjar Track event', () => {
       expect(error).toEqual('Event name should be string');
     }
   });
+  test('Testing Track Events with event name length greater than 250', () => {
+    hotjar.track({
+      message: {
+        context: {},
+        event:
+          'The event name must not exceed 250 characters and can only contain any of the following: alphanumeric characters a-z A-Z 0-9. spaces. underscores _. dashes -. periods . colons: and forward slashes /. Hotjar Filters will only support 10000 unique events per Hotjar site with an unlimited number of users associated with those events.',
+      },
+    });
+    expect(window.hj.mock.calls[0][0]).toEqual('event');
+    expect(window.hj.mock.calls[0][1].length).toEqual(250);
+  });
 });
