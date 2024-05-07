@@ -39,13 +39,13 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
 - [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
-| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK npm package and decoupled it to a new package. <br/>If you still wish to use it for your project, see [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **IMPORTANT**: The service worker export has been deprecated from the RudderStack JavaScript SDK npm package and moved to a new package. <br/>If you still wish to use it for your project, see [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## Installing the JavaScript SDK
 
 | For detailed installation steps, see the [JavaScript SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/installation/). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 To integrate the JavaScript SDK with your website, place the following code snippet in the `<head>` section of your website.
 
@@ -104,14 +104,14 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 const rudderAnalytics = new RudderAnalytics();
 rudderAnalytics.load(WRITE_KEY, DATA_PLANE_URL, {});
-  
-export { rudderAnalytics };  
+
+export { rudderAnalytics };
 ```
 
 - **For CJS using the `require` method**:
 
 ```javascript
-var RudderAnalytics = require("@rudderstack/analytics-js");
+var RudderAnalytics = require('@rudderstack/analytics-js');
 
 const rudderAnalytics = new RudderAnalytics();
 rudderAnalytics.load(WRITE_KEY, DATA_PLANE_URL, {});
@@ -148,12 +148,14 @@ See [JavaScript SDK installation workflow](https://www.rudderstack.com/docs/sour
 
 | **Browser**     | **Supported Versions** |
 | :-------------- | :--------------------- |
-| Safari          | v7 and above            |
-| IE              | v11 and above           |
-| Edge            | v80 and above           |
-| Mozilla Firefox | v47 and above           |
-| Chrome          | v54 and above           |
-| Opera           | v43 and above           |
+| **Browser**     | **Supported Versions** |
+| :-------------- | :--------------------- |
+| Safari          | v7 and above           |
+| IE              | v11 and above          |
+| Edge            | v80 and above          |
+| Mozilla Firefox | v47 and above          |
+| Chrome          | v54 and above          |
+| Opera           | v43 and above          |
 
 > You can try adding the browser [polyfills](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill) to your application if the SDK does not work on your browser.
 
@@ -164,9 +166,9 @@ If you are migrating the JavaScript SDK from an older version (<=v1.1), see the 
 ## Loading the SDK
 
 | For detailed information on the `load()` method, see the [**JavaScript SDK documentation**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/). |
-| :----|
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 
-You can load the JavaScript SDK using the `load` API method to track and send events from your website to RudderStack. Make sure to replace the write key and data plane URL with their actual values.
+You can load the JavaScript SDK using the `load` API method to track and send events from your website to RudderStack. Make sure to replace the "write key" and data plane URL with their actual values.
 
 ```javascript
 rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, [loadOptions]);
@@ -195,25 +197,27 @@ The [`identify`](https://www.rudderstack.com/docs/sources/event-streams/sdks/rud
 A sample `identify` call is shown below:
 
 ```javascript
-rudderanalytics.identify(
-  "1hKOmRA4el9Zt1WSfVJIVo4GRlm", {
-    firstName: "Alex",
-    lastName: "Keener",
-    email: "alex@example.com",
-    phone: "+1-202-555-0146"
-  }, {
-    page: {
-      path: "/best-seller/1",
-      referrer: "https://www.google.com/search?q=estore+bestseller",
-      search: "estore bestseller",
-      title: "The best sellers offered by EStore",
-      url: "https://www.estore.com/best-seller/1"
-    }
-  },
-  () => {
-    console.log("identify call");
-  }
-);
+  rudderanalytics.identify(
+    '1hKOmRA4el9Zt1WSfVJIVo4GRlm',
+    {
+      firstName: 'Alex',
+      lastName: 'Keener',
+      email: 'alex@example.com',
+      phone: '+1-202-555-0146',
+    },
+    {
+      page: {
+        path: '/best-seller/1',
+        referrer: 'https://www.google.com/search?q=estore+bestseller',
+        search: 'estore bestseller',
+        title: 'The best sellers offered by EStore',
+        url: 'https://www.estore.com/best-seller/1',
+      },
+    },
+    () => {
+      console.log('identify call');
+    },
+  );
 ```
 
 In the above example, the JavaScript SDK captures the user information like `userId`, `firstName`, `lastName`, `email`, and `phone`, along with the [**contextual information**](https://www.rudderstack.com/docs/event-spec/standard-events/common-fields/#contextual-fields).
@@ -230,14 +234,15 @@ A sample `track` call is shown below:
 
 ```javascript
 rudderanalytics.track(
-  "Order Completed", {
+  'Order Completed',
+  {
     revenue: 30,
-    currency: "USD",
-    user_actual_id: 12345
+    currency: 'USD',
+    user_actual_id: 12345,
   },
   () => {
-    console.log("track call");
-  }
+    console.log('track call');
+  },
 );
 ```
 
@@ -262,7 +267,7 @@ rudderanalytics.ready(() => {
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#self-hosted-control-plane)Self-hosted control plane
 
 | **[Control Plane Lite](https://www.rudderstack.com/docs/get-started/rudderstack-open-source/control-plane-lite/) is now deprecated. It will not work with the latest rudder-server versions (after v1.2). Using [RudderStack Open Source](https://www.rudderstack.com/docs/get-started/rudderstack-open-source/control-plane-setup/#rudderstack-open-source) to set up your control plane is strongly recommended.** |
-| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 If you are self-hosting the control plane using the [**Control Plane Lite**](https://www.rudderstack.com/docs/get-started/rudderstack-open-source/control-plane-lite/) utility, your `load` call will look like the following:
 
