@@ -1,8 +1,9 @@
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
+import type { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import { batch } from '@preact/signals-core';
 import {
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
@@ -50,6 +51,11 @@ describe('Core - Analytics', () => {
 
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
+      batch(() => {
+        state.lifecycle.writeKey.value = dummyWriteKey;
+        state.lifecycle.dataPlaneUrl.value = 'https://dummy.dataplane.url';
+      });
+
       analytics.startLifecycle();
       const onMountedSpy = jest.spyOn(analytics, 'onMounted');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');

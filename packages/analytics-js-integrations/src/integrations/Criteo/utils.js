@@ -1,9 +1,28 @@
 import md5 from 'md5';
+import sha256 from 'crypto-js/sha256';
 import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
 import Logger from '../../utils/logger';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
+
+/**
+ * Returns email value based on hashMethod parameter
+ * @param {*} email
+ * @param {*} hashMethod
+ * @returns
+ */
+const getEmail = (email, hashMethod) => {
+  if (hashMethod === 'md5') {
+    return md5(email);
+  }
+
+  if (hashMethod === 'sha256') {
+    return sha256(email).toString();
+  }
+
+  return email;
+};
 
 /**
  * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
@@ -27,8 +46,10 @@ const handleCommonFields = (rudderElement, hashMethod) => {
   if (properties?.email) {
     const email = properties.email.trim().toLowerCase();
     setEmail.event = 'setEmail';
-    setEmail.hash_method = hashMethod;
-    setEmail.email = hashMethod === 'md5' ? md5(email) : email;
+    if (hashMethod !== 'none') {
+      setEmail.hash_method = hashMethod;
+    }
+    setEmail.email = getEmail(email, hashMethod);
     finalRequest.push(setEmail);
   }
 
@@ -73,7 +94,7 @@ const handleProductView = (message, finalPayload) => {
     }
     finalPayload.push(viewItemObject);
   } else {
-    logger.error('product_id is a mandatory field to use for Product Tag');
+    logger.warn('product_id is a mandatory field to use for Product Tag');
   }
 
   // Final example payload supported by destination
@@ -186,6 +207,32 @@ const processViewedCartEvent = (finalPayload, productInfo) => {
 };
 
 /**
+ * Adds a product to the cart and updates the final payload.
+ *
+ * @param {Object} properties - The properties of the event.
+ * @param {Array} finalPayload - The final payload array to be updated.
+ * @param {Array} productInfo - The information of the product to be added to the cart.
+ * @returns {void}
+ */
+const handleProductAdded = (message, finalPayload) => {
+  const buildProductObject = properties => [
+    {
+      id: String(properties.product_id),
+      price: parseFloat(properties.price),
+      quantity: parseInt(properties.quantity, 10),
+    },
+  ];
+
+  const { properties } = message;
+  const addToCartObject = {
+    event: 'addToCart',
+    currency: properties.currency,
+    item: validateProduct(properties, 0) ? buildProductObject(properties) : [],
+  };
+  finalPayload.push(addToCartObject);
+};
+
+/**
  * Handles events
  * @param {*} message
  * @param {*} finalPayload
@@ -197,7 +244,7 @@ const handlingEventDuo = (message, finalPayload) => {
   const productInfo = getProductInfo(properties);
 
   if (productInfo.length === 0) {
-    logger.error(
+    logger.warn(
       'None of the products had sufficient information or information is wrongly formatted',
     );
     return;
@@ -294,11 +341,11 @@ const handleListView = (message, finalPayload, OPERATOR_LIST) => {
       }
     });
     if (productIdList.length === 0) {
-      logger.error('None of the product information had product_id');
+      logger.warn('None of the product information had product_id');
       return;
     }
   } else {
-    logger.error('The payload should consist of at least one product information');
+    logger.warn('The payload should consist of at least one product information');
     return;
   }
 
@@ -343,4 +390,6 @@ export {
   handleProductView,
   generateExtraData,
   handleCommonFields,
+  getProductInfo,
+  handleProductAdded,
 };
