@@ -1414,7 +1414,6 @@ describe('User session manager', () => {
         expect(spy).toHaveBeenCalledWith(
           [{ name: 'rl_anonymous_id', value: '' }],
           expect.any(Object),
-          true,
         );
       });
     });

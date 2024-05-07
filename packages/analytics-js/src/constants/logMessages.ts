@@ -98,6 +98,8 @@ const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
   `The server responded with status ${status} while setting the cookies. As a fallback, the cookies will be set from the client side.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
   `The server failed to set the ${key} cookie.`;
+const FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR = (key: string) =>
+  `The server failed to remove the ${key} cookie.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `setServerSideCookie method failed`;
 
 // WARNING
@@ -314,5 +316,6 @@ export {
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   MISCONFIGURED_PLUGINS_WARNING,
 };

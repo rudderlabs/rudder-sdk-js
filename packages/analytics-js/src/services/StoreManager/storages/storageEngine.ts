@@ -43,14 +43,14 @@ const getStorageEngine = (type?: StorageType): IStorage => {
  * Configure cookie storage singleton
  */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
-  const cookieStorage = new CookieStorage({}, defaultLogger).configure(options);
+  const cookieStorageOptions = new CookieStorage({}, defaultLogger).configure(options);
   state.storage.cookie.value = {
-    maxage: cookieStorage.maxage,
-    path: cookieStorage.path,
-    domain: cookieStorage.domain,
-    samesite: cookieStorage.samesite,
-    expires: cookieStorage.expires,
-    secure: cookieStorage.secure,
+    maxage: cookieStorageOptions.maxage,
+    path: cookieStorageOptions.path,
+    domain: cookieStorageOptions.domain,
+    samesite: cookieStorageOptions.samesite,
+    expires: cookieStorageOptions.expires,
+    secure: cookieStorageOptions.secure,
   };
 };
 
