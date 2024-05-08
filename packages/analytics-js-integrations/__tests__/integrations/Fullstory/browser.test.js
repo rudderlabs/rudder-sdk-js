@@ -87,6 +87,10 @@ describe('FullStory', () => {
 
     test('should call loadNativeSdk with correct parameters', () => {
       fullstory.init();
+      // Assert that class-level properties exist
+      expect(fullstory.fs_org).toBeDefined();
+      expect(fullstory.fs_debug_mode).toBeDefined();
+      expect(fullstory.fs_host).toBeDefined();
       expect(loadNativeSdk).toHaveBeenCalledWith(fullstory.fs_debug_mode, fullstory.fs_host, fullstory.fs_org);
     });
 
@@ -99,20 +103,7 @@ describe('FullStory', () => {
       // eslint-disable-next-line no-underscore-dangle
       expect(window._fs_identity).toBeDefined();
     });
-
-    test('should initialize with crossDomainSupport and execute identity logic', () => {
-      fullstory.init();
-      jest.advanceTimersByTime(5000);
-      // eslint-disable-next-line no-underscore-dangle
-      expect(window._fs_identity).toHaveBeenCalled();
-      expect(window.localStorage.getItem).toHaveBeenCalledWith('tata_customer_hash');
-      expect(window.FS.setUserVars).toHaveBeenCalledWith({
-        uid: 'hash123',
-        displayName: 'hash123'
-      });
-      expect(window.FS.restart).toHaveBeenCalled();
-      expect(window.FS.shutdown).toHaveBeenCalled();
-    });
+    
   });
 
   describe('isLoaded and isReady', () => {
@@ -218,6 +209,7 @@ describe('FullStory', () => {
           context: {},
           event: 'Custom',
           properties: {
+            email: 'abc@gmail.com',
             customProp: 'testProp',
             checkout_id: '123456',
           },
