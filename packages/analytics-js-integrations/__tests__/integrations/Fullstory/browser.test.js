@@ -220,6 +220,7 @@ describe('FullStory', () => {
         {
           customProp: 'testProp',
           checkoutId: '123456',
+          email: 'abc@gmail.com',
         },
       ]);
     });
