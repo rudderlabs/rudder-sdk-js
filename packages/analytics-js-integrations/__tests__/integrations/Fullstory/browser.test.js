@@ -204,7 +204,7 @@ describe('FullStory', () => {
       fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
     });
     test('should fire track event', () => {
-      fullstory.track({
+      const processedProps = Fullstory.getFSProperties({
         message: {
           context: {},
           event: 'Custom',
@@ -215,6 +215,7 @@ describe('FullStory', () => {
           },
         },
       });
+      fullstory.track(processedProps);
       expect(window.FS.event.mock.calls[0]).toEqual([
         'Custom',
         {
@@ -234,7 +235,7 @@ describe('FullStory', () => {
       window.FS.identify = jest.fn();
     });
     test('should send identify call', () => {
-      fullstory.identify({
+      const processedTraits = Fullstory.getFSProperties({
         message: {
           userId: 'rudder01',
           context: {
@@ -244,6 +245,7 @@ describe('FullStory', () => {
           },
         },
       });
+      fullstory.identify(processedTraits);
       expect(window.FS.identify.mock.calls[0][0]).toEqual('rudder01');
       expect(window.FS.identify.mock.calls[0][1]).toEqual({
         email: 'abc@ruddertack.com',
