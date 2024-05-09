@@ -136,6 +136,7 @@ function newCustomerAcquisitionReporting(properties) {
 function generateUserDataPayload(traits) {
   const payload = {};
   if (traits) {
+    payload.address = {};
     if (isDefinedAndNotNull(traits.email)) {
       payload.email = traits.email;
     }
@@ -143,26 +144,25 @@ function generateUserDataPayload(traits) {
       payload.phone_number = traits.phone;
     }
     if (isDefinedAndNotNull(traits.firstName)) {
-      payload.address = {};
       payload.address.first_name = traits.firstName;
     }
     if (isDefinedAndNotNull(traits.lastName)) {
-      payload?.address.last_name = traits.lastName;
+      payload.address.last_name = traits.lastName;
     }
     if (isDefinedAndNotNull(traits.city)) {
-      payload?.address.city = traits.city;
+      payload.address.city = traits.city;
     }
     if (isDefinedAndNotNull(traits.street)) {
-      payload?.address.city = traits.city;
+      payload.address.street = traits.street;
     }
     if (isDefinedAndNotNull(traits.region)) {
-      payload?.address.region = traits.region;
+      payload.address.region = traits.region;
     }
     if (isDefinedAndNotNull(traits.postalCode)) {
-      payload?.address.postal_code = traits.postalCode;
+      payload.address.postal_code = traits.postalCode;
     }
     if (isDefinedAndNotNull(traits.country)) {
-      payload?.address.country = traits.country;
+      payload.address.country = traits.country;
     }
   }
   return payload;

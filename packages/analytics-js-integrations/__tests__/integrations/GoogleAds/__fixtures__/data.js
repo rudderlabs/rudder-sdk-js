@@ -234,6 +234,11 @@ const identifyCallPayloadWithTraits = {
       firstName: 'test',
       lastName: 'user',
       phone: '1234567890',
+      city: 'test city',
+      street: 'test street',
+      region: 'test region',
+      postalCode: '123456',
+      country: 'test country',
     },
   },
 };

@@ -71,11 +71,16 @@ describe('GoogleAds Identify tests', () => {
     expect(window.gtag.mock.calls[0][0]).toEqual('set');
     expect(window.gtag.mock.calls[0][1]).toEqual('user_data');
     expect(window.gtag.mock.calls[0][2]).toEqual({
-      email: 'test@email.com',
       phone_number: '1234567890',
+      email: 'test@email.com',
       address: {
         first_name: 'test',
         last_name: 'user',
+        city: 'test city',
+        street: 'test street',
+        region: 'test region',
+        postal_code: '123456',
+        country: 'test country',
       },
     });
   });
