@@ -94,6 +94,7 @@ class GoogleAds {
     const { traits } = message;
     if (!isDefinedAndNotNullAndNotEmpty(traits)) {
       logger.error('Traits are mandatory for identify call');
+      return;
     }
     const payload = generateUserDataPayload(traits);
     window.gtag('set', 'user_data', payload);
