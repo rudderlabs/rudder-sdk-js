@@ -60,8 +60,10 @@ import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
 import type {
+  CallbackFunction,
   CookieData,
   EncryptedCookieData,
+  HTTPCallbackFunction,
   IUserSessionManager,
   UserSessionStorageKeysType,
 } from './types';
@@ -277,77 +279,100 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to encrypt the cookie value and return the encrypted data
+   * @param cookieData
+   * @param store
+   * @returns
+   */
+  getEncryptedCookieData(cookieData: CookieData[], store?: IStore): EncryptedCookieData[] {
+    const encryptedCookieData: EncryptedCookieData[] = [];
+    cookieData.forEach(e => {
+      const encryptedValue =
+        e.value === ''
+          ? e.value
+          : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger));
+      if (isDefinedAndNotNull(encryptedValue)) {
+        encryptedCookieData.push({
+          name: e.name,
+          value: encryptedValue,
+        });
+      }
+    });
+    return encryptedCookieData;
+  }
+
+  /**
+   * A function that makes request to data service to set the cookie
+   * @param encryptedCookieData
+   * @param callback
+   */
+  makeRequestToSetCookie(
+    encryptedCookieData: EncryptedCookieData[],
+    callback: HTTPCallbackFunction,
+  ) {
+    this.httpClient?.getAsyncData({
+      url: `${state.serverCookies.dataServerUrl.value}/rsaRequest`,
+      options: {
+        method: 'POST',
+        data: stringifyWithoutCircular({
+          reqType: 'setCookies',
+          workspaceId: state.source.value?.workspaceId,
+          data: {
+            options: {
+              maxAge: state.storage.cookie.value?.maxage,
+              path: state.storage.cookie.value?.path,
+              domain: state.storage.cookie.value?.domain,
+              sameSite: state.storage.cookie.value?.samesite,
+              secure: state.storage.cookie.value?.secure,
+              expires: state.storage.cookie.value?.expires,
+            },
+            cookies: encryptedCookieData,
+          },
+        }) as string,
+        sendRawData: true,
+      },
+      isRawResponse: true,
+      callback,
+    });
+  }
+
+  /**
    * A function to make an external request to set the cookie from server side
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(cookieData: CookieData[], store?: IStore): void {
+  setServerSideCookie(cookieData: CookieData[], cb: CallbackFunction, store?: IStore): void {
     try {
-      const encryptedCookieData: EncryptedCookieData[] = [];
-      cookieData.forEach(e => {
-        const encryptedValue =
-          e.value === ''
-            ? e.value
-            : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger));
-        if (isDefinedAndNotNull(encryptedValue)) {
-          encryptedCookieData.push({
-            name: e.name,
-            value: encryptedValue,
-          });
-        }
-      });
+      // encrypt cookies values
+      const encryptedCookieData = this.getEncryptedCookieData(cookieData, store);
       if (encryptedCookieData.length > 0) {
-        this.httpClient?.getAsyncData({
-          url: `${state.serverCookies.dataServerUrl.value}/rsaRequest`,
-          options: {
-            method: 'POST',
-            data: stringifyWithoutCircular({
-              reqType: 'setCookies',
-              workspaceId: state.source.value?.workspaceId,
-              data: {
-                options: {
-                  maxAge: state.storage.cookie.value?.maxage,
-                  path: state.storage.cookie.value?.path,
-                  domain: state.storage.cookie.value?.domain,
-                  sameSite: state.storage.cookie.value?.samesite,
-                  secure: state.storage.cookie.value?.secure,
-                  expires: state.storage.cookie.value?.expires,
-                },
-                cookies: encryptedCookieData,
-              },
-            }) as string,
-            sendRawData: true,
-          },
-          isRawResponse: true,
-          callback: (res, details) => {
-            if (details?.xhr?.status === 200) {
-              cookieData.forEach(each => {
-                const cookieValue = store?.get(each.name);
-                if (each.value) {
-                  if (cookieValue !== each.value) {
-                    this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
-                  }
-                } else if (cookieValue) {
-                  this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
+        // make request to data service to set the cookie from server side
+        this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
+          if (details?.xhr?.status === 200) {
+            cookieData.forEach(each => {
+              const cookieValue = store?.get(each.name);
+              if (each.value) {
+                if (cookieValue !== each.value) {
+                  this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                  cb(each.name, each.value);
                 }
-              });
-            } else {
-              this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-              cookieData.forEach(each => {
-                store?.set(each.name, each.value);
-              });
-            }
-          },
+              } else if (cookieValue) {
+                this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
+                cb(each.name, each.value);
+              }
+            });
+          } else {
+            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            cookieData.forEach(each => {
+              cb(each.name, each.value);
+            });
+          }
         });
       }
     } catch (e) {
       this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
       cookieData.forEach(each => {
-        if (each.value) {
-          store?.set(each.name, each.value);
-        } else {
-          store?.remove(each.name);
-        }
+        cb(each.name, each.value);
       });
     }
   }
@@ -375,7 +400,17 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
-          this.setServerSideCookie([{ name: key, value }], curStore);
+          this.setServerSideCookie(
+            [{ name: key, value }],
+            (cookieName, cookieValue) => {
+              if (cookieValue) {
+                curStore?.set(cookieName, cookieValue);
+              } else {
+                curStore?.remove(cookieValue);
+              }
+            },
+            curStore,
+          );
         } else {
           curStore?.set(key, value);
         }
@@ -384,7 +419,17 @@ class UserSessionManager implements IUserSessionManager {
         storageType === COOKIE_STORAGE
       ) {
         // remove cookie that is set from server side
-        this.setServerSideCookie([{ name: key, value: '' }], curStore);
+        this.setServerSideCookie(
+          [{ name: key, value: '' }],
+          (cookieName, cookieValue) => {
+            if (cookieValue) {
+              curStore?.set(cookieName, cookieValue);
+            } else {
+              curStore?.remove(cookieValue);
+            }
+          },
+          curStore,
+        );
       } else {
         curStore?.remove(key);
       }

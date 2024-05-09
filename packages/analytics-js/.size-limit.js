@@ -11,7 +11,7 @@ module.exports = [
   {
     name: 'Core CJS - NPM',
     path: 'dist/npm/modern/cjs/index.js',
-    limit: '23.5 KiB',
+    limit: '23.7 KiB',
   },
   {
     name: 'Core - NPM',

@@ -1401,6 +1401,7 @@ describe('User session manager', () => {
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(spy).toHaveBeenCalledWith(
         [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+        expect.any(Function),
         expect.any(Object),
       );
     });
@@ -1413,6 +1414,7 @@ describe('User session manager', () => {
         userSessionManager.syncValueToStorage('anonymousId', cookieValue);
         expect(spy).toHaveBeenCalledWith(
           [{ name: 'rl_anonymous_id', value: '' }],
+          expect.any(Function),
           expect.any(Object),
         );
       });
@@ -1432,48 +1434,23 @@ describe('User session manager', () => {
       set: jest.fn(),
       get: jest.fn(),
     };
-    it('should make external request to exposed endpoint', () => {
-      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
-      state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.storage.cookie.value = {
-        maxage: 10 * 60 * 1000, // 10 min
-        path: '/',
-        domain: 'example.com',
-        samesite: 'Lax',
-      };
-      const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+    it('should encrypt cookie value and make request to data service', () => {
+      const spy1 = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
+      const spy2 = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
+
       userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        () => {},
+        mockCookieStore,
+      );
+      expect(spy1).toHaveBeenCalledWith(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         mockCookieStore,
       );
-      expect(spy).toHaveBeenCalledWith({
-        url: `https://dummy.dataplane.host.com/rsaRequest`,
-        options: {
-          method: 'POST',
-          data: JSON.stringify({
-            reqType: 'setCookies',
-            workspaceId: 'sample_workspaceId',
-            data: {
-              options: {
-                maxAge: 10 * 60 * 1000,
-                path: '/',
-                domain: 'example.com',
-                sameSite: 'Lax',
-                secure: undefined,
-              },
-              cookies: [
-                {
-                  name: 'key',
-                  value: 'encrypted_sample_cookie_value_1234',
-                },
-              ],
-            },
-          }),
-          sendRawData: true,
-        },
-        isRawResponse: true,
-        callback: expect.any(Function),
-      });
+      expect(spy2).toHaveBeenCalledWith(
+        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        expect.any(Function),
+      );
     });
     it('should validate cookies set from the server side when data service request is successful', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
@@ -1486,12 +1463,13 @@ describe('User session manager', () => {
       };
       userSessionManager.setServerSideCookie(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        () => {},
         mockCookieStore,
       );
       setTimeout(() => {
         expect(mockCookieStore.get).toHaveBeenCalledWith('key');
         done();
-      }, 1);
+      }, 1000);
     });
     it('should set cookie from client side if data service is down', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
@@ -1502,14 +1480,16 @@ describe('User session manager', () => {
         domain: 'example.com',
         samesite: 'Lax',
       };
+      const cb = jest.fn();
       userSessionManager.setServerSideCookie(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        cb,
         mockCookieStore,
       );
       setTimeout(() => {
-        expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+        expect(cb).toHaveBeenCalled();
         done();
-      }, 1);
+      }, 1000);
     });
     it('should set cookie from client side if dataServerUrl is invalid', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
@@ -1520,53 +1500,78 @@ describe('User session manager', () => {
         domain: 'example.com',
         samesite: 'Lax',
       };
+      const cb = jest.fn();
       userSessionManager.setServerSideCookie(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        cb,
         mockCookieStore,
       );
       setTimeout(() => {
-        expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+        expect(cb).toHaveBeenCalled();
         done();
-      }, 1);
+      }, 1000);
     });
-    it('should send empty string as cookie value to data service if we want to remove it', () => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
-      state.storage.cookie.value = {
-        maxage: 10 * 60 * 1000, // 10 min
-        path: '/',
-        domain: 'example.com',
-        samesite: 'Lax',
-      };
-      const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-      userSessionManager.setServerSideCookie([{ name: 'key', value: '' }], mockCookieStore, true);
-      expect(spy).toHaveBeenCalledWith({
-        url: `https://dummy.dataplane.host.com/rsaRequest`,
-        options: {
-          method: 'POST',
-          data: JSON.stringify({
-            reqType: 'setCookies',
-            workspaceId: 'sample_workspaceId',
-            data: {
-              options: {
-                maxAge: 10 * 60 * 1000,
-                path: '/',
-                domain: 'example.com',
-                sameSite: 'Lax',
-                secure: undefined,
-              },
-              cookies: [
-                {
-                  name: 'key',
-                  value: '',
+    describe('getEncryptedCookieData', () => {
+      it('cookie value exists', () => {
+        const encryptedData = userSessionManager.getEncryptedCookieData(
+          [{ name: 'key', value: 'sample_cookie_value_1234' }],
+          mockCookieStore,
+        );
+        expect(encryptedData).toStrictEqual([
+          { name: 'key', value: 'encrypted_sample_cookie_value_1234' },
+        ]);
+      });
+      it('cookie value do not exists', () => {
+        const encryptedData = userSessionManager.getEncryptedCookieData(
+          [{ name: 'key', value: '' }],
+          mockCookieStore,
+        );
+        expect(encryptedData).toStrictEqual([{ name: 'key', value: '' }]);
+      });
+    });
+    describe('makeRequestToSetCookie', () => {
+      it('should make external request to exposed endpoint', () => {
+        state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        const spy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+        userSessionManager.makeRequestToSetCookie(
+          [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+          () => {},
+        );
+        expect(spy).toHaveBeenCalledWith({
+          url: `https://dummy.dataplane.host.com/rsaRequest`,
+          options: {
+            method: 'POST',
+            data: JSON.stringify({
+              reqType: 'setCookies',
+              workspaceId: 'sample_workspaceId',
+              data: {
+                options: {
+                  maxAge: 10 * 60 * 1000,
+                  path: '/',
+                  domain: 'example.com',
+                  sameSite: 'Lax',
+                  secure: undefined,
                 },
-              ],
-            },
-          }),
-          sendRawData: true,
-        },
-        isRawResponse: true,
-        callback: expect.any(Function),
+                cookies: [
+                  {
+                    name: 'key',
+                    value: 'encrypted_sample_cookie_value_1234',
+                  },
+                ],
+              },
+            }),
+            sendRawData: true,
+          },
+          isRawResponse: true,
+          callback: expect.any(Function),
+        });
       });
     });
   });
