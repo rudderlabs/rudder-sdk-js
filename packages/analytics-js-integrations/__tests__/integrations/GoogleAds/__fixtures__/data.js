@@ -225,6 +225,27 @@ const trackCallPayload = {
   },
 };
 
+const identifyCallPayloadWithTraits = {
+  message: {
+    userId: 'userId',
+    context: {},
+    traits: {
+      email: 'test@email.com',
+      firstName: 'test',
+      lastName: 'user',
+      phone: '1234567890',
+    },
+  },
+};
+
+const identifyCallPayloadWithoutTraits = {
+  message: {
+    userId: 'userId',
+    context: {},
+    traits: {},
+  },
+};
+
 const noEventNameTrackCallPayload = {
   message: {
     context: {},
@@ -253,4 +274,6 @@ export {
   mockConversionId,
   mockEventTypeConversions,
   noEventNameTrackCallPayload,
+  identifyCallPayloadWithTraits,
+  identifyCallPayloadWithoutTraits,
 };

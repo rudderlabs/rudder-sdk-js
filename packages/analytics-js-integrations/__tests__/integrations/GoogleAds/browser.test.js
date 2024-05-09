@@ -10,6 +10,8 @@ import {
   trackCallPayload,
   mockConversionId,
   noEventNameTrackCallPayload,
+  identifyCallPayloadWithTraits,
+  identifyCallPayloadWithoutTraits,
 } from './__fixtures__/data';
 
 let errMock;
@@ -48,6 +50,34 @@ describe('GoogleAds init tests', () => {
     googleAds = new GoogleAds({ conversionID: 'AW-11071053757' }, {}, destinationInfo);
     googleAds.init();
     expect(typeof window.gtag).toBe('function');
+  });
+});
+
+describe('GoogleAds Identify tests', () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[0], {}, destinationInfo);
+    googleAds.init();
+    window.gtag = jest.fn();
+  });
+
+  test('Testing identify call of Google Ads without traits', () => {
+    googleAds.identify(identifyCallPayloadWithoutTraits);
+    expect(errMock).toHaveBeenLastCalledWith('Traits are mandatory for identify call');
+  });
+
+  test('Testing identify call of Google Ads with traits', () => {
+    googleAds.identify(identifyCallPayloadWithTraits);
+    expect(window.gtag.mock.calls[0][0]).toEqual('set');
+    expect(window.gtag.mock.calls[0][1]).toEqual('user_data');
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      email: 'test@email.com',
+      phone_number: '1234567890',
+      address: {
+        first_name: 'test',
+        last_name: 'user',
+      },
+    });
   });
 });
 

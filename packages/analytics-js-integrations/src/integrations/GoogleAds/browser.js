@@ -9,12 +9,14 @@ import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
+  isDefinedAndNotNullAndNotEmpty,
 } from '../../utils/commonUtils';
 import {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
   newCustomerAcquisitionReporting,
+  generateUserDataPayload,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -85,6 +87,16 @@ class GoogleAds {
 
   isReady() {
     return this.isLoaded();
+  }
+
+  identify(rudderElement) {
+    const { message } = rudderElement;
+    const { traits } = message;
+    if (!isDefinedAndNotNullAndNotEmpty(traits)) {
+      logger.error('Traits are mandatory for identify call');
+    }
+    const payload = generateUserDataPayload(traits);
+    window.gtag('set', 'user_data', payload);
   }
 
   // https://developers.google.com/gtagjs/reference/event
