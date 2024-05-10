@@ -403,11 +403,7 @@ class UserSessionManager implements IUserSessionManager {
           this.setServerSideCookie(
             [{ name: key, value }],
             (cookieName, cookieValue) => {
-              if (cookieValue) {
-                curStore?.set(cookieName, cookieValue);
-              } else {
-                curStore?.remove(cookieValue);
-              }
+              curStore?.set(cookieName, cookieValue);
             },
             curStore,
           );
@@ -421,12 +417,8 @@ class UserSessionManager implements IUserSessionManager {
         // remove cookie that is set from server side
         this.setServerSideCookie(
           [{ name: key, value: '' }],
-          (cookieName, cookieValue) => {
-            if (cookieValue) {
-              curStore?.set(cookieName, cookieValue);
-            } else {
-              curStore?.remove(cookieValue);
-            }
+          cookieName => {
+            curStore?.remove(cookieName);
           },
           curStore,
         );
