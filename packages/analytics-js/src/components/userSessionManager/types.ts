@@ -40,4 +40,3 @@ export type EncryptedCookieData = {
 };
 
 export type CallbackFunction = (name: string, value: string | ApiObject) => void;
-export type HTTPCallbackFunction = (data?: any, details?: ResponseDetails) => void;

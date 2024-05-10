@@ -27,7 +27,10 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  AsyncRequestCallback,
+  IHttpClient,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   CLIENT_DATA_STORE_COOKIE,
@@ -63,7 +66,6 @@ import type {
   CallbackFunction,
   CookieData,
   EncryptedCookieData,
-  HTTPCallbackFunction,
   IUserSessionManager,
   UserSessionStorageKeysType,
 } from './types';
@@ -308,7 +310,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   makeRequestToSetCookie(
     encryptedCookieData: EncryptedCookieData[],
-    callback: HTTPCallbackFunction,
+    callback: AsyncRequestCallback<any>,
   ) {
     this.httpClient?.getAsyncData({
       url: `${state.serverCookies.dataServerUrl.value}/rsaRequest`,
