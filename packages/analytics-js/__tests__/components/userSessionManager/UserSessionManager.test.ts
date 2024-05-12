@@ -1394,7 +1394,7 @@ describe('User session manager', () => {
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(spy).not.toHaveBeenCalled();
     });
-    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', () => {
+    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', done => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
@@ -1404,10 +1404,12 @@ describe('User session manager', () => {
         expect.any(Function),
         expect.any(Object),
       );
+      done();
     });
+
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
-      it.each(testCaseData)('if value is "%s"', cookieValue => {
+      it.each(testCaseData)('if value is "%s"', (cookieValue, done) => {
         state.serverCookies.isEnabledServerSideCookies.value = true;
         state.storage.entries.value = entriesWithOnlyCookieStorage;
         const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
@@ -1417,6 +1419,7 @@ describe('User session manager', () => {
           expect.any(Function),
           expect.any(Object),
         );
+        done();
       });
     });
   });
@@ -1434,7 +1437,7 @@ describe('User session manager', () => {
       set: jest.fn(),
       get: jest.fn(),
     };
-    it('should encrypt cookie value and make request to data service', () => {
+    it('should encrypt cookie value and make request to data service', done => {
       const spy1 = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
       const spy2 = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
@@ -1451,6 +1454,7 @@ describe('User session manager', () => {
         [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
         expect.any(Function),
       );
+      done();
     });
     it('should validate cookies set from the server side when data service request is successful', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
@@ -1530,7 +1534,7 @@ describe('User session manager', () => {
       });
     });
     describe('makeRequestToSetCookie', () => {
-      it('should make external request to exposed endpoint', () => {
+      it('should make external request to exposed endpoint', done => {
         state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
         state.source.value = { workspaceId: 'sample_workspaceId' };
         state.storage.cookie.value = {
@@ -1572,6 +1576,7 @@ describe('User session manager', () => {
           isRawResponse: true,
           callback: expect.any(Function),
         });
+        done();
       });
     });
   });
