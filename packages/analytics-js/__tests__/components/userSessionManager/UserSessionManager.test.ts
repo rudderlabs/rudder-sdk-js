@@ -1394,7 +1394,7 @@ describe('User session manager', () => {
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(spy).not.toHaveBeenCalled();
     });
-    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', done => {
+    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', () => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
@@ -1404,22 +1404,20 @@ describe('User session manager', () => {
         expect.any(Function),
         expect.any(Object),
       );
-      done();
     });
 
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
-      it.each(testCaseData)('if value is "%s"', (cookieValue, done) => {
+      it.each(testCaseData)('if value is "%s"', cookieValue => {
         state.serverCookies.isEnabledServerSideCookies.value = true;
         state.storage.entries.value = entriesWithOnlyCookieStorage;
-        const spy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+        userSessionManager.setServerSideCookie = jest.fn();
         userSessionManager.syncValueToStorage('anonymousId', cookieValue);
-        expect(spy).toHaveBeenCalledWith(
+        expect(userSessionManager.setServerSideCookie).toHaveBeenCalledWith(
           [{ name: 'rl_anonymous_id', value: '' }],
           expect.any(Function),
           expect.any(Object),
         );
-        done();
       });
     });
   });
