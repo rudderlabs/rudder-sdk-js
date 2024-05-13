@@ -54,7 +54,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
           const payload = createPayload(item.event, item.destinationIds, item.token);
 
           httpClient.getAsyncData({
-            url: `${state.lifecycle.dataPlaneUrl.value}/transform`,
+            url: `${state.lifecycle.activeDataplaneUrl.value}/transform`,
             options: {
               method: 'POST',
               data: getDMTDeliveryPayload(payload) as string,
