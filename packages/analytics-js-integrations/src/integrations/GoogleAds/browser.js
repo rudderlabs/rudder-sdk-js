@@ -50,6 +50,7 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = config.v2 || true;
+    this.allowIdentify = config.allowIdentify ?? true;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -90,8 +91,15 @@ class GoogleAds {
   }
 
   identify(rudderElement) {
+    if (this.allowIdentify === false) {
+      logger.info(
+        'Please enable identify call toggle in your destination settings to send user data to Google Ads.',
+      );
+      return;
+    }
     const { message } = rudderElement;
-    const { traits } = message;
+    const { context } = message;
+    const { traits } = context;
     if (!isDefinedAndNotNullAndNotEmpty(traits)) {
       logger.error('Traits are mandatory for identify call');
       return;
