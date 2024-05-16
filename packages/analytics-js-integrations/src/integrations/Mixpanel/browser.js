@@ -66,6 +66,7 @@ class Mixpanel {
     this.ignoreDnt = config.ignoreDnt || false;
     this.useUserDefinedPageEventName = config.useUserDefinedPageEventName || false;
     this.userDefinedPageEventTemplate = config.userDefinedPageEventTemplate;
+    this.isNativeSDKLoaded = false;
   }
 
   init() {
@@ -93,16 +94,19 @@ class Mixpanel {
     if (this.ignoreDnt) {
       options.ignore_dnt = true;
     }
+    options.loaded = () => {
+      this.isNativeSDKLoaded = true;
+    };
     window.mixpanel.init(this.token, options);
+    window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
   }
 
   isLoaded() {
-    window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
-    return !!window?.mixpanel?.config;
+    return this.isNativeSDKLoaded;
   }
 
   isReady() {
-    return !!window?.mixpanel?.config;
+    return this.isLoaded();
   }
 
   /**

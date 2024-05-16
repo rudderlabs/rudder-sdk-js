@@ -10,6 +10,7 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 import './styles/app.css';
 
 const analytics = new RudderAnalytics();
-analytics.load('<writeKey>', '<dataplaneUrl');
+const loadOptions = {};
+analytics.load('<writeKey>', '<dataplaneUrl', loadOptions);
 
 window.rudderanalytics.page();

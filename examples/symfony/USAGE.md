@@ -47,7 +47,7 @@ See relevant [example](https://github.com/rudderlabs/rudder-sdk-js/blob/main/exa
 
 ## Twig template
 
-RudderStack JS SDK CDn package can be utilised directly in the twig templates by including the
+RudderStack JS SDK CDN package can be utilised directly in the twig templates by including the
 snippet in your template partial for HTML head element.
 
 ## External resources
