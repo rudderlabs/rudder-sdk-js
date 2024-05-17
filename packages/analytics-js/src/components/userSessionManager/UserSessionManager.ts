@@ -35,7 +35,7 @@ import {
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-import { defaultSessionInfo } from '../../state/slices/session';
+import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
@@ -112,16 +112,23 @@ class UserSessionManager implements IUserSessionManager {
     let sessionInfo = this.getSessionInfo();
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const persistedSessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
+      const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
       sessionInfo = {
-        ...persistedSessionInfo,
+        ...initialSessionInfo,
         ...configuredSessionTrackingInfo,
         autoTrack:
-          configuredSessionTrackingInfo.autoTrack && persistedSessionInfo.manualTrack !== true,
+          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
       };
     }
 
-    this.setSessionInfo(sessionInfo);
+    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
+      ? (sessionInfo as SessionInfo)
+      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+    // If auto session tracking is enabled start the session tracking
+    if (state.session.sessionInfo.value.autoTrack) {
+      this.startOrRenewAutoTracking();
+    }
   }
 
   setInitialReferrerInfo() {
@@ -438,7 +445,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
-    const sessionInfo = state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
     if (
       (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
       sessionInfo.manualTrack
@@ -452,7 +459,7 @@ class UserSessionManager implements IUserSessionManager {
    * A function to update current session info after each event call
    */
   refreshSession(): void {
-    let sessionInfo = state.session.sessionInfo.value;
+    let sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
         this.startOrRenewAutoTracking();
@@ -460,7 +467,7 @@ class UserSessionManager implements IUserSessionManager {
 
       // Re-assigning the variable with the same value intentionally as
       // startOrRenewAutoTracking() will update the sessionInfo value
-      sessionInfo = state.session.sessionInfo.value;
+      sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
 
       if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
@@ -509,17 +516,6 @@ class UserSessionManager implements IUserSessionManager {
         this.startManualTrackingInternal();
       }
     });
-  }
-
-  setSessionInfo(sessionInfo: Nullable<SessionInfo>) {
-    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
-      ? (sessionInfo as SessionInfo)
-      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
-
-    // If auto session tracking is enabled start the session tracking
-    if (state.session.sessionInfo.value.autoTrack) {
-      this.startOrRenewAutoTracking();
-    }
   }
 
   /**
@@ -592,7 +588,7 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking() {
-    const sessionInfo = state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
     if (hasSessionExpired(sessionInfo.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
