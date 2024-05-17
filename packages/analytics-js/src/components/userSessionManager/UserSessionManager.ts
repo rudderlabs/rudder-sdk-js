@@ -445,7 +445,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
-    const sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (
       (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
       sessionInfo.manualTrack
@@ -459,15 +459,12 @@ class UserSessionManager implements IUserSessionManager {
    * A function to update current session info after each event call
    */
   refreshSession(): void {
-    let sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
+    let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
         this.startOrRenewAutoTracking();
+        sessionInfo = state.session.sessionInfo.value;
       }
-
-      // Re-assigning the variable with the same value intentionally as
-      // startOrRenewAutoTracking() will update the sessionInfo value
-      sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
 
       if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
@@ -504,18 +501,22 @@ class UserSessionManager implements IUserSessionManager {
         // This will generate a new anonymous ID
         this.setAnonymousId();
       }
-
-      if (noNewSessionStart) {
-        return;
-      }
-
-      if (autoTrack) {
-        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-        this.startOrRenewAutoTracking();
-      } else if (manualTrack) {
-        this.startManualTrackingInternal();
-      }
     });
+
+    // Only the session signal update is taken outside the
+    // batch block as the reset session info needs to be committed
+    // to the storage immediately which is then read inside the startOrRenewAutoTracking
+    // method.
+    if (noNewSessionStart) {
+      return;
+    }
+
+    if (autoTrack) {
+      session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+      this.startOrRenewAutoTracking();
+    } else if (manualTrack) {
+      this.startManualTrackingInternal();
+    }
   }
 
   /**
@@ -588,7 +589,7 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking() {
-    const sessionInfo = this.getSessionInfo() ?? state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (hasSessionExpired(sessionInfo.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
