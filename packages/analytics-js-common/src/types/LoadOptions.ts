@@ -150,7 +150,7 @@ export type LoadOptions = {
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;
   useServerSideCookies?: boolean;
-  dataServerUrl?: string;
+  dataServiceEndpoint?: string;
 };
 
 export type ConsentOptions = {

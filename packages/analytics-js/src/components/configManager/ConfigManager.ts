@@ -9,7 +9,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isValidSourceConfig, validateLoadArgs, isValidDataServerUrl } from './util/validate';
+import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
@@ -31,6 +31,7 @@ import {
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
+import { DEFAULT_DATA_SERVICE_ENDPOINT } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -78,7 +79,8 @@ class ConfigManager implements IConfigManager {
     updateConsentsStateFromLoadOptions(this.logger);
     updateDataPlaneEventsStateFromLoadOptions(this.logger);
 
-    const { useServerSideCookies, dataServerUrl, logLevel, configUrl } = state.loadOptions.value;
+    const { useServerSideCookies, dataServiceEndpoint, logLevel, configUrl } =
+      state.loadOptions.value;
 
     // set application lifecycle state in global state
     batch(() => {
@@ -96,14 +98,12 @@ class ConfigManager implements IConfigManager {
         this.logger,
       );
 
-      if (useServerSideCookies && dataServerUrl) {
-        const isValidUrl = isValidDataServerUrl(dataServerUrl, this.logger);
-        state.serverCookies.isEnabledServerSideCookies.value = isValidUrl;
-        state.serverCookies.dataServerUrl.value = isValidUrl
-          ? (removeTrailingSlashes(dataServerUrl) as string)
-          : undefined;
-      } else {
-        state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies as boolean;
+      if (useServerSideCookies) {
+        state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+        state.serverCookies.dataServiceEndpoint.value = DEFAULT_DATA_SERVICE_ENDPOINT;
+        if (dataServiceEndpoint) {
+          state.serverCookies.dataServiceEndpoint.value = dataServiceEndpoint;
+        }
       }
     });
 
@@ -188,12 +188,6 @@ class ConfigManager implements IConfigManager {
       // set application lifecycle state
       // Cast to string as we are sure that the value is not undefined
       state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
-      if (
-        state.serverCookies.isEnabledServerSideCookies.value === true &&
-        !state.serverCookies.dataServerUrl.value
-      ) {
-        state.serverCookies.dataServerUrl.value = state.lifecycle.activeDataplaneUrl.value;
-      }
       state.lifecycle.status.value = 'configured';
     });
   }

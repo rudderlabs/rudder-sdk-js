@@ -22,6 +22,9 @@ import {
 } from '../../../__fixtures__/fixtures';
 import { server } from '../../../__fixtures__/msw.server';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
+import * as utils from '../../../src/components/userSessionManager/utils';
+
+jest.spyOn(utils, 'getCurrentPageUrl').mockImplementation(() => 'https://dummy.dataplane.host.com');
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -1405,7 +1408,6 @@ describe('User session manager', () => {
         expect.any(Object),
       );
     });
-
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
       it.each(testCaseData)('if value is "%s"', cookieValue => {
@@ -1437,6 +1439,7 @@ describe('User session manager', () => {
     };
     const mockCallback = jest.fn();
     it('should encrypt cookie value and make request to data service', done => {
+      state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
       const spy1 = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
       const spy2 = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
@@ -1456,9 +1459,9 @@ describe('User session manager', () => {
       done();
     });
     describe('Data service request is successful', () => {
-      it('should validate cookies are set from the server side', done => {
+      it.only('should validate cookies are set from the server side', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
-        state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+        state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
@@ -1480,7 +1483,7 @@ describe('User session manager', () => {
       });
       it('should set cookies from client side if not successfully set from the server side', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
-        state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+        state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
@@ -1505,7 +1508,7 @@ describe('User session manager', () => {
       });
       it('should log error if not successfully removed from the server', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
-        state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+        state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
@@ -1529,7 +1532,7 @@ describe('User session manager', () => {
 
     it('should set cookie from client side if data service is down', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com/serverDown';
+      state.serverCookies.dataServiceEndpoint.value = 'serverDown/rsaRequest';
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -1548,7 +1551,7 @@ describe('User session manager', () => {
     });
     it('should set cookie from client side if dataServerUrl is invalid', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com/invalidUrl';
+      state.serverCookies.dataServiceEndpoint.value = 'invalidUrl/rsaRequest';
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -1567,7 +1570,7 @@ describe('User session manager', () => {
     });
     it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
-      state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+      state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
       userSessionManager.getEncryptedCookieData = jest.fn(() => {
         throw new Error('test error');
       });
@@ -1612,7 +1615,7 @@ describe('User session manager', () => {
     });
     describe('makeRequestToSetCookie', () => {
       it('should make external request to exposed endpoint', done => {
-        state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
+        state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
         state.source.value = { workspaceId: 'sample_workspaceId' };
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min

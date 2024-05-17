@@ -160,7 +160,7 @@ export type StorageState = {
 
 export type ServerCookiesState = {
   isEnabledServerSideCookies: Signal<boolean>;
-  dataServerUrl: Signal<string | undefined>;
+  dataServiceEndpoint: Signal<string | undefined>;
 };
 
 export interface ApplicationState {

@@ -24,8 +24,11 @@ export const DataPlaneEventsTransportToPluginNameMap: Record<string, PluginName>
   beacon: 'BeaconQueue',
 };
 
+const DEFAULT_DATA_SERVICE_ENDPOINT = 'rsaRequest';
+
 export {
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   DEFAULT_DATA_PLANE_EVENTS_TRANSPORT,
+  DEFAULT_DATA_SERVICE_ENDPOINT,
 };
