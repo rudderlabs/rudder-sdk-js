@@ -62,7 +62,7 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy Sanity Suite
     runs-on: [self-hosted, Linux, X64]
 

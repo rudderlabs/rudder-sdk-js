@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Rollback production deployment
     if: (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main')) && (github.actor == 'saikumarrs' || github.actor == 'MoumitaM') && (github.triggering_actor == 'saikumarrs' || github.triggering_actor == 'MoumitaM')
     uses: ./.github/workflows/deploy.yml
