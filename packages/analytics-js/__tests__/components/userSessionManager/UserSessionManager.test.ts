@@ -1415,7 +1415,7 @@ describe('User session manager', () => {
         userSessionManager.syncValueToStorage('anonymousId', cookieValue);
         expect(userSessionManager.setServerSideCookie).toHaveBeenCalledWith(
           [{ name: 'rl_anonymous_id', value: '' }],
-          expect.any(Function),
+          undefined,
           expect.any(Object),
         );
       });
@@ -1489,7 +1489,9 @@ describe('User session manager', () => {
         };
         userSessionManager.setServerSideCookie(
           [{ name: 'key', value: 'sample_cookie_value' }],
-          mockCallback,
+          (name, val) => {
+            mockCookieStore.set(name, val);
+          },
           mockCookieStore,
         );
         setTimeout(() => {
@@ -1497,11 +1499,11 @@ describe('User session manager', () => {
           expect(defaultLogger.error).toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );
-          expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value');
+          expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value');
           done();
         }, 1000);
       });
-      it('should remove cookies from client side if not successfully removed from the server', done => {
+      it('should log error if not successfully removed from the server', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
         state.serverCookies.dataServerUrl.value = 'https://dummy.dataplane.host.com';
         state.storage.cookie.value = {
@@ -1512,7 +1514,7 @@ describe('User session manager', () => {
         };
         userSessionManager.setServerSideCookie(
           [{ name: 'key', value: '' }],
-          mockCallback,
+          undefined,
           mockCookieStore,
         );
         setTimeout(() => {
@@ -1520,7 +1522,6 @@ describe('User session manager', () => {
           expect(defaultLogger.error).toHaveBeenCalledWith(
             'The server failed to remove the key cookie.',
           );
-          expect(mockCallback).toHaveBeenCalledWith('key', '');
           done();
         }, 1000);
       });

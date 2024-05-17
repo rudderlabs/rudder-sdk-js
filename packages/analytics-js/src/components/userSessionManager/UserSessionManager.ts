@@ -343,7 +343,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(cookieData: CookieData[], cb: CallbackFunction, store?: IStore): void {
+  setServerSideCookie(cookieData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
     try {
       // encrypt cookies values
       const encryptedCookieData = this.getEncryptedCookieData(cookieData, store);
@@ -356,17 +356,20 @@ class UserSessionManager implements IUserSessionManager {
               if (each.value) {
                 if (cookieValue !== each.value) {
                   this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
-                  cb(each.name, each.value);
+                  if (cb) {
+                    cb(each.name, each.value);
+                  }
                 }
               } else if (cookieValue) {
                 this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
-                cb(each.name, each.value);
               }
             });
           } else {
             this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
             cookieData.forEach(each => {
-              cb(each.name, each.value);
+              if (cb) {
+                cb(each.name, each.value);
+              }
             });
           }
         });
@@ -374,7 +377,9 @@ class UserSessionManager implements IUserSessionManager {
     } catch (e) {
       this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
       cookieData.forEach(each => {
-        cb(each.name, each.value);
+        if (cb) {
+          cb(each.name, each.value);
+        }
       });
     }
   }
@@ -417,13 +422,7 @@ class UserSessionManager implements IUserSessionManager {
         storageType === COOKIE_STORAGE
       ) {
         // remove cookie that is set from server side
-        this.setServerSideCookie(
-          [{ name: key, value: '' }],
-          cookieName => {
-            curStore?.remove(cookieName);
-          },
-          curStore,
-        );
+        this.setServerSideCookie([{ name: key, value: '' }], undefined, curStore);
       } else {
         curStore?.remove(key);
       }
