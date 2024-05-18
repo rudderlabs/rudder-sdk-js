@@ -1459,7 +1459,7 @@ describe('User session manager', () => {
       done();
     });
     describe('Data service request is successful', () => {
-      it.only('should validate cookies are set from the server side', done => {
+      it('should validate cookies are set from the server side', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
         state.serverCookies.dataServiceEndpoint.value = 'rsaRequest';
         state.storage.cookie.value = {
@@ -1476,7 +1476,9 @@ describe('User session manager', () => {
         setTimeout(() => {
           expect(mockCookieStore.get).toHaveBeenCalledWith('key');
           expect(mockCookieStore.get()).toBe('sample_cookie_value_1234');
-          expect(defaultLogger.error).not.toHaveBeenCalled();
+          expect(defaultLogger.error).not.toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
           expect(mockCallback).not.toHaveBeenCalled();
           done();
         }, 1000);
