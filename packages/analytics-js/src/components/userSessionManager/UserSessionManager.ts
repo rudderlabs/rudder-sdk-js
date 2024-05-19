@@ -466,6 +466,12 @@ class UserSessionManager implements IUserSessionManager {
         sessionInfo = state.session.sessionInfo.value;
       }
 
+      // Note that if sessionStart is false, then it's an active session.
+      // So, we needn't update the session info.
+      // For other scenarios,
+      // 1. If sessionStart is undefined, then it's a new session.
+      //   Mark it as sessionStart.
+      // 2. If sessionStart is true, then need to flip it for the future events.
       if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
           ...sessionInfo,
