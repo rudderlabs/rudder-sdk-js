@@ -456,7 +456,8 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to update current session info after each event call
+   * A function to keep the session information up to date in the state
+   * before using it for building event payloads.
    */
   refreshSession(): void {
     let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
@@ -468,6 +469,7 @@ class UserSessionManager implements IUserSessionManager {
 
       // Note that if sessionStart is false, then it's an active session.
       // So, we needn't update the session info.
+      //
       // For other scenarios,
       // 1. If sessionStart is undefined, then it's a new session.
       //   Mark it as sessionStart.
@@ -543,7 +545,10 @@ class UserSessionManager implements IUserSessionManager {
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
       this.isPersistenceEnabledForStorageEntry('userTraits') && traits
-        ? mergeDeepRight(state.session.userTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
 
@@ -565,7 +570,10 @@ class UserSessionManager implements IUserSessionManager {
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
       this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
-        ? mergeDeepRight(state.session.groupTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }
 
@@ -627,7 +635,7 @@ class UserSessionManager implements IUserSessionManager {
    * A public method to end an ongoing session.
    */
   end() {
-    state.session.sessionInfo.value = {};
+    state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
   }
 
   /**
