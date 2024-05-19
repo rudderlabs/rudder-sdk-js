@@ -59,11 +59,27 @@
     },
     "check:size:build": {
       "cache": true
+    },
+    "check:size:json": {
+      "cache": true
     }
   },
   "generators": {
     "@nx/js:library": {
       "buildable": true
     }
+  },
+  "implicitDependencies": {
+    ".env.example": null,
+    "LICENSE": null,
+    "README.md": null,
+    "serve.json": null,
+    "sonar-project.properties": null,
+    "SECURITY.md": null,
+    "CONTRIBUTING.md": null,
+    ".github/**/*": null,
+    "assets/**/*": null,
+    "examples/**/*": null,
+    "public/**/*": null
   }
 }
