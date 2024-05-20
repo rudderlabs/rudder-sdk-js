@@ -49,9 +49,27 @@ describe('JS SDK Service Worker', () => {
     server.close();
   });
 
+  it('should throw error if the write key is invalid', () => {
+    expect(() => {
+      new Analytics('', dummyDataplaneHost, dummyInitOptions as any);
+    }).toThrow('You must pass the source write key.');
+  });
+
+  it('should throw error if the data plane URL is empty', () => {
+    expect(() => {
+      new Analytics(dummyWriteKey, '', dummyInitOptions as any);
+    }).toThrow('The provided data plane URL "" is invalid.');
+  });
+
+  it('should throw an error if the data plane URL input is not a valid URL', () => {
+    expect(() => {
+      new Analytics(dummyWriteKey, 'dummy', dummyInitOptions as any);
+    }).toThrow('The provided data plane URL "dummy" is invalid.');
+  });
+
   it('Should initialise with correct values', () => {
     expect(rudderAnalyticsClient.writeKey).toBe(dummyWriteKey);
-    expect(rudderAnalyticsClient.host).toBe(dummyDataplaneHost);
+    expect(rudderAnalyticsClient.host).toBe('https://dummy.dataplane.host.com/v1/batch');
     expect(rudderAnalyticsClient.timeout).toBe(undefined);
     expect(rudderAnalyticsClient.flushAt).toBe(dummyInitOptions.flushAt);
     expect(rudderAnalyticsClient.flushInterval).toBe(dummyInitOptions.flushInterval);
