@@ -97,12 +97,12 @@ jobs:
           npm run build:browser:modern
 
       - name: Sync Adobe Analytics assets to S3
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=$${{ env.CACHE_MAX_AGE }}
 
       - name: Create Cloudfront invalidation
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
 
@@ -126,7 +126,7 @@ jobs:
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path }}/*"
 
       - name: Sync files to S3 versioned directory
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           core_sdk_path_prefix="packages/analytics-js/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
@@ -142,13 +142,13 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Create Cloudfront invalidation
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*"
 
       # TODO: The '/latest' directory is unused. Might be removed in future.
       - name: Sync files to S3 latest
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           core_sdk_path_prefix="packages/analytics-js/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
@@ -164,7 +164,7 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Create Cloudfront invalidation
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
@@ -221,7 +221,7 @@ jobs:
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path_legacy }}*"
 
       - name: Sync files to S3 v1.1 versioned directory
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
@@ -235,12 +235,12 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Create Cloudfront invalidation
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}*"
 
       - name: Sync files to S3 latest (v1.1)
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
@@ -254,7 +254,7 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Create Cloudfront invalidation
-        if: ${{ inputs.environment }} == 'production'
+        if: ${{ inputs.environment == 'production' }}
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
