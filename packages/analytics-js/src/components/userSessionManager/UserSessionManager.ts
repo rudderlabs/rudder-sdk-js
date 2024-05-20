@@ -422,6 +422,8 @@ class UserSessionManager implements IUserSessionManager {
         storageType === COOKIE_STORAGE
       ) {
         // remove cookie that is set from server side
+        // TODO: Test cookies set from server side can be cleared from client side
+        // and make appropriate changes.
         this.setServerSideCookie([{ name: key, value: '' }], undefined, curStore);
       } else {
         curStore?.remove(key);
