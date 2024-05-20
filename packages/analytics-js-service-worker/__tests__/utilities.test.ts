@@ -99,5 +99,14 @@ describe('Utilities', () => {
       const dataPlaneUrl = 'https://some.reallookingurl.com//';
       expect(getDataPlaneUrl(dataPlaneUrl)).toBe(`https://some.reallookingurl.com/v1/batch`);
     });
+
+    it('should return the data plane URL with /v1/batch appended even if the input is exceedingly large', () => {
+      // An input like this may cause super-linear runtime issue due to backtracking
+      // if proper care is not taken while writing the regex
+      const dataPlaneUrl = `https://some.reallookingurl.com/${'a'.repeat(10000)}/`;
+      expect(getDataPlaneUrl(dataPlaneUrl)).toBe(
+        `https://some.reallookingurl.com/${'a'.repeat(10000)}/v1/batch`,
+      );
+    });
   });
 });

@@ -15,7 +15,10 @@ const isValidUrl = (url: string): boolean => {
 };
 
 const removeTrailingSlashes = (inURL: string): string =>
-  inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
+  // Disabling the rule because the optimized regex may cause
+  // super-linear runtime issue due to backtracking
+  // eslint-disable-next-line unicorn/better-regex
+  inURL && inURL.endsWith('/') ? inURL.replace(/(?:\/+)$/, '') : inURL;
 
 const isFunction = (value: any): boolean =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
