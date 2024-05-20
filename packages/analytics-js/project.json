@@ -86,7 +86,8 @@
         "ci": {
           "ci": true
         }
-      }
+      },
+      "dependsOn": ["build-browser"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

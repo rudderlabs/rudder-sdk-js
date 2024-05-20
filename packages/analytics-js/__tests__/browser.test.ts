@@ -1,6 +1,8 @@
 /* eslint-disable global-require */
 import { loadingSnippet } from './nativeSdkLoader';
 
+const pathToSdk = '../dist/cdn/legacy/iife/rsa.min.js';
+
 function wait(time: number) {
   return new Promise(resolve => {
     setTimeout(resolve, time);
@@ -44,7 +46,7 @@ describe('Test suite for the SDK', () => {
 
     loadingSnippet();
 
-    require('../__mocks__/cdnSDK');
+    require(pathToSdk);
     await wait(500);
   });
 
@@ -61,7 +63,7 @@ describe('Test suite for the SDK', () => {
     // API calls queuing functionality
     jest.resetModules();
     rudderanalytics.page();
-    require('../__mocks__/cdnSDK');
+    require(pathToSdk);
     await wait(500);
 
     expect(window.rudderanalytics.push).not.toBe(Array.prototype.push);
