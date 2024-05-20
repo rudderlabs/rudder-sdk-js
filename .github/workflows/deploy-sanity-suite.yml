@@ -149,7 +149,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <@S0555JBV36D>",
+              "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -165,7 +165,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <@S0555JBV36D>"
+                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   }
                 }
               ]
