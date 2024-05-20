@@ -15,7 +15,6 @@
     "build:browser": "exit 0",
     "build:npm": "rollup -c --environment DISTRIBUTION_TYPE:npm",
     "build:npm:modern": "exit 0",
-    "build:worker": "exit 0",
     "build:package": "exit 0",
     "test": "nx test --maxWorkers=50%",
     "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",

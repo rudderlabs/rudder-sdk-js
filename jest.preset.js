@@ -44,7 +44,7 @@ module.exports = {
   transformIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/reports/'],
   testMatch: [
     '<rootDir>/__tests__/**/*.(spec|test).(j|t)s?(x)',
-    '<rootDir>/src/**/*.?(spec|test).(j|t)s?(x)',
+    '<rootDir>/src/**/*.(spec|test).(j|t)s?(x)',
   ],
   testPathIgnorePatterns: ['__mocks__', '__fixtures__'],
   collectCoverageFrom: [

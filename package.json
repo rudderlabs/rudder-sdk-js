@@ -18,7 +18,6 @@
     "build:browser:modern": "nx run-many -t build-browser-modern --parallel=false",
     "build:npm": "nx run-many -t build-npm --parallel=false",
     "build:npm:modern": "nx run-many -t build-npm-modern --parallel=false",
-    "build:worker": "nx run-many -t build-worker --parallel=false",
     "build:package": "nx run-many -t build-package --parallel=false",
     "package": "nx run-many -t pack --parallel=false",
     "test": "nx run-many -t test",

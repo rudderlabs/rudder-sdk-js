@@ -1,4 +1,4 @@
-name: Deploy to Production Environment
+name: Deploy to the Selected Environment
 
 on:
   workflow_call:
