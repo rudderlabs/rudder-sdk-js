@@ -173,7 +173,8 @@ const constructPidPayload = message => {
   if (isDefinedAndNotNull(phone)) {
     pid.ph = formatAndHashPhoneNumber(phone);
   }
-  /* Bing ads says if anyone one of the properties is not available 
+  /* Docs: https://help.ads.microsoft.com/apex/index/3/en/60178
+  Bing ads says if anyone one of the properties is not available 
   and one is available then we need to send empty string as variable name for the one that is missing
    */
   if (
