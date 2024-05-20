@@ -43,16 +43,6 @@ on:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
         required: true
-      
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Which environment to deploy the sanity suite
-        required: true
-        options:
-          - production
-          - staging
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -152,7 +142,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'Sanity suite - ${{ github.event.inputs.environment }}'
+          PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite/${{ env.SUITE_CDN_PATH }}/v3/cdn/'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
