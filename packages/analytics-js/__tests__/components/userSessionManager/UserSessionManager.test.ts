@@ -1455,9 +1455,11 @@ describe('User session manager', () => {
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(setServerSideCookieSpy).not.toHaveBeenCalled();
     });
-    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', () => {
+    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', done => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
       const setServerSideCookieSpy = jest.spyOn(userSessionManager, 'setServerSideCookie');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
       expect(setServerSideCookieSpy).toHaveBeenCalledWith(
@@ -1465,6 +1467,10 @@ describe('User session manager', () => {
         expect.any(Function),
         expect.any(Object),
       );
+      setTimeout(() => {
+        expect(clientDataStoreCookie.set).toHaveBeenCalled();
+        done();
+      }, 1000);
     });
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
