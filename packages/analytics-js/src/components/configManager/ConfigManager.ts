@@ -101,7 +101,7 @@ class ConfigManager implements IConfigManager {
       if (useServerSideCookies) {
         state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
         const dataServiceUrl = getDataServiceUrl(
-          dataServiceEndpoint || DEFAULT_DATA_SERVICE_ENDPOINT,
+          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
         );
         if (isValidUrl(dataServiceUrl)) {
           state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(
