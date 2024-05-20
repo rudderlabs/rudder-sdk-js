@@ -98,8 +98,6 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
  */
 const generateAnonymousId = (): string => generateUUID();
 
-const getCurrentPageUrl = (): string => `${window.location.protocol}//${window.location.hostname}`;
-
 export {
   hasSessionExpired,
   generateSessionId,
@@ -108,5 +106,4 @@ export {
   MIN_SESSION_ID_LENGTH,
   isStorageTypeValidForStoringData,
   generateAnonymousId,
-  getCurrentPageUrl,
 };

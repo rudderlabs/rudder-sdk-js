@@ -56,7 +56,6 @@ import {
   generateAnonymousId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
-  getCurrentPageUrl,
   hasSessionExpired,
   isStorageTypeValidForStoringData,
 } from './utils';
@@ -313,9 +312,8 @@ class UserSessionManager implements IUserSessionManager {
     encryptedCookieData: EncryptedCookieData[],
     callback: AsyncRequestCallback<any>,
   ) {
-    const currentPageUrl: string = getCurrentPageUrl();
     this.httpClient?.getAsyncData({
-      url: `${currentPageUrl}/${state.serverCookies.dataServiceEndpoint.value}`,
+      url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
         data: stringifyWithoutCircular({
