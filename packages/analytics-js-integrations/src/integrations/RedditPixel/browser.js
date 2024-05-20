@@ -47,7 +47,15 @@ class RedditPixel {
   }
 
   identify(rudderElement) {
-    window.rdt('track', 'SignUp');
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
+      this.eventMappingFromConfig,
+      'from',
+      'to',
+      false,
+    );
+    if (!eventMappingFromConfigMap.SignUp) {
+      window.rdt('track', 'SignUp');
+    }
   }
 
   track(rudderElement) {
