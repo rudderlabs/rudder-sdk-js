@@ -1,16 +1,16 @@
 import * as R from 'ramda';
 import { batch } from '@preact/signals-core';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import {
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type {
   AppInfo,
   LibraryInfo,
   OSInfo,
   ScreenInfo,
 } from '@rudderstack/analytics-js-common/types/EventContext';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { state } from '../../../src/state';
 import {
   checkForReservedElements,

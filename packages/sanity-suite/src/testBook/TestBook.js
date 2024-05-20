@@ -202,9 +202,9 @@ class TestBook {
     inputs.push(resultCallback);
 
     if (typeof clickHandler === 'function') {
-      clickHandler.apply(null, inputs);
+      clickHandler(...inputs);
     } else if (typeof clickHandler === 'string') {
-      window.rudderanalytics[clickHandler].apply(null, inputs);
+      window.rudderanalytics[clickHandler](...inputs);
     }
   }
 
@@ -218,7 +218,7 @@ class TestBook {
       const { suiteIndex } = triggerElement.dataset;
       const { testCaseIndex } = triggerElement.dataset;
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
-      const resultCallback = function (generatedPayload, isApiTest) {
+      const resultCallback = (generatedPayload, isApiTest) => {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
         // To cater for both v1.1 and v3 internal data structure & API endpoint tests
         let normalisedResultData = generatedPayload;
@@ -276,8 +276,10 @@ class TestBook {
     Array.from(expandToggleElements).forEach(element => {
       element.addEventListener('click', event => {
         if (event.target.parentNode.parentNode.className) {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = '';
         } else {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = 'collapsed-row';
         }
       });

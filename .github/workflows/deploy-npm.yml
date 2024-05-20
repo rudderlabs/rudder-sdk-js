@@ -15,7 +15,7 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
