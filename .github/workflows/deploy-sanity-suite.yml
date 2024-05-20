@@ -61,11 +61,12 @@ jobs:
         id: deployment-options
         run: |
           echo "DATE=$(date)" >> $GITHUB_ENV
+          
           if [ "${{ inputs.environment }}" == "staging" ]; then
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_STAGING_ACCOUNT_ID }}" >> $GITHUB_ENV
             echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}" >> $GITHUB_ENV
-            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}"
-            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}"
+            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}" >> $GITHUB_ENV
+            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
 
             echo "WRITE_KEY=${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}" >> $GITHUB_ENV
             echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}" >> $GITHUB_ENV
@@ -78,8 +79,8 @@ jobs:
           elif [ "${{ inputs.environment }}" == "production" ]; then
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
             echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_PROD_S3_SYNC_ROLE }}" >> $GITHUB_ENV
-            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
-            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}"
+            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_PROD_S3_BUCKET_NAME }}" >> $GITHUB_ENV
+            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
 
             echo "WRITE_KEY=${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}" >> $GITHUB_ENV
             echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}" >> $GITHUB_ENV
