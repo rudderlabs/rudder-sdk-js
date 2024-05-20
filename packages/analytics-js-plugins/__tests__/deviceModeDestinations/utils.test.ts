@@ -1,6 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import { signal } from '@preact/signals-core';
-import { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import {
   wait,
   isDestinationReady,

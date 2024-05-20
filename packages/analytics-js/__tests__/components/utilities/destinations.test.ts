@@ -1,4 +1,4 @@
-import { ConfigResponseDestinationItem } from '../../../src/components/configManager/types';
+import type { ConfigResponseDestinationItem } from '../../../src/components/configManager/types';
 import { filterEnabledDestination } from '../../../src/components/utilities/destinations';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [

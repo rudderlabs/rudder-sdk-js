@@ -1,8 +1,11 @@
 import { batch } from '@preact/signals-core';
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { Destination, DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type {
+  Destination,
+  DestinationConfig,
+} from '@rudderstack/analytics-js-common/types/Destination';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { EventRepository } from '../../../src/components/eventRepository';
 import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';

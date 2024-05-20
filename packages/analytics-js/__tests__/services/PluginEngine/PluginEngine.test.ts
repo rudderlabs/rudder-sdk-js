@@ -1,4 +1,4 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginEngine } from '../../../src/services/PluginEngine/PluginEngine';
 
 const mockPlugin1: ExtensionPlugin = {
