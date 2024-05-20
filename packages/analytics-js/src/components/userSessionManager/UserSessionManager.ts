@@ -40,7 +40,7 @@ import {
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-import { defaultSessionInfo } from '../../state/slices/session';
+import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
@@ -130,16 +130,23 @@ class UserSessionManager implements IUserSessionManager {
     let sessionInfo = this.getSessionInfo();
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const persistedSessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
+      const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
       sessionInfo = {
-        ...persistedSessionInfo,
+        ...initialSessionInfo,
         ...configuredSessionTrackingInfo,
         autoTrack:
-          configuredSessionTrackingInfo.autoTrack && persistedSessionInfo.manualTrack !== true,
+          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
       };
     }
 
-    this.setSessionInfo(sessionInfo);
+    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
+      ? (sessionInfo as SessionInfo)
+      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+    // If auto session tracking is enabled start the session tracking
+    if (state.session.sessionInfo.value.autoTrack) {
+      this.startOrRenewAutoTracking(state.session.sessionInfo.value);
+    }
   }
 
   setInitialReferrerInfo() {
@@ -583,7 +590,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
-    const sessionInfo = state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (
       (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
       sessionInfo.manualTrack
@@ -594,19 +601,24 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to update current session info after each event call
+   * A function to keep the session information up to date in the state
+   * before using it for building event payloads.
    */
   refreshSession(): void {
-    let sessionInfo = state.session.sessionInfo.value;
+    let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
-        this.startOrRenewAutoTracking();
+        this.startOrRenewAutoTracking(sessionInfo);
+        sessionInfo = state.session.sessionInfo.value;
       }
 
-      // Re-assigning the variable with the same value intentionally as
-      // startOrRenewAutoTracking() will update the sessionInfo value
-      sessionInfo = state.session.sessionInfo.value;
-
+      // Note that if sessionStart is false, then it's an active session.
+      // So, we needn't update the session info.
+      //
+      // For other scenarios,
+      // 1. If sessionStart is undefined, then it's a new session.
+      //   Mark it as sessionStart.
+      // 2. If sessionStart is true, then need to flip it for the future events.
       if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
           ...sessionInfo,
@@ -649,22 +661,11 @@ class UserSessionManager implements IUserSessionManager {
 
       if (autoTrack) {
         session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-        this.startOrRenewAutoTracking();
+        this.startOrRenewAutoTracking(session.sessionInfo.value);
       } else if (manualTrack) {
         this.startManualTrackingInternal();
       }
     });
-  }
-
-  setSessionInfo(sessionInfo: Nullable<SessionInfo>) {
-    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
-      ? (sessionInfo as SessionInfo)
-      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
-
-    // If auto session tracking is enabled start the session tracking
-    if (state.session.sessionInfo.value.autoTrack) {
-      this.startOrRenewAutoTracking();
-    }
   }
 
   /**
@@ -685,7 +686,10 @@ class UserSessionManager implements IUserSessionManager {
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
       this.isPersistenceEnabledForStorageEntry('userTraits') && traits
-        ? mergeDeepRight(state.session.userTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
 
@@ -707,7 +711,10 @@ class UserSessionManager implements IUserSessionManager {
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
       this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
-        ? mergeDeepRight(state.session.groupTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }
 
@@ -736,8 +743,7 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to check for existing session details and depending on that create a new session
    */
-  startOrRenewAutoTracking() {
-    const sessionInfo = state.session.sessionInfo.value;
+  startOrRenewAutoTracking(sessionInfo: SessionInfo) {
     if (hasSessionExpired(sessionInfo.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
@@ -769,7 +775,7 @@ class UserSessionManager implements IUserSessionManager {
    * A public method to end an ongoing session.
    */
   end() {
-    state.session.sessionInfo.value = {};
+    state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
   }
 
   /**

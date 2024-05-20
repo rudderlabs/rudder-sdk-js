@@ -72,13 +72,6 @@
         "script": "package"
       }
     },
-    "prepare-test-mocks": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-js/dist/cdn/legacy/iife/rsa.min.js > packages/analytics-js/__mocks__/cdnSDKv3.js"
-      },
-      "dependsOn": ["build-browser"]
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -94,7 +87,7 @@
           "ci": true
         }
       },
-      "dependsOn": ["prepare-test-mocks"]
+      "dependsOn": ["build-browser"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

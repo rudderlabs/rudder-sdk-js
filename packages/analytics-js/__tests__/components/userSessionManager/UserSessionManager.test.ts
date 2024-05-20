@@ -46,11 +46,9 @@ describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
-  const clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
-  const clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
-  const clientDataStoreSession = defaultStoreManager.getStore(
-    'clientDataInSessionStorage',
-  ) as Store;
+  let clientDataStoreCookie;
+  let clientDataStoreLS;
+  let clientDataStoreSession;
 
   const setDataInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -79,8 +77,14 @@ describe('User session manager', () => {
   };
 
   beforeEach(() => {
+    clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
+    clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
+    clientDataStoreSession = defaultStoreManager.getStore('clientDataInSessionStorage') as Store;
+
     clearStorage();
     resetState();
+
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager = new UserSessionManager(
       defaultErrorHandler,
       defaultLogger,
@@ -928,7 +932,6 @@ describe('User session manager', () => {
   describe('setUserId', () => {
     it('should set the provided user ID', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newUserId = 'new-dummy-user-id';
       userSessionManager.init();
       userSessionManager.setUserId(newUserId);
@@ -959,7 +962,6 @@ describe('User session manager', () => {
   describe('setUserTraits', () => {
     it('should set the provided user traits', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newUserTraits = { key1: 'value1', key2: 'value2' };
       userSessionManager.init();
       userSessionManager.setUserTraits(newUserTraits);
@@ -989,13 +991,15 @@ describe('User session manager', () => {
 
   describe('setGroupId', () => {
     it('should set the provided group id', () => {
+      const cookieStoreSetSpy = jest.spyOn(clientDataStoreCookie, 'set');
+
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newGroupId = 'new-dummy-group-id';
+
       userSessionManager.init();
       userSessionManager.setGroupId(newGroupId);
       expect(state.session.groupId.value).toBe(newGroupId);
-      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+      expect(cookieStoreSetSpy).toHaveBeenCalled();
     });
 
     it('should reset the value to default value if persistence is not enabled for group id', () => {
@@ -1022,7 +1026,6 @@ describe('User session manager', () => {
   describe('setGroupTraits', () => {
     it('should set the provided group traits', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newGroupTraits = { key1: 'value1', key2: 'value2' };
       userSessionManager.init();
       userSessionManager.setGroupTraits(newGroupTraits);
@@ -1057,7 +1060,6 @@ describe('User session manager', () => {
   describe('setInitialReferrer', () => {
     it('should set the provided initial referrer', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newReferrer = 'new-dummy-referrer-1';
       userSessionManager.init();
       userSessionManager.setInitialReferrer(newReferrer);
@@ -1088,7 +1090,6 @@ describe('User session manager', () => {
   describe('setInitialReferringDomain', () => {
     it('should set the provided initial referring domain', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newReferrer = 'new-dummy-referrer-2';
       userSessionManager.init();
       userSessionManager.setInitialReferringDomain(newReferrer);
@@ -1124,7 +1125,6 @@ describe('User session manager', () => {
   describe('setAuthToken', () => {
     it('should set the provided auth token', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newAuthToken = 'new-dummy-auth-token';
       userSessionManager.init();
       userSessionManager.setAuthToken(newAuthToken);
@@ -1153,7 +1153,7 @@ describe('User session manager', () => {
   });
 
   describe('refreshSession', () => {
-    it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
+    it('should return empty object if any type of tracking is not enabled', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {};
@@ -1161,7 +1161,10 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
-    it('refreshSession: should return session id and sessionStart when auto tracking is enabled', () => {
+    it('should return session id and sessionStart when auto tracking is enabled', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const futureTimestamp = Date.now() + 5000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1180,7 +1183,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should return session id and sessionStart when manual tracking is enabled', () => {
+    it('should return session id and sessionStart when manual tracking is enabled', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       const manualTrackingSessionId = 1029384756;
       userSessionManager.init();
       userSessionManager.start(manualTrackingSessionId);
@@ -1192,7 +1196,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+    it('should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       const pastTimestamp = Date.now() - 5000;
       state.session.sessionInfo.value = {
@@ -1212,7 +1217,7 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should return only session id from the second event of the auto session tracking', () => {
+    it('should return only session id from the second event of the auto session tracking', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.refreshSession(); // sessionInfo For First Event
@@ -1220,17 +1225,30 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
     });
 
-    it('refreshSession: should return only session id from the second event of the manual session tracking', () => {
+    it('should return only session id from the second event of the manual session tracking', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
       const manualTrackingSessionId = 1029384756;
       userSessionManager.start(manualTrackingSessionId);
       userSessionManager.refreshSession(); // sessionInfo For First Event
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
+      userSessionManager.end();
+    });
+
+    it('should not set any session info in state if session info is not available in storage', () => {
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+      userSessionManager.refreshSession();
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
   });
 
   describe('getSessionId', () => {
-    it('getSessionId: should return session id for active session', () => {
+    it('should return session id for active session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const futureTimestamp = Date.now() + 10000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1244,7 +1262,10 @@ describe('User session manager', () => {
       expect(sessionId.toString().length).toBeGreaterThan(0);
     });
 
-    it('getSessionId: should return session id for active session', () => {
+    it('should return null for expired session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const pastTimestamp = Date.now() - 5000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1257,10 +1278,49 @@ describe('User session manager', () => {
       expect(typeof sessionId).toBe('object');
       expect(sessionId).toBe(null);
     });
+
+    it('should return the session ID from storage if it was modified externally', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Set session info in storage where the session has expired
+      const pastTimestamp = Date.now() - 5000;
+      state.session.sessionInfo.value = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: pastTimestamp,
+        id: 1683613729115,
+        sessionStart: false,
+      };
+
+      userSessionManager.init();
+
+      // Set custom session info in storage directly
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 10000,
+          sessionStart: false,
+          id: 123456789,
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      const sessionId = userSessionManager.getSessionId();
+      expect(sessionId).toBe(customData.rl_session.id);
+    });
+
+    it('should return null if session info is not available in storage', () => {
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+      const sessionId = userSessionManager.getSessionId();
+      expect(sessionId).toBe(null);
+    });
   });
 
-  describe('auto tracking', () => {
-    it('startAutoTracking: should create a new session in case of invalid session', () => {
+  describe('startOrRenewAutoTracking', () => {
+    it('should create a new session if session is expired', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1269,7 +1329,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -1279,7 +1339,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('startAutoTracking: should not create a new session in case of valid session', () => {
+    it('should not create a new session in case of active session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1288,7 +1349,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
