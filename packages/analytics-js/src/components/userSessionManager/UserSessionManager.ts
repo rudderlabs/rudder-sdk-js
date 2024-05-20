@@ -127,7 +127,7 @@ class UserSessionManager implements IUserSessionManager {
 
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
-      this.startOrRenewAutoTracking();
+      this.startOrRenewAutoTracking(state.session.sessionInfo.value);
     }
   }
 
@@ -463,7 +463,7 @@ class UserSessionManager implements IUserSessionManager {
     let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
-        this.startOrRenewAutoTracking();
+        this.startOrRenewAutoTracking(sessionInfo);
         sessionInfo = state.session.sessionInfo.value;
       }
 
@@ -509,22 +509,18 @@ class UserSessionManager implements IUserSessionManager {
         // This will generate a new anonymous ID
         this.setAnonymousId();
       }
+
+      if (noNewSessionStart) {
+        return;
+      }
+
+      if (autoTrack) {
+        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+        this.startOrRenewAutoTracking(session.sessionInfo.value);
+      } else if (manualTrack) {
+        this.startManualTrackingInternal();
+      }
     });
-
-    // Only the session signal update is taken outside the
-    // batch block as the reset session info needs to be committed
-    // to the storage immediately which is then read inside the startOrRenewAutoTracking
-    // method.
-    if (noNewSessionStart) {
-      return;
-    }
-
-    if (autoTrack) {
-      session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-      this.startOrRenewAutoTracking();
-    } else if (manualTrack) {
-      this.startManualTrackingInternal();
-    }
   }
 
   /**
@@ -602,8 +598,7 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to check for existing session details and depending on that create a new session
    */
-  startOrRenewAutoTracking() {
-    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+  startOrRenewAutoTracking(sessionInfo: SessionInfo) {
     if (hasSessionExpired(sessionInfo.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {

@@ -1326,7 +1326,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -1346,27 +1346,13 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
         expiresAt: expect.any(Number),
         id: 1683613729115,
         sessionStart: false,
-      });
-    });
-
-    it('should start a new session if session data is unavailable in the storage', () => {
-      state.storage.entries.value = entriesWithOnlyNoStorage;
-      userSessionManager.init();
-
-      userSessionManager.startOrRenewAutoTracking();
-      expect(state.session.sessionInfo.value).toEqual({
-        autoTrack: true,
-        timeout: 30 * 60 * 1000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-        sessionStart: undefined,
       });
     });
   });
