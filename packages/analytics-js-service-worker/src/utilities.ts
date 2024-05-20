@@ -20,7 +20,7 @@ const removeTrailingSlashes = (inURL: string): string =>
 const isFunction = (value: any): boolean =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
-const setImmediate = process.nextTick.bind(process);
+const setImmediate = (callback: () => void) => Promise.resolve().then(callback);
 
 const noop = () => {};
 
