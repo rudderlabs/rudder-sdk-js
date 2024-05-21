@@ -46,8 +46,12 @@ describe('Config manager util - validate load arguments', () => {
   });
   describe('getDataServiceUrl', () => {
     it('should return dataServiceUrl', () => {
-      const dataServiceUrl = getDataServiceUrl('rsaRequest');
-      expect(dataServiceUrl).toBe('http://test-host.com/rsaRequest');
+      const dataServiceUrl = getDataServiceUrl('endpoint');
+      expect(dataServiceUrl).toBe('http://test-host.com/endpoint');
+    });
+    it('should prepare the dataServiceUrl with endpoint without leading slash', () => {
+      const dataServiceUrl = getDataServiceUrl('/endpoint');
+      expect(dataServiceUrl).toBe('http://test-host.com/endpoint');
     });
   });
 });

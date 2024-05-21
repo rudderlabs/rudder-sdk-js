@@ -60,7 +60,8 @@ const getTopDomainUrl = (url: string) => {
 
 const getDataServiceUrl = (endpoint: string) => {
   const url = getTopDomainUrl(window.location.href);
-  return `${url}/${endpoint}`;
+  const formattedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+  return `${url}/${formattedEndpoint}`;
 };
 
 export {
