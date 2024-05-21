@@ -15,7 +15,7 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
@@ -74,7 +74,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v3 NPM Package'
@@ -83,6 +83,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -98,7 +99,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}"
+                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   }
                 }
               ]
@@ -106,7 +107,7 @@ jobs:
 
       - name: Send message to Slack channel for Service Worker
         id: slackSw
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Service Worker NPM Package'
@@ -115,6 +116,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -130,7 +132,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}"
+                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   }
                 }
               ]
@@ -138,7 +140,7 @@ jobs:
 
       - name: Send message to Slack channel for v1.1
         id: slackv1
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v1.1 NPM Package'
@@ -147,6 +149,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -162,7 +165,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}"
+                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   }
                 }
               ]

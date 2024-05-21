@@ -1,5 +1,5 @@
-import { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
 import { domain } from '../../../../src/services/StoreManager/top-domain';
 import { cookie } from '../../../../src/services/StoreManager/component-cookie';
 

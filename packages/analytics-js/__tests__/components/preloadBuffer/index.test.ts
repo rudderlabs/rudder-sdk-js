@@ -5,7 +5,7 @@ import {
   retrieveEventsFromQueryString,
   retrievePreloadBufferEvents,
 } from '../../../src/components/preloadBuffer';
-import { PreloadedEventCall } from '../../../src/components/preloadBuffer/types';
+import type { PreloadedEventCall } from '../../../src/components/preloadBuffer/types';
 
 describe('Preload Buffer', () => {
   const originalWindowLocation = window.location;
