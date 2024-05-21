@@ -140,7 +140,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slackv1
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
@@ -149,6 +149,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -164,7 +165,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}"
+                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   }
                 }
               ]
