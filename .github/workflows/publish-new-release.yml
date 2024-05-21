@@ -78,7 +78,17 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # The default behavior of Nx is to consider changes to package-lock.json
+          # as impacting all the packages.
+          # Here is a work around to ignore package-lock.json and package.json
+          # files before publishing the releases.
+          # Ref: https://github.com/nrwl/nx/issues/15116#issuecomment-1535260119
+          echo package-lock.json >> .nxignore
+          echo package.json >> .nxignore
           npm run release:github -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+
+          # Restore working copy
+          git checkout -- .nxignore
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
