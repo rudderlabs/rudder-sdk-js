@@ -1,0 +1,293 @@
+name: Deploy to the Selected Environment
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        type: string
+        required: true
+      bugsnag_release_stage:
+        description: 'Bugsnag release stage'
+        type: string
+        required: true
+      s3_dir_path:
+        description: 'S3 directory path'
+        type: string
+        required: true
+      s3_dir_path_legacy:
+        description: 'S3 directory path for legacy'
+        type: string
+        required: true
+      action_type:
+        description: 'Type of action'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_S3_BUCKET_NAME:
+        required: true
+      AWS_S3_SYNC_ROLE:
+        required: true
+      AWS_CF_DISTRIBUTION_ID:
+        required: true
+      SLACK_BOT_TOKEN:
+        required: true
+      SLACK_RELEASE_CHANNEL_ID:
+        required: true
+      BUGSNAG_API_KEY:
+        required: true
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+env:
+  NODE_OPTIONS: "--no-warnings"
+  CACHE_MAX_AGE: 3600
+
+jobs:
+  deploy:
+    name: Deploy to environment
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get new version number
+        run: |
+          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
+        run: |
+          npm run setup:ci
+
+      - name: Build release artifacts
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
+        run: |
+          npm run build:browser
+          npm run build:browser:modern
+
+      - name: Sync Adobe Analytics assets to S3
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=$${{ env.CACHE_MAX_AGE }}
+
+      - name: Create Cloudfront invalidation
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
+
+      - name: Sync files to S3
+        run: |
+          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path }}"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path }}/*"
+
+      - name: Sync files to S3 versioned directory
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*"
+
+      # TODO: The '/latest' directory is unused. Might be removed in future.
+      - name: Sync files to S3 latest
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/latest"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/latest*"
+
+      - name: Send message to Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK v3 Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
+          CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/rsa.min.js'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  }
+                }
+              ]
+            }
+
+
+      # Below steps are for v1.1 SDK (legacy)
+
+      - name: Sync files to S3 v1.1 directory
+        run: |
+          core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path_legacy }}*"
+
+      - name: Sync files to S3 v1.1 versioned directory
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}*"
+
+      - name: Sync files to S3 latest (v1.1)
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/latest"
+          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+
+          aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
+
+          aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+      - name: Create Cloudfront invalidation
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/latest*"
+
+      - name: Send message to Slack channel
+        id: slackv1
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK v1.1 Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
+          CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path_legacy }}/rudder-analytics.min.js'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  }
+                }
+              ]
+            }

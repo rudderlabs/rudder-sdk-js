@@ -61,7 +61,41 @@ describe('BingAds Track event', () => {
     bingAds.init();
     window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
   });
-
+  test('Test for custom properties with enhanced conversions using email only', () => {
+    bingAds = new BingAds(
+      { tagID: '12567839', enableEnhancedConversions: true },
+      { loglevel: 'DEBUG' },
+    );
+    bingAds.init();
+    window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
+    bingAds.track({
+      message: {
+        type: 'track',
+        context: {
+          traits: { email: 'abc+!@xyz.com' },
+        },
+        event,
+        properties: {
+          event_action: 'button_click',
+          category: 'Food',
+          currency: 'INR',
+          customProp: 'custom',
+        },
+      },
+    });
+    expect(output[0]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      event_category: 'Food',
+      currency: 'INR',
+      customProp: 'custom',
+      ecomm_pagetype: 'other',
+      pid: {
+        '': '',
+        em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
+      },
+    });
+  });
   test('Test for all properties not null', () => {
     bingAds.track({
       message: {
@@ -83,7 +117,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[0]).toEqual({
+    expect(output[1]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -117,7 +151,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[1]).toEqual({
+    expect(output[2]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -137,7 +171,7 @@ describe('BingAds Track event', () => {
       },
     });
 
-    expect(output[2]).toEqual({
+    expect(output[3]).toEqual({
       event: 'track',
       event_label: event,
       ecomm_pagetype: 'other',
@@ -162,5 +196,63 @@ describe('BingAds Track event', () => {
     } catch (error) {
       expect(error).toEqual('Event type not present');
     }
+  });
+  test('Test for all properties not null with pid data present in context.traits', () => {
+    bingAds = new BingAds(
+      { tagID: '12567839', enableEnhancedConversions: true },
+      { loglevel: 'DEBUG' },
+    );
+    bingAds.init();
+    window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
+
+    bingAds.track({
+      message: {
+        type: 'track',
+        context: {
+          traits: {
+            pid: {
+              phn: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8',
+              em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
+            },
+          },
+        },
+        event,
+        properties: {
+          event_action: 'button_click',
+          category: 'Food',
+          currency: 'INR',
+          total: 18.9,
+          value: 20,
+          revenue: 25.5,
+          ecomm_category: '80',
+          transaction_id: 'txn-123',
+          ecomm_pagetype: 'Cart',
+          query,
+          products,
+        },
+      },
+    });
+    expect(output[4]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      event_category: 'Food',
+      currency: 'INR',
+      revenue_value: 18.9,
+      search_term: query,
+      ecomm_query: query,
+      ecomm_category: '80',
+      transaction_id: 'txn-123',
+      ecomm_pagetype: 'Cart',
+      ecomm_prodid: ['123', '345'],
+      items: [
+        { id: '123', price: 14.99, quantity: 2 },
+        { id: '345', price: 3.99, quantity: 1 },
+      ],
+      ecomm_totalvalue: 18.9,
+      pid: {
+        phn: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8',
+        em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
+      },
+    });
   });
 });
