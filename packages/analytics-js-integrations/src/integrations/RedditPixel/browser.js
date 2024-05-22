@@ -13,10 +13,32 @@ import {
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
 import Logger from '../../utils/logger';
-import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
+import {
+  getHashFromArrayWithDuplicate,
+  getEventMappingFromConfig,
+  removeUndefinedAndNullAndEmptyValues,
+} from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
+
+const createUserIdentifier = (traits = {}) => {
+  const userIdentifier = {};
+  const { email, externalId, idfa, aaid } = traits;
+  userIdentifier.email = email;
+  userIdentifier.externalId = externalId;
+  userIdentifier.idfa = idfa;
+  userIdentifier.aaid = aaid;
+  return removeUndefinedAndNullAndEmptyValues(userIdentifier);
+};
+
+const verifySignUpMapped = eventMappingFromConfig => {
+  let res = false;
+  eventMappingFromConfig.forEach(map => {
+    if (map.to === 'SignUp') res = true;
+  });
+  return res;
+};
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -35,7 +57,8 @@ class RedditPixel {
   }
 
   init() {
-    loadNativeSdk(this.pixelId);
+    const traits = this.analytics.getUserTraits();
+    loadNativeSdk(this.pixelId, createUserIdentifier(traits));
   }
 
   isLoaded() {
@@ -47,14 +70,12 @@ class RedditPixel {
   }
 
   identify(rudderElement) {
-    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
-      this.eventMappingFromConfig,
-      'from',
-      'to',
-      false,
-    );
-    if (!eventMappingFromConfigMap.SignUp) {
+    if (!verifySignUpMapped(this.eventMappingFromConfig)) {
       window.rdt('track', 'SignUp');
+    }
+    const userIdentifier = createUserIdentifier(rudderElement.message?.context?.traits);
+    if (Object.keys(userIdentifier).length > 0) {
+      window.rdt('init', this.pixelId, userIdentifier);
     }
   }
 
@@ -91,6 +112,8 @@ class RedditPixel {
           window.rdt('track', 'Lead');
           break;
         case 'view content':
+        case 'product viewed':
+        case 'productlist viewed':
           window.rdt('track', 'ViewContent');
           break;
         case 'search':
