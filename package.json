@@ -60,13 +60,7 @@
     "type": "git",
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
-  "dependencies": {
-    "@lukeed/uuid": "2.0.1",
-    "@preact/signals-core": "1.6.0",
-    "get-value": "3.0.1",
-    "ramda": "0.30.0",
-    "storejs": "2.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "7.24.5",
     "@babel/eslint-parser": "7.24.5",

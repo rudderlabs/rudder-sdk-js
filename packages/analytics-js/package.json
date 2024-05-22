@@ -90,7 +90,10 @@
   },
   "devDependencies": {
     "@rudderstack/analytics-js-common": "*",
-    "@rudderstack/analytics-js-plugins": "*"
+    "@rudderstack/analytics-js-plugins": "*",
+    "@preact/signals-core": "1.6.0",
+    "ramda": "0.30.0",
+    "storejs": "2.1.0"
   },
   "browserslist": {
     "production": [

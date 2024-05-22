@@ -149,13 +149,13 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "text": "*New Deployment: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New deployment: ${{ env.PROJECT_NAME }}"
+                    "text": "New Deployment: ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -166,6 +166,12 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png
+                    ",
+                    "alt_text": "JavaScript Icon"
                   }
                 }
               ]

@@ -83,6 +83,7 @@ jobs:
       - name: Install dependencies
         env:
           HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
         run: |
@@ -173,13 +174,14 @@ jobs:
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v3 Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
+          PROJECT_NAME: 'JS SDK Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/rsa.min.js'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -195,8 +197,23 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                    "text": "*<${{ env.CDN_URL }}|v${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png
+                    ",
+                    "alt_text": "JavaScript Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_VALUE }}|here>."
+                    }
+                  ]
                 }
               ]
             }
@@ -258,36 +275,3 @@ jobs:
         if: ${{ inputs.environment == 'production' }}
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/latest*"
-
-      - name: Send message to Slack channel
-        id: slackv1
-        uses: slackapi/slack-github-action@v1.26.0
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v1.1 Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
-          CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path_legacy }}/rudder-analytics.min.js'
-        with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
-          payload: |
-            {
-              "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
-                  }
-                },
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
-                  }
-                }
-              ]
-            }
