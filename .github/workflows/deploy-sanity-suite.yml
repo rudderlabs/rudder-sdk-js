@@ -169,8 +169,7 @@ jobs:
                   },
                   "accessory": {
                     "type": "image",
-                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png
-                    ",
+                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
                     "alt_text": "JavaScript Icon"
                   }
                 }
