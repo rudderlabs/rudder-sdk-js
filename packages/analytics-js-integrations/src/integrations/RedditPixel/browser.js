@@ -33,11 +33,7 @@ const createUserIdentifier = (traits = {}) => {
 };
 
 const verifySignUpMapped = eventMappingFromConfig => {
-  let res = false;
-  eventMappingFromConfig.forEach(map => {
-    if (map.to === 'SignUp') res = true;
-  });
-  return res;
+  eventMappingFromConfig.some(map => map.to === 'SignUp');
 };
 
 class RedditPixel {
