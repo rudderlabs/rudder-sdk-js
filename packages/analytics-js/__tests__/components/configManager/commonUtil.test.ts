@@ -1,5 +1,5 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { SourceConfigResponse } from '../../../src/components/configManager/types';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { SourceConfigResponse } from '../../../src/components/configManager/types';
 import {
   getSDKUrl,
   updateReportingState,

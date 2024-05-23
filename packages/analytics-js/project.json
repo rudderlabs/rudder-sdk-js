@@ -72,13 +72,6 @@
         "script": "package"
       }
     },
-    "prepare-test-mocks": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-js/dist/cdn/legacy/iife/rsa.min.js > packages/analytics-js/__mocks__/cdnSDKv3.js"
-      },
-      "dependsOn": ["build-browser"]
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -94,7 +87,7 @@
           "ci": true
         }
       },
-      "dependsOn": ["prepare-test-mocks"]
+      "dependsOn": ["build-browser"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
@@ -126,9 +119,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.1.0",
-        "title": "@rudderstack/analytics-js@3.1.0",
-        "discussion-category": "@rudderstack/analytics-js@3.1.0",
+        "tag": "@rudderstack/analytics-js@3.1.1",
+        "title": "@rudderstack/analytics-js@3.1.1",
+        "discussion-category": "@rudderstack/analytics-js@3.1.1",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }

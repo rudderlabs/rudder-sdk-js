@@ -13,6 +13,7 @@ import { nativeDestinationsState } from './slices/nativeDestinations';
 import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
 import { storageState } from './slices/storage';
+import { serverSideCookiesState } from './slices/serverCookies';
 import { dataPlaneEventsState } from './slices/dataPlaneEvents';
 
 const defaultStateValues: ApplicationState = {
@@ -29,6 +30,7 @@ const defaultStateValues: ApplicationState = {
   session: sessionState,
   source: sourceConfigState,
   storage: storageState,
+  serverCookies: serverSideCookiesState,
   dataPlaneEvents: dataPlaneEventsState,
 };
 
@@ -50,6 +52,7 @@ const resetState = () => {
   state.session = clone(defaultStateValues.session);
   state.source = clone(defaultStateValues.source);
   state.storage = clone(defaultStateValues.storage);
+  state.serverCookies = clone(defaultStateValues.serverCookies);
   state.dataPlaneEvents = clone(defaultStateValues.dataPlaneEvents);
 };
 

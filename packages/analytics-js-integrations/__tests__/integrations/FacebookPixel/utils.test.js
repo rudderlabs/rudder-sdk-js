@@ -1,4 +1,8 @@
-import { buildPayLoad, getHashedStatus, getProductsContentsAndContentIds } from '../../../src/integrations/FacebookPixel/utils';
+import {
+  buildPayLoad,
+  getHashedStatus,
+  getProductsContentsAndContentIds,
+} from '../../../src/integrations/FacebookPixel/utils';
 
 const blacklistPiiPropertiesMock = [
   {
@@ -55,7 +59,7 @@ const piiPropertiesObject = {
 describe('buildPayLoad_function', () => {
   // Tests that payload is built correctly with default pii properties
   it('test_default_pii_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           lastName: 'Doe',
@@ -76,7 +80,7 @@ describe('buildPayLoad_function', () => {
   });
 
   it('test_no_pii_no_whitelist_blacklist_props', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           prop1: 'value1',
@@ -95,7 +99,7 @@ describe('buildPayLoad_function', () => {
 
   // blacklist properties if hash true then but not a string value then not hashed
   it('test_custom_pii_properties_non_string_val', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           customPiiPropertyWhiteHashFalse: 1234,
@@ -115,7 +119,7 @@ describe('buildPayLoad_function', () => {
 
   // whitelist properties hash true or not , is not hashed
   it('test_whitelist_pii_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           email: 'test@test.com',
@@ -132,7 +136,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that payload is built correctly with empty message properties
   it('test_empty_message_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {},
       },
@@ -145,7 +149,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that payload is built correctly with empty blacklist pii properties
   it('test_empty_blacklist_pii_whitelist_pii_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           ...piiPropertiesObject,
@@ -165,7 +169,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that an empty payload returns an empty object
   it('test_empty_payload', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {},
       },
@@ -180,7 +184,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that a payload with only PII properties returns an empty object
   it('test_only_pii_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           email: 'test@test.com',
@@ -203,7 +207,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that a payload with only date properties returns an empty object
   it('test_only_date_properties', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           checkinDate: '2023-07-19',
@@ -235,7 +239,7 @@ describe('buildPayLoad_function', () => {
   });
   // Tests that a payload with a non-whitelisted PII property returns an empty object
   it('test_non_whitelisted_pii_property', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           ...piiPropertiesObject,
@@ -258,7 +262,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that a payload with a non-string blacklisted PII property is not hashed
   it('test_non_string_blacklisted_pii_property', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           ...piiPropertiesObject,
@@ -280,7 +284,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that all PII properties in the blacklist are excluded from the payload or hashed if required
   it('test_pii_properties_in_blacklist_excluded_or_hashed', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -304,7 +308,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that all PII properties in the whitelist are included in the payload
   it('test_all_pii_properties_in_whitelist_included', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           email: 'test@example.com',
@@ -330,7 +334,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that a payload with a non-blacklisted PII property is included in the payload
   it('test_non_blacklisted_pii_property_included', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           city: 'San Francisco',
@@ -350,7 +354,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that a payload with a date field in the dateFields array is converted to ISO string format
   it('test_date_fields_converted_to_iso_string', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           checkinDate: new Date('2022-01-01'),
@@ -383,7 +387,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that the payload includes all properties when the whitelist contains non-PII properties and the blacklist only contains non-PII properties
   it('test_payload_includes_all_properties_when_whitelist_contains_non_pii_and_blacklist_only_non_pii', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           nonPiiWhiteListedProperty: 'non-pii-value',
@@ -407,7 +411,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that the payload includes all properties when the whitelist contains non-PII properties and the blacklist only contains non-PII properties
   it('test_payload_includes_all_properties_when_whitelist_contains_non_pii_and_blacklist_only_non_pii_absent_in_input', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           city: 'New York',
@@ -429,7 +433,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that the payload includes all properties when the whitelist contains non-PII properties and the blacklist only contains PII properties that are not required to be hashed
   it('test_payload_includes_all_properties_when_whitelist_contains_non_pii_and_blacklist_only_pii_not_hashed', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -452,7 +456,7 @@ describe('buildPayLoad_function', () => {
 
   // Tests that the payload includes all properties when the whitelist contains non-PII properties and the blacklist only contains non-PII properties
   it('test_payload_includes_all_properties_when_whitelist_contains_non_pii_and_blacklist_only_non_pii', () => {
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           lastName: 'Doe',
@@ -476,13 +480,13 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_true_for_pii_blacklist', () => {
-    let blacklistPiiPropertiesMock = [
+    const blacklistPiiPropertiesMock = [
       {
         blacklistPiiProperties: 'lastName',
         blacklistPiiHash: true,
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -509,13 +513,13 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_true_for_non_pii_blacklist', () => {
-    let blacklistPiiPropertiesMock = [
+    const blacklistPiiPropertiesMock = [
       {
         blacklistPiiProperties: 'BlacklistPiiPropertyHashTrue',
         blacklistPiiHash: true,
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -543,12 +547,12 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_true_for_non_pii_whitelist', () => {
-    let whitelistPiiPropertiesMock = [
+    const whitelistPiiPropertiesMock = [
       {
         whitelistPiiProperties: 'whitelistNonDefaultPiiProperties',
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           lastName: 'Doe',
@@ -575,12 +579,12 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_true_for_pii_whitelist', () => {
-    let whitelistPiiPropertiesMock = [
+    const whitelistPiiPropertiesMock = [
       {
         whitelistPiiProperties: 'email',
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           email: 'acb@gmail.com',
@@ -607,13 +611,13 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_false_for_pii_blacklist', () => {
-    let blacklistPiiPropertiesMock = [
+    const blacklistPiiPropertiesMock = [
       {
         blacklistPiiProperties: 'lastName',
         blacklistPiiHash: true,
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -640,13 +644,13 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_false_for_non_pii_blacklist', () => {
-    let blacklistPiiPropertiesMock = [
+    const blacklistPiiPropertiesMock = [
       {
         blacklistPiiProperties: 'BlacklistPiiPropertyHashTrue',
         blacklistPiiHash: true,
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           firstName: 'John',
@@ -675,12 +679,12 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_false_for_non_pii_whitelist', () => {
-    let whitelistPiiPropertiesMock = [
+    const whitelistPiiPropertiesMock = [
       {
         whitelistPiiProperties: 'whitelistNonDefaultPiiProperties',
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           lastName: 'Doe',
@@ -707,12 +711,12 @@ describe('buildPayLoad_function', () => {
   });
 
   it('if_integrationobj_contains_hash_false_for_pii_whitelist', () => {
-    let whitelistPiiPropertiesMock = [
+    const whitelistPiiPropertiesMock = [
       {
         whitelistPiiProperties: 'email',
       },
     ];
-    let rudderElement = {
+    const rudderElement = {
       message: {
         properties: {
           email: 'acb@gmail.com',
@@ -741,35 +745,35 @@ describe('buildPayLoad_function', () => {
   it('test getProductsContentsAndContentIds', () => {
     const products = [
       {
-        product_id: "prodid1",
+        product_id: 'prodid1',
         quantity: 5,
         price: 55,
-        delivery_category: "in_store",
+        delivery_category: 'in_store',
       },
       {
-        product_id: "prodid2",
+        product_id: 'prodid2',
         quantity: 7,
         price: 77,
-        delivery_category: "home_delivery",
-      }
+        delivery_category: 'home_delivery',
+      },
     ];
     const payload = getProductsContentsAndContentIds(products, 10, 100);
     expect(payload).toEqual({
       contents: [
         {
-          id: "prodid1",
+          id: 'prodid1',
           quantity: 5,
           item_price: 55,
-          delivery_category: "in_store",
+          delivery_category: 'in_store',
         },
         {
-          id: "prodid2",
+          id: 'prodid2',
           quantity: 7,
           item_price: 77,
-          delivery_category: "home_delivery",
-        }
+          delivery_category: 'home_delivery',
+        },
       ],
-      contentIds: ["prodid1", "prodid2"],
+      contentIds: ['prodid1', 'prodid2'],
     });
   });
 });

@@ -13,6 +13,7 @@ const isNode = (): boolean =>
 const hasCrypto = (): boolean =>
   !isNullOrUndefined(globalThis.crypto) && isFunction(globalThis.crypto.getRandomValues);
 
+// eslint-disable-next-line compat/compat -- We are checking for the existence of navigator.userAgentData
 const hasUAClientHints = (): boolean => !isNullOrUndefined(globalThis.navigator.userAgentData);
 
 const hasBeacon = (): boolean =>

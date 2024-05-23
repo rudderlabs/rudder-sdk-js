@@ -1,4 +1,4 @@
-import { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
 import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
 import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
