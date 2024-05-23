@@ -37,6 +37,7 @@ const mockEventTypeConversions = [
 const googleAdsConfigs = [
   {
     conversionID: mockConversionId,
+    allowIdentify: true,
     conversionLinker: true,
     defaultPageConversion: '9Hr5CKXCs4gYEIXBi58p',
     disableAdPersonalization: false,
@@ -225,6 +226,46 @@ const trackCallPayload = {
   },
 };
 
+const identifyCallPayloadWithTraits = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {
+        email: 'test@email.com',
+        firstName: 'test',
+        lastName: 'user',
+        phone: '1234567890',
+        city: 'test city',
+        street: 'test street',
+        state: 'test region',
+        postalCode: '123456',
+        country: 'test country',
+      },
+    },
+  },
+};
+
+const identifyCallPayloadWithoutMandatoryTraits = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {
+        city: 'test city',
+        street: 'test street',
+        state: 'test region',
+      },
+    },
+  },
+};
+
+const identifyCallPayloadWithoutTraits = {
+  message: {
+    userId: 'userId',
+    context: {},
+    traits: {},
+  },
+};
+
 const noEventNameTrackCallPayload = {
   message: {
     context: {},
@@ -253,4 +294,7 @@ export {
   mockConversionId,
   mockEventTypeConversions,
   noEventNameTrackCallPayload,
+  identifyCallPayloadWithTraits,
+  identifyCallPayloadWithoutTraits,
+  identifyCallPayloadWithoutMandatoryTraits,
 };
