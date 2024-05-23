@@ -27,6 +27,11 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  AsyncRequestCallback,
+  IHttpClient,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -39,6 +44,10 @@ import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  DATA_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -53,25 +62,34 @@ import {
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
-import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
+import type {
+  CallbackFunction,
+  CookieData,
+  EncryptedCookieData,
+  IUserSessionManager,
+  UserSessionStorageKeysType,
+} from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
   pluginsManager?: IPluginsManager;
-  logger?: ILogger;
   errorHandler?: IErrorHandler;
+  httpClient?: IHttpClient;
+  logger?: ILogger;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
     pluginsManager?: IPluginsManager,
     storeManager?: IStoreManager,
+    httpClient?: IHttpClient,
   ) {
     this.storeManager = storeManager;
     this.pluginsManager = pluginsManager;
     this.logger = logger;
     this.errorHandler = errorHandler;
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
   }
 
@@ -261,11 +279,115 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, USER_SESSION_MANAGER);
+      this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
       throw error;
+    }
+  }
+
+  /**
+   * A function to encrypt the cookie value and return the encrypted data
+   * @param cookieData
+   * @param store
+   * @returns
+   */
+  getEncryptedCookieData(cookieData: CookieData[], store?: IStore): EncryptedCookieData[] {
+    const encryptedCookieData: EncryptedCookieData[] = [];
+    cookieData.forEach(e => {
+      const encryptedValue =
+        e.value === ''
+          ? e.value
+          : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger));
+      if (isDefinedAndNotNull(encryptedValue)) {
+        encryptedCookieData.push({
+          name: e.name,
+          value: encryptedValue,
+        });
+      }
+    });
+    return encryptedCookieData;
+  }
+
+  /**
+   * A function that makes request to data service to set the cookie
+   * @param encryptedCookieData
+   * @param callback
+   */
+  makeRequestToSetCookie(
+    encryptedCookieData: EncryptedCookieData[],
+    callback: AsyncRequestCallback<any>,
+  ) {
+    this.httpClient?.getAsyncData({
+      url: state.serverCookies.dataServiceUrl.value as string,
+      options: {
+        method: 'POST',
+        data: stringifyWithoutCircular({
+          reqType: 'setCookies',
+          workspaceId: state.source.value?.workspaceId,
+          data: {
+            options: {
+              maxAge: state.storage.cookie.value?.maxage,
+              path: state.storage.cookie.value?.path,
+              domain: state.storage.cookie.value?.domain,
+              sameSite: state.storage.cookie.value?.samesite,
+              secure: state.storage.cookie.value?.secure,
+              expires: state.storage.cookie.value?.expires,
+            },
+            cookies: encryptedCookieData,
+          },
+        }) as string,
+        sendRawData: true,
+      },
+      isRawResponse: true,
+      callback,
+    });
+  }
+
+  /**
+   * A function to make an external request to set the cookie from server side
+   * @param key       cookie name
+   * @param value     encrypted cookie value
+   */
+  setServerSideCookie(cookieData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
+    try {
+      // encrypt cookies values
+      const encryptedCookieData = this.getEncryptedCookieData(cookieData, store);
+      if (encryptedCookieData.length > 0) {
+        // make request to data service to set the cookie from server side
+        this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
+          if (details?.xhr?.status === 200) {
+            cookieData.forEach(each => {
+              const cookieValue = store?.get(each.name);
+              if (each.value) {
+                if (cookieValue !== each.value) {
+                  this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                  if (cb) {
+                    cb(each.name, each.value);
+                  }
+                }
+              } else if (cookieValue) {
+                this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
+              }
+            });
+          } else {
+            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            cookieData.forEach(each => {
+              if (cb) {
+                cb(each.name, each.value);
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
+      cookieData.forEach(each => {
+        if (cb) {
+          cb(each.name, each.value);
+        }
+      });
     }
   }
 
@@ -279,14 +401,37 @@ class UserSessionManager implements IUserSessionManager {
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
       const curStore = this.storeManager?.getStore(
-        storageClientDataStoreNameMap[storage] as string,
+        storageClientDataStoreNameMap[storageType] as string,
       );
-      if ((value && isString(value)) || isNonEmptyObject(value)) {
-        curStore?.set(key, value);
+      const key = entries[sessionKey]?.key as string;
+      if (value && (isString(value) || isNonEmptyObject(value))) {
+        // if useServerSideCookies load option is set to true
+        // set the cookie from server side
+        if (
+          state.serverCookies.isEnabledServerSideCookies.value &&
+          storageType === COOKIE_STORAGE
+        ) {
+          this.setServerSideCookie(
+            [{ name: key, value }],
+            (cookieName, cookieValue) => {
+              curStore?.set(cookieName, cookieValue);
+            },
+            curStore,
+          );
+        } else {
+          curStore?.set(key, value);
+        }
+      } else if (
+        state.serverCookies.isEnabledServerSideCookies.value &&
+        storageType === COOKIE_STORAGE
+      ) {
+        // remove cookie that is set from server side
+        // TODO: Test cookies set from server side can be cleared from client side
+        // and make appropriate changes.
+        this.setServerSideCookie([{ name: key, value: '' }], undefined, curStore);
       } else {
         curStore?.remove(key);
       }

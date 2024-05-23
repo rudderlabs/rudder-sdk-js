@@ -158,6 +158,11 @@ export type StorageState = {
   trulyAnonymousTracking: Signal<boolean>;
 };
 
+export type ServerCookiesState = {
+  isEnabledServerSideCookies: Signal<boolean>;
+  dataServiceUrl: Signal<string | undefined>;
+};
+
 export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
@@ -172,6 +177,7 @@ export interface ApplicationState {
   session: SessionState;
   source: SourceConfigState;
   storage: StorageState;
+  serverCookies: ServerCookiesState;
   dataPlaneEvents: DataPlaneEventsState;
 }
 

@@ -20,6 +20,8 @@ import {
   entriesWithOnlyNoStorage,
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
+import { server } from '../../../__fixtures__/msw.server';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -88,6 +90,7 @@ describe('User session manager', () => {
       defaultLogger,
       defaultPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
     );
   });
 
@@ -1432,16 +1435,297 @@ describe('User session manager', () => {
   });
 
   describe('getExternalAnonymousIdByCookieName', () => {
-    it('Should return null if the cookie value does not exists', () => {
+    it('should return null if the cookie value does not exists', () => {
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual(null);
     });
-    it('Should return the cookie value if exists', () => {
+    it('should return the cookie value if exists', () => {
       document.cookie = 'anonId_cookie=sampleAnonymousId12345';
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
+    });
+  });
+
+  describe('syncValueToStorage', () => {
+    it('should not call setServerSideCookie method in case isEnabledServerSideCookies state option is not set', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const setServerSideCookieSpy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+      expect(setServerSideCookieSpy).not.toHaveBeenCalled();
+    });
+    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', done => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
+      const setServerSideCookieSpy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+      expect(setServerSideCookieSpy).toHaveBeenCalledWith(
+        [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+        expect.any(Function),
+        expect.any(Object),
+      );
+      setTimeout(() => {
+        expect(clientDataStoreCookie.set).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+    describe('Cookie should be removed from server side', () => {
+      const testCaseData = [null, undefined, '', {}];
+      it.each(testCaseData)('if value is "%s"', cookieValue => {
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        userSessionManager.setServerSideCookie = jest.fn();
+        userSessionManager.syncValueToStorage('anonymousId', cookieValue);
+        expect(userSessionManager.setServerSideCookie).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: '' }],
+          undefined,
+          expect.any(Object),
+        );
+      });
+    });
+  });
+
+  describe('setServerSideCookie', () => {
+    beforeAll(() => {
+      server.listen();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+    const mockCookieStore = {
+      encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+      set: jest.fn(),
+      get: jest.fn(() => 'sample_cookie_value_1234'),
+    };
+    const mockCallback = jest.fn();
+    it('should encrypt cookie value and make request to data service', done => {
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      const getEncryptedCookieDataSpy = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
+      const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
+
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        () => {},
+        mockCookieStore,
+      );
+      expect(getEncryptedCookieDataSpy).toHaveBeenCalledWith(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
+      expect(makeRequestToSetCookieSpy).toHaveBeenCalledWith(
+        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        expect.any(Function),
+      );
+      done();
+    });
+    describe('Network request to Data service is successful', () => {
+      it('should validate cookies are set from the server side', done => {
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        userSessionManager.setServerSideCookie(
+          [{ name: 'key', value: 'sample_cookie_value_1234' }],
+          mockCallback,
+          mockCookieStore,
+        );
+        setTimeout(() => {
+          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(mockCookieStore.get()).toBe('sample_cookie_value_1234');
+          expect(defaultLogger.error).not.toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          expect(mockCallback).not.toHaveBeenCalled();
+          done();
+        }, 1000);
+      });
+      it('should set cookies from client side if not successfully set from the server side', done => {
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        userSessionManager.setServerSideCookie(
+          [{ name: 'key', value: 'sample_cookie_value' }],
+          (name, val) => {
+            mockCookieStore.set(name, val);
+          },
+          mockCookieStore,
+        );
+        setTimeout(() => {
+          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(defaultLogger.error).toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value');
+          done();
+        }, 1000);
+      });
+      it('should log error if not successfully removed from the server', done => {
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        userSessionManager.setServerSideCookie(
+          [{ name: 'key', value: '' }],
+          undefined,
+          mockCookieStore,
+        );
+        setTimeout(() => {
+          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(defaultLogger.error).toHaveBeenCalledWith(
+            'The server failed to remove the key cookie.',
+          );
+          done();
+        }, 1000);
+      });
+    });
+
+    it('should set cookie from client side if data service is down', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value =
+        'https://dummy.dataplane.host.com/serverDown/rsaRequest';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCallback).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+    it('should set cookie from client side if dataServerUrl is invalid', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value =
+        'https://dummy.dataplane.host.com/invalidUrl/rsaRequest';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCallback).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+    it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      userSessionManager.getEncryptedCookieData = jest.fn(() => {
+        throw new Error('test error');
+      });
+      userSessionManager.onError = jest.fn();
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookie(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
+      expect(userSessionManager.onError).toHaveBeenCalledWith(
+        new Error('test error'),
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+      );
+      expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+    });
+    describe('getEncryptedCookieData', () => {
+      it('cookie value exists', () => {
+        const encryptedData = userSessionManager.getEncryptedCookieData(
+          [{ name: 'key', value: 'sample_cookie_value_1234' }],
+          mockCookieStore,
+        );
+        expect(mockCookieStore.encrypt).toHaveBeenCalled();
+        expect(encryptedData).toStrictEqual([
+          { name: 'key', value: 'encrypted_sample_cookie_value_1234' },
+        ]);
+      });
+      it('cookie value do not exists', () => {
+        const encryptedData = userSessionManager.getEncryptedCookieData(
+          [{ name: 'key', value: '' }],
+          mockCookieStore,
+        );
+        expect(mockCookieStore.encrypt).not.toHaveBeenCalled();
+        expect(encryptedData).toStrictEqual([{ name: 'key', value: '' }]);
+      });
+    });
+    describe('makeRequestToSetCookie', () => {
+      it('should make external request to exposed endpoint', done => {
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+        userSessionManager.makeRequestToSetCookie(
+          [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+          () => {},
+        );
+        expect(getAsyncDataSpy).toHaveBeenCalledWith({
+          url: `https://dummy.dataplane.host.com/rsaRequest`,
+          options: {
+            method: 'POST',
+            data: JSON.stringify({
+              reqType: 'setCookies',
+              workspaceId: 'sample_workspaceId',
+              data: {
+                options: {
+                  maxAge: 10 * 60 * 1000,
+                  path: '/',
+                  domain: 'example.com',
+                  sameSite: 'Lax',
+                  secure: undefined,
+                },
+                cookies: [
+                  {
+                    name: 'key',
+                    value: 'encrypted_sample_cookie_value_1234',
+                  },
+                ],
+              },
+            }),
+            sendRawData: true,
+          },
+          isRawResponse: true,
+          callback: expect.any(Function),
+        });
+        done();
+      });
     });
   });
 });
