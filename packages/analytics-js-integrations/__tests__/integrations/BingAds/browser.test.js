@@ -61,9 +61,9 @@ describe('BingAds Track event', () => {
     bingAds.init();
     window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
   });
-  test('Test for custom properties with enhanced conversions using email only', () => {
+  test('Test for custom properties with enhanced conversions using email only with hashing disabled', () => {
     bingAds = new BingAds(
-      { tagID: '12567839', enableEnhancedConversions: true },
+      { tagID: '12567839', enableEnhancedConversions: true, isHashRequired: false },
       { loglevel: 'DEBUG' },
     );
     bingAds.init();
@@ -72,7 +72,7 @@ describe('BingAds Track event', () => {
       message: {
         type: 'track',
         context: {
-          traits: { email: 'abc+!@xyz.com' },
+          traits: { email: 'hashed_email' },
         },
         event,
         properties: {
@@ -92,10 +92,11 @@ describe('BingAds Track event', () => {
       ecomm_pagetype: 'other',
       pid: {
         '': '',
-        em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
+        em: 'hashed_email',
       },
     });
   });
+
   test('Test for all properties not null', () => {
     bingAds.track({
       message: {
@@ -251,6 +252,41 @@ describe('BingAds Track event', () => {
       ecomm_totalvalue: 18.9,
       pid: {
         phn: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8',
+        em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
+      },
+    });
+  });
+  test('Test for custom properties with enhanced conversions using email only with hashing set as true', () => {
+    bingAds = new BingAds(
+      { tagID: '12567839', enableEnhancedConversions: true, isHashRequired: true },
+      { loglevel: 'DEBUG' },
+    );
+    bingAds.init();
+    window.bing12567839.push = jest.fn((_, y, z) => output.push({ event: y, ...z }));
+    bingAds.track({
+      message: {
+        type: 'track',
+        context: {
+          traits: { email: 'abc+!@xyz.com' },
+        },
+        event,
+        properties: {
+          event_action: 'button_click',
+          category: 'Food',
+          currency: 'INR',
+          customProp: 'custom',
+        },
+      },
+    });
+    expect(output[5]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      event_category: 'Food',
+      currency: 'INR',
+      customProp: 'custom',
+      ecomm_pagetype: 'other',
+      pid: {
+        '': '',
         em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
       },
     });

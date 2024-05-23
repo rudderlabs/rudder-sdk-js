@@ -144,7 +144,7 @@ describe('Construct PID payload for enahcned conversions', () => {
     const message = {};
 
     // Act
-    const result = constructPidPayload(message);
+    const result = constructPidPayload(message, true);
 
     // Assert
     expect(result).toEqual(undefined);
@@ -162,7 +162,7 @@ describe('Construct PID payload for enahcned conversions', () => {
     };
 
     // Act
-    const result = constructPidPayload(message);
+    const result = constructPidPayload(message, true);
 
     // Assert
     expect(result).toBeUndefined();
@@ -180,7 +180,7 @@ describe('Construct PID payload for enahcned conversions', () => {
     };
 
     // Act
-    const result = constructPidPayload(message);
+    const result = constructPidPayload(message, true);
 
     // Assert
     expect(result).toEqual({
@@ -199,7 +199,7 @@ describe('Construct PID payload for enahcned conversions', () => {
     };
 
     // Act
-    const result = constructPidPayload(message);
+    const result = constructPidPayload(message, true);
 
     // Assert
     expect(result).toEqual({
@@ -214,21 +214,21 @@ describe('Construct PID payload for enahcned conversions', () => {
     const message = {
       context: {
         traits: {
-          email: 'test@example.com',
+          email: 'hashed_email',
         },
       },
       traits: {
-        phone: '1234567890',
+        phone: 'hashed_phone',
       },
     };
 
     // Act
-    const result = constructPidPayload(message);
+    const result = constructPidPayload(message, false);
 
     // Assert
     expect(result).toEqual({
-      em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
-      ph: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8',
+      em: 'hashed_email',
+      ph: 'hashed_phone',
     });
   });
 });
