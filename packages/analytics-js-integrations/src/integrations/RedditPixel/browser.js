@@ -13,28 +13,11 @@ import {
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
 import Logger from '../../utils/logger';
-import {
-  getHashFromArrayWithDuplicate,
-  getEventMappingFromConfig,
-  removeUndefinedAndNullAndEmptyValues,
-} from '../../utils/commonUtils';
+import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { createUserIdentifier, verifySignUpMapped } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
-
-const createUserIdentifier = (traits = {}) => {
-  const userIdentifier = {};
-  const { email, externalId, idfa, aaid } = traits;
-  userIdentifier.email = email;
-  userIdentifier.externalId = externalId;
-  userIdentifier.idfa = idfa;
-  userIdentifier.aaid = aaid;
-  return removeUndefinedAndNullAndEmptyValues(userIdentifier);
-};
-
-const verifySignUpMapped = eventMappingFromConfig => {
-  eventMappingFromConfig.some(map => map.to === 'SignUp');
-};
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
