@@ -97,9 +97,7 @@ class GoogleAds {
       );
       return;
     }
-    const { message } = rudderElement;
-    const { context } = message;
-    const { traits } = context;
+    const { traits } = rudderElement.message?.context;
     if (!isDefinedAndNotNullAndNotEmpty(traits)) {
       logger.error('Traits are mandatory for identify call');
       return;
