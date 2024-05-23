@@ -163,15 +163,15 @@ function formatAndHashPhoneNumber(phoneNumber) {
  * Constructing Pid Payload
  * @param {*} context
  */
-const constructPidPayload = message => {
+const constructPidPayload = (message, hashRequired) => {
   const email = get(message, 'context.traits.email') || get(message, 'traits.email');
   const phone = get(message, 'context.traits.phone') || get(message, 'traits.phone');
   const pid = {};
   if (isDefinedAndNotNull(email)) {
-    pid.em = formatAndHashEmailAddress(email);
+    pid.em = hashRequired ? formatAndHashEmailAddress(email) : email;
   }
   if (isDefinedAndNotNull(phone)) {
-    pid.ph = formatAndHashPhoneNumber(phone);
+    pid.ph = hashRequired ? formatAndHashPhoneNumber(phone) : phone;
   }
   /* Docs: https://help.ads.microsoft.com/apex/index/3/en/60178
   Bing ads says if anyone one of the properties is not available 
