@@ -164,6 +164,10 @@ function generateUserDataPayload(traits) {
     if (isDefinedAndNotNull(traits.country)) {
       payload.address.country = traits.country;
     }
+    if (!traits.city && !traits.state && !traits.postalCode && !traits.country && !traits.street) {
+      // if none of the address fields are present then remove address object from payload
+      delete payload.address;
+    }
   }
   return payload;
 }
