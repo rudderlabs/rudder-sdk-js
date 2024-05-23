@@ -50,7 +50,7 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = config.v2 || true;
-    this.allowIdentify = config.allowIdentify ?? true;
+    this.allowIdentify = config.allowIdentify ?? false;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -102,6 +102,16 @@ class GoogleAds {
     const { traits } = context;
     if (!isDefinedAndNotNullAndNotEmpty(traits)) {
       logger.error('Traits are mandatory for identify call');
+      return;
+    }
+    if (
+      !traits.email ||
+      !traits.phone ||
+      (!traits.firstName && !traits.lastName && !traits.postalCode && !traits.country)
+    ) {
+      logger.error(
+        'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
+      );
       return;
     }
     const payload = generateUserDataPayload(traits);

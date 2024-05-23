@@ -12,6 +12,7 @@ import {
   noEventNameTrackCallPayload,
   identifyCallPayloadWithTraits,
   identifyCallPayloadWithoutTraits,
+  identifyCallPayloadWithoutMandatoryTraits,
 } from './__fixtures__/data';
 
 let errMock;
@@ -64,6 +65,13 @@ describe('GoogleAds Identify tests', () => {
   test('Testing identify call of Google Ads without traits', () => {
     googleAds.identify(identifyCallPayloadWithoutTraits);
     expect(errMock).toHaveBeenLastCalledWith('Traits are mandatory for identify call');
+  });
+
+  test('Testing identify call of Google Ads with none of the mandatory traits', () => {
+    googleAds.identify(identifyCallPayloadWithoutMandatoryTraits);
+    expect(errMock).toHaveBeenLastCalledWith(
+      'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
+    );
   });
 
   test('Testing identify call of Google Ads with traits', () => {

@@ -155,8 +155,8 @@ function generateUserDataPayload(traits) {
     if (isDefinedAndNotNull(traits.street)) {
       payload.address.street = traits.street;
     }
-    if (isDefinedAndNotNull(traits.region)) {
-      payload.address.region = traits.region;
+    if (isDefinedAndNotNull(traits.state)) {
+      payload.address.region = traits.state;
     }
     if (isDefinedAndNotNull(traits.postalCode)) {
       payload.address.postal_code = traits.postalCode;
