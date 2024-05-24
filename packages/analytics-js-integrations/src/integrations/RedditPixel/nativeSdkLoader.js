@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-function loadNativeSdk(pixelId) {
+function loadNativeSdk(pixelId, userIdentifier) {
   !(function (w, d) {
     if (!w.rdt) {
       var p = (w.rdt = function () {
@@ -15,7 +15,11 @@ function loadNativeSdk(pixelId) {
     }
   })(window, document);
 
-  window.rdt('init', pixelId);
+  if (Object.keys(userIdentifier).length) {
+    window.rdt('init', pixelId, userIdentifier);
+  } else {
+    window.rdt('init', pixelId);
+  }
 }
 
 export { loadNativeSdk };

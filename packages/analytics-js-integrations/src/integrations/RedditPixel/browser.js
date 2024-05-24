@@ -15,6 +15,7 @@ import {
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { createUserIdentifier, verifySignUpMapped } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -35,7 +36,8 @@ class RedditPixel {
   }
 
   init() {
-    loadNativeSdk(this.pixelId);
+    const traits = this.analytics.getUserTraits();
+    loadNativeSdk(this.pixelId, createUserIdentifier(traits));
   }
 
   isLoaded() {
@@ -47,7 +49,19 @@ class RedditPixel {
   }
 
   identify(rudderElement) {
-    window.rdt('track', 'SignUp');
+    if (!verifySignUpMapped(this.eventMappingFromConfig)) {
+      window.rdt('track', 'SignUp');
+    }
+    const userIdentifier = createUserIdentifier(
+      rudderElement.message?.context?.traits,
+      rudderElement.context,
+    );
+    /**
+     * Doc Link : https://business.reddithelp.com/helpcenter/s/article/Reddit-Pixel-Advanced-Matching
+     */
+    if (Object.keys(userIdentifier).length > 0) {
+      window.rdt('init', this.pixelId, userIdentifier);
+    }
   }
 
   track(rudderElement) {
@@ -83,6 +97,8 @@ class RedditPixel {
           window.rdt('track', 'Lead');
           break;
         case 'view content':
+        case 'product viewed':
+        case 'productlist viewed':
           window.rdt('track', 'ViewContent');
           break;
         case 'search':
