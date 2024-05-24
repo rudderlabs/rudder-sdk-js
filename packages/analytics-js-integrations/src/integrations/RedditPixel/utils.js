@@ -1,4 +1,13 @@
 import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
+
+const isAppleFamily = platform => {
+  const appleOsNames = ['ios', 'watchos', 'ipados', 'tvos'];
+  if (typeof platform === 'string') {
+    return appleOsNames.includes(platform?.toLowerCase());
+  }
+  return false;
+};
+
 const createUserIdentifier = (traits = {}, context = {}) => {
   const userIdentifier = {};
   const { email, externalId, idfa, aaid } = traits;
@@ -15,13 +24,5 @@ const createUserIdentifier = (traits = {}, context = {}) => {
 
 const verifySignUpMapped = eventMappingFromConfig =>
   eventMappingFromConfig.some(map => map.to === 'SignUp');
-
-const isAppleFamily = platform => {
-  const appleOsNames = ['ios', 'watchos', 'ipados', 'tvos'];
-  if (typeof platform === 'string') {
-    return appleOsNames.includes(platform?.toLowerCase());
-  }
-  return false;
-};
 
 export { createUserIdentifier, verifySignUpMapped, isAppleFamily };

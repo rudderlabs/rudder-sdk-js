@@ -3,9 +3,19 @@
 import {
   createUserIdentifier,
   verifySignUpMapped,
+  isAppleFamily,
 } from '../../../src/integrations/RedditPixel/utils';
 
 describe('RedditPixel util functions test', () => {
+  describe('isAppleFamily tests', () => {
+    it('should return true for iOS platform', () => {
+      expect(isAppleFamily('ios')).toBe(true);
+    });
+
+    it('should return false when input is null', () => {
+      expect(isAppleFamily(null)).toBe(false);
+    });
+  });
   describe('createUserIdentifier tests', () => {
     it('should return an object with all non-empty identifiers when provided', () => {
       const traits = { email: 'test@example.com', externalId: '12345', idfa: '', aaid: null };
@@ -35,7 +45,7 @@ describe('RedditPixel util functions test', () => {
     });
   });
 
-  describe('', () => {
+  describe('verifySignUpMapped tests', () => {
     it('should return true when a mapping with "to" field equal to "SignUp" exists', () => {
       const mappings = [
         { from: 'sign up', to: 'SignUp' },
