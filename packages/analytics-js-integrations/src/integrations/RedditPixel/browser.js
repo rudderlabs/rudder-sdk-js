@@ -56,6 +56,9 @@ class RedditPixel {
       rudderElement.message?.context?.traits,
       rudderElement.context,
     );
+    /**
+     * Doc Link : https://business.reddithelp.com/helpcenter/s/article/Reddit-Pixel-Advanced-Matching
+     */
     if (Object.keys(userIdentifier).length > 0) {
       window.rdt('init', this.pixelId, userIdentifier);
     }
