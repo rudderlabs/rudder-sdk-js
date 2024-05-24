@@ -15,8 +15,11 @@ describe('RedditPixel util functions test', () => {
     it('should return an object with idfa provided through context.device', () => {
       const traits = { email: 'test@example.com', externalId: '12345', idfa: '', aaid: null };
       const context = {
+        os: {
+          name: 'ios',
+        },
         device: {
-          idfa: 'idfaid1234',
+          advertisingId: 'idfaid1234',
         },
       };
       const result = createUserIdentifier(traits, context);
