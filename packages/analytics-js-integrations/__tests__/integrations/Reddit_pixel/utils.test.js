@@ -12,6 +12,20 @@ describe('RedditPixel util functions test', () => {
       const result = createUserIdentifier(traits);
       expect(result).toEqual({ email: 'test@example.com', externalId: '12345' });
     });
+    it('should return an object with idfa provided through context.device', () => {
+      const traits = { email: 'test@example.com', externalId: '12345', idfa: '', aaid: null };
+      const context = {
+        device: {
+          idfa: 'idfaid1234',
+        },
+      };
+      const result = createUserIdentifier(traits, context);
+      expect(result).toEqual({
+        email: 'test@example.com',
+        externalId: '12345',
+        idfa: 'idfaid1234',
+      });
+    });
     it('should return an empty object when called with no arguments', () => {
       const result = createUserIdentifier();
       expect(result).toEqual({});

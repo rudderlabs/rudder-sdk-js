@@ -52,7 +52,10 @@ class RedditPixel {
     if (!verifySignUpMapped(this.eventMappingFromConfig)) {
       window.rdt('track', 'SignUp');
     }
-    const userIdentifier = createUserIdentifier(rudderElement.message?.context?.traits);
+    const userIdentifier = createUserIdentifier(
+      rudderElement.message?.context?.traits,
+      rudderElement.context,
+    );
     if (Object.keys(userIdentifier).length > 0) {
       window.rdt('init', this.pixelId, userIdentifier);
     }
