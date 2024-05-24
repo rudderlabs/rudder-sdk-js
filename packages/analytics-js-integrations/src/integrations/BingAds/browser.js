@@ -30,6 +30,7 @@ class BingAds {
     } = destinationInfo ?? {});
     this.uniqueId = `bing${this.tagID}`;
     this.enableEnhancedConversions = config.enableEnhancedConversions;
+    this.isHashRequired = config.isHashRequired;
   }
 
   init() {
@@ -75,7 +76,7 @@ class BingAds {
 
     payload = { ...payload, ...customProperties };
     if (this.enableEnhancedConversions === true) {
-      payload.pid = context?.traits?.pid || constructPidPayload(context);
+      payload.pid = context?.traits?.pid || constructPidPayload(context, this.isHashRequired);
     }
     payload = removeUndefinedAndNullValues(payload);
     window[this.uniqueId].push('event', eventToSend, payload);
