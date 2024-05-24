@@ -1,4 +1,5 @@
 import { ResultsAssertions } from './ResultAssertions';
+import { toBase64 } from './string';
 
 class TestBook {
   constructor(testBookData, executionDelay = 5000, containerId = 'testBook') {
@@ -91,30 +92,32 @@ class TestBook {
                                   )
                             }</p>
                             <div style="word-wrap: break-word; position: relative;">
-                              <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
+                              <pre style="white-space: pre-wrap;">${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
                             </div>
                         </th>
-                        <td style="word-wrap: break-word;"><span class="badge badge-warning" id="test-case-status-${
+                        <td style="word-wrap: break-word; position: relative"><span class="badge badge-warning" id="test-case-status-${
                           testCase.id
-                        }">pending</span></td>
+                        }">pending</span>
+                        <div>
+                          <a href="#" target="_blank" class="btn btn-danger btn-sm d-none" style="position: relative; top:10px;" id="view-diff-${testCase.id}">View result diff</a>
+                        <div>
+                        </td>
                         <td style="word-wrap: break-word; position: relative;">
-                          <pre class="testCaseResult" id="test-case-result-${
+                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
                             testCase.id
-                          }" data-test-case-id="${testCase.id}"></pre>
+                          }" style="white-space: pre-wrap;">${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${
+                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data-${
                               testCase.id
                             }"></i>
                           </button>
                         </td>
                         <td style="word-wrap: break-word; position: relative;">
-                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
+                          <pre class="testCaseResult" id="test-case-result-${
                             testCase.id
-                          }">
-                            ${JSON.stringify(testCase.expectedResult, undefined, 2)}
-                          </pre>
+                          }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;"></pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data-${
+                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${
                               testCase.id
                             }"></i>
                           </button>
@@ -199,9 +202,9 @@ class TestBook {
     inputs.push(resultCallback);
 
     if (typeof clickHandler === 'function') {
-      clickHandler.apply(null, inputs);
+      clickHandler(...inputs);
     } else if (typeof clickHandler === 'string') {
-      window.rudderanalytics[clickHandler].apply(null, inputs);
+      window.rudderanalytics[clickHandler](...inputs);
     }
   }
 
@@ -215,7 +218,7 @@ class TestBook {
       const { suiteIndex } = triggerElement.dataset;
       const { testCaseIndex } = triggerElement.dataset;
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
-      const resultCallback = function (generatedPayload, isApiTest) {
+      const resultCallback = (generatedPayload, isApiTest) => {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
         // To cater for both v1.1 and v3 internal data structure & API endpoint tests
         let normalisedResultData = generatedPayload;
@@ -273,8 +276,10 @@ class TestBook {
     Array.from(expandToggleElements).forEach(element => {
       element.addEventListener('click', event => {
         if (event.target.parentNode.parentNode.className) {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = '';
         } else {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = 'collapsed-row';
         }
       });
@@ -294,14 +299,17 @@ class TestBook {
       const observer = new MutationObserver(mutationList => {
         const resultDataElement = mutationList[0].addedNodes[0].parentNode;
         const resultData = resultDataElement.textContent.trim();
-        const expectedResult = resultRowElement.lastElementChild.childNodes[1].textContent.trim();
-        const sanitizedResultData = ResultsAssertions.sanitizeResultData(
-          resultData,
-          expectedResult,
-        );
+        // Get the last but one child from resultRowElement
+        const expectedResult =
+          resultRowElement.childNodes[
+            resultRowElement.childNodes.length - 2
+          ].childNodes[1].textContent.trim();
+
+        const { resultData: sanitizedResultData, expectedResultData: sanitizedExpectedResultData } =
+          ResultsAssertions.sanitizeResultData(resultData, expectedResult);
         const assertionResult = ResultsAssertions.assertDeepObjectDiffResult(
           sanitizedResultData,
-          expectedResult,
+          sanitizedExpectedResultData,
         );
 
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
@@ -311,6 +319,17 @@ class TestBook {
           behavior: 'smooth',
           block: 'center',
         });
+
+        const viewDiffElement = document.getElementById(`view-diff-${testCaseId}`);
+        if (assertionResult === 'success') {
+          // hide the element
+          viewDiffElement.classList.add('d-none');
+        } else {
+          // show the element
+          viewDiffElement.classList.remove('d-none');
+
+          viewDiffElement.href = `https://jsondiff.com/#left=data:base64,${toBase64(sanitizedExpectedResultData)}&right=data:base64,${toBase64(sanitizedResultData)}`;
+        }
       });
 
       observer.observe(resultContainerElement, {

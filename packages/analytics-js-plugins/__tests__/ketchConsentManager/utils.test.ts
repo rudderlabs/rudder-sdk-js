@@ -19,10 +19,10 @@ describe('KetchConsentManager - Utils', () => {
     resetState();
 
     // delete all cookies
-    document.cookie.split(';').forEach(function (c) {
+    document.cookie.split(';').forEach(c => {
       document.cookie = c
         .replace(/^ +/, '')
-        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+        .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
     });
   });
 
@@ -116,11 +116,9 @@ describe('KetchConsentManager - Utils', () => {
     it('should return undefined if ketch consent cookie could not be read', () => {
       // mock store manager to intentionally throw error
       const mockStoreManager = {
-        setStore: () => {
-          return {
-            engine: null,
-          };
-        },
+        setStore: () => ({
+          engine: null,
+        }),
       };
 
       const ketchConsentData = getKetchConsentData(mockStoreManager, mockLogger);

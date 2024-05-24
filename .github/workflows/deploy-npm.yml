@@ -15,7 +15,7 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
@@ -57,7 +57,7 @@ jobs:
       - name: Install dependencies
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.CURRENT_VERSION_VALUE }}/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
@@ -74,21 +74,23 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v3 NPM Package'
+          PROJECT_NAME: 'JS SDK NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": "New Release: ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -98,29 +100,45 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}"
+                    "text": "*<${{ env.NPM_PACKAGE_URL }}|v${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://img.icons8.com/color/452/npm.png",
+                    "alt_text": "NPM Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{env.RELEASES_URL}}${{ env.CURRENT_VERSION_VALUE }}|here>."
+                    }
+                  ]
                 }
               ]
             }
 
       - name: Send message to Slack channel for Service Worker
         id: slackSw
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Service Worker NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": "New Release: ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -130,40 +148,22 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}"
-                  }
-                }
-              ]
-            }
-
-      - name: Send message to Slack channel for v1.1
-        id: slackv1
-        uses: slackapi/slack-github-action@v1.25.0
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK v1.1 NPM Package'
-          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
-        with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": "*<${{ env.NPM_PACKAGE_URL }}|v${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://img.icons8.com/color/452/npm.png",
+                    "alt_text": "NPM Icon"
                   }
                 },
                 {
-                  "type": "divider"
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Release: <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_V1_VALUE }}>*\n${{ env.DATE }}"
-                  }
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_SW_VALUE }}|here>."
+                    }
+                  ]
                 }
               ]
             }

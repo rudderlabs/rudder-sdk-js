@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "private": true,
   "description": "RudderStack JavaScript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -84,16 +84,20 @@
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
-  "dependencies": {
-    "@ndhoule/each": "2.0.1",
-    "@ndhoule/extend": "2.0.0",
+  "dependencies": {},
+  "devDependencies": {
     "@rudderstack/analytics-js-common": "*",
-    "component-each": "0.2.6",
+    "@ndhoule/each": "2.0.1",
     "crypto-js": "4.2.0",
     "is": "3.3.0",
     "md5": "2.3.0",
     "obj-case": "0.2.1",
-    "on-body": "0.0.1"
+    "on-body": "0.0.1",
+    "component-each": "0.2.6",
+    "@ndhoule/extend": "2.0.0",
+    "@lukeed/uuid": "2.0.1",
+    "get-value": "3.0.1",
+    "ramda": "0.30.0"
   },
   "overrides": {},
   "browserslist": {

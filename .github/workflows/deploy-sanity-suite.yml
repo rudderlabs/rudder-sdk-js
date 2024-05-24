@@ -1,15 +1,48 @@
 name: Deploy Sanity Suite
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       environment:
-        type: choice
-        description: What sanity suite environment to deploy (pre-release checks done on staging)
+        type: string
         required: true
-        options:
-          - production
-          - staging
+    secrets:
+      AWS_STAGING_ACCOUNT_ID:
+        required: false
+      AWS_PROD_ACCOUNT_ID:
+        required: false
+      AWS_STAGING_S3_BUCKET_NAME:
+        required: false
+      AWS_PROD_S3_BUCKET_NAME:
+        required: false
+      AWS_STAGING_S3_SYNC_ROLE:
+        required: false
+      AWS_PROD_S3_SYNC_ROLE:
+        required: false
+      AWS_STAGING_CF_DISTRIBUTION_ID:
+        required: false
+      AWS_PROD_CF_DISTRIBUTION_ID:
+        required: false
+      SANITY_SUITE_STAGING_WRITE_KEY:
+        required: false
+      SANITY_SUITE_PROD_WRITE_KEY:
+        required: false
+      SANITY_SUITE_STAGING_DATAPLANE_URL:
+        required: false
+      SANITY_SUITE_PROD_DATAPLANE_URL:
+        required: false
+      SANITY_SUITE_STAGING_CONFIG_SERVER_HOST:
+        required: false
+      SANITY_SUITE_PROD_CONFIG_SERVER_HOST:
+        required: false
+      RS_STAGING_BUGSNAG_API_KEY:
+        required: false
+      RS_PROD_BUGSNAG_API_KEY:
+        required: false
+      SLACK_BOT_TOKEN:
+        required: true
+      SLACK_RELEASE_CHANNEL_ID:
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -19,18 +52,55 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy Sanity Suite
     runs-on: [self-hosted, Linux, X64]
 
     steps:
+      - name: Configure deployment options
+        id: deployment-options
+        run: |
+          echo "DATE=$(date)" >> $GITHUB_ENV
+          
+          if [ "${{ inputs.environment }}" == "staging" ]; then
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_STAGING_ACCOUNT_ID }}" >> $GITHUB_ENV
+            echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}" >> $GITHUB_ENV
+            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}" >> $GITHUB_ENV
+            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
+
+            echo "WRITE_KEY=${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}" >> $GITHUB_ENV
+            echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}" >> $GITHUB_ENV
+            echo "CONFIG_SERVER_HOST=${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}" >> $GITHUB_ENV
+            echo "BUGSNAG_API_KEY=${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}" >> $GITHUB_ENV
+            echo "BUGSNAG_RELEASE_STAGE=staging" >> $GITHUB_ENV
+
+            echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=staging" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" == "production" ]; then
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
+            echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_PROD_S3_SYNC_ROLE }}" >> $GITHUB_ENV
+            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_PROD_S3_BUCKET_NAME }}" >> $GITHUB_ENV
+            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
+
+            echo "WRITE_KEY=${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}" >> $GITHUB_ENV
+            echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}" >> $GITHUB_ENV
+            echo "CONFIG_SERVER_HOST=${{ secrets.SANITY_SUITE_PROD_CONFIG_SERVER_HOST }}" >> $GITHUB_ENV
+            echo "BUGSNAG_API_KEY=${{ secrets.RS_PROD_BUGSNAG_API_KEY }}" >> $GITHUB_ENV
+            echo "BUGSNAG_RELEASE_STAGE=production" >> $GITHUB_ENV
+
+            echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
+          else
+            echo ""
+          fi
+
       - name: Install AWS cli
         uses: unfor19/install-aws-cli-action@master
         
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
       - name: Checkout
@@ -48,33 +118,61 @@ jobs:
         run: |
           npm run setup:ci
 
-      - name: Build staging artifacts
-        if: inputs.environment == 'staging'
+      - name: Build artifacts
         env:
-          WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
-          DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
-          CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
-          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'development'
+          WRITE_KEY: ${{ env.WRITE_KEY }}
+          DATAPLANE_URL: ${{ env.DATAPLANE_URL }}
+          CONFIG_SERVER_HOST: ${{ env.CONFIG_SERVER_HOST }}
+          BUGSNAG_API_KEY: ${{ env.BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
+          SDK_CDN_VERSION_PATH_PREFIX: ${{ env.SDK_CDN_VERSION_PATH_PREFIX }}
           HUSKY: 0
         run: |
-          npm run build:package
-          npm run build:sanity:staging
-
-      - name: Build production artifacts
-        if: inputs.environment == 'production'
-        env:
-          WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
-          DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
-          CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'production'
-          HUSKY: 0
-        run: |
-          npm run build:package
           npm run build:sanity
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/sanity-suite*"
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite/${{ env.SUITE_CDN_PATH }} --recursive --cache-control max-age=3600
+
+      - name: Create Cloudfront invalidation
+        run: |
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite/${{ env.SUITE_CDN_PATH }}/*"
+
+      - name: Send message to Slack channel
+        id: slackv1
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
+          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite/${{ env.SUITE_CDN_PATH }}/v3/cdn/'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "*New Deployment: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New Deployment: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
+                    "alt_text": "JavaScript Icon"
+                  }
+                }
+              ]
+            }
+
