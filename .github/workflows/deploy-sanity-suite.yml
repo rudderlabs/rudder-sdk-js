@@ -75,7 +75,7 @@ jobs:
             echo "BUGSNAG_RELEASE_STAGE=staging" >> $GITHUB_ENV
 
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=staging" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/staging/" >> $GITHUB_ENV
           elif [ "${{ inputs.environment }}" == "production" ]; then
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
             echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_PROD_S3_SYNC_ROLE }}" >> $GITHUB_ENV
@@ -89,7 +89,7 @@ jobs:
             echo "BUGSNAG_RELEASE_STAGE=production" >> $GITHUB_ENV
 
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/" >> $GITHUB_ENV
           else
             echo ""
           fi
@@ -132,11 +132,11 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite/${{ env.SUITE_CDN_PATH }} --recursive --cache-control max-age=3600
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control max-age=3600
 
       - name: Create Cloudfront invalidation
         run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite/${{ env.SUITE_CDN_PATH }}/*"
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
 
       - name: Send message to Slack channel
         id: slackv1
@@ -144,7 +144,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
-          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite/${{ env.SUITE_CDN_PATH }}/v3/cdn/'
+          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}v3/cdn/index.html'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
