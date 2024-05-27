@@ -100,7 +100,7 @@ jobs:
       - name: Sync Adobe Analytics assets to S3
         if: ${{ inputs.environment == 'production' }}
         run: |
-          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=$${{ env.CACHE_MAX_AGE }}
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}
 
       - name: Create Cloudfront invalidation
         if: ${{ inputs.environment == 'production' }}
@@ -216,7 +216,6 @@ jobs:
                 }
               ]
             }
-
 
       # Below steps are for v1.1 SDK (legacy)
 

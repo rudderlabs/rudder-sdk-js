@@ -90,8 +90,6 @@ jobs:
 
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/" >> $GITHUB_ENV
-          else
-            echo ""
           fi
 
       - name: Install AWS CLI
@@ -139,7 +137,7 @@ jobs:
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
 
       - name: Send message to Slack channel
-        id: slackv1
+        id: slack
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -175,4 +173,3 @@ jobs:
                 }
               ]
             }
-
