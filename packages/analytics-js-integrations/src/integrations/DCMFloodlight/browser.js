@@ -40,6 +40,7 @@ class DCMFloodlight {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+    this.countingMethod = config.countingMethod;
   }
 
   /**
@@ -82,8 +83,9 @@ class DCMFloodlight {
   loadCookieMatching() {
     if (this.doubleclickId && this.googleNetworkId) {
       const image = document.createElement('img');
-      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${this.googleNetworkId
-        }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
+      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
+        this.googleNetworkId
+      }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
       document.getElementsByTagName('head')[0].appendChild(image);
     }
   }
@@ -113,14 +115,6 @@ class DCMFloodlight {
       return;
     }
 
-    // Specifies how conversions will be counted for a Floodlight activity
-    let countingMethod = get(message, 'properties.countingMethod');
-    if (!countingMethod) {
-      logger.error('countingMethod is required for track call');
-      return;
-    }
-    countingMethod = countingMethod.trim().toLowerCase().replace(/\s+/g, '_');
-
     // find conversion event
     // knowing cat (activityTag), type (groupTag), (counter or sales), customVariable from config
     const conversionEvent = this.conversionEvents.find(
@@ -136,6 +130,18 @@ class DCMFloodlight {
       this.activityTag = conversionEvent.floodlightActivityTag.trim();
       this.groupTag = conversionEvent.floodlightGroupTag.trim();
     }
+
+    if (conversionEvent.floodlightCountingMethod) {
+      this.countingMethod = conversionEvent.floodlightCountingMethod.trim();
+    }
+
+    // Specifies how conversions will be counted for a Floodlight activity
+    let countingMethod = get(message, 'properties.countingMethod') || this.countingMethod;
+    if (!countingMethod) {
+      logger.error('countingMethod is required for track call');
+      return;
+    }
+    countingMethod = countingMethod.trim().toLowerCase().replace(/\s+/g, '_');
 
     const { salesTag, customVariables } = conversionEvent;
 
@@ -207,7 +213,6 @@ class DCMFloodlight {
   }
 
   page(rudderElement) {
-
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message || rudderElement.message.properties;
 
