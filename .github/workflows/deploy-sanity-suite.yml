@@ -94,7 +94,7 @@ jobs:
             echo ""
           fi
 
-      - name: Install AWS cli
+      - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@master
         
       - name: Configure AWS credentials

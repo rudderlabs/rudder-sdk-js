@@ -69,8 +69,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
+          # Remove unnecessary fields from package.json before publishing
+          ./scripts/make-package-json-publish-ready.sh
+
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+
+          # Reset the changes made to package.json
+          git reset --hard
+          git clean -fd
 
       - name: Send message to Slack channel
         id: slack
