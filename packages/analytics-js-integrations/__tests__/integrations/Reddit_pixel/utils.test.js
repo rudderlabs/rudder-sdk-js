@@ -20,7 +20,10 @@ describe('RedditPixel util functions test', () => {
     it('should return an object with all non-empty identifiers when provided', () => {
       const traits = { email: 'test@example.com', externalId: '12345', idfa: '', aaid: null };
       const result = createUserIdentifier(traits);
-      expect(result).toEqual({ email: 'test@example.com', externalId: '12345' });
+      expect(result).toEqual({
+        email: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+        externalId: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+      });
     });
     it('should return an object with idfa provided through context.device', () => {
       const traits = { email: 'test@example.com', externalId: '12345', idfa: '', aaid: null };
@@ -34,9 +37,9 @@ describe('RedditPixel util functions test', () => {
       };
       const result = createUserIdentifier(traits, context);
       expect(result).toEqual({
-        email: 'test@example.com',
-        externalId: '12345',
-        idfa: 'idfaid1234',
+        email: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+        externalId: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+        idfa: '1d1e1142069743008fb6b5733bef8a02f9718f3aee9a8584e2d2d36090e58d86',
       });
     });
     it('should return an empty object when called with no arguments', () => {

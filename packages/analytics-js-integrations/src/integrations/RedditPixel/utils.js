@@ -1,4 +1,8 @@
-import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
+import sha256 from 'crypto-js/sha256';
+import {
+  isDefinedAndNotNullAndNotEmpty,
+  removeUndefinedAndNullAndEmptyValues,
+} from '../../utils/commonUtils';
 
 const isAppleFamily = platform => {
   const appleOsNames = ['ios', 'watchos', 'ipados', 'tvos'];
@@ -11,13 +15,23 @@ const isAppleFamily = platform => {
 const createUserIdentifier = (traits = {}, context = {}) => {
   const userIdentifier = {};
   const { email, externalId, idfa, aaid } = traits;
-  userIdentifier.email = email;
-  userIdentifier.externalId = externalId;
+  if (isDefinedAndNotNullAndNotEmpty(email)) {
+    userIdentifier.email = sha256(email).toString();
+  }
+  if (isDefinedAndNotNullAndNotEmpty(externalId)) {
+    userIdentifier.externalId = sha256(externalId).toString();
+  }
   if (isAppleFamily(context.os?.name)) {
-    userIdentifier.idfa = idfa || context.device?.advertisingId;
+    const tempIdfa = idfa || context.device?.advertisingId;
+    if (isDefinedAndNotNullAndNotEmpty(tempIdfa)) {
+      userIdentifier.idfa = sha256(tempIdfa).toString();
+    }
   }
   if (context.os?.name === 'android') {
-    userIdentifier.aaid = aaid || context.device?.advertisingId;
+    const tempAaid = aaid || context.device?.advertisingId;
+    if (isDefinedAndNotNullAndNotEmpty(tempAaid)) {
+      userIdentifier.aaid = sha256(tempAaid).toString();
+    }
   }
   return removeUndefinedAndNullAndEmptyValues(userIdentifier);
 };
