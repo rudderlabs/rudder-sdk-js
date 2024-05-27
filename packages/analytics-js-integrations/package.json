@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "description": "RudderStack JavaScript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -84,7 +84,8 @@
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@rudderstack/analytics-js-common": "*",
     "@ndhoule/each": "2.0.1",
     "lodash.get": "4.4.2",
@@ -99,9 +100,11 @@
     "lodash.isundefined": "3.0.1",
     "lodash.isempty": "4.4.0",
     "lodash.pickby": "4.6.0",
-    "lodash.tostring": "4.1.4"
+    "lodash.tostring": "4.1.4",
+    "@lukeed/uuid": "2.0.1",
+    "get-value": "3.0.1",
+    "ramda": "0.30.0"
   },
-  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [

@@ -18,4 +18,5 @@ export type Source = {
   id: string;
   config?: SourceConfig;
   dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
+  workspaceId: string;
 };

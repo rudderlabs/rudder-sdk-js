@@ -131,7 +131,7 @@ class Criteo {
           handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
           break;
         case 'product added':
-          handleProductAdded(rudderElement.message, finalPayload)
+          handleProductAdded(rudderElement.message, finalPayload);
           break;
         default:
           break;

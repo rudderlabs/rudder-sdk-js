@@ -27,6 +27,11 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  AsyncRequestCallback,
+  IHttpClient,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -35,10 +40,14 @@ import {
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
 import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-import { defaultSessionInfo } from '../../state/slices/session';
+import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  DATA_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -53,25 +62,34 @@ import {
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
 import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
-import type { IUserSessionManager, UserSessionStorageKeysType } from './types';
+import type {
+  CallbackFunction,
+  CookieData,
+  EncryptedCookieData,
+  IUserSessionManager,
+  UserSessionStorageKeysType,
+} from './types';
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
   pluginsManager?: IPluginsManager;
-  logger?: ILogger;
   errorHandler?: IErrorHandler;
+  httpClient?: IHttpClient;
+  logger?: ILogger;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
     pluginsManager?: IPluginsManager,
     storeManager?: IStoreManager,
+    httpClient?: IHttpClient,
   ) {
     this.storeManager = storeManager;
     this.pluginsManager = pluginsManager;
     this.logger = logger;
     this.errorHandler = errorHandler;
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
   }
 
@@ -112,16 +130,23 @@ class UserSessionManager implements IUserSessionManager {
     let sessionInfo = this.getSessionInfo();
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const persistedSessionInfo = this.getSessionInfo() ?? defaultSessionInfo;
+      const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
       sessionInfo = {
-        ...persistedSessionInfo,
+        ...initialSessionInfo,
         ...configuredSessionTrackingInfo,
         autoTrack:
-          configuredSessionTrackingInfo.autoTrack && persistedSessionInfo.manualTrack !== true,
+          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
       };
     }
 
-    this.setSessionInfo(sessionInfo);
+    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
+      ? (sessionInfo as SessionInfo)
+      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+    // If auto session tracking is enabled start the session tracking
+    if (state.session.sessionInfo.value.autoTrack) {
+      this.startOrRenewAutoTracking(state.session.sessionInfo.value);
+    }
   }
 
   setInitialReferrerInfo() {
@@ -254,11 +279,115 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, USER_SESSION_MANAGER);
+      this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
       throw error;
+    }
+  }
+
+  /**
+   * A function to encrypt the cookie value and return the encrypted data
+   * @param cookieData
+   * @param store
+   * @returns
+   */
+  getEncryptedCookieData(cookieData: CookieData[], store?: IStore): EncryptedCookieData[] {
+    const encryptedCookieData: EncryptedCookieData[] = [];
+    cookieData.forEach(e => {
+      const encryptedValue =
+        e.value === ''
+          ? e.value
+          : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger));
+      if (isDefinedAndNotNull(encryptedValue)) {
+        encryptedCookieData.push({
+          name: e.name,
+          value: encryptedValue,
+        });
+      }
+    });
+    return encryptedCookieData;
+  }
+
+  /**
+   * A function that makes request to data service to set the cookie
+   * @param encryptedCookieData
+   * @param callback
+   */
+  makeRequestToSetCookie(
+    encryptedCookieData: EncryptedCookieData[],
+    callback: AsyncRequestCallback<any>,
+  ) {
+    this.httpClient?.getAsyncData({
+      url: state.serverCookies.dataServiceUrl.value as string,
+      options: {
+        method: 'POST',
+        data: stringifyWithoutCircular({
+          reqType: 'setCookies',
+          workspaceId: state.source.value?.workspaceId,
+          data: {
+            options: {
+              maxAge: state.storage.cookie.value?.maxage,
+              path: state.storage.cookie.value?.path,
+              domain: state.storage.cookie.value?.domain,
+              sameSite: state.storage.cookie.value?.samesite,
+              secure: state.storage.cookie.value?.secure,
+              expires: state.storage.cookie.value?.expires,
+            },
+            cookies: encryptedCookieData,
+          },
+        }) as string,
+        sendRawData: true,
+      },
+      isRawResponse: true,
+      callback,
+    });
+  }
+
+  /**
+   * A function to make an external request to set the cookie from server side
+   * @param key       cookie name
+   * @param value     encrypted cookie value
+   */
+  setServerSideCookie(cookieData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
+    try {
+      // encrypt cookies values
+      const encryptedCookieData = this.getEncryptedCookieData(cookieData, store);
+      if (encryptedCookieData.length > 0) {
+        // make request to data service to set the cookie from server side
+        this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
+          if (details?.xhr?.status === 200) {
+            cookieData.forEach(each => {
+              const cookieValue = store?.get(each.name);
+              if (each.value) {
+                if (cookieValue !== each.value) {
+                  this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                  if (cb) {
+                    cb(each.name, each.value);
+                  }
+                }
+              } else if (cookieValue) {
+                this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
+              }
+            });
+          } else {
+            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            cookieData.forEach(each => {
+              if (cb) {
+                cb(each.name, each.value);
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
+      cookieData.forEach(each => {
+        if (cb) {
+          cb(each.name, each.value);
+        }
+      });
     }
   }
 
@@ -272,14 +401,37 @@ class UserSessionManager implements IUserSessionManager {
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
-    const storage = entries[sessionKey]?.type as StorageType;
-    const key = entries[sessionKey]?.key as string;
-    if (isStorageTypeValidForStoringData(storage)) {
+    const storageType = entries[sessionKey]?.type as StorageType;
+    if (isStorageTypeValidForStoringData(storageType)) {
       const curStore = this.storeManager?.getStore(
-        storageClientDataStoreNameMap[storage] as string,
+        storageClientDataStoreNameMap[storageType] as string,
       );
-      if ((value && isString(value)) || isNonEmptyObject(value)) {
-        curStore?.set(key, value);
+      const key = entries[sessionKey]?.key as string;
+      if (value && (isString(value) || isNonEmptyObject(value))) {
+        // if useServerSideCookies load option is set to true
+        // set the cookie from server side
+        if (
+          state.serverCookies.isEnabledServerSideCookies.value &&
+          storageType === COOKIE_STORAGE
+        ) {
+          this.setServerSideCookie(
+            [{ name: key, value }],
+            (cookieName, cookieValue) => {
+              curStore?.set(cookieName, cookieValue);
+            },
+            curStore,
+          );
+        } else {
+          curStore?.set(key, value);
+        }
+      } else if (
+        state.serverCookies.isEnabledServerSideCookies.value &&
+        storageType === COOKIE_STORAGE
+      ) {
+        // remove cookie that is set from server side
+        // TODO: Test cookies set from server side can be cleared from client side
+        // and make appropriate changes.
+        this.setServerSideCookie([{ name: key, value: '' }], undefined, curStore);
       } else {
         curStore?.remove(key);
       }
@@ -438,7 +590,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionId(): Nullable<number> {
-    const sessionInfo = state.session.sessionInfo.value;
+    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (
       (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
       sessionInfo.manualTrack
@@ -449,19 +601,24 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to update current session info after each event call
+   * A function to keep the session information up to date in the state
+   * before using it for building event payloads.
    */
   refreshSession(): void {
-    let sessionInfo = state.session.sessionInfo.value;
+    let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
-        this.startOrRenewAutoTracking();
+        this.startOrRenewAutoTracking(sessionInfo);
+        sessionInfo = state.session.sessionInfo.value;
       }
 
-      // Re-assigning the variable with the same value intentionally as
-      // startOrRenewAutoTracking() will update the sessionInfo value
-      sessionInfo = state.session.sessionInfo.value;
-
+      // Note that if sessionStart is false, then it's an active session.
+      // So, we needn't update the session info.
+      //
+      // For other scenarios,
+      // 1. If sessionStart is undefined, then it's a new session.
+      //   Mark it as sessionStart.
+      // 2. If sessionStart is true, then need to flip it for the future events.
       if (sessionInfo.sessionStart === undefined) {
         state.session.sessionInfo.value = {
           ...sessionInfo,
@@ -504,22 +661,11 @@ class UserSessionManager implements IUserSessionManager {
 
       if (autoTrack) {
         session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-        this.startOrRenewAutoTracking();
+        this.startOrRenewAutoTracking(session.sessionInfo.value);
       } else if (manualTrack) {
         this.startManualTrackingInternal();
       }
     });
-  }
-
-  setSessionInfo(sessionInfo: Nullable<SessionInfo>) {
-    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
-      ? (sessionInfo as SessionInfo)
-      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
-
-    // If auto session tracking is enabled start the session tracking
-    if (state.session.sessionInfo.value.autoTrack) {
-      this.startOrRenewAutoTracking();
-    }
   }
 
   /**
@@ -540,7 +686,10 @@ class UserSessionManager implements IUserSessionManager {
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
       this.isPersistenceEnabledForStorageEntry('userTraits') && traits
-        ? mergeDeepRight(state.session.userTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
 
@@ -562,7 +711,10 @@ class UserSessionManager implements IUserSessionManager {
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
       this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
-        ? mergeDeepRight(state.session.groupTraits.value ?? {}, traits)
+        ? mergeDeepRight(
+            state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
+            traits,
+          )
         : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }
 
@@ -591,8 +743,7 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to check for existing session details and depending on that create a new session
    */
-  startOrRenewAutoTracking() {
-    const sessionInfo = state.session.sessionInfo.value;
+  startOrRenewAutoTracking(sessionInfo: SessionInfo) {
     if (hasSessionExpired(sessionInfo.expiresAt)) {
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
     } else {
@@ -624,7 +775,7 @@ class UserSessionManager implements IUserSessionManager {
    * A public method to end an ongoing session.
    */
   end() {
-    state.session.sessionInfo.value = {};
+    state.session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
   }
 
   /**

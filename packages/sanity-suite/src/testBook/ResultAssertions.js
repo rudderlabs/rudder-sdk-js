@@ -1,6 +1,6 @@
 import objectPath from 'object-path';
 import { diff } from 'deep-object-diff';
-import { sortBy, sortWith, ascend, prop, clone } from 'ramda';
+import { sortBy, prop } from 'ramda';
 import { ignoredProperties } from '../ignoredProperties/ignoredProperties';
 import { sourceConfigIgnoredProperties } from '../ignoredProperties/sourceConfigIgnoredProperties';
 
@@ -10,6 +10,7 @@ const ResultsAssertions = {
   resultDataIgnoredPropertiesMutator(resultData, expectedResultData, ignoredPropertyList) {
     ignoredPropertyList.forEach(property => {
       if (
+        // eslint-disable-next-line valid-typeof
         typeof objectPath.get(resultData, property.key) === property.type ||
         property.optional === true
       ) {

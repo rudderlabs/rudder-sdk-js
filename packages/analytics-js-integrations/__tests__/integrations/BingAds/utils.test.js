@@ -2,6 +2,7 @@ import {
   buildCommonPayload,
   buildEcommPayload,
   handleProductsArray,
+  constructPidPayload,
 } from '../../../src/integrations/BingAds/utils';
 import { query, products } from './__fixtures__/data';
 
@@ -133,6 +134,101 @@ describe('Build ecomm payload utility tests', () => {
       transaction_id: undefined,
       ecomm_totalvalue: undefined,
       ecomm_pagetype: 'other',
+    });
+  });
+});
+
+describe('Construct PID payload for enahcned conversions', () => {
+  it('should return undefined when both email and phone are undefined', () => {
+    // Arrange
+    const message = {};
+
+    // Act
+    const result = constructPidPayload(message, true);
+
+    // Assert
+    expect(result).toEqual(undefined);
+  });
+
+  // Returns undefined when email is invalid
+  it('should return undefined when email is invalid and phone is not given', () => {
+    // Arrange
+    const message = {
+      context: {
+        traits: {
+          email: 'invalidemail',
+        },
+      },
+    };
+
+    // Act
+    const result = constructPidPayload(message, true);
+
+    // Assert
+    expect(result).toBeUndefined();
+  });
+
+  // Returns an object with only email property when only email is defined
+  it('should return an object with only email property when only email is defined', () => {
+    // Arrange
+    const message = {
+      context: {
+        traits: {
+          email: 'test+1@example.com',
+        },
+      },
+    };
+
+    // Act
+    const result = constructPidPayload(message, true);
+
+    // Assert
+    expect(result).toEqual({
+      em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+      '': '',
+    });
+  });
+
+  // Returns an object with only phone property when only phone is defined
+  it('should return an object with only phone property when only phone is defined', () => {
+    // Arrange
+    const message = {
+      traits: {
+        phone: '1234567890',
+      },
+    };
+
+    // Act
+    const result = constructPidPayload(message, true);
+
+    // Assert
+    expect(result).toEqual({
+      ph: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8',
+      '': '',
+    });
+  });
+
+  // Returns an object with both email and phone properties when both are defined
+  it('should return an object with both email and phone properties when both are defined', () => {
+    // Arrange
+    const message = {
+      context: {
+        traits: {
+          email: 'hashed_email',
+        },
+      },
+      traits: {
+        phone: 'hashed_phone',
+      },
+    };
+
+    // Act
+    const result = constructPidPayload(message, false);
+
+    // Assert
+    expect(result).toEqual({
+      em: 'hashed_email',
+      ph: 'hashed_phone',
     });
   });
 });

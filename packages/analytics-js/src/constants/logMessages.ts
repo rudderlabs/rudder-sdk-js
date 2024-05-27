@@ -91,6 +91,17 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
+const DATA_SERVER_URL_INVALID_ERROR = (url: string) =>
+  `The server side cookies functionality is disabled as the provided data server URL, "${url}" is invalid.`;
+
+const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
+  `The server responded with status ${status} while setting the cookies. As a fallback, the cookies will be set client side.`;
+const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
+  `The server failed to set the ${key} cookie. As a fallback, the cookies will be set client side.`;
+const FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR = (key: string) =>
+  `The server failed to remove the ${key} cookie.`;
+const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.`;
+
 // WARNING
 const STORAGE_TYPE_VALIDATION_WARNING = (
   context: string,
@@ -301,5 +312,10 @@ export {
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  DATA_SERVER_URL_INVALID_ERROR,
+  DATA_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   MISCONFIGURED_PLUGINS_WARNING,
 };

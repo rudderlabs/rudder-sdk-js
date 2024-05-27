@@ -80,6 +80,7 @@
         destSDKBaseURL:
           '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
         pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+        useServerSideCookies:true,        
         // queueOptions: {
         //   batch: {
         //     maxSize: 5 * 1024, // 5KB
@@ -89,6 +90,10 @@
         // beaconQueueOptions: {
         //   flushQueueInterval: 10 * 1000,
         //   maxItems: 5,
+        // },
+        // sessions: {
+        //   autoTrack: true,
+        //   timeout: 30 * 1000
         // },
         storage: {
           encryption: {

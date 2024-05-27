@@ -12,10 +12,10 @@ import { isDefinedAndNotNull } from '../../utils/utils';
  * @returns
  */
 function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
-  if(!eventName || eventName.trim() === ''){
+  if (!eventName || eventName.trim() === '') {
     return false;
   }
-  
+
   if (!trackEvents) {
     return false;
   }
@@ -127,9 +127,55 @@ function newCustomerAcquisitionReporting(properties) {
   return updatedProperties;
 }
 
+// https://support.google.com/google-ads/answer/13258081#zippy=%2Cvalidate-your-implementation-using-chrome-developer-tools%2Cfind-enhanced-conversions-fields-on-your-conversion-page%2Cidentify-and-define-your-enhanced-conversions-fields
+/**
+ * Generates required payload from traits for identify call
+ * @param {*} traits
+ * @returns payload
+ */
+function generateUserDataPayload(traits) {
+  const payload = {};
+  if (traits) {
+    payload.address = {};
+    if (isDefinedAndNotNull(traits.email)) {
+      payload.email = traits.email;
+    }
+    if (isDefinedAndNotNull(traits.phone)) {
+      payload.phone_number = traits.phone;
+    }
+    if (isDefinedAndNotNull(traits.firstName)) {
+      payload.address.first_name = traits.firstName;
+    }
+    if (isDefinedAndNotNull(traits.lastName)) {
+      payload.address.last_name = traits.lastName;
+    }
+    if (isDefinedAndNotNull(traits.city)) {
+      payload.address.city = traits.city;
+    }
+    if (isDefinedAndNotNull(traits.street)) {
+      payload.address.street = traits.street;
+    }
+    if (isDefinedAndNotNull(traits.state)) {
+      payload.address.region = traits.state;
+    }
+    if (isDefinedAndNotNull(traits.postalCode)) {
+      payload.address.postal_code = traits.postalCode;
+    }
+    if (isDefinedAndNotNull(traits.country)) {
+      payload.address.country = traits.country;
+    }
+    if (!traits.city && !traits.state && !traits.postalCode && !traits.country && !traits.street) {
+      // if none of the address fields are present then remove address object from payload
+      delete payload.address;
+    }
+  }
+  return payload;
+}
+
 export {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
   newCustomerAcquisitionReporting,
+  generateUserDataPayload,
 };

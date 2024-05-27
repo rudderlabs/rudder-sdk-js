@@ -20,17 +20,9 @@ import type {
   IntegrationOptions,
 } from './types';
 import { looselyValidateEvent } from './loosely-validate-event';
+import { getDataPlaneUrl, isFunction, isValidUrl, noop } from './utilities';
 
 const version = '__PACKAGE_VERSION__';
-
-const removeTrailingSlashes = (inURL: string): string =>
-  inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
-
-const isFunction = (value: any): boolean =>
-  typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
-
-const setImmediate = process.nextTick.bind(process);
-const noop = () => {};
 
 class Analytics implements IAnalytics {
   timeout?: number;
@@ -69,16 +61,16 @@ class Analytics implements IAnalytics {
     options = options || {};
 
     if (!writeKey) {
-      throw new Error("You must pass your project's write key.");
+      throw new Error('You must pass the source write key.');
     }
 
-    if (!dataPlaneURL) {
-      throw new Error('You must pass our data plane url.');
+    if (!isValidUrl(dataPlaneURL)) {
+      throw new Error(`The provided data plane URL "${dataPlaneURL}" is invalid.`);
     }
 
     this.queue = [];
     this.writeKey = writeKey;
-    this.host = removeTrailingSlashes(dataPlaneURL);
+    this.host = getDataPlaneUrl(dataPlaneURL);
     this.timeout = options.timeout || undefined;
     this.flushAt = options.flushAt ? Math.max(options.flushAt, 1) : 20;
     this.flushInterval = options.flushInterval || 20000;

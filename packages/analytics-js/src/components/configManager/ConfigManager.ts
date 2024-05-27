@@ -9,7 +9,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isValidSourceConfig, validateLoadArgs } from './util/validate';
+import { getDataServiceUrl, isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
@@ -18,7 +18,7 @@ import {
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
-import { removeTrailingSlashes } from '../utilities/url';
+import { isValidUrl, removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
@@ -31,6 +31,7 @@ import {
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
+import { DEFAULT_DATA_SERVICE_ENDPOINT } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -78,21 +79,38 @@ class ConfigManager implements IConfigManager {
     updateConsentsStateFromLoadOptions(this.logger);
     updateDataPlaneEventsStateFromLoadOptions(this.logger);
 
+    const { useServerSideCookies, dataServiceEndpoint, logLevel, configUrl } =
+      state.loadOptions.value;
+
     // set application lifecycle state in global state
     batch(() => {
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
 
-      if (state.loadOptions.value.logLevel) {
-        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
+      if (logLevel) {
+        state.lifecycle.logLevel.value = logLevel;
       }
 
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
-        state.loadOptions.value.configUrl,
+        configUrl,
         state.lifecycle.writeKey.value as string,
         lockIntegrationsVersion,
         this.logger,
       );
+
+      if (useServerSideCookies) {
+        state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+        const dataServiceUrl = getDataServiceUrl(
+          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+        );
+        if (isValidUrl(dataServiceUrl)) {
+          state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(
+            dataServiceUrl,
+          ) as string;
+        } else {
+          state.serverCookies.isEnabledServerSideCookies.value = false;
+        }
+      }
     });
 
     this.getConfig();
@@ -162,6 +180,7 @@ class ConfigManager implements IConfigManager {
       state.source.value = {
         config: res.source.config,
         id: res.source.id,
+        workspaceId: res.source.workspaceId,
       };
 
       // set device mode destination related information in state

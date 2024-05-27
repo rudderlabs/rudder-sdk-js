@@ -1,3 +1,6 @@
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+
 const USER_SESSION_STORAGE_KEYS = {
   userId: 'rl_user_id',
   userTraits: 'rl_trait',
@@ -12,13 +15,13 @@ const USER_SESSION_STORAGE_KEYS = {
 
 const DEFAULT_USER_SESSION_VALUES = {
   userId: '',
-  userTraits: {},
+  userTraits: {} as ApiObject,
   anonymousId: '',
   groupId: '',
-  groupTraits: {},
+  groupTraits: {} as ApiObject,
   initialReferrer: '',
   initialReferringDomain: '',
-  sessionInfo: {},
+  sessionInfo: {} as SessionInfo,
   authToken: null,
 };
 

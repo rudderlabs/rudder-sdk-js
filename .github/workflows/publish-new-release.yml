@@ -78,7 +78,17 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # The default behavior of Nx is to consider changes to package-lock.json
+          # as impacting all the packages.
+          # Here is a work around to ignore package-lock.json and package.json
+          # files before publishing the releases.
+          # Ref: https://github.com/nrwl/nx/issues/15116#issuecomment-1535260119
+          echo package-lock.json >> .nxignore
+          echo package.json >> .nxignore
           npm run release:github -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+
+          # Restore working copy
+          git checkout -- .nxignore
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
@@ -108,21 +118,23 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK (v3) monorepo'
-          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
+          PROJECT_NAME: 'JS SDK Monorepo'
+          TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{env.TAG_COMPARE_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": "New Release: ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -132,8 +144,22 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{env.RELEASES_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
+                    "text": "*<${{env.TAG_COMPARE_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                    "alt_text": "GitHub Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{env.RELEASES_URL}}v${{ steps.extract-version.outputs.release_version }}|here>."
+                    }
+                  ]
                 }
               ]
             }
