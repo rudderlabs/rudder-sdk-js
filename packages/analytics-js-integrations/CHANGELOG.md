@@ -19,6 +19,7 @@ This file was generated using [@jscutlery/semver](https://github.com/jscutlery/s
 
 ### Bug Fixes
 
+* add hashing to user traits of reddit_pixel ([#1728](https://github.com/rudderlabs/rudder-sdk-js/issues/1728)) ([f6f377d](https://github.com/rudderlabs/rudder-sdk-js/commit/f6f377d71566784c0460d7e02e877cd584886ec5))
 * update reddit_pixel identify call ([#1717](https://github.com/rudderlabs/rudder-sdk-js/issues/1717)) ([acc21f2](https://github.com/rudderlabs/rudder-sdk-js/commit/acc21f26f891bd4985520d32c0cb6d3b54378cb0))
 * user sessions behavior ([#1708](https://github.com/rudderlabs/rudder-sdk-js/issues/1708)) ([84e7174](https://github.com/rudderlabs/rudder-sdk-js/commit/84e71744612c8345dc22b8cb0c9362d104eb35e9))
 
