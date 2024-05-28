@@ -56,13 +56,18 @@ beforeEach(() => {
 describe('init', () => {
   let dcmFloodlight;
 
-  beforeEach(() => {
+  it('should initialize with gtag on init', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' }, destinationInfo);
     dcmFloodlight.init();
+    expect(typeof config).toBe('object');
   });
 
-  it('should initialize on init', () => {
-    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+  it('should initialize with iframe on init', () => {
+    dcmFloodlight = new DCMFloodlight(
+      { ...config, tagFormat: 'iframeTag' },
+      { loglevel: 'debug' },
+      destinationInfo,
+    );
     dcmFloodlight.init();
     expect(typeof config).toBe('object');
   });
