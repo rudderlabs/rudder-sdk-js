@@ -27,7 +27,7 @@ const getIntegrationsCDNPath = (
   if (customIntegrationsCDNPath) {
     integrationsCDNPath = removeTrailingSlashes(customIntegrationsCDNPath) as string;
 
-    if (!integrationsCDNPath || (integrationsCDNPath && !isValidURL(integrationsCDNPath))) {
+    if (!integrationsCDNPath || !isValidURL(integrationsCDNPath)) {
       throw new Error(INTG_CDN_BASE_URL_ERROR);
     }
 
@@ -61,7 +61,7 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
   if (customPluginsCDNPath) {
     pluginsCDNPath = removeTrailingSlashes(customPluginsCDNPath) as string;
 
-    if (!pluginsCDNPath || (pluginsCDNPath && !isValidURL(pluginsCDNPath))) {
+    if (!pluginsCDNPath || !isValidURL(pluginsCDNPath)) {
       throw new Error(PLUGINS_CDN_BASE_URL_ERROR);
     }
 

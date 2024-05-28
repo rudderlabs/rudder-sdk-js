@@ -118,8 +118,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
     const customPolyfillUrl = state.loadOptions.value.polyfillURL;
     let polyfillUrl = POLYFILL_URL;
-    if (isDefinedAndNotNull(customPolyfillUrl) && !isValidURL(customPolyfillUrl)) {
-      this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
+    if (isDefinedAndNotNull(customPolyfillUrl)) {
+      if (isValidURL(customPolyfillUrl)) {
+        polyfillUrl = customPolyfillUrl;
+      } else {
+        this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
+      }
     }
 
     const shouldLoadPolyfill =

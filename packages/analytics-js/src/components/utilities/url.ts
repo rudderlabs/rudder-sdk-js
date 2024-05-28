@@ -7,7 +7,7 @@ import type { UTMParameters } from '@rudderstack/analytics-js-common/types/Event
  * @returns url
  */
 const removeTrailingSlashes = (url: string | null): Nullable<string> =>
-  url && url.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
+  url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**
  * Get the referring domain from the referrer URL
