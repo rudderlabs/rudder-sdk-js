@@ -61,7 +61,7 @@ describe('init', () => {
     dcmFloodlight.init();
   });
 
-  it('testing init call', () => {
+  it('should initialize on init', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     expect(typeof config).toBe('object');
@@ -113,6 +113,26 @@ describe('track', () => {
     });
   });
 
+  it('should throw an error for invalid counting method for given tag', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    try {
+      dcmFloodlight.track({
+        message: {
+          type: 'track',
+          event: 'testEvent',
+          properties: {
+            name: 'test',
+            countingMethod: 'test',
+          },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('Counter Tag:: invalid counting method');
+    }
+  });
+
   it('should throw an error when counting method is missing from properties and config for given conversion event', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
@@ -128,7 +148,7 @@ describe('track', () => {
         },
       });
     } catch (error) {
-      expect(error).toEqual('category or name is required for page');
+      expect(error).toEqual('countingMethod is required for track call');
     }
   });
 });
