@@ -23,7 +23,7 @@ const config = {
       ],
     },
     {
-      eventName: 'Order Complete',
+      eventName: 'Viewed home page',
       floodlightActivityTag: 'signu01',
       floodlightGroupTag: 'conv02',
       floodlightCountingMethod: 'unique',
@@ -154,6 +154,64 @@ describe('track', () => {
       });
     } catch (error) {
       expect(error).toEqual('countingMethod is required for track call');
+    }
+  });
+});
+
+describe('page', () => {
+  beforeEach(() => {
+    window.gtag = [];
+  });
+  let dcmFloodlight;
+
+  it('should return the event payload for given page call', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.page({
+      message: {
+        type: 'page',
+        properties: {
+          name: 'home',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv02/signu01+unique',
+    });
+  });
+
+  it('should throw an error for missing page event name in config', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    try {
+      dcmFloodlight.page({
+        message: {
+          type: 'page',
+          properties: {
+            name: 'doc',
+          },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('Conversion event not found');
+    }
+  });
+
+  it('should throw an error for missing category and name', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    try {
+      dcmFloodlight.track({
+        message: {
+          type: 'page',
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('category or name is required for page');
     }
   });
 });

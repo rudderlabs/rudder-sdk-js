@@ -213,8 +213,9 @@ class DCMFloodlight {
   }
 
   page(rudderElement) {
-    const { category } = rudderElement.message.properties;
-    const { name } = rudderElement.message || rudderElement.message.properties;
+    const { properties } = rudderElement.message;
+    const category = properties?.category;
+    const name = rudderElement.message.name || properties?.name;
 
     if (!category && !name) {
       logger.error('category or name is required for page');
