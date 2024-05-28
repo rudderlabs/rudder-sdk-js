@@ -19,8 +19,12 @@ import type {
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { MODULE_TYPE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { state } from '../../../state';
 import {
+  INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
@@ -276,6 +280,50 @@ const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
   }
 };
 
+const getSourceConfigURL = (
+  configUrl: string | undefined,
+  writeKey: string,
+  lockIntegrationsVersion: boolean,
+  logger?: ILogger,
+): string => {
+  const defSearchParams = new URLSearchParams({
+    p: MODULE_TYPE,
+    v: APP_VERSION,
+    build: BUILD_TYPE,
+    writeKey,
+    lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+  });
+
+  let origin = DEFAULT_CONFIG_BE_URL;
+  let searchParams = defSearchParams;
+  let pathname = '/sourceConfig/';
+  let hash = '';
+  if (isValidURL(configUrl)) {
+    const configUrlInstance = new URL(configUrl);
+    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
+      configUrlInstance.pathname = `${
+        removeTrailingSlashes(configUrlInstance.pathname) as string
+      }/sourceConfig/`;
+    }
+    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
+
+    defSearchParams.forEach((value, key) => {
+      if (configUrlInstance.searchParams.get(key) === null) {
+        configUrlInstance.searchParams.set(key, value);
+      }
+    });
+
+    origin = configUrlInstance.origin;
+    pathname = configUrlInstance.pathname;
+    searchParams = configUrlInstance.searchParams;
+    hash = configUrlInstance.hash;
+  } else {
+    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+  }
+
+  return `${origin}${pathname}?${searchParams}${hash}`;
+};
+
 export {
   getSDKUrl,
   updateReportingState,
@@ -283,4 +331,5 @@ export {
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
+  getSourceConfigURL,
 };

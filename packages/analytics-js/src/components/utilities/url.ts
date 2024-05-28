@@ -1,12 +1,12 @@
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 /**
  * Removes trailing slash from url
  * @param url
  * @returns url
  */
-const removeTrailingSlashes = (url: string | null): Nullable<string> =>
+const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
   url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**

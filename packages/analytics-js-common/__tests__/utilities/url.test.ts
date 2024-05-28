@@ -24,6 +24,7 @@ describe('utilities - url', () => {
       [true, 'https://example.com/path/to/resource.html'],
       [true, 'https://example.com?query=string&another=value'],
       [true, 'https://example.com#fragment'],
+      [false, undefined],
     ];
 
     it.each(testCases)('should return %p if URL is %p', (expected, url) => {

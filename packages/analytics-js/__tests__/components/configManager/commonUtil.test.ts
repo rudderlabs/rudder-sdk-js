@@ -7,6 +7,7 @@ import {
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
+  getSourceConfigURL,
 } from '../../../src/components/configManager/util/commonUtil';
 import { state, resetState } from '../../../src/state';
 
@@ -571,6 +572,76 @@ describe('Config Manager Common Utilities', () => {
       expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
+      );
+    });
+  });
+
+  describe('getSourceConfigURL', () => {
+    it('should return default source config URL if invalid source config URL is provided', () => {
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, mockLogger);
+
+      expect(sourceConfigURL).toBe(
+        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true',
+      );
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The provided source config URL "invalid-url" is invalid. Using the default source config URL instead.',
+      );
+    });
+
+    it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
+      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false);
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+      );
+    });
+
+    it('should return the source config URL with default endpoint if a different endpoint is present', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/some/path',
+        'writekey',
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/some/path/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+      );
+    });
+
+    it('should return the source config URL as it is if it already has the default endpoint', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/sourceConfig',
+        'writekey',
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+      );
+    });
+
+    it('should return source config URL without duplicate slashes', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url//sourceConfig',
+        'writekey',
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+      );
+    });
+
+    it('should return source config URL as it is even if contains query parameters and hash already', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/some/path/?abc=def#blog',
+        'writekey',
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false#blog',
       );
     });
   });

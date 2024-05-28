@@ -17,7 +17,6 @@ import {
   SOURCE_CONFIG_OPTION_ERROR,
   SOURCE_CONFIG_RESOLUTION_ERROR,
 } from '../../constants/logMessages';
-import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
@@ -26,6 +25,7 @@ import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import type { IConfigManager, SourceConfigResponse } from './types';
 import {
+  getSourceConfigURL,
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
   updateDataPlaneEventsStateFromLoadOptions,

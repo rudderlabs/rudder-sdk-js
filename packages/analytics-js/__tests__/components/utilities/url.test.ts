@@ -2,6 +2,7 @@ import {
   extractUTMParameters,
   getUrlWithoutHash,
   getReferringDomain,
+  removeTrailingSlashes,
 } from '../../../src/components/utilities/url';
 
 describe('utilities - url', () => {
@@ -52,6 +53,24 @@ describe('utilities - url', () => {
 
     it('should get empty object as UTM parameters if the URL is not valid', () => {
       expect(extractUTMParameters('abcd')).toEqual({});
+    });
+  });
+
+  describe('removeTrailingSlashes', () => {
+    const testCases = [
+      // expected, input
+      ['https://rudderlabs.com', 'https://rudderlabs.com/'],
+      ['https://rudderlabs.com', 'https://rudderlabs.com//'],
+      ['https://rudderlabs.com', 'https://rudderlabs.com'],
+      ['/rudderlabs.com', '/rudderlabs.com/'],
+      ['https://rudderlabs.com/sub/path', 'https://rudderlabs.com/sub/path/'],
+      ['asdf', 'asdf/'],
+      [undefined, undefined],
+      [null, null],
+    ];
+
+    it.each(testCases)('should return %p if input is %p', (expected, input) => {
+      expect(removeTrailingSlashes(input)).toBe(expected);
     });
   });
 });
