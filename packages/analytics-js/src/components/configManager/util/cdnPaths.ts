@@ -1,11 +1,12 @@
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { CDN_INT_DIR, CDN_PLUGINS_DIR } from '@rudderstack/analytics-js-common/constants/urls';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { CDN_ARCH_VERSION_DIR, DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../../constants/urls';
 import {
   INTG_CDN_BASE_URL_ERROR,
   PLUGINS_CDN_BASE_URL_ERROR,
 } from '../../../constants/logMessages';
-import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
+import { removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 
 /**
@@ -26,7 +27,7 @@ const getIntegrationsCDNPath = (
   if (customIntegrationsCDNPath) {
     integrationsCDNPath = removeTrailingSlashes(customIntegrationsCDNPath) as string;
 
-    if (!integrationsCDNPath || (integrationsCDNPath && !isValidUrl(integrationsCDNPath))) {
+    if (!integrationsCDNPath || (integrationsCDNPath && !isValidURL(integrationsCDNPath))) {
       throw new Error(INTG_CDN_BASE_URL_ERROR);
     }
 
@@ -60,7 +61,7 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
   if (customPluginsCDNPath) {
     pluginsCDNPath = removeTrailingSlashes(customPluginsCDNPath) as string;
 
-    if (!pluginsCDNPath || (pluginsCDNPath && !isValidUrl(pluginsCDNPath))) {
+    if (!pluginsCDNPath || (pluginsCDNPath && !isValidURL(pluginsCDNPath))) {
       throw new Error(PLUGINS_CDN_BASE_URL_ERROR);
     }
 

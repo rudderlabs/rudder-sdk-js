@@ -46,7 +46,7 @@ import { isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
- * Determines the SDK url
+ * Determines the SDK URL
  * @returns sdkURL
  */
 const getSDKUrl = (): string | undefined => {

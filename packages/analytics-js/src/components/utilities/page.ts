@@ -69,11 +69,11 @@ const getDefaultPageProperties = (): Record<string, any> => {
   let pageUrl = tabUrl;
   const { search } = globalThis.location;
 
-  // If valid canonical url is provided use this as page url.
+  // If valid canonical URL is provided use this as page URL.
   if (canonicalUrl) {
     try {
       const urlObj = new URL(canonicalUrl);
-      // If existing, query params of canonical url will be used instead of the location.search ones
+      // If existing, query params of canonical URL will be used instead of the location.search ones
       if (urlObj.search === '') {
         pageUrl = canonicalUrl + search;
       } else {

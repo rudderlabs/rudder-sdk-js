@@ -10,20 +10,6 @@ const removeTrailingSlashes = (url: string | null): Nullable<string> =>
   url && url.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**
- * Checks if provided url is valid or not
- * @param url
- * @returns true if `url` is valid and false otherwise
- */
-const isValidUrl = (url: string): boolean => {
-  try {
-    const validUrl = new URL(url);
-    return Boolean(validUrl);
-  } catch (err) {
-    return false;
-  }
-};
-
-/**
  * Get the referring domain from the referrer URL
  * @param referrer Page referrer
  * @returns Page referring domain
@@ -81,10 +67,4 @@ const getUrlWithoutHash = (url: string): string => {
   return urlWithoutHash;
 };
 
-export {
-  removeTrailingSlashes,
-  isValidUrl,
-  getReferringDomain,
-  extractUTMParameters,
-  getUrlWithoutHash,
-};
+export { removeTrailingSlashes, getReferringDomain, extractUTMParameters, getUrlWithoutHash };

@@ -10,7 +10,12 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
-import { POLYFILL_SCRIPT_LOAD_ERROR } from '../../constants/logMessages';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
+import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  INVALID_POLYFILL_URL_WARNING,
+  POLYFILL_SCRIPT_LOAD_ERROR,
+} from '../../constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import { state } from '../../state';
@@ -111,7 +116,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
    */
   prepareBrowserCapabilities() {
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
-    let polyfillUrl = state.loadOptions.value.polyfillURL ?? POLYFILL_URL;
+    const customPolyfillUrl = state.loadOptions.value.polyfillURL;
+    let polyfillUrl = POLYFILL_URL;
+    if (isDefinedAndNotNull(customPolyfillUrl) && !isValidURL(customPolyfillUrl)) {
+      this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
+    }
+
     const shouldLoadPolyfill =
       state.loadOptions.value.polyfillIfRequired &&
       state.capabilities.isLegacyDOM.value &&

@@ -4,7 +4,7 @@ import {
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type {
   LoadOptions,
   UaChTrackLevel,
@@ -149,34 +149,27 @@ const getSourceConfigURL = (
   let searchParams = defSearchParams;
   let pathname = '/sourceConfig/';
   let hash = '';
-  // Ideally, this check is not required but URL polyfill
-  // doesn't seem to throw errors for empty URLs
-  // TODO: Need to improve this check to find out if the URL is valid or not
-  if (configUrl) {
-    try {
-      const configUrlInstance = new URL(configUrl);
-      if (
-        !(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')
-      ) {
-        configUrlInstance.pathname = `${
-          removeTrailingSlashes(configUrlInstance.pathname) as string
-        }/sourceConfig/`;
-      }
-      configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
-
-      defSearchParams.forEach((value, key) => {
-        if (configUrlInstance.searchParams.get(key) === null) {
-          configUrlInstance.searchParams.set(key, value);
-        }
-      });
-
-      origin = configUrlInstance.origin;
-      pathname = configUrlInstance.pathname;
-      searchParams = configUrlInstance.searchParams;
-      hash = configUrlInstance.hash;
-    } catch (err) {
-      logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+  if (isValidURL(configUrl)) {
+    const configUrlInstance = new URL(configUrl);
+    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
+      configUrlInstance.pathname = `${
+        removeTrailingSlashes(configUrlInstance.pathname) as string
+      }/sourceConfig/`;
     }
+    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
+
+    defSearchParams.forEach((value, key) => {
+      if (configUrlInstance.searchParams.get(key) === null) {
+        configUrlInstance.searchParams.set(key, value);
+      }
+    });
+
+    origin = configUrlInstance.origin;
+    pathname = configUrlInstance.pathname;
+    searchParams = configUrlInstance.searchParams;
+    hash = configUrlInstance.hash;
+  } else {
+    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
   }
 
   return `${origin}${pathname}?${searchParams}${hash}`;

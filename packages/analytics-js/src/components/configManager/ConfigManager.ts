@@ -9,6 +9,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { getDataServiceUrl, isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
@@ -18,7 +19,7 @@ import {
 } from '../../constants/logMessages';
 import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
-import { isValidUrl, removeTrailingSlashes } from '../utilities/url';
+import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
@@ -103,7 +104,7 @@ class ConfigManager implements IConfigManager {
         const dataServiceUrl = getDataServiceUrl(
           dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
         );
-        if (isValidUrl(dataServiceUrl)) {
+        if (isValidURL(dataServiceUrl)) {
           state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(
             dataServiceUrl,
           ) as string;
