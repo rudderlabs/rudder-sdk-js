@@ -59,6 +59,7 @@ describe('Config Manager Common Utilities', () => {
       ['rsa.min.js', 'rsa.min.js'],
       ['rsa.js', 'rsa.js'],
       [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min.jsx'],
+      [undefined, null],
     ];
 
     test.each(testCases)('should return %s when the script src is %s', (expected, input) => {
