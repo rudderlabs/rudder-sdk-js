@@ -361,7 +361,9 @@ class UserSessionManager implements IUserSessionManager {
             cookieData.forEach(each => {
               const cookieValue = store?.get(each.name);
               if (each.value) {
-                if (cookieValue !== each.value) {
+                const before = stringifyWithoutCircular(each.value, false, []);
+                const after = stringifyWithoutCircular(cookieValue, false, []);
+                if (after !== before) {
                   this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
                   if (cb) {
                     cb(each.name, each.value);
