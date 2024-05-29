@@ -105,7 +105,7 @@ class TestBook {
                         <td style="word-wrap: break-word; position: relative;">
                           <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
                             testCase.id
-                          }" style="white-space: pre-wrap;">${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
+                          }" style="white-space: pre-wrap;" data-expected-result>${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
                             <i class="bi bi-clipboard" data-clipboard-target="#expected-data-${
                               testCase.id
@@ -299,11 +299,9 @@ class TestBook {
       const observer = new MutationObserver(mutationList => {
         const resultDataElement = mutationList[0].addedNodes[0].parentNode;
         const resultData = resultDataElement.textContent.trim();
-        // Get the last but second child from resultRowElement
-        const expectedResult =
-          resultRowElement.childNodes[
-            resultRowElement.childNodes.length - 4
-          ].childNodes[1].textContent.trim();
+
+        const expectedResultElement = resultRowElement.querySelector('[data-expected-result]');
+        const expectedResult = expectedResultElement.textContent.trim();
 
         const { resultData: sanitizedResultData, expectedResultData: sanitizedExpectedResultData } =
           ResultsAssertions.sanitizeResultData(resultData, expectedResult);
