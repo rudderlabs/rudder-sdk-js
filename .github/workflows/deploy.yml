@@ -177,7 +177,7 @@ jobs:
           PROJECT_NAME: 'JS SDK Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/rsa.min.js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
-          LINK_TEXT: ${{ inputs.environment == 'development' && inputs.environment || (inputs.environment == 'staging' && format('{0} - staging', env.CURRENT_VERSION_VALUE) || env.CURRENT_VERSION_VALUE) }}
+          LINK_TEXT: ${{ inputs.environment == 'evelopment' && 'Development' || (inputs.environment == 'staging' && format('{0} - Staging', env.CURRENT_VERSION_VALUE) || env.CURRENT_VERSION_VALUE) }}
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |

@@ -60,6 +60,8 @@ jobs:
       - name: Configure deployment options
         id: deployment-options
         run: |
+          current_version=$(jq -r .version packages/sanity-suite/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
           
           if [ "${{ inputs.environment }}" == "staging" ]; then
@@ -143,7 +145,8 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}v3/cdn/index.html'
-        with:
+          LINK_TEXT: ${{ (inputs.environment == 'staging' && format('{0} - Staging', env.CURRENT_VERSION_VALUE) || env.CURRENT_VERSION_VALUE) }}
+          with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
@@ -163,7 +166,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|Deployment>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   },
                   "accessory": {
                     "type": "image",
