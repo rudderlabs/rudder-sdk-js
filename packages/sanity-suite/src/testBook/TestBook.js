@@ -49,8 +49,8 @@ class TestBook {
                                         <th scope="col">Id</th>
                                         <th scope="col">Test Case</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Generated Payload</th>
                                         <th scope="col">Expected Payload</th>
+                                        <th scope="col">Generated Payload</th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-group-divider">
@@ -299,10 +299,10 @@ class TestBook {
       const observer = new MutationObserver(mutationList => {
         const resultDataElement = mutationList[0].addedNodes[0].parentNode;
         const resultData = resultDataElement.textContent.trim();
-        // Get the last but one child from resultRowElement
+        // Get the last but second child from resultRowElement
         const expectedResult =
           resultRowElement.childNodes[
-            resultRowElement.childNodes.length - 2
+            resultRowElement.childNodes.length - 4
           ].childNodes[1].textContent.trim();
 
         const { resultData: sanitizedResultData, expectedResultData: sanitizedExpectedResultData } =
