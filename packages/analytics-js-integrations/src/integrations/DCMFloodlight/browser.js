@@ -129,10 +129,9 @@ class DCMFloodlight {
     if (conversionEvent.floodlightActivityTag && conversionEvent.floodlightGroupTag) {
       this.activityTag = conversionEvent.floodlightActivityTag.trim();
       this.groupTag = conversionEvent.floodlightGroupTag.trim();
-    }
-
-    if (conversionEvent.floodlightCountingMethod) {
-      this.countingMethod = conversionEvent.floodlightCountingMethod.trim();
+      if (conversionEvent.floodlightCountingMethod) {
+        this.countingMethod = conversionEvent.floodlightCountingMethod.trim();
+      }
     }
 
     // Specifies how conversions will be counted for a Floodlight activity

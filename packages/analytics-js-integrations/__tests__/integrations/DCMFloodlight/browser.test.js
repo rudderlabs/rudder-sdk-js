@@ -2,13 +2,30 @@ import { DCMFloodlight } from '../../../src/integrations/DCMFloodlight';
 
 const config = {
   advertiserId: '00000000',
-  activityTag: '',
-  groupTag: '',
+  activityTag: 'signu00',
+  groupTag: 'conv00',
   conversionEvents: [
     {
       eventName: 'testEvent',
       floodlightActivityTag: 'signu01',
       floodlightGroupTag: 'conv01',
+      floodlightCountingMethod: 'standard',
+      salesTag: false,
+      customVariables: [
+        {
+          from: 'RudderstackProperty1',
+          to: '1',
+        },
+        {
+          from: 'RudderstackProperty2',
+          to: '2',
+        },
+      ],
+    },
+    {
+      eventName: 'testEvent2',
+      floodlightActivityTag: 'signu01',
+      floodlightGroupTag: '',
       floodlightCountingMethod: 'standard',
       salesTag: false,
       customVariables: [
@@ -139,6 +156,25 @@ describe('track', () => {
   });
 
   it('should throw an error when counting method is missing from properties and config for given conversion event', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    try {
+      dcmFloodlight.track({
+        message: {
+          type: 'track',
+          event: 'testEvent3',
+          properties: {
+            name: 'test',
+          },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('countingMethod is required for track call');
+    }
+  });
+
+  it('should throw an error when counting method is present for given conversion event, but activity tag for that given event is missing', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
