@@ -36,10 +36,9 @@ const getIntegrationsCDNPath = (
 
   // Get the base path from the SDK script tag src attribute or use the default path
   const sdkURL = getSDKUrl();
-  integrationsCDNPath =
-    sdkURL && isString(sdkURL)
-      ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
-      : DEST_SDK_BASE_URL;
+  integrationsCDNPath = sdkURL
+    ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
+    : DEST_SDK_BASE_URL;
 
   // If version is not locked it will always get the latest version of the integrations
   if (lockIntegrationsVersion) {
@@ -70,10 +69,9 @@ const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
 
   // Get the base path from the SDK script tag src attribute or use the default path
   const sdkURL = getSDKUrl();
-  pluginsCDNPath =
-    sdkURL && isString(sdkURL)
-      ? sdkURL.split('/').slice(0, -1).concat(CDN_PLUGINS_DIR).join('/')
-      : PLUGINS_BASE_URL;
+  pluginsCDNPath = sdkURL
+    ? sdkURL.split('/').slice(0, -1).concat(CDN_PLUGINS_DIR).join('/')
+    : PLUGINS_BASE_URL;
 
   return pluginsCDNPath;
 };

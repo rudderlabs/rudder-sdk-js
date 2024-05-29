@@ -129,7 +129,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
     const shouldLoadPolyfill =
       state.loadOptions.value.polyfillIfRequired &&
       state.capabilities.isLegacyDOM.value &&
-      Boolean(polyfillUrl);
+      isValidURL(polyfillUrl);
 
     if (shouldLoadPolyfill) {
       const isDefaultPolyfillService = polyfillUrl !== state.loadOptions.value.polyfillURL;
@@ -150,7 +150,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
       }
 
-      this.externalSrcLoader?.loadJSFile({
+      this.externalSrcLoader.loadJSFile({
         url: polyfillUrl,
         id: POLYFILL_SCRIPT_ID,
         async: true,
