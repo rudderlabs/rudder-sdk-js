@@ -38,48 +38,35 @@ describe('Config Manager Common Utilities', () => {
       removeScriptElement();
     });
 
-    it('should return SDK url that is being used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
-      createScriptElement(dummySdkURL);
+    const testCases = [
+      // expected, input
+      [
+        'https://www.dummy.url/fromScript/v3/rsa.min.js',
+        'https://www.dummy.url/fromScript/v3/rsa.min.js',
+      ],
+      [undefined, 'https://www.dummy.url/fromScript/v3/other.min.js'],
+      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rudder.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/analytics.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min'],
+      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa'],
+      [undefined, 'https://www.dummy.url/fromScript/v3rsa.min.js'],
+      ['/rsa.min.js', '/rsa.min.js'],
+      ['/rsa.js', '/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rs.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsamin.js'],
+      ['rsa.min.js', 'rsa.min.js'],
+      ['rsa.js', 'rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min.jsx'],
+      [undefined, null],
+    ];
+
+    test.each(testCases)('should return %s when the script src is %s', (expected, input) => {
+      createScriptElement(input as string);
 
       const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(dummySdkURL);
-    });
-
-    it('should return sdkURL as undefined when rudder SDK is not used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/other.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL when development rudder SDK is used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(dummySdkURL);
-    });
-    it('should return sdkURL as undefined when different SDK is used with similar name', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL as undefined when different SDK is used with the name analytics', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/analytics.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL as undefined when rudder SDK is used with incomplete name', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
+      expect(sdkURL).toBe(expected);
     });
   });
 
