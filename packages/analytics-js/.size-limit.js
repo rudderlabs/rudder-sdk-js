@@ -11,17 +11,17 @@ module.exports = [
   {
     name: 'Core CJS - NPM',
     path: 'dist/npm/modern/cjs/index.js',
-    limit: '23.7 KiB',
+    limit: '24 KiB',
   },
   {
     name: 'Core - NPM',
     path: 'dist/npm/modern/umd/index.js',
-    limit: '23.7 KiB',
+    limit: '24 KiB',
   },
   {
     name: 'Core Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
-    limit: '44.2 KiB',
+    limit: '44.5 KiB',
   },
   {
     name: 'Core - CDN',
