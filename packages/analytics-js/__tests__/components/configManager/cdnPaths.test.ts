@@ -91,7 +91,7 @@ describe('CDN path utilities', () => {
 
     it('should return default plugins CDN URL if no custom URL is provided and no script src exists', () => {
       const pluginsCDNPath = getPluginsCDNPath(undefined);
-      expect(pluginsCDNPath).toBe(`https://cdn.rudderlabs.com/v3/modern/plugins`);
+      expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/plugins');
     });
 
     it('should return plugins CDN URL if core SDK script is loaded', () => {
