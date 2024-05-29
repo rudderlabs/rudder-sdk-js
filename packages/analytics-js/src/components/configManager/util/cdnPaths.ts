@@ -1,4 +1,3 @@
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { CDN_INT_DIR, CDN_PLUGINS_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { CDN_ARCH_VERSION_DIR, DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../../constants/urls';
