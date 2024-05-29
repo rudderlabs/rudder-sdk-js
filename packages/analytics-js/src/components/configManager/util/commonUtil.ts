@@ -55,22 +55,17 @@ import { getConsentManagementData } from '../../utilities/consent';
  */
 const getSDKUrl = (): string | undefined => {
   const scripts = document.getElementsByTagName('script');
-  let sdkURL: string | undefined;
-  const scriptList = Array.prototype.slice.call(scripts);
+  const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
-  scriptList.some(script => {
-    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
-    if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rsa?(\.min)?\.js$/);
-      if (urlMatches) {
-        sdkURL = curScriptSrc;
-        return true;
-      }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const script of scripts) {
+    const src = script.getAttribute('src');
+    if (src && sdkFileNameRegex.test(src)) {
+      return src;
     }
-    return false;
-  });
+  }
 
-  return sdkURL;
+  return undefined;
 };
 
 /**
