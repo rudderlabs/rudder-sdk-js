@@ -16,6 +16,7 @@ import {
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   SOURCE_CONFIG_RESOLUTION_ERROR,
+  SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
 import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
@@ -157,6 +158,12 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
+    // Log error and abort if source is disabled
+    if (res.source.enabled === false) {
+      this.logger?.error(SOURCE_DISABLED_ERROR);
+      return;
+    }
+
     // set the values in state for reporting slice
     updateReportingState(res, this.logger);
 
@@ -210,7 +217,7 @@ class ConfigManager implements IConfigManager {
       if (!isFunction(sourceConfigFunc)) {
         throw new Error(SOURCE_CONFIG_OPTION_ERROR);
       }
-      // fetch source config from the function
+      // Fetch source config from the function
       const res = sourceConfigFunc();
 
       if (res instanceof Promise) {
@@ -223,7 +230,7 @@ class ConfigManager implements IConfigManager {
         this.processConfig(res as SourceConfigResponse);
       }
     } else {
-      // fetch source config from config url API
+      // Fetch source configuration from the configured URL
       this.httpClient.getAsyncData({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {

@@ -15,6 +15,7 @@ const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for 
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
+const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
@@ -325,4 +326,5 @@ export {
   FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   MISCONFIGURED_PLUGINS_WARNING,
   INVALID_POLYFILL_URL_WARNING,
+  SOURCE_DISABLED_ERROR,
 };

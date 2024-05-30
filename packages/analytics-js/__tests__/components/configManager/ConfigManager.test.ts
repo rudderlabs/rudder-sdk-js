@@ -8,6 +8,10 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
+import {
+  ConfigResponseDestinationItem,
+  SourceConfigResponse,
+} from '../../../src/components/configManager/types';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -182,6 +186,28 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig(undefined);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
+  });
+
+  it('should log error and abort if source is disabled', () => {
+    state.lifecycle.status.value = 'browserCapabilitiesReady';
+
+    const sourceConfigResponse = {
+      source: {
+        id: 'someid',
+        config: {},
+        destinations: [] as ConfigResponseDestinationItem[],
+        enabled: false,
+      },
+    } as SourceConfigResponse;
+    configManagerInstance.processConfig(sourceConfigResponse);
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'The source is disabled. Please enable the source in the dashboard to send events.',
+    );
+
+    // No change in the life cycle status
+    expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
   });
 
   it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
