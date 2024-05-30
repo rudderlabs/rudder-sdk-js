@@ -1,4 +1,5 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import {
   DEFAULT_USER_SESSION_VALUES,
@@ -25,6 +26,10 @@ import { defaultHttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
+
+jest.mock('@rudderstack/analytics-js-common/utilities/json', () => ({
+  stringifyWithoutCircular: jest.fn(d => JSON.stringify(d)),
 }));
 
 describe('User session manager', () => {
@@ -1499,7 +1504,11 @@ describe('User session manager', () => {
     const mockCookieStore = {
       encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
       set: jest.fn(),
-      get: jest.fn(() => 'sample_cookie_value_1234'),
+      get: jest.fn(() => ({
+        prop1: 'sample property 1',
+        prop2: 12345678,
+        prop3: { city: 'Kolkata', zip: '700001' },
+      })),
     };
     const mockCallback = jest.fn();
     it('should encrypt cookie value and make request to data service', done => {
@@ -1533,13 +1542,27 @@ describe('User session manager', () => {
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookie(
-          [{ name: 'key', value: 'sample_cookie_value_1234' }],
+          [
+            {
+              name: 'key',
+              value: {
+                prop1: 'sample property 1',
+                prop2: 12345678,
+                prop3: { city: 'Kolkata', zip: '700001' },
+              },
+            },
+          ],
           mockCallback,
           mockCookieStore,
         );
         setTimeout(() => {
           expect(mockCookieStore.get).toHaveBeenCalledWith('key');
-          expect(mockCookieStore.get()).toBe('sample_cookie_value_1234');
+          expect(mockCookieStore.get()).toStrictEqual({
+            prop1: 'sample property 1',
+            prop2: 12345678,
+            prop3: { city: 'Kolkata', zip: '700001' },
+          });
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
           expect(defaultLogger.error).not.toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );
@@ -1557,7 +1580,7 @@ describe('User session manager', () => {
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookie(
-          [{ name: 'key', value: 'sample_cookie_value' }],
+          [{ name: 'key', value: { prop1: 'sample property' } }],
           (name, val) => {
             mockCookieStore.set(name, val);
           },
@@ -1565,10 +1588,11 @@ describe('User session manager', () => {
         );
         setTimeout(() => {
           expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
           expect(defaultLogger.error).toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );
-          expect(mockCookieStore.set).toHaveBeenCalledWith('key', 'sample_cookie_value');
+          expect(mockCookieStore.set).toHaveBeenCalledWith('key', { prop1: 'sample property' });
           done();
         }, 1000);
       });
