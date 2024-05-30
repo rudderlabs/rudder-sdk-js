@@ -29,6 +29,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 describe('Core - Analytics', () => {
   let analytics: Analytics;
   const dummyWriteKey = 'qwertyuiopasdfghjklzxcvbnm1';
+  const dummyDataplaneURL = 'https://dummy.dataplane.url';
 
   beforeEach(() => {
     analytics = new Analytics();
@@ -142,6 +143,7 @@ describe('Core - Analytics', () => {
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
+      state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
       expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
       expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
