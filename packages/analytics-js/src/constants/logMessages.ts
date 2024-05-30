@@ -232,26 +232,21 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
-const MISCONFIGURED_PLUGINS_WARNING = (
+const generateMisconfiguredPluginsWarning = (
   context: string,
-  configurationStatusStr: string,
+  configurationStatus: string,
   missingPlugins: PluginName[],
   shouldAddMissingPlugins: boolean,
-) => {
-  const pluginsString =
-    missingPlugins.length === 1
-      ? ` '${missingPlugins[0]}' plugin was`
-      : ` ['${missingPlugins.join("', '")}'] plugins were`;
-
-  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatusStr}, but${pluginsString} not configured to load.`;
-  let warningStr;
-
+): string => {
+  const isSinglePlugin = missingPlugins.length === 1;
+  const pluginsString = isSinglePlugin
+    ? ` '${missingPlugins[0]}' plugin was`
+    : ` ['${missingPlugins.join("', '")}'] plugins were`;
+  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatus}, but${pluginsString} not configured to load.`;
   if (shouldAddMissingPlugins) {
-    warningStr = `${baseWarning} So, ${missingPlugins.length === 1 ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
-  } else {
-    warningStr = `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${missingPlugins.length === 1 ? 'it' : 'them'} to the 'plugins' load API option.`;
+    return `${baseWarning} So, ${isSinglePlugin ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
   }
-  return warningStr;
+  return `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${isSinglePlugin ? 'it' : 'them'} to the 'plugins' load API option.`;
 };
 
 const INVALID_POLYFILL_URL_WARNING = (
@@ -324,7 +319,7 @@ export {
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
-  MISCONFIGURED_PLUGINS_WARNING,
+  generateMisconfiguredPluginsWarning,
   INVALID_POLYFILL_URL_WARNING,
   SOURCE_DISABLED_ERROR,
 };
