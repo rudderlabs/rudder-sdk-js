@@ -1,27 +1,13 @@
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 /**
  * Removes trailing slash from url
  * @param url
  * @returns url
  */
-const removeTrailingSlashes = (url: string | null): Nullable<string> =>
-  url && url.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
-
-/**
- * Checks if provided url is valid or not
- * @param url
- * @returns true if `url` is valid and false otherwise
- */
-const isValidUrl = (url: string): boolean => {
-  try {
-    const validUrl = new URL(url);
-    return Boolean(validUrl);
-  } catch (err) {
-    return false;
-  }
-};
+const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
+  url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**
  * Get the referring domain from the referrer URL
@@ -81,10 +67,4 @@ const getUrlWithoutHash = (url: string): string => {
   return urlWithoutHash;
 };
 
-export {
-  removeTrailingSlashes,
-  isValidUrl,
-  getReferringDomain,
-  extractUTMParameters,
-  getUrlWithoutHash,
-};
+export { removeTrailingSlashes, getReferringDomain, extractUTMParameters, getUrlWithoutHash };

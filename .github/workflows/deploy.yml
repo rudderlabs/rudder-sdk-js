@@ -100,7 +100,7 @@ jobs:
       - name: Sync Adobe Analytics assets to S3
         if: ${{ inputs.environment == 'production' }}
         run: |
-          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=$${{ env.CACHE_MAX_AGE }}
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}
 
       - name: Create Cloudfront invalidation
         if: ${{ inputs.environment == 'production' }}
@@ -177,6 +177,7 @@ jobs:
           PROJECT_NAME: 'JS SDK Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/rsa.min.js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
+          LINK_TEXT: ${{ inputs.environment == 'evelopment' && 'Development' || (inputs.environment == 'staging' && format('{0} - Staging', env.CURRENT_VERSION_VALUE) || env.CURRENT_VERSION_VALUE) }}
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
@@ -197,26 +198,17 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|v${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                    "text": "*<${{ env.CDN_URL }}|v${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   },
                   "accessory": {
                     "type": "image",
                     "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
                     "alt_text": "JavaScript Icon"
                   }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_VALUE }}|here>."
-                    }
-                  ]
                 }
+                ${{ inputs.environment == 'production' && format(',{"type": "context", "elements": [{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}]}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || '' }}
               ]
-            }
-
+            }          
 
       # Below steps are for v1.1 SDK (legacy)
 

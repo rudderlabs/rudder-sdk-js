@@ -1,12 +1,11 @@
-import { batch, effect, signal } from '@preact/signals-core';
+import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
-import { state } from '../../../src/state';
+import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
-import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '../../../src/constants/urls';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 import {
@@ -56,24 +55,12 @@ describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
   const errorMsg =
     'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
-  const errorMsgSourceConfigResponse = 'Unable to fetch source config';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
-
-  const resetState = () => {
-    batch(() => {
-      state.lifecycle.writeKey.value = undefined;
-      state.lifecycle.dataPlaneUrl.value = undefined;
-      state.loadOptions.value.lockIntegrationsVersion = false;
-      state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
-      state.loadOptions.value.logLevel = 'ERROR';
-      state.loadOptions.value.configUrl = DEFAULT_CONFIG_BE_URL;
-    });
-  };
 
   beforeAll(() => {
     server.listen();
@@ -241,9 +228,52 @@ describe('ConfigManager', () => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
-    effect(() => {
+    setTimeout(() => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
       done();
-    });
+    }, 2000);
+  });
+
+  it('should set the data server URL in state if server side cookies feature is enabled', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    state.loadOptions.value.dataServiceEndpoint = '/my/own/endpoint/';
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBe('http://test-host.com/my/own/endpoint');
+  });
+
+  it('should set the data server URL in state with default endpoint if server side cookies feature is enabled and dataServiceEndpoint is not provided', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBe('http://test-host.com/rsaRequest');
+  });
+
+  it('should disable server side cookies feature if provided endpoint is invalid', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    // it'll result in an invalid URL when combined with the top-level domain of the site
+    state.loadOptions.value.dataServiceEndpoint = '?asdf?xyz';
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBeUndefined();
+    expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
   });
 });
