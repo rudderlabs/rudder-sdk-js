@@ -15,6 +15,7 @@ const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for 
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
+const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
@@ -67,7 +68,7 @@ const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
 const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
   `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
 
-const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string): string =>
+const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): string =>
   `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
@@ -209,8 +210,8 @@ const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initializati
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
 const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
 
-const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
+const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
@@ -252,6 +253,12 @@ const MISCONFIGURED_PLUGINS_WARNING = (
   }
   return warningStr;
 };
+
+const INVALID_POLYFILL_URL_WARNING = (
+  context: string,
+  customPolyfillUrl: string | undefined,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided polyfill URL "${customPolyfillUrl}" is invalid. The default polyfill URL will be used instead.`;
 
 // DEBUG
 
@@ -318,4 +325,6 @@ export {
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   MISCONFIGURED_PLUGINS_WARNING,
+  INVALID_POLYFILL_URL_WARNING,
+  SOURCE_DISABLED_ERROR,
 };

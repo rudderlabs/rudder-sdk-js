@@ -11,6 +11,7 @@ import { v4 as uuid } from '@lukeed/uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import type { IAnalytics } from './IAnalytics';
 import type {
   ApiCallback,
@@ -20,7 +21,7 @@ import type {
   IntegrationOptions,
 } from './types';
 import { looselyValidateEvent } from './loosely-validate-event';
-import { getDataPlaneUrl, isFunction, isValidUrl, noop } from './utilities';
+import { getDataPlaneUrl, isFunction, noop } from './utilities';
 
 const version = '__PACKAGE_VERSION__';
 
@@ -64,7 +65,7 @@ class Analytics implements IAnalytics {
       throw new Error('You must pass the source write key.');
     }
 
-    if (!isValidUrl(dataPlaneURL)) {
+    if (!isValidURL(dataPlaneURL)) {
       throw new Error(`The provided data plane URL "${dataPlaneURL}" is invalid.`);
     }
 

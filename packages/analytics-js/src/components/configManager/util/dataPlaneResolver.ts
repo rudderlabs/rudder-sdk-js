@@ -4,8 +4,8 @@ import type {
 } from '@rudderstack/analytics-js-common/types/DataResidency';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING } from '../../../constants/logMessages';
-import { isValidUrl } from '../../utilities/url';
 
 const DEFAULT_REGION = 'US';
 
@@ -18,7 +18,7 @@ const getDefaultUrlOfRegion = (urls?: RegionDetails[]) => {
   let url;
   if (Array.isArray(urls) && urls.length > 0) {
     const obj = urls.find(elem => elem.default === true);
-    if (obj && isValidUrl(obj.url)) {
+    if (obj && isValidURL(obj.url)) {
       return obj.url;
     }
   }

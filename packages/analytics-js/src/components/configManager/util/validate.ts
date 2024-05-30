@@ -4,11 +4,11 @@ import {
   SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
 } from '../../../constants/logMessages';
-import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
   if (!isString(writeKey) || (writeKey as string).trim().length === 0) {
@@ -17,7 +17,7 @@ const validateWriteKey = (writeKey?: string) => {
 };
 
 const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
-  if (dataPlaneUrl && !isValidUrl(dataPlaneUrl)) {
+  if (!isValidURL(dataPlaneUrl)) {
     throw new Error(DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl));
   }
 };

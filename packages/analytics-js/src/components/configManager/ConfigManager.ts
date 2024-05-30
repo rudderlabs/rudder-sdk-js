@@ -9,22 +9,24 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { getDataServiceUrl, isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   SOURCE_CONFIG_RESOLUTION_ERROR,
+  SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
-import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
-import { isValidUrl, removeTrailingSlashes } from '../utilities/url';
+import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import type { IConfigManager, SourceConfigResponse } from './types';
 import {
+  getSourceConfigURL,
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
   updateDataPlaneEventsStateFromLoadOptions,
@@ -103,7 +105,7 @@ class ConfigManager implements IConfigManager {
         const dataServiceUrl = getDataServiceUrl(
           dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
         );
-        if (isValidUrl(dataServiceUrl)) {
+        if (isValidURL(dataServiceUrl)) {
           state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(
             dataServiceUrl,
           ) as string;
@@ -153,6 +155,12 @@ class ConfigManager implements IConfigManager {
 
     if (!isValidSourceConfig(res)) {
       this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
+      return;
+    }
+
+    // Log error and abort if source is disabled
+    if (res.source.enabled === false) {
+      this.logger?.error(SOURCE_DISABLED_ERROR);
       return;
     }
 
@@ -209,7 +217,7 @@ class ConfigManager implements IConfigManager {
       if (!isFunction(sourceConfigFunc)) {
         throw new Error(SOURCE_CONFIG_OPTION_ERROR);
       }
-      // fetch source config from the function
+      // Fetch source config from the function
       const res = sourceConfigFunc();
 
       if (res instanceof Promise) {
@@ -222,7 +230,7 @@ class ConfigManager implements IConfigManager {
         this.processConfig(res as SourceConfigResponse);
       }
     } else {
-      // fetch source config from config url API
+      // Fetch source configuration from the configured URL
       this.httpClient.getAsyncData({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
