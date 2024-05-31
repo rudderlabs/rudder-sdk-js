@@ -118,7 +118,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
     metaData: {
       SDK: {
         name: 'JS',
-        installType: '__MODULE_TYPE__',
+        installType: state.context.app.value.installType,
       },
     },
     beforeSend: onError(state),

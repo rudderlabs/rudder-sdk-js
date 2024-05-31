@@ -207,6 +207,14 @@ describe('Bugsnag utilities', () => {
 
   describe('initBugsnagClient', () => {
     const state = {
+      context: {
+        app: signal({
+          name: 'test-app',
+          namespace: 'test-namespace',
+          version: '1.0.0',
+          installType: 'npm',
+        }),
+      },
       source: signal({
         id: 'dummy-source-id',
       }),
