@@ -109,7 +109,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
 
   const clientConfig: BugsnagLib.IConfig = {
     apiKey: API_KEY,
-    appVersion: '__PACKAGE_VERSION__', // Set SDK version as the app version from build config
+    appVersion: state.context.app.value.version,
     metaData: {
       SDK: {
         name: 'JS',
@@ -124,7 +124,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
     maxBreadcrumbs: 40,
     releaseStage: getReleaseStage(),
     user: {
-      id: state.lifecycle.writeKey.value,
+      id: state.source.value?.id || state.lifecycle.writeKey.value,
     },
     logger,
     networkBreadcrumbsEnabled: false,
