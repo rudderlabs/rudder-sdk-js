@@ -19,6 +19,14 @@ import {
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
 
+beforeEach(() => {
+  window.RudderSnippetVersion = '3.0.0';
+});
+
+afterEach(() => {
+  delete window.RudderSnippetVersion;
+});
+
 describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
     it('should return true for a valid API key', () => {
@@ -166,11 +174,11 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'test error message',
       };
 
-      enhanceErrorEventMutator(event, 'dummyMetadataVal');
+      enhanceErrorEventMutator(event);
 
       expect(event.metadata).toEqual({
         source: {
-          metadataSource: 'dummyMetadataVal',
+          snippetVersion: '3.0.0',
         },
       });
 
@@ -196,7 +204,7 @@ describe('Bugsnag utilities', () => {
 
       expect(event.metadata).toEqual({
         source: {
-          metadataSource: 'dummyMetadataVal',
+          snippetVersion: '3.0.0',
         },
       });
 
@@ -376,7 +384,7 @@ describe('Bugsnag utilities', () => {
     };
 
     it('should return a function', () => {
-      expect(typeof onError(state)).toBe('function');
+      expect(typeof onError()).toBe('function');
     });
 
     it('should return a function that returns false if the error is not from RudderStack SDK', () => {
@@ -388,7 +396,7 @@ describe('Bugsnag utilities', () => {
         ],
       };
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(false);
     });
@@ -404,11 +412,11 @@ describe('Bugsnag utilities', () => {
         updateMetaData: jest.fn(),
       } as any;
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(true);
       expect(error.updateMetaData).toHaveBeenCalledWith('source', {
-        metadataSource: 'dummy-source-id',
+        snippetVersion: '3.0.0',
       });
       expect(error.severity).toBe('error');
       expect(error.context).toBe('Script load failures');
@@ -425,7 +433,7 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       } as any;
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(false);
     });

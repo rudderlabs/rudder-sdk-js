@@ -60,9 +60,8 @@ const isRudderSDKError = (event: any) => {
   );
 };
 
-const enhanceErrorEventMutator = (event: any, metadataSource: any) => {
+const enhanceErrorEventMutator = (event: any) => {
   event.updateMetaData('source', {
-    metadataSource,
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
 
@@ -81,25 +80,21 @@ const enhanceErrorEventMutator = (event: any, metadataSource: any) => {
   event.severity = 'error';
 };
 
-const onError = (state: ApplicationState) => {
-  const metadataSource = state.source.value?.id;
-
-  return (event: any) => {
-    try {
-      // Discard the event if it's not originated at the SDK
-      if (!isRudderSDKError(event)) {
-        return false;
-      }
-
-      enhanceErrorEventMutator(event, metadataSource);
-
-      return true;
-    } catch {
-      // Drop the error event if it couldn't be filtered as
-      // it is most likely a non-SDK error
+const onError = () => (event: any) => {
+  try {
+    // Discard the event if it's not originated at the SDK
+    if (!isRudderSDKError(event)) {
       return false;
     }
-  };
+
+    enhanceErrorEventMutator(event);
+
+    return true;
+  } catch {
+    // Drop the error event if it couldn't be filtered as
+    // it is most likely a non-SDK error
+    return false;
+  }
 };
 
 const getReleaseStage = () => {
@@ -121,7 +116,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
         installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError(state),
+    beforeSend: onError(),
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
