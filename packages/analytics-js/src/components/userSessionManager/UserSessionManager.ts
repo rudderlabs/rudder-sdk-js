@@ -620,17 +620,20 @@ class UserSessionManager implements IUserSessionManager {
       //   Mark it as sessionStart.
       // 2. If sessionStart is true, then need to flip it for the future events.
       if (sessionInfo.sessionStart === undefined) {
-        state.session.sessionInfo.value = {
+        sessionInfo = {
           ...sessionInfo,
           sessionStart: true,
         };
       } else if (sessionInfo.sessionStart) {
-        state.session.sessionInfo.value = {
+        sessionInfo = {
           ...sessionInfo,
           sessionStart: false,
         };
       }
     }
+
+    // Always write to state (in-turn to storage) to keep the session info up to date.
+    state.session.sessionInfo.value = sessionInfo;
   }
 
   /**
