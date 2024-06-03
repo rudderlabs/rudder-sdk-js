@@ -337,6 +337,7 @@ class UserSessionManager implements IUserSessionManager {
           },
         }) as string,
         sendRawData: true,
+        withCredentials: true,
       },
       isRawResponse: true,
       callback,

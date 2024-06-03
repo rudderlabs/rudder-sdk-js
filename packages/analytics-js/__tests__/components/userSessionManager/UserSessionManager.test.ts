@@ -1712,6 +1712,7 @@ describe('User session manager', () => {
               },
             }),
             sendRawData: true,
+            withCredentials: true,
           },
           isRawResponse: true,
           callback: expect.any(Function),
