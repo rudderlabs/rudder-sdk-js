@@ -634,6 +634,10 @@ class UserSessionManager implements IUserSessionManager {
 
     // Always write to state (in-turn to storage) to keep the session info up to date.
     state.session.sessionInfo.value = sessionInfo;
+
+    // Force update the storage as the 'effect' blocks are not getting triggered
+    // when processing preload buffered requests
+    this.syncValueToStorage('sessionInfo', sessionInfo);
   }
 
   /**
