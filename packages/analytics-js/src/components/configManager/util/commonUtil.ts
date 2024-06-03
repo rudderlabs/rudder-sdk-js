@@ -38,15 +38,16 @@ import {
   isMetricsReportingEnabled,
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
-import { removeTrailingSlashes } from '../../utilities/url';
+import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
+  DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { isValidStorageType } from './validate';
+import { getDataServiceUrl, isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -105,7 +106,11 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
-  const storageOptsFromLoad = state.loadOptions.value.storage;
+  const {
+    useServerSideCookies,
+    dataServiceEndpoint,
+    storage: storageOptsFromLoad,
+  } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
     logger?.warn(
@@ -151,7 +156,34 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
   batch(() => {
     state.storage.type.value = storageType;
-    state.storage.cookie.value = storageOptsFromLoad?.cookie;
+    let cookieOptions = storageOptsFromLoad?.cookie ?? {};
+
+    if (useServerSideCookies) {
+      state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+      const dataServiceUrl = getDataServiceUrl(
+        dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+      );
+      if (isValidURL(dataServiceUrl)) {
+        state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
+
+        const curHost = getDomain(window.location.href);
+        const dataServiceHost = getDomain(dataServiceUrl);
+
+        // If the current host is different from the data service host, then it is a cross-site request
+        // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+        if (curHost !== dataServiceHost) {
+          cookieOptions = {
+            ...cookieOptions,
+            samesite: 'None',
+            secure: true,
+          };
+        }
+      } else {
+        state.serverCookies.isEnabledServerSideCookies.value = false;
+      }
+    }
+
+    state.storage.cookie.value = cookieOptions;
 
     state.storage.encryptionPluginName.value =
       StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];

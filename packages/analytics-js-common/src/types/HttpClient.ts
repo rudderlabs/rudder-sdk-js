@@ -29,6 +29,7 @@ export interface IXHRRequestOptions {
   headers: Record<string, string | undefined>;
   data?: XMLHttpRequestBodyInit;
   sendRawData?: boolean;
+  withCredentials?: boolean;
 }
 
 export type HTTPClientMethod =
