@@ -24,7 +24,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete window.RudderSnippetVersion;
+  window.RudderSnippetVersion = undefined;
 });
 
 describe('Bugsnag utilities', () => {

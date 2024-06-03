@@ -41,7 +41,7 @@ const isValidVersion = (globalLibInstance: any) => {
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
 };
 
-const isRudderSDKError = (event: any) => {
+const isRudderSDKError = (event: BugsnagLib.Report) => {
   const errorOrigin = event.stacktrace?.[0]?.file;
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
@@ -60,7 +60,7 @@ const isRudderSDKError = (event: any) => {
   );
 };
 
-const enhanceErrorEventMutator = (event: any) => {
+const enhanceErrorEventMutator = (event: BugsnagLib.Report) => {
   event.updateMetaData('source', {
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
@@ -80,7 +80,7 @@ const enhanceErrorEventMutator = (event: any) => {
   event.severity = 'error';
 };
 
-const onError = () => (event: any) => {
+const onError = (event: BugsnagLib.Report): boolean => {
   try {
     // Discard the event if it's not originated at the SDK
     if (!isRudderSDKError(event)) {
@@ -116,7 +116,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
         installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError(),
+    beforeSend: onError,
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
