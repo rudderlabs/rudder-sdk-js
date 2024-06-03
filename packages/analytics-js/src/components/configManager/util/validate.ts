@@ -45,7 +45,7 @@ const getTopDomainUrl = (url: string) => {
   const { host, protocol } = urlObj;
 
   // Split the host into parts
-  const parts = host.split('.');
+  const parts: string[] = host.split('.');
   let topDomain;
   // Handle different cases, especially for co.uk or similar TLDs
   if (parts.length > 2) {
