@@ -41,11 +41,11 @@ const getTopDomainUrl = (url: string) => {
   // Create a URL object
   const urlObj = new URL(url);
 
-  // Extract the hostname and protocol
-  const { hostname, protocol } = urlObj;
+  // Extract the host and protocol
+  const { host, protocol } = urlObj;
 
-  // Split the hostname into parts
-  const parts = hostname.split('.');
+  // Split the host into parts
+  const parts: string[] = host.split('.');
   let topDomain;
   // Handle different cases, especially for co.uk or similar TLDs
   if (parts.length > 2) {
@@ -53,7 +53,7 @@ const getTopDomainUrl = (url: string) => {
     topDomain = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
   } else {
     // If only two parts or less, return as it is
-    topDomain = hostname;
+    topDomain = host;
   }
   return `${protocol}//${topDomain}`;
 };

@@ -9,21 +9,21 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
   url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
+const getDomain = (url: string): Nullable<string> => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.host;
+  } catch (error) {
+    return null;
+  }
+};
+
 /**
  * Get the referring domain from the referrer URL
  * @param referrer Page referrer
  * @returns Page referring domain
  */
-const getReferringDomain = (referrer: string): string => {
-  let referringDomain = '';
-  try {
-    const url = new URL(referrer);
-    referringDomain = url.host;
-  } catch (error) {
-    // Do nothing
-  }
-  return referringDomain;
-};
+const getReferringDomain = (referrer: string): string => getDomain(referrer) ?? '';
 
 /**
  * Extracts UTM parameters from the URL
@@ -67,4 +67,10 @@ const getUrlWithoutHash = (url: string): string => {
   return urlWithoutHash;
 };
 
-export { removeTrailingSlashes, getReferringDomain, extractUTMParameters, getUrlWithoutHash };
+export {
+  removeTrailingSlashes,
+  getReferringDomain,
+  extractUTMParameters,
+  getUrlWithoutHash,
+  getDomain,
+};

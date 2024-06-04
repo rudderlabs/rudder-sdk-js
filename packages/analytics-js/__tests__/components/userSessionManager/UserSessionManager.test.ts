@@ -1247,6 +1247,53 @@ describe('User session manager', () => {
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
+
+    it('should set default session info to state even if storage data goes out of sync with state', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // delete session info from storage
+      setDataInCookieStorage({
+        rl_session: null,
+      });
+
+      userSessionManager.refreshSession();
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should explicitly set session info to storage if the SDK is not ready', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      userSessionManager.init();
+
+      state.lifecycle.status.value = 'loaded';
+
+      const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
+      userSessionManager.refreshSession();
+
+      expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+    });
   });
 
   describe('getSessionId', () => {
@@ -1483,12 +1530,10 @@ describe('User session manager', () => {
         state.serverCookies.isEnabledServerSideCookies.value = true;
         state.storage.entries.value = entriesWithOnlyCookieStorage;
         userSessionManager.setServerSideCookie = jest.fn();
+        clientDataStoreCookie.remove = jest.fn();
         userSessionManager.syncValueToStorage('anonymousId', cookieValue);
-        expect(userSessionManager.setServerSideCookie).toHaveBeenCalledWith(
-          [{ name: 'rl_anonymous_id', value: '' }],
-          undefined,
-          expect.any(Object),
-        );
+        expect(userSessionManager.setServerSideCookie).not.toHaveBeenCalled();
+        expect(clientDataStoreCookie.remove).toHaveBeenCalled();
       });
     });
   });
@@ -1596,28 +1641,6 @@ describe('User session manager', () => {
           done();
         }, 1000);
       });
-      it('should log error if not successfully removed from the server', done => {
-        state.source.value = { workspaceId: 'sample_workspaceId' };
-        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-        state.storage.cookie.value = {
-          maxage: 10 * 60 * 1000, // 10 min
-          path: '/',
-          domain: 'example.com',
-          samesite: 'Lax',
-        };
-        userSessionManager.setServerSideCookie(
-          [{ name: 'key', value: '' }],
-          undefined,
-          mockCookieStore,
-        );
-        setTimeout(() => {
-          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
-          expect(defaultLogger.error).toHaveBeenCalledWith(
-            'The server failed to remove the key cookie.',
-          );
-          done();
-        }, 1000);
-      });
     });
 
     it('should set cookie from client side if data service is down', done => {
@@ -1696,14 +1719,6 @@ describe('User session manager', () => {
           { name: 'key', value: 'encrypted_sample_cookie_value_1234' },
         ]);
       });
-      it('cookie value do not exists', () => {
-        const encryptedData = userSessionManager.getEncryptedCookieData(
-          [{ name: 'key', value: '' }],
-          mockCookieStore,
-        );
-        expect(mockCookieStore.encrypt).not.toHaveBeenCalled();
-        expect(encryptedData).toStrictEqual([{ name: 'key', value: '' }]);
-      });
     });
     describe('makeRequestToSetCookie', () => {
       it('should make external request to exposed endpoint', done => {
@@ -1744,6 +1759,7 @@ describe('User session manager', () => {
               },
             }),
             sendRawData: true,
+            withCredentials: true,
           },
           isRawResponse: true,
           callback: expect.any(Function),
