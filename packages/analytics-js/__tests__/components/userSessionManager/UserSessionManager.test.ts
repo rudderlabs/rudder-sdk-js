@@ -1242,6 +1242,53 @@ describe('User session manager', () => {
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
+
+    it('should set default session info to state even if storage data goes out of sync with state', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // delete session info from storage
+      setDataInCookieStorage({
+        rl_session: null,
+      });
+
+      userSessionManager.refreshSession();
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should explicitly set session info to storage if the SDK is not ready', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      userSessionManager.init();
+
+      state.lifecycle.status.value = 'loaded';
+
+      const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
+      userSessionManager.refreshSession();
+
+      expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+    });
   });
 
   describe('getSessionId', () => {
