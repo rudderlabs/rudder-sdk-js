@@ -18,6 +18,8 @@ import {
   getAppStateForMetadata,
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
+import { BugsnagLib } from '../../src/types/plugins';
+import { authToken } from '../../__fixtures__/fixtures';
 
 beforeEach(() => {
   window.RudderSnippetVersion = '3.0.0';
@@ -214,22 +216,26 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('initBugsnagClient', () => {
-    const state = {
-      context: {
-        app: signal({
-          name: 'test-app',
-          namespace: 'test-namespace',
-          version: '1.0.0',
-          installType: 'npm',
+    let state;
+
+    beforeEach(() => {
+      state = {
+        context: {
+          app: signal({
+            name: 'test-app',
+            namespace: 'test-namespace',
+            version: '1.0.0',
+            installType: 'npm',
+          }),
+        },
+        source: signal({
+          id: 'dummy-source-id',
         }),
-      },
-      source: signal({
-        id: 'dummy-source-id',
-      }),
-      lifecycle: {
-        writeKey: signal('dummy-write-key'),
-      },
-    };
+        lifecycle: {
+          writeKey: signal('dummy-write-key'),
+        },
+      };
+    });
 
     const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
 
@@ -240,6 +246,7 @@ describe('Bugsnag utilities', () => {
     afterEach(() => {
       delete (window as any).bugsnag;
       bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = origSdkMaxWait;
+      state = undefined;
     });
 
     it('should resolve the promise immediately if the bugsnag SDK is already loaded', async () => {
@@ -257,13 +264,76 @@ describe('Bugsnag utilities', () => {
         mountBugsnagSDK();
       }, 1000);
 
-      const bsClientPromise = new Promise((resolve, reject) => {
+      const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
       });
 
-      const bsClient = await bsClientPromise;
+      const bsClient: BugsnagLib.Client = await bsClientPromise;
 
-      expect(bsClient).toBeDefined();
+      expect(bsClient).toBeDefined(); // returns a mocked Bugsnag client
+
+      // First call is the version check
+      expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
+      expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
+        apiKey: '__RS_BUGSNAG_API_KEY__',
+        appVersion: '1.0.0',
+        metaData: {
+          SDK: {
+            name: 'JS',
+            installType: 'npm',
+          },
+        },
+        autoCaptureSessions: false,
+        collectUserIp: false,
+        maxEvents: 100,
+        maxBreadcrumbs: 40,
+        releaseStage: 'development',
+        user: {
+          id: 'dummy-source-id',
+        },
+        networkBreadcrumbsEnabled: false,
+        beforeSend: expect.any(Function),
+        logger: undefined,
+      });
+    });
+
+    it('should return bugsnag client with write key as user id if source id is not available', async () => {
+      state.source.value = { id: undefined };
+      state.lifecycle.writeKey = signal('dummy-write-key');
+
+      setTimeout(() => {
+        mountBugsnagSDK();
+      }, 1000);
+
+      const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
+        initBugsnagClient(state, resolve, reject);
+      });
+
+      await bsClientPromise;
+
+      // First call is the version check
+      expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
+      expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
+        apiKey: '__RS_BUGSNAG_API_KEY__',
+        appVersion: '1.0.0',
+        metaData: {
+          SDK: {
+            name: 'JS',
+            installType: 'npm',
+          },
+        },
+        autoCaptureSessions: false,
+        collectUserIp: false,
+        maxEvents: 100,
+        maxBreadcrumbs: 40,
+        releaseStage: 'development',
+        user: {
+          id: 'dummy-write-key',
+        },
+        networkBreadcrumbsEnabled: false,
+        beforeSend: expect.any(Function),
+        logger: undefined,
+      });
     });
 
     it('should reject the promise if the Bugsnag SDK is not loaded', async () => {
@@ -377,12 +447,6 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('onError', () => {
-    const state = {
-      source: signal({
-        id: 'dummy-source-id',
-      }),
-    };
-
     it('should return a function', () => {
       expect(typeof onError()).toBe('function');
     });

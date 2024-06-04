@@ -60,7 +60,7 @@ const isRudderSDKError = (event: BugsnagLib.Report) => {
   );
 };
 
-const enhanceErrorEventMutator = (event: BugsnagLib.Report) => {
+const enhanceErrorEventMutator = (event: BugsnagLib.Report): void => {
   event.updateMetaData('source', {
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
@@ -80,22 +80,24 @@ const enhanceErrorEventMutator = (event: BugsnagLib.Report) => {
   event.severity = 'error';
 };
 
-const onError = (event: BugsnagLib.Report): boolean => {
-  try {
-    // Discard the event if it's not originated at the SDK
-    if (!isRudderSDKError(event)) {
+const onError =
+  (): BugsnagLib.BeforeSend =>
+  (event: BugsnagLib.Report): boolean => {
+    try {
+      // Discard the event if it's not originated at the SDK
+      if (!isRudderSDKError(event)) {
+        return false;
+      }
+
+      enhanceErrorEventMutator(event);
+
+      return true;
+    } catch {
+      // Drop the error event if it couldn't be filtered as
+      // it is most likely a non-SDK error
       return false;
     }
-
-    enhanceErrorEventMutator(event);
-
-    return true;
-  } catch {
-    // Drop the error event if it couldn't be filtered as
-    // it is most likely a non-SDK error
-    return false;
-  }
-};
+  };
 
 const getReleaseStage = () => {
   const host = globalThis.location.hostname;
@@ -116,7 +118,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
         installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError,
+    beforeSend: onError(),
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
@@ -162,11 +164,11 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
 
 const initBugsnagClient = (
   state: ApplicationState,
-  promiseResolve: (value: any) => void,
+  promiseResolve: (value: BugsnagLib.Client) => void,
   promiseReject: (reason?: any) => void,
   logger?: ILogger,
   time = 0,
-) => {
+): void => {
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
   if (typeof globalBugsnagLibInstance === 'function') {
     if (isValidVersion(globalBugsnagLibInstance)) {
