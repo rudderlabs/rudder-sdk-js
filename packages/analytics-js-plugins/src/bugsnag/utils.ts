@@ -4,7 +4,11 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { json } from '../shared-chunks/common';
 import type { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from './logMessages';
+import {
+  BUGSNAG_SDK_LOAD_ERROR,
+  BUGSNAG_SDK_LOAD_TIMEOUT_ERROR,
+  FAILED_TO_FILTER_ERROR,
+} from './logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -81,7 +85,7 @@ const enhanceErrorEventMutator = (event: BugsnagLib.Report): void => {
 };
 
 const onError =
-  (): BugsnagLib.BeforeSend =>
+  (logger?: ILogger): BugsnagLib.BeforeSend =>
   (event: BugsnagLib.Report): boolean => {
     try {
       // Discard the event if it's not originated at the SDK
@@ -93,6 +97,7 @@ const onError =
 
       return true;
     } catch {
+      logger?.error(FAILED_TO_FILTER_ERROR(BUGSNAG_PLUGIN));
       // Drop the error event if it couldn't be filtered as
       // it is most likely a non-SDK error
       return false;
@@ -118,7 +123,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
         installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError(),
+    beforeSend: onError(logger),
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
