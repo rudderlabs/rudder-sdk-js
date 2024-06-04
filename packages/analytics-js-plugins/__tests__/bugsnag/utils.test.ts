@@ -4,6 +4,7 @@ import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ext
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import * as timeouts from '@rudderstack/analytics-js-common/src/constants/timeouts';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
@@ -18,8 +19,7 @@ import {
   getAppStateForMetadata,
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
-import { BugsnagLib } from '../../src/types/plugins';
-import { authToken } from '../../__fixtures__/fixtures';
+import type { BugsnagLib } from '../../src/types/plugins';
 
 beforeEach(() => {
   window.RudderSnippetVersion = '3.0.0';
@@ -216,7 +216,7 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('initBugsnagClient', () => {
-    let state;
+    let state: ApplicationState;
 
     beforeEach(() => {
       state = {

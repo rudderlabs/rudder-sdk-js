@@ -165,7 +165,7 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
 const initBugsnagClient = (
   state: ApplicationState,
   promiseResolve: (value: BugsnagLib.Client) => void,
-  promiseReject: (reason?: any) => void,
+  promiseReject: (reason?: Error) => void,
   logger?: ILogger,
   time = 0,
 ): void => {
