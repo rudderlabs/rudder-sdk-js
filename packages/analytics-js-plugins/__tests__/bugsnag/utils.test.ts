@@ -30,6 +30,26 @@ afterEach(() => {
 });
 
 describe('Bugsnag utilities', () => {
+  class MockLogger implements ILogger {
+    warn = jest.fn();
+    log = jest.fn();
+    error = jest.fn();
+    info = jest.fn();
+    debug = jest.fn();
+    minLogLevel = 0;
+    scope = 'test scope';
+    setMinLogLevel = jest.fn();
+    setScope = jest.fn();
+    logProvider = console;
+  }
+
+  class MockErrorHandler implements IErrorHandler {
+    init = jest.fn();
+    onError = jest.fn();
+    leaveBreadcrumb = jest.fn();
+    notifyError = jest.fn();
+  }
+
   describe('isApiKeyValid', () => {
     it('should return true for a valid API key', () => {
       const apiKey = '1234567890abcdef';
@@ -359,26 +379,6 @@ describe('Bugsnag utilities', () => {
     });
     let insertBeforeSpy: any;
 
-    class MockLogger implements ILogger {
-      warn = jest.fn();
-      log = jest.fn();
-      error = jest.fn();
-      info = jest.fn();
-      debug = jest.fn();
-      minLogLevel = 0;
-      scope = 'test scope';
-      setMinLogLevel = jest.fn();
-      setScope = jest.fn();
-      logProvider = console;
-    }
-
-    class MockErrorHandler implements IErrorHandler {
-      init = jest.fn();
-      onError = jest.fn();
-      leaveBreadcrumb = jest.fn();
-      notifyError = jest.fn();
-    }
-
     const mockLogger = new MockLogger();
     const mockErrorHandler = new MockErrorHandler();
     const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
@@ -500,6 +500,29 @@ describe('Bugsnag utilities', () => {
       const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(false);
+    });
+
+    it('should log error and return false if the error could not be filtered', () => {
+      const mockLogger = new MockLogger();
+
+      const error = {
+        stacktrace: [
+          {
+            file: 'https://invalid-domain.com/rsa.min.js',
+          },
+        ],
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
+
+        // Simulate an unhandled exception
+        updateMetaData: jest.fn(() => {
+          throw new Error('Failed to update metadata.');
+        }),
+      } as any;
+
+      const onErrorFn = onError(mockLogger);
+
+      expect(onErrorFn(error)).toBe(false);
+      expect(mockLogger.error).toHaveBeenCalledWith('BugsnagPlugin:: Failed to filter the error.');
     });
   });
 
