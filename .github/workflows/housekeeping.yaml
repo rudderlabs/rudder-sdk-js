@@ -16,9 +16,9 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          repo-token: ${{ github.token }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 200
-          stale-pr-message: 'Hello! This PR has been open for 20 days without any activity. Therefore, it''s considered as stale and is scheduled to be closed in 10 days. If you''re still working on this, please remove the ''Stale'' label or add a comment to keep it open. Thanks for your contribution!'
+          stale-pr-message: "Hello! This PR has been open for 20 days without any activity. Therefore, it's considered as stale and is scheduled to be closed in 10 days. If you're still working on this, please remove the 'Stale' label or add a comment to keep it open. Thanks for your contribution!"
           days-before-pr-stale: 20
           days-before-pr-close: 10
           stale-pr-label: 'Stale'
@@ -33,7 +33,7 @@ jobs:
       - name: Run delete-old-branches-action
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
-          repo_token: ${{ github.token }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           date: '2 months ago'
           dry_run: false
           delete_tags: false

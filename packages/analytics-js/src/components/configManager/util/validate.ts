@@ -4,11 +4,11 @@ import {
   SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
 } from '../../../constants/logMessages';
-import { isValidUrl } from '../../utilities/url';
 
 const validateWriteKey = (writeKey?: string) => {
   if (!isString(writeKey) || (writeKey as string).trim().length === 0) {
@@ -17,7 +17,7 @@ const validateWriteKey = (writeKey?: string) => {
 };
 
 const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
-  if (dataPlaneUrl && !isValidUrl(dataPlaneUrl)) {
+  if (!isValidURL(dataPlaneUrl)) {
     throw new Error(DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl));
   }
 };
@@ -41,11 +41,11 @@ const getTopDomainUrl = (url: string) => {
   // Create a URL object
   const urlObj = new URL(url);
 
-  // Extract the hostname and protocol
-  const { hostname, protocol } = urlObj;
+  // Extract the host and protocol
+  const { host, protocol } = urlObj;
 
-  // Split the hostname into parts
-  const parts = hostname.split('.');
+  // Split the host into parts
+  const parts: string[] = host.split('.');
   let topDomain;
   // Handle different cases, especially for co.uk or similar TLDs
   if (parts.length > 2) {
@@ -53,7 +53,7 @@ const getTopDomainUrl = (url: string) => {
     topDomain = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
   } else {
     // If only two parts or less, return as it is
-    topDomain = hostname;
+    topDomain = host;
   }
   return `${protocol}//${topDomain}`;
 };

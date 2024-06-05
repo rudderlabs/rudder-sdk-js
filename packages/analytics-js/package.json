@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.1.1",
+  "version": "3.2.2",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
@@ -88,13 +88,7 @@
     "package": "npm pack",
     "release": "npm publish"
   },
-  "devDependencies": {
-    "@rudderstack/analytics-js-common": "*",
-    "@rudderstack/analytics-js-plugins": "*",
-    "@preact/signals-core": "1.6.0",
-    "ramda": "0.30.0",
-    "storejs": "2.1.0"
-  },
+  "devDependencies": {},
   "browserslist": {
     "production": [
       "defaults",
@@ -115,5 +109,11 @@
       "last 1 safari version"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-plugins": "*",
+    "@preact/signals-core": "1.6.0",
+    "ramda": "0.30.0",
+    "storejs": "2.1.0"
+  }
 }

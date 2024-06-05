@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
   "main": "dist/npm/modern/cjs/index.js",
@@ -73,12 +73,13 @@
     "package": "npm pack",
     "release": "npm publish"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@bugsnag/js": "6.5.2",
+  "dependencies": {
     "crypto-es": "2.1.0",
     "@rudderstack/analytics-js-common": "*",
     "ramda": "0.30.0"
+  },
+  "devDependencies": {
+    "@bugsnag/js": "6.5.2"
   },
   "overrides": {},
   "browserslist": {

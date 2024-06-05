@@ -54,7 +54,7 @@ class RedditPixel {
     }
     const userIdentifier = createUserIdentifier(
       rudderElement.message?.context?.traits,
-      rudderElement.context,
+      rudderElement.message?.context,
     );
     /**
      * Doc Link : https://business.reddithelp.com/helpcenter/s/article/Reddit-Pixel-Advanced-Matching

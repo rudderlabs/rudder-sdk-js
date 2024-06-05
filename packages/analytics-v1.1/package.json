@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.48.7",
+  "version": "2.48.8",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -76,15 +76,10 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git",
     "directory": "packages/analytics-v1.1"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@rudderstack/analytics-js-common": "*",
-    "component-emitter": "2.0.0",
-    "@segment/localstorage-retry": "1.3.0",
-    "@lukeed/uuid": "2.0.1",
-    "get-value": "3.0.1",
-    "ramda": "0.30.0"
+  "dependencies": {
+    "@rudderstack/analytics-js-common": "*"
   },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
