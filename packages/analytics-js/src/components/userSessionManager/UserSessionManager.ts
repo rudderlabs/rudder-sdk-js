@@ -362,6 +362,8 @@ class UserSessionManager implements IUserSessionManager {
               const before = stringifyWithoutCircular(each.value, false, []);
               const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
+                this.logger?.debug('Cookie value sent to server side', before);
+                this.logger?.debug('Cookie value set from server side', after);
                 this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
                 if (cb) {
                   cb(each.name, each.value);
