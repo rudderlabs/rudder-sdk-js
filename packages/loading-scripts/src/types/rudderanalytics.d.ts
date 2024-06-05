@@ -10,5 +10,10 @@ declare global {
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';
     RudderSnippetVersion?: string;
+    rudderAnalyticsAddScript: (
+      url: string,
+      extraAttributeKey?: string,
+      extraAttributeVal?: string,
+    ) => void;
   }
 }
