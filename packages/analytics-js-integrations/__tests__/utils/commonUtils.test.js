@@ -243,20 +243,20 @@ describe('isDefinedAndNotNullAndNotEmpty Tests', () => {
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
     expect(result).toStrictEqual(false);
   });
-  test('integer returns true', () => {
+  test('integer returns false', () => {
     const testVar = 124;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(true);
+    expect(result).toStrictEqual(false);
   });
-  test('true returns true', () => {
+  test('true returns false', () => {
     const testVar = true;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(true);
+    expect(result).toStrictEqual(false);
   });
-  test('false returns true', () => {
+  test('false returns false', () => {
     const testVar = false;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(true);
+    expect(result).toStrictEqual(false);
   });
 });
 

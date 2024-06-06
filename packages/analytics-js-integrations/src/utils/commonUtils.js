@@ -1,7 +1,15 @@
 import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { pick as ramdaPick, pickBy, isEmpty } from 'ramda';
 
-const isNotEmpty = x => !isEmpty(x);
+const isNotEmpty = x => {
+  if (typeof x === 'number') {
+    return isEmpty(x);
+  }
+  if (typeof x === 'boolean') {
+    return isEmpty(x);
+  }
+  return !isEmpty(x);
+};
 const isNotNull = x => x != null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 const isDefinedAndNotNullAndNotEmpty = x => isDefined(x) && isNotNull(x) && isNotEmpty(x);
