@@ -1,5 +1,4 @@
 import type { LogLevel } from './Logger';
-import type { ResidencyServerRegion } from './DataResidency';
 import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
 import type { IntegrationOpts } from './Integration';
@@ -132,7 +131,6 @@ export type LoadOptions = {
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
-  residencyServer?: ResidencyServerRegion;
   // TODO: define type for sourceConfig once the trimmed response is implemented
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
   sendAdblockPage?: boolean;

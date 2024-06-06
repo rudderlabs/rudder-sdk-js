@@ -13,7 +13,6 @@ import type {
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for integrations is not valid.`;
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
-const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
@@ -136,13 +135,6 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
-const UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING = (
-  context: string,
-  selectedResidencyServerRegion: string | undefined,
-  defaultRegion: string,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The residency server region "${selectedResidencyServerRegion}" is not supported. Please choose one of the following supported regions: "US, EU". The default region "${defaultRegion}" will be used instead.`;
-
 const RESERVED_KEYWORD_WARNING = (
   context: string,
   property: string,
@@ -260,7 +252,6 @@ export {
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
-  UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
@@ -283,7 +274,6 @@ export {
   SOURCE_CONFIG_OPTION_ERROR,
   INTG_CDN_BASE_URL_ERROR,
   PLUGINS_CDN_BASE_URL_ERROR,
-  DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   READY_API_CALLBACK_ERROR,
