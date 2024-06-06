@@ -6,6 +6,7 @@ import type {
   RudderAnalyticsPreloader,
 } from '@rudderstack/analytics-js';
 
+window.RudderSnippetVersion = '__PACKAGE_VERSION__';
 const identifier = 'rudderanalytics';
 if (!window[identifier]) {
   window[identifier] = [] as any;
@@ -18,7 +19,6 @@ if (Array.isArray(rudderanalytics)) {
     console.error('RudderStack JavaScript SDK snippet included more than once.');
   } else {
     (rudderanalytics as any).snippetExecuted = true;
-    window.RudderSnippetVersion = '__PACKAGE_VERSION__';
     window.rudderAnalyticsBuildType = 'legacy';
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
@@ -67,16 +67,10 @@ if (Array.isArray(rudderanalytics)) {
       // Do nothing
     }
 
-    const head =
-      document.head ||
-      (document.getElementsByTagName('head').length > 0 &&
-        document.getElementsByTagName('head')[0]);
+    const head = document.head || document.getElementsByTagName('head')[0];
 
     // eslint-disable-next-line compat/compat
-    const body =
-      document.body ||
-      (document.getElementsByTagName('body').length > 0 &&
-        document.getElementsByTagName('body')[0]);
+    const body = document.body || document.getElementsByTagName('body')[0];
 
     window.rudderAnalyticsAddScript = (
       url: string,
@@ -123,7 +117,7 @@ if (Array.isArray(rudderanalytics)) {
       window.rudderAnalyticsAddScript(
         `${sdkBaseUrl}/${window.rudderAnalyticsBuildType}/${sdkName}`,
         'data-rsa-write-key',
-        '<write-key>',
+        '__WRITE_KEY__',
       );
     };
 
@@ -141,8 +135,8 @@ if (Array.isArray(rudderanalytics)) {
     };
 
     (rudderanalytics as unknown as RudderAnalytics).load(
-      '<write-key>',
-      '<data-plane-url>',
+      '__WRITE_KEY__',
+      '__DATAPLANE_URL__',
       loadOptions,
     );
   }
