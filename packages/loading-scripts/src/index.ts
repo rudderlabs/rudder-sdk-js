@@ -23,8 +23,7 @@ if (Array.isArray(rudderanalytics)) {
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
     const sdkName = 'rsa.min.js';
-    const asyncScript = true;
-    const deferScript = false;
+    const scriptLoadingMode = 'async'; // Options: 'async', 'defer', 'none'/'' (empty string)
 
     const methods: string[] = [
       'setDefaultInstanceKey',
@@ -84,9 +83,9 @@ if (Array.isArray(rudderanalytics)) {
         scriptTag.setAttribute(extraAttributeKey, extraAttributeVal);
       }
 
-      if (asyncScript) {
+      if (scriptLoadingMode === 'async') {
         scriptTag.async = true;
-      } else if (deferScript) {
+      } else if (scriptLoadingMode === 'defer') {
         scriptTag.defer = true;
       }
 

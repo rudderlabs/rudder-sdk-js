@@ -30,7 +30,7 @@
       ;var t=window[e];if(Array.isArray(t)){if(true===t.snippetExecuted&&window.console&&console.error){
       console.error("RudderStack JavaScript SDK snippet included more than once.")}else{t.snippetExecuted=true,
       window.rudderAnalyticsBuildType="legacy";var sdkBaseUrl="https://cdn.rudderlabs.com/v3";var sdkName="rsa.min.js"
-      ;var asyncScript=true;var r=false
+      ;var r="async"
       ;var n=["setDefaultInstanceKey","load","ready","page","track","identify","alias","group","reset","setAnonymousId","startSession","endSession","consent"]
       ;for(var i=0;i<n.length;i++){var d=n[i];t[d]=function(r){return function(){var n
       ;Array.isArray(window[e])?t.push([r].concat(Array.prototype.slice.call(arguments))):null===(n=window[e][r])||void 0===n||n.apply(window[e],arguments)
@@ -38,7 +38,7 @@
       var o=document.head||document.getElementsByTagName("head")[0]
       ;var a=document.body||document.getElementsByTagName("body")[0];window.rudderAnalyticsAddScript=function(e,t,n){
       var i=document.createElement("script");i.src=e,i.setAttribute("data-loader","RS_JS_SDK"),t&&n&&i.setAttribute(t,n),
-      asyncScript?i.async=true:r&&(i.defer=true),o?o.insertBefore(i,o.firstChild):a.insertBefore(i,a.firstChild)},
+      "async"===r?i.async=true:"defer"===r&&(i.defer=true),o?o.insertBefore(i,o.firstChild):a.insertBefore(i,a.firstChild)},
       window.rudderAnalyticsMount=function(){
       "undefined"==typeof globalThis&&(Object.defineProperty(Object.prototype,"__globalThis_magic__",{get:function get(){
       return this},configurable:true}),__globalThis_magic__.globalThis=__globalThis_magic__,
