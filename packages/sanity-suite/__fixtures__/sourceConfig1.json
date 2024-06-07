@@ -292,7 +292,7 @@
           ],
           "useNativeSDKToSend": false,
           "eventFilteringOption": "disable",
-          "extendPageViewParams": false,
+          "extendPageViewParams": true,
           "piiPropertiesToIgnore": [
             {
               "piiProperty": ""

@@ -30,6 +30,7 @@
     "package": "exit 0",
     "release": "exit 0",
     "start:integrations": "npm run clean && mkdir dist && mkdir dist/local && npm run build:v1.1 && npm run build:integrations && rsync -r ../analytics-js-integrations/dist/cdn/legacy/js-integrations dist/local && npm run start:local",
+    "build:start:local:v3": "npm run build:v3 && npm run start:local:v3",
     "start:local": "DEV_SERVER=true npm run build -- --watch",
     "start:local:v3": "DEV_SERVER=true npm run build:local:v3 -- --watch",
     "start:cdn": "DEV_SERVER=true npm run build:cdn -- --watch",
@@ -44,6 +45,7 @@
     "build:cdn:v1": "rollup -c --environment DISTRIBUTION_TYPE:cdn,SDK_VERSION:v1",
     "build:cdn:v3": "rollup -c --environment DISTRIBUTION_TYPE:cdn,SDK_VERSION:v3",
     "build:local:v1.1": "rollup -c --environment DISTRIBUTION_TYPE:local,SDK_VERSION:v1.1",
+    "build:local:v3": "rollup -c --environment DISTRIBUTION_TYPE:local,SDK_VERSION:v3",
     "build:npm:v1.1": "SDK_VERSION=v1.1 npm run build:npm",
     "build:npm:v3": "SDK_VERSION=v3 npm run build:npm",
     "build:all": "npm run build:cdn:v1.1 && npm run build:cdn:v3 && npm run build:npm:v1.1 && npm run build:npm:v3 && rimraf -rf ./dist/dts"

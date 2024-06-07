@@ -2,6 +2,7 @@ export type AppInfo = {
   readonly name: string;
   readonly version: string;
   readonly namespace: string;
+  readonly installType: string;
 };
 
 export type LibraryInfo = {
