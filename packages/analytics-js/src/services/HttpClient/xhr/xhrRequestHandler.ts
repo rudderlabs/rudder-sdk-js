@@ -116,6 +116,9 @@ const xhrRequest = (
     };
 
     xhr.open(options.method, options.url);
+    if (options.withCredentials === true) {
+      xhr.withCredentials = true;
+    }
     // The timeout property may be set only in the time interval between a call to the open method
     // and the first call to the send method in legacy browsers
     xhr.timeout = timeout;
