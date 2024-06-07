@@ -48,14 +48,14 @@
       "options": {
         "jestConfig": "packages/loading-scripts/jest.config.mjs",
         "passWithNoTests": true,
-        "codeCoverage": true,
+        "codeCoverage": false,
         "watchAll": false,
         "forceExit": true
       },
       "configurations": {
         "ci": {
           "ci": true,
-          "codeCoverage": true
+          "codeCoverage": false
         }
       }
     },
