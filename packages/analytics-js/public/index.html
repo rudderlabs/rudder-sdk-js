@@ -2,147 +2,152 @@
 <html>
   <head>
     <script>
-      window.RudderSnippetVersion = '3.0.1';
-      var sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
-      var sdkName = 'rsa.min.js';
-      var asyncScript = true;
-      window.rudderAnalyticsBuildType = 'legacy';
-      window.rudderanalytics = [];
-      var methods = [
-        'setDefaultInstanceKey',
-        'load',
-        'ready',
-        'page',
-        'track',
-        'identify',
-        'alias',
-        'group',
-        'reset',
-        'setAnonymousId',
-        'startSession',
-        'endSession',
-        'consent'
-      ];
-      for (var i = 0; i < methods.length; i++) {
-        var method = methods[i];
-        window.rudderanalytics[method] = (function (methodName) {
-          return function () {
-            window.rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
-          };
-        })(method);
-      }
-      try {
-        new Function('return import("")');
-        window.rudderAnalyticsBuildType = 'modern';
-      } catch (e) {}
-      window.rudderAnalyticsMount = function () {
-        if (typeof globalThis === 'undefined') {
-          Object.defineProperty(Object.prototype, '__globalThis_magic__', {
-            get: function get() {
-              return this;
-            },
-            configurable: true
-          });
-          __globalThis_magic__.globalThis = __globalThis_magic__;
-          delete Object.prototype.__globalThis_magic__;
+      (function() {
+        "use strict";
+        window.RudderSnippetVersion = "3.0.9";
+        var identifier = "rudderanalytics";
+        if (!window[identifier]) {
+          window[identifier] = [];
         }
-        var rudderAnalyticsScript = document.createElement('script');
-        rudderAnalyticsScript.src = ''
-          .concat(sdkBaseUrl, '/')
-          .concat(window.rudderAnalyticsBuildType, '/')
-          .concat(sdkName);
-        rudderAnalyticsScript.async = asyncScript;
-        // Commented out as the local build file is auto-injected by rollup
-        // if (document.head) {
-        //   document.head.appendChild(rudderAnalyticsScript);
-        // } else {
-        //   document.body.appendChild(rudderAnalyticsScript);
-        // }
-      };
-      if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
-        var rudderAnalyticsPromisesScript = document.createElement('script');
-        rudderAnalyticsPromisesScript.src =
-          'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount';
-        rudderAnalyticsPromisesScript.async = asyncScript;
-        if (document.head) {
-          document.head.appendChild(rudderAnalyticsPromisesScript);
-        } else {
-          document.body.appendChild(rudderAnalyticsPromisesScript);
-        }
-      } else {
-        window.rudderAnalyticsMount();
-      }
-      // New addition to load script ends
+        var rudderanalytics = window[identifier];
+        if (Array.isArray(rudderanalytics)) {
+          if (rudderanalytics.snippetExecuted === true && window.console && console.error) {
+            console.error("RudderStack JavaScript SDK snippet included more than once.");
+          } else {
+            rudderanalytics.snippetExecuted = true;
+            window.rudderAnalyticsBuildType = "legacy";
+            var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
+            var sdkName = "rsa.min.js";
+            var scriptLoadingMode = "async";
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+            for (var i = 0; i < methods.length; i++) {
+              var method = methods[i];
+              rudderanalytics[method] = function(methodName) {
+                return function() {
+                  if (Array.isArray(window[identifier])) {
+                    rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+                  } else {
+                    var _methodName;
+                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                  }
+                };
+              }(method);
+            }
+            try {
+              new Function('return import("")');
+              window.rudderAnalyticsBuildType = "modern";
+            } catch (e) {}
+            var head = document.head || document.getElementsByTagName("head")[0];
+            var body = document.body || document.getElementsByTagName("body")[0];
+            window.rudderAnalyticsAddScript = function(url, extraAttributeKey, extraAttributeVal) {
+              var scriptTag = document.createElement("script");
+              scriptTag.src = url;
+              scriptTag.setAttribute("data-loader", "RS_JS_SDK");
+              if (extraAttributeKey && extraAttributeVal) {
+                scriptTag.setAttribute(extraAttributeKey, extraAttributeVal);
+              }
+              if (scriptLoadingMode === "async") {
+                scriptTag.async = true;
+              } else if (scriptLoadingMode === "defer") {
+                scriptTag.defer = true;
+              }
+              if (head) {
+                head.insertBefore(scriptTag, head.firstChild);
+              } else {
+                body.insertBefore(scriptTag, body.firstChild);
+              }
+            };
+            window.rudderAnalyticsMount = function() {
+              if (typeof globalThis === "undefined") {
+                Object.defineProperty(Object.prototype, "__globalThis_magic__", {
+                  get: function get() {
+                    return this;
+                  },
+                  configurable: true
+                });
+                __globalThis_magic__.globalThis = __globalThis_magic__;
+                delete Object.prototype.__globalThis_magic__;
+              }
+              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
+            };
+            if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
+              window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
+            } else {
+              window.rudderAnalyticsMount();
+            }
+            var loadOptions = {
+              logLevel: 'DEBUG',
+              configUrl: '__CONFIG_SERVER_HOST__',
+              destSDKBaseURL:
+            '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
+              pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+              // useServerSideCookies:true,
+              // queueOptions: {
+              //   batch: {
+              //     maxSize: 5 * 1024, // 5KB
+              //   },
+              // },
+              // useBeacon: true,
+              // beaconQueueOptions: {
+              //   flushQueueInterval: 10 * 1000,
+              //   maxItems: 5,
+              // },
+              // sessions: {
+              //   autoTrack: true,
+              //   timeout: 30 * 1000
+              // },
+              storage: {
+                encryption: {
+                  version: 'v3'
+                },
+                migrate: true,
+                // cookie: {
+                //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                //   path: '/',
+                //   samesite: 'Lax',
+                //   secure: true,
+                // },
+                // type: 'localStorage',
+                // entries: {
+                //   userId: {
+                //     type: 'cookieStorage',
+                //   },
+                //   userTraits: {
+                //     type: 'localStorage',
+                //   },
+                //   groupId: {
+                //     type: 'none',
+                //   },
+                //   anonymousId: {
+                //     type: 'cookieStorage',
+                //   },
+                // },
+              // },
+              // consentManagement: {
+              //   enabled: true,
+              //   provider: "custom",
+              // },
+              // preConsent: {
+              //   enabled: true,
+              //   storage: {
+              //     strategy: 'session'
+              //   },
+              //   events: {
+              //     delivery: 'buffer'
+              //   }
+              }
+              // plugins: [
+              //   'StorageEncryption',
+              //   'StorageMigrator',
+              //   'XhrQueue'
+              // ]
+            };
 
-      var loadOptions = {
-        logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL:
-          '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
-        // useServerSideCookies:true,
-        // queueOptions: {
-        //   batch: {
-        //     maxSize: 5 * 1024, // 5KB
-        //   },
-        // },
-        // useBeacon: true,
-        // beaconQueueOptions: {
-        //   flushQueueInterval: 10 * 1000,
-        //   maxItems: 5,
-        // },
-        // sessions: {
-        //   autoTrack: true,
-        //   timeout: 30 * 1000
-        // },
-        storage: {
-          encryption: {
-            version: 'v3'
-          },
-          migrate: true,
-          // cookie: {
-          //   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          //   path: '/',
-          //   samesite: 'Lax',
-          //   secure: true,
-          // },
-          // type: 'localStorage',
-          // entries: {
-          //   userId: {
-          //     type: 'cookieStorage',
-          //   },
-          //   userTraits: {
-          //     type: 'localStorage',
-          //   },
-          //   groupId: {
-          //     type: 'none',
-          //   },
-          //   anonymousId: {
-          //     type: 'cookieStorage',
-          //   },
-          // },
-        // },
-        // consentManagement: {
-        //   enabled: true,
-        //   provider: "custom",
-        // },
-        // preConsent: {
-        //   enabled: true,
-        //   storage: {
-        //     strategy: 'session'
-        //   },
-        //   events: {
-        //     delivery: 'buffer'
-        //   }
+            rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+          }
         }
-        // plugins: [
-        //   'StorageEncryption',
-        //   'StorageMigrator',
-        //   'XhrQueue'
-        // ]
-      };
+      })();
 
-      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
 
       rudderanalytics.identify(
         'customUserID',

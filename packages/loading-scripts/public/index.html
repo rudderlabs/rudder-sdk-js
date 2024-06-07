@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="loading-script.js"></script>
     <script>
       rudderanalytics.identify(
         'customUserID',
@@ -76,6 +75,14 @@
 
       rudderanalytics.ready(function () {
         console.log('All ready!!!');
+      });
+
+      document.addEventListener('RSA_Initialised', function (e) {
+        console.log('RSA_Initialised', e.detail.analyticsInstance);
+      });
+
+      document.addEventListener('RSA_Ready', function (e) {
+        console.log('RSA_Ready', e.detail.analyticsInstance);
       });
     </script>
   </head>
