@@ -2,11 +2,8 @@ import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/
 import { pick as ramdaPick, pickBy, isEmpty } from 'ramda';
 
 const isNotEmpty = x => {
-  if (typeof x === 'number') {
-    return isEmpty(x);
-  }
-  if (typeof x === 'boolean') {
-    return isEmpty(x);
+  if (typeof x === 'number' || typeof x === 'boolean') {
+    return isEmpty(x); // Numbers and booleans are inherently "not empty"
   }
   return !isEmpty(x);
 };
@@ -17,7 +14,7 @@ const removeUndefinedValues = obj => pickBy(isDefined, obj);
 const removeNullValues = obj => pickBy(isNotNull, obj);
 const removeUndefinedAndNullValues = obj => pickBy(isDefinedAndNotNull, obj);
 const removeUndefinedAndNullAndEmptyValues = obj => pickBy(isDefinedAndNotNullAndNotEmpty, obj);
-const isBlank = value => isEmpty(value);
+const isBlank = value => isEmpty(String(value).trim());
 const pick = (argObj, argArr) => ramdaPick(argArr, argObj);
 
 /**
