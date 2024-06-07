@@ -1,18 +1,40 @@
 diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
-index 7935008..0155c14 100644
+index 7935008..f9d49c8 100644
 --- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
 +++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
-@@ -3441,7 +3441,8 @@ function htmlTemplate(options = {}) {
+@@ -3441,7 +3441,9 @@ function htmlTemplate(options = {}) {
      target,
      prefix,
      attrs,
 -    replaceVars
 +    replaceVars,
-+    noInject
++    noInject,
++    addToHead
    } = options;
    const scriptTagAttributes = attrs && attrs.length > 0 ? attrs : [];
    return {
-@@ -3491,7 +3492,7 @@ function htmlTemplate(options = {}) {
+@@ -3482,16 +3484,24 @@ function htmlTemplate(options = {}) {
+ 
+           let injected = tmpl; // Inject the style tags before the head close tag
+ 
+-          const headCloseTag = injected.lastIndexOf("</head>"); // Inject the script tags before the body close tag
++          if (addToHead) {
++            const headOpenTag = injected.indexOf("<head>");
+ 
+-          injected = [injected.slice(0, headCloseTag), ...bundleKeys.filter(f => path.extname(f) === ".css").map(b => `<link rel="stylesheet" type="text/css" href="${prefix || ""}${b}">\n`), injected.slice(headCloseTag, injected.length)].join("");
+-          const bodyCloseTag = injected.lastIndexOf("</body>"); // Inject the script tags before the body close tag
++            injected = [injected.slice(0, headOpenTag + 6), ...bundleKeys.filter(f => path.extname(f) === ".css").map(b => `<link rel="stylesheet" type="text/css" href="${prefix || ""}${b}">\n`), injected.slice(headOpenTag + 6, injected.length)].join("");
+ 
+-          injected = [injected.slice(0, bodyCloseTag), ...bundleKeys.filter(f => path.extname(f) === ".js").map(b => `<script ${scriptTagAttributes.join(" ")} src="${bundleDirString}${prefix || ""}${b}"></script>\n`), injected.slice(bodyCloseTag, injected.length)].join(""); // write the injected template to a file
++            injected = [injected.slice(0, headOpenTag + 6), ...bundleKeys.filter(f => path.extname(f) === ".js").map(b => `<script ${scriptTagAttributes.join(" ")} src="${bundleDirString}${prefix || ""}${b}"></script>\n`), injected.slice(headOpenTag + 6, injected.length)].join("");
++          } else {
++            const headCloseTag = injected.lastIndexOf("</head>"); // Inject the script tags before the body close tag
++
++            injected = [injected.slice(0, headCloseTag), ...bundleKeys.filter(f => path.extname(f) === ".css").map(b => `<link rel="stylesheet" type="text/css" href="${prefix || ""}${b}">\n`), injected.slice(headCloseTag, injected.length)].join("");
++            const bodyCloseTag = injected.lastIndexOf("</body>"); // Inject the script tags before the body close tag
++
++            injected = [injected.slice(0, bodyCloseTag), ...bundleKeys.filter(f => path.extname(f) === ".js").map(b => `<script ${scriptTagAttributes.join(" ")} src="${bundleDirString}${prefix || ""}${b}"></script>\n`), injected.slice(bodyCloseTag, injected.length)].join(""); // write the injected template to a file
++          }
  
            const finalTarget = path.join(targetDir, targetFile);
            await lib.ensureFile(finalTarget);
@@ -22,7 +44,7 @@ index 7935008..0155c14 100644
          } catch (e) {
            reject(e);
 diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
-index 81116b3..05878ac 100644
+index 81116b3..3461132 100644
 --- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
 +++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
 @@ -3437,7 +3437,8 @@ function htmlTemplate(options = {}) {
