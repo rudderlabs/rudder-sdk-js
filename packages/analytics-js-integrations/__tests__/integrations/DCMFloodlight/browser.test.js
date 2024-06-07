@@ -52,6 +52,32 @@ const config = {
         },
       ],
     },
+    {
+      eventName: 'Viewed home page',
+      floodlightActivityTag: 'signu01',
+      floodlightGroupTag: 'conv02',
+      floodlightCountingMethod: 'unique',
+      salesTag: false,
+      customVariables: [
+        {
+          from: '',
+          to: '',
+        },
+      ],
+    },
+    {
+      eventName: 'Viewed doc page',
+      floodlightActivityTag: 'signu01',
+      floodlightGroupTag: 'conv02',
+      floodlightCountingMethod: 'unique',
+      salesTag: false,
+      customVariables: [
+        {
+          from: '',
+          to: '',
+        },
+      ],
+    },
   ],
   useNativeSDK: { web: true },
 };
@@ -75,6 +101,12 @@ describe('init', () => {
 
   it('should initialize with gtag on init', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' }, destinationInfo);
+    dcmFloodlight.init();
+    expect(typeof config).toBe('object');
+  });
+
+  it('should initialize without loglevel', () => {
+    dcmFloodlight = new DCMFloodlight(config, {}, destinationInfo);
     dcmFloodlight.init();
     expect(typeof config).toBe('object');
   });
@@ -209,6 +241,42 @@ describe('page', () => {
         type: 'page',
         properties: {
           name: 'home',
+          category: 'doc',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv02/signu01+unique',
+    });
+  });
+
+  it('should return the event payload when name is present in category is missing from properties', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.page({
+      message: {
+        type: 'page',
+        properties: {
+          name: 'home',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv02/signu01+unique',
+    });
+  });
+
+  it('should return the event payload when category is present in name is missing from properties', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.page({
+      message: {
+        type: 'page',
+        properties: {
           category: 'doc',
         },
       },
