@@ -3,6 +3,7 @@
     "channel": "web",
     "context": {
       "app": {
+        "installType": "cdn",
         "name": "RudderLabs JavaScript SDK",
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"

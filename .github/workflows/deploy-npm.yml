@@ -51,6 +51,14 @@ jobs:
           echo "CURRENT_VERSION_SW_VALUE=$current_version_sw" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
 
+      - name: Get versions in NPM
+        run: |
+          current_npm_version=$(npm show @rudderstack/analytics-js version 2>/dev/null || echo "not found")
+          echo "CURRENT_NPM_VERSION=$current_npm_version" >> $GITHUB_ENV
+
+          current_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
+          echo "CURRENT_NPM_VERSION_SW=$current_npm_version_sw" >> $GITHUB_ENV
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -82,7 +90,16 @@ jobs:
           git reset --hard
           git clean -fd
 
+      - name: Get versions in NPM after publish
+        run: |
+          new_npm_version=$(npm show @rudderstack/analytics-js version 2>/dev/null || echo "not found")
+          echo "NEW_NPM_VERSION=$new_npm_version" >> $GITHUB_ENV
+
+          new_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
+          echo "NEW_NPM_VERSION_SW=$new_npm_version_sw" >> $GITHUB_ENV
+
       - name: Send message to Slack channel
+        if: ${{ env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'}}
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
         env:
@@ -131,6 +148,7 @@ jobs:
             }
 
       - name: Send message to Slack channel for Service Worker
+        if: ${{ env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'}}
         id: slackSw
         uses: slackapi/slack-github-action@v1.26.0
         env:

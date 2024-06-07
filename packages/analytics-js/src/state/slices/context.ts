@@ -1,12 +1,13 @@
 import { signal } from '@preact/signals-core';
 import type { ContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '../../constants/app';
+import { APP_NAME, APP_NAMESPACE, APP_VERSION, MODULE_TYPE } from '../../constants/app';
 
 const contextState: ContextState = {
   app: signal({
     name: APP_NAME,
     namespace: APP_NAMESPACE,
     version: APP_VERSION,
+    installType: MODULE_TYPE,
   }),
   traits: signal(null),
   library: signal({
