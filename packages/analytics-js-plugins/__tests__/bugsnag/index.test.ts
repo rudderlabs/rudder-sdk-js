@@ -14,6 +14,14 @@ describe('Plugin - Bugsnag', () => {
     source: signal({
       id: 'test-source-id',
     }),
+    context: {
+      app: signal({
+        name: 'test-app',
+        namespace: 'test-namespace',
+        version: '1.0.0',
+        installType: 'npm',
+      }),
+    },
   };
 
   let state: any;
@@ -98,6 +106,14 @@ describe('Plugin - Bugsnag', () => {
           },
           lifecycle: {
             writeKey: 'dummy-write-key',
+          },
+          context: {
+            app: {
+              name: 'test-app',
+              namespace: 'test-namespace',
+              version: '1.0.0',
+              installType: 'npm',
+            },
           },
         },
       },

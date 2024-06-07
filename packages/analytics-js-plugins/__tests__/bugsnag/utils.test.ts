@@ -4,6 +4,7 @@ import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/Ext
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import * as timeouts from '@rudderstack/analytics-js-common/src/constants/timeouts';
+import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
@@ -18,8 +19,37 @@ import {
   getAppStateForMetadata,
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
+import type { BugsnagLib } from '../../src/types/plugins';
+
+beforeEach(() => {
+  window.RudderSnippetVersion = '3.0.0';
+});
+
+afterEach(() => {
+  window.RudderSnippetVersion = undefined;
+});
 
 describe('Bugsnag utilities', () => {
+  class MockLogger implements ILogger {
+    warn = jest.fn();
+    log = jest.fn();
+    error = jest.fn();
+    info = jest.fn();
+    debug = jest.fn();
+    minLogLevel = 0;
+    scope = 'test scope';
+    setMinLogLevel = jest.fn();
+    setScope = jest.fn();
+    logProvider = console;
+  }
+
+  class MockErrorHandler implements IErrorHandler {
+    init = jest.fn();
+    onError = jest.fn();
+    leaveBreadcrumb = jest.fn();
+    notifyError = jest.fn();
+  }
+
   describe('isApiKeyValid', () => {
     it('should return true for a valid API key', () => {
       const apiKey = '1234567890abcdef';
@@ -166,11 +196,11 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'test error message',
       };
 
-      enhanceErrorEventMutator(event, 'dummyMetadataVal');
+      enhanceErrorEventMutator(event);
 
       expect(event.metadata).toEqual({
         source: {
-          metadataSource: 'dummyMetadataVal',
+          snippetVersion: '3.0.0',
         },
       });
 
@@ -196,7 +226,7 @@ describe('Bugsnag utilities', () => {
 
       expect(event.metadata).toEqual({
         source: {
-          metadataSource: 'dummyMetadataVal',
+          snippetVersion: '3.0.0',
         },
       });
 
@@ -206,14 +236,26 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('initBugsnagClient', () => {
-    const state = {
-      source: signal({
-        id: 'dummy-source-id',
-      }),
-      lifecycle: {
-        writeKey: signal('dummy-write-key'),
-      },
-    };
+    let state: ApplicationState;
+
+    beforeEach(() => {
+      state = {
+        context: {
+          app: signal({
+            name: 'test-app',
+            namespace: 'test-namespace',
+            version: '1.0.0',
+            installType: 'npm',
+          }),
+        },
+        source: signal({
+          id: 'dummy-source-id',
+        }),
+        lifecycle: {
+          writeKey: signal('dummy-write-key'),
+        },
+      };
+    });
 
     const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
 
@@ -224,6 +266,7 @@ describe('Bugsnag utilities', () => {
     afterEach(() => {
       delete (window as any).bugsnag;
       bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = origSdkMaxWait;
+      state = undefined;
     });
 
     it('should resolve the promise immediately if the bugsnag SDK is already loaded', async () => {
@@ -241,13 +284,76 @@ describe('Bugsnag utilities', () => {
         mountBugsnagSDK();
       }, 1000);
 
-      const bsClientPromise = new Promise((resolve, reject) => {
+      const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
       });
 
-      const bsClient = await bsClientPromise;
+      const bsClient: BugsnagLib.Client = await bsClientPromise;
 
-      expect(bsClient).toBeDefined();
+      expect(bsClient).toBeDefined(); // returns a mocked Bugsnag client
+
+      // First call is the version check
+      expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
+      expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
+        apiKey: '__RS_BUGSNAG_API_KEY__',
+        appVersion: '1.0.0',
+        metaData: {
+          SDK: {
+            name: 'JS',
+            installType: 'npm',
+          },
+        },
+        autoCaptureSessions: false,
+        collectUserIp: false,
+        maxEvents: 100,
+        maxBreadcrumbs: 40,
+        releaseStage: 'development',
+        user: {
+          id: 'dummy-source-id',
+        },
+        networkBreadcrumbsEnabled: false,
+        beforeSend: expect.any(Function),
+        logger: undefined,
+      });
+    });
+
+    it('should return bugsnag client with write key as user id if source id is not available', async () => {
+      state.source.value = { id: undefined };
+      state.lifecycle.writeKey = signal('dummy-write-key');
+
+      setTimeout(() => {
+        mountBugsnagSDK();
+      }, 1000);
+
+      const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
+        initBugsnagClient(state, resolve, reject);
+      });
+
+      await bsClientPromise;
+
+      // First call is the version check
+      expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
+      expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
+        apiKey: '__RS_BUGSNAG_API_KEY__',
+        appVersion: '1.0.0',
+        metaData: {
+          SDK: {
+            name: 'JS',
+            installType: 'npm',
+          },
+        },
+        autoCaptureSessions: false,
+        collectUserIp: false,
+        maxEvents: 100,
+        maxBreadcrumbs: 40,
+        releaseStage: 'development',
+        user: {
+          id: 'dummy-write-key',
+        },
+        networkBreadcrumbsEnabled: false,
+        beforeSend: expect.any(Function),
+        logger: undefined,
+      });
     });
 
     it('should reject the promise if the Bugsnag SDK is not loaded', async () => {
@@ -272,26 +378,6 @@ describe('Bugsnag utilities', () => {
       server.close();
     });
     let insertBeforeSpy: any;
-
-    class MockLogger implements ILogger {
-      warn = jest.fn();
-      log = jest.fn();
-      error = jest.fn();
-      info = jest.fn();
-      debug = jest.fn();
-      minLogLevel = 0;
-      scope = 'test scope';
-      setMinLogLevel = jest.fn();
-      setScope = jest.fn();
-      logProvider = console;
-    }
-
-    class MockErrorHandler implements IErrorHandler {
-      init = jest.fn();
-      onError = jest.fn();
-      leaveBreadcrumb = jest.fn();
-      notifyError = jest.fn();
-    }
 
     const mockLogger = new MockLogger();
     const mockErrorHandler = new MockErrorHandler();
@@ -361,14 +447,8 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('onError', () => {
-    const state = {
-      source: signal({
-        id: 'dummy-source-id',
-      }),
-    };
-
     it('should return a function', () => {
-      expect(typeof onError(state)).toBe('function');
+      expect(typeof onError()).toBe('function');
     });
 
     it('should return a function that returns false if the error is not from RudderStack SDK', () => {
@@ -380,7 +460,7 @@ describe('Bugsnag utilities', () => {
         ],
       };
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(false);
     });
@@ -396,11 +476,11 @@ describe('Bugsnag utilities', () => {
         updateMetaData: jest.fn(),
       } as any;
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(true);
       expect(error.updateMetaData).toHaveBeenCalledWith('source', {
-        metadataSource: 'dummy-source-id',
+        snippetVersion: '3.0.0',
       });
       expect(error.severity).toBe('error');
       expect(error.context).toBe('Script load failures');
@@ -417,9 +497,32 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       } as any;
 
-      const onErrorFn = onError(state);
+      const onErrorFn = onError();
 
       expect(onErrorFn(error)).toBe(false);
+    });
+
+    it('should log error and return false if the error could not be filtered', () => {
+      const mockLogger = new MockLogger();
+
+      const error = {
+        stacktrace: [
+          {
+            file: 'https://invalid-domain.com/rsa.min.js',
+          },
+        ],
+        errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
+
+        // Simulate an unhandled exception
+        updateMetaData: jest.fn(() => {
+          throw new Error('Failed to update metadata.');
+        }),
+      } as any;
+
+      const onErrorFn = onError(mockLogger);
+
+      expect(onErrorFn(error)).toBe(false);
+      expect(mockLogger.error).toHaveBeenCalledWith('BugsnagPlugin:: Failed to filter the error.');
     });
   });
 

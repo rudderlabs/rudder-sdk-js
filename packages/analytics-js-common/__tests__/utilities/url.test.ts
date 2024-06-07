@@ -25,6 +25,10 @@ describe('utilities - url', () => {
       [true, 'https://example.com?query=string&another=value'],
       [true, 'https://example.com#fragment'],
       [false, undefined],
+      [
+        true,
+        'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=URL%2CPromise%2CNumber.isNaN%2CNumber.isInteger%2CArray.from%2CArray.prototype.find%2CArray.prototype.includes%2CString.prototype.endsWith%2CString.prototype.startsWith%2CString.prototype.includes%2CString.prototype.replaceAll%2CString.fromCodePoint%2CObject.entries%2CObject.values%2CObject.assign%2CObject.fromEntries%2CElement.prototype.dataset%2CTextEncoder%2CrequestAnimationFrame%2CCustomEvent%2Cnavigator.sendBeacon%2CArrayBuffer%2CSet',
+      ],
     ];
 
     it.each(testCases)('should return %p if URL is %p', (expected, url) => {
