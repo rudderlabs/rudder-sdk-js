@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { isEmpty, equals } from 'ramda';
+import { equals } from 'ramda';
 import {
   NAME,
   DISPLAY_NAME,
@@ -8,6 +8,7 @@ import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
+import { isNotEmpty } from '../../utils/commonUtils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -186,7 +187,7 @@ class Braze {
     const traits = message?.context?.traits;
 
     const previousPayload = Storage.getItem('rs_braze_dedup_attributes') || {};
-    if (this.supportDedup && !isEmpty(previousPayload) && userId === previousPayload?.userId) {
+    if (this.supportDedup && isNotEmpty(previousPayload) && userId === previousPayload?.userId) {
       const prevTraits = previousPayload?.context?.traits;
       const prevAddress = prevTraits?.address;
       const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
@@ -236,7 +237,7 @@ class Braze {
     if (
       this.supportDedup &&
       isObject(previousPayload) &&
-      !isEmpty(previousPayload) &&
+      isNotEmpty(previousPayload) &&
       userId === previousPayload?.userId
     ) {
       Storage.setItem('rs_braze_dedup_attributes', { ...previousPayload, ...message });

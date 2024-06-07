@@ -345,3 +345,14 @@ describe('pick', () => {
     expect(result).toEqual({ a: 1, c: 3, A: 4, C: 6 });
   });
 });
+
+describe('isBlank', () => {
+  it('should return true when input is an empty string', () => {
+    const result = utils.isBlank('');
+    expect(result).toBe(true);
+  });
+  it('should return false when input is null', () => {
+    const result = utils.isBlank(null);
+    expect(result).toBe(false);
+  });
+});

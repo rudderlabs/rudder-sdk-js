@@ -14,7 +14,13 @@ const removeUndefinedValues = obj => pickBy(isDefined, obj);
 const removeNullValues = obj => pickBy(isNotNull, obj);
 const removeUndefinedAndNullValues = obj => pickBy(isDefinedAndNotNull, obj);
 const removeUndefinedAndNullAndEmptyValues = obj => pickBy(isDefinedAndNotNullAndNotEmpty, obj);
-const isBlank = value => isEmpty(String(value).trim());
+// with this function we are mostly checking if a string is empty or not
+const isBlank = value => {
+  if (typeof value === 'string') {
+    return isEmpty(value.trim());
+  }
+  return false;
+};
 const pick = (argObj, argArr) => ramdaPick(argArr, argObj);
 
 /**
