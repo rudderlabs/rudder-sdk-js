@@ -3,6 +3,9 @@ import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import htmlTemplate from 'rollup-plugin-generate-html-template';
+import livereload from 'rollup-plugin-livereload';
+import serve from 'rollup-plugin-serve';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,6 +17,7 @@ const shouldUglify = process.env.UGLIFY === 'true';
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
+  const isLocalServerEnabled = process.env.DEV_SERVER;
 
   return {
     watch: {
@@ -85,7 +89,25 @@ export function getDefaultConfig(distName) {
           toplevel: true,
           safari10: true,
         } : false,
-      })
+      }),
+      isLocalServerEnabled &&
+      htmlTemplate({
+        template: process.env.TEST_FILE_PATH || 'public/index.html',
+        target: 'index.html',
+        addToHead: true
+      }),
+    isLocalServerEnabled &&
+      serve({
+        open: true,
+        openPage: `/index.html`,
+        contentBase: ['dist'],
+        host: 'localhost',
+        port: 3001,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }),
+    isLocalServerEnabled && livereload(),
     ],
   };
 }
