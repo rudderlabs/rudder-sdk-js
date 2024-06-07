@@ -129,6 +129,7 @@ class DCMFloodlight {
     if (conversionEvent.floodlightActivityTag && conversionEvent.floodlightGroupTag) {
       this.activityTag = conversionEvent.floodlightActivityTag.trim();
       this.groupTag = conversionEvent.floodlightGroupTag.trim();
+      // use counting method from config only if activity and group tags are configure for given conversion event
       if (conversionEvent.floodlightCountingMethod) {
         this.countingMethod = conversionEvent.floodlightCountingMethod.trim();
       }

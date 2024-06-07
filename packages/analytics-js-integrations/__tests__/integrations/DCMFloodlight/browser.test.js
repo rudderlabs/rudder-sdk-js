@@ -40,7 +40,7 @@ const config = {
       ],
     },
     {
-      eventName: 'Viewed home page',
+      eventName: 'Viewed doc home page',
       floodlightActivityTag: 'signu01',
       floodlightGroupTag: 'conv02',
       floodlightCountingMethod: 'unique',
@@ -96,7 +96,7 @@ describe('track', () => {
   });
   let dcmFloodlight;
 
-  it('should use the fallback counting method from config for matching conversion event', () => {
+  it('should use the fallback counting method from config for matching conversion event when counting method is missing from properties', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
@@ -174,7 +174,7 @@ describe('track', () => {
     }
   });
 
-  it('should throw an error when counting method is present for given conversion event, but activity tag for that given event is missing', () => {
+  it('should throw an error when counting method is present for given conversion event, but group tag for that given event is missing', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
@@ -209,6 +209,26 @@ describe('page', () => {
         type: 'page',
         properties: {
           name: 'home',
+          category: 'doc',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv02/signu01+unique',
+    });
+  });
+
+  it('should use the name from root level', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.page({
+      message: {
+        type: 'page',
+        name: 'home',
+        properties: {
+          category: 'doc',
         },
       },
     });
