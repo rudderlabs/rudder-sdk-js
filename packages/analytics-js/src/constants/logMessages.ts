@@ -11,8 +11,6 @@ import type {
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
-const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for integrations is not valid.`;
-const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
@@ -20,6 +18,9 @@ const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
+
+const COMPONENT_BASE_URL_ERROR = (component: string): string =>
+  `Failed to load the SDK as the base URL for ${component} is not valid.`;
 
 // ERROR
 const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
@@ -281,8 +282,6 @@ export {
   STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
-  INTG_CDN_BASE_URL_ERROR,
-  PLUGINS_CDN_BASE_URL_ERROR,
   DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
@@ -319,4 +318,5 @@ export {
   generateMisconfiguredPluginsWarning,
   INVALID_POLYFILL_URL_WARNING,
   SOURCE_DISABLED_ERROR,
+  COMPONENT_BASE_URL_ERROR,
 };

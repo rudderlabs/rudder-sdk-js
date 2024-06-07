@@ -64,22 +64,31 @@ class ConfigManager implements IConfigManager {
 
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
-    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
+    const {
+      logLevel,
+      configUrl,
+      lockIntegrationsVersion,
+      lockPluginsVersion,
+      destSDKBaseURL,
+      pluginsSDKBaseURL,
+    } = state.loadOptions.value;
 
     // determine the path to fetch integration SDK from
     const intgCdnUrl = getIntegrationsCDNPath(
       APP_VERSION,
-      lockIntegrationsVersion,
-      state.loadOptions.value.destSDKBaseURL,
+      lockIntegrationsVersion as boolean,
+      destSDKBaseURL,
     );
     // determine the path to fetch remote plugins from
-    const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+    const pluginsCDNPath = getPluginsCDNPath(
+      APP_VERSION,
+      lockPluginsVersion as boolean,
+      pluginsSDKBaseURL,
+    );
 
     updateStorageStateFromLoadOptions(this.logger);
     updateConsentsStateFromLoadOptions(this.logger);
     updateDataPlaneEventsStateFromLoadOptions(this.logger);
-
-    const { logLevel, configUrl } = state.loadOptions.value;
 
     // set application lifecycle state in global state
     batch(() => {
@@ -93,7 +102,8 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
         configUrl,
         state.lifecycle.writeKey.value as string,
-        lockIntegrationsVersion,
+        lockIntegrationsVersion as boolean,
+        lockPluginsVersion as boolean,
         this.logger,
       );
     });
