@@ -355,4 +355,95 @@ describe('isBlank', () => {
     const result = utils.isBlank(null);
     expect(result).toBe(false);
   });
+  it('should return true when input is a string of whitespaces', () => {
+    const result = utils.isBlank('              ');
+    expect(result).toBe(true);
+  });
+  it('should return false when input is a valid string', () => {
+    const result = utils.isBlank('validString');
+    expect(result).toBe(false);
+  });
+  it('should return false when input is a valid number', () => {
+    const result = utils.isBlank(123456);
+    expect(result).toBe(false);
+  });
+
+  it('should return false when input is a valid object', () => {
+    const result = utils.isBlank({ key1: 'value1', key2: 'value2' });
+    expect(result).toBe(false);
+  });
+  it('should return false when input is a valid boolean', () => {
+    const result = utils.isBlank(false);
+    expect(result).toBe(false);
+  });
+});
+
+describe('isNotEmpty', () => {
+  // returns false for empty string
+  it('should return false when input is an empty string', () => {
+    expect(utils.isNotEmpty('')).toBe(false);
+  });
+  // returns false for null
+  it('should return false when input is null', () => {
+    expect(utils.isNotEmpty(null)).toBe(true);
+  });
+  // returns true for non-empty string
+  it('should return true when input is a non-empty string', () => {
+    expect(utils.isNotEmpty('hello')).toBe(true);
+  });
+  // returns false for empty object
+  it('should return false when input is an empty object', () => {
+    expect(utils.isNotEmpty({})).toBe(false);
+  });
+  // returns true for non-empty object
+  it('should return true when input is a non-empty object', () => {
+    const obj = { key: 'value' };
+    expect(utils.isNotEmpty(obj)).toBe(true);
+  });
+  // returns true for booleans
+  it('should return true when input is a boolean', () => {
+    expect(utils.isNotEmpty(true)).toBe(false);
+    expect(utils.isNotEmpty(false)).toBe(false);
+  });
+  // returns true for numbers
+  it('should return true when input is a number', () => {
+    expect(utils.isNotEmpty(5)).toBe(false);
+    expect(utils.isNotEmpty(0)).toBe(false);
+    expect(utils.isNotEmpty(-10)).toBe(false);
+    expect(utils.isNotEmpty(0.444548)).toBe(false);
+  });
+  // returns false for undefined
+  it('should return false when input is undefined', () => {
+    expect(utils.isNotEmpty(undefined)).toBe(false);
+  });
+  // returns true for non-empty array
+  it('should return true when input is a non-empty array', () => {
+    const input = [1, 2, 3];
+    expect(utils.isNotEmpty(input)).toBe(true);
+  });
+  // handles strings with only whitespace correctly
+  it('should return false when input is a string with only whitespace', () => {
+    expect(utils.isNotEmpty('   ')).toBe(true);
+  });
+  // returns false for empty array
+  it('should return false when input is an empty array', () => {
+    expect(utils.isNotEmpty([])).toBe(false);
+  });
+  // handles mixed data types within arrays
+  it('should return true when input is an array with mixed data types', () => {
+    const input = [1, 'hello', { key: 'value' }, true];
+    expect(utils.isNotEmpty(input)).toBe(true);
+  });
+  // handles functions and symbols correctly
+  it('should return true for functions and symbols', () => {
+    const func = () => {};
+    const sym = Symbol('test');
+    expect(utils.isNotEmpty(func)).toBe(false);
+    expect(utils.isNotEmpty(sym)).toBe(false);
+  });
+  // handles Date objects correctly
+  it('should return true when input is a Date object', () => {
+    const date = new Date();
+    expect(utils.isNotEmpty(date)).toBe(true);
+  });
 });

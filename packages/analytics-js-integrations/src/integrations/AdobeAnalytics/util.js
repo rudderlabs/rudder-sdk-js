@@ -7,7 +7,6 @@ import { path } from 'ramda';
 import Logger from '../../utils/logger';
 import { toIso, getHashFromArray, isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
-
 const get = (context, value) => path(value.split('.'), context);
 const logger = new Logger(DISPLAY_NAME);
 
@@ -676,4 +675,5 @@ export {
   setConfig,
   getConfig,
   handleVideoContextData,
+  get,
 };

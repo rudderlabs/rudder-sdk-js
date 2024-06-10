@@ -3,6 +3,7 @@ import {
   handleLists,
   setConfig,
   mapMerchProductEvents,
+  get,
 } from '../../../src/integrations/AdobeAnalytics/util';
 
 let windowSpy;
@@ -174,6 +175,68 @@ describe('AdobeAnalytics Utility functions tests', () => {
       const result = mapMerchProductEvents(event, properties, adobeEvent);
 
       expect(result).toEqual([]);
+    });
+  });
+  describe('get tests', () => {
+    it('should retrieve a value from a nested object using a dot-separated string', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      };
+      const value = 'user.name';
+      const result = get(context, value);
+      expect(result).toBe('John Doe');
+    });
+    it('should return undefined when the path is an empty string', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+        },
+      };
+      const value = '';
+      const result = get(context, value);
+      expect(result).toBeUndefined();
+    });
+    it('should return undefined when the key contains dot', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+          'keyWith.dot': 'value',
+        },
+      };
+      const value = 'user.keyWith.dot';
+      const result = get(context, value);
+      expect(result).toBeUndefined();
+    });
+    it('should return undefined when the key contains dot', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+          'keyWith-dash': 'value',
+        },
+      };
+      const value = 'user.keyWith-dash';
+      const result = get(context, value);
+      expect(result).toEqual('value');
+    });
+    it('should return correct value when the value is an array and provided index', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+          'keyWith-dash': 'value',
+          keyWithArrayVal: ['value1', 'value2'],
+        },
+      };
+      const value = 'user.keyWithArrayVal.1';
+      const result = get(context, value);
+      expect(result).toEqual('value2');
     });
   });
 });
