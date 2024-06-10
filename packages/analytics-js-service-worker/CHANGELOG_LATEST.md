@@ -1,12 +1,10 @@
-## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.6...@rudderstack/analytics-js-service-worker@3.1.0) (2024-05-24)
+## [3.1.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.0...@rudderstack/analytics-js-service-worker@3.1.1) (2024-06-07)
 
+### Dependency Updates
 
-### Features
-
-* **analytics-js-service-worker:** auto append batch endpoint ([#1718](https://github.com/rudderlabs/rudder-sdk-js/issues/1718)) ([3e853a5](https://github.com/rudderlabs/rudder-sdk-js/commit/3e853a5c8a2f9dcab614ad6d5e6c9a54f3f61a57))
-
+* `@rudderstack/analytics-js-common` updated to version `3.1.0`
 
 ### Bug Fixes
 
-* user sessions behavior ([#1708](https://github.com/rudderlabs/rudder-sdk-js/issues/1708)) ([84e7174](https://github.com/rudderlabs/rudder-sdk-js/commit/84e71744612c8345dc22b8cb0c9362d104eb35e9))
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
 
