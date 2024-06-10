@@ -26,7 +26,10 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
-import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  DebouncedFunction,
+  StorageEntries,
+} from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type {
   AsyncRequestCallback,
   IHttpClient,
@@ -60,7 +63,11 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import { DEFAULT_USER_SESSION_VALUES, USER_SESSION_STORAGE_KEYS } from './constants';
+import {
+  DEFAULT_USER_SESSION_VALUES,
+  SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
+  USER_SESSION_STORAGE_KEYS,
+} from './constants';
 import type {
   CallbackFunction,
   CookieData,
@@ -69,6 +76,7 @@ import type {
   UserSessionStorageKeysType,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
+import { debounce } from '../utilities/globals';
 
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
@@ -76,6 +84,7 @@ class UserSessionManager implements IUserSessionManager {
   errorHandler?: IErrorHandler;
   httpClient?: IHttpClient;
   logger?: ILogger;
+  serverSideCookieDebounceFuncs: Record<UserSessionKey, DebouncedFunction>;
 
   constructor(
     errorHandler?: IErrorHandler,
@@ -90,6 +99,7 @@ class UserSessionManager implements IUserSessionManager {
     this.errorHandler = errorHandler;
     this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
+    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, DebouncedFunction>;
   }
 
   /**
@@ -288,19 +298,19 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * A function to encrypt the cookie value and return the encrypted data
-   * @param cookieData
+   * @param cookiesData
    * @param store
    * @returns
    */
-  getEncryptedCookieData(cookieData: CookieData[], store?: IStore): EncryptedCookieData[] {
+  getEncryptedCookieData(cookiesData: CookieData[], store?: IStore): EncryptedCookieData[] {
     const encryptedCookieData: EncryptedCookieData[] = [];
-    cookieData.forEach(e => {
+    cookiesData.forEach(cData => {
       const encryptedValue = store?.encrypt(
-        stringifyWithoutCircular(e.value, false, [], this.logger),
+        stringifyWithoutCircular(cData.value, false, [], this.logger),
       );
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
-          name: e.name,
+          name: cData.name,
           value: encryptedValue,
         });
       }
@@ -349,30 +359,30 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookie(cookieData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
+  setServerSideCookies(cookiesData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
     try {
       // encrypt cookies values
-      const encryptedCookieData = this.getEncryptedCookieData(cookieData, store);
+      const encryptedCookieData = this.getEncryptedCookieData(cookiesData, store);
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
           if (details?.xhr?.status === 200) {
-            cookieData.forEach(each => {
-              const cookieValue = store?.get(each.name);
-              const before = stringifyWithoutCircular(each.value, false, []);
+            cookiesData.forEach(cData => {
+              const cookieValue = store?.get(cData.name);
+              const before = stringifyWithoutCircular(cData.value, false, []);
               const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
                 this.logger?.debug('Cookie value sent to server side', before);
                 this.logger?.debug('Cookie value set from server side', after);
-                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {
-                  cb(each.name, each.value);
+                  cb(cData.name, cData.value);
                 }
               }
             });
           } else {
             this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            cookieData.forEach(each => {
+            cookiesData.forEach(each => {
               if (cb) {
                 cb(each.name, each.value);
               }
@@ -382,7 +392,7 @@ class UserSessionManager implements IUserSessionManager {
       }
     } catch (e) {
       this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
-      cookieData.forEach(each => {
+      cookiesData.forEach(each => {
         if (cb) {
           cb(each.name, each.value);
         }
@@ -413,13 +423,23 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
-          this.setServerSideCookie(
-            [{ name: key, value }],
-            (cookieName, cookieValue) => {
-              curStore?.set(cookieName, cookieValue);
-            },
-            curStore,
-          );
+          if (!this.serverSideCookieDebounceFuncs[sessionKey]) {
+            this.serverSideCookieDebounceFuncs[sessionKey] = debounce(
+              () => {
+                this.setServerSideCookies(
+                  [{ name: key, value }],
+                  (cookieName, cookieValue) => {
+                    curStore?.set(cookieName, cookieValue);
+                  },
+                  curStore,
+                );
+              },
+              this,
+              SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
+            );
+          }
+
+          this.serverSideCookieDebounceFuncs[sessionKey]();
         } else {
           curStore?.set(key, value);
         }
