@@ -32,11 +32,8 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   deploy-sanity-suite:
-    name: Deploy Sanity Suite
+    name: Deploy sanity suite
     needs: deploy
-    # Only manually run the workflow for tags
-    # and PRs raised from release branches to main
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'staging'

@@ -15,6 +15,7 @@ const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for 
 const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
+const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
@@ -67,7 +68,7 @@ const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
 const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
   `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
 
-const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string): string =>
+const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): string =>
   `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
@@ -98,8 +99,6 @@ const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
   `The server responded with status ${status} while setting the cookies. As a fallback, the cookies will be set client side.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
   `The server failed to set the ${key} cookie. As a fallback, the cookies will be set client side.`;
-const FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR = (key: string) =>
-  `The server failed to remove the ${key} cookie.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.`;
 
 // WARNING
@@ -209,8 +208,8 @@ const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initializati
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
 const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
 
-const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
+const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
@@ -231,27 +230,28 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
-const MISCONFIGURED_PLUGINS_WARNING = (
+const generateMisconfiguredPluginsWarning = (
   context: string,
-  configurationStatusStr: string,
+  configurationStatus: string,
   missingPlugins: PluginName[],
   shouldAddMissingPlugins: boolean,
-) => {
-  const pluginsString =
-    missingPlugins.length === 1
-      ? ` '${missingPlugins[0]}' plugin was`
-      : ` ['${missingPlugins.join("', '")}'] plugins were`;
-
-  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatusStr}, but${pluginsString} not configured to load.`;
-  let warningStr;
-
+): string => {
+  const isSinglePlugin = missingPlugins.length === 1;
+  const pluginsString = isSinglePlugin
+    ? ` '${missingPlugins[0]}' plugin was`
+    : ` ['${missingPlugins.join("', '")}'] plugins were`;
+  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatus}, but${pluginsString} not configured to load.`;
   if (shouldAddMissingPlugins) {
-    warningStr = `${baseWarning} So, ${missingPlugins.length === 1 ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
-  } else {
-    warningStr = `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${missingPlugins.length === 1 ? 'it' : 'them'} to the 'plugins' load API option.`;
+    return `${baseWarning} So, ${isSinglePlugin ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
   }
-  return warningStr;
+  return `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${isSinglePlugin ? 'it' : 'them'} to the 'plugins' load API option.`;
 };
+
+const INVALID_POLYFILL_URL_WARNING = (
+  context: string,
+  customPolyfillUrl: string | undefined,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided polyfill URL "${customPolyfillUrl}" is invalid. The default polyfill URL will be used instead.`;
 
 // DEBUG
 
@@ -316,6 +316,7 @@ export {
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
-  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
-  MISCONFIGURED_PLUGINS_WARNING,
+  generateMisconfiguredPluginsWarning,
+  INVALID_POLYFILL_URL_WARNING,
+  SOURCE_DISABLED_ERROR,
 };

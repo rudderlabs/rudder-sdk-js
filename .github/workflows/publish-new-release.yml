@@ -16,7 +16,10 @@ jobs:
     # For publishing GitHub release, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
     # only merged pull requests must trigger this job
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
+    if: >
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+      startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) &&
+      github.event.pull_request.merged == true
 
     steps:
       - name: Extract version from branch name (for release branches)
@@ -27,7 +30,6 @@ jobs:
           BRANCH_NAME="${BRANCH_NAME_REF}"
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
-
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout
@@ -64,10 +66,8 @@ jobs:
         run: |
           CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
           LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
-
           echo "Current version: $CURRENT_VERSION"
           echo "Previous version: $LAST_VERSION"
-
           echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
           echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
@@ -128,7 +128,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{env.TAG_COMPARE_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
@@ -144,7 +144,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{env.TAG_COMPARE_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                    "text": "*<${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
                   },
                   "accessory": {
                     "type": "image",
@@ -157,7 +157,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "For more details, check the full release notes <${{env.RELEASES_URL}}v${{ steps.extract-version.outputs.release_version }}|here>."
+                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}v${{ steps.extract-version.outputs.release_version }}|here>."
                     }
                   ]
                 }

@@ -19,8 +19,12 @@ import type {
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { MODULE_TYPE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
 import { state } from '../../../state';
 import {
+  INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
@@ -34,19 +38,20 @@ import {
   isMetricsReportingEnabled,
   getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
-import { removeTrailingSlashes } from '../../utilities/url';
+import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
+  DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { isValidStorageType } from './validate';
+import { getDataServiceUrl, isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
- * Determines the SDK url
+ * Determines the SDK URL
  * @returns sdkURL
  */
 const getSDKUrl = (): string | undefined => {
@@ -101,7 +106,11 @@ const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
-  const storageOptsFromLoad = state.loadOptions.value.storage;
+  const {
+    useServerSideCookies,
+    dataServiceEndpoint,
+    storage: storageOptsFromLoad,
+  } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
     logger?.warn(
@@ -147,7 +156,34 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
   batch(() => {
     state.storage.type.value = storageType;
-    state.storage.cookie.value = storageOptsFromLoad?.cookie;
+    let cookieOptions = storageOptsFromLoad?.cookie ?? {};
+
+    if (useServerSideCookies) {
+      state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+      const dataServiceUrl = getDataServiceUrl(
+        dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+      );
+      if (isValidURL(dataServiceUrl)) {
+        state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
+
+        const curHost = getDomain(window.location.href);
+        const dataServiceHost = getDomain(dataServiceUrl);
+
+        // If the current host is different from the data service host, then it is a cross-site request
+        // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+        if (curHost !== dataServiceHost) {
+          cookieOptions = {
+            ...cookieOptions,
+            samesite: 'None',
+            secure: true,
+          };
+        }
+      } else {
+        state.serverCookies.isEnabledServerSideCookies.value = false;
+      }
+    }
+
+    state.storage.cookie.value = cookieOptions;
 
     state.storage.encryptionPluginName.value =
       StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
@@ -271,6 +307,50 @@ const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
   }
 };
 
+const getSourceConfigURL = (
+  configUrl: string | undefined,
+  writeKey: string,
+  lockIntegrationsVersion: boolean,
+  logger?: ILogger,
+): string => {
+  const defSearchParams = new URLSearchParams({
+    p: MODULE_TYPE,
+    v: APP_VERSION,
+    build: BUILD_TYPE,
+    writeKey,
+    lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+  });
+
+  let origin = DEFAULT_CONFIG_BE_URL;
+  let searchParams = defSearchParams;
+  let pathname = '/sourceConfig/';
+  let hash = '';
+  if (isValidURL(configUrl)) {
+    const configUrlInstance = new URL(configUrl);
+    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
+      configUrlInstance.pathname = `${
+        removeTrailingSlashes(configUrlInstance.pathname) as string
+      }/sourceConfig/`;
+    }
+    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
+
+    defSearchParams.forEach((value, key) => {
+      if (configUrlInstance.searchParams.get(key) === null) {
+        configUrlInstance.searchParams.set(key, value);
+      }
+    });
+
+    origin = configUrlInstance.origin;
+    pathname = configUrlInstance.pathname;
+    searchParams = configUrlInstance.searchParams;
+    hash = configUrlInstance.hash;
+  } else {
+    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+  }
+
+  return `${origin}${pathname}?${searchParams}${hash}`;
+};
+
 export {
   getSDKUrl,
   updateReportingState,
@@ -278,4 +358,5 @@ export {
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
+  getSourceConfigURL,
 };

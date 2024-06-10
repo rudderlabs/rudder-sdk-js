@@ -47,7 +47,6 @@ import {
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
-  FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   TIMEOUT_ZERO_WARNING,
@@ -296,10 +295,9 @@ class UserSessionManager implements IUserSessionManager {
   getEncryptedCookieData(cookieData: CookieData[], store?: IStore): EncryptedCookieData[] {
     const encryptedCookieData: EncryptedCookieData[] = [];
     cookieData.forEach(e => {
-      const encryptedValue =
-        e.value === ''
-          ? e.value
-          : store?.encrypt(stringifyWithoutCircular(e.value, false, [], this.logger));
+      const encryptedValue = store?.encrypt(
+        stringifyWithoutCircular(e.value, false, [], this.logger),
+      );
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
           name: e.name,
@@ -339,6 +337,7 @@ class UserSessionManager implements IUserSessionManager {
           },
         }) as string,
         sendRawData: true,
+        withCredentials: true,
       },
       isRawResponse: true,
       callback,
@@ -360,15 +359,15 @@ class UserSessionManager implements IUserSessionManager {
           if (details?.xhr?.status === 200) {
             cookieData.forEach(each => {
               const cookieValue = store?.get(each.name);
-              if (each.value) {
-                if (cookieValue !== each.value) {
-                  this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
-                  if (cb) {
-                    cb(each.name, each.value);
-                  }
+              const before = stringifyWithoutCircular(each.value, false, []);
+              const after = stringifyWithoutCircular(cookieValue, false, []);
+              if (after !== before) {
+                this.logger?.debug('Cookie value sent to server side', before);
+                this.logger?.debug('Cookie value set from server side', after);
+                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));
+                if (cb) {
+                  cb(each.name, each.value);
                 }
-              } else if (cookieValue) {
-                this.logger?.error(FAILED_TO_REMOVE_COOKIE_FROM_SERVER_ERROR(each.name));
               }
             });
           } else {
@@ -424,14 +423,6 @@ class UserSessionManager implements IUserSessionManager {
         } else {
           curStore?.set(key, value);
         }
-      } else if (
-        state.serverCookies.isEnabledServerSideCookies.value &&
-        storageType === COOKIE_STORAGE
-      ) {
-        // remove cookie that is set from server side
-        // TODO: Test cookies set from server side can be cleared from client side
-        // and make appropriate changes.
-        this.setServerSideCookie([{ name: key, value: '' }], undefined, curStore);
       } else {
         curStore?.remove(key);
       }

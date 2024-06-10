@@ -37,7 +37,7 @@ import { generateAnonymousId, isStorageTypeValidForStoringData } from '../userSe
  * @returns page properties object for context
  */
 const getContextPageProperties = (pageProps?: ApiObject): ApiObject => {
-  // Need to get updated page details on each event as an event to notify on SPA url changes does not seem to exist
+  // Need to get updated page details on each event as an event to notify on SPA URL changes does not seem to exist
   const curPageProps = getDefaultPageProperties();
 
   const ctxPageProps: ApiObject = {};
@@ -65,7 +65,7 @@ const getUpdatedPageProperties = (
   const optionsPageProps = ((options as ApiOptions)?.page as ApiObject) || {};
   const pageProps = properties;
 
-  // Need to get updated page details on each event as an event to notify on SPA url changes does not seem to exist
+  // Need to get updated page details on each event as an event to notify on SPA URL changes does not seem to exist
   const curPageProps = getDefaultPageProperties();
 
   Object.keys(curPageProps).forEach((key: string) => {

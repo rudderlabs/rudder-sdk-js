@@ -1,19 +1,5 @@
 const BATCH_ENDPOINT = 'v1/batch';
 
-/**
- * Checks if provided url is valid or not
- * @param url
- * @returns true if `url` is valid and false otherwise
- */
-const isValidUrl = (url: string): boolean => {
-  try {
-    const validUrl = new URL(url);
-    return Boolean(validUrl);
-  } catch (err) {
-    return false;
-  }
-};
-
 const removeTrailingSlashes = (inURL: string): string =>
   // Disabling the rule because the optimized regex may cause
   // super-linear runtime issue due to backtracking
@@ -40,4 +26,4 @@ const getDataPlaneUrl = (dataPlaneUrl: string) => {
   return `${cleanedDataPlaneUrl}/${BATCH_ENDPOINT}`;
 };
 
-export { isValidUrl, isFunction, setImmediate, noop, getDataPlaneUrl };
+export { isFunction, setImmediate, noop, getDataPlaneUrl };

@@ -76,19 +76,12 @@
           "eventUploadPeriodMillis": "0",
           "trackNewCampaigns": true
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1Q8kZdhlglB9q8gsD4xryMyWg1i",
         "destinationDefinition": {
           "name": "AM",
           "displayName": "Amplitude"
         },
-        "deleted": false,
-        "createdAt": "2023-01-31T14:26:56.685Z",
         "updatedAt": "2023-10-03T12:10:01.855Z",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
-        "revisionId": "2WFj0nwXdxV3QNSCPAKpAFLy1OI",
-        "secretConfig": {},
-        "secretVersion": 9,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -122,19 +115,12 @@
           "eventFilteringOption": "disable",
           "ketchConsentPurposes": []
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1Q8kZOyJE87ECoQ8kc26TOpgpXl",
         "destinationDefinition": {
           "name": "GA",
           "displayName": "Google Analytics"
         },
-        "deleted": false,
-        "createdAt": "2023-07-17T04:28:07.671Z",
         "updatedAt": "2023-07-17T04:28:07.671Z",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
-        "revisionId": "2SgVD2mSrot9vDDWOliSYaLRm5h",
-        "secretConfig": {},
-        "secretVersion": 1,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -168,19 +154,12 @@
             }
           ]
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1aHtCsG9wxv4i3a6gtDdbSxYg8m",
         "destinationDefinition": {
           "name": "FACEBOOK_PIXEL",
           "displayName": "Facebook Pixel"
         },
-        "deleted": false,
-        "createdAt": "2023-11-06T04:25:09.799Z",
         "updatedAt": "2023-11-06T04:27:06.179Z",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
-        "revisionId": "2XmqujI0LynIZ1v9fTplfHea0YL",
-        "secretConfig": {},
-        "secretVersion": 3,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -206,19 +185,12 @@
           "eventFilteringOption": "disable",
           "connectionMode": "device"
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1eM0CHgYSVDHntxZDwNoDmzuUQi",
         "destinationDefinition": {
           "name": "BRAZE",
           "displayName": "Braze"
         },
-        "deleted": false,
-        "createdAt": "2023-11-06T04:28:57.375Z",
         "updatedAt": "2023-11-06T04:29:14.700Z",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
-        "revisionId": "2XmrAjXALt3J2qAl4AtKxAzNw00",
-        "secretConfig": {},
-        "secretVersion": 3,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -249,92 +221,17 @@
           "allowEnhancedConversions": false,
           "enableConversionLabel": false
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1WKMf5COr1KBI6PmVxuc9zaR7DV",
         "destinationDefinition": {
           "name": "GOOGLEADS",
           "displayName": "Google Ads"
         },
-        "deleted": false,
-        "createdAt": "2023-11-06T04:31:11.813Z",
         "updatedAt": "2023-11-06T04:31:11.813Z",
-        "workspaceId": "2L5wIAEaAi3Tbrqq5kG4C06U01X",
-        "revisionId": "2XmrPRk1w75LvESB7ESv3KqUySC",
-        "secretConfig": {},
-        "secretVersion": 1,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       }
     ],
-    "updatedAt": "2023-01-31T14:18:06.412Z",
-    "createdAt": "2023-01-31T14:18:06.412Z",
-    "liveEventsConfig": {},
-    "createdBy": "2L5tkiPslLEaplRRjzFuVHhHNPH",
-    "secretVersion": null,
-    "connections": [
-      {
-        "id": "2L5yQ2fZGH9HshtHCF1iopcvxvo",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2L5yPlp2MHnx0DWaC2SafwM87dY",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-01-31T14:26:58.013Z",
-        "updatedAt": "2023-01-31T14:26:58.013Z"
-      },
-      {
-        "id": "2L5zUqBuA61FQoheWMRsaNDTNLA",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2L5zUinuRqCeislUXNheBg2AnBR",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-01-31T14:35:49.816Z",
-        "updatedAt": "2023-01-31T14:35:49.816Z"
-      },
-      {
-        "id": "2SgVD7HMxh7RQ9lwcVwE556rQX2",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2SgVD0o1zCgEukNjJ4HgvRjWYti",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-07-17T04:28:08.950Z",
-        "updatedAt": "2023-07-17T04:28:08.950Z"
-      },
-      {
-        "id": "2XmqgENgHQYUaeL0nhdpRio1769",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2Xmqg1aW0cRNyOMNxqvyqH762Ex",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-11-06T04:25:11.267Z",
-        "updatedAt": "2023-11-06T04:25:11.267Z"
-      },
-      {
-        "id": "2Xmr8iohrSw6pq5HFgt64pD4xV3",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2Xmr8aWnqjvOZANQVTUI3S4AUUw",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-11-06T04:28:58.633Z",
-        "updatedAt": "2023-11-06T04:28:58.633Z"
-      },
-      {
-        "id": "2XmrPiAGUU71bEpkNkyEbZww4gq",
-        "sourceId": "2L5xLAqfW6NcqKGH1RXdRr4Gh2h",
-        "destinationId": "2XmrPUYit0LsoG1S5tozSfI5XkM",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-11-06T04:31:13.236Z",
-        "updatedAt": "2023-11-06T04:31:13.236Z"
-      }
-    ],
-    "deleted": false,
-    "transient": false
+    "updatedAt": "2023-01-31T14:18:06.412Z"
   },
   "updatedAt": "2024-01-09T11:18:54.378Z",
   "consentManagementMetadata": {
