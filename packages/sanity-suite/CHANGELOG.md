@@ -2,6 +2,24 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.10...@rudderstack/analytics-js-sanity-suite@3.1.0) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.10`
+* `rudder-sdk-js` updated to version `3.0.10`
+
+### Features
+
+* add install type to context ([#1740](https://github.com/rudderlabs/rudder-sdk-js/issues/1740)) ([3d25b65](https://github.com/rudderlabs/rudder-sdk-js/commit/3d25b654a70b0f39c412e80465e29e2bdb578aa7))
+
+
+### Bug Fixes
+
+* improve sdk loading snippet ([#1745](https://github.com/rudderlabs/rudder-sdk-js/issues/1745)) ([d4e0f66](https://github.com/rudderlabs/rudder-sdk-js/commit/d4e0f663a4d0cdb55563ed380166d55e99cf3fc8))
+* update source config responses ([#1726](https://github.com/rudderlabs/rudder-sdk-js/issues/1726)) ([3a92202](https://github.com/rudderlabs/rudder-sdk-js/commit/3a92202564a1b514a7a0aa9c5c981c1dbe030284))
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
 ## [3.0.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.9...@rudderstack/analytics-js-sanity-suite@3.0.10) (2024-06-04)
 
 ### Dependency Updates
