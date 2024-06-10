@@ -13,7 +13,7 @@ jest.mock('../../../src/integrations/Fullstory/utils', () => ({
 
 const DESTINATION_ID = 'sample-destination-id';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-let originalLoaclStorage;
+let originalLocalStorage;
 
 beforeEach(() => {
   const scriptElement = document.createElement('script');
@@ -27,7 +27,7 @@ beforeEach(() => {
     error: jest.fn(),
     setLogLevel: jest.fn(),
   };
-  originalLoaclStorage = window.localStorage;
+  originalLocalStorage = window.localStorage;
   window.localStorage = {
     getItem: jest.fn(key => {
       if (key === 'tata_customer_hash') return 'hash123';
@@ -68,12 +68,93 @@ const destinationConfig = { fs_org: '12567839', fs_debug_mode: true, fs_host: 'l
 
 afterEach(() => {
   document.getElementById('dummyScript')?.remove();
+  window.localStorage = originalLocalStorage;
 });
 
 afterAll(() => {
   jest.restoreAllMocks();
 });
 describe('FullStory', () => {
+
+  describe('init', () => {
+    let fullstory;
+    beforeEach(() => {
+      fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
+    });
+
+    test('should initialize the destination', () => {
+      fullstory.init();
+      expect(typeof window.FS).toBe('object');
+    });
+
+    test('should call loadNativeSdk with correct parameters', () => {
+      fullstory.init();
+      // Assert that class-level properties exist
+      expect(fullstory.fs_org).toBeDefined();
+      expect(fullstory.fs_debug_mode).toBeDefined();
+      expect(fullstory.fs_host).toBeDefined();
+      expect(loadNativeSdk).toHaveBeenCalledWith(
+        fullstory.fs_debug_mode,
+        fullstory.fs_host,
+        fullstory.fs_org,
+      );
+    });
+
+    test('should handle cross-domain support correctly', () => {
+      getDestinationOptions.mockReturnValue({
+        crossDomainSupport: true,
+        timeout: 3000,
+      });
+      fullstory.init();
+      // eslint-disable-next-line no-underscore-dangle
+      expect(window._fs_identity).toBeDefined();
+    });
+
+    // Loads the native SDK with correct parameters
+    it('should load the native SDK with correct parameters when initialized', () => {
+      const fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
+      fullstory.init();
+
+      expect(loadNativeSdk).toHaveBeenCalledWith(true, 'localhost', '12567839');
+    });
+
+    // Handles missing or undefined fullstoryIntgConfig gracefully
+    it('should handle missing or undefined fullstoryIntgConfig gracefully', () => {
+      const fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
+      expect(() => fullstory.init()).not.toThrow();
+    });
+
+    // Calls fs('shutdown') before setting up identity
+    it("should call fs('shutdown') before setting up identity", () => {
+      const fullstory = new Fullstory({}, {}, {});
+      fullstory.init();
+
+      expect(window.FS.shutdown).toHaveBeenCalled();
+    });
+
+    // Returns user identity correctly from localStorage
+    it('should return user identity from localStorage', () => {
+      const destinationConfig = { fs_org: '12567839', fs_debug_mode: true, fs_host: 'localhost', crossDomainSupport: true };
+      // const mockLocalStorage = {
+      //   tata_customer_hash: 'user123',
+      // };
+      // window.localStorage = mockLocalStorage;
+      // Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
+      window.localStorage = {
+        // getItem: jest.fn(key => {
+        //   if (key === 'tata_customer_hash') return 'user123';
+        //   return null;
+        // }),
+        // setItem: jest.fn(),
+        // removeItem: jest.fn(),
+        tata_customer_hash : 'user123'
+      };
+
+      fullstory.init();
+
+      expect(window._fs_identity()).toEqual({ uid: 'user123', displayName: 'user123' });
+    });
+  });
   describe('isLoaded and isReady', () => {
     let fullstory;
 
@@ -294,75 +375,6 @@ describe('FullStory', () => {
         tags_strs: ['tag1', 'tag2'],
         userName_str: 'johndoe',
       });
-    });
-  });
-
-  describe('init', () => {
-    let fullstory;
-    beforeEach(() => {
-      fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
-    });
-
-    test('should initialize the destination', () => {
-      fullstory.init();
-      expect(typeof window.FS).toBe('object');
-    });
-
-    test('should call loadNativeSdk with correct parameters', () => {
-      fullstory.init();
-      // Assert that class-level properties exist
-      expect(fullstory.fs_org).toBeDefined();
-      expect(fullstory.fs_debug_mode).toBeDefined();
-      expect(fullstory.fs_host).toBeDefined();
-      expect(loadNativeSdk).toHaveBeenCalledWith(
-        fullstory.fs_debug_mode,
-        fullstory.fs_host,
-        fullstory.fs_org,
-      );
-    });
-
-    test('should handle cross-domain support correctly', () => {
-      getDestinationOptions.mockReturnValue({
-        crossDomainSupport: true,
-        timeout: 3000,
-      });
-      fullstory.init();
-      // eslint-disable-next-line no-underscore-dangle
-      expect(window._fs_identity).toBeDefined();
-    });
-
-    // Loads the native SDK with correct parameters
-    it('should load the native SDK with correct parameters when initialized', () => {
-      const fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
-      fullstory.init();
-
-      expect(loadNativeSdk).toHaveBeenCalledWith(true, 'localhost', '12567839');
-    });
-
-    // Handles missing or undefined fullstoryIntgConfig gracefully
-    it('should handle missing or undefined fullstoryIntgConfig gracefully', () => {
-      const fullstory = new Fullstory(destinationConfig, analyticsInstance, destinationInfo);
-      expect(() => fullstory.init()).not.toThrow();
-    });
-
-    // Calls fs('shutdown') before setting up identity
-    it("should call fs('shutdown') before setting up identity", () => {
-      const fullstory = new Fullstory({}, {}, {});
-      fullstory.init();
-
-      expect(window.FS.shutdown).toHaveBeenCalled();
-    });
-
-    // Returns user identity correctly from localStorage
-    it('should return user identity from localStorage', () => {
-      const mockLocalStorage = {
-        tata_customer_hash: 'user123',
-      };
-      Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
-
-      fullstory.init();
-
-      expect(window._fs_identity()).toEqual({ uid: 'user123', displayName: 'user123' });
     });
   });
 });
