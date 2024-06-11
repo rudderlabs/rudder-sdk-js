@@ -141,6 +141,7 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
+        continue-on-error: true
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
