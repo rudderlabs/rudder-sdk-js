@@ -100,4 +100,3 @@ jobs:
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pull ${{ steps.create-release.outputs.branch_name }} into main'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'MoumitaM,saikumarrs'

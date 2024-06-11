@@ -311,6 +311,7 @@ const getSourceConfigURL = (
   configUrl: string | undefined,
   writeKey: string,
   lockIntegrationsVersion: boolean,
+  lockPluginsVersion: boolean,
   logger?: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
@@ -319,6 +320,7 @@ const getSourceConfigURL = (
     build: BUILD_TYPE,
     writeKey,
     lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+    lockPluginsVersion: lockPluginsVersion.toString(),
   });
 
   let origin = DEFAULT_CONFIG_BE_URL;
