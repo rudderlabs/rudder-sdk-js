@@ -26,10 +26,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
-import type {
-  DebouncedFunction,
-  StorageEntries,
-} from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type {
   AsyncRequestCallback,
   IHttpClient,
@@ -76,7 +73,6 @@ import type {
   UserSessionStorageKeysType,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
-import { debounce } from '../utilities/globals';
 
 class UserSessionManager implements IUserSessionManager {
   storeManager?: IStoreManager;
@@ -84,7 +80,7 @@ class UserSessionManager implements IUserSessionManager {
   errorHandler?: IErrorHandler;
   httpClient?: IHttpClient;
   logger?: ILogger;
-  serverSideCookieDebounceFuncs: Record<UserSessionKey, DebouncedFunction>;
+  serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
 
   constructor(
     errorHandler?: IErrorHandler,
@@ -99,7 +95,7 @@ class UserSessionManager implements IUserSessionManager {
     this.errorHandler = errorHandler;
     this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
-    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, DebouncedFunction>;
+    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
   }
 
   /**
@@ -372,8 +368,6 @@ class UserSessionManager implements IUserSessionManager {
               const before = stringifyWithoutCircular(cData.value, false, []);
               const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
-                this.logger?.debug('Cookie value sent to server side', before);
-                this.logger?.debug('Cookie value set from server side', after);
                 this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {
                   cb(cData.name, cData.value);
@@ -423,23 +417,24 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
-          if (!this.serverSideCookieDebounceFuncs[sessionKey]) {
-            this.serverSideCookieDebounceFuncs[sessionKey] = debounce(
-              () => {
-                this.setServerSideCookies(
-                  [{ name: key, value }],
-                  (cookieName, cookieValue) => {
-                    curStore?.set(cookieName, cookieValue);
-                  },
-                  curStore,
-                );
-              },
-              this,
-              SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
+          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
+            (globalThis as typeof window).clearTimeout(
+              this.serverSideCookieDebounceFuncs[sessionKey],
             );
           }
 
-          this.serverSideCookieDebounceFuncs[sessionKey]();
+          this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
+            () => {
+              this.setServerSideCookies(
+                [{ name: key, value }],
+                (cookieName, cookieValue) => {
+                  curStore?.set(cookieName, cookieValue);
+                },
+                curStore,
+              );
+            },
+            SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
+          );
         } else {
           curStore?.set(key, value);
         }

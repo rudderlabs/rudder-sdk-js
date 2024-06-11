@@ -1510,6 +1510,7 @@ describe('User session manager', () => {
 
       expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
     });
+
     it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', done => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -1528,6 +1529,7 @@ describe('User session manager', () => {
         done();
       }, 1000);
     });
+
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
       it.each(testCaseData)('if value is "%s"', cookieValue => {
@@ -1544,6 +1546,30 @@ describe('User session manager', () => {
         expect(clientDataStoreCookie.remove).toHaveBeenCalled();
         jest.useRealTimers();
       });
+    });
+
+    it('should debounce multiple cookie set network requests', done => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+      // Even though we are calling syncValueToStorage multiple times in quick succession, only the
+      // last value should be sent to the server
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId1');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId2');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId3');
+
+      setTimeout(() => {
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
+          expect.any(Function),
+          expect.any(Object),
+        );
+        done();
+      }, 1000);
     });
   });
 
