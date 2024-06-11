@@ -137,13 +137,6 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
-const UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING = (
-  context: string,
-  selectedResidencyServerRegion: string | undefined,
-  defaultRegion: string,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The residency server region "${selectedResidencyServerRegion}" is not supported. Please choose one of the following supported regions: "US, EU". The default region "${defaultRegion}" will be used instead.`;
-
 const RESERVED_KEYWORD_WARNING = (
   context: string,
   property: string,
@@ -261,7 +254,6 @@ export {
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
-  UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,

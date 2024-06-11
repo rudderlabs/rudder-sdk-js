@@ -174,7 +174,6 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig(dummySourceConfigResponse);
 
     expect(state.source.value).toStrictEqual(expectedSourceState);
-    expect(state.lifecycle.activeDataplaneUrl.value).toBe(sampleDataPlaneUrl);
     expect(state.lifecycle.status.value).toBe('configured');
     expect(state.reporting.isErrorReportingEnabled.value).toBe(
       dummySourceConfigResponse.source.config.statsCollection.errors.enabled,
