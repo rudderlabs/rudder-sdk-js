@@ -238,5 +238,18 @@ describe('AdobeAnalytics Utility functions tests', () => {
       const result = get(context, value);
       expect(result).toEqual('value2');
     });
+    it('should return undefined if the path is undefined', () => {
+      const context = {
+        user: {
+          id: '123',
+          name: 'John Doe',
+          'keyWith-dash': 'value',
+          keyWithArrayVal: ['value1', 'value2'],
+        },
+      };
+      const value = undefined;
+      const result = get(context, value);
+      expect(result).toEqual(undefined);
+    });
   });
 });
