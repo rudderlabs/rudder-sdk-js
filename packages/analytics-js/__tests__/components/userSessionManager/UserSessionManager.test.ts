@@ -1501,44 +1501,79 @@ describe('User session manager', () => {
   });
 
   describe('syncValueToStorage', () => {
-    it('should not call setServerSideCookie method in case isEnabledServerSideCookies state option is not set', () => {
+    it('should not call setServerSideCookies method in case isEnabledServerSideCookies state option is not set', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      const setServerSideCookieSpy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
-      expect(setServerSideCookieSpy).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(1000);
+
+      expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
     });
-    it('should call setServerSideCookie method in case isEnabledServerSideCookies state option is set to true', done => {
+
+    it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', done => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
       clientDataStoreCookie.set = jest.fn();
-      const setServerSideCookieSpy = jest.spyOn(userSessionManager, 'setServerSideCookie');
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
-      expect(setServerSideCookieSpy).toHaveBeenCalledWith(
-        [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
-        expect.any(Function),
-        expect.any(Object),
-      );
+
       setTimeout(() => {
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+          expect.any(Function),
+          expect.any(Object),
+        );
         expect(clientDataStoreCookie.set).toHaveBeenCalled();
         done();
       }, 1000);
     });
+
     describe('Cookie should be removed from server side', () => {
       const testCaseData = [null, undefined, '', {}];
       it.each(testCaseData)('if value is "%s"', cookieValue => {
+        jest.useFakeTimers();
         state.serverCookies.isEnabledServerSideCookies.value = true;
         state.storage.entries.value = entriesWithOnlyCookieStorage;
-        userSessionManager.setServerSideCookie = jest.fn();
+        userSessionManager.setServerSideCookies = jest.fn();
         clientDataStoreCookie.remove = jest.fn();
         userSessionManager.syncValueToStorage('anonymousId', cookieValue);
-        expect(userSessionManager.setServerSideCookie).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.setServerSideCookies).not.toHaveBeenCalled();
         expect(clientDataStoreCookie.remove).toHaveBeenCalled();
+        jest.useRealTimers();
       });
+    });
+
+    it('should debounce multiple cookie set network requests', done => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+      // Even though we are calling syncValueToStorage multiple times in quick succession, only the
+      // last value should be sent to the server
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId1');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId2');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId3');
+
+      setTimeout(() => {
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
+          expect.any(Function),
+          expect.any(Object),
+        );
+        done();
+      }, 1000);
     });
   });
 
-  describe('setServerSideCookie', () => {
+  describe('setServerSideCookies', () => {
     beforeAll(() => {
       server.listen();
     });
@@ -1561,7 +1596,7 @@ describe('User session manager', () => {
       const getEncryptedCookieDataSpy = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
       const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
-      userSessionManager.setServerSideCookie(
+      userSessionManager.setServerSideCookies(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         () => {},
         mockCookieStore,
@@ -1586,7 +1621,7 @@ describe('User session manager', () => {
           domain: 'example.com',
           samesite: 'Lax',
         };
-        userSessionManager.setServerSideCookie(
+        userSessionManager.setServerSideCookies(
           [
             {
               name: 'key',
@@ -1624,7 +1659,7 @@ describe('User session manager', () => {
           domain: 'example.com',
           samesite: 'Lax',
         };
-        userSessionManager.setServerSideCookie(
+        userSessionManager.setServerSideCookies(
           [{ name: 'key', value: { prop1: 'sample property' } }],
           (name, val) => {
             mockCookieStore.set(name, val);
@@ -1653,7 +1688,7 @@ describe('User session manager', () => {
         domain: 'example.com',
         samesite: 'Lax',
       };
-      userSessionManager.setServerSideCookie(
+      userSessionManager.setServerSideCookies(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         mockCallback,
         mockCookieStore,
@@ -1673,7 +1708,7 @@ describe('User session manager', () => {
         domain: 'example.com',
         samesite: 'Lax',
       };
-      userSessionManager.setServerSideCookie(
+      userSessionManager.setServerSideCookies(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         mockCallback,
         mockCookieStore,
@@ -1696,7 +1731,7 @@ describe('User session manager', () => {
         domain: 'example.com',
         samesite: 'Lax',
       };
-      userSessionManager.setServerSideCookie(
+      userSessionManager.setServerSideCookies(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         mockCallback,
         mockCookieStore,
