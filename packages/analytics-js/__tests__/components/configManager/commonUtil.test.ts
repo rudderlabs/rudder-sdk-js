@@ -565,10 +565,10 @@ describe('Config Manager Common Utilities', () => {
 
   describe('getSourceConfigURL', () => {
     it('should return default source config URL if invalid source config URL is provided', () => {
-      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, mockLogger);
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
 
       expect(sourceConfigURL).toBe(
-        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true',
+        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
       );
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -580,20 +580,20 @@ describe('Config Manager Common Utilities', () => {
       // Mock console.warn
       const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true);
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true);
 
       expect(sourceConfigURL).toBe(
-        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true',
+        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
       );
 
       expect(consoleWarnMock).not.toHaveBeenCalled();
     });
 
     it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
-      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false);
+      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false, false);
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+        'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -602,10 +602,11 @@ describe('Config Manager Common Utilities', () => {
         'https://www.dummy.url/some/path',
         'writekey',
         false,
+        false,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+        'https://www.dummy.url/some/path/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -614,10 +615,11 @@ describe('Config Manager Common Utilities', () => {
         'https://www.dummy.url/sourceConfig',
         'writekey',
         false,
+        false,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -626,10 +628,11 @@ describe('Config Manager Common Utilities', () => {
         'https://www.dummy.url//sourceConfig',
         'writekey',
         false,
+        false,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -638,10 +641,11 @@ describe('Config Manager Common Utilities', () => {
         'https://www.dummy.url/some/path/?abc=def#blog',
         'writekey',
         false,
+        false,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false#blog',
+        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
       );
     });
   });

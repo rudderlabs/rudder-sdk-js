@@ -61,6 +61,7 @@ describe('ConfigManager', () => {
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
+  const lockPluginsVersion = false;
 
   beforeAll(() => {
     server.listen();
@@ -106,12 +107,13 @@ describe('ConfigManager', () => {
 
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    state.loadOptions.value.lockIntegrationsVersion = false;
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
+
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
@@ -122,7 +124,7 @@ describe('ConfigManager', () => {
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);
@@ -224,7 +226,7 @@ describe('ConfigManager', () => {
   });
 
   it('should fetch the source config and process the response', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
     setTimeout(() => {

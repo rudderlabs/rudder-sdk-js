@@ -101,6 +101,8 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
 
+  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
+
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
   }
