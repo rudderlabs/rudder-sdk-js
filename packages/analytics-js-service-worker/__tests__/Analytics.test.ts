@@ -135,4 +135,46 @@ describe('JS SDK Service Worker', () => {
       done();
     }, 10);
   });
+
+  it('should add a message to the queue when all parameters are valid', () => {
+    const message = {
+      userId: 123,
+      anonymousId: 987,
+      event: 'Clicked Button',
+      properties: {
+        buttonName: 'Submit',
+      },
+    };
+    const analytics = new Analytics('writeKey', 'https://dataPlaneURL.com', {
+      flushAt: 10,
+      flushInterval: 5000,
+      enable: true,
+      maxInternalQueueSize: 100,
+      timeout: 5000,
+      logLevel: 'debug',
+      flushOverride: () => {
+        console.log('Custom flush override function');
+      },
+    });
+    analytics.flushed = true;
+    analytics.enqueue('track', message, (err, data) => {
+      if (err) {
+        console.error('Error:', err);
+      } else {
+        console.log('Data:', data);
+      }
+    });
+
+    expect(analytics.queue.length).toBe(1);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    expect(analytics.queue?.[0].message).toMatchObject({
+      userId: '123',
+      event: 'Clicked Button',
+      properties: {
+        buttonName: 'Submit',
+      },
+      type: 'track',
+    });
+  });
 });
