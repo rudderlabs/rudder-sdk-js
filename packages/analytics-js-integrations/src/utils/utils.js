@@ -1,6 +1,7 @@
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 /**
@@ -301,7 +302,6 @@ const isEmptyObject = obj => {
  */
 const isArray = obj => type(obj) === 'array';
 
-const isDefined = x => x !== undefined;
 const isNotNull = x => x !== null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 

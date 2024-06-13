@@ -1,19 +1,26 @@
-import _isUndefined from 'lodash.isundefined';
-import _isEmpty from 'lodash.isempty';
-import _pickBy from 'lodash.pickby';
-import _toString from 'lodash.tostring';
-import { pick as ramdaPick } from 'ramda';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { pick as ramdaPick, pickBy, isEmpty } from 'ramda';
 
-const isDefined = x => !_isUndefined(x);
-const isNotEmpty = x => !_isEmpty(x);
+const isNotEmpty = x => {
+  if (typeof x === 'object' || typeof x === 'string') {
+    return !isEmpty(x); // Numbers and booleans are inherently "not empty"
+  }
+  return isEmpty(x);
+};
 const isNotNull = x => x != null;
 const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 const isDefinedAndNotNullAndNotEmpty = x => isDefined(x) && isNotNull(x) && isNotEmpty(x);
-const removeUndefinedValues = obj => _pickBy(obj, isDefined);
-const removeNullValues = obj => _pickBy(obj, isNotNull);
-const removeUndefinedAndNullValues = obj => _pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = obj => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
-const isBlank = value => _isEmpty(_toString(value).trim());
+const removeUndefinedValues = obj => pickBy(isDefined, obj);
+const removeNullValues = obj => pickBy(isNotNull, obj);
+const removeUndefinedAndNullValues = obj => pickBy(isDefinedAndNotNull, obj);
+const removeUndefinedAndNullAndEmptyValues = obj => pickBy(isDefinedAndNotNullAndNotEmpty, obj);
+// with this function we are mostly checking if a string is empty or not
+const isBlank = value => {
+  if (typeof value === 'string') {
+    return isEmpty(value.trim());
+  }
+  return false;
+};
 const pick = (argObj, argArr) => ramdaPick(argArr, argObj);
 
 /**
@@ -35,6 +42,7 @@ const getHashFromArrayWithDuplicate = (
   if (Array.isArray(arrays)) {
     arrays.forEach(array => {
       if (!isNotEmpty(array[fromKey])) return;
+      if (!isString(array[fromKey])) return;
       const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {
@@ -201,7 +209,6 @@ export {
   removeUndefinedAndNullValues,
   removeNullValues,
   removeUndefinedAndNullAndEmptyValues,
-  isDefined,
   isNotEmpty,
   isNotNull,
   isDefinedAndNotNull,

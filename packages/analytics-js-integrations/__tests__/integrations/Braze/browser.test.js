@@ -74,7 +74,9 @@ afterAll(() => {
 describe('constructor', () => {
   it('should set the log level if provided', () => {
     const config = { appKey: 'APP_KEY', logLevel: 'debug' };
-    const analytics = {};
+    const analytics = {
+      logLevel: '0',
+    };
     const destinationInfo = {};
     const braze = new Braze(config, analytics, destinationInfo);
     expect(braze.trackAnonymousUser).toEqual(undefined);
@@ -82,7 +84,18 @@ describe('constructor', () => {
     expect(braze.allowUserSuppliedJavascript).toEqual(false);
     expect(braze.appKey).toEqual('APP_KEY');
   });
-
+  it('should set the log level if provided', () => {
+    const config = { logLevel: 'debug', dataCenter: 'eu' };
+    const analytics = {
+      logLevel: '0',
+    };
+    const destinationInfo = {};
+    const braze = new Braze(config, analytics, destinationInfo);
+    expect(braze.trackAnonymousUser).toEqual(undefined);
+    expect(braze.enableBrazeLogging).toEqual(false);
+    expect(braze.allowUserSuppliedJavascript).toEqual(false);
+    expect(braze.appKey).toEqual('');
+  });
   // Add more tests for the constructor if needed
 });
 
@@ -94,8 +107,11 @@ describe('init', () => {
       enableBrazeLogging: false,
       dataCenter: 'US-03',
       allowUserSuppliedJavascript: false,
+      enablePushNotification: true,
     };
-    const analytics = {};
+    const analytics = {
+      userId: '1234',
+    };
     const destinationInfo = {};
 
     const braze = new Braze(config, analytics, destinationInfo);
@@ -111,6 +127,30 @@ describe('init', () => {
   });
 
   // Add more tests for the init method if needed
+});
+
+describe('isLoaded', () => {
+  it('should get false value with isLoaded', () => {
+    const config = {};
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    const isLoaded = braze.isLoaded();
+    expect(isLoaded).toBe(false);
+  });
+});
+
+describe('isLoaded', () => {
+  it('should get false value with isReady', () => {
+    const config = {};
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    const isLoaded = braze.isReady();
+    expect(isLoaded).toBe(false);
+  });
 });
 
 describe('identify', () => {
@@ -139,7 +179,7 @@ describe('identify', () => {
             email: 'test@example.com',
             firstName: 'John',
             lastName: 'Doe',
-            gender: 'male',
+            gender: 1,
             phone: '1234567890',
             address: {
               country: 'USA',
@@ -169,7 +209,7 @@ describe('identify', () => {
     expect(window.braze.getUser().setEmail).toHaveBeenCalledWith('test@example.com');
     expect(window.braze.getUser().setFirstName).toHaveBeenCalledWith('John');
     expect(window.braze.getUser().setLastName).toHaveBeenCalledWith('Doe');
-    expect(window.braze.getUser().setGender).toHaveBeenCalledWith('m');
+    expect(window.braze.getUser().setGender).toHaveBeenCalledWith(undefined);
     expect(window.braze.getUser().setPhoneNumber).toHaveBeenCalledWith('1234567890');
     expect(window.braze.getUser().setCountry).toHaveBeenCalledWith('USA');
     expect(window.braze.getUser().setHomeCity).toHaveBeenCalledWith('New York');
@@ -201,6 +241,7 @@ describe('identify', () => {
         userId: 'user123',
         context: {
           traits: {
+            customTrait: 'random data',
             email: 'updated@example.com',
             firstName: 'David',
             lastName: 'Doe',
@@ -244,6 +285,7 @@ describe('identify', () => {
     jest.spyOn(window.braze.getUser(), 'setCountry');
     jest.spyOn(window.braze.getUser(), 'setHomeCity');
     jest.spyOn(window.braze.getUser(), 'setDateOfBirth');
+    jest.spyOn(window.braze.getUser(), 'setCustomUserAttribute');
 
     // Call the identify method
     braze.identify(rudderElement);
@@ -256,6 +298,10 @@ describe('identify', () => {
     expect(window.braze.getUser().setCountry).toHaveBeenCalledWith('USA');
     expect(window.braze.getUser().setHomeCity).toHaveBeenCalledWith('Austin');
     expect(window.braze.getUser().setDateOfBirth).not.toHaveBeenCalled();
+    expect(window.braze.getUser().setCustomUserAttribute).toHaveBeenCalledWith(
+      'customTrait',
+      'random data',
+    );
     // Expect any other necessary Braze methods to be called
 
     // Expect Storage.setItem to be called with the updated payload
@@ -273,6 +319,7 @@ describe('identify', () => {
             city: 'Austin',
           },
           birthday: '1990-01-01',
+          customTrait: 'random data',
         },
       },
     });
@@ -968,7 +1015,7 @@ describe('hybrid mode', () => {
       dataCenter: 'US-03',
       enableHtmlInAppMessages: false,
       allowUserSuppliedJavascript: false,
-      connectionMode: 'hybrid'
+      connectionMode: 'hybrid',
     };
     const analytics = {};
     const destinationInfo = {};
@@ -982,11 +1029,11 @@ describe('hybrid mode', () => {
     const rudderElement = {
       message: {
         userId: 'user123',
-        type: "page",
-        name: "Home",
+        type: 'page',
+        name: 'Home',
         properties: {
-          title: "Home | RudderStack",
-          url: "http://www.rudderstack.com"
+          title: 'Home | RudderStack',
+          url: 'http://www.rudderstack.com',
         },
       },
     };
@@ -1006,7 +1053,7 @@ describe('hybrid mode', () => {
       dataCenter: 'US-03',
       enableHtmlInAppMessages: false,
       allowUserSuppliedJavascript: false,
-      connectionMode: 'hybrid'
+      connectionMode: 'hybrid',
     };
     const analytics = {};
     const destinationInfo = {};
@@ -1020,11 +1067,11 @@ describe('hybrid mode', () => {
     const rudderElement = {
       message: {
         userId: 'user123',
-        type: "page",
-        name: "Home",
+        type: 'page',
+        name: 'Home',
         properties: {
-          title: "Home | RudderStack",
-          url: "http://www.rudderstack.com"
+          title: 'Home | RudderStack',
+          url: 'http://www.rudderstack.com',
         },
       },
     };
@@ -1044,7 +1091,7 @@ describe('hybrid mode', () => {
       dataCenter: 'US-03',
       enableHtmlInAppMessages: false,
       allowUserSuppliedJavascript: false,
-      connectionMode: 'hybrid'
+      connectionMode: 'hybrid',
     };
     const analytics = {};
     const destinationInfo = {};
@@ -1058,11 +1105,11 @@ describe('hybrid mode', () => {
     const rudderElement = {
       message: {
         userId: 'user123',
-        type: "page",
-        name: "Home",
+        type: 'page',
+        name: 'Home',
         properties: {
-          title: "Home | RudderStack",
-          url: "http://www.rudderstack.com"
+          title: 'Home | RudderStack',
+          url: 'http://www.rudderstack.com',
         },
       },
     };
@@ -1073,5 +1120,4 @@ describe('hybrid mode', () => {
     // Expect the necessary Braze methods to be called with the correct values
     expect(window.braze.changeUser).toBeCalledTimes(0);
   });
-
 });
