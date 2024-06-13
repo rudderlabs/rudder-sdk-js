@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
     <script>
       (function() {
         "use strict";
@@ -83,18 +84,17 @@
               configUrl: '__CONFIG_SERVER_HOST__',
               destSDKBaseURL:
             '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
-              pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
+              pluginsSDKBaseURL: 'http://localhost:3002/cdn/' + window.rudderAnalyticsBuildType + '/plugins',
               // useServerSideCookies:true,
               // queueOptions: {
               //   batch: {
               //     maxSize: 5 * 1024, // 5KB
               //   },
               // },
-              // useBeacon: true,
-              // beaconQueueOptions: {
-              //   flushQueueInterval: 10 * 1000,
-              //   maxItems: 5,
-              // },
+              useBeacon: true,
+              beaconQueueOptions: {
+                maxItems: 5,
+              },
               // sessions: {
               //   autoTrack: true,
               //   timeout: 30 * 1000
