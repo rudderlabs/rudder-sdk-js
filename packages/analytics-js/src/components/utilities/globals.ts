@@ -39,7 +39,11 @@ const getExposedGlobal = (
   ];
 };
 
-function debounce(func: DebouncedFunction, thisArg: any, delay: number = DEBOUNCED_TIMEOUT_MS) {
+function debounce(
+  func: DebouncedFunction,
+  thisArg: any,
+  delay: number = DEBOUNCED_TIMEOUT_MS,
+): DebouncedFunction {
   let timeoutId: number;
 
   return (...args: any[]) => {
