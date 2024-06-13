@@ -2,3807 +2,1053 @@ console.log('Hi from popup script');
 
 'use strict';
 
-(function(self, undefined) {!function(e,t){"use strict";function n(e){return c[r]=a.apply(t,e),r++}function a(e){var n=[].slice.call(arguments,1);return function(){"function"==typeof e?e.apply(t,n):new Function(""+e)()}}function o(e){if(u)setTimeout(a(o,e),0);else{var t=c[e];if(t){u=!0;try{t()}finally{s(e),u=!1}}}}function s(e){delete c[e]}if(!e.setImmediate){var i,r=1,c={},u=!1,f=e.document,m=Object.getPrototypeOf&&Object.getPrototypeOf(e);m=m&&m.setTimeout?m:e,!function l(){if(e.postMessage&&!e.importScripts){var t=!0,n=e.onmessage;return e.onmessage=function(){t=!1},e.postMessage("","*"),e.onmessage=n,t}}()?e.MessageChannel?function d(){var e=new MessageChannel;e.port1.onmessage=function(e){o(e.data)},i=function t(a){var o=n(arguments);return e.port2.postMessage(o),o}}():f&&"onreadystatechange"in f.createElement("script")?function p(){var e=f.documentElement;i=function t(a){var s=n(arguments),i=f.createElement("script");return i.onreadystatechange=function(){o(s),i.onreadystatechange=null,e.removeChild(i),i=null},e.appendChild(i),s}}():function g(){i=function e(t){var s=n(arguments);return setTimeout(a(o,s),0),s}}():function v(){var t="setImmediate$"+Math.random()+"$",a=function(n){n.source===e&&"string"==typeof n.data&&0===n.data.indexOf(t)&&o(+n.data.slice(t.length))};e.addEventListener?e.addEventListener("message",a,!1):e.attachEvent("onmessage",a),i=function s(a){var o=n(arguments);return e.postMessage(t+o,"*"),o}}(),m.setImmediate=i,m.clearImmediate=s}}(self);})('object' === typeof window && window || 'object' === typeof self && self || 'object' === typeof global && global || {});
-
-var global$1 = (typeof global !== "undefined" ? global :
-  typeof self !== "undefined" ? self :
-  typeof window !== "undefined" ? window : {});
-
-function _extends() {
-  return _extends = Object.assign ? Object.assign.bind() : function (n) {
-    for (var e = 1; e < arguments.length; e++) {
-      var t = arguments[e];
-      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
-    }
-    return n;
-  }, _extends.apply(null, arguments);
+function _arrayLikeToArray(r, a) {
+  (null == a || a > r.length) && (a = r.length);
+  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+  return n;
 }
-
-function bind(fn,thisArg){return function wrap(){return fn.apply(thisArg,arguments);};}
-
-const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const kindOf=(cache=>thing=>{const str=toString$2.call(thing);return cache[str]||(cache[str]=str.slice(8,-1).toLowerCase());})(Object.create(null));const kindOfTest=type=>{type=type.toLowerCase();return thing=>kindOf(thing)===type;};const typeOfTest=type=>thing=>typeof thing===type;/**
- * Determine if a value is an Array
- *
- * @param {Object} val The value to test
- *
- * @returns {boolean} True if value is an Array, otherwise false
- */const{isArray: isArray$3}=Array;/**
- * Determine if a value is undefined
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if the value is undefined, otherwise false
- */const isUndefined$1=typeOfTest('undefined');/**
- * Determine if a value is a Buffer
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a Buffer, otherwise false
- */function isBuffer$1(val){return val!==null&&!isUndefined$1(val)&&val.constructor!==null&&!isUndefined$1(val.constructor)&&isFunction$3(val.constructor.isBuffer)&&val.constructor.isBuffer(val);}/**
- * Determine if a value is an ArrayBuffer
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is an ArrayBuffer, otherwise false
- */const isArrayBuffer=kindOfTest('ArrayBuffer');/**
- * Determine if a value is a view on an ArrayBuffer
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
- */function isArrayBufferView(val){let result;if(typeof ArrayBuffer!=='undefined'&&ArrayBuffer.isView){result=ArrayBuffer.isView(val);}else {result=val&&val.buffer&&isArrayBuffer(val.buffer);}return result;}/**
- * Determine if a value is a String
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a String, otherwise false
- */const isString$4=typeOfTest('string');/**
- * Determine if a value is a Function
- *
- * @param {*} val The value to test
- * @returns {boolean} True if value is a Function, otherwise false
- */const isFunction$3=typeOfTest('function');/**
- * Determine if a value is a Number
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a Number, otherwise false
- */const isNumber$1=typeOfTest('number');/**
- * Determine if a value is an Object
- *
- * @param {*} thing The value to test
- *
- * @returns {boolean} True if value is an Object, otherwise false
- */const isObject$2=thing=>thing!==null&&typeof thing==='object';/**
- * Determine if a value is a Boolean
- *
- * @param {*} thing The value to test
- * @returns {boolean} True if value is a Boolean, otherwise false
- */const isBoolean$1=thing=>thing===true||thing===false;/**
- * Determine if a value is a plain Object
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a plain Object, otherwise false
- */const isPlainObject=val=>{if(kindOf(val)!=='object'){return false;}const prototype=getPrototypeOf(val);return (prototype===null||prototype===Object.prototype||Object.getPrototypeOf(prototype)===null)&&!(Symbol.toStringTag in val)&&!(Symbol.iterator in val);};/**
- * Determine if a value is a Date
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a Date, otherwise false
- */const isDate$1=kindOfTest('Date');/**
- * Determine if a value is a File
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a File, otherwise false
- */const isFile=kindOfTest('File');/**
- * Determine if a value is a Blob
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a Blob, otherwise false
- */const isBlob=kindOfTest('Blob');/**
- * Determine if a value is a FileList
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a File, otherwise false
- */const isFileList=kindOfTest('FileList');/**
- * Determine if a value is a Stream
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a Stream, otherwise false
- */const isStream=val=>isObject$2(val)&&isFunction$3(val.pipe);/**
- * Determine if a value is a FormData
- *
- * @param {*} thing The value to test
- *
- * @returns {boolean} True if value is an FormData, otherwise false
- */const isFormData=thing=>{let kind;return thing&&(typeof FormData==='function'&&thing instanceof FormData||isFunction$3(thing.append)&&((kind=kindOf(thing))==='formdata'||// detect form-data instance
-kind==='object'&&isFunction$3(thing.toString)&&thing.toString()==='[object FormData]'));};/**
- * Determine if a value is a URLSearchParams object
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */const isURLSearchParams=kindOfTest('URLSearchParams');const[isReadableStream,isRequest,isResponse,isHeaders]=['ReadableStream','Request','Response','Headers'].map(kindOfTest);/**
- * Trim excess whitespace off the beginning and end of a string
- *
- * @param {String} str The String to trim
- *
- * @returns {String} The String freed of excess whitespace
- */const trim=str=>str.trim?str.trim():str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,'');/**
- * Iterate over an Array or an Object invoking a function for each item.
- *
- * If `obj` is an Array callback will be called passing
- * the value, index, and complete array for each item.
- *
- * If 'obj' is an Object callback will be called passing
- * the value, key, and complete object for each property.
- *
- * @param {Object|Array} obj The object to iterate
- * @param {Function} fn The callback to invoke for each item
- *
- * @param {Boolean} [allOwnKeys = false]
- * @returns {any}
- */function forEach(obj,fn,{allOwnKeys=false}={}){// Don't bother if no value provided
-if(obj===null||typeof obj==='undefined'){return;}let i;let l;// Force an array if not already something iterable
-if(typeof obj!=='object'){/*eslint no-param-reassign:0*/obj=[obj];}if(isArray$3(obj)){// Iterate over array values
-for(i=0,l=obj.length;i<l;i++){fn.call(null,obj[i],i,obj);}}else {// Iterate over object keys
-const keys=allOwnKeys?Object.getOwnPropertyNames(obj):Object.keys(obj);const len=keys.length;let key;for(i=0;i<len;i++){key=keys[i];fn.call(null,obj[key],key,obj);}}}function findKey(obj,key){key=key.toLowerCase();const keys=Object.keys(obj);let i=keys.length;let _key;while(i-->0){_key=keys[i];if(key===_key.toLowerCase()){return _key;}}return null;}const _global=(()=>{/*eslint no-undef:0*/if(typeof globalThis!=="undefined")return globalThis;return typeof self!=="undefined"?self:typeof window!=='undefined'?window:global$1;})();const isContextDefined=context=>!isUndefined$1(context)&&context!==_global;/**
- * Accepts varargs expecting each argument to be an object, then
- * immutably merges the properties of each object and returns result.
- *
- * When multiple objects contain the same key the later object in
- * the arguments list will take precedence.
- *
- * Example:
- *
- * ```js
- * var result = merge({foo: 123}, {foo: 456});
- * console.log(result.foo); // outputs 456
- * ```
- *
- * @param {Object} obj1 Object to merge
- *
- * @returns {Object} Result of all merge properties
- */function merge(/* obj1, obj2, obj3, ... */){const{caseless}=isContextDefined(this)&&this||{};const result={};const assignValue=(val,key)=>{const targetKey=caseless&&findKey(result,key)||key;if(isPlainObject(result[targetKey])&&isPlainObject(val)){result[targetKey]=merge(result[targetKey],val);}else if(isPlainObject(val)){result[targetKey]=merge({},val);}else if(isArray$3(val)){result[targetKey]=val.slice();}else {result[targetKey]=val;}};for(let i=0,l=arguments.length;i<l;i++){arguments[i]&&forEach(arguments[i],assignValue);}return result;}/**
- * Extends object a by mutably adding to it the properties of object b.
- *
- * @param {Object} a The object to be extended
- * @param {Object} b The object to copy properties from
- * @param {Object} thisArg The object to bind function to
- *
- * @param {Boolean} [allOwnKeys]
- * @returns {Object} The resulting value of object a
- */const extend=(a,b,thisArg,{allOwnKeys}={})=>{forEach(b,(val,key)=>{if(thisArg&&isFunction$3(val)){a[key]=bind(val,thisArg);}else {a[key]=val;}},{allOwnKeys});return a;};/**
- * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
- *
- * @param {string} content with BOM
- *
- * @returns {string} content value without BOM
- */const stripBOM=content=>{if(content.charCodeAt(0)===0xFEFF){content=content.slice(1);}return content;};/**
- * Inherit the prototype methods from one constructor into another
- * @param {function} constructor
- * @param {function} superConstructor
- * @param {object} [props]
- * @param {object} [descriptors]
- *
- * @returns {void}
- */const inherits$1=(constructor,superConstructor,props,descriptors)=>{constructor.prototype=Object.create(superConstructor.prototype,descriptors);constructor.prototype.constructor=constructor;Object.defineProperty(constructor,'super',{value:superConstructor.prototype});props&&_extends(constructor.prototype,props);};/**
- * Resolve object with deep prototype chain to a flat object
- * @param {Object} sourceObj source object
- * @param {Object} [destObj]
- * @param {Function|Boolean} [filter]
- * @param {Function} [propFilter]
- *
- * @returns {Object}
- */const toFlatObject=(sourceObj,destObj,filter,propFilter)=>{let props;let i;let prop;const merged={};destObj=destObj||{};// eslint-disable-next-line no-eq-null,eqeqeq
-if(sourceObj==null)return destObj;do{props=Object.getOwnPropertyNames(sourceObj);i=props.length;while(i-->0){prop=props[i];if((!propFilter||propFilter(prop,sourceObj,destObj))&&!merged[prop]){destObj[prop]=sourceObj[prop];merged[prop]=true;}}sourceObj=filter!==false&&getPrototypeOf(sourceObj);}while(sourceObj&&(!filter||filter(sourceObj,destObj))&&sourceObj!==Object.prototype);return destObj;};/**
- * Determines whether a string ends with the characters of a specified string
- *
- * @param {String} str
- * @param {String} searchString
- * @param {Number} [position= 0]
- *
- * @returns {boolean}
- */const endsWith=(str,searchString,position)=>{str=String(str);if(position===undefined||position>str.length){position=str.length;}position-=searchString.length;const lastIndex=str.indexOf(searchString,position);return lastIndex!==-1&&lastIndex===position;};/**
- * Returns new array from array like object or null if failed
- *
- * @param {*} [thing]
- *
- * @returns {?Array}
- */const toArray=thing=>{if(!thing)return null;if(isArray$3(thing))return thing;let i=thing.length;if(!isNumber$1(i))return null;const arr=new Array(i);while(i-->0){arr[i]=thing[i];}return arr;};/**
- * Checking if the Uint8Array exists and if it does, it returns a function that checks if the
- * thing passed in is an instance of Uint8Array
- *
- * @param {TypedArray}
- *
- * @returns {Array}
- */ // eslint-disable-next-line func-names
-const isTypedArray=(TypedArray=>{// eslint-disable-next-line func-names
-return thing=>{return TypedArray&&thing instanceof TypedArray;};})(typeof Uint8Array!=='undefined'&&getPrototypeOf(Uint8Array));/**
- * For each entry in the object, call the function with the key and value.
- *
- * @param {Object<any, any>} obj - The object to iterate over.
- * @param {Function} fn - The function to call for each entry.
- *
- * @returns {void}
- */const forEachEntry=(obj,fn)=>{const generator=obj&&obj[Symbol.iterator];const iterator=generator.call(obj);let result;while((result=iterator.next())&&!result.done){const pair=result.value;fn.call(obj,pair[0],pair[1]);}};/**
- * It takes a regular expression and a string, and returns an array of all the matches
- *
- * @param {string} regExp - The regular expression to match against.
- * @param {string} str - The string to search.
- *
- * @returns {Array<boolean>}
- */const matchAll=(regExp,str)=>{let matches;const arr=[];while((matches=regExp.exec(str))!==null){arr.push(matches);}return arr;};/* Checking if the kindOfTest function returns true when passed an HTMLFormElement. */const isHTMLForm=kindOfTest('HTMLFormElement');const toCamelCase=str=>{return str.toLowerCase().replace(/[-_\s]([a-z\d])(\w*)/g,function replacer(m,p1,p2){return p1.toUpperCase()+p2;});};/* Creating a function that will check if an object has a property. */const hasOwnProperty$1=(({hasOwnProperty})=>(obj,prop)=>hasOwnProperty.call(obj,prop))(Object.prototype);/**
- * Determine if a value is a RegExp object
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is a RegExp object, otherwise false
- */const isRegExp$1=kindOfTest('RegExp');const reduceDescriptors=(obj,reducer)=>{const descriptors=Object.getOwnPropertyDescriptors(obj);const reducedDescriptors={};forEach(descriptors,(descriptor,name)=>{let ret;if((ret=reducer(descriptor,name,obj))!==false){reducedDescriptors[name]=ret||descriptor;}});Object.defineProperties(obj,reducedDescriptors);};/**
- * Makes all methods read-only
- * @param {Object} obj
- */const freezeMethods=obj=>{reduceDescriptors(obj,(descriptor,name)=>{// skip restricted props in strict mode
-if(isFunction$3(obj)&&['arguments','caller','callee'].indexOf(name)!==-1){return false;}const value=obj[name];if(!isFunction$3(value))return;descriptor.enumerable=false;if('writable'in descriptor){descriptor.writable=false;return;}if(!descriptor.set){descriptor.set=()=>{throw Error('Can not rewrite read-only method \''+name+'\'');};}});};const toObjectSet=(arrayOrString,delimiter)=>{const obj={};const define=arr=>{arr.forEach(value=>{obj[value]=true;});};isArray$3(arrayOrString)?define(arrayOrString):define(String(arrayOrString).split(delimiter));return obj;};const noop$1=()=>{};const toFiniteNumber=(value,defaultValue)=>{return value!=null&&Number.isFinite(value=+value)?value:defaultValue;};const ALPHA='abcdefghijklmnopqrstuvwxyz';const DIGIT='0123456789';const ALPHABET={DIGIT,ALPHA,ALPHA_DIGIT:ALPHA+ALPHA.toUpperCase()+DIGIT};const generateString=(size=16,alphabet=ALPHABET.ALPHA_DIGIT)=>{let str='';const{length}=alphabet;while(size--){str+=alphabet[Math.random()*length|0];}return str;};/**
- * If the thing is a FormData object, return true, otherwise return false.
- *
- * @param {unknown} thing - The thing to check.
- *
- * @returns {boolean}
- */function isSpecCompliantForm(thing){return !!(thing&&isFunction$3(thing.append)&&thing[Symbol.toStringTag]==='FormData'&&thing[Symbol.iterator]);}const toJSONObject=obj=>{const stack=new Array(10);const visit=(source,i)=>{if(isObject$2(source)){if(stack.indexOf(source)>=0){return;}if(!('toJSON'in source)){stack[i]=source;const target=isArray$3(source)?[]:{};forEach(source,(value,key)=>{const reducedValue=visit(value,i+1);!isUndefined$1(reducedValue)&&(target[key]=reducedValue);});stack[i]=undefined;return target;}}return source;};return visit(obj,0);};const isAsyncFn=kindOfTest('AsyncFunction');const isThenable=thing=>thing&&(isObject$2(thing)||isFunction$3(thing))&&isFunction$3(thing.then)&&isFunction$3(thing.catch);var utils$1 = {isArray: isArray$3,isArrayBuffer,isBuffer: isBuffer$1,isFormData,isArrayBufferView,isString: isString$4,isNumber: isNumber$1,isBoolean: isBoolean$1,isObject: isObject$2,isPlainObject,isReadableStream,isRequest,isResponse,isHeaders,isUndefined: isUndefined$1,isDate: isDate$1,isFile,isBlob,isRegExp: isRegExp$1,isFunction: isFunction$3,isStream,isURLSearchParams,isTypedArray,isFileList,forEach,merge,extend,trim,stripBOM,inherits: inherits$1,toFlatObject,kindOf,kindOfTest,endsWith,toArray,forEachEntry,matchAll,isHTMLForm,hasOwnProperty: hasOwnProperty$1,hasOwnProp:hasOwnProperty$1,// an alias to avoid ESLint no-prototype-builtins detection
-reduceDescriptors,freezeMethods,toObjectSet,toCamelCase,noop: noop$1,toFiniteNumber,findKey,global:_global,isContextDefined,ALPHABET,generateString,isSpecCompliantForm,toJSONObject,isAsyncFn,isThenable};
-
-var lookup = [];
-var revLookup = [];
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
-var inited = false;
-function init () {
-  inited = true;
-  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  for (var i = 0, len = code.length; i < len; ++i) {
-    lookup[i] = code[i];
-    revLookup[code.charCodeAt(i)] = i;
-  }
-
-  revLookup['-'.charCodeAt(0)] = 62;
-  revLookup['_'.charCodeAt(0)] = 63;
+function _arrayWithoutHoles(r) {
+  if (Array.isArray(r)) return _arrayLikeToArray(r);
 }
-
-function toByteArray (b64) {
-  if (!inited) {
-    init();
-  }
-  var i, j, l, tmp, placeHolders, arr;
-  var len = b64.length;
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // the number of equal signs (place holders)
-  // if there are two placeholders, than the two characters before it
-  // represent one byte
-  // if there is only one, then the three characters before it represent 2 bytes
-  // this is just a cheap hack to not do indexOf twice
-  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
-
-  // base64 is 4/3 + up to two characters of the original data
-  arr = new Arr(len * 3 / 4 - placeHolders);
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  l = placeHolders > 0 ? len - 4 : len;
-
-  var L = 0;
-
-  for (i = 0, j = 0; i < l; i += 4, j += 3) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)];
-    arr[L++] = (tmp >> 16) & 0xFF;
-    arr[L++] = (tmp >> 8) & 0xFF;
-    arr[L++] = tmp & 0xFF;
-  }
-
-  if (placeHolders === 2) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4);
-    arr[L++] = tmp & 0xFF;
-  } else if (placeHolders === 1) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2);
-    arr[L++] = (tmp >> 8) & 0xFF;
-    arr[L++] = tmp & 0xFF;
-  }
-
-  return arr
+function _assertThisInitialized(e) {
+  if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  return e;
 }
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+function asyncGeneratorStep(n, t, e, r, o, a, c) {
+  try {
+    var i = n[a](c),
+      u = i.value;
+  } catch (n) {
+    return void e(n);
+  }
+  i.done ? t(u) : Promise.resolve(u).then(r, o);
 }
-
-function encodeChunk (uint8, start, end) {
-  var tmp;
-  var output = [];
-  for (var i = start; i < end; i += 3) {
-    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
-    output.push(tripletToBase64(tmp));
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  if (!inited) {
-    init();
-  }
-  var tmp;
-  var len = uint8.length;
-  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
-  var output = '';
-  var parts = [];
-  var maxChunkLength = 16383; // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)));
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1];
-    output += lookup[tmp >> 2];
-    output += lookup[(tmp << 4) & 0x3F];
-    output += '==';
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + (uint8[len - 1]);
-    output += lookup[tmp >> 10];
-    output += lookup[(tmp >> 4) & 0x3F];
-    output += lookup[(tmp << 2) & 0x3F];
-    output += '=';
-  }
-
-  parts.push(output);
-
-  return parts.join('')
-}
-
-function read (buffer, offset, isLE, mLen, nBytes) {
-  var e, m;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var nBits = -7;
-  var i = isLE ? (nBytes - 1) : 0;
-  var d = isLE ? -1 : 1;
-  var s = buffer[offset + i];
-
-  i += d;
-
-  e = s & ((1 << (-nBits)) - 1);
-  s >>= (-nBits);
-  nBits += eLen;
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-  m = e & ((1 << (-nBits)) - 1);
-  e >>= (-nBits);
-  nBits += mLen;
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-  if (e === 0) {
-    e = 1 - eBias;
-  } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity)
-  } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
-  }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
-}
-
-function write (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0);
-  var i = isLE ? 0 : (nBytes - 1);
-  var d = isLE ? 1 : -1;
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
-
-  value = Math.abs(value);
-
-  if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0;
-    e = eMax;
-  } else {
-    e = Math.floor(Math.log(value) / Math.LN2);
-    if (value * (c = Math.pow(2, -e)) < 1) {
-      e--;
-      c *= 2;
-    }
-    if (e + eBias >= 1) {
-      value += rt / c;
-    } else {
-      value += rt * Math.pow(2, 1 - eBias);
-    }
-    if (value * c >= 2) {
-      e++;
-      c /= 2;
-    }
-
-    if (e + eBias >= eMax) {
-      m = 0;
-      e = eMax;
-    } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
-    } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-      e = 0;
-    }
-  }
-
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
-
-  e = (e << mLen) | m;
-  eLen += mLen;
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
-
-  buffer[offset + i - d] |= s * 128;
-}
-
-var toString$1 = {}.toString;
-
-var isArray$2 = Array.isArray || function (arr) {
-  return toString$1.call(arr) == '[object Array]';
-};
-
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
- */
-/* eslint-disable no-proto */
-
-
-var INSPECT_MAX_BYTES = 50;
-
-/**
- * If `Buffer.TYPED_ARRAY_SUPPORT`:
- *   === true    Use Uint8Array implementation (fastest)
- *   === false   Use Object implementation (most compatible, even IE6)
- *
- * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
- * Opera 11.6+, iOS 4.2+.
- *
- * Due to various browser bugs, sometimes the Object implementation will be used even
- * when the browser supports typed arrays.
- *
- * Note:
- *
- *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
- *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
- *
- *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
- *
- *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
- *     incorrect length in some situations.
-
- * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
- * get the Object implementation, which is slower but behaves correctly.
- */
-Buffer.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
-  ? global$1.TYPED_ARRAY_SUPPORT
-  : true;
-
-/*
- * Export kMaxLength after typed array support is determined.
- */
-kMaxLength();
-
-function kMaxLength () {
-  return Buffer.TYPED_ARRAY_SUPPORT
-    ? 0x7fffffff
-    : 0x3fffffff
-}
-
-function createBuffer (that, length) {
-  if (kMaxLength() < length) {
-    throw new RangeError('Invalid typed array length')
-  }
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Return an augmented `Uint8Array` instance, for best performance
-    that = new Uint8Array(length);
-    that.__proto__ = Buffer.prototype;
-  } else {
-    // Fallback: Return an object instance of the Buffer class
-    if (that === null) {
-      that = new Buffer(length);
-    }
-    that.length = length;
-  }
-
-  return that
-}
-
-/**
- * The Buffer constructor returns instances of `Uint8Array` that have their
- * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
- * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
- * and the `Uint8Array` methods. Square bracket notation works as expected -- it
- * returns a single octet.
- *
- * The `Uint8Array` prototype remains unmodified.
- */
-
-function Buffer (arg, encodingOrOffset, length) {
-  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
-    return new Buffer(arg, encodingOrOffset, length)
-  }
-
-  // Common case.
-  if (typeof arg === 'number') {
-    if (typeof encodingOrOffset === 'string') {
-      throw new Error(
-        'If encoding is specified then the first argument must be a string'
-      )
-    }
-    return allocUnsafe(this, arg)
-  }
-  return from(this, arg, encodingOrOffset, length)
-}
-
-Buffer.poolSize = 8192; // not used by this implementation
-
-// TODO: Legacy, not needed anymore. Remove in next major version.
-Buffer._augment = function (arr) {
-  arr.__proto__ = Buffer.prototype;
-  return arr
-};
-
-function from (that, value, encodingOrOffset, length) {
-  if (typeof value === 'number') {
-    throw new TypeError('"value" argument must not be a number')
-  }
-
-  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
-    return fromArrayBuffer(that, value, encodingOrOffset, length)
-  }
-
-  if (typeof value === 'string') {
-    return fromString(that, value, encodingOrOffset)
-  }
-
-  return fromObject(that, value)
-}
-
-/**
- * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
- * if value is a number.
- * Buffer.from(str[, encoding])
- * Buffer.from(array)
- * Buffer.from(buffer)
- * Buffer.from(arrayBuffer[, byteOffset[, length]])
- **/
-Buffer.from = function (value, encodingOrOffset, length) {
-  return from(null, value, encodingOrOffset, length)
-};
-
-if (Buffer.TYPED_ARRAY_SUPPORT) {
-  Buffer.prototype.__proto__ = Uint8Array.prototype;
-  Buffer.__proto__ = Uint8Array;
-  if (typeof Symbol !== 'undefined' && Symbol.species &&
-      Buffer[Symbol.species] === Buffer) ;
-}
-
-function assertSize (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('"size" argument must be a number')
-  } else if (size < 0) {
-    throw new RangeError('"size" argument must not be negative')
-  }
-}
-
-function alloc (that, size, fill, encoding) {
-  assertSize(size);
-  if (size <= 0) {
-    return createBuffer(that, size)
-  }
-  if (fill !== undefined) {
-    // Only pay attention to encoding if it's a string. This
-    // prevents accidentally sending in a number that would
-    // be interpretted as a start offset.
-    return typeof encoding === 'string'
-      ? createBuffer(that, size).fill(fill, encoding)
-      : createBuffer(that, size).fill(fill)
-  }
-  return createBuffer(that, size)
-}
-
-/**
- * Creates a new filled Buffer instance.
- * alloc(size[, fill[, encoding]])
- **/
-Buffer.alloc = function (size, fill, encoding) {
-  return alloc(null, size, fill, encoding)
-};
-
-function allocUnsafe (that, size) {
-  assertSize(size);
-  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) {
-    for (var i = 0; i < size; ++i) {
-      that[i] = 0;
-    }
-  }
-  return that
-}
-
-/**
- * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
- * */
-Buffer.allocUnsafe = function (size) {
-  return allocUnsafe(null, size)
-};
-/**
- * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
- */
-Buffer.allocUnsafeSlow = function (size) {
-  return allocUnsafe(null, size)
-};
-
-function fromString (that, string, encoding) {
-  if (typeof encoding !== 'string' || encoding === '') {
-    encoding = 'utf8';
-  }
-
-  if (!Buffer.isEncoding(encoding)) {
-    throw new TypeError('"encoding" must be a valid string encoding')
-  }
-
-  var length = byteLength(string, encoding) | 0;
-  that = createBuffer(that, length);
-
-  var actual = that.write(string, encoding);
-
-  if (actual !== length) {
-    // Writing a hex string, for example, that contains invalid characters will
-    // cause everything after the first invalid character to be ignored. (e.g.
-    // 'abxxcd' will be treated as 'ab')
-    that = that.slice(0, actual);
-  }
-
-  return that
-}
-
-function fromArrayLike (that, array) {
-  var length = array.length < 0 ? 0 : checked(array.length) | 0;
-  that = createBuffer(that, length);
-  for (var i = 0; i < length; i += 1) {
-    that[i] = array[i] & 255;
-  }
-  return that
-}
-
-function fromArrayBuffer (that, array, byteOffset, length) {
-  array.byteLength; // this throws if `array` is not a valid ArrayBuffer
-
-  if (byteOffset < 0 || array.byteLength < byteOffset) {
-    throw new RangeError('\'offset\' is out of bounds')
-  }
-
-  if (array.byteLength < byteOffset + (length || 0)) {
-    throw new RangeError('\'length\' is out of bounds')
-  }
-
-  if (byteOffset === undefined && length === undefined) {
-    array = new Uint8Array(array);
-  } else if (length === undefined) {
-    array = new Uint8Array(array, byteOffset);
-  } else {
-    array = new Uint8Array(array, byteOffset, length);
-  }
-
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Return an augmented `Uint8Array` instance, for best performance
-    that = array;
-    that.__proto__ = Buffer.prototype;
-  } else {
-    // Fallback: Return an object instance of the Buffer class
-    that = fromArrayLike(that, array);
-  }
-  return that
-}
-
-function fromObject (that, obj) {
-  if (internalIsBuffer(obj)) {
-    var len = checked(obj.length) | 0;
-    that = createBuffer(that, len);
-
-    if (that.length === 0) {
-      return that
-    }
-
-    obj.copy(that, 0, 0, len);
-    return that
-  }
-
-  if (obj) {
-    if ((typeof ArrayBuffer !== 'undefined' &&
-        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
-      if (typeof obj.length !== 'number' || isnan(obj.length)) {
-        return createBuffer(that, 0)
+function _asyncToGenerator(n) {
+  return function () {
+    var t = this,
+      e = arguments;
+    return new Promise(function (r, o) {
+      var a = n.apply(t, e);
+      function _next(n) {
+        asyncGeneratorStep(a, r, o, _next, _throw, "next", n);
       }
-      return fromArrayLike(that, obj)
-    }
-
-    if (obj.type === 'Buffer' && isArray$2(obj.data)) {
-      return fromArrayLike(that, obj.data)
-    }
-  }
-
-  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
-}
-
-function checked (length) {
-  // Note: cannot use `length < kMaxLength()` here because that fails when
-  // length is NaN (which is otherwise coerced to zero.)
-  if (length >= kMaxLength()) {
-    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
-                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
-  }
-  return length | 0
-}
-Buffer.isBuffer = isBuffer;
-function internalIsBuffer (b) {
-  return !!(b != null && b._isBuffer)
-}
-
-Buffer.compare = function compare (a, b) {
-  if (!internalIsBuffer(a) || !internalIsBuffer(b)) {
-    throw new TypeError('Arguments must be Buffers')
-  }
-
-  if (a === b) return 0
-
-  var x = a.length;
-  var y = b.length;
-
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-    if (a[i] !== b[i]) {
-      x = a[i];
-      y = b[i];
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-};
-
-Buffer.isEncoding = function isEncoding (encoding) {
-  switch (String(encoding).toLowerCase()) {
-    case 'hex':
-    case 'utf8':
-    case 'utf-8':
-    case 'ascii':
-    case 'latin1':
-    case 'binary':
-    case 'base64':
-    case 'ucs2':
-    case 'ucs-2':
-    case 'utf16le':
-    case 'utf-16le':
-      return true
-    default:
-      return false
-  }
-};
-
-Buffer.concat = function concat (list, length) {
-  if (!isArray$2(list)) {
-    throw new TypeError('"list" argument must be an Array of Buffers')
-  }
-
-  if (list.length === 0) {
-    return Buffer.alloc(0)
-  }
-
-  var i;
-  if (length === undefined) {
-    length = 0;
-    for (i = 0; i < list.length; ++i) {
-      length += list[i].length;
-    }
-  }
-
-  var buffer = Buffer.allocUnsafe(length);
-  var pos = 0;
-  for (i = 0; i < list.length; ++i) {
-    var buf = list[i];
-    if (!internalIsBuffer(buf)) {
-      throw new TypeError('"list" argument must be an Array of Buffers')
-    }
-    buf.copy(buffer, pos);
-    pos += buf.length;
-  }
-  return buffer
-};
-
-function byteLength (string, encoding) {
-  if (internalIsBuffer(string)) {
-    return string.length
-  }
-  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
-      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
-    return string.byteLength
-  }
-  if (typeof string !== 'string') {
-    string = '' + string;
-  }
-
-  var len = string.length;
-  if (len === 0) return 0
-
-  // Use a for loop to avoid recursion
-  var loweredCase = false;
-  for (;;) {
-    switch (encoding) {
-      case 'ascii':
-      case 'latin1':
-      case 'binary':
-        return len
-      case 'utf8':
-      case 'utf-8':
-      case undefined:
-        return utf8ToBytes(string).length
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return len * 2
-      case 'hex':
-        return len >>> 1
-      case 'base64':
-        return base64ToBytes(string).length
-      default:
-        if (loweredCase) return utf8ToBytes(string).length // assume utf8
-        encoding = ('' + encoding).toLowerCase();
-        loweredCase = true;
-    }
-  }
-}
-Buffer.byteLength = byteLength;
-
-function slowToString (encoding, start, end) {
-  var loweredCase = false;
-
-  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
-  // property of a typed array.
-
-  // This behaves neither like String nor Uint8Array in that we set start/end
-  // to their upper/lower bounds if the value passed is out of range.
-  // undefined is handled specially as per ECMA-262 6th Edition,
-  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
-  if (start === undefined || start < 0) {
-    start = 0;
-  }
-  // Return early if start > this.length. Done here to prevent potential uint32
-  // coercion fail below.
-  if (start > this.length) {
-    return ''
-  }
-
-  if (end === undefined || end > this.length) {
-    end = this.length;
-  }
-
-  if (end <= 0) {
-    return ''
-  }
-
-  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
-  end >>>= 0;
-  start >>>= 0;
-
-  if (end <= start) {
-    return ''
-  }
-
-  if (!encoding) encoding = 'utf8';
-
-  while (true) {
-    switch (encoding) {
-      case 'hex':
-        return hexSlice(this, start, end)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Slice(this, start, end)
-
-      case 'ascii':
-        return asciiSlice(this, start, end)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Slice(this, start, end)
-
-      case 'base64':
-        return base64Slice(this, start, end)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return utf16leSlice(this, start, end)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = (encoding + '').toLowerCase();
-        loweredCase = true;
-    }
-  }
-}
-
-// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
-// Buffer instances.
-Buffer.prototype._isBuffer = true;
-
-function swap (b, n, m) {
-  var i = b[n];
-  b[n] = b[m];
-  b[m] = i;
-}
-
-Buffer.prototype.swap16 = function swap16 () {
-  var len = this.length;
-  if (len % 2 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 16-bits')
-  }
-  for (var i = 0; i < len; i += 2) {
-    swap(this, i, i + 1);
-  }
-  return this
-};
-
-Buffer.prototype.swap32 = function swap32 () {
-  var len = this.length;
-  if (len % 4 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 32-bits')
-  }
-  for (var i = 0; i < len; i += 4) {
-    swap(this, i, i + 3);
-    swap(this, i + 1, i + 2);
-  }
-  return this
-};
-
-Buffer.prototype.swap64 = function swap64 () {
-  var len = this.length;
-  if (len % 8 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 64-bits')
-  }
-  for (var i = 0; i < len; i += 8) {
-    swap(this, i, i + 7);
-    swap(this, i + 1, i + 6);
-    swap(this, i + 2, i + 5);
-    swap(this, i + 3, i + 4);
-  }
-  return this
-};
-
-Buffer.prototype.toString = function toString () {
-  var length = this.length | 0;
-  if (length === 0) return ''
-  if (arguments.length === 0) return utf8Slice(this, 0, length)
-  return slowToString.apply(this, arguments)
-};
-
-Buffer.prototype.equals = function equals (b) {
-  if (!internalIsBuffer(b)) throw new TypeError('Argument must be a Buffer')
-  if (this === b) return true
-  return Buffer.compare(this, b) === 0
-};
-
-Buffer.prototype.inspect = function inspect () {
-  var str = '';
-  var max = INSPECT_MAX_BYTES;
-  if (this.length > 0) {
-    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ');
-    if (this.length > max) str += ' ... ';
-  }
-  return '<Buffer ' + str + '>'
-};
-
-Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
-  if (!internalIsBuffer(target)) {
-    throw new TypeError('Argument must be a Buffer')
-  }
-
-  if (start === undefined) {
-    start = 0;
-  }
-  if (end === undefined) {
-    end = target ? target.length : 0;
-  }
-  if (thisStart === undefined) {
-    thisStart = 0;
-  }
-  if (thisEnd === undefined) {
-    thisEnd = this.length;
-  }
-
-  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
-    throw new RangeError('out of range index')
-  }
-
-  if (thisStart >= thisEnd && start >= end) {
-    return 0
-  }
-  if (thisStart >= thisEnd) {
-    return -1
-  }
-  if (start >= end) {
-    return 1
-  }
-
-  start >>>= 0;
-  end >>>= 0;
-  thisStart >>>= 0;
-  thisEnd >>>= 0;
-
-  if (this === target) return 0
-
-  var x = thisEnd - thisStart;
-  var y = end - start;
-  var len = Math.min(x, y);
-
-  var thisCopy = this.slice(thisStart, thisEnd);
-  var targetCopy = target.slice(start, end);
-
-  for (var i = 0; i < len; ++i) {
-    if (thisCopy[i] !== targetCopy[i]) {
-      x = thisCopy[i];
-      y = targetCopy[i];
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-};
-
-// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
-// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
-//
-// Arguments:
-// - buffer - a Buffer to search
-// - val - a string, Buffer, or number
-// - byteOffset - an index into `buffer`; will be clamped to an int32
-// - encoding - an optional encoding, relevant is val is a string
-// - dir - true for indexOf, false for lastIndexOf
-function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
-  // Empty buffer means no match
-  if (buffer.length === 0) return -1
-
-  // Normalize byteOffset
-  if (typeof byteOffset === 'string') {
-    encoding = byteOffset;
-    byteOffset = 0;
-  } else if (byteOffset > 0x7fffffff) {
-    byteOffset = 0x7fffffff;
-  } else if (byteOffset < -0x80000000) {
-    byteOffset = -0x80000000;
-  }
-  byteOffset = +byteOffset;  // Coerce to Number.
-  if (isNaN(byteOffset)) {
-    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
-    byteOffset = dir ? 0 : (buffer.length - 1);
-  }
-
-  // Normalize byteOffset: negative offsets start from the end of the buffer
-  if (byteOffset < 0) byteOffset = buffer.length + byteOffset;
-  if (byteOffset >= buffer.length) {
-    if (dir) return -1
-    else byteOffset = buffer.length - 1;
-  } else if (byteOffset < 0) {
-    if (dir) byteOffset = 0;
-    else return -1
-  }
-
-  // Normalize val
-  if (typeof val === 'string') {
-    val = Buffer.from(val, encoding);
-  }
-
-  // Finally, search either indexOf (if dir is true) or lastIndexOf
-  if (internalIsBuffer(val)) {
-    // Special case: looking for empty string/buffer always fails
-    if (val.length === 0) {
-      return -1
-    }
-    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
-  } else if (typeof val === 'number') {
-    val = val & 0xFF; // Search for a byte value [0-255]
-    if (Buffer.TYPED_ARRAY_SUPPORT &&
-        typeof Uint8Array.prototype.indexOf === 'function') {
-      if (dir) {
-        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
-      } else {
-        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      function _throw(n) {
+        asyncGeneratorStep(a, r, o, _next, _throw, "throw", n);
       }
-    }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
-  }
-
-  throw new TypeError('val must be string, number or Buffer')
+      _next(void 0);
+    });
+  };
 }
-
-function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
-  var indexSize = 1;
-  var arrLength = arr.length;
-  var valLength = val.length;
-
-  if (encoding !== undefined) {
-    encoding = String(encoding).toLowerCase();
-    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
-        encoding === 'utf16le' || encoding === 'utf-16le') {
-      if (arr.length < 2 || val.length < 2) {
-        return -1
-      }
-      indexSize = 2;
-      arrLength /= 2;
-      valLength /= 2;
-      byteOffset /= 2;
-    }
-  }
-
-  function read (buf, i) {
-    if (indexSize === 1) {
-      return buf[i]
-    } else {
-      return buf.readUInt16BE(i * indexSize)
-    }
-  }
-
-  var i;
-  if (dir) {
-    var foundIndex = -1;
-    for (i = byteOffset; i < arrLength; i++) {
-      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
-        if (foundIndex === -1) foundIndex = i;
-        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
-      } else {
-        if (foundIndex !== -1) i -= i - foundIndex;
-        foundIndex = -1;
-      }
-    }
-  } else {
-    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;
-    for (i = byteOffset; i >= 0; i--) {
-      var found = true;
-      for (var j = 0; j < valLength; j++) {
-        if (read(arr, i + j) !== read(val, j)) {
-          found = false;
-          break
-        }
-      }
-      if (found) return i
-    }
-  }
-
-  return -1
+function _callSuper(t, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e));
 }
-
-Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
-  return this.indexOf(val, byteOffset, encoding) !== -1
-};
-
-Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
-};
-
-Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
-};
-
-function hexWrite (buf, string, offset, length) {
-  offset = Number(offset) || 0;
-  var remaining = buf.length - offset;
-  if (!length) {
-    length = remaining;
-  } else {
-    length = Number(length);
-    if (length > remaining) {
-      length = remaining;
+function _classCallCheck(a, n) {
+  if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+}
+function _construct(t, e, r) {
+  if (_isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments);
+  var o = [null];
+  o.push.apply(o, e);
+  var p = new (t.bind.apply(t, o))();
+  return p;
+}
+function _defineProperties(e, r) {
+  for (var t = 0; t < r.length; t++) {
+    var o = r[t];
+    o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+  }
+}
+function _createClass(e, r, t) {
+  return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+    writable: !1
+  }), e;
+}
+function _createForOfIteratorHelper(r, e) {
+  var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+  if (!t) {
+    if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e  ) {
+      t && (r = t);
+      var n = 0,
+        F = function () {};
+      return {
+        s: F,
+        n: function () {
+          return n >= r.length ? {
+            done: !0
+          } : {
+            done: !1,
+            value: r[n++]
+          };
+        },
+        e: function (r) {
+          throw r;
+        },
+        f: F
+      };
     }
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-
-  // must be an even number of digits
-  var strLen = string.length;
-  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
-
-  if (length > strLen / 2) {
-    length = strLen / 2;
-  }
-  for (var i = 0; i < length; ++i) {
-    var parsed = parseInt(string.substr(i * 2, 2), 16);
-    if (isNaN(parsed)) return i
-    buf[offset + i] = parsed;
-  }
-  return i
-}
-
-function utf8Write (buf, string, offset, length) {
-  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-function asciiWrite (buf, string, offset, length) {
-  return blitBuffer(asciiToBytes(string), buf, offset, length)
-}
-
-function latin1Write (buf, string, offset, length) {
-  return asciiWrite(buf, string, offset, length)
-}
-
-function base64Write (buf, string, offset, length) {
-  return blitBuffer(base64ToBytes(string), buf, offset, length)
-}
-
-function ucs2Write (buf, string, offset, length) {
-  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-Buffer.prototype.write = function write (string, offset, length, encoding) {
-  // Buffer#write(string)
-  if (offset === undefined) {
-    encoding = 'utf8';
-    length = this.length;
-    offset = 0;
-  // Buffer#write(string, encoding)
-  } else if (length === undefined && typeof offset === 'string') {
-    encoding = offset;
-    length = this.length;
-    offset = 0;
-  // Buffer#write(string, offset[, length][, encoding])
-  } else if (isFinite(offset)) {
-    offset = offset | 0;
-    if (isFinite(length)) {
-      length = length | 0;
-      if (encoding === undefined) encoding = 'utf8';
-    } else {
-      encoding = length;
-      length = undefined;
-    }
-  // legacy write(string, encoding, offset, length) - remove in v0.13
-  } else {
-    throw new Error(
-      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
-    )
-  }
-
-  var remaining = this.length - offset;
-  if (length === undefined || length > remaining) length = remaining;
-
-  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
-    throw new RangeError('Attempt to write outside buffer bounds')
-  }
-
-  if (!encoding) encoding = 'utf8';
-
-  var loweredCase = false;
-  for (;;) {
-    switch (encoding) {
-      case 'hex':
-        return hexWrite(this, string, offset, length)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Write(this, string, offset, length)
-
-      case 'ascii':
-        return asciiWrite(this, string, offset, length)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Write(this, string, offset, length)
-
-      case 'base64':
-        // Warning: maxLength not taken into account in base64Write
-        return base64Write(this, string, offset, length)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return ucs2Write(this, string, offset, length)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = ('' + encoding).toLowerCase();
-        loweredCase = true;
-    }
-  }
-};
-
-Buffer.prototype.toJSON = function toJSON () {
+  var o,
+    a = !0,
+    u = !1;
   return {
-    type: 'Buffer',
-    data: Array.prototype.slice.call(this._arr || this, 0)
-  }
-};
-
-function base64Slice (buf, start, end) {
-  if (start === 0 && end === buf.length) {
-    return fromByteArray(buf)
-  } else {
-    return fromByteArray(buf.slice(start, end))
-  }
-}
-
-function utf8Slice (buf, start, end) {
-  end = Math.min(buf.length, end);
-  var res = [];
-
-  var i = start;
-  while (i < end) {
-    var firstByte = buf[i];
-    var codePoint = null;
-    var bytesPerSequence = (firstByte > 0xEF) ? 4
-      : (firstByte > 0xDF) ? 3
-      : (firstByte > 0xBF) ? 2
-      : 1;
-
-    if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint;
-
-      switch (bytesPerSequence) {
-        case 1:
-          if (firstByte < 0x80) {
-            codePoint = firstByte;
-          }
-          break
-        case 2:
-          secondByte = buf[i + 1];
-          if ((secondByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F);
-            if (tempCodePoint > 0x7F) {
-              codePoint = tempCodePoint;
-            }
-          }
-          break
-        case 3:
-          secondByte = buf[i + 1];
-          thirdByte = buf[i + 2];
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F);
-            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
-              codePoint = tempCodePoint;
-            }
-          }
-          break
-        case 4:
-          secondByte = buf[i + 1];
-          thirdByte = buf[i + 2];
-          fourthByte = buf[i + 3];
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F);
-            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
-              codePoint = tempCodePoint;
-            }
-          }
+    s: function () {
+      t = t.call(r);
+    },
+    n: function () {
+      var r = t.next();
+      return a = r.done, r;
+    },
+    e: function (r) {
+      u = !0, o = r;
+    },
+    f: function () {
+      try {
+        a || null == t.return || t.return();
+      } finally {
+        if (u) throw o;
       }
     }
-
-    if (codePoint === null) {
-      // we did not generate a valid codePoint so insert a
-      // replacement char (U+FFFD) and advance only 1 byte
-      codePoint = 0xFFFD;
-      bytesPerSequence = 1;
-    } else if (codePoint > 0xFFFF) {
-      // encode to utf16 (surrogate pair dance)
-      codePoint -= 0x10000;
-      res.push(codePoint >>> 10 & 0x3FF | 0xD800);
-      codePoint = 0xDC00 | codePoint & 0x3FF;
+  };
+}
+function _defineProperty(e, r, t) {
+  return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+    value: t,
+    enumerable: !0,
+    configurable: !0,
+    writable: !0
+  }) : e[r] = t, e;
+}
+function _get() {
+  return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) {
+    var p = _superPropBase(e, t);
+    if (p) {
+      var n = Object.getOwnPropertyDescriptor(p, t);
+      return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value;
     }
-
-    res.push(codePoint);
-    i += bytesPerSequence;
-  }
-
-  return decodeCodePointsArray(res)
+  }, _get.apply(null, arguments);
 }
-
-// Based on http://stackoverflow.com/a/22747272/680742, the browser with
-// the lowest limit is Chrome, with 0x10000 args.
-// We go 1 magnitude less, for safety
-var MAX_ARGUMENTS_LENGTH = 0x1000;
-
-function decodeCodePointsArray (codePoints) {
-  var len = codePoints.length;
-  if (len <= MAX_ARGUMENTS_LENGTH) {
-    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
-  }
-
-  // Decode in chunks to avoid "call stack size exceeded".
-  var res = '';
-  var i = 0;
-  while (i < len) {
-    res += String.fromCharCode.apply(
-      String,
-      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
-    );
-  }
-  return res
+function _getPrototypeOf(t) {
+  return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) {
+    return t.__proto__ || Object.getPrototypeOf(t);
+  }, _getPrototypeOf(t);
 }
-
-function asciiSlice (buf, start, end) {
-  var ret = '';
-  end = Math.min(buf.length, end);
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i] & 0x7F);
-  }
-  return ret
+function _inherits(t, e) {
+  if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function");
+  t.prototype = Object.create(e && e.prototype, {
+    constructor: {
+      value: t,
+      writable: !0,
+      configurable: !0
+    }
+  }), Object.defineProperty(t, "prototype", {
+    writable: !1
+  }), e && _setPrototypeOf(t, e);
 }
-
-function latin1Slice (buf, start, end) {
-  var ret = '';
-  end = Math.min(buf.length, end);
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i]);
-  }
-  return ret
+function _isNativeReflectConstruct() {
+  try {
+    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+  } catch (t) {}
+  return (_isNativeReflectConstruct = function () {
+    return !!t;
+  })();
 }
-
-function hexSlice (buf, start, end) {
-  var len = buf.length;
-
-  if (!start || start < 0) start = 0;
-  if (!end || end < 0 || end > len) end = len;
-
-  var out = '';
-  for (var i = start; i < end; ++i) {
-    out += toHex(buf[i]);
-  }
-  return out
+function _iterableToArray(r) {
+  if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
 }
-
-function utf16leSlice (buf, start, end) {
-  var bytes = buf.slice(start, end);
-  var res = '';
-  for (var i = 0; i < bytes.length; i += 2) {
-    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
-  }
-  return res
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
-
-Buffer.prototype.slice = function slice (start, end) {
-  var len = this.length;
-  start = ~~start;
-  end = end === undefined ? len : ~~end;
-
-  if (start < 0) {
-    start += len;
-    if (start < 0) start = 0;
-  } else if (start > len) {
-    start = len;
+function ownKeys(e, r) {
+  var t = Object.keys(e);
+  if (Object.getOwnPropertySymbols) {
+    var o = Object.getOwnPropertySymbols(e);
+    r && (o = o.filter(function (r) {
+      return Object.getOwnPropertyDescriptor(e, r).enumerable;
+    })), t.push.apply(t, o);
   }
-
-  if (end < 0) {
-    end += len;
-    if (end < 0) end = 0;
-  } else if (end > len) {
-    end = len;
+  return t;
+}
+function _objectSpread2(e) {
+  for (var r = 1; r < arguments.length; r++) {
+    var t = null != arguments[r] ? arguments[r] : {};
+    r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+      _defineProperty(e, r, t[r]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
+      Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+    });
   }
-
-  if (end < start) end = start;
-
-  var newBuf;
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    newBuf = this.subarray(start, end);
-    newBuf.__proto__ = Buffer.prototype;
-  } else {
-    var sliceLen = end - start;
-    newBuf = new Buffer(sliceLen, undefined);
-    for (var i = 0; i < sliceLen; ++i) {
-      newBuf[i] = this[i + start];
+  return e;
+}
+function _possibleConstructorReturn(t, e) {
+  if (e && ("object" == typeof e || "function" == typeof e)) return e;
+  if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined");
+  return _assertThisInitialized(t);
+}
+function _regeneratorRuntime() {
+  _regeneratorRuntime = function () {
+    return e;
+  };
+  var t,
+    e = {},
+    r = Object.prototype,
+    n = r.hasOwnProperty,
+    o = Object.defineProperty || function (t, e, r) {
+      t[e] = r.value;
+    },
+    i = "function" == typeof Symbol ? Symbol : {},
+    a = i.iterator || "@@iterator",
+    c = i.asyncIterator || "@@asyncIterator",
+    u = i.toStringTag || "@@toStringTag";
+  function define(t, e, r) {
+    return Object.defineProperty(t, e, {
+      value: r,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }), t[e];
+  }
+  try {
+    define({}, "");
+  } catch (t) {
+    define = function (t, e, r) {
+      return t[e] = r;
+    };
+  }
+  function wrap(t, e, r, n) {
+    var i = e && e.prototype instanceof Generator ? e : Generator,
+      a = Object.create(i.prototype),
+      c = new Context(n || []);
+    return o(a, "_invoke", {
+      value: makeInvokeMethod(t, r, c)
+    }), a;
+  }
+  function tryCatch(t, e, r) {
+    try {
+      return {
+        type: "normal",
+        arg: t.call(e, r)
+      };
+    } catch (t) {
+      return {
+        type: "throw",
+        arg: t
+      };
     }
   }
-
-  return newBuf
-};
-
-/*
- * Need to make sure that buffer isn't trying to write out of bounds.
- */
-function checkOffset (offset, ext, length) {
-  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
-  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
-}
-
-Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul;
+  e.wrap = wrap;
+  var h = "suspendedStart",
+    l = "suspendedYield",
+    f = "executing",
+    s = "completed",
+    y = {};
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+  var p = {};
+  define(p, a, function () {
+    return this;
+  });
+  var d = Object.getPrototypeOf,
+    v = d && d(d(values([])));
+  v && v !== r && n.call(v, a) && (p = v);
+  var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p);
+  function defineIteratorMethods(t) {
+    ["next", "throw", "return"].forEach(function (e) {
+      define(t, e, function (t) {
+        return this._invoke(e, t);
+      });
+    });
   }
-
-  return val
-};
-
-Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    checkOffset(offset, byteLength, this.length);
-  }
-
-  var val = this[offset + --byteLength];
-  var mul = 1;
-  while (byteLength > 0 && (mul *= 0x100)) {
-    val += this[offset + --byteLength] * mul;
-  }
-
-  return val
-};
-
-Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 1, this.length);
-  return this[offset]
-};
-
-Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  return this[offset] | (this[offset + 1] << 8)
-};
-
-Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  return (this[offset] << 8) | this[offset + 1]
-};
-
-Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return ((this[offset]) |
-      (this[offset + 1] << 8) |
-      (this[offset + 2] << 16)) +
-      (this[offset + 3] * 0x1000000)
-};
-
-Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset] * 0x1000000) +
-    ((this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    this[offset + 3])
-};
-
-Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul;
-  }
-  mul *= 0x80;
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-
-  return val
-};
-
-Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var i = byteLength;
-  var mul = 1;
-  var val = this[offset + --i];
-  while (i > 0 && (mul *= 0x100)) {
-    val += this[offset + --i] * mul;
-  }
-  mul *= 0x80;
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-
-  return val
-};
-
-Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 1, this.length);
-  if (!(this[offset] & 0x80)) return (this[offset])
-  return ((0xff - this[offset] + 1) * -1)
-};
-
-Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset] | (this[offset + 1] << 8);
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-};
-
-Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset + 1] | (this[offset] << 8);
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-};
-
-Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset]) |
-    (this[offset + 1] << 8) |
-    (this[offset + 2] << 16) |
-    (this[offset + 3] << 24)
-};
-
-Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset] << 24) |
-    (this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    (this[offset + 3])
-};
-
-Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-  return read(this, offset, true, 23, 4)
-};
-
-Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-  return read(this, offset, false, 23, 4)
-};
-
-Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 8, this.length);
-  return read(this, offset, true, 52, 8)
-};
-
-Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 8, this.length);
-  return read(this, offset, false, 52, 8)
-};
-
-function checkInt (buf, value, offset, ext, max, min) {
-  if (!internalIsBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
-  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-}
-
-Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
-    checkInt(this, value, offset, byteLength, maxBytes, 0);
-  }
-
-  var mul = 1;
-  var i = 0;
-  this[offset] = value & 0xFF;
-  while (++i < byteLength && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
-    checkInt(this, value, offset, byteLength, maxBytes, 0);
-  }
-
-  var i = byteLength - 1;
-  var mul = 1;
-  this[offset + i] = value & 0xFF;
-  while (--i >= 0 && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
-  this[offset] = (value & 0xff);
-  return offset + 1
-};
-
-function objectWriteUInt16 (buf, value, offset, littleEndian) {
-  if (value < 0) value = 0xffff + value + 1;
-  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
-    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
-      (littleEndian ? i : 1 - i) * 8;
-  }
-}
-
-Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-  } else {
-    objectWriteUInt16(this, value, offset, true);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 8);
-    this[offset + 1] = (value & 0xff);
-  } else {
-    objectWriteUInt16(this, value, offset, false);
-  }
-  return offset + 2
-};
-
-function objectWriteUInt32 (buf, value, offset, littleEndian) {
-  if (value < 0) value = 0xffffffff + value + 1;
-  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
-    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff;
-  }
-}
-
-Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset + 3] = (value >>> 24);
-    this[offset + 2] = (value >>> 16);
-    this[offset + 1] = (value >>> 8);
-    this[offset] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, true);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 24);
-    this[offset + 1] = (value >>> 16);
-    this[offset + 2] = (value >>> 8);
-    this[offset + 3] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, false);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit);
-  }
-
-  var i = 0;
-  var mul = 1;
-  var sub = 0;
-  this[offset] = value & 0xFF;
-  while (++i < byteLength && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
-      sub = 1;
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit);
-  }
-
-  var i = byteLength - 1;
-  var mul = 1;
-  var sub = 0;
-  this[offset + i] = value & 0xFF;
-  while (--i >= 0 && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
-      sub = 1;
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
-  if (value < 0) value = 0xff + value + 1;
-  this[offset] = (value & 0xff);
-  return offset + 1
-};
-
-Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-  } else {
-    objectWriteUInt16(this, value, offset, true);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 8);
-    this[offset + 1] = (value & 0xff);
-  } else {
-    objectWriteUInt16(this, value, offset, false);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-    this[offset + 2] = (value >>> 16);
-    this[offset + 3] = (value >>> 24);
-  } else {
-    objectWriteUInt32(this, value, offset, true);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
-  if (value < 0) value = 0xffffffff + value + 1;
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 24);
-    this[offset + 1] = (value >>> 16);
-    this[offset + 2] = (value >>> 8);
-    this[offset + 3] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, false);
-  }
-  return offset + 4
-};
-
-function checkIEEE754 (buf, value, offset, ext, max, min) {
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-  if (offset < 0) throw new RangeError('Index out of range')
-}
-
-function writeFloat (buf, value, offset, littleEndian, noAssert) {
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 4);
-  }
-  write(buf, value, offset, littleEndian, 23, 4);
-  return offset + 4
-}
-
-Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, true, noAssert)
-};
-
-Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, false, noAssert)
-};
-
-function writeDouble (buf, value, offset, littleEndian, noAssert) {
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 8);
-  }
-  write(buf, value, offset, littleEndian, 52, 8);
-  return offset + 8
-}
-
-Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, true, noAssert)
-};
-
-Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, false, noAssert)
-};
-
-// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
-Buffer.prototype.copy = function copy (target, targetStart, start, end) {
-  if (!start) start = 0;
-  if (!end && end !== 0) end = this.length;
-  if (targetStart >= target.length) targetStart = target.length;
-  if (!targetStart) targetStart = 0;
-  if (end > 0 && end < start) end = start;
-
-  // Copy 0 bytes; we're done
-  if (end === start) return 0
-  if (target.length === 0 || this.length === 0) return 0
-
-  // Fatal error conditions
-  if (targetStart < 0) {
-    throw new RangeError('targetStart out of bounds')
-  }
-  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
-  if (end < 0) throw new RangeError('sourceEnd out of bounds')
-
-  // Are we oob?
-  if (end > this.length) end = this.length;
-  if (target.length - targetStart < end - start) {
-    end = target.length - targetStart + start;
-  }
-
-  var len = end - start;
-  var i;
-
-  if (this === target && start < targetStart && targetStart < end) {
-    // descending copy from end
-    for (i = len - 1; i >= 0; --i) {
-      target[i + targetStart] = this[i + start];
-    }
-  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
-    // ascending copy from start
-    for (i = 0; i < len; ++i) {
-      target[i + targetStart] = this[i + start];
-    }
-  } else {
-    Uint8Array.prototype.set.call(
-      target,
-      this.subarray(start, start + len),
-      targetStart
-    );
-  }
-
-  return len
-};
-
-// Usage:
-//    buffer.fill(number[, offset[, end]])
-//    buffer.fill(buffer[, offset[, end]])
-//    buffer.fill(string[, offset[, end]][, encoding])
-Buffer.prototype.fill = function fill (val, start, end, encoding) {
-  // Handle string cases:
-  if (typeof val === 'string') {
-    if (typeof start === 'string') {
-      encoding = start;
-      start = 0;
-      end = this.length;
-    } else if (typeof end === 'string') {
-      encoding = end;
-      end = this.length;
-    }
-    if (val.length === 1) {
-      var code = val.charCodeAt(0);
-      if (code < 256) {
-        val = code;
+  function AsyncIterator(t, e) {
+    function invoke(r, o, i, a) {
+      var c = tryCatch(t[r], t, o);
+      if ("throw" !== c.type) {
+        var u = c.arg,
+          h = u.value;
+        return h && "object" == typeof h && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) {
+          invoke("next", t, i, a);
+        }, function (t) {
+          invoke("throw", t, i, a);
+        }) : e.resolve(h).then(function (t) {
+          u.value = t, i(u);
+        }, function (t) {
+          return invoke("throw", t, i, a);
+        });
       }
+      a(c.arg);
     }
-    if (encoding !== undefined && typeof encoding !== 'string') {
-      throw new TypeError('encoding must be a string')
-    }
-    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
-      throw new TypeError('Unknown encoding: ' + encoding)
-    }
-  } else if (typeof val === 'number') {
-    val = val & 255;
-  }
-
-  // Invalid ranges are not set to a default, so can range check early.
-  if (start < 0 || this.length < start || this.length < end) {
-    throw new RangeError('Out of range index')
-  }
-
-  if (end <= start) {
-    return this
-  }
-
-  start = start >>> 0;
-  end = end === undefined ? this.length : end >>> 0;
-
-  if (!val) val = 0;
-
-  var i;
-  if (typeof val === 'number') {
-    for (i = start; i < end; ++i) {
-      this[i] = val;
-    }
-  } else {
-    var bytes = internalIsBuffer(val)
-      ? val
-      : utf8ToBytes(new Buffer(val, encoding).toString());
-    var len = bytes.length;
-    for (i = 0; i < end - start; ++i) {
-      this[i + start] = bytes[i % len];
-    }
-  }
-
-  return this
-};
-
-// HELPER FUNCTIONS
-// ================
-
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g;
-
-function base64clean (str) {
-  // Node strips out invalid characters like \n and \t from the string, base64-js does not
-  str = stringtrim(str).replace(INVALID_BASE64_RE, '');
-  // Node converts strings with length < 2 to ''
-  if (str.length < 2) return ''
-  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
-  while (str.length % 4 !== 0) {
-    str = str + '=';
-  }
-  return str
-}
-
-function stringtrim (str) {
-  if (str.trim) return str.trim()
-  return str.replace(/^\s+|\s+$/g, '')
-}
-
-function toHex (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
-}
-
-function utf8ToBytes (string, units) {
-  units = units || Infinity;
-  var codePoint;
-  var length = string.length;
-  var leadSurrogate = null;
-  var bytes = [];
-
-  for (var i = 0; i < length; ++i) {
-    codePoint = string.charCodeAt(i);
-
-    // is surrogate component
-    if (codePoint > 0xD7FF && codePoint < 0xE000) {
-      // last char was a lead
-      if (!leadSurrogate) {
-        // no lead yet
-        if (codePoint > 0xDBFF) {
-          // unexpected trail
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-          continue
-        } else if (i + 1 === length) {
-          // unpaired lead
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-          continue
+    var r;
+    o(this, "_invoke", {
+      value: function (t, n) {
+        function callInvokeWithMethodAndArg() {
+          return new e(function (e, r) {
+            invoke(t, n, e, r);
+          });
         }
-
-        // valid lead
-        leadSurrogate = codePoint;
-
-        continue
+        return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
       }
-
-      // 2 leads in a row
-      if (codePoint < 0xDC00) {
-        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-        leadSurrogate = codePoint;
-        continue
+    });
+  }
+  function makeInvokeMethod(e, r, n) {
+    var o = h;
+    return function (i, a) {
+      if (o === f) throw Error("Generator is already running");
+      if (o === s) {
+        if ("throw" === i) throw a;
+        return {
+          value: t,
+          done: !0
+        };
       }
-
-      // valid surrogate pair
-      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000;
-    } else if (leadSurrogate) {
-      // valid bmp char, but last char was a lead
-      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
+      for (n.method = i, n.arg = a;;) {
+        var c = n.delegate;
+        if (c) {
+          var u = maybeInvokeDelegate(c, n);
+          if (u) {
+            if (u === y) continue;
+            return u;
+          }
+        }
+        if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) {
+          if (o === h) throw o = s, n.arg;
+          n.dispatchException(n.arg);
+        } else "return" === n.method && n.abrupt("return", n.arg);
+        o = f;
+        var p = tryCatch(e, r, n);
+        if ("normal" === p.type) {
+          if (o = n.done ? s : l, p.arg === y) continue;
+          return {
+            value: p.arg,
+            done: n.done
+          };
+        }
+        "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg);
+      }
+    };
+  }
+  function maybeInvokeDelegate(e, r) {
+    var n = r.method,
+      o = e.iterator[n];
+    if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y;
+    var i = tryCatch(o, e.iterator, r.arg);
+    if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y;
+    var a = i.arg;
+    return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y);
+  }
+  function pushTryEntry(t) {
+    var e = {
+      tryLoc: t[0]
+    };
+    1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e);
+  }
+  function resetTryEntry(t) {
+    var e = t.completion || {};
+    e.type = "normal", delete e.arg, t.completion = e;
+  }
+  function Context(t) {
+    this.tryEntries = [{
+      tryLoc: "root"
+    }], t.forEach(pushTryEntry, this), this.reset(!0);
+  }
+  function values(e) {
+    if (e || "" === e) {
+      var r = e[a];
+      if (r) return r.call(e);
+      if ("function" == typeof e.next) return e;
+      if (!isNaN(e.length)) {
+        var o = -1,
+          i = function next() {
+            for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next;
+            return next.value = t, next.done = !0, next;
+          };
+        return i.next = i;
+      }
     }
-
-    leadSurrogate = null;
-
-    // encode utf8
-    if (codePoint < 0x80) {
-      if ((units -= 1) < 0) break
-      bytes.push(codePoint);
-    } else if (codePoint < 0x800) {
-      if ((units -= 2) < 0) break
-      bytes.push(
-        codePoint >> 0x6 | 0xC0,
-        codePoint & 0x3F | 0x80
-      );
-    } else if (codePoint < 0x10000) {
-      if ((units -= 3) < 0) break
-      bytes.push(
-        codePoint >> 0xC | 0xE0,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      );
-    } else if (codePoint < 0x110000) {
-      if ((units -= 4) < 0) break
-      bytes.push(
-        codePoint >> 0x12 | 0xF0,
-        codePoint >> 0xC & 0x3F | 0x80,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      );
-    } else {
-      throw new Error('Invalid code point')
+    throw new TypeError(typeof e + " is not iterable");
+  }
+  return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", {
+    value: GeneratorFunctionPrototype,
+    configurable: !0
+  }), o(GeneratorFunctionPrototype, "constructor", {
+    value: GeneratorFunction,
+    configurable: !0
+  }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) {
+    var e = "function" == typeof t && t.constructor;
+    return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name));
+  }, e.mark = function (t) {
+    return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t;
+  }, e.awrap = function (t) {
+    return {
+      __await: t
+    };
+  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () {
+    return this;
+  }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) {
+    void 0 === i && (i = Promise);
+    var a = new AsyncIterator(wrap(t, r, n, o), i);
+    return e.isGeneratorFunction(r) ? a : a.next().then(function (t) {
+      return t.done ? t.value : a.next();
+    });
+  }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () {
+    return this;
+  }), define(g, "toString", function () {
+    return "[object Generator]";
+  }), e.keys = function (t) {
+    var e = Object(t),
+      r = [];
+    for (var n in e) r.push(n);
+    return r.reverse(), function next() {
+      for (; r.length;) {
+        var t = r.pop();
+        if (t in e) return next.value = t, next.done = !1, next;
+      }
+      return next.done = !0, next;
+    };
+  }, e.values = values, Context.prototype = {
+    constructor: Context,
+    reset: function (e) {
+      if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t);
+    },
+    stop: function () {
+      this.done = !0;
+      var t = this.tryEntries[0].completion;
+      if ("throw" === t.type) throw t.arg;
+      return this.rval;
+    },
+    dispatchException: function (e) {
+      if (this.done) throw e;
+      var r = this;
+      function handle(n, o) {
+        return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o;
+      }
+      for (var o = this.tryEntries.length - 1; o >= 0; --o) {
+        var i = this.tryEntries[o],
+          a = i.completion;
+        if ("root" === i.tryLoc) return handle("end");
+        if (i.tryLoc <= this.prev) {
+          var c = n.call(i, "catchLoc"),
+            u = n.call(i, "finallyLoc");
+          if (c && u) {
+            if (this.prev < i.catchLoc) return handle(i.catchLoc, !0);
+            if (this.prev < i.finallyLoc) return handle(i.finallyLoc);
+          } else if (c) {
+            if (this.prev < i.catchLoc) return handle(i.catchLoc, !0);
+          } else {
+            if (!u) throw Error("try statement without catch or finally");
+            if (this.prev < i.finallyLoc) return handle(i.finallyLoc);
+          }
+        }
+      }
+    },
+    abrupt: function (t, e) {
+      for (var r = this.tryEntries.length - 1; r >= 0; --r) {
+        var o = this.tryEntries[r];
+        if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) {
+          var i = o;
+          break;
+        }
+      }
+      i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null);
+      var a = i ? i.completion : {};
+      return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a);
+    },
+    complete: function (t, e) {
+      if ("throw" === t.type) throw t.arg;
+      return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y;
+    },
+    finish: function (t) {
+      for (var e = this.tryEntries.length - 1; e >= 0; --e) {
+        var r = this.tryEntries[e];
+        if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y;
+      }
+    },
+    catch: function (t) {
+      for (var e = this.tryEntries.length - 1; e >= 0; --e) {
+        var r = this.tryEntries[e];
+        if (r.tryLoc === t) {
+          var n = r.completion;
+          if ("throw" === n.type) {
+            var o = n.arg;
+            resetTryEntry(r);
+          }
+          return o;
+        }
+      }
+      throw Error("illegal catch attempt");
+    },
+    delegateYield: function (e, r, n) {
+      return this.delegate = {
+        iterator: values(e),
+        resultName: r,
+        nextLoc: n
+      }, "next" === this.method && (this.arg = t), y;
     }
+  }, e;
+}
+function _setPrototypeOf(t, e) {
+  return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
+    return t.__proto__ = e, t;
+  }, _setPrototypeOf(t, e);
+}
+function _superPropBase(t, o) {
+  for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t)););
+  return t;
+}
+function _toConsumableArray(r) {
+  return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+}
+function _toPrimitive(t, r) {
+  if ("object" != typeof t || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != typeof i) return i;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-
-  return bytes
+  return ("string" === r ? String : Number)(t);
 }
+function _toPropertyKey(t) {
+  var i = _toPrimitive(t, "string");
+  return "symbol" == typeof i ? i : i + "";
+}
+function _typeof(o) {
+  "@babel/helpers - typeof";
 
-function asciiToBytes (str) {
-  var byteArray = [];
-  for (var i = 0; i < str.length; ++i) {
-    // Node's code seems to be doing this and not & 0x7F..
-    byteArray.push(str.charCodeAt(i) & 0xFF);
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, _typeof(o);
+}
+function _unsupportedIterableToArray(r, a) {
+  if (r) {
+    if ("string" == typeof r) return _arrayLikeToArray(r, a);
+    var t = {}.toString.call(r).slice(8, -1);
+    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
   }
-  return byteArray
 }
 
-function utf16leToBytes (str, units) {
-  var c, hi, lo;
-  var byteArray = [];
-  for (var i = 0; i < str.length; ++i) {
-    if ((units -= 2) < 0) break
+var _placeholder = {'@@functional/placeholder':true};
 
-    c = str.charCodeAt(i);
-    hi = c >> 8;
-    lo = c % 256;
-    byteArray.push(lo);
-    byteArray.push(hi);
-  }
-
-  return byteArray
-}
-
-
-function base64ToBytes (str) {
-  return toByteArray(base64clean(str))
-}
-
-function blitBuffer (src, dst, offset, length) {
-  for (var i = 0; i < length; ++i) {
-    if ((i + offset >= dst.length) || (i >= src.length)) break
-    dst[i + offset] = src[i];
-  }
-  return i
-}
-
-function isnan (val) {
-  return val !== val // eslint-disable-line no-self-compare
-}
-
-
-// the following is from is-buffer, also by Feross Aboukhadijeh and with same lisence
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-function isBuffer(obj) {
-  return obj != null && (!!obj._isBuffer || isFastBuffer(obj) || isSlowBuffer(obj))
-}
-
-function isFastBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
-}
+function _isPlaceholder(a){return a===_placeholder;}
 
 /**
- * Create an Error with the specified message, config, error code, request and response.
+ * Optimized internal one-arity curry function.
  *
- * @param {string} message The error message.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [config] The config.
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- *
- * @returns {Error} The created error.
- */function AxiosError(message,code,config,request,response){Error.call(this);if(Error.captureStackTrace){Error.captureStackTrace(this,this.constructor);}else {this.stack=new Error().stack;}this.message=message;this.name='AxiosError';code&&(this.code=code);config&&(this.config=config);request&&(this.request=request);response&&(this.response=response);}utils$1.inherits(AxiosError,Error,{toJSON:function toJSON(){return {// Standard
-message:this.message,name:this.name,// Microsoft
-description:this.description,number:this.number,// Mozilla
-fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,// Axios
-config:utils$1.toJSONObject(this.config),code:this.code,status:this.response&&this.response.status?this.response.status:null};}});const prototype$1=AxiosError.prototype;const descriptors={};['ERR_BAD_OPTION_VALUE','ERR_BAD_OPTION','ECONNABORTED','ETIMEDOUT','ERR_NETWORK','ERR_FR_TOO_MANY_REDIRECTS','ERR_DEPRECATED','ERR_BAD_RESPONSE','ERR_BAD_REQUEST','ERR_CANCELED','ERR_NOT_SUPPORT','ERR_INVALID_URL'// eslint-disable-next-line func-names
-].forEach(code=>{descriptors[code]={value:code};});Object.defineProperties(AxiosError,descriptors);Object.defineProperty(prototype$1,'isAxiosError',{value:true});// eslint-disable-next-line func-names
-AxiosError.from=(error,code,config,request,response,customProps)=>{const axiosError=Object.create(prototype$1);utils$1.toFlatObject(error,axiosError,function filter(obj){return obj!==Error.prototype;},prop=>{return prop!=='isAxiosError';});AxiosError.call(axiosError,error.message,code,config,request,response);axiosError.cause=error;axiosError.name=error.name;customProps&&_extends(axiosError,customProps);return axiosError;};
-
-// eslint-disable-next-line strict
-var httpAdapter = null;
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */function _curry1(fn){return function f1(a){if(arguments.length===0||_isPlaceholder(a)){return f1;}else {return fn.apply(this,arguments);}};}
 
 /**
- * Determines if the given thing is a array or js object.
+ * Optimized internal two-arity curry function.
  *
- * @param {string} thing - The object or array to be visited.
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */function _curry2(fn){return function f2(a,b){switch(arguments.length){case 0:return f2;case 1:return _isPlaceholder(a)?f2:_curry1(function(_b){return fn(a,_b);});default:return _isPlaceholder(a)&&_isPlaceholder(b)?f2:_isPlaceholder(a)?_curry1(function(_a){return fn(_a,b);}):_isPlaceholder(b)?_curry1(function(_b){return fn(a,_b);}):fn(a,b);}};}
+
+/**
+ * Optimized internal three-arity curry function.
  *
- * @returns {boolean}
- */function isVisitable(thing){return utils$1.isPlainObject(thing)||utils$1.isArray(thing);}/**
- * It removes the brackets from the end of a string
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */function _curry3(fn){return function f3(a,b,c){switch(arguments.length){case 0:return f3;case 1:return _isPlaceholder(a)?f3:_curry2(function(_b,_c){return fn(a,_b,_c);});case 2:return _isPlaceholder(a)&&_isPlaceholder(b)?f3:_isPlaceholder(a)?_curry2(function(_a,_c){return fn(_a,b,_c);}):_isPlaceholder(b)?_curry2(function(_b,_c){return fn(a,_b,_c);}):_curry1(function(_c){return fn(a,b,_c);});default:return _isPlaceholder(a)&&_isPlaceholder(b)&&_isPlaceholder(c)?f3:_isPlaceholder(a)&&_isPlaceholder(b)?_curry2(function(_a,_b){return fn(_a,_b,c);}):_isPlaceholder(a)&&_isPlaceholder(c)?_curry2(function(_a,_c){return fn(_a,b,_c);}):_isPlaceholder(b)&&_isPlaceholder(c)?_curry2(function(_b,_c){return fn(a,_b,_c);}):_isPlaceholder(a)?_curry1(function(_a){return fn(_a,b,c);}):_isPlaceholder(b)?_curry1(function(_b){return fn(a,_b,c);}):_isPlaceholder(c)?_curry1(function(_c){return fn(a,b,_c);}):fn(a,b,c);}};}
+
+function _has(prop,obj){return Object.prototype.hasOwnProperty.call(obj,prop);}
+
+/**
+ * Gives a single-word string description of the (native) type of a value,
+ * returning such answers as 'Object', 'Number', 'Array', or 'Null'. Does not
+ * attempt to distinguish user Object types any further, reporting them all as
+ * 'Object'.
  *
- * @param {string} key - The key of the parameter.
+ * @func
+ * @memberOf R
+ * @since v0.8.0
+ * @category Type
+ * @sig * -> String
+ * @param {*} val The value to test
+ * @return {String}
+ * @example
  *
- * @returns {string} the key without the brackets.
- */function removeBrackets(key){return utils$1.endsWith(key,'[]')?key.slice(0,-2):key;}/**
- * It takes a path, a key, and a boolean, and returns a string
+ *      R.type({}); //=> "Object"
+ *      R.type(1); //=> "Number"
+ *      R.type(false); //=> "Boolean"
+ *      R.type('s'); //=> "String"
+ *      R.type(null); //=> "Null"
+ *      R.type([]); //=> "Array"
+ *      R.type(/[A-z]/); //=> "RegExp"
+ *      R.type(() => {}); //=> "Function"
+ *      R.type(async () => {}); //=> "AsyncFunction"
+ *      R.type(undefined); //=> "Undefined"
+ *      R.type(BigInt(123)); //=> "BigInt"
+ */var type=/*#__PURE__*/_curry1(function type(val){return val===null?'Null':val===undefined?'Undefined':Object.prototype.toString.call(val).slice(8,-1);});
+
+function _isObject(x){return Object.prototype.toString.call(x)==='[object Object]';}
+
+/**
+ * Determine if the passed argument is an integer.
  *
- * @param {string} path - The path to the current key.
- * @param {string} key - The key of the current object being iterated over.
- * @param {string} dots - If true, the key will be rendered with dots instead of brackets.
+ * @private
+ * @param {*} n
+ * @category Type
+ * @return {Boolean}
+ */var _isInteger = Number.isInteger||function _isInteger(n){return n<<0===n;};
+
+function _isString(x){return Object.prototype.toString.call(x)==='[object String]';}
+
+function _nth(offset,list){var idx=offset<0?list.length+offset:offset;return _isString(list)?list.charAt(idx):list[idx];}
+
+function _cloneRegExp(pattern){return new RegExp(pattern.source,pattern.flags?pattern.flags:(pattern.global?'g':'')+(pattern.ignoreCase?'i':'')+(pattern.multiline?'m':'')+(pattern.sticky?'y':'')+(pattern.unicode?'u':'')+(pattern.dotAll?'s':''));}
+
+/**
+ * Copies an object.
  *
- * @returns {string} The path to the current key.
- */function renderKey(path,key,dots){if(!path)return key;return path.concat(key).map(function each(token,i){// eslint-disable-next-line no-param-reassign
-token=removeBrackets(token);return !dots&&i?'['+token+']':token;}).join(dots?'.':'');}/**
- * If the array is an array and none of its elements are visitable, then it's a flat array.
+ * @private
+ * @param {*} value The value to be copied
+ * @param {Boolean} deep Whether or not to perform deep cloning.
+ * @return {*} The copied value.
+ */function _clone(value,deep,map){map||(map=new _ObjectMap());// this avoids the slower switch with a quick if decision removing some milliseconds in each run.
+if(_isPrimitive(value)){return value;}var copy=function copy(copiedValue){// Check for circular and same references on the object graph and return its corresponding clone.
+var cachedCopy=map.get(value);if(cachedCopy){return cachedCopy;}map.set(value,copiedValue);for(var key in value){if(Object.prototype.hasOwnProperty.call(value,key)){copiedValue[key]=_clone(value[key],true,map);}}return copiedValue;};switch(type(value)){case'Object':return copy(Object.create(Object.getPrototypeOf(value)));case'Array':return copy(Array(value.length));case'Date':return new Date(value.valueOf());case'RegExp':return _cloneRegExp(value);case'Int8Array':case'Uint8Array':case'Uint8ClampedArray':case'Int16Array':case'Uint16Array':case'Int32Array':case'Uint32Array':case'Float32Array':case'Float64Array':case'BigInt64Array':case'BigUint64Array':return value.slice();default:return value;}}function _isPrimitive(param){var type=_typeof(param);return param==null||type!='object'&&type!='function';}var _ObjectMap=/*#__PURE__*/function(){function _ObjectMap(){this.map={};this.length=0;}_ObjectMap.prototype.set=function(key,value){var hashedKey=this.hash(key);var bucket=this.map[hashedKey];if(!bucket){this.map[hashedKey]=bucket=[];}bucket.push([key,value]);this.length+=1;};_ObjectMap.prototype.hash=function(key){var hashedKey=[];for(var value in key){hashedKey.push(Object.prototype.toString.call(key[value]));}return hashedKey.join();};_ObjectMap.prototype.get=function(key){/**
+     * depending on the number of objects to be cloned is faster to just iterate over the items in the map just because the hash function is so costly,
+     * on my tests this number is 180, anything above that using the hash function is faster.
+     */if(this.length<=180){for(var p in this.map){var bucket=this.map[p];for(var i=0;i<bucket.length;i+=1){var element=bucket[i];if(element[0]===key){return element[1];}}}return;}var hashedKey=this.hash(key);var bucket=this.map[hashedKey];if(!bucket){return;}for(var i=0;i<bucket.length;i+=1){var element=bucket[i];if(element[0]===key){return element[1];}}};return _ObjectMap;}();
+
+/**
+ * Creates a deep copy of the source that can be used in place of the source
+ * object without retaining any references to it.
+ * The source object may contain (nested) `Array`s and `Object`s,
+ * `Number`s, `String`s, `Boolean`s and `Date`s.
+ * `Function`s are assigned by reference rather than copied.
  *
- * @param {Array<any>} arr - The array to check
+ * Dispatches to a `clone` method if present.
  *
- * @returns {boolean}
- */function isFlatArray(arr){return utils$1.isArray(arr)&&!arr.some(isVisitable);}const predicates=utils$1.toFlatObject(utils$1,{},null,function filter(prop){return /^is[A-Z]/.test(prop);});/**
- * Convert a data object to FormData
+ * Note that if the source object has multiple nodes that share a reference,
+ * the returned object will have the same structure, but the references will
+ * be pointed to the location within the cloned value.
  *
- * @param {Object} obj
- * @param {?Object} [formData]
- * @param {?Object} [options]
- * @param {Function} [options.visitor]
- * @param {Boolean} [options.metaTokens = true]
- * @param {Boolean} [options.dots = false]
- * @param {?Boolean} [options.indexes = false]
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Object
+ * @sig {*} -> {*}
+ * @param {*} value The object or array to clone
+ * @return {*} A deeply cloned copy of `val`
+ * @example
  *
- * @returns {Object}
- **/ /**
- * It converts an object into a FormData object
+ *      const objects = [{}, {}, {}];
+ *      const objectsClone = R.clone(objects);
+ *      objects === objectsClone; //=> false
+ *      objects[0] === objectsClone[0]; //=> false
+ */var clone=/*#__PURE__*/_curry1(function clone(value){return value!=null&&typeof value.clone==='function'?value.clone():_clone(value);});
+
+function _path(pathAr,obj){var val=obj;for(var i=0;i<pathAr.length;i+=1){if(val==null){return undefined;}var p=pathAr[i];if(_isInteger(p)){val=_nth(p,val);}else {val=val[p];}}return val;}
+
+/**
+ * Creates a new object with the own properties of the two provided objects. If
+ * a key exists in both objects, the provided function is applied to the key
+ * and the values associated with the key in each object, with the result being
+ * used as the value associated with the key in the returned object.
  *
- * @param {Object<any, any>} obj - The object to convert to form data.
- * @param {string} formData - The FormData object to append to.
- * @param {Object<string, any>} options
+ * @func
+ * @memberOf R
+ * @since v0.19.0
+ * @category Object
+ * @sig ((String, a, a) -> a) -> {a} -> {a} -> {a}
+ * @param {Function} fn
+ * @param {Object} l
+ * @param {Object} r
+ * @return {Object}
+ * @see R.mergeDeepWithKey, R.merge, R.mergeWith
+ * @example
+ *
+ *      let concatValues = (k, l, r) => k == 'values' ? R.concat(l, r) : r
+ *      R.mergeWithKey(concatValues,
+ *                     { a: true, thing: 'foo', values: [10, 20] },
+ *                     { b: true, thing: 'bar', values: [15, 35] });
+ *      //=> { a: true, b: true, thing: 'bar', values: [10, 20, 15, 35] }
+ * @symb R.mergeWithKey(f, { x: 1, y: 2 }, { y: 5, z: 3 }) = { x: 1, y: f('y', 2, 5), z: 3 }
+ */var mergeWithKey=/*#__PURE__*/_curry3(function mergeWithKey(fn,l,r){var result={};var k;l=l||{};r=r||{};for(k in l){if(_has(k,l)){result[k]=_has(k,r)?fn(k,l[k],r[k]):l[k];}}for(k in r){if(_has(k,r)&&!_has(k,result)){result[k]=r[k];}}return result;});
+
+/**
+ * Creates a new object with the own properties of the two provided objects.
+ * If a key exists in both objects:
+ * - and both associated values are also objects then the values will be
+ *   recursively merged.
+ * - otherwise the provided function is applied to the key and associated values
+ *   using the resulting value as the new value associated with the key.
+ * If a key only exists in one object, the value will be associated with the key
+ * of the resulting object.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.24.0
+ * @category Object
+ * @sig ((String, a, a) -> a) -> {a} -> {a} -> {a}
+ * @param {Function} fn
+ * @param {Object} lObj
+ * @param {Object} rObj
+ * @return {Object}
+ * @see R.mergeWithKey, R.mergeDeepWith
+ * @example
+ *
+ *      let concatValues = (k, l, r) => k == 'values' ? R.concat(l, r) : r
+ *      R.mergeDeepWithKey(concatValues,
+ *                         { a: true, c: { thing: 'foo', values: [10, 20] }},
+ *                         { b: true, c: { thing: 'bar', values: [15, 35] }});
+ *      //=> { a: true, b: true, c: { thing: 'bar', values: [10, 20, 15, 35] }}
+ */var mergeDeepWithKey=/*#__PURE__*/_curry3(function mergeDeepWithKey(fn,lObj,rObj){return mergeWithKey(function(k,lVal,rVal){if(_isObject(lVal)&&_isObject(rVal)){return mergeDeepWithKey(fn,lVal,rVal);}else {return fn(k,lVal,rVal);}},lObj,rObj);});
+
+/**
+ * Creates a new object with the own properties of the two provided objects.
+ * If a key exists in both objects:
+ * - and both associated values are also objects then the values will be
+ *   recursively merged.
+ * - otherwise the provided function is applied to associated values using the
+ *   resulting value as the new value associated with the key.
+ * If a key only exists in one object, the value will be associated with the key
+ * of the resulting object.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.24.0
+ * @category Object
+ * @sig ((a, a) -> a) -> {a} -> {a} -> {a}
+ * @param {Function} fn
+ * @param {Object} lObj
+ * @param {Object} rObj
+ * @return {Object}
+ * @see R.mergeWith, R.mergeDeepWithKey
+ * @example
+ *
+ *      R.mergeDeepWith(R.concat,
+ *                      { a: true, c: { values: [10, 20] }},
+ *                      { b: true, c: { values: [15, 35] }});
+ *      //=> { a: true, b: true, c: { values: [10, 20, 15, 35] }}
+ */var mergeDeepWith=/*#__PURE__*/_curry3(function mergeDeepWith(fn,lObj,rObj){return mergeDeepWithKey(function(k,lVal,rVal){return fn(lVal,rVal);},lObj,rObj);});
+
+/**
+ * Retrieves the value at a given path. The nodes of the path can be arbitrary strings or non-negative integers.
+ * For anything else, the value is unspecified. Integer paths are meant to index arrays, strings are meant for objects.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.2.0
+ * @category Object
+ * @typedefn Idx = String | Int | Symbol
+ * @sig [Idx] -> {a} -> a | Undefined
+ * @sig Idx = String | NonNegativeInt
+ * @param {Array} path The path to use.
+ * @param {Object} obj The object or array to retrieve the nested property from.
+ * @return {*} The data at `path`.
+ * @see R.prop, R.nth, R.assocPath, R.dissocPath
+ * @example
+ *
+ *      R.path(['a', 'b'], {a: {b: 2}}); //=> 2
+ *      R.path(['a', 'b'], {c: {b: 2}}); //=> undefined
+ *      R.path(['a', 'b', 0], {a: {b: [1, 2, 3]}}); //=> 1
+ *      R.path(['a', 'b', -2], {a: {b: [1, 2, 3]}}); //=> 2
+ *      R.path([2], {'2': 2}); //=> 2
+ *      R.path([-2], {'-2': 'a'}); //=> undefined
+ */var path=/*#__PURE__*/_curry2(_path);
+
+/**
+ * Returns a partial copy of an object containing only the keys that satisfy
+ * the supplied predicate.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.8.0
+ * @category Object
+ * @sig ((v, k) -> Boolean) -> {k: v} -> {k: v}
+ * @param {Function} pred A predicate to determine whether or not a key
+ *        should be included on the output object.
+ * @param {Object} obj The object to copy from
+ * @return {Object} A new object with only properties that satisfy `pred`
+ *         on it.
+ * @see R.pick, R.filter
+ * @example
+ *
+ *      const isUpperCase = (val, key) => key.toUpperCase() === key;
+ *      R.pickBy(isUpperCase, {a: 1, b: 2, A: 3, B: 4}); //=> {A: 3, B: 4}
+ */var pickBy=/*#__PURE__*/_curry2(function pickBy(test,obj){var result={};for(var prop in obj){if(test(obj[prop],prop,obj)){result[prop]=obj[prop];}}return result;});
+
+/**
+ * A function to check given value is a function
+ * @param value input value
+ * @returns boolean
+ */ // eslint-disable-next-line @typescript-eslint/ban-types
+var isFunction=function isFunction(value){return typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);};/**
+ * A function to check given value is a string
+ * @param value input value
+ * @returns boolean
+ */var isString=function isString(value){return typeof value==='string';};/**
+ * A function to check given value is null or not
+ * @param value input value
+ * @returns boolean
+ */var isNull=function isNull(value){return value===null;};/**
+ * A function to check given value is undefined
+ * @param value input value
+ * @returns boolean
+ */var isUndefined=function isUndefined(value){return typeof value==='undefined';};/**
+ * A function to check given value is null or undefined
+ * @param value input value
+ * @returns boolean
+ */var isNullOrUndefined=function isNullOrUndefined(value){return isNull(value)||isUndefined(value);};/**
+ * A function to check given value is defined
+ * @param value input value
+ * @returns boolean
+ */var isDefined=function isDefined(value){return !isUndefined(value);};/**
+ * A function to check given value is defined and not null
+ * @param value input value
+ * @returns boolean
+ */var isDefinedAndNotNull=function isDefinedAndNotNull(value){return !isNullOrUndefined(value);};/**
+ * A function to check given value is defined and not null
+ * @param value input value
+ * @returns boolean
+ */var isDefinedNotNullAndNotEmptyString=function isDefinedNotNullAndNotEmptyString(value){return isDefinedAndNotNull(value)&&value!=='';};/**
+ * Determines if the input is an instance of Error
+ * @param obj input value
+ * @returns true if the input is an instance of Error and false otherwise
+ */var isTypeOfError=function isTypeOfError(obj){return obj instanceof Error;};
+
+var getValueByPath=function getValueByPath(obj,keyPath){var pathParts=keyPath.split('.');return path(pathParts,obj);};var hasValueByPath=function hasValueByPath(obj,path){return Boolean(getValueByPath(obj,path));};/**
+ * Checks if the input is an object literal or built-in object type and not null
+ * @param value Input value
+ * @returns true if the input is an object and not null
+ */var isObjectAndNotNull=function isObjectAndNotNull(value){return !isNull(value)&&_typeof(value)==='object'&&!Array.isArray(value);};/**
+ * Checks if the input is an object literal and not null
+ * @param value Input value
+ * @returns true if the input is an object and not null
+ */var isObjectLiteralAndNotNull=function isObjectLiteralAndNotNull(value){return !isNull(value)&&Object.prototype.toString.call(value)==='[object Object]';};var mergeDeepRightObjectArrays=function mergeDeepRightObjectArrays(leftValue,rightValue){if(!Array.isArray(leftValue)||!Array.isArray(rightValue)){return clone(rightValue);}var mergedArray=clone(leftValue);rightValue.forEach(function(value,index){mergedArray[index]=Array.isArray(value)||isObjectAndNotNull(value)?// eslint-disable-next-line @typescript-eslint/no-use-before-define
+mergeDeepRight(mergedArray[index],value):value;});return mergedArray;};var mergeDeepRight=function mergeDeepRight(leftObject,rightObject){return mergeDeepWith(mergeDeepRightObjectArrays,leftObject,rightObject);};/**
+ Checks if the input is a non-empty object literal type and not undefined or null
+ * @param value input any
+ * @returns boolean
+ */var isNonEmptyObject=function isNonEmptyObject(value){return isObjectLiteralAndNotNull(value)&&Object.keys(value).length>0;};/**
+ * A utility to recursively remove undefined values from an object
+ * @param obj input object
+ * @returns a new object
+ */var removeUndefinedValues=function removeUndefinedValues(obj){var result=pickBy(isDefined,obj);Object.keys(result).forEach(function(key){var value=result[key];if(isObjectLiteralAndNotNull(value)){result[key]=removeUndefinedValues(value);}});return result;};/**
+ * A utility to recursively remove undefined and null values from an object
+ * @param obj input object
+ * @returns a new object
+ */var removeUndefinedAndNullValues=function removeUndefinedAndNullValues(obj){var result=pickBy(isDefinedAndNotNull,obj);Object.keys(result).forEach(function(key){var value=result[key];if(isObjectLiteralAndNotNull(value)){result[key]=removeUndefinedAndNullValues(value);}});return result;};
+
+var trim=function trim(value){return value.replace(/^\s+|\s+$/gm,'');};var removeDoubleSpaces=function removeDoubleSpaces(value){return value.replace(/ {2,}/g,' ');};/**
+ * A function to convert values to string
+ * @param val input value
+ * @returns stringified value
+ */var tryStringify=function tryStringify(val){var retVal=val;if(!isString(val)&&!isNullOrUndefined(val)){try{retVal=JSON.stringify(val);}catch(e){retVal=null;}}return retVal;};// The following text encoding and decoding is done before base64 encoding to prevent
+// https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
+/**
+ * Converts a base64 encoded string to bytes array
+ * @param base64Str base64 encoded string
+ * @returns bytes array
+ */var base64ToBytes=function base64ToBytes(base64Str){var binString=globalThis.atob(base64Str);var bytes=binString.split('').map(function(char){return char.charCodeAt(0);});return new Uint8Array(bytes);};/**
+ * Converts a bytes array to base64 encoded string
+ * @param bytes bytes array to be converted to base64
+ * @returns base64 encoded string
+ */var bytesToBase64=function bytesToBase64(bytes){var binString=Array.from(bytes,function(x){return String.fromCodePoint(x);}).join('');return globalThis.btoa(binString);};/**
+ * Encodes a string to base64 even with unicode characters
+ * @param value input string
+ * @returns base64 encoded string
+ */var toBase64=function toBase64(value){return bytesToBase64(new TextEncoder().encode(value));};/**
+ * Decodes a base64 encoded string
+ * @param value base64 encoded string
+ * @returns decoded string
+ */var fromBase64=function fromBase64(value){return new TextDecoder().decode(base64ToBytes(value));};
+
+//   if yes make them null instead of omitting in overloaded cases
+/*
+ * Normalise the overloaded arguments of the page call facade
+ */var pageArgumentsToCallOptions=function pageArgumentsToCallOptions(category,name,properties,options,callback){var payload={category:category,name:name,properties:properties,options:options};if(isFunction(callback)){payload.callback=callback;}if(isFunction(options)){payload.category=category;payload.name=name;payload.properties=properties;delete payload.options;payload.callback=options;}if(isFunction(properties)){payload.category=category;payload.name=name;delete payload.properties;delete payload.options;payload.callback=properties;}if(isFunction(name)){payload.category=category;delete payload.name;delete payload.properties;delete payload.options;payload.callback=name;}if(isFunction(category)){delete payload.category;delete payload.name;delete payload.properties;delete payload.options;payload.callback=category;}if(isObjectLiteralAndNotNull(category)){delete payload.name;delete payload.category;payload.properties=category;payload.options=name;}else if(isObjectLiteralAndNotNull(name)){delete payload.name;payload.properties=name;payload.options=!isFunction(properties)?properties:null;}// if the category argument alone is provided b/w category and name,
+// use it as name and set category to undefined
+if(isString(category)&&!isString(name)){delete payload.category;payload.name=category;}// Rest of the code is just to clean up undefined values
+// and set some proper defaults
+// Also, to clone the incoming object type arguments
+if(!isDefined(payload.category)){delete payload.category;}if(!isDefined(payload.name)){delete payload.name;}payload.properties=payload.properties?clone(payload.properties):{};if(isDefined(payload.options)){payload.options=clone(payload.options);}else {delete payload.options;}// add name and category to properties
+payload.properties=mergeDeepRight(isObjectLiteralAndNotNull(payload.properties)?payload.properties:{},{name:isString(payload.name)?payload.name:null,category:isString(payload.category)?payload.category:null});return payload;};/*
+ * Normalise the overloaded arguments of the track call facade
+ */var trackArgumentsToCallOptions=function trackArgumentsToCallOptions(event,properties,options,callback){var payload={name:event,properties:properties,options:options};if(isFunction(callback)){payload.callback=callback;}if(isFunction(options)){payload.properties=properties;delete payload.options;payload.callback=options;}if(isFunction(properties)){delete payload.properties;delete payload.options;payload.callback=properties;}// Rest of the code is just to clean up undefined values
+// and set some proper defaults
+// Also, to clone the incoming object type arguments
+payload.properties=isDefinedAndNotNull(payload.properties)?clone(payload.properties):{};if(isDefined(payload.options)){payload.options=clone(payload.options);}else {delete payload.options;}return payload;};/*
+ * Normalise the overloaded arguments of the identify call facade
+ */var identifyArgumentsToCallOptions=function identifyArgumentsToCallOptions(userId,traits,options,callback){var payload={userId:userId,traits:traits,options:options};if(isFunction(callback)){payload.callback=callback;}if(isFunction(options)){payload.userId=userId;payload.traits=traits;delete payload.options;payload.callback=options;}if(isFunction(traits)){payload.userId=userId;delete payload.traits;delete payload.options;payload.callback=traits;}if(isObjectLiteralAndNotNull(userId)||isNull(userId)){// Explicitly set null to prevent resetting the existing value
+// in the Analytics class
+payload.userId=null;payload.traits=userId;payload.options=traits;}// Rest of the code is just to clean up undefined values
+// and set some proper defaults
+// Also, to clone the incoming object type arguments
+if(isDefined(payload.userId)){payload.userId=tryStringify(payload.userId);}else {delete payload.userId;}if(isObjectLiteralAndNotNull(payload.traits)){payload.traits=clone(payload.traits);}else {delete payload.traits;}if(isDefined(payload.options)){payload.options=clone(payload.options);}else {delete payload.options;}return payload;};/*
+ * Normalise the overloaded arguments of the alias call facade
+ */var aliasArgumentsToCallOptions=function aliasArgumentsToCallOptions(to,from,options,callback){var payload={to:to,from:from,options:options};if(isFunction(callback)){payload.callback=callback;}if(isFunction(options)){payload.to=to;payload.from=from;delete payload.options;payload.callback=options;}if(isFunction(from)){payload.to=to;delete payload.from;delete payload.options;payload.callback=from;}else if(isObjectLiteralAndNotNull(from)||isNull(from)){payload.to=to;delete payload.from;payload.options=from;}if(isFunction(to)){delete payload.to;delete payload.from;delete payload.options;payload.callback=to;}else if(isObjectLiteralAndNotNull(to)||isNull(to)){delete payload.to;delete payload.from;payload.options=to;}// Rest of the code is just to clean up undefined values
+// and set some proper defaults
+// Also, to clone the incoming object type arguments
+if(isDefined(payload.to)){payload.to=tryStringify(payload.to);}else {delete payload.to;}if(isDefined(payload.from)){payload.from=tryStringify(payload.from);}else {delete payload.from;}if(isDefined(payload.options)){payload.options=clone(payload.options);}else {delete payload.options;}return payload;};/*
+ * Normalise the overloaded arguments of the group call facade
+ */var groupArgumentsToCallOptions=function groupArgumentsToCallOptions(groupId,traits,options,callback){var payload={groupId:groupId,traits:traits,options:options};if(isFunction(callback)){payload.callback=callback;}if(isFunction(options)){payload.groupId=groupId;payload.traits=traits;delete payload.options;payload.callback=options;}if(isFunction(traits)){payload.groupId=groupId;delete payload.traits;delete payload.options;payload.callback=traits;}// TODO: why do we enable overload for group that only passes callback? is there any use case?
+if(isFunction(groupId)){// Explicitly set null to prevent resetting the existing value
+payload.groupId=null;delete payload.traits;delete payload.options;payload.callback=groupId;}else if(isObjectLiteralAndNotNull(groupId)||isNull(groupId)){// Explicitly set null to prevent resetting the existing value
+// in the Analytics class
+payload.groupId=null;payload.traits=groupId;payload.options=!isFunction(traits)?traits:null;}// Rest of the code is just to clean up undefined values
+// and set some proper defaults
+// Also, to clone the incoming object type arguments
+if(isDefined(payload.groupId)){payload.groupId=tryStringify(payload.groupId);}else {delete payload.groupId;}payload.traits=isObjectLiteralAndNotNull(payload.traits)?clone(payload.traits):{};if(isDefined(payload.options)){payload.options=clone(payload.options);}else {delete payload.options;}return payload;};
+
+var CAPABILITIES_MANAGER='CapabilitiesManager';var CONFIG_MANAGER='ConfigManager';var EVENT_MANAGER='EventManager';var PLUGINS_MANAGER='PluginsManager';var USER_SESSION_MANAGER='UserSessionManager';var ERROR_HANDLER='ErrorHandler';var PLUGIN_ENGINE='PluginEngine';var STORE_MANAGER='StoreManager';var READY_API='readyApi';var EVENT_REPOSITORY='EventRepository';var EXTERNAL_SRC_LOADER='ExternalSrcLoader';var HTTP_CLIENT='HttpClient';var RS_APP='RudderStackApplication';var ANALYTICS_CORE='AnalyticsCore';
+
+var APP_NAME='RudderLabs JavaScript SDK';var APP_VERSION='3.3.0';var APP_NAMESPACE='com.rudderlabs.javascript';var MODULE_TYPE='npm';var ADBLOCK_PAGE_CATEGORY='RudderJS-Initiated';var ADBLOCK_PAGE_NAME='ad-block page request';var ADBLOCK_PAGE_PATH='/ad-blocked';var GLOBAL_PRELOAD_BUFFER='preloadedEventsBuffer';var CONSENT_TRACK_EVENT_NAME='Consent Management Interaction';
+
+var QUERY_PARAM_TRAIT_PREFIX='ajs_trait_';var QUERY_PARAM_PROPERTY_PREFIX='ajs_prop_';var QUERY_PARAM_ANONYMOUS_ID_KEY='ajs_aid';var QUERY_PARAM_USER_ID_KEY='ajs_uid';var QUERY_PARAM_TRACK_EVENT_NAME_KEY='ajs_event';
+
+var DEFAULT_XHR_TIMEOUT_MS=10*1000;// 10 seconds
+var DEFAULT_COOKIE_MAX_AGE_MS=31536000*1000;// 1 year
+var DEFAULT_SESSION_TIMEOUT_MS=30*60*1000;// 30 minutes
+var MIN_SESSION_TIMEOUT_MS=10*1000;// 10 seconds
+var DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS=10*1000;// 10 seconds
+var DEBOUNCED_TIMEOUT_MS=250;// 250 milliseconds
+
+/**
+ * Create globally accessible RudderStackGlobals object
+ */var createExposedGlobals=function createExposedGlobals(){var analyticsInstanceId=arguments.length>0&&arguments[0]!==undefined?arguments[0]:'app';if(!globalThis.RudderStackGlobals){globalThis.RudderStackGlobals={};}if(!globalThis.RudderStackGlobals[analyticsInstanceId]){globalThis.RudderStackGlobals[analyticsInstanceId]={};}};/**
+ * Add move values to globally accessible RudderStackGlobals object per analytics instance
+ */var setExposedGlobal=function setExposedGlobal(keyName,value){var analyticsInstanceId=arguments.length>2&&arguments[2]!==undefined?arguments[2]:'app';createExposedGlobals(analyticsInstanceId);globalThis.RudderStackGlobals[analyticsInstanceId][keyName]=value;};/**
+ * Get values from globally accessible RudderStackGlobals object by analytics instance
+ */var getExposedGlobal=function getExposedGlobal(keyName){var analyticsInstanceId=arguments.length>1&&arguments[1]!==undefined?arguments[1]:'app';createExposedGlobals(analyticsInstanceId);return globalThis.RudderStackGlobals[analyticsInstanceId][keyName];};function debounce(func,thisArg){var delay=arguments.length>2&&arguments[2]!==undefined?arguments[2]:DEBOUNCED_TIMEOUT_MS;var timeoutId;return function(){for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}globalThis.clearTimeout(timeoutId);timeoutId=globalThis.setTimeout(function(){func.apply(thisArg,args);},delay);};}
+
+/**
+ * Parse query string params into object values for keys that start with a defined prefix
+ */var getEventDataFromQueryString=function getEventDataFromQueryString(params,dataTypeNamePrefix){var data={};params.forEach(function(value,key){if(key.startsWith(dataTypeNamePrefix)){// remove prefix from key name
+var dataKey=key.substring(dataTypeNamePrefix.length);// add new key value pair in generated object
+data[dataKey]=params.get(key);}});return data;};/**
+ * Parse query string into preload buffer events & push into existing array before any other events
+ */var retrieveEventsFromQueryString=function retrieveEventsFromQueryString(){var argumentsArray=arguments.length>0&&arguments[0]!==undefined?arguments[0]:[];// Mapping for trait and properties values based on key prefix
+var eventArgumentToQueryParamMap={trait:QUERY_PARAM_TRAIT_PREFIX,properties:QUERY_PARAM_PROPERTY_PREFIX};var queryObject=new URLSearchParams(globalThis.location.search);// Add track events with name and properties
+if(queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY)){argumentsArray.unshift(['track',queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY),getEventDataFromQueryString(queryObject,eventArgumentToQueryParamMap.properties)]);}// Set userId and user traits
+if(queryObject.get(QUERY_PARAM_USER_ID_KEY)){argumentsArray.unshift(['identify',queryObject.get(QUERY_PARAM_USER_ID_KEY),getEventDataFromQueryString(queryObject,eventArgumentToQueryParamMap.trait)]);}// Set anonymousID
+if(queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)){argumentsArray.unshift(['setAnonymousId',queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)]);}};/**
+ * Retrieve an existing buffered load method call and remove from the existing array
+ */var getPreloadedLoadEvent=function getPreloadedLoadEvent(preloadedEventsArray){var loadMethodName='load';var loadEvent=[];/**
+   * Iterate the buffered API calls until we find load call and process it separately
+   */var i=0;while(i<preloadedEventsArray.length){if(preloadedEventsArray[i]&&preloadedEventsArray[i][0]===loadMethodName){loadEvent=clone(preloadedEventsArray[i]);preloadedEventsArray.splice(i,1);break;}i+=1;}return loadEvent;};/**
+ * Promote consent events to the top of the preloaded events array
+ * @param preloadedEventsArray Preloaded events array
+ * @returns None
+ */var promotePreloadedConsentEventsToTop=function promotePreloadedConsentEventsToTop(preloadedEventsArray){var consentMethodName='consent';var consentEvents=preloadedEventsArray.filter(function(bufferedEvent){return bufferedEvent[0]===consentMethodName;});var nonConsentEvents=preloadedEventsArray.filter(function(bufferedEvent){return bufferedEvent[0]!==consentMethodName;});// Remove all elements and add consent events first followed by non consent events
+// eslint-disable-next-line unicorn/no-useless-spread
+preloadedEventsArray.splice.apply(preloadedEventsArray,[0,preloadedEventsArray.length].concat(_toConsumableArray(consentEvents),_toConsumableArray(nonConsentEvents)));};/**
+ * Retrieve any existing events that were triggered before SDK load and enqueue in buffer
+ */var retrievePreloadBufferEvents=function retrievePreloadBufferEvents(instance){var preloadedEventsArray=getExposedGlobal(GLOBAL_PRELOAD_BUFFER)||[];// Get events that are pre-populated via query string params
+retrieveEventsFromQueryString(preloadedEventsArray);// Enqueue the non load events in the buffer of the global rudder analytics singleton
+if(preloadedEventsArray.length>0){instance.enqueuePreloadBufferEvents(preloadedEventsArray);setExposedGlobal(GLOBAL_PRELOAD_BUFFER,[]);}};var consumePreloadBufferedEvent=function consumePreloadBufferedEvent(event,analyticsInstance){var _ref;var methodName=event.shift();var callOptions;if(isFunction(analyticsInstance[methodName])){switch(methodName){case'page':callOptions=pageArgumentsToCallOptions.apply(void 0,_toConsumableArray(event));break;case'track':callOptions=trackArgumentsToCallOptions.apply(void 0,_toConsumableArray(event));break;case'identify':callOptions=identifyArgumentsToCallOptions.apply(void 0,_toConsumableArray(event));break;case'alias':callOptions=aliasArgumentsToCallOptions.apply(void 0,_toConsumableArray(event));break;case'group':callOptions=groupArgumentsToCallOptions.apply(void 0,_toConsumableArray(event));break;default:(_ref=analyticsInstance)[methodName].apply(_ref,_toConsumableArray(event));break;}if(callOptions){analyticsInstance[methodName](callOptions);}}};
+
+var DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS=10*1000;// 10 seconds
+
+var LOG_CONTEXT_SEPARATOR=':: ';var SCRIPT_ALREADY_EXISTS_ERROR=function SCRIPT_ALREADY_EXISTS_ERROR(id){return "A script with the id \"".concat(id,"\" is already loaded. Skipping the loading of this script to prevent conflicts.");};var SCRIPT_LOAD_ERROR=function SCRIPT_LOAD_ERROR(id,url){return "Failed to load the script with the id \"".concat(id,"\" from URL \"").concat(url,"\".");};var SCRIPT_LOAD_TIMEOUT_ERROR=function SCRIPT_LOAD_TIMEOUT_ERROR(id,url,timeout){return "A timeout of ".concat(timeout," ms occurred while trying to load the script with id \"").concat(id,"\" from URL \"").concat(url,"\".");};var CIRCULAR_REFERENCE_WARNING=function CIRCULAR_REFERENCE_WARNING(context,key){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"A circular reference has been detected in the object and the property \"").concat(key,"\" has been dropped from the output.");};var JSON_STRINGIFY_WARNING="Failed to convert the value to a JSON string.";
+
+var JSON_STRINGIFY='JSONStringify';var getCircularReplacer=function getCircularReplacer(excludeNull,excludeKeys,logger){var ancestors=[];// Here we do not want to use arrow function to use "this" in function context
+// eslint-disable-next-line func-names
+return function(key,value){if(excludeKeys!==null&&excludeKeys!==void 0&&excludeKeys.includes(key)){return undefined;}if(excludeNull&&isNullOrUndefined(value)){return undefined;}if(_typeof(value)!=='object'||isNull(value)){return value;}// `this` is the object that value is contained in, i.e., its direct parent.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore-next-line
+while(ancestors.length>0&&ancestors[ancestors.length-1]!==this){ancestors.pop();}if(ancestors.includes(value)){logger===null||logger===void 0||logger.warn(CIRCULAR_REFERENCE_WARNING(JSON_STRINGIFY,key));return '[Circular Reference]';}ancestors.push(value);return value;};};/**
+ * Utility method for JSON stringify object excluding null values & circular references
+ *
+ * @param {*} value input
+ * @param {boolean} excludeNull if it should exclude nul or not
+ * @param {function} logger optional logger methods for warning
+ * @returns string
+ */var stringifyWithoutCircular=function stringifyWithoutCircular(value,excludeNull,excludeKeys,logger){try{return JSON.stringify(value,getCircularReplacer(excludeNull,excludeKeys,logger));}catch(err){logger===null||logger===void 0||logger.warn(JSON_STRINGIFY_WARNING,err);return null;}};
+
+/**
+ * Get mutated error with issue prepended to error message
+ * @param err Original error
+ * @param issue Issue to prepend to error message
+ * @returns Instance of Error with message prepended with issue
+ */var getMutatedError=function getMutatedError(err,issue){var finalError=err;if(!isTypeOfError(err)){finalError=new Error("".concat(issue,": ").concat(stringifyWithoutCircular(err)));}else {finalError.message="".concat(issue,": ").concat(err.message);}return finalError;};
+
+var EXTERNAL_SOURCE_LOAD_ORIGIN='RS_JS_SDK';
+
+/**
+ * Create the DOM element to load a script marked as RS SDK originated
+ *
+ * @param {*} url The URL of the script to be loaded
+ * @param {*} id ID for the script tag
+ * @param {*} async Whether to load the script in async mode. Defaults to `true` [optional]
+ * @param {*} onload callback to invoke onload [optional]
+ * @param {*} onerror callback to invoke onerror [optional]
+ * @param {*} extraAttributes key/value pair with html attributes to add in html tag [optional]
+ *
+ * @returns HTMLScriptElement
+ */var createScriptElement=function createScriptElement(url,id){var async=arguments.length>2&&arguments[2]!==undefined?arguments[2]:true;var onload=arguments.length>3&&arguments[3]!==undefined?arguments[3]:null;var onerror=arguments.length>4&&arguments[4]!==undefined?arguments[4]:null;var extraAttributes=arguments.length>5&&arguments[5]!==undefined?arguments[5]:{};var scriptElement=document.createElement('script');scriptElement.type='text/javascript';scriptElement.onload=onload;scriptElement.onerror=onerror;scriptElement.src=url;scriptElement.id=id;scriptElement.async=async;Object.keys(extraAttributes).forEach(function(attributeName){scriptElement.setAttribute(attributeName,extraAttributes[attributeName]);});scriptElement.setAttribute('data-loader',EXTERNAL_SOURCE_LOAD_ORIGIN);return scriptElement;};/**
+ * Add script DOM element to DOM
+ *
+ * @param {*} newScriptElement the script element to add
  *
  * @returns
- */function toFormData(obj,formData,options){if(!utils$1.isObject(obj)){throw new TypeError('target must be an object');}// eslint-disable-next-line no-param-reassign
-formData=formData||new(FormData)();// eslint-disable-next-line no-param-reassign
-options=utils$1.toFlatObject(options,{metaTokens:true,dots:false,indexes:false},false,function defined(option,source){// eslint-disable-next-line no-eq-null,eqeqeq
-return !utils$1.isUndefined(source[option]);});const metaTokens=options.metaTokens;// eslint-disable-next-line no-use-before-define
-const visitor=options.visitor||defaultVisitor;const dots=options.dots;const indexes=options.indexes;const _Blob=options.Blob||typeof Blob!=='undefined'&&Blob;const useBlob=_Blob&&utils$1.isSpecCompliantForm(formData);if(!utils$1.isFunction(visitor)){throw new TypeError('visitor must be a function');}function convertValue(value){if(value===null)return '';if(utils$1.isDate(value)){return value.toISOString();}if(!useBlob&&utils$1.isBlob(value)){throw new AxiosError('Blob is not supported. Use a Buffer instead.');}if(utils$1.isArrayBuffer(value)||utils$1.isTypedArray(value)){return useBlob&&typeof Blob==='function'?new Blob([value]):Buffer.from(value);}return value;}/**
-   * Default visitor.
-   *
-   * @param {*} value
-   * @param {String|Number} key
-   * @param {Array<String|Number>} path
-   * @this {FormData}
-   *
-   * @returns {boolean} return true to visit the each prop of the value recursively
-   */function defaultVisitor(value,key,path){let arr=value;if(value&&!path&&typeof value==='object'){if(utils$1.endsWith(key,'{}')){// eslint-disable-next-line no-param-reassign
-key=metaTokens?key:key.slice(0,-2);// eslint-disable-next-line no-param-reassign
-value=JSON.stringify(value);}else if(utils$1.isArray(value)&&isFlatArray(value)||(utils$1.isFileList(value)||utils$1.endsWith(key,'[]'))&&(arr=utils$1.toArray(value))){// eslint-disable-next-line no-param-reassign
-key=removeBrackets(key);arr.forEach(function each(el,index){!(utils$1.isUndefined(el)||el===null)&&formData.append(// eslint-disable-next-line no-nested-ternary
-indexes===true?renderKey([key],index,dots):indexes===null?key:key+'[]',convertValue(el));});return false;}}if(isVisitable(value)){return true;}formData.append(renderKey(path,key,dots),convertValue(value));return false;}const stack=[];const exposedHelpers=_extends(predicates,{defaultVisitor,convertValue,isVisitable});function build(value,path){if(utils$1.isUndefined(value))return;if(stack.indexOf(value)!==-1){throw Error('Circular reference detected in '+path.join('.'));}stack.push(value);utils$1.forEach(value,function each(el,key){const result=!(utils$1.isUndefined(el)||el===null)&&visitor.call(formData,el,utils$1.isString(key)?key.trim():key,path,exposedHelpers);if(result===true){build(el,path?path.concat(key):[key]);}});stack.pop();}if(!utils$1.isObject(obj)){throw new TypeError('data must be an object');}build(obj);return formData;}
+ */var insertScript=function insertScript(newScriptElement){var _scriptElements$;// First try to add it to the head
+var headElements=document.getElementsByTagName('head');if(headElements.length>0){var _headElements$,_headElements$2;(_headElements$=headElements[0])===null||_headElements$===void 0||_headElements$.insertBefore(newScriptElement,(_headElements$2=headElements[0])===null||_headElements$2===void 0?void 0:_headElements$2.firstChild);return;}// Else wise add it before the first script tag
+var scriptElements=document.getElementsByTagName('script');if(scriptElements.length>0&&(_scriptElements$=scriptElements[0])!==null&&_scriptElements$!==void 0&&_scriptElements$.parentNode){var _scriptElements$2;(_scriptElements$2=scriptElements[0])===null||_scriptElements$2===void 0||_scriptElements$2.parentNode.insertBefore(newScriptElement,scriptElements[0]);return;}// Create a new head element and add the script as fallback
+var headElement=document.createElement('head');headElement.appendChild(newScriptElement);var htmlElement=document.getElementsByTagName('html')[0];htmlElement===null||htmlElement===void 0||htmlElement.insertBefore(headElement,htmlElement.firstChild);};/**
+ * Loads external js file as a script html tag
+ *
+ * @param {*} url The URL of the script to be loaded
+ * @param {*} id ID for the script tag
+ * @param {*} timeout loading timeout
+ * @param {*} async Whether to load the script in async mode. Defaults to `true` [optional]
+ * @param {*} extraAttributes key/value pair with html attributes to add in html tag [optional]
+ *
+ * @returns
+ */var jsFileLoader=function jsFileLoader(url,id,timeout){var async=arguments.length>3&&arguments[3]!==undefined?arguments[3]:true;var extraAttributes=arguments.length>4?arguments[4]:undefined;return new Promise(function(resolve,reject){var scriptExists=document.getElementById(id);if(scriptExists){reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id)));}try{var timeoutID;var onload=function onload(){globalThis.clearTimeout(timeoutID);resolve(id);};var onerror=function onerror(){globalThis.clearTimeout(timeoutID);reject(new Error(SCRIPT_LOAD_ERROR(id,url)));};// Create the DOM element to load the script and add it to the DOM
+insertScript(createScriptElement(url,id,async,onload,onerror,extraAttributes));// Reject on timeout
+timeoutID=globalThis.setTimeout(function(){reject(new Error(SCRIPT_LOAD_TIMEOUT_ERROR(id,url,timeout)));},timeout);}catch(err){reject(getMutatedError(err,SCRIPT_LOAD_ERROR(id,url)));}});};
 
 /**
- * It encodes a string by replacing all characters that are not in the unreserved set with
- * their percent-encoded equivalents
- *
- * @param {string} str - The string to encode.
- *
- * @returns {string} The encoded string.
- */function encode$1(str){const charMap={'!':'%21',"'":'%27','(':'%28',')':'%29','~':'%7E','%20':'+','%00':'\x00'};return encodeURIComponent(str).replace(/[!'()~]|%20|%00/g,function replacer(match){return charMap[match];});}/**
- * It takes a params object and converts it to a FormData object
- *
- * @param {Object<string, any>} params - The parameters to be converted to a FormData object.
- * @param {Object<string, any>} options - The options object passed to the Axios constructor.
- *
- * @returns {void}
- */function AxiosURLSearchParams(params,options){this._pairs=[];params&&toFormData(params,this,options);}const prototype=AxiosURLSearchParams.prototype;prototype.append=function append(name,value){this._pairs.push([name,value]);};prototype.toString=function toString(encoder){const _encode=encoder?function(value){return encoder.call(this,value,encode$1);}:encode$1;return this._pairs.map(function each(pair){return _encode(pair[0])+'='+_encode(pair[1]);},'').join('&');};
+ * Service to load external resources/files
+ */var ExternalSrcLoader=/*#__PURE__*/function(){function ExternalSrcLoader(errorHandler,logger){var timeout=arguments.length>2&&arguments[2]!==undefined?arguments[2]:DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS;_classCallCheck(this,ExternalSrcLoader);_defineProperty(this,"hasErrorHandler",false);this.errorHandler=errorHandler;this.logger=logger;this.timeout=timeout;this.hasErrorHandler=Boolean(this.errorHandler);this.onError=this.onError.bind(this);}/**
+   * Load external resource of type javascript
+   */return _createClass(ExternalSrcLoader,[{key:"loadJSFile",value:function loadJSFile(config){var _this=this;var url=config.url,id=config.id,timeout=config.timeout,async=config.async,callback=config.callback,extraAttributes=config.extraAttributes;var isFireAndForget=!isFunction(callback);jsFileLoader(url,id,timeout||this.timeout,async,extraAttributes).then(function(id){if(!isFireAndForget){callback(id);}}).catch(function(err){_this.onError(err);if(!isFireAndForget){callback();}});}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error){if(this.hasErrorHandler){var _this$errorHandler;(_this$errorHandler=this.errorHandler)===null||_this$errorHandler===void 0||_this$errorHandler.onError(error,EXTERNAL_SRC_LOADER);}else {throw error;}}}]);}();
+
+var i$2=Symbol.for("preact-signals");function t$1(){if(!(s>1)){var i,t=!1;while(void 0!==h){var r=h;h=void 0;f++;while(void 0!==r){var o=r.o;r.o=void 0;r.f&=-3;if(!(8&r.f)&&c(r))try{r.c();}catch(r){if(!t){i=r;t=!0;}}r=o;}}f=0;s--;if(t)throw i;}else s--;}function r(i){if(s>0)return i();s++;try{return i();}finally{t$1();}}var o=void 0;var h=void 0,s=0,f=0,v=0;function e(i){if(void 0!==o){var t=i.n;if(void 0===t||t.t!==o){t={i:0,S:i,p:o.s,n:void 0,t:o,e:void 0,x:void 0,r:t};if(void 0!==o.s)o.s.n=t;o.s=t;i.n=t;if(32&o.f)i.S(t);return t;}else if(-1===t.i){t.i=0;if(void 0!==t.n){t.n.p=t.p;if(void 0!==t.p)t.p.n=t.n;t.p=o.s;t.n=void 0;o.s.n=t;o.s=t;}return t;}}}function u(i){this.v=i;this.i=0;this.n=void 0;this.t=void 0;}u.prototype.brand=i$2;u.prototype.h=function(){return !0;};u.prototype.S=function(i){if(this.t!==i&&void 0===i.e){i.x=this.t;if(void 0!==this.t)this.t.e=i;this.t=i;}};u.prototype.U=function(i){if(void 0!==this.t){var t=i.e,r=i.x;if(void 0!==t){t.x=r;i.e=void 0;}if(void 0!==r){r.e=t;i.x=void 0;}if(i===this.t)this.t=r;}};u.prototype.subscribe=function(i){var t=this;return E(function(){var r=t.value,n=o;o=void 0;try{i(r);}finally{o=n;}});};u.prototype.valueOf=function(){return this.value;};u.prototype.toString=function(){return this.value+"";};u.prototype.toJSON=function(){return this.value;};u.prototype.peek=function(){var i=o;o=void 0;try{return this.value;}finally{o=i;}};Object.defineProperty(u.prototype,"value",{get:function get(){var i=e(this);if(void 0!==i)i.i=this.i;return this.v;},set:function set(i){if(i!==this.v){if(f>100)throw new Error("Cycle detected");this.v=i;this.i++;v++;s++;try{for(var r=this.t;void 0!==r;r=r.x)r.t.N();}finally{t$1();}}}});function d$1(i){return new u(i);}function c(i){for(var t=i.s;void 0!==t;t=t.n)if(t.S.i!==t.i||!t.S.h()||t.S.i!==t.i)return !0;return !1;}function a(i){for(var t=i.s;void 0!==t;t=t.n){var r=t.S.n;if(void 0!==r)t.r=r;t.S.n=t;t.i=-1;if(void 0===t.n){i.s=t;break;}}}function l(i){var t=i.s,r=void 0;while(void 0!==t){var o=t.p;if(-1===t.i){t.S.U(t);if(void 0!==o)o.n=t.n;if(void 0!==t.n)t.n.p=o;}else r=t;t.S.n=t.r;if(void 0!==t.r)t.r=void 0;t=o;}i.s=r;}function y(i){u.call(this,void 0);this.x=i;this.s=void 0;this.g=v-1;this.f=4;}(y.prototype=new u()).h=function(){this.f&=-3;if(1&this.f)return !1;if(32==(36&this.f))return !0;this.f&=-5;if(this.g===v)return !0;this.g=v;this.f|=1;if(this.i>0&&!c(this)){this.f&=-2;return !0;}var i=o;try{a(this);o=this;var t=this.x();if(16&this.f||this.v!==t||0===this.i){this.v=t;this.f&=-17;this.i++;}}catch(i){this.v=i;this.f|=16;this.i++;}o=i;l(this);this.f&=-2;return !0;};y.prototype.S=function(i){if(void 0===this.t){this.f|=36;for(var t=this.s;void 0!==t;t=t.n)t.S.S(t);}u.prototype.S.call(this,i);};y.prototype.U=function(i){if(void 0!==this.t){u.prototype.U.call(this,i);if(void 0===this.t){this.f&=-33;for(var t=this.s;void 0!==t;t=t.n)t.S.U(t);}}};y.prototype.N=function(){if(!(2&this.f)){this.f|=6;for(var i=this.t;void 0!==i;i=i.x)i.t.N();}};Object.defineProperty(y.prototype,"value",{get:function get(){if(1&this.f)throw new Error("Cycle detected");var i=e(this);this.h();if(void 0!==i)i.i=this.i;if(16&this.f)throw this.v;return this.v;}});function _(i){var r=i.u;i.u=void 0;if("function"==typeof r){s++;var n=o;o=void 0;try{r();}catch(t){i.f&=-2;i.f|=8;g(i);throw t;}finally{o=n;t$1();}}}function g(i){for(var t=i.s;void 0!==t;t=t.n)t.S.U(t);i.x=void 0;i.s=void 0;_(i);}function p(i){if(o!==this)throw new Error("Out-of-order effect");l(this);o=i;this.f&=-2;if(8&this.f)g(this);t$1();}function b(i){this.x=i;this.u=void 0;this.s=void 0;this.o=void 0;this.f=32;}b.prototype.c=function(){var i=this.S();try{if(8&this.f)return;if(void 0===this.x)return;var t=this.x();if("function"==typeof t)this.u=t;}finally{i();}};b.prototype.S=function(){if(1&this.f)throw new Error("Cycle detected");this.f|=1;this.f&=-9;_(this);a(this);s++;var i=o;o=this;return p.bind(this,i);};b.prototype.N=function(){if(!(2&this.f)){this.f|=2;this.o=h;h=this;}};b.prototype.d=function(){this.f|=8;if(!(1&this.f))g(this);};function E(i){var t=new b(i);try{t.c();}catch(i){t.d();throw i;}return t.d.bind(t);}
 
 /**
- * It replaces all instances of the characters `:`, `$`, `,`, `+`, `[`, and `]` with their
- * URI encoded counterparts
- *
- * @param {string} val The value to be encoded.
- *
- * @returns {string} The encoded value.
- */function encode(val){return encodeURIComponent(val).replace(/%3A/gi,':').replace(/%24/g,'$').replace(/%2C/gi,',').replace(/%20/g,'+').replace(/%5B/gi,'[').replace(/%5D/gi,']');}/**
- * Build a URL by appending params to the end
- *
- * @param {string} url The base of the url (e.g., http://www.google.com)
- * @param {object} [params] The params to be appended
- * @param {?object} options
- *
- * @returns {string} The formatted url
- */function buildURL(url,params,options){/*eslint no-param-reassign:0*/if(!params){return url;}const _encode=options&&options.encode||encode;const serializeFn=options&&options.serialize;let serializedParams;if(serializeFn){serializedParams=serializeFn(params,options);}else {serializedParams=utils$1.isURLSearchParams(params)?params.toString():new AxiosURLSearchParams(params,options).toString(_encode);}if(serializedParams){const hashmarkIndex=url.indexOf("#");if(hashmarkIndex!==-1){url=url.slice(0,hashmarkIndex);}url+=(url.indexOf('?')===-1?'?':'&')+serializedParams;}return url;}
+ * A buffer queue to serve as a store for any type of data
+ */var BufferQueue=/*#__PURE__*/function(){function BufferQueue(){_classCallCheck(this,BufferQueue);this.items=[];}return _createClass(BufferQueue,[{key:"enqueue",value:function enqueue(item){this.items.push(item);}},{key:"dequeue",value:function dequeue(){if(this.items.length===0){return null;}return this.items.shift();}},{key:"isEmpty",value:function isEmpty(){return this.items.length===0;}},{key:"size",value:function size(){return this.items.length;}},{key:"clear",value:function clear(){this.items=[];}}]);}();
 
-class InterceptorManager{constructor(){this.handlers=[];}/**
-   * Add a new interceptor to the stack
-   *
-   * @param {Function} fulfilled The function to handle `then` for a `Promise`
-   * @param {Function} rejected The function to handle `reject` for a `Promise`
-   *
-   * @return {Number} An ID used to remove interceptor later
-   */use(fulfilled,rejected,options){this.handlers.push({fulfilled,rejected,synchronous:options?options.synchronous:false,runWhen:options?options.runWhen:null});return this.handlers.length-1;}/**
-   * Remove an interceptor from the stack
-   *
-   * @param {Number} id The ID that was returned by `use`
-   *
-   * @returns {Boolean} `true` if the interceptor was removed, `false` otherwise
-   */eject(id){if(this.handlers[id]){this.handlers[id]=null;}}/**
-   * Clear all interceptors from the stack
-   *
-   * @returns {void}
-   */clear(){if(this.handlers){this.handlers=[];}}/**
-   * Iterate over all the registered interceptors
-   *
-   * This method is particularly useful for skipping over any
-   * interceptors that may have become `null` calling `eject`.
-   *
-   * @param {Function} fn The function to call for each interceptor
-   *
-   * @returns {void}
-   */forEach(fn){utils$1.forEach(this.handlers,function forEachHandler(h){if(h!==null){fn(h);}});}}
+var LOG_LEVEL_MAP={LOG:0,INFO:1,DEBUG:2,WARN:3,ERROR:4,NONE:5};var DEFAULT_LOG_LEVEL='ERROR';var LOG_MSG_PREFIX='RS SDK';var LOG_MSG_PREFIX_STYLE='font-weight: bold; background: black; color: white;';var LOG_MSG_STYLE='font-weight: normal;';/**
+ * Service to log messages/data to output provider, default is console
+ */var Logger=/*#__PURE__*/function(){function Logger(){var minLogLevel=arguments.length>0&&arguments[0]!==undefined?arguments[0]:DEFAULT_LOG_LEVEL;var scope=arguments.length>1&&arguments[1]!==undefined?arguments[1]:'';var logProvider=arguments.length>2&&arguments[2]!==undefined?arguments[2]:console;_classCallCheck(this,Logger);this.minLogLevel=LOG_LEVEL_MAP[minLogLevel];this.scope=scope;this.logProvider=logProvider;}return _createClass(Logger,[{key:"log",value:function log(){for(var _len=arguments.length,data=new Array(_len),_key=0;_key<_len;_key++){data[_key]=arguments[_key];}this.outputLog('LOG',data);}},{key:"info",value:function info(){for(var _len2=arguments.length,data=new Array(_len2),_key2=0;_key2<_len2;_key2++){data[_key2]=arguments[_key2];}this.outputLog('INFO',data);}},{key:"debug",value:function debug(){for(var _len3=arguments.length,data=new Array(_len3),_key3=0;_key3<_len3;_key3++){data[_key3]=arguments[_key3];}this.outputLog('DEBUG',data);}},{key:"warn",value:function warn(){for(var _len4=arguments.length,data=new Array(_len4),_key4=0;_key4<_len4;_key4++){data[_key4]=arguments[_key4];}this.outputLog('WARN',data);}},{key:"error",value:function error(){for(var _len5=arguments.length,data=new Array(_len5),_key5=0;_key5<_len5;_key5++){data[_key5]=arguments[_key5];}this.outputLog('ERROR',data);}},{key:"outputLog",value:function outputLog(logMethod,data){if(this.minLogLevel<=LOG_LEVEL_MAP[logMethod]){var _this$logProvider,_this$logProvider2;(_this$logProvider=(_this$logProvider2=this.logProvider)[logMethod.toLowerCase()])===null||_this$logProvider===void 0||_this$logProvider.call.apply(_this$logProvider,[_this$logProvider2].concat(_toConsumableArray(this.formatLogData(data))));}}},{key:"setScope",value:function setScope(scopeVal){this.scope=scopeVal||this.scope;}// TODO: should we allow to change the level via global variable on run time
+//  to assist on the fly debugging?
+},{key:"setMinLogLevel",value:function setMinLogLevel(logLevel){this.minLogLevel=LOG_LEVEL_MAP[logLevel];if(isUndefined(this.minLogLevel)){this.minLogLevel=LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];}}/**
+   * Formats the console message using `scope` and styles
+   */},{key:"formatLogData",value:function formatLogData(data){if(Array.isArray(data)&&data.length>0){// prefix SDK identifier
+var msg="%c ".concat(LOG_MSG_PREFIX);// format the log message using `scope`
+if(this.scope){msg="".concat(msg," - ").concat(this.scope);}// trim whitespaces for original message
+var originalMsg=isString(data[0])?data[0].trim():'';// prepare the final message
+msg="".concat(msg," %c ").concat(originalMsg);var styledLogArgs=[msg,LOG_MSG_PREFIX_STYLE,// add style for the prefix
+LOG_MSG_STYLE// reset the style for the actual message
+];// add first it if it was not a string msg
+if(!isString(data[0])){styledLogArgs.push(data[0]);}// append rest of the original arguments
+styledLogArgs.push.apply(styledLogArgs,_toConsumableArray(data.slice(1)));return styledLogArgs;}return data;}}]);}();var defaultLogger=new Logger();
 
-var transitionalDefaults = {silentJSONParsing:true,forcedJSONParsing:true,clarifyTimeoutError:false};
+// default is v3
+var SUPPORTED_STORAGE_TYPES=['localStorage','memoryStorage','cookieStorage','sessionStorage','none'];var DEFAULT_STORAGE_TYPE='cookieStorage';
 
-var URLSearchParams$1 = typeof URLSearchParams!=='undefined'?URLSearchParams:AxiosURLSearchParams;
+var SOURCE_CONFIG_OPTION_ERROR="\"getSourceConfig\" must be a function. Please make sure that it is defined and returns a valid source configuration object.";var SOURCE_CONFIG_RESOLUTION_ERROR="Unable to process/parse source configuration response.";var SOURCE_DISABLED_ERROR="The source is disabled. Please enable the source in the dashboard to send events.";var XHR_PAYLOAD_PREP_ERROR="Failed to prepare data for the request.";var EVENT_OBJECT_GENERATION_ERROR="Failed to generate the event object.";var PLUGIN_EXT_POINT_MISSING_ERROR="Failed to invoke plugin because the extension point name is missing.";var PLUGIN_EXT_POINT_INVALID_ERROR="Failed to invoke plugin because the extension point name is invalid.";var COMPONENT_BASE_URL_ERROR=function COMPONENT_BASE_URL_ERROR(component){return "Failed to load the SDK as the base URL for ".concat(component," is not valid.");};// ERROR
+var UNSUPPORTED_CONSENT_MANAGER_ERROR=function UNSUPPORTED_CONSENT_MANAGER_ERROR(context,selectedConsentManager,consentManagersToPluginNameMap){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The consent manager \"").concat(selectedConsentManager,"\" is not supported. Please choose one of the following supported consent managers: \"").concat(Object.keys(consentManagersToPluginNameMap),"\".");};var REPORTING_PLUGIN_INIT_FAILURE_ERROR=function REPORTING_PLUGIN_INIT_FAILURE_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to initialize the error reporting plugin.");};var NOTIFY_FAILURE_ERROR=function NOTIFY_FAILURE_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to notify the error.");};var PLUGIN_NAME_MISSING_ERROR=function PLUGIN_NAME_MISSING_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Plugin name is missing.");};var PLUGIN_ALREADY_EXISTS_ERROR=function PLUGIN_ALREADY_EXISTS_ERROR(context,pluginName){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Plugin \"").concat(pluginName,"\" already exists.");};var PLUGIN_NOT_FOUND_ERROR=function PLUGIN_NOT_FOUND_ERROR(context,pluginName){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Plugin \"").concat(pluginName,"\" not found.");};var PLUGIN_ENGINE_BUG_ERROR=function PLUGIN_ENGINE_BUG_ERROR(context,pluginName){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Plugin \"").concat(pluginName,"\" not found in plugins but found in byName. This indicates a bug in the plugin engine. Please report this issue to the development team.");};var PLUGIN_DEPS_ERROR=function PLUGIN_DEPS_ERROR(context,pluginName,notExistDeps){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Plugin \"").concat(pluginName,"\" could not be loaded because some of its dependencies \"").concat(notExistDeps,"\" do not exist.");};var PLUGIN_INVOCATION_ERROR=function PLUGIN_INVOCATION_ERROR(context,extPoint,pluginName){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to invoke the \"").concat(extPoint,"\" extension point of plugin \"").concat(pluginName,"\".");};var STORAGE_UNAVAILABILITY_ERROR_PREFIX=function STORAGE_UNAVAILABILITY_ERROR_PREFIX(context,storageType){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The \"").concat(storageType,"\" storage type is ");};var SOURCE_CONFIG_FETCH_ERROR=function SOURCE_CONFIG_FETCH_ERROR(reason){return "Failed to fetch the source config. Reason: ".concat(reason);};var WRITE_KEY_VALIDATION_ERROR=function WRITE_KEY_VALIDATION_ERROR(writeKey){return "The write key \"".concat(writeKey,"\" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.");};var DATA_PLANE_URL_VALIDATION_ERROR=function DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl){return "The data plane URL \"".concat(dataPlaneUrl,"\" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.");};var READY_API_CALLBACK_ERROR=function READY_API_CALLBACK_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The callback is not a function.");};var XHR_DELIVERY_ERROR=function XHR_DELIVERY_ERROR(prefix,status,statusText,url){return "".concat(prefix," with status: ").concat(status,", ").concat(statusText," for URL: ").concat(url,".");};var XHR_REQUEST_ERROR=function XHR_REQUEST_ERROR(prefix,e,url){return "".concat(prefix," due to timeout or no connection (").concat(e?e.type:'',") for URL: ").concat(url,".");};var XHR_SEND_ERROR=function XHR_SEND_ERROR(prefix,url){return "".concat(prefix," for URL: ").concat(url);};var STORE_DATA_SAVE_ERROR=function STORE_DATA_SAVE_ERROR(key){return "Failed to save the value for \"".concat(key,"\" to storage");};var STORE_DATA_FETCH_ERROR=function STORE_DATA_FETCH_ERROR(key){return "Failed to retrieve or parse data for \"".concat(key,"\" from storage");};var DATA_SERVER_REQUEST_FAIL_ERROR=function DATA_SERVER_REQUEST_FAIL_ERROR(status){return "The server responded with status ".concat(status," while setting the cookies. As a fallback, the cookies will be set client side.");};var FAILED_SETTING_COOKIE_FROM_SERVER_ERROR=function FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(key){return "The server failed to set the ".concat(key," cookie. As a fallback, the cookies will be set client side.");};var FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR="Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.";// WARNING
+var STORAGE_TYPE_VALIDATION_WARNING=function STORAGE_TYPE_VALIDATION_WARNING(context,storageType,defaultStorageType){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The storage type \"").concat(storageType,"\" is not supported. Please choose one of the following supported types: \"").concat(SUPPORTED_STORAGE_TYPES,"\". The default type \"").concat(defaultStorageType,"\" will be used instead.");};var UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING=function UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(context,selectedErrorReportingProvider,errorReportingProvidersToPluginNameMap,defaultProvider){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The error reporting provider \"").concat(selectedErrorReportingProvider,"\" is not supported. Please choose one of the following supported providers: \"").concat(Object.keys(errorReportingProvidersToPluginNameMap),"\". The default provider \"").concat(defaultProvider,"\" will be used instead.");};var UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING=function UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(context,selectedStorageEncryptionVersion,storageEncryptionVersionsToPluginNameMap,defaultVersion){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The storage encryption version \"").concat(selectedStorageEncryptionVersion,"\" is not supported. Please choose one of the following supported versions: \"").concat(Object.keys(storageEncryptionVersionsToPluginNameMap),"\". The default version \"").concat(defaultVersion,"\" will be used instead.");};var STORAGE_DATA_MIGRATION_OVERRIDE_WARNING=function STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(context,storageEncryptionVersion,defaultVersion){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The storage data migration has been disabled because the configured storage encryption version (").concat(storageEncryptionVersion,") is not the latest (").concat(defaultVersion,"). To enable storage data migration, please update the storage encryption version to the latest version.");};var RESERVED_KEYWORD_WARNING=function RESERVED_KEYWORD_WARNING(context,property,parentKeyPath,reservedElements){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The \"").concat(property,"\" property defined under \"").concat(parentKeyPath,"\" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (").concat(reservedElements,").");};var UNSUPPORTED_BEACON_API_WARNING=function UNSUPPORTED_BEACON_API_WARNING(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The Beacon API is not supported by your browser. The events will be sent using XHR instead.");};var TIMEOUT_NOT_NUMBER_WARNING=function TIMEOUT_NOT_NUMBER_WARNING(context,timeout,defaultValue){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The session timeout value \"").concat(timeout,"\" is not a number. The default timeout of ").concat(defaultValue," ms will be used instead.");};var TIMEOUT_ZERO_WARNING=function TIMEOUT_ZERO_WARNING(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.");};var TIMEOUT_NOT_RECOMMENDED_WARNING=function TIMEOUT_NOT_RECOMMENDED_WARNING(context,timeout,minTimeout){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The session timeout value ").concat(timeout," ms is less than the recommended minimum of ").concat(minTimeout," ms. Please consider increasing the timeout value to ensure optimal performance and reliability.");};var INVALID_SESSION_ID_WARNING=function INVALID_SESSION_ID_WARNING(context,sessionId,minSessionIdLength){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The provided session ID (").concat(sessionId,") is either invalid, not a positive integer, or not at least \"").concat(minSessionIdLength,"\" digits long. A new session ID will be auto-generated instead.");};var STORAGE_QUOTA_EXCEEDED_WARNING=function STORAGE_QUOTA_EXCEEDED_WARNING(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The storage is either full or unavailable, so the data will not be persisted. Switching to in-memory storage.");};var STORAGE_UNAVAILABLE_WARNING=function STORAGE_UNAVAILABLE_WARNING(context,entry,selectedStorageType,finalStorageType){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The storage type \"").concat(selectedStorageType,"\" is not available for entry \"").concat(entry,"\". The SDK will initialize the entry with \"").concat(finalStorageType,"\" storage type instead.");};var WRITE_KEY_NOT_A_STRING_ERROR=function WRITE_KEY_NOT_A_STRING_ERROR(context,writeKey){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The write key \"").concat(writeKey,"\" is not a string. Please check that the write key is correct and try again.");};var EMPTY_GROUP_CALL_ERROR=function EMPTY_GROUP_CALL_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The group() method must be called with at least one argument.");};var READY_CALLBACK_INVOKE_ERROR="Failed to invoke the ready callback";var API_CALLBACK_INVOKE_ERROR="API Callback Invocation Failed";var NATIVE_DEST_PLUGIN_INITIALIZE_ERROR="NativeDestinationQueuePlugin initialization failed";var DATAPLANE_PLUGIN_INITIALIZE_ERROR="XhrQueuePlugin initialization failed";var DMT_PLUGIN_INITIALIZE_ERROR="DeviceModeTransformationPlugin initialization failed";var NATIVE_DEST_PLUGIN_ENQUEUE_ERROR="NativeDestinationQueuePlugin event enqueue failed";var DATAPLANE_PLUGIN_ENQUEUE_ERROR="XhrQueuePlugin event enqueue failed";var INVALID_CONFIG_URL_WARNING=function INVALID_CONFIG_URL_WARNING(context,configUrl){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The provided source config URL \"").concat(configUrl,"\" is invalid. Using the default source config URL instead.");};var POLYFILL_SCRIPT_LOAD_ERROR=function POLYFILL_SCRIPT_LOAD_ERROR(scriptId,url){return "Failed to load the polyfill script with ID \"".concat(scriptId,"\" from URL ").concat(url,".");};var COOKIE_DATA_ENCODING_ERROR="Failed to encode the cookie data.";var UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY=function UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(context,selectedStrategy,defaultStrategy){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The pre-consent storage strategy \"").concat(selectedStrategy,"\" is not supported. Please choose one of the following supported strategies: \"none, session, anonymousId\". The default strategy \"").concat(defaultStrategy,"\" will be used instead.");};var UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE=function UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE(context,selectedDeliveryType,defaultDeliveryType){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The pre-consent events delivery type \"").concat(selectedDeliveryType,"\" is not supported. Please choose one of the following supported types: \"immediate, buffer\". The default type \"").concat(defaultDeliveryType,"\" will be used instead.");};var generateMisconfiguredPluginsWarning=function generateMisconfiguredPluginsWarning(context,configurationStatus,missingPlugins,shouldAddMissingPlugins){var isSinglePlugin=missingPlugins.length===1;var pluginsString=isSinglePlugin?" '".concat(missingPlugins[0],"' plugin was"):" ['".concat(missingPlugins.join("', '"),"'] plugins were");var baseWarning="".concat(context).concat(LOG_CONTEXT_SEPARATOR).concat(configurationStatus,", but").concat(pluginsString," not configured to load.");if(shouldAddMissingPlugins){return "".concat(baseWarning," So, ").concat(isSinglePlugin?'the plugin':'those plugins'," will be loaded automatically.");}return "".concat(baseWarning," Ignore if this was intentional. Otherwise, consider adding ").concat(isSinglePlugin?'it':'them'," to the 'plugins' load API option.");};var INVALID_POLYFILL_URL_WARNING=function INVALID_POLYFILL_URL_WARNING(context,customPolyfillUrl){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The provided polyfill URL \"").concat(customPolyfillUrl,"\" is invalid. The default polyfill URL will be used instead.");};// DEBUG
 
-var FormData$1 = typeof FormData!=='undefined'?FormData:null;
-
-var Blob$1 = typeof Blob!=='undefined'?Blob:null;
-
-var platform$1 = {isBrowser:true,classes:{URLSearchParams: URLSearchParams$1,FormData: FormData$1,Blob: Blob$1},protocols:['http','https','file','blob','url','data']};
-
-const hasBrowserEnv=typeof window!=='undefined'&&typeof document!=='undefined';/**
- * Determine if we're running in a standard browser environment
- *
- * This allows axios to run in a web worker, and react-native.
- * Both environments support XMLHttpRequest, but not fully standard globals.
- *
- * web workers:
- *  typeof window -> undefined
- *  typeof document -> undefined
- *
- * react-native:
- *  navigator.product -> 'ReactNative'
- * nativescript
- *  navigator.product -> 'NativeScript' or 'NS'
- *
- * @returns {boolean}
- */const hasStandardBrowserEnv=(product=>{return hasBrowserEnv&&['ReactNative','NativeScript','NS'].indexOf(product)<0;})(typeof navigator!=='undefined'&&navigator.product);/**
- * Determine if we're running in a standard browser webWorker environment
- *
- * Although the `isStandardBrowserEnv` method indicates that
- * `allows axios to run in a web worker`, the WebWorker will still be
- * filtered out due to its judgment standard
- * `typeof window !== 'undefined' && typeof document !== 'undefined'`.
- * This leads to a problem when axios post `FormData` in webWorker
- */const hasStandardBrowserWebWorkerEnv=(()=>{return typeof WorkerGlobalScope!=='undefined'&&// eslint-disable-next-line no-undef
-self instanceof WorkerGlobalScope&&typeof self.importScripts==='function';})();const origin=hasBrowserEnv&&window.location.href||'http://localhost';
-
-var utils = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  hasBrowserEnv: hasBrowserEnv,
-  hasStandardBrowserEnv: hasStandardBrowserEnv,
-  hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
-  origin: origin
-});
-
-var platform = {...utils,...platform$1};
-
-function toURLEncodedForm(data,options){return toFormData(data,new platform.classes.URLSearchParams(),_extends({visitor:function(value,key,path,helpers){if(platform.isNode&&utils$1.isBuffer(value)){this.append(key,value.toString('base64'));return false;}return helpers.defaultVisitor.apply(this,arguments);}},options));}
-
-/**
- * It takes a string like `foo[x][y][z]` and returns an array like `['foo', 'x', 'y', 'z']
- *
- * @param {string} name - The name of the property to get.
- *
- * @returns An array of strings.
- */function parsePropPath(name){// foo[x][y][z]
-// foo.x.y.z
-// foo-x-y-z
-// foo x y z
-return utils$1.matchAll(/\w+|\[(\w*)]/g,name).map(match=>{return match[0]==='[]'?'':match[1]||match[0];});}/**
- * Convert an array to an object.
- *
- * @param {Array<any>} arr - The array to convert to an object.
- *
- * @returns An object with the same keys and values as the array.
- */function arrayToObject(arr){const obj={};const keys=Object.keys(arr);let i;const len=keys.length;let key;for(i=0;i<len;i++){key=keys[i];obj[key]=arr[key];}return obj;}/**
- * It takes a FormData object and returns a JavaScript object
- *
- * @param {string} formData The FormData object to convert to JSON.
- *
- * @returns {Object<string, any> | null} The converted object.
- */function formDataToJSON(formData){function buildPath(path,value,target,index){let name=path[index++];if(name==='__proto__')return true;const isNumericKey=Number.isFinite(+name);const isLast=index>=path.length;name=!name&&utils$1.isArray(target)?target.length:name;if(isLast){if(utils$1.hasOwnProp(target,name)){target[name]=[target[name],value];}else {target[name]=value;}return !isNumericKey;}if(!target[name]||!utils$1.isObject(target[name])){target[name]=[];}const result=buildPath(path,value,target[name],index);if(result&&utils$1.isArray(target[name])){target[name]=arrayToObject(target[name]);}return !isNumericKey;}if(utils$1.isFormData(formData)&&utils$1.isFunction(formData.entries)){const obj={};utils$1.forEachEntry(formData,(name,value)=>{buildPath(parsePropPath(name),value,obj,0);});return obj;}return null;}
-
-/**
- * It takes a string, tries to parse it, and if it fails, it returns the stringified version
- * of the input
- *
- * @param {any} rawValue - The value to be stringified.
- * @param {Function} parser - A function that parses a string into a JavaScript object.
- * @param {Function} encoder - A function that takes a value and returns a string.
- *
- * @returns {string} A stringified version of the rawValue.
- */function stringifySafely(rawValue,parser,encoder){if(utils$1.isString(rawValue)){try{(parser||JSON.parse)(rawValue);return utils$1.trim(rawValue);}catch(e){if(e.name!=='SyntaxError'){throw e;}}}return (encoder||JSON.stringify)(rawValue);}const defaults={transitional:transitionalDefaults,adapter:['xhr','http','fetch'],transformRequest:[function transformRequest(data,headers){const contentType=headers.getContentType()||'';const hasJSONContentType=contentType.indexOf('application/json')>-1;const isObjectPayload=utils$1.isObject(data);if(isObjectPayload&&utils$1.isHTMLForm(data)){data=new FormData(data);}const isFormData=utils$1.isFormData(data);if(isFormData){return hasJSONContentType?JSON.stringify(formDataToJSON(data)):data;}if(utils$1.isArrayBuffer(data)||utils$1.isBuffer(data)||utils$1.isStream(data)||utils$1.isFile(data)||utils$1.isBlob(data)||utils$1.isReadableStream(data)){return data;}if(utils$1.isArrayBufferView(data)){return data.buffer;}if(utils$1.isURLSearchParams(data)){headers.setContentType('application/x-www-form-urlencoded;charset=utf-8',false);return data.toString();}let isFileList;if(isObjectPayload){if(contentType.indexOf('application/x-www-form-urlencoded')>-1){return toURLEncodedForm(data,this.formSerializer).toString();}if((isFileList=utils$1.isFileList(data))||contentType.indexOf('multipart/form-data')>-1){const _FormData=this.env&&this.env.FormData;return toFormData(isFileList?{'files[]':data}:data,_FormData&&new _FormData(),this.formSerializer);}}if(isObjectPayload||hasJSONContentType){headers.setContentType('application/json',false);return stringifySafely(data);}return data;}],transformResponse:[function transformResponse(data){const transitional=this.transitional||defaults.transitional;const forcedJSONParsing=transitional&&transitional.forcedJSONParsing;const JSONRequested=this.responseType==='json';if(utils$1.isResponse(data)||utils$1.isReadableStream(data)){return data;}if(data&&utils$1.isString(data)&&(forcedJSONParsing&&!this.responseType||JSONRequested)){const silentJSONParsing=transitional&&transitional.silentJSONParsing;const strictJSONParsing=!silentJSONParsing&&JSONRequested;try{return JSON.parse(data);}catch(e){if(strictJSONParsing){if(e.name==='SyntaxError'){throw AxiosError.from(e,AxiosError.ERR_BAD_RESPONSE,this,null,this.response);}throw e;}}}return data;}],/**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */timeout:0,xsrfCookieName:'XSRF-TOKEN',xsrfHeaderName:'X-XSRF-TOKEN',maxContentLength:-1,maxBodyLength:-1,env:{FormData:platform.classes.FormData,Blob:platform.classes.Blob},validateStatus:function validateStatus(status){return status>=200&&status<300;},headers:{common:{'Accept':'application/json, text/plain, */*','Content-Type':undefined}}};utils$1.forEach(['delete','get','head','post','put','patch'],method=>{defaults.headers[method]={};});
-
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-const ignoreDuplicateOf=utils$1.toObjectSet(['age','authorization','content-length','content-type','etag','expires','from','host','if-modified-since','if-unmodified-since','last-modified','location','max-forwards','proxy-authorization','referer','retry-after','user-agent']);/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} rawHeaders Headers needing to be parsed
- *
- * @returns {Object} Headers parsed into an object
- */var parseHeaders = (rawHeaders=>{const parsed={};let key;let val;let i;rawHeaders&&rawHeaders.split('\n').forEach(function parser(line){i=line.indexOf(':');key=line.substring(0,i).trim().toLowerCase();val=line.substring(i+1).trim();if(!key||parsed[key]&&ignoreDuplicateOf[key]){return;}if(key==='set-cookie'){if(parsed[key]){parsed[key].push(val);}else {parsed[key]=[val];}}else {parsed[key]=parsed[key]?parsed[key]+', '+val:val;}});return parsed;});
-
-const $internals=Symbol('internals');function normalizeHeader(header){return header&&String(header).trim().toLowerCase();}function normalizeValue(value){if(value===false||value==null){return value;}return utils$1.isArray(value)?value.map(normalizeValue):String(value);}function parseTokens(str){const tokens=Object.create(null);const tokensRE=/([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;let match;while(match=tokensRE.exec(str)){tokens[match[1]]=match[2];}return tokens;}const isValidHeaderName=str=>/^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());function matchHeaderValue(context,value,header,filter,isHeaderNameFilter){if(utils$1.isFunction(filter)){return filter.call(this,value,header);}if(isHeaderNameFilter){value=header;}if(!utils$1.isString(value))return;if(utils$1.isString(filter)){return value.indexOf(filter)!==-1;}if(utils$1.isRegExp(filter)){return filter.test(value);}}function formatHeader(header){return header.trim().toLowerCase().replace(/([a-z\d])(\w*)/g,(w,char,str)=>{return char.toUpperCase()+str;});}function buildAccessors(obj,header){const accessorName=utils$1.toCamelCase(' '+header);['get','set','has'].forEach(methodName=>{Object.defineProperty(obj,methodName+accessorName,{value:function(arg1,arg2,arg3){return this[methodName].call(this,header,arg1,arg2,arg3);},configurable:true});});}class AxiosHeaders{constructor(headers){headers&&this.set(headers);}set(header,valueOrRewrite,rewrite){const self=this;function setHeader(_value,_header,_rewrite){const lHeader=normalizeHeader(_header);if(!lHeader){throw new Error('header name must be a non-empty string');}const key=utils$1.findKey(self,lHeader);if(!key||self[key]===undefined||_rewrite===true||_rewrite===undefined&&self[key]!==false){self[key||_header]=normalizeValue(_value);}}const setHeaders=(headers,_rewrite)=>utils$1.forEach(headers,(_value,_header)=>setHeader(_value,_header,_rewrite));if(utils$1.isPlainObject(header)||header instanceof this.constructor){setHeaders(header,valueOrRewrite);}else if(utils$1.isString(header)&&(header=header.trim())&&!isValidHeaderName(header)){setHeaders(parseHeaders(header),valueOrRewrite);}else if(utils$1.isHeaders(header)){for(const[key,value]of header.entries()){setHeader(value,key,rewrite);}}else {header!=null&&setHeader(valueOrRewrite,header,rewrite);}return this;}get(header,parser){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);if(key){const value=this[key];if(!parser){return value;}if(parser===true){return parseTokens(value);}if(utils$1.isFunction(parser)){return parser.call(this,value,key);}if(utils$1.isRegExp(parser)){return parser.exec(value);}throw new TypeError('parser must be boolean|regexp|function');}}}has(header,matcher){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);return !!(key&&this[key]!==undefined&&(!matcher||matchHeaderValue(this,this[key],key,matcher)));}return false;}delete(header,matcher){const self=this;let deleted=false;function deleteHeader(_header){_header=normalizeHeader(_header);if(_header){const key=utils$1.findKey(self,_header);if(key&&(!matcher||matchHeaderValue(self,self[key],key,matcher))){delete self[key];deleted=true;}}}if(utils$1.isArray(header)){header.forEach(deleteHeader);}else {deleteHeader(header);}return deleted;}clear(matcher){const keys=Object.keys(this);let i=keys.length;let deleted=false;while(i--){const key=keys[i];if(!matcher||matchHeaderValue(this,this[key],key,matcher,true)){delete this[key];deleted=true;}}return deleted;}normalize(format){const self=this;const headers={};utils$1.forEach(this,(value,header)=>{const key=utils$1.findKey(headers,header);if(key){self[key]=normalizeValue(value);delete self[header];return;}const normalized=format?formatHeader(header):String(header).trim();if(normalized!==header){delete self[header];}self[normalized]=normalizeValue(value);headers[normalized]=true;});return this;}concat(...targets){return this.constructor.concat(this,...targets);}toJSON(asStrings){const obj=Object.create(null);utils$1.forEach(this,(value,header)=>{value!=null&&value!==false&&(obj[header]=asStrings&&utils$1.isArray(value)?value.join(', '):value);});return obj;}[Symbol.iterator](){return Object.entries(this.toJSON())[Symbol.iterator]();}toString(){return Object.entries(this.toJSON()).map(([header,value])=>header+': '+value).join('\n');}get[Symbol.toStringTag](){return 'AxiosHeaders';}static from(thing){return thing instanceof this?thing:new this(thing);}static concat(first,...targets){const computed=new this(first);targets.forEach(target=>computed.set(target));return computed;}static accessor(header){const internals=this[$internals]=this[$internals]={accessors:{}};const accessors=internals.accessors;const prototype=this.prototype;function defineAccessor(_header){const lHeader=normalizeHeader(_header);if(!accessors[lHeader]){buildAccessors(prototype,_header);accessors[lHeader]=true;}}utils$1.isArray(header)?header.forEach(defineAccessor):defineAccessor(header);return this;}}AxiosHeaders.accessor(['Content-Type','Content-Length','Accept','Accept-Encoding','User-Agent','Authorization']);// reserved names hotfix
-utils$1.reduceDescriptors(AxiosHeaders.prototype,({value},key)=>{let mapped=key[0].toUpperCase()+key.slice(1);// map `set` => `Set`
-return {get:()=>value,set(headerValue){this[mapped]=headerValue;}};});utils$1.freezeMethods(AxiosHeaders);
-
-/**
- * Transform the data for a request or a response
- *
- * @param {Array|Function} fns A single function or Array of functions
- * @param {?Object} response The response object
- *
- * @returns {*} The resulting transformed data
- */function transformData(fns,response){const config=this||defaults;const context=response||config;const headers=AxiosHeaders.from(context.headers);let data=context.data;utils$1.forEach(fns,function transform(fn){data=fn.call(config,data,headers.normalize(),response?response.status:undefined);});headers.normalize();return data;}
-
-function isCancel(value){return !!(value&&value.__CANCEL__);}
-
-/**
- * A `CanceledError` is an object that is thrown when an operation is canceled.
- *
- * @param {string=} message The message.
- * @param {Object=} config The config.
- * @param {Object=} request The request.
- *
- * @returns {CanceledError} The created error.
- */function CanceledError(message,config,request){// eslint-disable-next-line no-eq-null,eqeqeq
-AxiosError.call(this,message==null?'canceled':message,AxiosError.ERR_CANCELED,config,request);this.name='CanceledError';}utils$1.inherits(CanceledError,AxiosError,{__CANCEL__:true});
-
-/**
- * Resolve or reject a Promise based on response status.
- *
- * @param {Function} resolve A function that resolves the promise.
- * @param {Function} reject A function that rejects the promise.
- * @param {object} response The response.
- *
- * @returns {object} The response.
- */function settle(resolve,reject,response){const validateStatus=response.config.validateStatus;if(!response.status||!validateStatus||validateStatus(response.status)){resolve(response);}else {reject(new AxiosError('Request failed with status code '+response.status,[AxiosError.ERR_BAD_REQUEST,AxiosError.ERR_BAD_RESPONSE][Math.floor(response.status/100)-4],response.config,response.request,response));}}
-
-function parseProtocol(url){const match=/^([-+\w]{1,25})(:?\/\/|:)/.exec(url);return match&&match[1]||'';}
-
-/**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
- */function speedometer(samplesCount,min){samplesCount=samplesCount||10;const bytes=new Array(samplesCount);const timestamps=new Array(samplesCount);let head=0;let tail=0;let firstSampleTS;min=min!==undefined?min:1000;return function push(chunkLength){const now=Date.now();const startedAt=timestamps[tail];if(!firstSampleTS){firstSampleTS=now;}bytes[head]=chunkLength;timestamps[head]=now;let i=tail;let bytesCount=0;while(i!==head){bytesCount+=bytes[i++];i=i%samplesCount;}head=(head+1)%samplesCount;if(head===tail){tail=(tail+1)%samplesCount;}if(now-firstSampleTS<min){return;}const passed=startedAt&&now-startedAt;return passed?Math.round(bytesCount*1000/passed):undefined;};}
-
-/**
- * Throttle decorator
- * @param {Function} fn
- * @param {Number} freq
- * @return {Function}
- */function throttle(fn,freq){let timestamp=0;const threshold=1000/freq;let timer=null;return function throttled(){const force=this===true;const now=Date.now();if(force||now-timestamp>threshold){if(timer){clearTimeout(timer);timer=null;}timestamp=now;return fn.apply(null,arguments);}if(!timer){timer=setTimeout(()=>{timer=null;timestamp=Date.now();return fn.apply(null,arguments);},threshold-(now-timestamp));}};}
-
-var progressEventReducer = ((listener,isDownloadStream,freq=3)=>{let bytesNotified=0;const _speedometer=speedometer(50,250);return throttle(e=>{const loaded=e.loaded;const total=e.lengthComputable?e.total:undefined;const progressBytes=loaded-bytesNotified;const rate=_speedometer(progressBytes);const inRange=loaded<=total;bytesNotified=loaded;const data={loaded,total,progress:total?loaded/total:undefined,bytes:progressBytes,rate:rate?rate:undefined,estimated:rate&&total&&inRange?(total-loaded)/rate:undefined,event:e,lengthComputable:total!=null};data[isDownloadStream?'download':'upload']=true;listener(data);},freq);});
-
-var isURLSameOrigin = platform.hasStandardBrowserEnv?// Standard browser envs have full support of the APIs needed to test
-// whether the request URL is of the same origin as current location.
-function standardBrowserEnv(){const msie=/(msie|trident)/i.test(navigator.userAgent);const urlParsingNode=document.createElement('a');let originURL;/**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */function resolveURL(url){let href=url;if(msie){// IE needs attribute set twice to normalize properties
-urlParsingNode.setAttribute('href',href);href=urlParsingNode.href;}urlParsingNode.setAttribute('href',href);// urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-return {href:urlParsingNode.href,protocol:urlParsingNode.protocol?urlParsingNode.protocol.replace(/:$/,''):'',host:urlParsingNode.host,search:urlParsingNode.search?urlParsingNode.search.replace(/^\?/,''):'',hash:urlParsingNode.hash?urlParsingNode.hash.replace(/^#/,''):'',hostname:urlParsingNode.hostname,port:urlParsingNode.port,pathname:urlParsingNode.pathname.charAt(0)==='/'?urlParsingNode.pathname:'/'+urlParsingNode.pathname};}originURL=resolveURL(window.location.href);/**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */return function isURLSameOrigin(requestURL){const parsed=utils$1.isString(requestURL)?resolveURL(requestURL):requestURL;return parsed.protocol===originURL.protocol&&parsed.host===originURL.host;};}():// Non standard browser envs (web workers, react-native) lack needed support.
-function nonStandardBrowserEnv(){return function isURLSameOrigin(){return true;};}();
-
-var cookies = platform.hasStandardBrowserEnv?// Standard browser envs support document.cookie
-{write(name,value,expires,path,domain,secure){const cookie=[name+'='+encodeURIComponent(value)];utils$1.isNumber(expires)&&cookie.push('expires='+new Date(expires).toGMTString());utils$1.isString(path)&&cookie.push('path='+path);utils$1.isString(domain)&&cookie.push('domain='+domain);secure===true&&cookie.push('secure');document.cookie=cookie.join('; ');},read(name){const match=document.cookie.match(new RegExp('(^|;\\s*)('+name+')=([^;]*)'));return match?decodeURIComponent(match[3]):null;},remove(name){this.write(name,'',Date.now()-86400000);}}:// Non-standard browser env (web workers, react-native) lack needed support.
-{write(){},read(){return null;},remove(){}};
-
-/**
- * Determines whether the specified URL is absolute
- *
- * @param {string} url The URL to test
- *
- * @returns {boolean} True if the specified URL is absolute, otherwise false
- */function isAbsoluteURL(url){// A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-// RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-// by any combination of letters, digits, plus, period, or hyphen.
-return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);}
-
-/**
- * Creates a new URL by combining the specified URLs
- *
- * @param {string} baseURL The base URL
- * @param {string} relativeURL The relative URL
- *
- * @returns {string} The combined URL
- */function combineURLs(baseURL,relativeURL){return relativeURL?baseURL.replace(/\/?\/$/,'')+'/'+relativeURL.replace(/^\/+/,''):baseURL;}
-
-/**
- * Creates a new URL by combining the baseURL with the requestedURL,
- * only when the requestedURL is not already an absolute URL.
- * If the requestURL is absolute, this function returns the requestedURL untouched.
- *
- * @param {string} baseURL The base URL
- * @param {string} requestedURL Absolute or relative URL to combine
- *
- * @returns {string} The combined full path
- */function buildFullPath(baseURL,requestedURL){if(baseURL&&!isAbsoluteURL(requestedURL)){return combineURLs(baseURL,requestedURL);}return requestedURL;}
-
-const headersToObject=thing=>thing instanceof AxiosHeaders?{...thing}:thing;/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- *
- * @returns {Object} New object resulting from merging config2 to config1
- */function mergeConfig(config1,config2){// eslint-disable-next-line no-param-reassign
-config2=config2||{};const config={};function getMergedValue(target,source,caseless){if(utils$1.isPlainObject(target)&&utils$1.isPlainObject(source)){return utils$1.merge.call({caseless},target,source);}else if(utils$1.isPlainObject(source)){return utils$1.merge({},source);}else if(utils$1.isArray(source)){return source.slice();}return source;}// eslint-disable-next-line consistent-return
-function mergeDeepProperties(a,b,caseless){if(!utils$1.isUndefined(b)){return getMergedValue(a,b,caseless);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a,caseless);}}// eslint-disable-next-line consistent-return
-function valueFromConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}}// eslint-disable-next-line consistent-return
-function defaultToConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a);}}// eslint-disable-next-line consistent-return
-function mergeDirectKeys(a,b,prop){if(prop in config2){return getMergedValue(a,b);}else if(prop in config1){return getMergedValue(undefined,a);}}const mergeMap={url:valueFromConfig2,method:valueFromConfig2,data:valueFromConfig2,baseURL:defaultToConfig2,transformRequest:defaultToConfig2,transformResponse:defaultToConfig2,paramsSerializer:defaultToConfig2,timeout:defaultToConfig2,timeoutMessage:defaultToConfig2,withCredentials:defaultToConfig2,withXSRFToken:defaultToConfig2,adapter:defaultToConfig2,responseType:defaultToConfig2,xsrfCookieName:defaultToConfig2,xsrfHeaderName:defaultToConfig2,onUploadProgress:defaultToConfig2,onDownloadProgress:defaultToConfig2,decompress:defaultToConfig2,maxContentLength:defaultToConfig2,maxBodyLength:defaultToConfig2,beforeRedirect:defaultToConfig2,transport:defaultToConfig2,httpAgent:defaultToConfig2,httpsAgent:defaultToConfig2,cancelToken:defaultToConfig2,socketPath:defaultToConfig2,responseEncoding:defaultToConfig2,validateStatus:mergeDirectKeys,headers:(a,b)=>mergeDeepProperties(headersToObject(a),headersToObject(b),true)};utils$1.forEach(Object.keys(_extends({},config1,config2)),function computeConfigValue(prop){const merge=mergeMap[prop]||mergeDeepProperties;const configValue=merge(config1[prop],config2[prop],prop);utils$1.isUndefined(configValue)&&merge!==mergeDirectKeys||(config[prop]=configValue);});return config;}
-
-var resolveConfig = (config=>{const newConfig=mergeConfig({},config);let{data,withXSRFToken,xsrfHeaderName,xsrfCookieName,headers,auth}=newConfig;newConfig.headers=headers=AxiosHeaders.from(headers);newConfig.url=buildURL(buildFullPath(newConfig.baseURL,newConfig.url),config.params,config.paramsSerializer);// HTTP basic authentication
-if(auth){headers.set('Authorization','Basic '+btoa((auth.username||'')+':'+(auth.password?unescape(encodeURIComponent(auth.password)):'')));}let contentType;if(utils$1.isFormData(data)){if(platform.hasStandardBrowserEnv||platform.hasStandardBrowserWebWorkerEnv){headers.setContentType(undefined);// Let the browser set it
-}else if((contentType=headers.getContentType())!==false){// fix semicolon duplication issue for ReactNative FormData implementation
-const[type,...tokens]=contentType?contentType.split(';').map(token=>token.trim()).filter(Boolean):[];headers.setContentType([type||'multipart/form-data',...tokens].join('; '));}}// Add xsrf header
-// This is only done if running in a standard browser environment.
-// Specifically not if we're in a web worker, or react-native.
-if(platform.hasStandardBrowserEnv){withXSRFToken&&utils$1.isFunction(withXSRFToken)&&(withXSRFToken=withXSRFToken(newConfig));if(withXSRFToken||withXSRFToken!==false&&isURLSameOrigin(newConfig.url)){// Add xsrf header
-const xsrfValue=xsrfHeaderName&&xsrfCookieName&&cookies.read(xsrfCookieName);if(xsrfValue){headers.set(xsrfHeaderName,xsrfValue);}}}return newConfig;});
-
-const isXHRAdapterSupported=typeof XMLHttpRequest!=='undefined';var xhrAdapter = isXHRAdapterSupported&&function(config){return new Promise(function dispatchXhrRequest(resolve,reject){const _config=resolveConfig(config);let requestData=_config.data;const requestHeaders=AxiosHeaders.from(_config.headers).normalize();let{responseType}=_config;let onCanceled;function done(){if(_config.cancelToken){_config.cancelToken.unsubscribe(onCanceled);}if(_config.signal){_config.signal.removeEventListener('abort',onCanceled);}}let request=new XMLHttpRequest();request.open(_config.method.toUpperCase(),_config.url,true);// Set the request timeout in MS
-request.timeout=_config.timeout;function onloadend(){if(!request){return;}// Prepare the response
-const responseHeaders=AxiosHeaders.from('getAllResponseHeaders'in request&&request.getAllResponseHeaders());const responseData=!responseType||responseType==='text'||responseType==='json'?request.responseText:request.response;const response={data:responseData,status:request.status,statusText:request.statusText,headers:responseHeaders,config,request};settle(function _resolve(value){resolve(value);done();},function _reject(err){reject(err);done();},response);// Clean up request
-request=null;}if('onloadend'in request){// Use onloadend if available
-request.onloadend=onloadend;}else {// Listen for ready state to emulate onloadend
-request.onreadystatechange=function handleLoad(){if(!request||request.readyState!==4){return;}// The request errored out and we didn't get a response, this will be
-// handled by onerror instead
-// With one exception: request that using file: protocol, most browsers
-// will return status as 0 even though it's a successful request
-if(request.status===0&&!(request.responseURL&&request.responseURL.indexOf('file:')===0)){return;}// readystate handler is calling before onerror or ontimeout handlers,
-// so we should call onloadend on the next 'tick'
-setTimeout(onloadend);};}// Handle browser request cancellation (as opposed to a manual cancellation)
-request.onabort=function handleAbort(){if(!request){return;}reject(new AxiosError('Request aborted',AxiosError.ECONNABORTED,_config,request));// Clean up request
-request=null;};// Handle low level network errors
-request.onerror=function handleError(){// Real errors are hidden from us by the browser
-// onerror should only fire if it's a network error
-reject(new AxiosError('Network Error',AxiosError.ERR_NETWORK,_config,request));// Clean up request
-request=null;};// Handle timeout
-request.ontimeout=function handleTimeout(){let timeoutErrorMessage=_config.timeout?'timeout of '+_config.timeout+'ms exceeded':'timeout exceeded';const transitional=_config.transitional||transitionalDefaults;if(_config.timeoutErrorMessage){timeoutErrorMessage=_config.timeoutErrorMessage;}reject(new AxiosError(timeoutErrorMessage,transitional.clarifyTimeoutError?AxiosError.ETIMEDOUT:AxiosError.ECONNABORTED,_config,request));// Clean up request
-request=null;};// Remove Content-Type if data is undefined
-requestData===undefined&&requestHeaders.setContentType(null);// Add headers to the request
-if('setRequestHeader'in request){utils$1.forEach(requestHeaders.toJSON(),function setRequestHeader(val,key){request.setRequestHeader(key,val);});}// Add withCredentials to request if needed
-if(!utils$1.isUndefined(_config.withCredentials)){request.withCredentials=!!_config.withCredentials;}// Add responseType to request if needed
-if(responseType&&responseType!=='json'){request.responseType=_config.responseType;}// Handle progress if needed
-if(typeof _config.onDownloadProgress==='function'){request.addEventListener('progress',progressEventReducer(_config.onDownloadProgress,true));}// Not all browsers support upload events
-if(typeof _config.onUploadProgress==='function'&&request.upload){request.upload.addEventListener('progress',progressEventReducer(_config.onUploadProgress));}if(_config.cancelToken||_config.signal){// Handle cancellation
-// eslint-disable-next-line func-names
-onCanceled=cancel=>{if(!request){return;}reject(!cancel||cancel.type?new CanceledError(null,config,request):cancel);request.abort();request=null;};_config.cancelToken&&_config.cancelToken.subscribe(onCanceled);if(_config.signal){_config.signal.aborted?onCanceled():_config.signal.addEventListener('abort',onCanceled);}}const protocol=parseProtocol(_config.url);if(protocol&&platform.protocols.indexOf(protocol)===-1){reject(new AxiosError('Unsupported protocol '+protocol+':',AxiosError.ERR_BAD_REQUEST,config));return;}// Send the request
-request.send(requestData||null);});};
-
-const composeSignals=(signals,timeout)=>{let controller=new AbortController();let aborted;const onabort=function(cancel){if(!aborted){aborted=true;unsubscribe();const err=cancel instanceof Error?cancel:this.reason;controller.abort(err instanceof AxiosError?err:new CanceledError(err instanceof Error?err.message:err));}};let timer=timeout&&setTimeout(()=>{onabort(new AxiosError(`timeout ${timeout} of ms exceeded`,AxiosError.ETIMEDOUT));},timeout);const unsubscribe=()=>{if(signals){timer&&clearTimeout(timer);timer=null;signals.forEach(signal=>{signal&&(signal.removeEventListener?signal.removeEventListener('abort',onabort):signal.unsubscribe(onabort));});signals=null;}};signals.forEach(signal=>signal&&signal.addEventListener&&signal.addEventListener('abort',onabort));const{signal}=controller;signal.unsubscribe=unsubscribe;return [signal,()=>{timer&&clearTimeout(timer);timer=null;}];};
-
-const streamChunk=function*(chunk,chunkSize){let len=chunk.byteLength;if(!chunkSize||len<chunkSize){yield chunk;return;}let pos=0;let end;while(pos<len){end=pos+chunkSize;yield chunk.slice(pos,end);pos=end;}};const readBytes=async function*(iterable,chunkSize,encode){for await(const chunk of iterable){yield*streamChunk(ArrayBuffer.isView(chunk)?chunk:await encode(String(chunk)),chunkSize);}};const trackStream=(stream,chunkSize,onProgress,onFinish,encode)=>{const iterator=readBytes(stream,chunkSize,encode);let bytes=0;return new ReadableStream({type:'bytes',async pull(controller){const{done,value}=await iterator.next();if(done){controller.close();onFinish();return;}let len=value.byteLength;onProgress&&onProgress(bytes+=len);controller.enqueue(new Uint8Array(value));},cancel(reason){onFinish(reason);return iterator.return();}},{highWaterMark:2});};
-
-const fetchProgressDecorator=(total,fn)=>{const lengthComputable=total!=null;return loaded=>setTimeout(()=>fn({lengthComputable,total,loaded}));};const isFetchSupported=typeof fetch==='function'&&typeof Request==='function'&&typeof Response==='function';const isReadableStreamSupported=isFetchSupported&&typeof ReadableStream==='function';// used only inside the fetch adapter
-const encodeText=isFetchSupported&&(typeof TextEncoder==='function'?(encoder=>str=>encoder.encode(str))(new TextEncoder()):async str=>new Uint8Array(await new Response(str).arrayBuffer()));const supportsRequestStream=isReadableStreamSupported&&(()=>{let duplexAccessed=false;const hasContentType=new Request(platform.origin,{body:new ReadableStream(),method:'POST',get duplex(){duplexAccessed=true;return 'half';}}).headers.has('Content-Type');return duplexAccessed&&!hasContentType;})();const DEFAULT_CHUNK_SIZE=64*1024;const supportsResponseStream=isReadableStreamSupported&&!!(()=>{try{return utils$1.isReadableStream(new Response('').body);}catch(err){// return undefined
-}})();const resolvers={stream:supportsResponseStream&&(res=>res.body)};isFetchSupported&&(res=>{['text','arrayBuffer','blob','formData','stream'].forEach(type=>{!resolvers[type]&&(resolvers[type]=utils$1.isFunction(res[type])?res=>res[type]():(_,config)=>{throw new AxiosError(`Response type '${type}' is not supported`,AxiosError.ERR_NOT_SUPPORT,config);});});})(new Response());const getBodyLength=async body=>{if(body==null){return 0;}if(utils$1.isBlob(body)){return body.size;}if(utils$1.isSpecCompliantForm(body)){return (await new Request(body).arrayBuffer()).byteLength;}if(utils$1.isArrayBufferView(body)){return body.byteLength;}if(utils$1.isURLSearchParams(body)){body=body+'';}if(utils$1.isString(body)){return (await encodeText(body)).byteLength;}};const resolveBodyLength=async(headers,body)=>{const length=utils$1.toFiniteNumber(headers.getContentLength());return length==null?getBodyLength(body):length;};var fetchAdapter$1 = isFetchSupported&&(async config=>{let{url,method,data,signal,cancelToken,timeout,onDownloadProgress,onUploadProgress,responseType,headers,withCredentials='same-origin',fetchOptions}=resolveConfig(config);responseType=responseType?(responseType+'').toLowerCase():'text';let[composedSignal,stopTimeout]=signal||cancelToken||timeout?composeSignals([signal,cancelToken],timeout):[];let finished,request;const onFinish=()=>{!finished&&setTimeout(()=>{composedSignal&&composedSignal.unsubscribe();});finished=true;};let requestContentLength;try{if(onUploadProgress&&supportsRequestStream&&method!=='get'&&method!=='head'&&(requestContentLength=await resolveBodyLength(headers,data))!==0){let _request=new Request(url,{method:'POST',body:data,duplex:"half"});let contentTypeHeader;if(utils$1.isFormData(data)&&(contentTypeHeader=_request.headers.get('content-type'))){headers.setContentType(contentTypeHeader);}if(_request.body){data=trackStream(_request.body,DEFAULT_CHUNK_SIZE,fetchProgressDecorator(requestContentLength,progressEventReducer(onUploadProgress)),null,encodeText);}}if(!utils$1.isString(withCredentials)){withCredentials=withCredentials?'cors':'omit';}request=new Request(url,{...fetchOptions,signal:composedSignal,method:method.toUpperCase(),headers:headers.normalize().toJSON(),body:data,duplex:"half",withCredentials});let response=await fetch(request);const isStreamResponse=supportsResponseStream&&(responseType==='stream'||responseType==='response');if(supportsResponseStream&&(onDownloadProgress||isStreamResponse)){const options={};['status','statusText','headers'].forEach(prop=>{options[prop]=response[prop];});const responseContentLength=utils$1.toFiniteNumber(response.headers.get('content-length'));response=new Response(trackStream(response.body,DEFAULT_CHUNK_SIZE,onDownloadProgress&&fetchProgressDecorator(responseContentLength,progressEventReducer(onDownloadProgress,true)),isStreamResponse&&onFinish,encodeText),options);}responseType=responseType||'text';let responseData=await resolvers[utils$1.findKey(resolvers,responseType)||'text'](response,config);!isStreamResponse&&onFinish();stopTimeout&&stopTimeout();return await new Promise((resolve,reject)=>{settle(resolve,reject,{data:responseData,headers:AxiosHeaders.from(response.headers),status:response.status,statusText:response.statusText,config,request});});}catch(err){onFinish();if(err&&err.name==='TypeError'&&/fetch/i.test(err.message)){throw _extends(new AxiosError('Network Error',AxiosError.ERR_NETWORK,config,request),{cause:err.cause||err});}throw AxiosError.from(err,err&&err.code,config,request);}});
-
-const knownAdapters={http:httpAdapter,xhr:xhrAdapter,fetch:fetchAdapter$1};utils$1.forEach(knownAdapters,(fn,value)=>{if(fn){try{Object.defineProperty(fn,'name',{value});}catch(e){// eslint-disable-next-line no-empty
-}Object.defineProperty(fn,'adapterName',{value});}});const renderReason=reason=>`- ${reason}`;const isResolvedHandle=adapter=>utils$1.isFunction(adapter)||adapter===null||adapter===false;var adapters = {getAdapter:adapters=>{adapters=utils$1.isArray(adapters)?adapters:[adapters];const{length}=adapters;let nameOrAdapter;let adapter;const rejectedReasons={};for(let i=0;i<length;i++){nameOrAdapter=adapters[i];let id;adapter=nameOrAdapter;if(!isResolvedHandle(nameOrAdapter)){adapter=knownAdapters[(id=String(nameOrAdapter)).toLowerCase()];if(adapter===undefined){throw new AxiosError(`Unknown adapter '${id}'`);}}if(adapter){break;}rejectedReasons[id||'#'+i]=adapter;}if(!adapter){const reasons=Object.entries(rejectedReasons).map(([id,state])=>`adapter ${id} `+(state===false?'is not supported by the environment':'is not available in the build'));let s=length?reasons.length>1?'since :\n'+reasons.map(renderReason).join('\n'):' '+renderReason(reasons[0]):'as no adapter specified';throw new AxiosError(`There is no suitable adapter to dispatch the request `+s,'ERR_NOT_SUPPORT');}return adapter;},adapters:knownAdapters};
-
-/**
- * Throws a `CanceledError` if cancellation has been requested.
- *
- * @param {Object} config The config that is to be used for the request
- *
- * @returns {void}
- */function throwIfCancellationRequested(config){if(config.cancelToken){config.cancelToken.throwIfRequested();}if(config.signal&&config.signal.aborted){throw new CanceledError(null,config);}}/**
- * Dispatch a request to the server using the configured adapter.
- *
- * @param {object} config The config that is to be used for the request
- *
- * @returns {Promise} The Promise to be fulfilled
- */function dispatchRequest(config){throwIfCancellationRequested(config);config.headers=AxiosHeaders.from(config.headers);// Transform request data
-config.data=transformData.call(config,config.transformRequest);if(['post','put','patch'].indexOf(config.method)!==-1){config.headers.setContentType('application/x-www-form-urlencoded',false);}const adapter=adapters.getAdapter(config.adapter||defaults.adapter);return adapter(config).then(function onAdapterResolution(response){throwIfCancellationRequested(config);// Transform response data
-response.data=transformData.call(config,config.transformResponse,response);response.headers=AxiosHeaders.from(response.headers);return response;},function onAdapterRejection(reason){if(!isCancel(reason)){throwIfCancellationRequested(config);// Transform response data
-if(reason&&reason.response){reason.response.data=transformData.call(config,config.transformResponse,reason.response);reason.response.headers=AxiosHeaders.from(reason.response.headers);}}return Promise.reject(reason);});}
-
-const VERSION="1.7.2";
-
-const validators$1={};// eslint-disable-next-line func-names
-['object','boolean','number','function','string','symbol'].forEach((type,i)=>{validators$1[type]=function validator(thing){return typeof thing===type||'a'+(i<1?'n ':' ')+type;};});const deprecatedWarnings={};/**
- * Transitional option validator
- *
- * @param {function|boolean?} validator - set to false if the transitional option has been removed
- * @param {string?} version - deprecated version / removed since version
- * @param {string?} message - some message with additional info
- *
- * @returns {function}
- */validators$1.transitional=function transitional(validator,version,message){function formatMessage(opt,desc){return '[Axios v'+VERSION+'] Transitional option \''+opt+'\''+desc+(message?'. '+message:'');}// eslint-disable-next-line func-names
-return (value,opt,opts)=>{if(validator===false){throw new AxiosError(formatMessage(opt,' has been removed'+(version?' in '+version:'')),AxiosError.ERR_DEPRECATED);}if(version&&!deprecatedWarnings[opt]){deprecatedWarnings[opt]=true;// eslint-disable-next-line no-console
-console.warn(formatMessage(opt,' has been deprecated since v'+version+' and will be removed in the near future'));}return validator?validator(value,opt,opts):true;};};/**
- * Assert object's properties type
- *
- * @param {object} options
- * @param {object} schema
- * @param {boolean?} allowUnknown
- *
- * @returns {object}
- */function assertOptions(options,schema,allowUnknown){if(typeof options!=='object'){throw new AxiosError('options must be an object',AxiosError.ERR_BAD_OPTION_VALUE);}const keys=Object.keys(options);let i=keys.length;while(i-->0){const opt=keys[i];const validator=schema[opt];if(validator){const value=options[opt];const result=value===undefined||validator(value,opt,options);if(result!==true){throw new AxiosError('option '+opt+' must be '+result,AxiosError.ERR_BAD_OPTION_VALUE);}continue;}if(allowUnknown!==true){throw new AxiosError('Unknown option '+opt,AxiosError.ERR_BAD_OPTION);}}}var validator = {assertOptions,validators: validators$1};
-
-const validators=validator.validators;/**
- * Create a new instance of Axios
- *
- * @param {Object} instanceConfig The default config for the instance
- *
- * @return {Axios} A new instance of Axios
- */class Axios{constructor(instanceConfig){this.defaults=instanceConfig;this.interceptors={request:new InterceptorManager(),response:new InterceptorManager()};}/**
-   * Dispatch a request
-   *
-   * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
-   * @param {?Object} config
-   *
-   * @returns {Promise} The Promise to be fulfilled
-   */async request(configOrUrl,config){try{return await this._request(configOrUrl,config);}catch(err){if(err instanceof Error){let dummy;Error.captureStackTrace?Error.captureStackTrace(dummy={}):dummy=new Error();// slice off the Error: ... line
-const stack=dummy.stack?dummy.stack.replace(/^.+\n/,''):'';try{if(!err.stack){err.stack=stack;// match without the 2 top stack lines
-}else if(stack&&!String(err.stack).endsWith(stack.replace(/^.+\n.+\n/,''))){err.stack+='\n'+stack;}}catch(e){// ignore the case where "stack" is an un-writable property
-}}throw err;}}_request(configOrUrl,config){/*eslint no-param-reassign:0*/ // Allow for axios('example/url'[, config]) a la fetch API
-if(typeof configOrUrl==='string'){config=config||{};config.url=configOrUrl;}else {config=configOrUrl||{};}config=mergeConfig(this.defaults,config);const{transitional,paramsSerializer,headers}=config;if(transitional!==undefined){validator.assertOptions(transitional,{silentJSONParsing:validators.transitional(validators.boolean),forcedJSONParsing:validators.transitional(validators.boolean),clarifyTimeoutError:validators.transitional(validators.boolean)},false);}if(paramsSerializer!=null){if(utils$1.isFunction(paramsSerializer)){config.paramsSerializer={serialize:paramsSerializer};}else {validator.assertOptions(paramsSerializer,{encode:validators.function,serialize:validators.function},true);}}// Set config.method
-config.method=(config.method||this.defaults.method||'get').toLowerCase();// Flatten headers
-let contextHeaders=headers&&utils$1.merge(headers.common,headers[config.method]);headers&&utils$1.forEach(['delete','get','head','post','put','patch','common'],method=>{delete headers[method];});config.headers=AxiosHeaders.concat(contextHeaders,headers);// filter out skipped interceptors
-const requestInterceptorChain=[];let synchronousRequestInterceptors=true;this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor){if(typeof interceptor.runWhen==='function'&&interceptor.runWhen(config)===false){return;}synchronousRequestInterceptors=synchronousRequestInterceptors&&interceptor.synchronous;requestInterceptorChain.unshift(interceptor.fulfilled,interceptor.rejected);});const responseInterceptorChain=[];this.interceptors.response.forEach(function pushResponseInterceptors(interceptor){responseInterceptorChain.push(interceptor.fulfilled,interceptor.rejected);});let promise;let i=0;let len;if(!synchronousRequestInterceptors){const chain=[dispatchRequest.bind(this),undefined];chain.unshift.apply(chain,requestInterceptorChain);chain.push.apply(chain,responseInterceptorChain);len=chain.length;promise=Promise.resolve(config);while(i<len){promise=promise.then(chain[i++],chain[i++]);}return promise;}len=requestInterceptorChain.length;let newConfig=config;i=0;while(i<len){const onFulfilled=requestInterceptorChain[i++];const onRejected=requestInterceptorChain[i++];try{newConfig=onFulfilled(newConfig);}catch(error){onRejected.call(this,error);break;}}try{promise=dispatchRequest.call(this,newConfig);}catch(error){return Promise.reject(error);}i=0;len=responseInterceptorChain.length;while(i<len){promise=promise.then(responseInterceptorChain[i++],responseInterceptorChain[i++]);}return promise;}getUri(config){config=mergeConfig(this.defaults,config);const fullPath=buildFullPath(config.baseURL,config.url);return buildURL(fullPath,config.params,config.paramsSerializer);}}// Provide aliases for supported request methods
-utils$1.forEach(['delete','get','head','options'],function forEachMethodNoData(method){/*eslint func-names:0*/Axios.prototype[method]=function(url,config){return this.request(mergeConfig(config||{},{method,url,data:(config||{}).data}));};});utils$1.forEach(['post','put','patch'],function forEachMethodWithData(method){/*eslint func-names:0*/function generateHTTPMethod(isForm){return function httpMethod(url,data,config){return this.request(mergeConfig(config||{},{method,headers:isForm?{'Content-Type':'multipart/form-data'}:{},url,data}));};}Axios.prototype[method]=generateHTTPMethod();Axios.prototype[method+'Form']=generateHTTPMethod(true);});
-
-/**
- * A `CancelToken` is an object that can be used to request cancellation of an operation.
- *
- * @param {Function} executor The executor function.
- *
- * @returns {CancelToken}
- */class CancelToken{constructor(executor){if(typeof executor!=='function'){throw new TypeError('executor must be a function.');}let resolvePromise;this.promise=new Promise(function promiseExecutor(resolve){resolvePromise=resolve;});const token=this;// eslint-disable-next-line func-names
-this.promise.then(cancel=>{if(!token._listeners)return;let i=token._listeners.length;while(i-->0){token._listeners[i](cancel);}token._listeners=null;});// eslint-disable-next-line func-names
-this.promise.then=onfulfilled=>{let _resolve;// eslint-disable-next-line func-names
-const promise=new Promise(resolve=>{token.subscribe(resolve);_resolve=resolve;}).then(onfulfilled);promise.cancel=function reject(){token.unsubscribe(_resolve);};return promise;};executor(function cancel(message,config,request){if(token.reason){// Cancellation has already been requested
-return;}token.reason=new CanceledError(message,config,request);resolvePromise(token.reason);});}/**
-   * Throws a `CanceledError` if cancellation has been requested.
-   */throwIfRequested(){if(this.reason){throw this.reason;}}/**
-   * Subscribe to the cancel signal
-   */subscribe(listener){if(this.reason){listener(this.reason);return;}if(this._listeners){this._listeners.push(listener);}else {this._listeners=[listener];}}/**
-   * Unsubscribe from the cancel signal
-   */unsubscribe(listener){if(!this._listeners){return;}const index=this._listeners.indexOf(listener);if(index!==-1){this._listeners.splice(index,1);}}/**
-   * Returns an object that contains a new `CancelToken` and a function that, when called,
-   * cancels the `CancelToken`.
-   */static source(){let cancel;const token=new CancelToken(function executor(c){cancel=c;});return {token,cancel};}}
-
-/**
- * Syntactic sugar for invoking a function and expanding an array for arguments.
- *
- * Common use case would be to use `Function.prototype.apply`.
- *
- *  ```js
- *  function f(x, y, z) {}
- *  var args = [1, 2, 3];
- *  f.apply(null, args);
- *  ```
- *
- * With `spread` this example can be re-written.
- *
- *  ```js
- *  spread(function(x, y, z) {})([1, 2, 3]);
- *  ```
- *
- * @param {Function} callback
- *
- * @returns {Function}
- */function spread(callback){return function wrap(arr){return callback.apply(null,arr);};}
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- *
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */function isAxiosError(payload){return utils$1.isObject(payload)&&payload.isAxiosError===true;}
-
-const HttpStatusCode={Continue:100,SwitchingProtocols:101,Processing:102,EarlyHints:103,Ok:200,Created:201,Accepted:202,NonAuthoritativeInformation:203,NoContent:204,ResetContent:205,PartialContent:206,MultiStatus:207,AlreadyReported:208,ImUsed:226,MultipleChoices:300,MovedPermanently:301,Found:302,SeeOther:303,NotModified:304,UseProxy:305,Unused:306,TemporaryRedirect:307,PermanentRedirect:308,BadRequest:400,Unauthorized:401,PaymentRequired:402,Forbidden:403,NotFound:404,MethodNotAllowed:405,NotAcceptable:406,ProxyAuthenticationRequired:407,RequestTimeout:408,Conflict:409,Gone:410,LengthRequired:411,PreconditionFailed:412,PayloadTooLarge:413,UriTooLong:414,UnsupportedMediaType:415,RangeNotSatisfiable:416,ExpectationFailed:417,ImATeapot:418,MisdirectedRequest:421,UnprocessableEntity:422,Locked:423,FailedDependency:424,TooEarly:425,UpgradeRequired:426,PreconditionRequired:428,TooManyRequests:429,RequestHeaderFieldsTooLarge:431,UnavailableForLegalReasons:451,InternalServerError:500,NotImplemented:501,BadGateway:502,ServiceUnavailable:503,GatewayTimeout:504,HttpVersionNotSupported:505,VariantAlsoNegotiates:506,InsufficientStorage:507,LoopDetected:508,NotExtended:510,NetworkAuthenticationRequired:511};Object.entries(HttpStatusCode).forEach(([key,value])=>{HttpStatusCode[value]=key;});
-
-/**
- * Create an instance of Axios
- *
- * @param {Object} defaultConfig The default config for the instance
- *
- * @returns {Axios} A new instance of Axios
- */function createInstance(defaultConfig){const context=new Axios(defaultConfig);const instance=bind(Axios.prototype.request,context);// Copy axios.prototype to instance
-utils$1.extend(instance,Axios.prototype,context,{allOwnKeys:true});// Copy context to instance
-utils$1.extend(instance,context,null,{allOwnKeys:true});// Factory for creating new instances
-instance.create=function create(instanceConfig){return createInstance(mergeConfig(defaultConfig,instanceConfig));};return instance;}// Create the default instance to be exported
-const axios=createInstance(defaults);// Expose Axios class to allow class inheritance
-axios.Axios=Axios;// Expose Cancel & CancelToken
-axios.CanceledError=CanceledError;axios.CancelToken=CancelToken;axios.isCancel=isCancel;axios.VERSION=VERSION;axios.toFormData=toFormData;// Expose AxiosError class
-axios.AxiosError=AxiosError;// alias for CanceledError for backward compatibility
-axios.Cancel=axios.CanceledError;// Expose all/spread
-axios.all=function all(promises){return Promise.all(promises);};axios.spread=spread;// Expose isAxiosError
-axios.isAxiosError=isAxiosError;// Expose mergeConfig
-axios.mergeConfig=mergeConfig;axios.AxiosHeaders=AxiosHeaders;axios.formToJSON=thing=>formDataToJSON(utils$1.isHTMLForm(thing)?new FormData(thing):thing);axios.getAdapter=adapters.getAdapter;axios.HttpStatusCode=HttpStatusCode;axios.default=axios;// this module should only have a default export
-
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-const denyList=new Set(['ENOTFOUND','ENETUNREACH',// SSL errors from https://github.com/nodejs/node/blob/fc8e3e2cdc521978351de257030db0076d79e0ab/src/crypto/crypto_common.cc#L301-L328
-'UNABLE_TO_GET_ISSUER_CERT','UNABLE_TO_GET_CRL','UNABLE_TO_DECRYPT_CERT_SIGNATURE','UNABLE_TO_DECRYPT_CRL_SIGNATURE','UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY','CERT_SIGNATURE_FAILURE','CRL_SIGNATURE_FAILURE','CERT_NOT_YET_VALID','CERT_HAS_EXPIRED','CRL_NOT_YET_VALID','CRL_HAS_EXPIRED','ERROR_IN_CERT_NOT_BEFORE_FIELD','ERROR_IN_CERT_NOT_AFTER_FIELD','ERROR_IN_CRL_LAST_UPDATE_FIELD','ERROR_IN_CRL_NEXT_UPDATE_FIELD','OUT_OF_MEM','DEPTH_ZERO_SELF_SIGNED_CERT','SELF_SIGNED_CERT_IN_CHAIN','UNABLE_TO_GET_ISSUER_CERT_LOCALLY','UNABLE_TO_VERIFY_LEAF_SIGNATURE','CERT_CHAIN_TOO_LONG','CERT_REVOKED','INVALID_CA','PATH_LENGTH_EXCEEDED','INVALID_PURPOSE','CERT_UNTRUSTED','CERT_REJECTED','HOSTNAME_MISMATCH']);// TODO: Use `error?.code` when targeting Node.js 14
-var isRetryAllowed=error=>!denyList.has(error&&error.code);var isRetryAllowed$1 = /*@__PURE__*/getDefaultExportFromCjs(isRetryAllowed);
-
-const namespace='axios-retry';function isNetworkError(error){const CODE_EXCLUDE_LIST=['ERR_CANCELED','ECONNABORTED'];if(error.response){return false;}if(!error.code){return false;}// Prevents retrying timed out & cancelled requests
-if(CODE_EXCLUDE_LIST.includes(error.code)){return false;}// Prevents retrying unsafe errors
-return isRetryAllowed$1(error);}const SAFE_HTTP_METHODS=['get','head','options'];const IDEMPOTENT_HTTP_METHODS=SAFE_HTTP_METHODS.concat(['put','delete']);function isRetryableError(error){return error.code!=='ECONNABORTED'&&(!error.response||error.response.status===429||error.response.status>=500&&error.response.status<=599);}function isSafeRequestError(error){if(!error.config?.method){// Cannot determine if the request can be retried
-return false;}return isRetryableError(error)&&SAFE_HTTP_METHODS.indexOf(error.config.method)!==-1;}function isIdempotentRequestError(error){if(!error.config?.method){// Cannot determine if the request can be retried
-return false;}return isRetryableError(error)&&IDEMPOTENT_HTTP_METHODS.indexOf(error.config.method)!==-1;}function isNetworkOrIdempotentRequestError(error){return isNetworkError(error)||isIdempotentRequestError(error);}function retryAfter(error=undefined){const retryAfterHeader=error?.response?.headers['retry-after'];if(!retryAfterHeader){return 0;}// if the retry after header is a number, convert it to milliseconds
-let retryAfterMs=(Number(retryAfterHeader)||0)*1000;// If the retry after header is a date, get the number of milliseconds until that date
-if(retryAfterMs===0){retryAfterMs=(new Date(retryAfterHeader).valueOf()||0)-Date.now();}return Math.max(0,retryAfterMs);}function noDelay(_retryNumber=0,error=undefined){return Math.max(0,retryAfter(error));}function exponentialDelay(retryNumber=0,error=undefined,delayFactor=100){const calculatedDelay=2**retryNumber*delayFactor;const delay=Math.max(calculatedDelay,retryAfter(error));const randomSum=delay*0.2*Math.random();// 0-20% of the delay
-return delay+randomSum;}const DEFAULT_OPTIONS={retries:3,retryCondition:isNetworkOrIdempotentRequestError,retryDelay:noDelay,shouldResetTimeout:false,onRetry:()=>{},onMaxRetryTimesExceeded:()=>{},validateResponse:null};function getRequestOptions(config,defaultOptions){return {...DEFAULT_OPTIONS,...defaultOptions,...config[namespace]};}function setCurrentState(config,defaultOptions){const currentState=getRequestOptions(config,defaultOptions||{});currentState.retryCount=currentState.retryCount||0;currentState.lastRequestTime=currentState.lastRequestTime||Date.now();config[namespace]=currentState;return currentState;}function fixConfig(axiosInstance,config){// @ts-ignore
-if(axiosInstance.defaults.agent===config.agent){// @ts-ignore
-delete config.agent;}if(axiosInstance.defaults.httpAgent===config.httpAgent){delete config.httpAgent;}if(axiosInstance.defaults.httpsAgent===config.httpsAgent){delete config.httpsAgent;}}async function shouldRetry(currentState,error){const{retries,retryCondition}=currentState;const shouldRetryOrPromise=(currentState.retryCount||0)<retries&&retryCondition(error);// This could be a promise
-if(typeof shouldRetryOrPromise==='object'){try{const shouldRetryPromiseResult=await shouldRetryOrPromise;// keep return true unless shouldRetryPromiseResult return false for compatibility
-return shouldRetryPromiseResult!==false;}catch(_err){return false;}}return shouldRetryOrPromise;}async function handleRetry(axiosInstance,currentState,error,config){currentState.retryCount+=1;const{retryDelay,shouldResetTimeout,onRetry}=currentState;const delay=retryDelay(currentState.retryCount,error);// Axios fails merging this configuration to the default configuration because it has an issue
-// with circular structures: https://github.com/mzabriskie/axios/issues/370
-fixConfig(axiosInstance,config);if(!shouldResetTimeout&&config.timeout&&currentState.lastRequestTime){const lastRequestDuration=Date.now()-currentState.lastRequestTime;const timeout=config.timeout-lastRequestDuration-delay;if(timeout<=0){return Promise.reject(error);}config.timeout=timeout;}config.transformRequest=[data=>data];await onRetry(currentState.retryCount,error,config);return new Promise(resolve=>{setTimeout(()=>resolve(axiosInstance(config)),delay);});}async function handleMaxRetryTimesExceeded(currentState,error){if(currentState.retryCount>=currentState.retries)await currentState.onMaxRetryTimesExceeded(error,currentState.retryCount);}const axiosRetry=(axiosInstance,defaultOptions)=>{const requestInterceptorId=axiosInstance.interceptors.request.use(config=>{setCurrentState(config,defaultOptions);if(config[namespace]?.validateResponse){// by setting this, all HTTP responses will be go through the error interceptor first
-config.validateStatus=()=>false;}return config;});const responseInterceptorId=axiosInstance.interceptors.response.use(null,async error=>{const{config}=error;// If we have no information to retry the request
-if(!config){return Promise.reject(error);}const currentState=setCurrentState(config,defaultOptions);if(error.response&&currentState.validateResponse?.(error.response)){// no issue with response
-return error.response;}if(await shouldRetry(currentState,error)){return handleRetry(axiosInstance,currentState,error,config);}await handleMaxRetryTimesExceeded(currentState,error);return Promise.reject(error);});return {requestInterceptorId,responseInterceptorId};};// Compatibility with CommonJS
-axiosRetry.isNetworkError=isNetworkError;axiosRetry.isSafeRequestError=isSafeRequestError;axiosRetry.isIdempotentRequestError=isIdempotentRequestError;axiosRetry.isNetworkOrIdempotentRequestError=isNetworkOrIdempotentRequestError;axiosRetry.exponentialDelay=exponentialDelay;axiosRetry.isRetryableError=isRetryableError;
-
-var s=1000;var m=s*60;var h=m*60;var d=h*24;var w=d*7;var y=d*365.25;/**
- * Parse or format the given `val`.
- *
- * Options:
- *
- *  - `long` verbose formatting [false]
- *
- * @param {String|Number} val
- * @param {Object} [options]
- * @throws {Error} throw an error if val is not a non-empty string or a number
- * @return {String|Number}
- * @api public
- */var ms=function(val,options){options=options||{};var type=typeof val;if(type==='string'&&val.length>0){return parse(val);}else if(type==='number'&&isFinite(val)){return options.long?fmtLong(val):fmtShort(val);}throw new Error('val is not a non-empty string or a valid number. val='+JSON.stringify(val));};/**
- * Parse the given `str` and return milliseconds.
- *
- * @param {String} str
- * @return {Number}
- * @api private
- */function parse(str){str=String(str);if(str.length>100){return;}var match=/^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(str);if(!match){return;}var n=parseFloat(match[1]);var type=(match[2]||'ms').toLowerCase();switch(type){case'years':case'year':case'yrs':case'yr':case'y':return n*y;case'weeks':case'week':case'w':return n*w;case'days':case'day':case'd':return n*d;case'hours':case'hour':case'hrs':case'hr':case'h':return n*h;case'minutes':case'minute':case'mins':case'min':case'm':return n*m;case'seconds':case'second':case'secs':case'sec':case's':return n*s;case'milliseconds':case'millisecond':case'msecs':case'msec':case'ms':return n;default:return undefined;}}/**
- * Short format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */function fmtShort(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return Math.round(ms/d)+'d';}if(msAbs>=h){return Math.round(ms/h)+'h';}if(msAbs>=m){return Math.round(ms/m)+'m';}if(msAbs>=s){return Math.round(ms/s)+'s';}return ms+'ms';}/**
- * Long format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */function fmtLong(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return plural(ms,msAbs,d,'day');}if(msAbs>=h){return plural(ms,msAbs,h,'hour');}if(msAbs>=m){return plural(ms,msAbs,m,'minute');}if(msAbs>=s){return plural(ms,msAbs,s,'second');}return ms+' ms';}/**
- * Pluralization helper.
- */function plural(ms,msAbs,n,name){var isPlural=msAbs>=n*1.5;return Math.round(ms/n)+' '+name+(isPlural?'s':'');}var ms$1 = /*@__PURE__*/getDefaultExportFromCjs(ms);
-
-var IDX=256,HEX=[],BUFFER;while(IDX--)HEX[IDX]=(IDX+256).toString(16).substring(1);function v4(){var i=0,num,out='';if(!BUFFER||IDX+16>256){BUFFER=Array(i=256);while(i--)BUFFER[i]=256*Math.random()|0;i=IDX=0;}for(;i<16;i++){num=BUFFER[IDX+i];if(i==6)out+=HEX[num&15|64];else if(i==8)out+=HEX[num&63|128];else out+=HEX[num];if(i&1&&i>1&&i<11)out+='-';}IDX++;return out;}
-
-/** `Object#toString` result references. */var stringTag='[object String]';/** Used for built-in method references. */var objectProto=Object.prototype;/**
- * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
- * of values.
- */var objectToString$1=objectProto.toString;/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @type Function
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */var isArray$1=Array.isArray;/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */function isObjectLike(value){return !!value&&typeof value=='object';}/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */function isString$2(value){return typeof value=='string'||!isArray$1(value)&&isObjectLike(value)&&objectToString$1.call(value)==stringTag;}var lodash_isstring=isString$2;var isString$3 = /*@__PURE__*/getDefaultExportFromCjs(lodash_isstring);
-
-var lodash_clonedeep = {exports: {}};
-
-lodash_clonedeep.exports;(function(module,exports){/** Used as the size to enable large array optimizations. */var LARGE_ARRAY_SIZE=200;/** Used to stand-in for `undefined` hash values. */var HASH_UNDEFINED='__lodash_hash_undefined__';/** Used as references for various `Number` constants. */var MAX_SAFE_INTEGER=9007199254740991;/** `Object#toString` result references. */var argsTag='[object Arguments]',arrayTag='[object Array]',boolTag='[object Boolean]',dateTag='[object Date]',errorTag='[object Error]',funcTag='[object Function]',genTag='[object GeneratorFunction]',mapTag='[object Map]',numberTag='[object Number]',objectTag='[object Object]',promiseTag='[object Promise]',regexpTag='[object RegExp]',setTag='[object Set]',stringTag='[object String]',symbolTag='[object Symbol]',weakMapTag='[object WeakMap]';var arrayBufferTag='[object ArrayBuffer]',dataViewTag='[object DataView]',float32Tag='[object Float32Array]',float64Tag='[object Float64Array]',int8Tag='[object Int8Array]',int16Tag='[object Int16Array]',int32Tag='[object Int32Array]',uint8Tag='[object Uint8Array]',uint8ClampedTag='[object Uint8ClampedArray]',uint16Tag='[object Uint16Array]',uint32Tag='[object Uint32Array]';/**
-	 * Used to match `RegExp`
-	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
-	 */var reRegExpChar=/[\\^$.*+?()[\]{}|]/g;/** Used to match `RegExp` flags from their coerced string values. */var reFlags=/\w*$/;/** Used to detect host constructors (Safari). */var reIsHostCtor=/^\[object .+?Constructor\]$/;/** Used to detect unsigned integer values. */var reIsUint=/^(?:0|[1-9]\d*)$/;/** Used to identify `toStringTag` values supported by `_.clone`. */var cloneableTags={};cloneableTags[argsTag]=cloneableTags[arrayTag]=cloneableTags[arrayBufferTag]=cloneableTags[dataViewTag]=cloneableTags[boolTag]=cloneableTags[dateTag]=cloneableTags[float32Tag]=cloneableTags[float64Tag]=cloneableTags[int8Tag]=cloneableTags[int16Tag]=cloneableTags[int32Tag]=cloneableTags[mapTag]=cloneableTags[numberTag]=cloneableTags[objectTag]=cloneableTags[regexpTag]=cloneableTags[setTag]=cloneableTags[stringTag]=cloneableTags[symbolTag]=cloneableTags[uint8Tag]=cloneableTags[uint8ClampedTag]=cloneableTags[uint16Tag]=cloneableTags[uint32Tag]=true;cloneableTags[errorTag]=cloneableTags[funcTag]=cloneableTags[weakMapTag]=false;/** Detect free variable `global` from Node.js. */var freeGlobal=typeof commonjsGlobal=='object'&&commonjsGlobal&&commonjsGlobal.Object===Object&&commonjsGlobal;/** Detect free variable `self`. */var freeSelf=typeof self=='object'&&self&&self.Object===Object&&self;/** Used as a reference to the global object. */var root=freeGlobal||freeSelf||Function('return this')();/** Detect free variable `exports`. */var freeExports=exports&&!exports.nodeType&&exports;/** Detect free variable `module`. */var freeModule=freeExports&&'object'=='object'&&module&&!module.nodeType&&module;/** Detect the popular CommonJS extension `module.exports`. */var moduleExports=freeModule&&freeModule.exports===freeExports;/**
-	 * Adds the key-value `pair` to `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to modify.
-	 * @param {Array} pair The key-value pair to add.
-	 * @returns {Object} Returns `map`.
-	 */function addMapEntry(map,pair){// Don't return `map.set` because it's not chainable in IE 11.
-map.set(pair[0],pair[1]);return map;}/**
-	 * Adds `value` to `set`.
-	 *
-	 * @private
-	 * @param {Object} set The set to modify.
-	 * @param {*} value The value to add.
-	 * @returns {Object} Returns `set`.
-	 */function addSetEntry(set,value){// Don't return `set.add` because it's not chainable in IE 11.
-set.add(value);return set;}/**
-	 * A specialized version of `_.forEach` for arrays without support for
-	 * iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Array} [array] The array to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns `array`.
-	 */function arrayEach(array,iteratee){var index=-1,length=array?array.length:0;while(++index<length){if(iteratee(array[index],index,array)===false){break;}}return array;}/**
-	 * Appends the elements of `values` to `array`.
-	 *
-	 * @private
-	 * @param {Array} array The array to modify.
-	 * @param {Array} values The values to append.
-	 * @returns {Array} Returns `array`.
-	 */function arrayPush(array,values){var index=-1,length=values.length,offset=array.length;while(++index<length){array[offset+index]=values[index];}return array;}/**
-	 * A specialized version of `_.reduce` for arrays without support for
-	 * iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Array} [array] The array to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @param {*} [accumulator] The initial value.
-	 * @param {boolean} [initAccum] Specify using the first element of `array` as
-	 *  the initial value.
-	 * @returns {*} Returns the accumulated value.
-	 */function arrayReduce(array,iteratee,accumulator,initAccum){var index=-1,length=array?array.length:0;while(++index<length){accumulator=iteratee(accumulator,array[index],index,array);}return accumulator;}/**
-	 * The base implementation of `_.times` without support for iteratee shorthands
-	 * or max array length checks.
-	 *
-	 * @private
-	 * @param {number} n The number of times to invoke `iteratee`.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns the array of results.
-	 */function baseTimes(n,iteratee){var index=-1,result=Array(n);while(++index<n){result[index]=iteratee(index);}return result;}/**
-	 * Gets the value at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} [object] The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */function getValue(object,key){return object==null?undefined:object[key];}/**
-	 * Checks if `value` is a host object in IE < 9.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
-	 */function isHostObject(value){// Many host objects are `Object` objects that can coerce to strings
-// despite having improperly defined `toString` methods.
-var result=false;if(value!=null&&typeof value.toString!='function'){try{result=!!(value+'');}catch(e){}}return result;}/**
-	 * Converts `map` to its key-value pairs.
-	 *
-	 * @private
-	 * @param {Object} map The map to convert.
-	 * @returns {Array} Returns the key-value pairs.
-	 */function mapToArray(map){var index=-1,result=Array(map.size);map.forEach(function(value,key){result[++index]=[key,value];});return result;}/**
-	 * Creates a unary function that invokes `func` with its argument transformed.
-	 *
-	 * @private
-	 * @param {Function} func The function to wrap.
-	 * @param {Function} transform The argument transform.
-	 * @returns {Function} Returns the new function.
-	 */function overArg(func,transform){return function(arg){return func(transform(arg));};}/**
-	 * Converts `set` to an array of its values.
-	 *
-	 * @private
-	 * @param {Object} set The set to convert.
-	 * @returns {Array} Returns the values.
-	 */function setToArray(set){var index=-1,result=Array(set.size);set.forEach(function(value){result[++index]=value;});return result;}/** Used for built-in method references. */var arrayProto=Array.prototype,funcProto=Function.prototype,objectProto=Object.prototype;/** Used to detect overreaching core-js shims. */var coreJsData=root['__core-js_shared__'];/** Used to detect methods masquerading as native. */var maskSrcKey=function(){var uid=/[^.]+$/.exec(coreJsData&&coreJsData.keys&&coreJsData.keys.IE_PROTO||'');return uid?'Symbol(src)_1.'+uid:'';}();/** Used to resolve the decompiled source of functions. */var funcToString=funcProto.toString;/** Used to check objects for own properties. */var hasOwnProperty=objectProto.hasOwnProperty;/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */var objectToString=objectProto.toString;/** Used to detect if a method is native. */var reIsNative=RegExp('^'+funcToString.call(hasOwnProperty).replace(reRegExpChar,'\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g,'$1.*?')+'$');/** Built-in value references. */var Buffer=moduleExports?root.Buffer:undefined,Symbol=root.Symbol,Uint8Array=root.Uint8Array,getPrototype=overArg(Object.getPrototypeOf,Object),objectCreate=Object.create,propertyIsEnumerable=objectProto.propertyIsEnumerable,splice=arrayProto.splice;/* Built-in method references for those with the same name as other `lodash` methods. */var nativeGetSymbols=Object.getOwnPropertySymbols,nativeIsBuffer=Buffer?Buffer.isBuffer:undefined,nativeKeys=overArg(Object.keys,Object);/* Built-in method references that are verified to be native. */var DataView=getNative(root,'DataView'),Map=getNative(root,'Map'),Promise=getNative(root,'Promise'),Set=getNative(root,'Set'),WeakMap=getNative(root,'WeakMap'),nativeCreate=getNative(Object,'create');/** Used to detect maps, sets, and weakmaps. */var dataViewCtorString=toSource(DataView),mapCtorString=toSource(Map),promiseCtorString=toSource(Promise),setCtorString=toSource(Set),weakMapCtorString=toSource(WeakMap);/** Used to convert symbols to primitives and strings. */var symbolProto=Symbol?Symbol.prototype:undefined,symbolValueOf=symbolProto?symbolProto.valueOf:undefined;/**
-	 * Creates a hash object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function Hash(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the hash.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Hash
-	 */function hashClear(){this.__data__=nativeCreate?nativeCreate(null):{};}/**
-	 * Removes `key` and its value from the hash.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Hash
-	 * @param {Object} hash The hash to modify.
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function hashDelete(key){return this.has(key)&&delete this.__data__[key];}/**
-	 * Gets the hash value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function hashGet(key){var data=this.__data__;if(nativeCreate){var result=data[key];return result===HASH_UNDEFINED?undefined:result;}return hasOwnProperty.call(data,key)?data[key]:undefined;}/**
-	 * Checks if a hash value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Hash
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function hashHas(key){var data=this.__data__;return nativeCreate?data[key]!==undefined:hasOwnProperty.call(data,key);}/**
-	 * Sets the hash `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the hash instance.
-	 */function hashSet(key,value){var data=this.__data__;data[key]=nativeCreate&&value===undefined?HASH_UNDEFINED:value;return this;}// Add methods to `Hash`.
-Hash.prototype.clear=hashClear;Hash.prototype['delete']=hashDelete;Hash.prototype.get=hashGet;Hash.prototype.has=hashHas;Hash.prototype.set=hashSet;/**
-	 * Creates an list cache object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function ListCache(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the list cache.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf ListCache
-	 */function listCacheClear(){this.__data__=[];}/**
-	 * Removes `key` and its value from the list cache.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function listCacheDelete(key){var data=this.__data__,index=assocIndexOf(data,key);if(index<0){return false;}var lastIndex=data.length-1;if(index==lastIndex){data.pop();}else {splice.call(data,index,1);}return true;}/**
-	 * Gets the list cache value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function listCacheGet(key){var data=this.__data__,index=assocIndexOf(data,key);return index<0?undefined:data[index][1];}/**
-	 * Checks if a list cache value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf ListCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function listCacheHas(key){return assocIndexOf(this.__data__,key)>-1;}/**
-	 * Sets the list cache `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the list cache instance.
-	 */function listCacheSet(key,value){var data=this.__data__,index=assocIndexOf(data,key);if(index<0){data.push([key,value]);}else {data[index][1]=value;}return this;}// Add methods to `ListCache`.
-ListCache.prototype.clear=listCacheClear;ListCache.prototype['delete']=listCacheDelete;ListCache.prototype.get=listCacheGet;ListCache.prototype.has=listCacheHas;ListCache.prototype.set=listCacheSet;/**
-	 * Creates a map cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function MapCache(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the map.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf MapCache
-	 */function mapCacheClear(){this.__data__={'hash':new Hash(),'map':new(Map||ListCache)(),'string':new Hash()};}/**
-	 * Removes `key` and its value from the map.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function mapCacheDelete(key){return getMapData(this,key)['delete'](key);}/**
-	 * Gets the map value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function mapCacheGet(key){return getMapData(this,key).get(key);}/**
-	 * Checks if a map value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf MapCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function mapCacheHas(key){return getMapData(this,key).has(key);}/**
-	 * Sets the map `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the map cache instance.
-	 */function mapCacheSet(key,value){getMapData(this,key).set(key,value);return this;}// Add methods to `MapCache`.
-MapCache.prototype.clear=mapCacheClear;MapCache.prototype['delete']=mapCacheDelete;MapCache.prototype.get=mapCacheGet;MapCache.prototype.has=mapCacheHas;MapCache.prototype.set=mapCacheSet;/**
-	 * Creates a stack cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function Stack(entries){this.__data__=new ListCache(entries);}/**
-	 * Removes all key-value entries from the stack.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Stack
-	 */function stackClear(){this.__data__=new ListCache();}/**
-	 * Removes `key` and its value from the stack.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function stackDelete(key){return this.__data__['delete'](key);}/**
-	 * Gets the stack value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function stackGet(key){return this.__data__.get(key);}/**
-	 * Checks if a stack value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Stack
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function stackHas(key){return this.__data__.has(key);}/**
-	 * Sets the stack `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the stack cache instance.
-	 */function stackSet(key,value){var cache=this.__data__;if(cache instanceof ListCache){var pairs=cache.__data__;if(!Map||pairs.length<LARGE_ARRAY_SIZE-1){pairs.push([key,value]);return this;}cache=this.__data__=new MapCache(pairs);}cache.set(key,value);return this;}// Add methods to `Stack`.
-Stack.prototype.clear=stackClear;Stack.prototype['delete']=stackDelete;Stack.prototype.get=stackGet;Stack.prototype.has=stackHas;Stack.prototype.set=stackSet;/**
-	 * Creates an array of the enumerable property names of the array-like `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @param {boolean} inherited Specify returning inherited property names.
-	 * @returns {Array} Returns the array of property names.
-	 */function arrayLikeKeys(value,inherited){// Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-// Safari 9 makes `arguments.length` enumerable in strict mode.
-var result=isArray(value)||isArguments(value)?baseTimes(value.length,String):[];var length=result.length,skipIndexes=!!length;for(var key in value){if((hasOwnProperty.call(value,key))&&!(skipIndexes&&(key=='length'||isIndex(key,length)))){result.push(key);}}return result;}/**
-	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
-	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * for equality comparisons.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {string} key The key of the property to assign.
-	 * @param {*} value The value to assign.
-	 */function assignValue(object,key,value){var objValue=object[key];if(!(hasOwnProperty.call(object,key)&&eq(objValue,value))||value===undefined&&!(key in object)){object[key]=value;}}/**
-	 * Gets the index at which the `key` is found in `array` of key-value pairs.
-	 *
-	 * @private
-	 * @param {Array} array The array to inspect.
-	 * @param {*} key The key to search for.
-	 * @returns {number} Returns the index of the matched value, else `-1`.
-	 */function assocIndexOf(array,key){var length=array.length;while(length--){if(eq(array[length][0],key)){return length;}}return -1;}/**
-	 * The base implementation of `_.assign` without support for multiple sources
-	 * or `customizer` functions.
-	 *
-	 * @private
-	 * @param {Object} object The destination object.
-	 * @param {Object} source The source object.
-	 * @returns {Object} Returns `object`.
-	 */function baseAssign(object,source){return object&&copyObject(source,keys(source),object);}/**
-	 * The base implementation of `_.clone` and `_.cloneDeep` which tracks
-	 * traversed objects.
-	 *
-	 * @private
-	 * @param {*} value The value to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @param {boolean} [isFull] Specify a clone including symbols.
-	 * @param {Function} [customizer] The function to customize cloning.
-	 * @param {string} [key] The key of `value`.
-	 * @param {Object} [object] The parent object of `value`.
-	 * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
-	 * @returns {*} Returns the cloned value.
-	 */function baseClone(value,isDeep,isFull,customizer,key,object,stack){var result;if(customizer){result=object?customizer(value,key,object,stack):customizer(value);}if(result!==undefined){return result;}if(!isObject(value)){return value;}var isArr=isArray(value);if(isArr){result=initCloneArray(value);if(!isDeep){return copyArray(value,result);}}else {var tag=getTag(value),isFunc=tag==funcTag||tag==genTag;if(isBuffer(value)){return cloneBuffer(value,isDeep);}if(tag==objectTag||tag==argsTag||isFunc&&!object){if(isHostObject(value)){return object?value:{};}result=initCloneObject(isFunc?{}:value);if(!isDeep){return copySymbols(value,baseAssign(result,value));}}else {if(!cloneableTags[tag]){return object?value:{};}result=initCloneByTag(value,tag,baseClone,isDeep);}}// Check for circular references and return its corresponding clone.
-stack||(stack=new Stack());var stacked=stack.get(value);if(stacked){return stacked;}stack.set(value,result);if(!isArr){var props=isFull?getAllKeys(value):keys(value);}arrayEach(props||value,function(subValue,key){if(props){key=subValue;subValue=value[key];}// Recursively populate clone (susceptible to call stack limits).
-assignValue(result,key,baseClone(subValue,isDeep,isFull,customizer,key,value,stack));});return result;}/**
-	 * The base implementation of `_.create` without support for assigning
-	 * properties to the created object.
-	 *
-	 * @private
-	 * @param {Object} prototype The object to inherit from.
-	 * @returns {Object} Returns the new object.
-	 */function baseCreate(proto){return isObject(proto)?objectCreate(proto):{};}/**
-	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
-	 * `keysFunc` and `symbolsFunc` to get the enumerable property names and
-	 * symbols of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {Function} keysFunc The function to get the keys of `object`.
-	 * @param {Function} symbolsFunc The function to get the symbols of `object`.
-	 * @returns {Array} Returns the array of property names and symbols.
-	 */function baseGetAllKeys(object,keysFunc,symbolsFunc){var result=keysFunc(object);return isArray(object)?result:arrayPush(result,symbolsFunc(object));}/**
-	 * The base implementation of `getTag`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */function baseGetTag(value){return objectToString.call(value);}/**
-	 * The base implementation of `_.isNative` without bad shim checks.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function,
-	 *  else `false`.
-	 */function baseIsNative(value){if(!isObject(value)||isMasked(value)){return false;}var pattern=isFunction(value)||isHostObject(value)?reIsNative:reIsHostCtor;return pattern.test(toSource(value));}/**
-	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 */function baseKeys(object){if(!isPrototype(object)){return nativeKeys(object);}var result=[];for(var key in Object(object)){if(hasOwnProperty.call(object,key)&&key!='constructor'){result.push(key);}}return result;}/**
-	 * Creates a clone of  `buffer`.
-	 *
-	 * @private
-	 * @param {Buffer} buffer The buffer to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Buffer} Returns the cloned buffer.
-	 */function cloneBuffer(buffer,isDeep){if(isDeep){return buffer.slice();}var result=new buffer.constructor(buffer.length);buffer.copy(result);return result;}/**
-	 * Creates a clone of `arrayBuffer`.
-	 *
-	 * @private
-	 * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
-	 * @returns {ArrayBuffer} Returns the cloned array buffer.
-	 */function cloneArrayBuffer(arrayBuffer){var result=new arrayBuffer.constructor(arrayBuffer.byteLength);new Uint8Array(result).set(new Uint8Array(arrayBuffer));return result;}/**
-	 * Creates a clone of `dataView`.
-	 *
-	 * @private
-	 * @param {Object} dataView The data view to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned data view.
-	 */function cloneDataView(dataView,isDeep){var buffer=isDeep?cloneArrayBuffer(dataView.buffer):dataView.buffer;return new dataView.constructor(buffer,dataView.byteOffset,dataView.byteLength);}/**
-	 * Creates a clone of `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned map.
-	 */function cloneMap(map,isDeep,cloneFunc){var array=isDeep?cloneFunc(mapToArray(map),true):mapToArray(map);return arrayReduce(array,addMapEntry,new map.constructor());}/**
-	 * Creates a clone of `regexp`.
-	 *
-	 * @private
-	 * @param {Object} regexp The regexp to clone.
-	 * @returns {Object} Returns the cloned regexp.
-	 */function cloneRegExp(regexp){var result=new regexp.constructor(regexp.source,reFlags.exec(regexp));result.lastIndex=regexp.lastIndex;return result;}/**
-	 * Creates a clone of `set`.
-	 *
-	 * @private
-	 * @param {Object} set The set to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned set.
-	 */function cloneSet(set,isDeep,cloneFunc){var array=isDeep?cloneFunc(setToArray(set),true):setToArray(set);return arrayReduce(array,addSetEntry,new set.constructor());}/**
-	 * Creates a clone of the `symbol` object.
-	 *
-	 * @private
-	 * @param {Object} symbol The symbol object to clone.
-	 * @returns {Object} Returns the cloned symbol object.
-	 */function cloneSymbol(symbol){return symbolValueOf?Object(symbolValueOf.call(symbol)):{};}/**
-	 * Creates a clone of `typedArray`.
-	 *
-	 * @private
-	 * @param {Object} typedArray The typed array to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned typed array.
-	 */function cloneTypedArray(typedArray,isDeep){var buffer=isDeep?cloneArrayBuffer(typedArray.buffer):typedArray.buffer;return new typedArray.constructor(buffer,typedArray.byteOffset,typedArray.length);}/**
-	 * Copies the values of `source` to `array`.
-	 *
-	 * @private
-	 * @param {Array} source The array to copy values from.
-	 * @param {Array} [array=[]] The array to copy values to.
-	 * @returns {Array} Returns `array`.
-	 */function copyArray(source,array){var index=-1,length=source.length;array||(array=Array(length));while(++index<length){array[index]=source[index];}return array;}/**
-	 * Copies properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy properties from.
-	 * @param {Array} props The property identifiers to copy.
-	 * @param {Object} [object={}] The object to copy properties to.
-	 * @param {Function} [customizer] The function to customize copied values.
-	 * @returns {Object} Returns `object`.
-	 */function copyObject(source,props,object,customizer){object||(object={});var index=-1,length=props.length;while(++index<length){var key=props[index];var newValue=undefined;assignValue(object,key,newValue===undefined?source[key]:newValue);}return object;}/**
-	 * Copies own symbol properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy symbols from.
-	 * @param {Object} [object={}] The object to copy symbols to.
-	 * @returns {Object} Returns `object`.
-	 */function copySymbols(source,object){return copyObject(source,getSymbols(source),object);}/**
-	 * Creates an array of own enumerable property names and symbols of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names and symbols.
-	 */function getAllKeys(object){return baseGetAllKeys(object,keys,getSymbols);}/**
-	 * Gets the data for `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to query.
-	 * @param {string} key The reference key.
-	 * @returns {*} Returns the map data.
-	 */function getMapData(map,key){var data=map.__data__;return isKeyable(key)?data[typeof key=='string'?'string':'hash']:data.map;}/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */function getNative(object,key){var value=getValue(object,key);return baseIsNative(value)?value:undefined;}/**
-	 * Creates an array of the own enumerable symbol properties of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of symbols.
-	 */var getSymbols=nativeGetSymbols?overArg(nativeGetSymbols,Object):stubArray;/**
-	 * Gets the `toStringTag` of `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */var getTag=baseGetTag;// Fallback for data views, maps, sets, and weak maps in IE 11,
-// for data views in Edge < 14, and promises in Node.js.
-if(DataView&&getTag(new DataView(new ArrayBuffer(1)))!=dataViewTag||Map&&getTag(new Map())!=mapTag||Promise&&getTag(Promise.resolve())!=promiseTag||Set&&getTag(new Set())!=setTag||WeakMap&&getTag(new WeakMap())!=weakMapTag){getTag=function(value){var result=objectToString.call(value),Ctor=result==objectTag?value.constructor:undefined,ctorString=Ctor?toSource(Ctor):undefined;if(ctorString){switch(ctorString){case dataViewCtorString:return dataViewTag;case mapCtorString:return mapTag;case promiseCtorString:return promiseTag;case setCtorString:return setTag;case weakMapCtorString:return weakMapTag;}}return result;};}/**
-	 * Initializes an array clone.
-	 *
-	 * @private
-	 * @param {Array} array The array to clone.
-	 * @returns {Array} Returns the initialized clone.
-	 */function initCloneArray(array){var length=array.length,result=array.constructor(length);// Add properties assigned by `RegExp#exec`.
-if(length&&typeof array[0]=='string'&&hasOwnProperty.call(array,'index')){result.index=array.index;result.input=array.input;}return result;}/**
-	 * Initializes an object clone.
-	 *
-	 * @private
-	 * @param {Object} object The object to clone.
-	 * @returns {Object} Returns the initialized clone.
-	 */function initCloneObject(object){return typeof object.constructor=='function'&&!isPrototype(object)?baseCreate(getPrototype(object)):{};}/**
-	 * Initializes an object clone based on its `toStringTag`.
-	 *
-	 * **Note:** This function only supports cloning values with tags of
-	 * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
-	 *
-	 * @private
-	 * @param {Object} object The object to clone.
-	 * @param {string} tag The `toStringTag` of the object to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the initialized clone.
-	 */function initCloneByTag(object,tag,cloneFunc,isDeep){var Ctor=object.constructor;switch(tag){case arrayBufferTag:return cloneArrayBuffer(object);case boolTag:case dateTag:return new Ctor(+object);case dataViewTag:return cloneDataView(object,isDeep);case float32Tag:case float64Tag:case int8Tag:case int16Tag:case int32Tag:case uint8Tag:case uint8ClampedTag:case uint16Tag:case uint32Tag:return cloneTypedArray(object,isDeep);case mapTag:return cloneMap(object,isDeep,cloneFunc);case numberTag:case stringTag:return new Ctor(object);case regexpTag:return cloneRegExp(object);case setTag:return cloneSet(object,isDeep,cloneFunc);case symbolTag:return cloneSymbol(object);}}/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */function isIndex(value,length){length=length==null?MAX_SAFE_INTEGER:length;return !!length&&(typeof value=='number'||reIsUint.test(value))&&value>-1&&value%1==0&&value<length;}/**
-	 * Checks if `value` is suitable for use as unique object key.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
-	 */function isKeyable(value){var type=typeof value;return type=='string'||type=='number'||type=='symbol'||type=='boolean'?value!=='__proto__':value===null;}/**
-	 * Checks if `func` has its source masked.
-	 *
-	 * @private
-	 * @param {Function} func The function to check.
-	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
-	 */function isMasked(func){return !!maskSrcKey&&maskSrcKey in func;}/**
-	 * Checks if `value` is likely a prototype object.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
-	 */function isPrototype(value){var Ctor=value&&value.constructor,proto=typeof Ctor=='function'&&Ctor.prototype||objectProto;return value===proto;}/**
-	 * Converts `func` to its source code.
-	 *
-	 * @private
-	 * @param {Function} func The function to process.
-	 * @returns {string} Returns the source code.
-	 */function toSource(func){if(func!=null){try{return funcToString.call(func);}catch(e){}try{return func+'';}catch(e){}}return '';}/**
-	 * This method is like `_.clone` except that it recursively clones `value`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 1.0.0
-	 * @category Lang
-	 * @param {*} value The value to recursively clone.
-	 * @returns {*} Returns the deep cloned value.
-	 * @see _.clone
-	 * @example
-	 *
-	 * var objects = [{ 'a': 1 }, { 'b': 2 }];
-	 *
-	 * var deep = _.cloneDeep(objects);
-	 * console.log(deep[0] === objects[0]);
-	 * // => false
-	 */function cloneDeep(value){return baseClone(value,true,true);}/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */function eq(value,other){return value===other||value!==value&&other!==other;}/**
-	 * Checks if `value` is likely an `arguments` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArguments(function() { return arguments; }());
-	 * // => true
-	 *
-	 * _.isArguments([1, 2, 3]);
-	 * // => false
-	 */function isArguments(value){// Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-return isArrayLikeObject(value)&&hasOwnProperty.call(value,'callee')&&(!propertyIsEnumerable.call(value,'callee')||objectToString.call(value)==argsTag);}/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */var isArray=Array.isArray;/**
-	 * Checks if `value` is array-like. A value is considered array-like if it's
-	 * not a function and has a `value.length` that's an integer greater than or
-	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLike(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLike('abc');
-	 * // => true
-	 *
-	 * _.isArrayLike(_.noop);
-	 * // => false
-	 */function isArrayLike(value){return value!=null&&isLength(value.length)&&!isFunction(value);}/**
-	 * This method is like `_.isArrayLike` except that it also checks if `value`
-	 * is an object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array-like object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArrayLikeObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject('abc');
-	 * // => false
-	 *
-	 * _.isArrayLikeObject(_.noop);
-	 * // => false
-	 */function isArrayLikeObject(value){return isObjectLike(value)&&isArrayLike(value);}/**
-	 * Checks if `value` is a buffer.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.3.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
-	 * @example
-	 *
-	 * _.isBuffer(new Buffer(2));
-	 * // => true
-	 *
-	 * _.isBuffer(new Uint8Array(2));
-	 * // => false
-	 */var isBuffer=nativeIsBuffer||stubFalse;/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */function isFunction(value){// The use of `Object#toString` avoids issues with the `typeof` operator
-// in Safari 8-9 which returns 'object' for typed array and other constructors.
-var tag=isObject(value)?objectToString.call(value):'';return tag==funcTag||tag==genTag;}/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This method is loosely based on
-	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 * @example
-	 *
-	 * _.isLength(3);
-	 * // => true
-	 *
-	 * _.isLength(Number.MIN_VALUE);
-	 * // => false
-	 *
-	 * _.isLength(Infinity);
-	 * // => false
-	 *
-	 * _.isLength('3');
-	 * // => false
-	 */function isLength(value){return typeof value=='number'&&value>-1&&value%1==0&&value<=MAX_SAFE_INTEGER;}/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */function isObject(value){var type=typeof value;return !!value&&(type=='object'||type=='function');}/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */function isObjectLike(value){return !!value&&typeof value=='object';}/**
-	 * Creates an array of the own enumerable property names of `object`.
-	 *
-	 * **Note:** Non-object values are coerced to objects. See the
-	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
-	 * for more details.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 *   this.b = 2;
-	 * }
-	 *
-	 * Foo.prototype.c = 3;
-	 *
-	 * _.keys(new Foo);
-	 * // => ['a', 'b'] (iteration order is not guaranteed)
-	 *
-	 * _.keys('hi');
-	 * // => ['0', '1']
-	 */function keys(object){return isArrayLike(object)?arrayLikeKeys(object):baseKeys(object);}/**
-	 * This method returns a new empty array.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.13.0
-	 * @category Util
-	 * @returns {Array} Returns the new empty array.
-	 * @example
-	 *
-	 * var arrays = _.times(2, _.stubArray);
-	 *
-	 * console.log(arrays);
-	 * // => [[], []]
-	 *
-	 * console.log(arrays[0] === arrays[1]);
-	 * // => false
-	 */function stubArray(){return [];}/**
-	 * This method returns `false`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.13.0
-	 * @category Util
-	 * @returns {boolean} Returns `false`.
-	 * @example
-	 *
-	 * _.times(2, _.stubFalse);
-	 * // => [false, false]
-	 */function stubFalse(){return false;}module.exports=cloneDeep;})(lodash_clonedeep,lodash_clonedeep.exports);var lodash_clonedeepExports=lodash_clonedeep.exports;var cloneDeep = /*@__PURE__*/getDefaultExportFromCjs(lodash_clonedeepExports);
-
-/**
- * - Create a request object
- * - Get response body
- * - Check if timeout
- */async function fetchAdapter(config){const request=createRequest(config);const promiseChain=[getResponse(request,config)];if(config.timeout&&config.timeout>0){promiseChain.push(new Promise(res=>{setTimeout(()=>{const message=config.timeoutErrorMessage?config.timeoutErrorMessage:'timeout of '+config.timeout+'ms exceeded';res(createError(message,config,'ECONNABORTED',request));},config.timeout);}));}const data=await Promise.race(promiseChain);return new Promise((resolve,reject)=>{if(data instanceof Error){reject(data);}else {Object.prototype.toString.call(config.settle)==='[object Function]'?config.settle(resolve,reject,data):settle(resolve,reject,data);}});}/**
- * Fetch API stage two is to get response body. This funtion tries to retrieve
- * response body based on response's type
- */async function getResponse(request,config){let stageOne;try{stageOne=await fetch(request);}catch(e){return createError('Network Error',config,'ERR_NETWORK',request);}const response={ok:stageOne.ok,status:stageOne.status,statusText:stageOne.statusText,headers:new Headers(stageOne.headers),// Make a copy of headers
-config:config,request};if(stageOne.status>=200&&stageOne.status!==204){switch(config.responseType){case'arraybuffer':response.data=await stageOne.arrayBuffer();break;case'blob':response.data=await stageOne.blob();break;case'json':response.data=await stageOne.json();break;case'formData':response.data=await stageOne.formData();break;default:response.data=await stageOne.text();break;}}return response;}/**
- * This function will create a Request object based on configuration's axios
- */function createRequest(config){const headers=new Headers(config.headers);// HTTP basic authentication
-if(config.auth){const username=config.auth.username||'';const password=config.auth.password?decodeURI(encodeURIComponent(config.auth.password)):'';headers.set('Authorization',`Basic ${btoa(username+':'+password)}`);}const method=config.method.toUpperCase();const options={headers:headers,method};if(method!=='GET'&&method!=='HEAD'){options.body=config.data;// In these cases the browser will automatically set the correct Content-Type,
-// but only if that header hasn't been set yet. So that's why we're deleting it.
-if(utils$1.isFormData(options.body)&&platform$1.isStandardBrowserEnv()){headers.delete('Content-Type');}}if(config.mode){options.mode=config.mode;}if(config.cache){options.cache=config.cache;}if(config.integrity){options.integrity=config.integrity;}if(config.redirect){options.redirect=config.redirect;}if(config.referrer){options.referrer=config.referrer;}// This config is similar to XHR’s withCredentials flag, but with three available values instead of two.
-// So if withCredentials is not set, default value 'same-origin' will be used
-if(!utils$1.isUndefined(config.withCredentials)){options.credentials=config.withCredentials?'include':'omit';}const fullPath=buildFullPath(config.baseURL,config.url);const url=buildURL(fullPath,config.params,config.paramsSerializer);// Expected browser to throw error if there is any wrong configuration value
-return new Request(url,options);}/**
- * Note:
- * 
- *   From version >= 0.27.0, createError function is replaced by AxiosError class.
- *   So I copy the old createError function here for backward compatible.
- * 
- * 
- * 
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */function createError(message,config,code,request,response){if(axios.AxiosError&&typeof axios.AxiosError==='function'){return new axios.AxiosError(message,axios.AxiosError[code],config,request,response);}var error=new Error(message);return enhanceError(error,config,code,request,response);}/**
- * 
- * Note:
- * 
- *   This function is for backward compatible.
- * 
- *  
- * Update an Error with the specified config, error code, and response.
- *
- * @param {Error} error The error to update.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The error.
- */function enhanceError(error,config,code,request,response){error.config=config;if(code){error.code=code;}error.request=request;error.response=response;error.isAxiosError=true;error.toJSON=function toJSON(){return {// Standard
-message:this.message,name:this.name,// Microsoft
-description:this.description,number:this.number,// Mozilla
-fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,// Axios
-config:this.config,code:this.code,status:this.response&&this.response.status?this.response.status:null};};return error;}
-
-const URL_PATTERN=new RegExp('^(https?:\\/\\/)'+// protocol
+var CDN_INT_DIR='js-integrations';var CDN_PLUGINS_DIR='plugins';var URL_PATTERN=new RegExp('^(https?:\\/\\/)'+// protocol
 '('+'((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|'+// domain name
 'localhost|'+// localhost
 '((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?)\\.){3}'+// OR IP (v4) address first 3 octets
@@ -3813,1076 +1059,2746 @@ const URL_PATTERN=new RegExp('^(https?:\\/\\/)'+// protocol
 '(\\#[-a-zA-Z\\d_]*)?$')// fragment locator
 ;
 
-/**
- * A function to check given value is a function
- * @param value input value
- * @returns boolean
- */ // eslint-disable-next-line @typescript-eslint/ban-types
-const isFunction$2=value=>typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);/**
- * A function to check given value is a string
- * @param value input value
- * @returns boolean
- */const isString$1=value=>typeof value==='string';
+var BUILD_TYPE='legacy';var SDK_CDN_BASE_URL='https://cdn.rudderlabs.com';var CDN_ARCH_VERSION_DIR='v3';var DEST_SDK_BASE_URL="".concat(SDK_CDN_BASE_URL,"/").concat(CDN_ARCH_VERSION_DIR,"/").concat(BUILD_TYPE,"/").concat(CDN_INT_DIR);var PLUGINS_BASE_URL="".concat(SDK_CDN_BASE_URL,"/").concat(CDN_ARCH_VERSION_DIR,"/").concat(BUILD_TYPE,"/").concat(CDN_PLUGINS_DIR);var DEFAULT_CONFIG_BE_URL='https://api.rudderstack.com';
+
+var DEFAULT_ERROR_REPORTING_PROVIDER='bugsnag';var DEFAULT_STORAGE_ENCRYPTION_VERSION='v3';var DEFAULT_DATA_PLANE_EVENTS_TRANSPORT='xhr';var ConsentManagersToPluginNameMap={oneTrust:'OneTrustConsentManager',ketch:'KetchConsentManager',custom:'CustomConsentManager'};var ErrorReportingProvidersToPluginNameMap=_defineProperty({},DEFAULT_ERROR_REPORTING_PROVIDER,'Bugsnag');var StorageEncryptionVersionsToPluginNameMap=_defineProperty(_defineProperty({},DEFAULT_STORAGE_ENCRYPTION_VERSION,'StorageEncryption'),"legacy",'StorageEncryptionLegacy');var DataPlaneEventsTransportToPluginNameMap=_defineProperty(_defineProperty({},DEFAULT_DATA_PLANE_EVENTS_TRANSPORT,'XhrQueue'),"beacon",'BeaconQueue');var DEFAULT_DATA_SERVICE_ENDPOINT='rsaRequest';
+
+var defaultLoadOptions={logLevel:'ERROR',configUrl:DEFAULT_CONFIG_BE_URL,loadIntegration:true,sessions:{autoTrack:true,timeout:DEFAULT_SESSION_TIMEOUT_MS},sameSiteCookie:'Lax',polyfillIfRequired:true,integrations:{All:true},useBeacon:false,beaconQueueOptions:{},destinationsQueueOptions:{},queueOptions:{},lockIntegrationsVersion:false,lockPluginsVersion:false,uaChTrackLevel:'none',plugins:[],useGlobalIntegrationsConfigInEvents:false,bufferDataPlaneEventsUntilReady:false,dataPlaneEventsBufferTimeout:DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,storage:{encryption:{version:DEFAULT_STORAGE_ENCRYPTION_VERSION},migrate:true},sendAdblockPageOptions:{},useServerSideCookies:false};var loadOptionsState=d$1(clone(defaultLoadOptions));
+
+var USER_SESSION_STORAGE_KEYS={userId:'rl_user_id',userTraits:'rl_trait',anonymousId:'rl_anonymous_id',groupId:'rl_group_id',groupTraits:'rl_group_trait',initialReferrer:'rl_page_init_referrer',initialReferringDomain:'rl_page_init_referring_domain',sessionInfo:'rl_session',authToken:'rl_auth_token'};var DEFAULT_USER_SESSION_VALUES={userId:'',userTraits:{},anonymousId:'',groupId:'',groupTraits:{},initialReferrer:'',initialReferringDomain:'',sessionInfo:{},authToken:null};
+
+var defaultSessionConfiguration={autoTrack:true,timeout:DEFAULT_SESSION_TIMEOUT_MS};var sessionState={userId:d$1(DEFAULT_USER_SESSION_VALUES.userId),userTraits:d$1(DEFAULT_USER_SESSION_VALUES.userTraits),anonymousId:d$1(DEFAULT_USER_SESSION_VALUES.anonymousId),groupId:d$1(DEFAULT_USER_SESSION_VALUES.groupId),groupTraits:d$1(DEFAULT_USER_SESSION_VALUES.groupTraits),initialReferrer:d$1(DEFAULT_USER_SESSION_VALUES.initialReferrer),initialReferringDomain:d$1(DEFAULT_USER_SESSION_VALUES.initialReferringDomain),sessionInfo:d$1(DEFAULT_USER_SESSION_VALUES.sessionInfo),authToken:d$1(DEFAULT_USER_SESSION_VALUES.authToken)};
+
+var capabilitiesState={isOnline:d$1(true),storage:{isLocalStorageAvailable:d$1(false),isCookieStorageAvailable:d$1(false),isSessionStorageAvailable:d$1(false)},isBeaconAvailable:d$1(false),isLegacyDOM:d$1(false),isUaCHAvailable:d$1(false),isCryptoAvailable:d$1(false),isIE11:d$1(false),isAdBlocked:d$1(false)};
+
+var reportingState={isErrorReportingEnabled:d$1(false),isMetricsReportingEnabled:d$1(false),errorReportingProviderPluginName:d$1(undefined),isErrorReportingPluginLoaded:d$1(false)};
+
+var sourceConfigState=d$1(undefined);
+
+var lifecycleState={activeDataplaneUrl:d$1(undefined),integrationsCDNPath:d$1(DEST_SDK_BASE_URL),pluginsCDNPath:d$1(PLUGINS_BASE_URL),sourceConfigUrl:d$1(undefined),status:d$1(undefined),initialized:d$1(false),logLevel:d$1('ERROR'),loaded:d$1(false),readyCallbacks:d$1([]),writeKey:d$1(undefined),dataPlaneUrl:d$1(undefined)};
+
+var consentsState={enabled:d$1(false),initialized:d$1(false),data:d$1({}),activeConsentManagerPluginName:d$1(undefined),preConsent:d$1({enabled:false}),postConsent:d$1({}),resolutionStrategy:d$1('and'),provider:d$1(undefined),metadata:d$1(undefined)};
+
+var metricsState={retries:d$1(0),dropped:d$1(0),sent:d$1(0),queued:d$1(0),triggered:d$1(0)};
+
+var contextState={app:d$1({name:APP_NAME,namespace:APP_NAMESPACE,version:APP_VERSION,installType:MODULE_TYPE}),traits:d$1(null),library:d$1({name:APP_NAME,version:APP_VERSION,snippetVersion:globalThis.RudderSnippetVersion}),userAgent:d$1(''),device:d$1(null),network:d$1(null),os:d$1({name:'',version:''}),locale:d$1(null),screen:d$1({density:0,width:0,height:0,innerWidth:0,innerHeight:0}),'ua-ch':d$1(undefined),timezone:d$1(undefined)};
+
+var nativeDestinationsState={configuredDestinations:d$1([]),activeDestinations:d$1([]),loadOnlyIntegrations:d$1({}),failedDestinations:d$1([]),loadIntegration:d$1(true),initializedDestinations:d$1([]),clientDestinationsReady:d$1(false),integrationsConfig:d$1({})};
+
+var eventBufferState={toBeProcessedArray:d$1([]),readyCallbacksArray:d$1([])};
+
+var pluginsState={ready:d$1(false),loadedPlugins:d$1([]),failedPlugins:d$1([]),pluginsToLoadFromConfig:d$1([]),activePlugins:d$1([]),totalPluginsToLoad:d$1(0)};
+
+var storageState={encryptionPluginName:d$1(undefined),migrate:d$1(false),type:d$1(undefined),cookie:d$1(undefined),entries:d$1({}),trulyAnonymousTracking:d$1(false)};
+
+var serverSideCookiesState={isEnabledServerSideCookies:d$1(false),dataServiceUrl:d$1(undefined)};
+
+var dataPlaneEventsState={eventsQueuePluginName:d$1(undefined),deliveryEnabled:d$1(true)// Delivery should always happen
+};
+
+var defaultStateValues={capabilities:capabilitiesState,consents:consentsState,context:contextState,eventBuffer:eventBufferState,lifecycle:lifecycleState,loadOptions:loadOptionsState,metrics:metricsState,nativeDestinations:nativeDestinationsState,plugins:pluginsState,reporting:reportingState,session:sessionState,source:sourceConfigState,storage:storageState,serverCookies:serverSideCookiesState,dataPlaneEvents:dataPlaneEventsState};var state=_objectSpread2({},clone(defaultStateValues));
+
+//  to next or return the value if it is the last one instead of an array per
+//  plugin that is the normal invoke
+// TODO: add invoke method for extension point that we know only one plugin can be used. add invokeMultiple and invokeSingle methods
+var PluginEngine=/*#__PURE__*/function(){function PluginEngine(){var options=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};var logger=arguments.length>1?arguments[1]:undefined;_classCallCheck(this,PluginEngine);_defineProperty(this,"plugins",[]);_defineProperty(this,"byName",{});_defineProperty(this,"cache",{});_defineProperty(this,"config",{throws:true});this.config=_objectSpread2({throws:true},options);this.logger=logger;}return _createClass(PluginEngine,[{key:"register",value:function register(plugin,state){if(!plugin.name){var errorMessage=PLUGIN_NAME_MISSING_ERROR(PLUGIN_ENGINE);if(this.config.throws){throw new Error(errorMessage);}else {var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.error(errorMessage,plugin);}}if(this.byName[plugin.name]){var _errorMessage=PLUGIN_ALREADY_EXISTS_ERROR(PLUGIN_ENGINE,plugin.name);if(this.config.throws){throw new Error(_errorMessage);}else {var _this$logger2;(_this$logger2=this.logger)===null||_this$logger2===void 0||_this$logger2.error(_errorMessage);}}this.cache={};this.plugins=this.plugins.slice();var pos=this.plugins.length;this.plugins.forEach(function(pluginItem,index){var _pluginItem$deps;if((_pluginItem$deps=pluginItem.deps)!==null&&_pluginItem$deps!==void 0&&_pluginItem$deps.includes(plugin.name)){pos=Math.min(pos,index);}});this.plugins.splice(pos,0,plugin);this.byName[plugin.name]=plugin;if(isFunction(plugin.initialize)){plugin.initialize(state);}}},{key:"unregister",value:function unregister(name){var plugin=this.byName[name];if(!plugin){var errorMessage=PLUGIN_NOT_FOUND_ERROR(PLUGIN_ENGINE,name);if(this.config.throws){throw new Error(errorMessage);}else {var _this$logger3;(_this$logger3=this.logger)===null||_this$logger3===void 0||_this$logger3.error(errorMessage);}}var index=this.plugins.indexOf(plugin);if(index===-1){var _errorMessage2=PLUGIN_ENGINE_BUG_ERROR(PLUGIN_ENGINE,name);if(this.config.throws){throw new Error(_errorMessage2);}else {var _this$logger4;(_this$logger4=this.logger)===null||_this$logger4===void 0||_this$logger4.error(_errorMessage2);}}this.cache={};delete this.byName[name];this.plugins=this.plugins.slice();this.plugins.splice(index,1);}},{key:"getPlugin",value:function getPlugin(name){return this.byName[name];}},{key:"getPlugins",value:function getPlugins(extPoint){var _this=this;var lifeCycleName=extPoint!==null&&extPoint!==void 0?extPoint:'.';if(!this.cache[lifeCycleName]){this.cache[lifeCycleName]=this.plugins.filter(function(plugin){var _plugin$deps;if((_plugin$deps=plugin.deps)!==null&&_plugin$deps!==void 0&&_plugin$deps.some(function(dependency){return !_this.byName[dependency];})){var _this$logger5;// If deps not exist, then not load it.
+var notExistDeps=plugin.deps.filter(function(dependency){return !_this.byName[dependency];});(_this$logger5=_this.logger)===null||_this$logger5===void 0||_this$logger5.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE,plugin.name,notExistDeps));return false;}return lifeCycleName==='.'?true:hasValueByPath(plugin,lifeCycleName);});}return this.cache[lifeCycleName];}// This method allows to process this.plugins so that it could
+// do some unified pre-process before application starts.
+},{key:"processRawPlugins",value:function processRawPlugins(callback){callback(this.plugins);this.cache={};}},{key:"invoke",value:function invoke(extPoint){var _this$config$throws,_this2=this;var allowMultiple=arguments.length>1&&arguments[1]!==undefined?arguments[1]:true;for(var _len=arguments.length,args=new Array(_len>2?_len-2:0),_key=2;_key<_len;_key++){args[_key-2]=arguments[_key];}var extensionPointName=extPoint;if(!extensionPointName){throw new Error(PLUGIN_EXT_POINT_MISSING_ERROR);}var noCall=extensionPointName.startsWith('!');var throws=(_this$config$throws=this.config.throws)!==null&&_this$config$throws!==void 0?_this$config$throws:extensionPointName.endsWith('!');// eslint-disable-next-line unicorn/better-regex
+extensionPointName=extensionPointName.replace(/(^!|!$)/g,'');if(!extensionPointName){throw new Error(PLUGIN_EXT_POINT_INVALID_ERROR);}var extensionPointNameParts=extensionPointName.split('.');extensionPointNameParts.pop();var pluginMethodPath=extensionPointNameParts.join('.');var pluginsToInvoke=allowMultiple?this.getPlugins(extensionPointName):[this.getPlugins(extensionPointName)[0]];return pluginsToInvoke.map(function(plugin){var method=getValueByPath(plugin,extensionPointName);if(!isFunction(method)||noCall){return method;}try{return method.apply(getValueByPath(plugin,pluginMethodPath),args);}catch(err){// When a plugin failed, doesn't break the app
+if(throws){throw err;}else {var _this2$logger;(_this2$logger=_this2.logger)===null||_this2$logger===void 0||_this2$logger.error(PLUGIN_INVOCATION_ERROR(PLUGIN_ENGINE,extensionPointName,plugin.name),err);}}return null;});}},{key:"invokeSingle",value:function invokeSingle(extPoint){for(var _len2=arguments.length,args=new Array(_len2>1?_len2-1:0),_key2=1;_key2<_len2;_key2++){args[_key2-1]=arguments[_key2];}return this.invoke.apply(this,[extPoint,false].concat(args))[0];}},{key:"invokeMultiple",value:function invokeMultiple(extPoint){for(var _len3=arguments.length,args=new Array(_len3>1?_len3-1:0),_key3=1;_key3<_len3;_key3++){args[_key3-1]=arguments[_key3];}return this.invoke.apply(this,[extPoint,true].concat(args));}}]);}();var defaultPluginEngine=new PluginEngine({throws:true},defaultLogger);
+
+var FAILED_REQUEST_ERR_MSG_PREFIX='The request failed';var ERROR_MESSAGES_TO_BE_FILTERED=[FAILED_REQUEST_ERR_MSG_PREFIX];
+
+var LOAD_ORIGIN='RS_JS_SDK';
 
 /**
+ * Utility method to normalise errors
+ */var processError=function processError(error){var errorMessage;try{if(isString(error)){errorMessage=error;}else if(error instanceof Error){errorMessage=error.message;}else if(error instanceof ErrorEvent){errorMessage=error.message;}// TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
+else if(error instanceof Event){var eventTarget=error.target;// Discard all the non-script loading errors
+if(eventTarget&&eventTarget.localName!=='script'){return '';}// Discard script errors that are not originated at SDK or from native SDKs
+if(eventTarget!==null&&eventTarget!==void 0&&eventTarget.dataset&&(eventTarget.dataset.loader!==LOAD_ORIGIN||eventTarget.dataset.isnonnativesdk!=='true')){return '';}errorMessage="Error in loading a third-party script from URL ".concat(eventTarget===null||eventTarget===void 0?void 0:eventTarget.src," with ID ").concat(eventTarget===null||eventTarget===void 0?void 0:eventTarget.id,".");}else {errorMessage=error.message?error.message:stringifyWithoutCircular(error);}}catch(e){errorMessage="Unknown error: ".concat(e.message);}return errorMessage;};/**
+ * A function to determine whether the error should be promoted to notify or not
+ * @param {Error} error
+ * @returns
+ */var isAllowedToBeNotified=function isAllowedToBeNotified(error){if(error.message){return !ERROR_MESSAGES_TO_BE_FILTERED.some(function(e){return error.message.includes(e);});}return true;};
+
+/**
+ * A service to handle errors
+ */var ErrorHandler=/*#__PURE__*/function(){// If no logger is passed errors will be thrown as unhandled error
+function ErrorHandler(logger,pluginEngine){_classCallCheck(this,ErrorHandler);this.logger=logger;this.pluginEngine=pluginEngine;this.errorBuffer=new BufferQueue();this.attachEffect();}return _createClass(ErrorHandler,[{key:"attachEffect",value:function attachEffect(){if(state.reporting.isErrorReportingPluginLoaded.value===true){while(this.errorBuffer.size()>0){this.errorBuffer.dequeue();}}}},{key:"attachErrorListeners",value:function attachErrorListeners(){var _this=this;if('addEventListener'in globalThis){globalThis.addEventListener('error',function(event){_this.onError(event,undefined,undefined,undefined,'unhandledException');});globalThis.addEventListener('unhandledrejection',function(event){_this.onError(event,undefined,undefined,undefined,'unhandledPromiseRejection');});}else {var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.debug("Failed to attach global error listeners.");}}},{key:"init",value:function init(externalSrcLoader){var _this2=this;if(!this.pluginEngine){return;}try{var extPoint='errorReporting.init';var errReportingInitVal=this.pluginEngine.invokeSingle(extPoint,state,this.pluginEngine,externalSrcLoader,this.logger);if(errReportingInitVal instanceof Promise){errReportingInitVal.then(function(client){_this2.errReportingClient=client;}).catch(function(err){var _this2$logger;(_this2$logger=_this2.logger)===null||_this2$logger===void 0||_this2$logger.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER),err);});}}catch(err){this.onError(err,ERROR_HANDLER);}}},{key:"onError",value:function onError(error){var context=arguments.length>1&&arguments[1]!==undefined?arguments[1]:'';var customMessage=arguments.length>2&&arguments[2]!==undefined?arguments[2]:'';var shouldAlwaysThrow=arguments.length>3&&arguments[3]!==undefined?arguments[3]:false;var errorType=arguments.length>4&&arguments[4]!==undefined?arguments[4]:'handled';// Error handling is already implemented in processError method
+var errorMessage=processError(error);// If no error message after we normalize, then we swallow/ignore the errors
+if(!errorMessage){return;}// eslint-disable-next-line @typescript-eslint/no-unused-vars
+errorMessage=removeDoubleSpaces("".concat(context).concat(LOG_CONTEXT_SEPARATOR).concat(customMessage," ").concat(errorMessage));var normalizedError=new Error(errorMessage);if(isTypeOfError(error)){normalizedError=Object.create(error,{message:{value:errorMessage}});}if(errorType==='handled'){// TODO: Remove the below line once the new Reporting plugin is ready
+this.notifyError(normalizedError);if(this.logger){this.logger.error(errorMessage);if(shouldAlwaysThrow){throw normalizedError;}}else {throw normalizedError;}}// eslint-disable-next-line sonarjs/no-all-duplicated-branches
+if(state.reporting.isErrorReportingEnabled.value&&!state.reporting.isErrorReportingPluginLoaded.value);}/**
+   * Add breadcrumbs to add insight of a user's journey before an error
+   * occurred and send to external error monitoring service via a plugin
+   *
+   * @param {string} breadcrumb breadcrumbs message
+   */},{key:"leaveBreadcrumb",value:function leaveBreadcrumb(breadcrumb){if(this.pluginEngine){try{this.pluginEngine.invokeSingle('errorReporting.breadcrumb',this.pluginEngine,this.errReportingClient,breadcrumb,this.logger);}catch(err){this.onError(err,ERROR_HANDLER,'errorReporting.breadcrumb');}}}/**
+   * Send handled errors to external error monitoring service via a plugin
+   *
+   * @param {Error} error Error instance from handled error
+   */},{key:"notifyError",value:function notifyError(error){if(this.pluginEngine&&isAllowedToBeNotified(error)){try{this.pluginEngine.invokeSingle('errorReporting.notify',this.pluginEngine,this.errReportingClient,error,state,this.logger);}catch(err){var _this$logger2;// Not calling onError here as we don't want to go into infinite loop
+(_this$logger2=this.logger)===null||_this$logger2===void 0||_this$logger2.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER),err);}}}}]);}();var defaultErrorHandler=new ErrorHandler(defaultLogger,defaultPluginEngine);
+
+/**
+ * A function to filter and return non cloud mode destinations
+ * @param destination
+ *
+ * @returns boolean
+ */var isNonCloudDestination=function isNonCloudDestination(destination){return Boolean(destination.config.connectionMode!=='cloud'||destination.config.useNativeSDKToSend===true||// this is the older flag for hybrid mode destinations
+destination.config.useNativeSDK===true);};var isHybridModeDestination=function isHybridModeDestination(destination){return Boolean(destination.config.connectionMode==='hybrid'||destination.config.useNativeSDKToSend===true);};/**
+ * A function to filter and return non cloud mode destinations
+ * @param destinations
+ *
+ * @returns destinations
+ */var getNonCloudDestinations=function getNonCloudDestinations(destinations){return destinations.filter(isNonCloudDestination);};
+
+/**
+ * List of plugin names that are loaded as dynamic imports in modern builds
+ */var pluginNamesList=['BeaconQueue','Bugsnag','CustomConsentManager','DeviceModeDestinations','DeviceModeTransformation','ErrorReporting','ExternalAnonymousId','GoogleLinker','KetchConsentManager','NativeDestinationQueue','OneTrustConsentManager','StorageEncryption','StorageEncryptionLegacy','StorageMigrator','XhrQueue'];
+
+/**
+ * To get the current timestamp in ISO string format
+ * @returns ISO formatted timestamp string
+ */var getCurrentTimeFormatted=function getCurrentTimeFormatted(){var curDateTime=new Date().toISOString();return curDateTime;};
+
+var COOKIE_STORAGE='cookieStorage';var LOCAL_STORAGE='localStorage';var SESSION_STORAGE='sessionStorage';var MEMORY_STORAGE='memoryStorage';var NO_STORAGE='none';
+
+var removeDuplicateSlashes=function removeDuplicateSlashes(str){return str.replace(/\/{2,}/g,'/');};/**
  * Checks if provided url is valid or not
  * @param url
  * @returns true if `url` is valid and false otherwise
- */const isValidURL=url=>{if(!isString$1(url)){return false;}try{// If URL is supported by the browser, we can use it to validate the URL
+ */var isValidURL=function isValidURL(url){if(!isString(url)){return false;}try{// If URL is supported by the browser, we can use it to validate the URL
 // Otherwise, we can at least check if the URL matches the pattern
-if(isFunction$2(globalThis.URL)){// eslint-disable-next-line no-new
+if(isFunction(globalThis.URL)){// eslint-disable-next-line no-new
 new URL(url);}return URL_PATTERN.test(url);}catch(e){return false;}};
 
-const{toString}=Object.prototype;const NODE_TYPE_ELEMENT=1;const DOM_PROPERTIES_TO_CHECK=['innerHTML','ownerDocument','style','attributes','nodeValue'];function isObject$1(value){return value!==null&&typeof value==='object';}function isHtmlElement(value){return isObject$1(value)&&value.nodeType===NODE_TYPE_ELEMENT&&typeof value.nodeName==='string'&&DOM_PROPERTIES_TO_CHECK.every(property=>property in value);}var componentType=function(value){if(value===undefined){return 'undefined';}if(value===null){return 'null';}if(Number.isNaN(value)){return 'nan';}if(Array.isArray(value)){return 'array';}switch(toString.call(value)){case'[object Date]':{return 'date';}case'[object RegExp]':{return 'regexp';}case'[object Arguments]':{return 'arguments';}case'[object Error]':{return 'error';}// No default
-}if(value&&isHtmlElement(value)){return 'element';}if(value&&value instanceof Uint8Array&&value.constructor.name==='Buffer'){return 'buffer';}if(typeof value.valueOf==='function'){value=value.valueOf?.()??Object.prototype.valueOf.apply(value);}return typeof value;};var type = /*@__PURE__*/getDefaultExportFromCjs(componentType);
+function random(len){return crypto.getRandomValues(new Uint8Array(len));}
+
+var SIZE=4096,HEX$1=[],IDX$1=0,BUFFER$1;for(;IDX$1<256;IDX$1++){HEX$1[IDX$1]=(IDX$1+256).toString(16).substring(1);}function v4$1(){if(!BUFFER$1||IDX$1+16>SIZE){BUFFER$1=random(SIZE);IDX$1=0;}var i=0,tmp,out='';for(;i<16;i++){tmp=BUFFER$1[IDX$1+i];if(i==6)out+=HEX$1[tmp&15|64];else if(i==8)out+=HEX$1[tmp&63|128];else out+=HEX$1[tmp];if(i&1&&i>1&&i<11)out+='-';}IDX$1+=16;return out;}
+
+var IDX=256,HEX=[],BUFFER;while(IDX--)HEX[IDX]=(IDX+256).toString(16).substring(1);function v4(){var i=0,num,out='';if(!BUFFER||IDX+16>256){BUFFER=Array(i=256);while(i--)BUFFER[i]=256*Math.random()|0;i=IDX=0;}for(;i<16;i++){num=BUFFER[IDX+i];if(i==6)out+=HEX[num&15|64];else if(i==8)out+=HEX[num&63|128];else out+=HEX[num];if(i&1&&i>1&&i<11)out+='-';}IDX++;return out;}
+
+var hasCrypto$1=function hasCrypto(){return !isNullOrUndefined(globalThis.crypto)&&isFunction(globalThis.crypto.getRandomValues);};
+
+var generateUUID=function generateUUID(){if(hasCrypto$1()){return v4$1();}return v4();};
+
+var isErrRetryable=function isErrRetryable(details){var isRetryableNWFailure=false;if(details!==null&&details!==void 0&&details.error&&details!==null&&details!==void 0&&details.xhr){var xhrStatus=details.xhr.status;// same as in v1.1
+isRetryableNWFailure=xhrStatus===429||xhrStatus>=500&&xhrStatus<600;}return isRetryableNWFailure;};
+
+var EVENT_PAYLOAD_SIZE_BYTES_LIMIT=32*1024;// 32 KB
+
+var EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING=function EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING(context,payloadSize,sizeLimit){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The size of the event payload (").concat(payloadSize," bytes) exceeds the maximum limit of ").concat(sizeLimit," bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.");};var EVENT_PAYLOAD_SIZE_VALIDATION_WARNING=function EVENT_PAYLOAD_SIZE_VALIDATION_WARNING(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.");};var QUEUE_UTILITIES='QueueUtilities';/**
+ * Utility to get the stringified event payload
+ * @param event RudderEvent object
+ * @param logger Logger instance
+ * @returns stringified event payload. Empty string if error occurs.
+ */var getDeliveryPayload=function getDeliveryPayload(event,logger){return stringifyWithoutCircular(event,true,undefined,logger);};var getDMTDeliveryPayload=function getDMTDeliveryPayload(dmtRequestPayload,logger){return stringifyWithoutCircular(dmtRequestPayload,true,undefined,logger);};/**
+ * Utility to validate final payload size before sending to server
+ * @param event RudderEvent object
+ * @param logger Logger instance
+ */var validateEventPayloadSize=function validateEventPayloadSize(event,logger){var payloadStr=getDeliveryPayload(event,logger);if(payloadStr){var payloadSize=payloadStr.length;if(payloadSize>EVENT_PAYLOAD_SIZE_BYTES_LIMIT){logger===null||logger===void 0||logger.warn(EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING(QUEUE_UTILITIES,payloadSize,EVENT_PAYLOAD_SIZE_BYTES_LIMIT));}}else {logger===null||logger===void 0||logger.warn(EVENT_PAYLOAD_SIZE_VALIDATION_WARNING(QUEUE_UTILITIES));}};/**
+ * Mutates the event and return final event for delivery
+ * Updates certain parameters like sentAt timestamp, integrations config etc.
+ * @param event RudderEvent object
+ * @returns Final event ready to be delivered
+ */var getFinalEventForDeliveryMutator=function getFinalEventForDeliveryMutator(event,currentTime){var finalEvent=clone(event);// Update sentAt timestamp to the latest timestamp
+finalEvent.sentAt=currentTime;return finalEvent;};
+
+var ENCRYPTION_PREFIX_V3='RS_ENC_v3_';
+
+var encrypt$1=function encrypt(value){return "".concat(ENCRYPTION_PREFIX_V3).concat(toBase64(value));};var decrypt$1=function decrypt(value){if(value.startsWith(ENCRYPTION_PREFIX_V3)){return fromBase64(value.substring(ENCRYPTION_PREFIX_V3.length));}return value;};
+
+var BEACON_PLUGIN_EVENTS_QUEUE_DEBUG=function BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Sending events to data plane.");};var BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR=function BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to convert events batch object to string.");};var BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR=function BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to convert events batch object to Blob.");};var BEACON_QUEUE_SEND_ERROR=function BEACON_QUEUE_SEND_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to send events batch data to the browser's beacon queue. The events will be dropped.");};var BEACON_QUEUE_DELIVERY_ERROR=function BEACON_QUEUE_DELIVERY_ERROR(url){return "Failed to send events batch data to the browser's beacon queue for URL ".concat(url,".");};
+
+var DEFAULT_BEACON_QUEUE_MAX_SIZE=10;var DEFAULT_BEACON_QUEUE_FLUSH_INTERVAL_MS=10*60*1000;// 10 minutes
+// Limit of the Beacon transfer mechanism on the browsers
+var MAX_BATCH_PAYLOAD_SIZE_BYTES=64*1024;// 64 KB
+var DEFAULT_BEACON_QUEUE_OPTIONS={maxItems:DEFAULT_BEACON_QUEUE_MAX_SIZE,flushQueueInterval:DEFAULT_BEACON_QUEUE_FLUSH_INTERVAL_MS};var DATA_PLANE_API_VERSION$1='v1';var QUEUE_NAME$3='rudder_beacon';var BEACON_QUEUE_PLUGIN='BeaconQueuePlugin';
 
 /**
- * Join `arr` with the trailing `str` defaulting to "and",
- * and `sep` string defaulting to ", ".
- *
- * @param {Array} arr
- * @param {String} str
- * @param {String} sep
- * @return {String}
- * @api public
- */var joinComponent=function(arr,str,sep){str=str||'and';sep=sep||', ';if(arr.length<2)return arr[0]||'';var oxford=str.slice(0,2)===sep;if(!oxford){str=' '+str;}else if(arr.length==2){str=str.slice(1);}return arr.slice(0,-1).join(sep)+str+' '+arr[arr.length-1];};var join = /*@__PURE__*/getDefaultExportFromCjs(joinComponent);
+ * Utility to get the stringified event payload as Blob
+ * @param events RudderEvent object array
+ * @param logger Logger instance
+ * @returns stringified events payload as Blob, undefined if error occurs.
+ */var getBatchDeliveryPayload$1=function getBatchDeliveryPayload(events,currentTime,logger){var data={batch:events,sentAt:currentTime};try{var blobPayload=stringifyWithoutCircular(data,true);var blobOptions={type:'text/plain'};if(blobPayload){return new Blob([blobPayload],blobOptions);}logger===null||logger===void 0||logger.error(BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN));}catch(err){logger===null||logger===void 0||logger.error(BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR(BEACON_QUEUE_PLUGIN),err);}return undefined;};var getNormalizedBeaconQueueOptions=function getNormalizedBeaconQueueOptions(queueOpts){return mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS,queueOpts);};var getDeliveryUrl$1=function getDeliveryUrl(dataplaneUrl,writeKey){var dpUrl=new URL(dataplaneUrl);return new URL(removeDuplicateSlashes([dpUrl.pathname,'/','beacon','/',DATA_PLANE_API_VERSION$1,'/',"batch?writeKey=".concat(writeKey)].join('')),dpUrl).href;};
 
-var inherits;
-if (typeof Object.create === 'function'){
-  inherits = function inherits(ctor, superCtor) {
-    // implementation from standard node.js 'util' module
-    ctor.super_ = superCtor;
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  inherits = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor;
-    var TempCtor = function () {};
-    TempCtor.prototype = superCtor.prototype;
-    ctor.prototype = new TempCtor();
-    ctor.prototype.constructor = ctor;
-  };
-}
+var QueueStatuses={IN_PROGRESS:'inProgress',QUEUE:'queue',RECLAIM_START:'reclaimStart',RECLAIM_END:'reclaimEnd',ACK:'ack',BATCH_QUEUE:'batchQueue'};
+
+var ScheduleModes=/*#__PURE__*/function(ScheduleModes){ScheduleModes[ScheduleModes["ASAP"]=1]="ASAP";ScheduleModes[ScheduleModes["RESCHEDULE"]=2]="RESCHEDULE";ScheduleModes[ScheduleModes["ABANDON"]=3]="ABANDON";return ScheduleModes;}({});var DEFAULT_CLOCK_LATE_FACTOR=2;var DEFAULT_CLOCK={setTimeout:function setTimeout(fn,ms){return globalThis.setTimeout(fn,ms);},clearTimeout:function clearTimeout(id){return globalThis.clearTimeout(id);},Date:globalThis.Date,clockLateFactor:DEFAULT_CLOCK_LATE_FACTOR};var Schedule=/*#__PURE__*/function(){function Schedule(){_classCallCheck(this,Schedule);this.tasks={};this.nextId=1;this.clock=DEFAULT_CLOCK;}return _createClass(Schedule,[{key:"now",value:function now(){return +new this.clock.Date();}},{key:"run",value:function run(task,timeout,mode){var id=(this.nextId+1).toString();this.tasks[id]=this.clock.setTimeout(this.handle(id,task,timeout,mode||ScheduleModes.ASAP),timeout);return id;}},{key:"handle",value:function handle(id,callback,timeout,mode){var _this=this;var start=this.now();return function(){delete _this.tasks[id];var elapsedTimeoutTime=start+timeout*(_this.clock.clockLateFactor||DEFAULT_CLOCK_LATE_FACTOR);var currentTime=_this.now();var notCompletedOrTimedOut=mode>=ScheduleModes.RESCHEDULE&&elapsedTimeoutTime<currentTime;if(notCompletedOrTimedOut){if(mode===ScheduleModes.RESCHEDULE){_this.run(callback,timeout,mode);}return undefined;}return callback();};}},{key:"cancel",value:function cancel(id){if(this.tasks[id]){this.clock.clearTimeout(this.tasks[id]);delete this.tasks[id];}}},{key:"cancelAll",value:function cancelAll(){Object.values(this.tasks).forEach(this.clock.clearTimeout);this.tasks={};}}]);}();
+
+var RETRY_QUEUE_PROCESS_ERROR=function RETRY_QUEUE_PROCESS_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Process function threw an error.");};var RETRY_QUEUE_ENTRY_REMOVE_ERROR=function RETRY_QUEUE_ENTRY_REMOVE_ERROR(context,entry,attempt){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to remove local storage entry \"").concat(entry,"\" (attempt: ").concat(attempt,".");};
+
+var DEFAULT_MIN_RETRY_DELAY_MS=1000;var DEFAULT_MAX_RETRY_DELAY_MS=30000;var DEFAULT_BACKOFF_FACTOR=2;var DEFAULT_BACKOFF_JITTER=0;var DEFAULT_MAX_RETRY_ATTEMPTS=Infinity;var DEFAULT_MAX_ITEMS=Infinity;var DEFAULT_ACK_TIMER_MS=1000;var DEFAULT_RECLAIM_TIMER_MS=3000;var DEFAULT_RECLAIM_TIMEOUT_MS=10000;var DEFAULT_RECLAIM_WAIT_MS=500;var MIN_TIMER_SCALE_FACTOR=1;var MAX_TIMER_SCALE_FACTOR=10;var DEFAULT_MAX_BATCH_SIZE_BYTES=512*1024;// 512 KB; this is also the max size of a batch
+var DEFAULT_MAX_BATCH_ITEMS=100;var DEFAULT_BATCH_FLUSH_INTERVAL_MS=60*1000;// 1 minutes
+
+var sortByTime=function sortByTime(a,b){return a.time-b.time;};var RETRY_QUEUE='RetryQueue';/**
+ * Constructs a RetryQueue backed by localStorage
+ *
+ * @constructor
+ * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
+ * @param {Object} [opts] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
+ * @param {QueueProcessCallback} fn The function to call in order to process an item added to the queue
+ */var RetryQueue=/*#__PURE__*/function(){function RetryQueue(name,options,queueProcessCb,storeManager){var _options$timerScaleFa;var storageType=arguments.length>4&&arguments[4]!==undefined?arguments[4]:LOCAL_STORAGE;var logger=arguments.length>5?arguments[5]:undefined;var queueBatchItemsSizeCalculatorCb=arguments.length>6?arguments[6]:undefined;_classCallCheck(this,RetryQueue);this.storeManager=storeManager;this.logger=logger;this.name=name;this.id=generateUUID();this.processQueueCb=queueProcessCb;this.batchSizeCalcCb=queueBatchItemsSizeCalculatorCb;this.maxItems=options.maxItems||DEFAULT_MAX_ITEMS;this.maxAttempts=options.maxAttempts||DEFAULT_MAX_RETRY_ATTEMPTS;this.batch={enabled:false};this.configureBatchMode(options);this.backoff={minRetryDelay:options.minRetryDelay||DEFAULT_MIN_RETRY_DELAY_MS,maxRetryDelay:options.maxRetryDelay||DEFAULT_MAX_RETRY_DELAY_MS,factor:options.backoffFactor||DEFAULT_BACKOFF_FACTOR,jitter:options.backoffJitter||DEFAULT_BACKOFF_JITTER};// Limit the timer scale factor to the minimum value
+var timerScaleFactor=Math.max((_options$timerScaleFa=options.timerScaleFactor)!==null&&_options$timerScaleFa!==void 0?_options$timerScaleFa:MIN_TIMER_SCALE_FACTOR,MIN_TIMER_SCALE_FACTOR);// Limit the timer scale factor to the maximum value
+timerScaleFactor=Math.min(timerScaleFactor,MAX_TIMER_SCALE_FACTOR);// painstakingly tuned. that's why they're not "easily" configurable
+this.timeouts={ackTimer:Math.round(timerScaleFactor*DEFAULT_ACK_TIMER_MS),reclaimTimer:Math.round(timerScaleFactor*DEFAULT_RECLAIM_TIMER_MS),reclaimTimeout:Math.round(timerScaleFactor*DEFAULT_RECLAIM_TIMEOUT_MS),reclaimWait:Math.round(timerScaleFactor*DEFAULT_RECLAIM_WAIT_MS)};this.schedule=new Schedule();this.processId='0';// Set up our empty queues
+this.store=this.storeManager.setStore({id:this.id,name:this.name,validKeys:QueueStatuses,type:storageType});this.setDefaultQueueEntries();// bind recurring tasks for ease of use
+this.ack=this.ack.bind(this);this.checkReclaim=this.checkReclaim.bind(this);this.processHead=this.processHead.bind(this);this.flushBatch=this.flushBatch.bind(this);// Attach visibility change listener to flush the queue
+this.attachListeners();this.scheduleTimeoutActive=false;}return _createClass(RetryQueue,[{key:"setDefaultQueueEntries",value:function setDefaultQueueEntries(){this.setStorageEntry(QueueStatuses.IN_PROGRESS,{});this.setStorageEntry(QueueStatuses.QUEUE,[]);this.setStorageEntry(QueueStatuses.BATCH_QUEUE,[]);}},{key:"configureBatchMode",value:function configureBatchMode(options){this.batchingInProgress=false;if(!isObjectLiteralAndNotNull(options.batch)){return;}var batchOptions=options.batch;this.batch.enabled=batchOptions.enabled===true;if(this.batch.enabled){var _batchOptions$maxSize,_batchOptions$maxItem,_batchOptions$flushIn;// Set upper cap on the batch payload size
+this.batch.maxSize=Math.min((_batchOptions$maxSize=batchOptions.maxSize)!==null&&_batchOptions$maxSize!==void 0?_batchOptions$maxSize:DEFAULT_MAX_BATCH_SIZE_BYTES,DEFAULT_MAX_BATCH_SIZE_BYTES);this.batch.maxItems=(_batchOptions$maxItem=batchOptions.maxItems)!==null&&_batchOptions$maxItem!==void 0?_batchOptions$maxItem:DEFAULT_MAX_BATCH_ITEMS;this.batch.flushInterval=(_batchOptions$flushIn=batchOptions.flushInterval)!==null&&_batchOptions$flushIn!==void 0?_batchOptions$flushIn:DEFAULT_BATCH_FLUSH_INTERVAL_MS;}}},{key:"attachListeners",value:function attachListeners(){var _this=this;if(this.batch.enabled){globalThis.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){_this.flushBatch();}});}}},{key:"getStorageEntry",value:function getStorageEntry(name){return this.store.get(name);}// TODO: fix the type of different queues to be the same if possible
+},{key:"setStorageEntry",value:function setStorageEntry(name,value){if(isNullOrUndefined(value)){this.store.remove(name);}else {this.store.set(name,value);}}/**
+   * Stops processing the queue
+   */},{key:"stop",value:function stop(){this.schedule.cancelAll();this.scheduleTimeoutActive=false;}/**
+   * Starts processing the queue
+   */},{key:"start",value:function start(){if(this.scheduleTimeoutActive){this.stop();}this.scheduleTimeoutActive=true;this.scheduleFlushBatch();this.ack();this.checkReclaim();this.processHead();}/**
+   * Configures the timeout handler for flushing the batch queue
+   */},{key:"scheduleFlushBatch",value:function scheduleFlushBatch(){var _this$batch;if(this.batch.enabled&&(_this$batch=this.batch)!==null&&_this$batch!==void 0&&_this$batch.flushInterval){if(this.flushBatchTaskId){this.schedule.cancel(this.flushBatchTaskId);}this.flushBatchTaskId=this.schedule.run(this.flushBatch,this.batch.flushInterval,ScheduleModes.ASAP);}}/**
+   * Flushes the batch queue
+   */},{key:"flushBatch",value:function flushBatch(){if(!this.batchingInProgress){var _ref;this.batchingInProgress=true;var batchQueue=(_ref=this.getStorageEntry(QueueStatuses.BATCH_QUEUE))!==null&&_ref!==void 0?_ref:[];if(batchQueue.length>0){batchQueue=batchQueue.slice(-batchQueue.length);var batchEntry=this.genQueueItem(batchQueue.map(function(queueItem){return queueItem.item;}));this.setStorageEntry(QueueStatuses.BATCH_QUEUE,[]);this.pushToMainQueue(batchEntry);}this.batchingInProgress=false;// Re-schedule the flush task
+this.scheduleFlushBatch();}}/**
+   * Decides whether to retry. Overridable.
+   *
+   * @param {Object} item The item being processed
+   * @param {Number} attemptNumber The attemptNumber (1 for first retry)
+   * @return {Boolean} Whether to requeue the message
+   */},{key:"shouldRetry",value:function shouldRetry(item,attemptNumber){return attemptNumber<=this.maxAttempts;}/**
+   * Calculates the delay (in ms) for a retry attempt
+   *
+   * @param {Number} attemptNumber The attemptNumber (1 for first retry)
+   * @return {Number} The delay in milliseconds to wait before attempting a retry
+   */},{key:"getDelay",value:function getDelay(attemptNumber){var ms=this.backoff.minRetryDelay*Math.pow(this.backoff.factor,attemptNumber);if(this.backoff.jitter){var rand=Math.random();var deviation=Math.floor(rand*this.backoff.jitter*ms);if(Math.floor(rand*10)<5){ms-=deviation;}else {ms+=deviation;}}return Number(Math.min(ms,this.backoff.maxRetryDelay).toPrecision(1));}},{key:"enqueue",value:function enqueue(entry){var curEntry;if(this.batch.enabled){curEntry=this.handleNewItemForBatch(entry);}else {curEntry=entry;}// when batching is enabled, `curEntry` could be `undefined` if the batch criteria is not met
+if(curEntry){this.pushToMainQueue(curEntry);}}/**
+   * Handles a new item added to the retry queue when batching is enabled
+   * @param entry New item added to the retry queue
+   * @returns Undefined or batch entry object
+   */},{key:"handleNewItemForBatch",value:function handleNewItemForBatch(entry){var _ref2;var curEntry;var batchQueue=(_ref2=this.getStorageEntry(QueueStatuses.BATCH_QUEUE))!==null&&_ref2!==void 0?_ref2:[];if(!this.batchingInProgress){this.batchingInProgress=true;batchQueue=batchQueue.slice(-batchQueue.length);batchQueue.push(entry);var batchDispatchInfo=this.getBatchDispatchInfo(batchQueue);// if batch criteria is met, queue the batch events to the main queue and clear batch queue
+if(batchDispatchInfo.criteriaMet||batchDispatchInfo.criteriaExceeded){var batchItems;if(batchDispatchInfo.criteriaExceeded){batchItems=batchQueue.slice(0,batchQueue.length-1).map(function(queueItem){return queueItem.item;});batchQueue=[entry];}else {batchItems=batchQueue.map(function(queueItem){return queueItem.item;});batchQueue=[];}// Don't make any batch request if there are no items
+if(batchItems.length>0){curEntry=this.genQueueItem(batchItems);}// re-attach the timeout handler
+this.scheduleFlushBatch();}this.batchingInProgress=false;}else {batchQueue.push(entry);}// update the batch queue
+this.setStorageEntry(QueueStatuses.BATCH_QUEUE,batchQueue);return curEntry;}},{key:"pushToMainQueue",value:function pushToMainQueue(curEntry){var _ref3;var queue=(_ref3=this.getStorageEntry(QueueStatuses.QUEUE))!==null&&_ref3!==void 0?_ref3:[];queue=queue.slice(-(this.maxItems-1));queue.push(curEntry);queue=queue.sort(sortByTime);this.setStorageEntry(QueueStatuses.QUEUE,queue);if(this.scheduleTimeoutActive){this.processHead();}}/**
+   * Adds an item to the queue
+   *
+   * @param {Object} itemData The item to process
+   */},{key:"addItem",value:function addItem(itemData){this.enqueue(this.genQueueItem(itemData));}/**
+   * Generates a queue item
+   * @param itemData Queue item data
+   * @returns Queue item
+   */},{key:"genQueueItem",value:function genQueueItem(itemData){return {item:itemData,attemptNumber:0,time:this.schedule.now(),id:generateUUID()};}/**
+   * Adds an item to the retry queue
+   *
+   * @param {Object} itemData The item to retry
+   * @param {Number} attemptNumber The attempt number (1 for first retry)
+   * @param {Error} [error] The error from previous attempt, if there was one
+   * @param {String} [id] The id of the queued message used for tracking duplicate entries
+   */},{key:"requeue",value:function requeue(itemData,attemptNumber,error,id){if(this.shouldRetry(itemData,attemptNumber)){this.enqueue({item:itemData,attemptNumber:attemptNumber,time:this.schedule.now()+this.getDelay(attemptNumber),id:id!==null&&id!==void 0?id:generateUUID()});}}/**
+   * Returns the information about whether the batch criteria is met or exceeded
+   * @param batchItems Prospective batch items
+   * @returns Batch dispatch info
+   */},{key:"getBatchDispatchInfo",value:function getBatchDispatchInfo(batchItems){var _this$batch2,_this$batch3;var lengthCriteriaMet=false;var lengthCriteriaExceeded=false;var configuredBatchMaxItems=(_this$batch2=this.batch)===null||_this$batch2===void 0?void 0:_this$batch2.maxItems;if(isDefined(configuredBatchMaxItems)){lengthCriteriaMet=batchItems.length===configuredBatchMaxItems;lengthCriteriaExceeded=batchItems.length>configuredBatchMaxItems;}if(lengthCriteriaMet||lengthCriteriaExceeded){return {criteriaMet:lengthCriteriaMet,criteriaExceeded:lengthCriteriaExceeded};}var sizeCriteriaMet=false;var sizeCriteriaExceeded=false;var configuredBatchMaxSize=(_this$batch3=this.batch)===null||_this$batch3===void 0?void 0:_this$batch3.maxSize;if(isDefined(configuredBatchMaxSize)&&isDefined(this.batchSizeCalcCb)){var curBatchSize=this.batchSizeCalcCb(batchItems.map(function(queueItem){return queueItem.item;}));sizeCriteriaMet=curBatchSize===configuredBatchMaxSize;sizeCriteriaExceeded=curBatchSize>configuredBatchMaxSize;}return {criteriaMet:sizeCriteriaMet,criteriaExceeded:sizeCriteriaExceeded};}},{key:"processHead",value:function processHead(){var _ref4,_ref5,_this2=this,_ref7;// cancel the scheduled task if it exists
+this.schedule.cancel(this.processId);// Pop the head off the queue
+var queue=(_ref4=this.getStorageEntry(QueueStatuses.QUEUE))!==null&&_ref4!==void 0?_ref4:[];var inProgress=(_ref5=this.getStorageEntry(QueueStatuses.IN_PROGRESS))!==null&&_ref5!==void 0?_ref5:{};var now=this.schedule.now();var toRun=[];// eslint-disable-next-line @typescript-eslint/no-unused-vars
+var processItemCallback=function processItemCallback(el,id){return function(err,res){var _ref6;var inProgress=(_ref6=_this2.getStorageEntry(QueueStatuses.IN_PROGRESS))!==null&&_ref6!==void 0?_ref6:{};delete inProgress[id];_this2.setStorageEntry(QueueStatuses.IN_PROGRESS,inProgress);if(err){_this2.requeue(el.item,el.attemptNumber+1,err,el.id);}};};var enqueueItem=function enqueueItem(el,id){toRun.push({item:el.item,done:processItemCallback(el,id),attemptNumber:el.attemptNumber});};var inProgressSize=Object.keys(inProgress).length;// eslint-disable-next-line no-plusplus
+while(queue.length>0&&queue[0].time<=now&&inProgressSize++<this.maxItems){var el=queue.shift();if(el){var id=generateUUID();// Save this to the in progress map
+inProgress[id]={item:el.item,attemptNumber:el.attemptNumber,time:this.schedule.now()};enqueueItem(el,id);}}this.setStorageEntry(QueueStatuses.QUEUE,queue);this.setStorageEntry(QueueStatuses.IN_PROGRESS,inProgress);toRun.forEach(function(el){// TODO: handle processQueueCb timeout
+try{var willBeRetried=_this2.shouldRetry(el.item,el.attemptNumber+1);_this2.processQueueCb(el.item,el.done,el.attemptNumber,_this2.maxAttempts,willBeRetried);}catch(err){var _this2$logger;(_this2$logger=_this2.logger)===null||_this2$logger===void 0||_this2$logger.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE),err);}});// re-read the queue in case the process function finished immediately or added another item
+queue=(_ref7=this.getStorageEntry(QueueStatuses.QUEUE))!==null&&_ref7!==void 0?_ref7:[];this.schedule.cancel(this.processId);if(queue.length>0){var nextProcessExecutionTime=queue[0].time-now;this.processId=this.schedule.run(this.processHead,nextProcessExecutionTime,ScheduleModes.ASAP);}}// Ack continuously to prevent other tabs from claiming our queue
+},{key:"ack",value:function ack(){this.setStorageEntry(QueueStatuses.ACK,this.schedule.now());if(this.reclaimStartVal!=null){this.reclaimStartVal=null;this.setStorageEntry(QueueStatuses.RECLAIM_START,null);}if(this.reclaimEndVal!=null){this.reclaimEndVal=null;this.setStorageEntry(QueueStatuses.RECLAIM_END,null);}this.schedule.run(this.ack,this.timeouts.ackTimer,ScheduleModes.ASAP);}},{key:"reclaim",value:function reclaim(id){var _this$getStorageEntry,_other$get,_other$get2,_other$get3,_this3=this;var other=this.storeManager.setStore({id:id,name:this.name,validKeys:QueueStatuses,type:LOCAL_STORAGE});var our={queue:(_this$getStorageEntry=this.getStorageEntry(QueueStatuses.QUEUE))!==null&&_this$getStorageEntry!==void 0?_this$getStorageEntry:[]};var their={inProgress:(_other$get=other.get(QueueStatuses.IN_PROGRESS))!==null&&_other$get!==void 0?_other$get:{},batchQueue:(_other$get2=other.get(QueueStatuses.BATCH_QUEUE))!==null&&_other$get2!==void 0?_other$get2:[],queue:(_other$get3=other.get(QueueStatuses.QUEUE))!==null&&_other$get3!==void 0?_other$get3:[]};var trackMessageIds=[];var addConcatQueue=function addConcatQueue(queue,incrementAttemptNumberBy){var concatIterator=function concatIterator(el){var _el$id;var id=(_el$id=el.id)!==null&&_el$id!==void 0?_el$id:generateUUID();if(trackMessageIds.includes(id));else {our.queue.push({item:el.item,attemptNumber:el.attemptNumber+incrementAttemptNumberBy,time:_this3.schedule.now(),id:id});trackMessageIds.push(id);}};if(Array.isArray(queue)){queue.forEach(concatIterator);}else if(queue){Object.values(queue).forEach(concatIterator);}};// add their queue to ours, resetting run-time to immediate and copying the attempt#
+addConcatQueue(their.queue,0);// Process batch queue items
+if(this.batch.enabled){their.batchQueue.forEach(function(el){var _el$id2;var id=(_el$id2=el.id)!==null&&_el$id2!==void 0?_el$id2:generateUUID();if(trackMessageIds.includes(id));else {_this3.enqueue(el);trackMessageIds.push(id);}});}else {// if batching is not enabled in the current instance, add those items to the main queue directly
+addConcatQueue(their.batchQueue,0);}// if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
+addConcatQueue(their.inProgress,1);our.queue=our.queue.sort(sortByTime);this.setStorageEntry(QueueStatuses.QUEUE,our.queue);// remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
+this.clearQueueEntries(other,1);// process the new items we claimed
+this.processHead();}// eslint-disable-next-line class-methods-use-this
+},{key:"clearQueueEntries",value:function clearQueueEntries(other,localStorageBackoff){this.removeStorageEntry(other,0,localStorageBackoff);}},{key:"removeStorageEntry",value:function removeStorageEntry(store,entryIdx,backoff){var _this4=this;var attempt=arguments.length>3&&arguments[3]!==undefined?arguments[3]:1;var maxAttempts=2;var queueEntryKeys=Object.keys(QueueStatuses);var entry=QueueStatuses[queueEntryKeys[entryIdx]];globalThis.setTimeout(function(){try{store.remove(entry);// clear the next entry
+if(entryIdx+1<queueEntryKeys.length){_this4.removeStorageEntry(store,entryIdx+1,backoff);}}catch(err){var storageBusyErr='NS_ERROR_STORAGE_BUSY';var isLocalStorageBusy=err.name===storageBusyErr||err.code===storageBusyErr||err.code===0x80630001;if(isLocalStorageBusy&&attempt<maxAttempts){// Try clearing the same entry again with some extra delay
+_this4.removeStorageEntry(store,entryIdx,backoff+40,attempt+1);}else {var _this4$logger;(_this4$logger=_this4.logger)===null||_this4$logger===void 0||_this4$logger.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE,entry,attempt),err);}// clear the next entry after we've exhausted our attempts
+if(attempt===maxAttempts&&entryIdx+1<queueEntryKeys.length){_this4.removeStorageEntry(store,entryIdx+1,backoff);}}},backoff);}},{key:"checkReclaim",value:function checkReclaim(){var _this5=this;var createReclaimStartTask=function createReclaimStartTask(store){return function(){if(store.get(QueueStatuses.RECLAIM_END)!==_this5.id){return;}if(store.get(QueueStatuses.RECLAIM_START)!==_this5.id){return;}_this5.reclaim(store.id);};};var createReclaimEndTask=function createReclaimEndTask(store){return function(){if(store.get(QueueStatuses.RECLAIM_START)!==_this5.id){return;}store.set(QueueStatuses.RECLAIM_END,_this5.id);_this5.schedule.run(createReclaimStartTask(store),_this5.timeouts.reclaimWait,ScheduleModes.ABANDON);};};var tryReclaim=function tryReclaim(store){store.set(QueueStatuses.RECLAIM_START,_this5.id);store.set(QueueStatuses.ACK,_this5.schedule.now());_this5.schedule.run(createReclaimEndTask(store),_this5.timeouts.reclaimWait,ScheduleModes.ABANDON);};var findOtherQueues=function findOtherQueues(name){var res=[];var storageEngine=_this5.store.getOriginalEngine();var storageKeys=[];// 'keys' API is not supported by all the core SDK versions
+// Hence, we need this backward compatibility check
+if(isFunction(storageEngine.keys)){storageKeys=storageEngine.keys();}else {for(var i=0;i<storageEngine.length;i++){var key=storageEngine.key(i);if(key){storageKeys.push(key);}}}storageKeys.forEach(function(k){var keyParts=k?k.split('.'):[];if(keyParts.length>=3&&keyParts[0]===name&&keyParts[1]!==_this5.id&&keyParts[2]===QueueStatuses.ACK){res.push(_this5.storeManager.setStore({id:keyParts[1],name:name,validKeys:QueueStatuses,type:LOCAL_STORAGE}));}});return res;};findOtherQueues(this.name).forEach(function(store){if(_this5.schedule.now()-store.get(QueueStatuses.ACK)<_this5.timeouts.reclaimTimeout){return;}tryReclaim(store);});this.schedule.run(this.checkReclaim,this.timeouts.reclaimTimer,ScheduleModes.RESCHEDULE);}},{key:"clear",value:function clear(){this.schedule.cancelAll();this.setDefaultQueueEntries();}}]);}();
+
+var pluginName$e='BeaconQueue';var BeaconQueue=function BeaconQueue(){return {name:pluginName$e,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$e]);},dataplaneEventsQueue:{/**
+     * Initialize the queue for delivery
+     * @param state Application state
+     * @param httpClient http client instance
+     * @param storeManager Store Manager instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns BeaconItemsQueue instance
+     */init:function init(state,httpClient,storeManager,errorHandler,logger){var _state$loadOptions$va;var writeKey=state.lifecycle.writeKey.value;var dataplaneUrl=state.lifecycle.activeDataplaneUrl.value;var url=getDeliveryUrl$1(dataplaneUrl,writeKey);var finalQOpts=getNormalizedBeaconQueueOptions((_state$loadOptions$va=state.loadOptions.value.beaconQueueOptions)!==null&&_state$loadOptions$va!==void 0?_state$loadOptions$va:{});var queueProcessCallback=function queueProcessCallback(itemData,done){logger===null||logger===void 0||logger.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));var currentTime=getCurrentTimeFormatted();var finalEvents=itemData.map(function(queueItemData){return getFinalEventForDeliveryMutator(queueItemData.event,currentTime);});var data=getBatchDeliveryPayload$1(finalEvents,currentTime,logger);if(data){try{var isEnqueuedInBeacon=navigator.sendBeacon(url,data);if(!isEnqueuedInBeacon){logger===null||logger===void 0||logger.error(BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN));}done(null,isEnqueuedInBeacon);}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,BEACON_QUEUE_PLUGIN,BEACON_QUEUE_DELIVERY_ERROR(url));// Remove the item from queue
+done(null);}}else {// Mark the item as done so that it can be removed from the queue
+done(null);}};var eventsQueue=new RetryQueue("".concat(QUEUE_NAME$3,"_").concat(writeKey),{batch:{enabled:true,flushInterval:finalQOpts.flushQueueInterval,maxSize:MAX_BATCH_PAYLOAD_SIZE_BYTES,// set the hard limit
+maxItems:finalQOpts.maxItems}},queueProcessCallback,storeManager,LOCAL_STORAGE,logger,function(itemData){var currentTime=getCurrentTimeFormatted();var events=itemData.map(function(queueItemData){return queueItemData.event;});// type casting to Blob as we know that the event has already been validated prior to enqueue
+return getBatchDeliveryPayload$1(events,currentTime,logger).size;});return eventsQueue;},/**
+     * Add event to the queue for delivery
+     * @param state Application state
+     * @param eventsQueue IQueue instance
+     * @param event RudderEvent object
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns none
+     */enqueue:function enqueue(state,eventsQueue,event,errorHandler,logger){// sentAt is only added here for the validation step
+// It'll be updated to the latest timestamp during actual delivery
+event.sentAt=getCurrentTimeFormatted();validateEventPayloadSize(event,logger);eventsQueue.addItem({event:event});}}};};
+
+var BUGSNAG_API_KEY_VALIDATION_ERROR=function BUGSNAG_API_KEY_VALIDATION_ERROR(apiKey){return "The Bugsnag API key (".concat(apiKey,") is invalid or not provided.");};var BUGSNAG_SDK_LOAD_TIMEOUT_ERROR=function BUGSNAG_SDK_LOAD_TIMEOUT_ERROR(timeout){return "A timeout ".concat(timeout," ms occurred while trying to load the Bugsnag SDK.");};var BUGSNAG_SDK_LOAD_ERROR=function BUGSNAG_SDK_LOAD_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to load the Bugsnag SDK.");};var FAILED_TO_FILTER_ERROR=function FAILED_TO_FILTER_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to filter the error.");};
+
+var BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME='bugsnag';// For version 6 and below
+var BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME='Bugsnag';var GLOBAL_LIBRARY_OBJECT_NAMES=[BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];var BUGSNAG_CDN_URL='https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';var ERROR_REPORT_PROVIDER_NAME_BUGSNAG='rs-bugsnag';// This API key token is parsed in the CI pipeline
+var API_KEY='0d96a60df267f4a13f808bbaa54e535c';var BUGSNAG_VALID_MAJOR_VERSION='6';var SDK_LOAD_POLL_INTERVAL_MS=100;// ms
+var MAX_WAIT_FOR_SDK_LOAD_MS=100*SDK_LOAD_POLL_INTERVAL_MS;// ms
+// Errors from the below scripts are NOT allowed to reach Bugsnag
+var SDK_FILE_NAME_PREFIXES=function SDK_FILE_NAME_PREFIXES(){return ['rsa'// Prefix for all the SDK scripts including plugins and module federated chunks
+];};var DEV_HOSTS=['www.test-host.com','localhost','127.0.0.1','[::1]'];// List of keys to exclude from the metadata
+// Potential PII or sensitive data
+var APP_STATE_EXCLUDE_KEYS=['userId','userTraits','groupId','groupTraits','anonymousId','config','instance',// destination instance objects
+'eventBuffer',// pre-load event buffer (may contain PII)
+'traits'];var BUGSNAG_PLUGIN='BugsnagPlugin';
+
+var isValidVersion=function isValidVersion(globalLibInstance){var _globalLibInstance$_c;// For version 7
+// eslint-disable-next-line no-underscore-dangle
+var version=globalLibInstance===null||globalLibInstance===void 0||(_globalLibInstance$_c=globalLibInstance._client)===null||_globalLibInstance$_c===void 0||(_globalLibInstance$_c=_globalLibInstance$_c._notifier)===null||_globalLibInstance$_c===void 0?void 0:_globalLibInstance$_c.version;// For versions older than 7
+if(!version){var _tempInstance$notifie;var tempInstance=globalLibInstance({apiKey:API_KEY,releaseStage:'version-test',// eslint-disable-next-line func-names, object-shorthand
+beforeSend:function beforeSend(){return false;}});version=(_tempInstance$notifie=tempInstance.notifier)===null||_tempInstance$notifie===void 0?void 0:_tempInstance$notifie.version;}return version&&version.charAt(0)===BUGSNAG_VALID_MAJOR_VERSION;};var isRudderSDKError=function isRudderSDKError(event){var _event$stacktrace;var errorOrigin=(_event$stacktrace=event.stacktrace)===null||_event$stacktrace===void 0||(_event$stacktrace=_event$stacktrace[0])===null||_event$stacktrace===void 0?void 0:_event$stacktrace.file;if(!errorOrigin||typeof errorOrigin!=='string'){return false;}// Prefix folder for all the destination SDK scripts
+var isDestinationIntegrationBundle=errorOrigin.includes(CDN_INT_DIR);var srcFileName=errorOrigin.substring(errorOrigin.lastIndexOf('/')+1);return isDestinationIntegrationBundle||SDK_FILE_NAME_PREFIXES().some(function(prefix){return srcFileName.startsWith(prefix)&&srcFileName.endsWith('.js');});};var enhanceErrorEventMutator=function enhanceErrorEventMutator(event){event.updateMetaData('source',{snippetVersion:globalThis.RudderSnippetVersion});var errorMessage=event.errorMessage;// eslint-disable-next-line no-param-reassign
+event.context=errorMessage;// Hack for easily grouping the script load errors
+// on the dashboard
+if(errorMessage.includes('error in script loading')){// eslint-disable-next-line no-param-reassign
+event.context='Script load failures';}// eslint-disable-next-line no-param-reassign
+event.severity='error';};var onError=function onError(logger){return function(event){try{// Discard the event if it's not originated at the SDK
+if(!isRudderSDKError(event)){return false;}enhanceErrorEventMutator(event);return true;}catch(_unused){logger===null||logger===void 0||logger.error(FAILED_TO_FILTER_ERROR(BUGSNAG_PLUGIN));// Drop the error event if it couldn't be filtered as
+// it is most likely a non-SDK error
+return false;}};};var getReleaseStage=function getReleaseStage(){var host=globalThis.location.hostname;return host&&DEV_HOSTS.includes(host)?'development':'development';};var getGlobalBugsnagLibInstance=function getGlobalBugsnagLibInstance(){return globalThis[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];};var getNewClient=function getNewClient(state,logger){var _state$source$value;var globalBugsnagLibInstance=getGlobalBugsnagLibInstance();var clientConfig={apiKey:API_KEY,appVersion:state.context.app.value.version,metaData:{SDK:{name:'JS',installType:state.context.app.value.installType}},beforeSend:onError(logger),autoCaptureSessions:false,// auto capture sessions is disabled
+collectUserIp:false,// collecting user's IP is disabled
+// enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
+maxEvents:100,maxBreadcrumbs:40,releaseStage:getReleaseStage(),user:{id:((_state$source$value=state.source.value)===null||_state$source$value===void 0?void 0:_state$source$value.id)||state.lifecycle.writeKey.value},logger:logger,networkBreadcrumbsEnabled:false};var client=globalBugsnagLibInstance(clientConfig);return client;};var isApiKeyValid=function isApiKeyValid(apiKey){var isAPIKeyValid=!(apiKey.startsWith('{{')||apiKey.endsWith('}}')||apiKey.length===0);return isAPIKeyValid;};var loadBugsnagSDK=function loadBugsnagSDK(externalSrcLoader,logger){var isNotLoaded=GLOBAL_LIBRARY_OBJECT_NAMES.every(function(globalKeyName){return !globalThis[globalKeyName];});if(!isNotLoaded){return;}externalSrcLoader.loadJSFile({url:BUGSNAG_CDN_URL,id:ERROR_REPORT_PROVIDER_NAME_BUGSNAG,callback:function callback(id){if(!id){logger===null||logger===void 0||logger.error(BUGSNAG_SDK_LOAD_ERROR(BUGSNAG_PLUGIN));}}});};var initBugsnagClient=function initBugsnagClient(state,promiseResolve,promiseReject,logger){var time=arguments.length>4&&arguments[4]!==undefined?arguments[4]:0;var globalBugsnagLibInstance=getGlobalBugsnagLibInstance();if(typeof globalBugsnagLibInstance==='function'){if(isValidVersion(globalBugsnagLibInstance)){var client=getNewClient(state,logger);promiseResolve(client);}}else if(time>=MAX_WAIT_FOR_SDK_LOAD_MS){promiseReject(new Error(BUGSNAG_SDK_LOAD_TIMEOUT_ERROR(MAX_WAIT_FOR_SDK_LOAD_MS)));}else {// Try to initialize the client after a delay
+globalThis.setTimeout(initBugsnagClient,SDK_LOAD_POLL_INTERVAL_MS,state,promiseResolve,promiseReject,logger,time+SDK_LOAD_POLL_INTERVAL_MS);}};var getAppStateForMetadata=function getAppStateForMetadata(state){var stateStr=stringifyWithoutCircular(state,false,APP_STATE_EXCLUDE_KEYS);return stateStr!==null?JSON.parse(stateStr):undefined;};
+
+var pluginName$d='Bugsnag';var Bugsnag=function Bugsnag(){return {name:pluginName$d,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$d]);},errorReportingProvider:{init:function init(state,externalSrcLoader,logger){return new Promise(function(resolve,reject){// If API key token is not parsed or invalid, don't proceed to initialize the client
+if(!isApiKeyValid(API_KEY)){reject(new Error(BUGSNAG_API_KEY_VALIDATION_ERROR(API_KEY)));return;}// If SDK URL is empty, don't proceed to initialize the client
+loadBugsnagSDK(externalSrcLoader,logger);initBugsnagClient(state,resolve,reject,logger);});},notify:function notify(client,error,state,logger){client===null||client===void 0||client.notify(error,{metaData:{state:getAppStateForMetadata(state)}});},breadcrumb:function breadcrumb(client,message,logger){client===null||client===void 0||client.leaveBreadcrumb(message);}}};};
+
+var CUSTOM_CONSENT_MANAGER_PLUGIN='CustomConsentManagerPlugin';
+
+var DESTINATION_CONSENT_STATUS_ERROR$2="Failed to determine the consent status for the destination. Please check the destination configuration and try again.";
+
+var pluginName$c='CustomConsentManager';var CustomConsentManager=function CustomConsentManager(){return {name:pluginName$c,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$c]);},consentManager:{init:function init(state,logger){// Nothing to initialize
+},updateConsentsInfo:function updateConsentsInfo(state,storeManager,logger){// Nothing to update. Already provided by the user
+},isDestinationConsented:function isDestinationConsented(state,destConfig,errorHandler,logger){if(!state.consents.initialized.value){return true;}var allowedConsentIds=state.consents.data.value.allowedConsentIds;try{var _cmpConfig$resolution;var consentManagement=destConfig.consentManagement;// If the destination does not have consent management config, events should be sent.
+if(!consentManagement){return true;}// Get the corresponding consents for the destination
+var cmpConfig=consentManagement.find(function(c){return c.provider===state.consents.provider.value;});// If there are no consents configured for the destination for the current provider, events should be sent.
+if(!(cmpConfig!==null&&cmpConfig!==void 0&&cmpConfig.consents)){return true;}var configuredConsents=cmpConfig.consents.map(function(c){return c.consent.trim();}).filter(function(n){return n;});var resolutionStrategy=(_cmpConfig$resolution=cmpConfig.resolutionStrategy)!==null&&_cmpConfig$resolution!==void 0?_cmpConfig$resolution:state.consents.resolutionStrategy.value;// match the configured consents with user provided consents as per
+// the configured resolution strategy
+var matchPredicate=function matchPredicate(consent){return allowedConsentIds.includes(consent);};switch(resolutionStrategy){case'or':return configuredConsents.some(matchPredicate)||configuredConsents.length===0;case'and':default:return configuredConsents.every(matchPredicate);}}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,CUSTOM_CONSENT_MANAGER_PLUGIN,DESTINATION_CONSENT_STATUS_ERROR$2);return true;}}}};};
+
+var DIR_NAME$1d='AdobeAnalytics';var NAME$1d='ADOBE_ANALYTICS';var DISPLAY_NAME$1d='Adobe Analytics';_defineProperty({},DISPLAY_NAME$1d,DIR_NAME$1d);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({'Adobe Analytics':NAME$1d,ADOBEANALYTICS:NAME$1d,'ADOBE ANALYTICS':NAME$1d},NAME$1d,NAME$1d),"AdobeAnalytics",NAME$1d),"adobeanalytics",NAME$1d),'adobe analytics',NAME$1d),'Adobe analytics',NAME$1d),'adobe Analytics',NAME$1d);
+
+var DIR_NAME$1c='Amplitude';var NAME$1c='AM';var DISPLAY_NAME$1c='Amplitude';_defineProperty({},DISPLAY_NAME$1c,DIR_NAME$1c);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$1c,NAME$1c),"AMPLITUDE",NAME$1c),"Amplitude",NAME$1c),"am",NAME$1c);
+
+var DIR_NAME$1b='Appcues';var NAME$1b='APPCUES';var DISPLAY_NAME$1b='Appcues';_defineProperty({},DISPLAY_NAME$1b,DIR_NAME$1b);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$1b,NAME$1b),"Appcues",NAME$1b),'App Cues',NAME$1b),"appcues",NAME$1b);
+
+var DIR_NAME$1a='BingAds';var NAME$1a='BINGADS';var DISPLAY_NAME$1a='Bing Ads';_defineProperty({},DISPLAY_NAME$1a,DIR_NAME$1a);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$1a,NAME$1a),"BingAds",NAME$1a),"bingads",NAME$1a),'Bing Ads',NAME$1a),'Bing ads',NAME$1a),'bing Ads',NAME$1a),'bing ads',NAME$1a);
+
+var DIR_NAME$19='Braze';var NAME$19='BRAZE';var DISPLAY_NAME$19='Braze';_defineProperty({},DISPLAY_NAME$19,DIR_NAME$19);_defineProperty(_defineProperty(_defineProperty({},NAME$19,NAME$19),"Braze",NAME$19),"braze",NAME$19);
+
+var DIR_NAME$18='Bugsnag';var NAME$18='BUGSNAG';var DISPLAY_NAME$18='Bugsnag';_defineProperty({},DISPLAY_NAME$18,DIR_NAME$18);_defineProperty(_defineProperty(_defineProperty({},NAME$18,NAME$18),"bugsnag",NAME$18),"Bugsnag",NAME$18);
+
+var DIR_NAME$17='Chartbeat';var NAME$17='CHARTBEAT';var DISPLAY_NAME$17='Chartbeat';_defineProperty({},DISPLAY_NAME$17,DIR_NAME$17);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$17,NAME$17),"Chartbeat",NAME$17),"chartbeat",NAME$17),'Chart Beat',NAME$17),'chart beat',NAME$17);
+
+var DIR_NAME$16='Clevertap';var NAME$16='CLEVERTAP';var DISPLAY_NAME$16='CleverTap';_defineProperty({},DISPLAY_NAME$16,DIR_NAME$16);_defineProperty(_defineProperty(_defineProperty({},NAME$16,NAME$16),"Clevertap",NAME$16),"clevertap",NAME$16);
+
+var DIR_NAME$15='Comscore';var NAME$15='COMSCORE';var DISPLAY_NAME$15='Comscore';_defineProperty({},DISPLAY_NAME$15,DIR_NAME$15);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$15,NAME$15),"Comscore",NAME$15),'Com Score',NAME$15),'com Score',NAME$15),'com score',NAME$15),'Com score',NAME$15);
+
+var DIR_NAME$14='Criteo';var NAME$14='CRITEO';var DISPLAY_NAME$14='Criteo';_defineProperty({},DISPLAY_NAME$14,DIR_NAME$14);_defineProperty(_defineProperty(_defineProperty({},NAME$14,NAME$14),"Criteo",NAME$14),"criteo",NAME$14);
+
+var DIR_NAME$13='CustomerIO';var NAME$13='CUSTOMERIO';var DISPLAY_NAME$13='Customer IO';_defineProperty({},DISPLAY_NAME$13,DIR_NAME$13);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$13,NAME$13),"Customerio",NAME$13),'Customer.io',NAME$13),'CUSTOMER.IO',NAME$13),'customer.io',NAME$13);
+
+var DIR_NAME$12='Drip';var NAME$12='DRIP';var DISPLAY_NAME$12='Drip';_defineProperty({},DISPLAY_NAME$12,DIR_NAME$12);_defineProperty(_defineProperty(_defineProperty({},NAME$12,NAME$12),"Drip",NAME$12),"drip",NAME$12);
+
+var DIR_NAME$11='FacebookPixel';var NAME$11='FACEBOOK_PIXEL';var DISPLAY_NAME$11='Facebook Pixel';_defineProperty({},DISPLAY_NAME$11,DIR_NAME$11);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$11,NAME$11),'FB Pixel',NAME$11),'Facebook Pixel',NAME$11),'facebook pixel',NAME$11),"fbpixel",NAME$11),"FBPIXEL",NAME$11),"FB_PIXEL",NAME$11);
+
+var DIR_NAME$10='Fullstory';var NAME$10='FULLSTORY';var DISPLAY_NAME$10='Fullstory';_defineProperty({},DISPLAY_NAME$10,DIR_NAME$10);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$10,NAME$10),"Fullstory",NAME$10),"FullStory",NAME$10),'full Story',NAME$10),'Full Story',NAME$10),'Full story',NAME$10),'full story',NAME$10),"fullstory",NAME$10);
+
+var DIR_NAME$$='GA';var NAME$$='GA';var DISPLAY_NAME$$='Google Analytics';_defineProperty({},DISPLAY_NAME$$,DIR_NAME$$);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$$,NAME$$),'Google Analytics',NAME$$),"GoogleAnalytics",NAME$$),'GOOGLE ANALYTICS',NAME$$),'google analytics',NAME$$);
+
+var DIR_NAME$_='GA4';var NAME$_='GA4';var DISPLAY_NAME$_='Google Analytics 4 (GA4)';_defineProperty({},DISPLAY_NAME$_,DIR_NAME$_);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$_,NAME$_),'Google Analytics 4',NAME$_),'Google analytics 4',NAME$_),'google analytics 4',NAME$_),'Google Analytics4',NAME$_),'Google analytics4',NAME$_),'google analytics4',NAME$_),'Google Analytics 4 (GA4)',NAME$_),'google analytics 4 (ga4)',NAME$_),"GoogleAnalytics4",NAME$_);
+
+var DIR_NAME$Z='GoogleAds';var NAME$Z='GOOGLEADS';var DISPLAY_NAME$Z='Google Ads';_defineProperty({},DISPLAY_NAME$Z,DIR_NAME$Z);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$Z,NAME$Z),'Google Ads',NAME$Z),"GoogleAds",NAME$Z),'GOOGLE ADS',NAME$Z),'google ads',NAME$Z),"googleads",NAME$Z);
+
+var DIR_NAME$Y='GoogleOptimize';var NAME$Y='GOOGLE_OPTIMIZE';var DISPLAY_NAME$Y='Google Optimize';_defineProperty({},DISPLAY_NAME$Y,DIR_NAME$Y);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$Y,NAME$Y),'Google Optimize',NAME$Y),"GoogleOptimize",NAME$Y),"Googleoptimize",NAME$Y),"GOOGLEOPTIMIZE",NAME$Y),'google optimize',NAME$Y),'Google optimize',NAME$Y),'GOOGLE OPTIMIZE',NAME$Y);
+
+var DIR_NAME$X='GoogleTagManager';var NAME$X='GTM';var DISPLAY_NAME$X='Google Tag Manager';_defineProperty({},DISPLAY_NAME$X,DIR_NAME$X);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$X,NAME$X),'Google Tag Manager',NAME$X),'google tag manager',NAME$X),'googletag manager',NAME$X),"googletagmanager",NAME$X);
+
+var DIR_NAME$W='Heap';var NAME$W='HEAP';var DISPLAY_NAME$W='Heap.io';_defineProperty({},DISPLAY_NAME$W,DIR_NAME$W);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$W,NAME$W),"Heap",NAME$W),"heap",NAME$W),'Heap.io',NAME$W);
+
+var DIR_NAME$V='Hotjar';var NAME$V='HOTJAR';var DISPLAY_NAME$V='Hotjar';_defineProperty({},DISPLAY_NAME$V,DIR_NAME$V);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$V,NAME$V),"Hotjar",NAME$V),"hotjar",NAME$V),'Hot Jar',NAME$V),'hot jar',NAME$V);
+
+var DIR_NAME$U='HubSpot';var NAME$U='HS';var DISPLAY_NAME$U='HubSpot';_defineProperty({},DISPLAY_NAME$U,DIR_NAME$U);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$U,NAME$U),"Hubspot",NAME$U),"HUBSPOT",NAME$U),'hub spot',NAME$U),'Hub Spot',NAME$U),'Hub spot',NAME$U);
+
+var DIR_NAME$T='INTERCOM';var NAME$T='INTERCOM';var DISPLAY_NAME$T='Intercom';_defineProperty({},DISPLAY_NAME$T,DIR_NAME$T);_defineProperty(_defineProperty(_defineProperty({},NAME$T,NAME$T),"Intercom",NAME$T),"intercom",NAME$T);
+
+var DIR_NAME$S='Keen';var NAME$S='KEEN';var DISPLAY_NAME$S='Keen';_defineProperty({},DISPLAY_NAME$S,DIR_NAME$S);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$S,NAME$S),"Keen",NAME$S),'Keen.io',NAME$S),"keen",NAME$S),'keen.io',NAME$S);
+
+var DIR_NAME$R='Kissmetrics';var NAME$R='KISSMETRICS';var DISPLAY_NAME$R='Kiss Metrics';_defineProperty({},DISPLAY_NAME$R,DIR_NAME$R);_defineProperty(_defineProperty(_defineProperty({},NAME$R,NAME$R),"Kissmetrics",NAME$R),"kissmetrics",NAME$R);
+
+var DIR_NAME$Q='Klaviyo';var NAME$Q='KLAVIYO';var DISPLAY_NAME$Q='Klaviyo';_defineProperty({},DISPLAY_NAME$Q,DIR_NAME$Q);_defineProperty(_defineProperty(_defineProperty({},NAME$Q,NAME$Q),"Klaviyo",NAME$Q),"klaviyo",NAME$Q);
+
+var DIR_NAME$P='LaunchDarkly';var NAME$P='LAUNCHDARKLY';var DISPLAY_NAME$P='LaunchDarkly';_defineProperty({},DISPLAY_NAME$P,DIR_NAME$P);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$P,NAME$P),"LaunchDarkly",NAME$P),"Launch_Darkly",NAME$P),'Launch Darkly',NAME$P),"launchDarkly",NAME$P),'launch darkly',NAME$P);
+
+var _CNameMapping$1;var DIR_NAME$O='LinkedInInsightTag';var NAME$O='LINKEDIN_INSIGHT_TAG';var DISPLAY_NAME$O='Linkedin Insight Tag';_defineProperty({},DISPLAY_NAME$O,DIR_NAME$O);(_CNameMapping$1={},_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_CNameMapping$1,NAME$O,NAME$O),'LinkedIn Insight Tag',NAME$O),'LinkedIn insight tag',NAME$O),'linkedIn insight tag',NAME$O),"Linkedin_insight_tag",NAME$O),"LinkedinInsighttag",NAME$O),"LinkedinInsightTag",NAME$O),"LinkedInInsightTag",NAME$O),"Linkedininsighttag",NAME$O),"LINKEDININSIGHTTAG",NAME$O),_defineProperty(_CNameMapping$1,"linkedininsighttag",NAME$O));
+
+var DIR_NAME$N='Lotame';var NAME$N='LOTAME';var DISPLAY_NAME$N='Lotame';_defineProperty({},DISPLAY_NAME$N,DIR_NAME$N);_defineProperty(_defineProperty(_defineProperty({},NAME$N,NAME$N),"Lotame",NAME$N),"lotame",NAME$N);
+
+var DIR_NAME$M='Lytics';var NAME$M='LYTICS';var DISPLAY_NAME$M='Lytics';_defineProperty({},DISPLAY_NAME$M,DIR_NAME$M);_defineProperty(_defineProperty(_defineProperty({},NAME$M,NAME$M),"Lytics",NAME$M),"lytics",NAME$M);
+
+var DIR_NAME$L='Mixpanel';var NAME$L='MP';var DISPLAY_NAME$L='Mixpanel';_defineProperty({},DISPLAY_NAME$L,DIR_NAME$L);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$L,NAME$L),"MIXPANEL",NAME$L),"Mixpanel",NAME$L),'MIX PANEL',NAME$L),'Mix panel',NAME$L),'Mix Panel',NAME$L);
+
+var DIR_NAME$K='MoEngage';var NAME$K='MOENGAGE';var DISPLAY_NAME$K='MoEngage';_defineProperty({},DISPLAY_NAME$K,DIR_NAME$K);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$K,NAME$K),"MoEngage",NAME$K),"moengage",NAME$K),"Moengage",NAME$K),'Mo Engage',NAME$K),'mo engage',NAME$K),'Mo engage',NAME$K);
+
+var DIR_NAME$J='Optimizely';var NAME$J='OPTIMIZELY';var DISPLAY_NAME$J='Optimizely Web';_defineProperty({},DISPLAY_NAME$J,DIR_NAME$J);_defineProperty(_defineProperty(_defineProperty({},NAME$J,NAME$J),"Optimizely",NAME$J),"optimizely",NAME$J);
+
+var DIR_NAME$I='Pendo';var NAME$I='PENDO';var DISPLAY_NAME$I='Pendo';_defineProperty({},DISPLAY_NAME$I,DIR_NAME$I);_defineProperty(_defineProperty(_defineProperty({},NAME$I,NAME$I),"Pendo",NAME$I),"pendo",NAME$I);
+
+var _CNameMapping;var DIR_NAME$H='PinterestTag';var NAME$H='PINTEREST_TAG';var DISPLAY_NAME$H='Pinterest Tag';_defineProperty({},DISPLAY_NAME$H,DIR_NAME$H);(_CNameMapping={},_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_CNameMapping,NAME$H,NAME$H),"PinterestTag",NAME$H),"Pinterest_Tag",NAME$H),"PINTERESTTAG",NAME$H),"pinterest",NAME$H),"PinterestAds",NAME$H),"Pinterest_Ads",NAME$H),"Pinterest",NAME$H),'Pinterest Tag',NAME$H),'Pinterest tag',NAME$H),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_CNameMapping,'PINTEREST TAG',NAME$H),'pinterest tag',NAME$H),'Pinterest Ads',NAME$H),'Pinterest ads',NAME$H));
+
+var DIR_NAME$G='PostAffiliatePro';var NAME$G='POST_AFFILIATE_PRO';var DISPLAY_NAME$G='Post Affiliate Pro';_defineProperty({},DISPLAY_NAME$G,DIR_NAME$G);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$G,NAME$G),"PostAffiliatePro",NAME$G),"Post_affiliate_pro",NAME$G),'Post Affiliate Pro',NAME$G),'Post affiliate pro',NAME$G),'post affiliate pro',NAME$G),"postaffiliatepro",NAME$G),"POSTAFFILIATEPRO",NAME$G);
+
+var DIR_NAME$F='Posthog';var NAME$F='POSTHOG';var DISPLAY_NAME$F='PostHog';_defineProperty({},DISPLAY_NAME$F,DIR_NAME$F);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$F,NAME$F),"PostHog",NAME$F),"Posthog",NAME$F),"posthog",NAME$F),'Post Hog',NAME$F),'Post hog',NAME$F),'post hog',NAME$F);
+
+var DIR_NAME$E='ProfitWell';var NAME$E='PROFITWELL';var DISPLAY_NAME$E='ProfitWell';_defineProperty({},DISPLAY_NAME$E,DIR_NAME$E);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$E,NAME$E),"ProfitWell",NAME$E),"profitwell",NAME$E),"Profitwell",NAME$E),'Profit Well',NAME$E),'profit well',NAME$E),'Profit well',NAME$E);
+
+var DIR_NAME$D='Qualtrics';var NAME$D='QUALTRICS';var DISPLAY_NAME$D='Qualtrics';_defineProperty({},DISPLAY_NAME$D,DIR_NAME$D);_defineProperty(_defineProperty(_defineProperty({},NAME$D,NAME$D),"Qualtrics",NAME$D),"qualtrics",NAME$D);
+
+var DIR_NAME$C='QuantumMetric';var NAME$C='QUANTUMMETRIC';var DISPLAY_NAME$C='Quantum Metric';_defineProperty({},DISPLAY_NAME$C,DIR_NAME$C);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$C,NAME$C),'Quantum Metric',NAME$C),'quantum Metric',NAME$C),'quantum metric',NAME$C),"QuantumMetric",NAME$C),"quantumMetric",NAME$C),"quantummetric",NAME$C),"Quantum_Metric",NAME$C);
+
+var DIR_NAME$B='RedditPixel';var NAME$B='REDDIT_PIXEL';var DISPLAY_NAME$B='Reddit Pixel';_defineProperty({},DISPLAY_NAME$B,DIR_NAME$B);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$B,NAME$B),"Reddit_Pixel",NAME$B),"RedditPixel",NAME$B),"REDDITPIXEL",NAME$B),"redditpixel",NAME$B),'Reddit Pixel',NAME$B),'REDDIT PIXEL',NAME$B),'reddit pixel',NAME$B);
+
+var DIR_NAME$A='Sentry';var NAME$A='SENTRY';var DISPLAY_NAME$A='Sentry';_defineProperty({},DISPLAY_NAME$A,DIR_NAME$A);_defineProperty(_defineProperty(_defineProperty({},NAME$A,NAME$A),"sentry",NAME$A),"Sentry",NAME$A);
+
+var DIR_NAME$z='SnapPixel';var NAME$z='SNAP_PIXEL';var DISPLAY_NAME$z='Snap Pixel';_defineProperty({},DISPLAY_NAME$z,DIR_NAME$z);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$z,NAME$z),"Snap_Pixel",NAME$z),"SnapPixel",NAME$z),"SNAPPIXEL",NAME$z),"snappixel",NAME$z),'Snap Pixel',NAME$z),'SNAP PIXEL',NAME$z),'snap pixel',NAME$z);
+
+var DIR_NAME$y='TVSquared';var NAME$y='TVSQUARED';var DISPLAY_NAME$y='TVSquared';_defineProperty({},DISPLAY_NAME$y,DIR_NAME$y);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$y,NAME$y),"TVSquared",NAME$y),"tvsquared",NAME$y),"tvSquared",NAME$y),"TvSquared",NAME$y),"Tvsquared",NAME$y),'TV Squared',NAME$y),'tv squared',NAME$y),'tv Squared',NAME$y);
+
+var DIR_NAME$x='VWO';var NAME$x='VWO';var DISPLAY_NAME$x='VWO';_defineProperty({},DISPLAY_NAME$x,DIR_NAME$x);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$x,NAME$x),"VisualWebsiteOptimizer",NAME$x),"Visualwebsiteoptimizer",NAME$x),"visualwebsiteoptimizer",NAME$x),"vwo",NAME$x),'Visual Website Optimizer',NAME$x),'Visual website optimizer',NAME$x),'visual website optimizer',NAME$x);
+
+var DIR_NAME$w='GA360';var NAME$w='GA360';var DISPLAY_NAME$w='Google Analytics 360';_defineProperty({},DISPLAY_NAME$w,DIR_NAME$w);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$w,NAME$w),'Google Analytics 360',NAME$w),'Google analytics 360',NAME$w),'google analytics 360',NAME$w),'Google Analytics360',NAME$w),'Google analytics360',NAME$w),'google analytics360',NAME$w),"GoogleAnalytics360",NAME$w),'GA 360',NAME$w);
+
+var DIR_NAME$v='Adroll';var NAME$v='ADROLL';var DISPLAY_NAME$v='Adroll';_defineProperty({},DISPLAY_NAME$v,DIR_NAME$v);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$v,NAME$v),"Adroll",NAME$v),'Ad roll',NAME$v),'ad roll',NAME$v),"adroll",NAME$v);
+
+var DIR_NAME$u='DCMFloodlight';var NAME$u='DCM_FLOODLIGHT';var DISPLAY_NAME$u='DCM Floodlight';_defineProperty({},DISPLAY_NAME$u,DIR_NAME$u);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$u,NAME$u),'DCM Floodlight',NAME$u),'dcm floodlight',NAME$u),'Dcm Floodlight',NAME$u),"DCMFloodlight",NAME$u),"dcmfloodlight",NAME$u),"DcmFloodlight",NAME$u),"dcm_floodlight",NAME$u),"DCM_Floodlight",NAME$u);
+
+var DIR_NAME$t='Matomo';var NAME$t='MATOMO';var DISPLAY_NAME$t='Matomo';_defineProperty({},DISPLAY_NAME$t,DIR_NAME$t);_defineProperty(_defineProperty(_defineProperty({},NAME$t,NAME$t),"Matomo",NAME$t),"matomo",NAME$t);
+
+var DIR_NAME$s='Vero';var NAME$s='VERO';var DISPLAY_NAME$s='Vero';_defineProperty({},DISPLAY_NAME$s,DIR_NAME$s);_defineProperty(_defineProperty(_defineProperty({},NAME$s,NAME$s),"Vero",NAME$s),"vero",NAME$s);
+
+var DIR_NAME$r='Mouseflow';var NAME$r='MOUSEFLOW';var DISPLAY_NAME$r='Mouseflow';_defineProperty({},DISPLAY_NAME$r,DIR_NAME$r);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$r,NAME$r),"Mouseflow",NAME$r),"mouseflow",NAME$r),"mouseFlow",NAME$r),"MouseFlow",NAME$r),'Mouse flow',NAME$r),'mouse flow',NAME$r),'mouse Flow',NAME$r),'Mouse Flow',NAME$r);
+
+var DIR_NAME$q='Rockerbox';var NAME$q='ROCKERBOX';var DISPLAY_NAME$q='Rockerbox';_defineProperty({},DISPLAY_NAME$q,DIR_NAME$q);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$q,NAME$q),"Rockerbox",NAME$q),"rockerbox",NAME$q),"RockerBox",NAME$q),'Rocker box',NAME$q),'rocker box',NAME$q),'Rocker Box',NAME$q);
+
+var DIR_NAME$p='ConvertFlow';var NAME$p='CONVERTFLOW';var DISPLAY_NAME$p='ConvertFlow';_defineProperty({},DISPLAY_NAME$p,DIR_NAME$p);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$p,NAME$p),"Convertflow",NAME$p),"convertflow",NAME$p),"convertFlow",NAME$p),"ConvertFlow",NAME$p),'Convert flow',NAME$p),'convert flow',NAME$p),'convert Flow',NAME$p),'Convert Flow',NAME$p),'CONVERT FLOW',NAME$p);
+
+var DIR_NAME$o='SnapEngage';var NAME$o='SNAPENGAGE';var DISPLAY_NAME$o='SnapEngage';_defineProperty({},DISPLAY_NAME$o,DIR_NAME$o);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$o,NAME$o),"SnapEngage",NAME$o),"Snap_Engage",NAME$o),"snapengage",NAME$o),'SNAP ENGAGE',NAME$o),'Snap Engage',NAME$o),'snap engage',NAME$o);
+
+var DIR_NAME$n='LiveChat';var NAME$n='LIVECHAT';var DISPLAY_NAME$n='LiveChat';_defineProperty({},DISPLAY_NAME$n,DIR_NAME$n);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$n,NAME$n),"LiveChat",NAME$n),"Live_Chat",NAME$n),"livechat",NAME$n),'LIVE CHAT',NAME$n),'Live Chat',NAME$n),'live chat',NAME$n);
+
+var DIR_NAME$m='Shynet';var NAME$m='SHYNET';var DISPLAY_NAME$m='Shynet';_defineProperty({},DISPLAY_NAME$m,DIR_NAME$m);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$m,NAME$m),"shynet",NAME$m),"ShyNet",NAME$m),"shyNet",NAME$m),"Shynet",NAME$m),'shy net',NAME$m),'Shy Net',NAME$m),'shy Net',NAME$m),'Shy net',NAME$m);
+
+var DIR_NAME$l='Woopra';var NAME$l='WOOPRA';var DISPLAY_NAME$l='Woopra';_defineProperty({},DISPLAY_NAME$l,DIR_NAME$l);_defineProperty(_defineProperty(_defineProperty({},NAME$l,NAME$l),"Woopra",NAME$l),"woopra",NAME$l);
+
+var DIR_NAME$k='RollBar';var NAME$k='ROLLBAR';var DISPLAY_NAME$k='RollBar';_defineProperty({},DISPLAY_NAME$k,DIR_NAME$k);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$k,NAME$k),"RollBar",NAME$k),"Roll_Bar",NAME$k),"rollbar",NAME$k),"Rollbar",NAME$k),'ROLL BAR',NAME$k),'Roll Bar',NAME$k),'roll bar',NAME$k);
+
+var DIR_NAME$j='QuoraPixel';var NAME$j='QUORA_PIXEL';var DISPLAY_NAME$j='Quora Pixel';_defineProperty({},DISPLAY_NAME$j,DIR_NAME$j);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$j,NAME$j),'Quora Pixel',NAME$j),'Quora pixel',NAME$j),'QUORA PIXEL',NAME$j),"QuoraPixel",NAME$j),"Quorapixel",NAME$j),"QUORAPIXEL",NAME$j),"Quora_Pixel",NAME$j),"quora_pixel",NAME$j),"Quora",NAME$j);
+
+var DIR_NAME$i='June';var NAME$i='JUNE';var DISPLAY_NAME$i='June';_defineProperty({},DISPLAY_NAME$i,DIR_NAME$i);_defineProperty(_defineProperty(_defineProperty({},NAME$i,NAME$i),"June",NAME$i),"june",NAME$i);
+
+var DIR_NAME$h='Engage';var NAME$h='ENGAGE';var DISPLAY_NAME$h='Engage';_defineProperty({},DISPLAY_NAME$h,DIR_NAME$h);_defineProperty(_defineProperty(_defineProperty({},NAME$h,NAME$h),"Engage",NAME$h),"engage",NAME$h);
+
+var DIR_NAME$g='Iterable';var NAME$g='ITERABLE';var DISPLAY_NAME$g='Iterable';_defineProperty({},DISPLAY_NAME$g,DIR_NAME$g);_defineProperty(_defineProperty(_defineProperty({},NAME$g,NAME$g),"Iterable",NAME$g),"iterable",NAME$g);
+
+var DIR_NAME$f='YandexMetrica';var NAME$f='YANDEX_METRICA';var DISPLAY_NAME$f='Yandex.Metrica';_defineProperty({},DISPLAY_NAME$f,DIR_NAME$f);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$f,NAME$f),"Yandexmetrica",NAME$f),"yandexmetrica",NAME$f),"yandexMetrica",NAME$f),"YandexMetrica",NAME$f);
+
+var DIR_NAME$e='Refiner';var NAME$e='REFINER';var DISPLAY_NAME$e='Refiner';_defineProperty({},DISPLAY_NAME$e,DIR_NAME$e);_defineProperty(_defineProperty(_defineProperty({},NAME$e,NAME$e),"Refiner",NAME$e),"refiner",NAME$e);
+
+var DIR_NAME$d='Qualaroo';var NAME$d='QUALAROO';var DISPLAY_NAME$d='Qualaroo';_defineProperty({},DISPLAY_NAME$d,DIR_NAME$d);_defineProperty(_defineProperty(_defineProperty({},NAME$d,NAME$d),"Qualaroo",NAME$d),"qualaroo",NAME$d);
+
+var DIR_NAME$c='Podsights';var NAME$c='PODSIGHTS';var DISPLAY_NAME$c='Podsights';_defineProperty({},DISPLAY_NAME$c,DIR_NAME$c);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$c,NAME$c),"Podsights",NAME$c),"PodSights",NAME$c),'pod Sights',NAME$c),'Pod Sights',NAME$c),'pod sights',NAME$c),'POD SIGHTS',NAME$c),'Pod sights',NAME$c);
+
+var DIR_NAME$b='Axeptio';var NAME$b='AXEPTIO';var DISPLAY_NAME$b='Axeptio';_defineProperty({},DISPLAY_NAME$b,DIR_NAME$b);_defineProperty(_defineProperty(_defineProperty({},NAME$b,NAME$b),"Axeptio",NAME$b),"axeptio",NAME$b);
+
+var DIR_NAME$a='Satismeter';var NAME$a='SATISMETER';var DISPLAY_NAME$a='Satismeter';_defineProperty({},DISPLAY_NAME$a,DIR_NAME$a);_defineProperty(_defineProperty(_defineProperty({},NAME$a,NAME$a),"Satismeter",NAME$a),"SatisMeter",NAME$a);
+
+var DIR_NAME$9='MicrosoftClarity';var NAME$9='MICROSOFT_CLARITY';var DISPLAY_NAME$9='Microsoft Clarity';_defineProperty({},DISPLAY_NAME$9,DIR_NAME$9);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$9,NAME$9),'Microsoft Clarity',NAME$9),'Microsoft clarity',NAME$9),'microsoft clarity',NAME$9),"Microsoft_clarity",NAME$9),"MicrosoftClarity",NAME$9),"MICROSOFTCLARITY",NAME$9),"microsoftclarity",NAME$9),"microsoftClarity",NAME$9);
+
+var DIR_NAME$8='Sendinblue';var NAME$8='SENDINBLUE';var DISPLAY_NAME$8='Sendinblue';_defineProperty({},DISPLAY_NAME$8,DIR_NAME$8);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$8,NAME$8),"Sendinblue",NAME$8),"sendinblue",NAME$8),"SendinBlue",NAME$8);
+
+var DIR_NAME$7='Olark';var NAME$7='OLARK';var DISPLAY_NAME$7='Olark';_defineProperty({},DISPLAY_NAME$7,DIR_NAME$7);_defineProperty(_defineProperty(_defineProperty({},NAME$7,NAME$7),"Olark",NAME$7),"olark",NAME$7);
+
+var DIR_NAME$6='Lemnisk';var NAME$6='LEMNISK';var DISPLAY_NAME$6='Lemnisk';_defineProperty({},DISPLAY_NAME$6,DIR_NAME$6);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$6,NAME$6),"LEMNISK_MARKETING_AUTOMATION",NAME$6),'Lemnisk Marketing Automation',NAME$6),"LemniskMarketingAutomation",NAME$6),"lemniskmarketingautomation",NAME$6),"lemniskMarketingAutomation",NAME$6),"lemnisk",NAME$6),"Lemnisk",NAME$6);
+
+var DIR_NAME$5='TiktokAds';var NAME$5='TIKTOK_ADS';var DISPLAY_NAME$5='TikTok Ads';_defineProperty({},DISPLAY_NAME$5,DIR_NAME$5);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$5,NAME$5),"TiktokAds",NAME$5),'Tiktok ads',NAME$5),'Tiktok Ads',NAME$5),'Tik Tok Ads',NAME$5),'tik tok ads',NAME$5),"tiktokads",NAME$5);
+
+var DIR_NAME$4='ActiveCampaign';var NAME$4='ACTIVE_CAMPAIGN';var DISPLAY_NAME$4='Active Campaign';_defineProperty({},DISPLAY_NAME$4,DIR_NAME$4);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({ActiveCampaign:NAME$4,'Active Campaign':NAME$4,'ACTIVE CAMPAIGN':NAME$4},NAME$4,NAME$4),"activecampaign",NAME$4),'active campaign',NAME$4),'Active campaign',NAME$4),'active Campaign',NAME$4),"active_campaign",NAME$4);
+
+var DIR_NAME$3='Sprig';var NAME$3='SPRIG';var DISPLAY_NAME$3='Sprig';_defineProperty({},DISPLAY_NAME$3,DIR_NAME$3);_defineProperty(_defineProperty(_defineProperty({},NAME$3,NAME$3),"Sprig",NAME$3),"sprig",NAME$3);
+
+var DIR_NAME$2='SpotifyPixel';var NAME$2='SPOTIFYPIXEL';var DISPLAY_NAME$2='Spotify Pixel';_defineProperty({},DISPLAY_NAME$2,DIR_NAME$2);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$2,NAME$2),'Spotify Pixel',NAME$2),'spotify pixel',NAME$2),"SPOTIFY_PIXEL",NAME$2);
+
+var DIR_NAME$1='CommandBar';var NAME$1='COMMANDBAR';var DISPLAY_NAME$1='CommandBar';_defineProperty({},DISPLAY_NAME$1,DIR_NAME$1);_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME$1,NAME$1),'Command Bar',NAME$1),'Commandbar',NAME$1),"COMMAND_BAR",NAME$1),"commandbar",NAME$1);
+
+var DIR_NAME='Ninetailed';var NAME='NINETAILED';var DISPLAY_NAME='Ninetailed';_defineProperty({},DISPLAY_NAME,DIR_NAME);_defineProperty(_defineProperty(_defineProperty(_defineProperty({},NAME,NAME),"Ninetailed",NAME),"ninetailed",NAME),"NineTailed",NAME);
+
+var _destDisplayNamesToFi;// map of the destination display names to the destination directory names
+var destDisplayNamesToFileNamesMap=(_destDisplayNamesToFi={},_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$U,DIR_NAME$U),DISPLAY_NAME$$,DIR_NAME$$),DISPLAY_NAME$V,DIR_NAME$V),DISPLAY_NAME$Z,DIR_NAME$Z),DISPLAY_NAME$x,DIR_NAME$x),DISPLAY_NAME$X,DIR_NAME$X),DISPLAY_NAME$19,DIR_NAME$19),DISPLAY_NAME$T,DIR_NAME$T),DISPLAY_NAME$S,DIR_NAME$S),DISPLAY_NAME$R,DIR_NAME$R),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$13,DIR_NAME$13),DISPLAY_NAME$17,DIR_NAME$17),DISPLAY_NAME$15,DIR_NAME$15),DISPLAY_NAME$11,DIR_NAME$11),DISPLAY_NAME$N,DIR_NAME$N),DISPLAY_NAME$J,DIR_NAME$J),DISPLAY_NAME$18,DIR_NAME$18),DISPLAY_NAME$10,DIR_NAME$10),DISPLAY_NAME$y,DIR_NAME$y),DISPLAY_NAME$_,DIR_NAME$_),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$K,DIR_NAME$K),DISPLAY_NAME$1c,DIR_NAME$1c),DISPLAY_NAME$I,DIR_NAME$I),DISPLAY_NAME$M,DIR_NAME$M),DISPLAY_NAME$1b,DIR_NAME$1b),DISPLAY_NAME$F,DIR_NAME$F),DISPLAY_NAME$Q,DIR_NAME$Q),DISPLAY_NAME$16,DIR_NAME$16),DISPLAY_NAME$1a,DIR_NAME$1a),DISPLAY_NAME$H,DIR_NAME$H),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$1d,DIR_NAME$1d),DISPLAY_NAME$O,DIR_NAME$O),DISPLAY_NAME$B,DIR_NAME$B),DISPLAY_NAME$12,DIR_NAME$12),DISPLAY_NAME$W,DIR_NAME$W),DISPLAY_NAME$14,DIR_NAME$14),DISPLAY_NAME$L,DIR_NAME$L),DISPLAY_NAME$D,DIR_NAME$D),DISPLAY_NAME$E,DIR_NAME$E),DISPLAY_NAME$A,DIR_NAME$A),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$C,DIR_NAME$C),DISPLAY_NAME$z,DIR_NAME$z),DISPLAY_NAME$G,DIR_NAME$G),DISPLAY_NAME$Y,DIR_NAME$Y),DISPLAY_NAME$P,DIR_NAME$P),DISPLAY_NAME$w,DIR_NAME$w),DISPLAY_NAME$v,DIR_NAME$v),DISPLAY_NAME$u,DIR_NAME$u),DISPLAY_NAME$t,DIR_NAME$t),DISPLAY_NAME$s,DIR_NAME$s),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$r,DIR_NAME$r),DISPLAY_NAME$q,DIR_NAME$q),DISPLAY_NAME$p,DIR_NAME$p),DISPLAY_NAME$o,DIR_NAME$o),DISPLAY_NAME$n,DIR_NAME$n),DISPLAY_NAME$m,DIR_NAME$m),DISPLAY_NAME$l,DIR_NAME$l),DISPLAY_NAME$k,DIR_NAME$k),DISPLAY_NAME$j,DIR_NAME$j),DISPLAY_NAME$i,DIR_NAME$i),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$h,DIR_NAME$h),DISPLAY_NAME$g,DIR_NAME$g),DISPLAY_NAME$f,DIR_NAME$f),DISPLAY_NAME$e,DIR_NAME$e),DISPLAY_NAME$d,DIR_NAME$d),DISPLAY_NAME$c,DIR_NAME$c),DISPLAY_NAME$b,DIR_NAME$b),DISPLAY_NAME$a,DIR_NAME$a),DISPLAY_NAME$9,DIR_NAME$9),DISPLAY_NAME$8,DIR_NAME$8),_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_destDisplayNamesToFi,DISPLAY_NAME$7,DIR_NAME$7),DISPLAY_NAME$6,DIR_NAME$6),DISPLAY_NAME$5,DIR_NAME$5),DISPLAY_NAME$4,DIR_NAME$4),DISPLAY_NAME$3,DIR_NAME$3),DISPLAY_NAME$2,DIR_NAME$2),DISPLAY_NAME$1,DIR_NAME$1),DISPLAY_NAME,DIR_NAME));
+
+var DEFAULT_INTEGRATIONS_CONFIG={All:true};
+
+var isDestIntgConfigTruthy=function isDestIntgConfigTruthy(destIntgConfig){return !isUndefined(destIntgConfig)&&Boolean(destIntgConfig)===true;};var isDestIntgConfigFalsy=function isDestIntgConfigFalsy(destIntgConfig){return !isUndefined(destIntgConfig)&&Boolean(destIntgConfig)===false;};/**
+ * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)
+ * @param intgOpts Integration options object
+ * @param destinations Destinations array
+ * @returns Destinations array filtered based on the integration options
+ */var filterDestinations=function filterDestinations(intgOpts,destinations){var _intgOpts$All;var allOptVal=(_intgOpts$All=intgOpts.All)!==null&&_intgOpts$All!==void 0?_intgOpts$All:true;return destinations.filter(function(dest){var destDisplayName=dest.displayName;var isDestEnabled;if(allOptVal){isDestEnabled=true;if(isDestIntgConfigFalsy(intgOpts[destDisplayName])){isDestEnabled=false;}}else {isDestEnabled=false;if(isDestIntgConfigTruthy(intgOpts[destDisplayName])){isDestEnabled=true;}}return isDestEnabled;});};
+
+var READY_CHECK_TIMEOUT_MS=11*1000;// 11 seconds
+var SCRIPT_LOAD_TIMEOUT_MS=10*1000;// 10 seconds
+var DEVICE_MODE_DESTINATIONS_PLUGIN='DeviceModeDestinationsPlugin';
+
+var DESTINATION_NOT_SUPPORTED_ERROR=function DESTINATION_NOT_SUPPORTED_ERROR(destUserFriendlyId){return "Destination ".concat(destUserFriendlyId," is not supported.");};var DESTINATION_SDK_LOAD_ERROR=function DESTINATION_SDK_LOAD_ERROR(context,destUserFriendlyId){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to load script for destination ").concat(destUserFriendlyId,".");};var DESTINATION_INIT_ERROR=function DESTINATION_INIT_ERROR(destUserFriendlyId){return "Failed to initialize destination ".concat(destUserFriendlyId,".");};var DESTINATION_INTEGRATIONS_DATA_ERROR=function DESTINATION_INTEGRATIONS_DATA_ERROR(destUserFriendlyId){return "Failed to get integrations data for destination ".concat(destUserFriendlyId,".");};var DESTINATION_READY_TIMEOUT_ERROR=function DESTINATION_READY_TIMEOUT_ERROR(timeout,destUserFriendlyId){return "A timeout of ".concat(timeout," ms occurred while trying to check the ready status for \"").concat(destUserFriendlyId,"\" destination.");};
 
 /**
- * Echos the value of a value. Trys to print the value out
- * in the best way possible given the different types.
+ * Determines if the destination SDK code is evaluated
+ * @param destSDKIdentifier The name of the global globalThis object that contains the destination SDK
+ * @param sdkTypeName The name of the destination SDK type
+ * @param logger Logger instance
+ * @returns true if the destination SDK code is evaluated, false otherwise
+ */var isDestinationSDKMounted=function isDestinationSDKMounted(destSDKIdentifier,sdkTypeName,logger){return Boolean(globalThis[destSDKIdentifier]&&globalThis[destSDKIdentifier][sdkTypeName]&&globalThis[destSDKIdentifier][sdkTypeName].prototype&&typeof globalThis[destSDKIdentifier][sdkTypeName].prototype.constructor!=='undefined');};var createDestinationInstance=function createDestinationInstance(destSDKIdentifier,sdkTypeName,dest,state){var _state$consents$postC,_state$consents$postC2;var rAnalytics=globalThis.rudderanalytics;var analytics=rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);return new globalThis[destSDKIdentifier][sdkTypeName](clone(dest.config),{loadIntegration:state.nativeDestinations.loadIntegration.value,logLevel:state.lifecycle.logLevel.value,loadOnlyIntegrations:(_state$consents$postC=(_state$consents$postC2=state.consents.postConsent.value)===null||_state$consents$postC2===void 0?void 0:_state$consents$postC2.integrations)!==null&&_state$consents$postC!==void 0?_state$consents$postC:state.nativeDestinations.loadOnlyIntegrations.value,page:function page(category,name,properties,options,callback){return analytics.page(pageArgumentsToCallOptions(category,name,properties,options,callback));},track:function track(event,properties,options,callback){return analytics.track(trackArgumentsToCallOptions(event,properties,options,callback));},identify:function identify(userId,traits,options,callback){return analytics.identify(identifyArgumentsToCallOptions(userId,traits,options,callback));},alias:function alias(to,from,options,callback){return analytics.alias(aliasArgumentsToCallOptions(to,from,options,callback));},group:function group(groupId,traits,options,callback){return analytics.group(groupArgumentsToCallOptions(groupId,traits,options,callback));},getAnonymousId:function getAnonymousId(){return analytics.getAnonymousId();},getUserId:function getUserId(){return analytics.getUserId();},getUserTraits:function getUserTraits(){return analytics.getUserTraits();},getGroupId:function getGroupId(){return analytics.getGroupId();},getGroupTraits:function getGroupTraits(){return analytics.getGroupTraits();},getSessionId:function getSessionId(){return analytics.getSessionId();}},{shouldApplyDeviceModeTransformation:dest.shouldApplyDeviceModeTransformation,propagateEventsUntransformedOnError:dest.propagateEventsUntransformedOnError,destinationId:dest.id});};var isDestinationReady=function isDestinationReady(dest){return new Promise(function(resolve,reject){var instance=dest.instance;var handleNumber;var checkReady=function checkReady(){if(instance.isLoaded()&&(!instance.isReady||instance.isReady())){resolve(true);}else {handleNumber=globalThis.requestAnimationFrame(checkReady);}};checkReady();setTimeout(function(){globalThis.cancelAnimationFrame(handleNumber);reject(new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS,dest.userFriendlyId)));},READY_CHECK_TIMEOUT_MS);});};/**
+ * Extracts the integration config, if any, from the given destination
+ * and merges it with the current integrations config
+ * @param dest Destination object
+ * @param curDestIntgConfig Current destinations integration config
+ * @param logger Logger object
+ * @returns Combined destinations integrations config
+ */var getCumulativeIntegrationsConfig=function getCumulativeIntegrationsConfig(dest,curDestIntgConfig,errorHandler){var _dest$instance;var integrationsConfig=curDestIntgConfig;if(isFunction((_dest$instance=dest.instance)===null||_dest$instance===void 0?void 0:_dest$instance.getDataForIntegrationsObject)){try{var _dest$instance2;integrationsConfig=mergeDeepRight(curDestIntgConfig,(_dest$instance2=dest.instance)===null||_dest$instance2===void 0?void 0:_dest$instance2.getDataForIntegrationsObject());}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,DEVICE_MODE_DESTINATIONS_PLUGIN,DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId));}}return integrationsConfig;};var initializeDestination=function initializeDestination(dest,state,destSDKIdentifier,sdkTypeName,errorHandler,logger){try{var initializedDestination=clone(dest);var destInstance=createDestinationInstance(destSDKIdentifier,sdkTypeName,dest,state);initializedDestination.instance=destInstance;destInstance.init();isDestinationReady(initializedDestination).then(function(){// Collect the integrations data for the hybrid mode destinations
+if(isHybridModeDestination(initializedDestination)){state.nativeDestinations.integrationsConfig.value=getCumulativeIntegrationsConfig(initializedDestination,state.nativeDestinations.integrationsConfig.value,errorHandler);}state.nativeDestinations.initializedDestinations.value=[].concat(_toConsumableArray(state.nativeDestinations.initializedDestinations.value),[initializedDestination]);}).catch(function(err){state.nativeDestinations.failedDestinations.value=[].concat(_toConsumableArray(state.nativeDestinations.failedDestinations.value),[dest]);// The error message is already formatted in the isDestinationReady function
+logger===null||logger===void 0||logger.error(err);});}catch(err){state.nativeDestinations.failedDestinations.value=[].concat(_toConsumableArray(state.nativeDestinations.failedDestinations.value),[dest]);errorHandler===null||errorHandler===void 0||errorHandler.onError(err,DEVICE_MODE_DESTINATIONS_PLUGIN,DESTINATION_INIT_ERROR(dest.userFriendlyId));}};
+
+var pluginName$b='DeviceModeDestinations';var DeviceModeDestinations=function DeviceModeDestinations(){return {name:pluginName$b,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$b]);},nativeDestinations:{setActiveDestinations:function setActiveDestinations(state,pluginsManager,errorHandler,logger){var _clone,_state$consents$postC,_state$consents$postC2;// Normalize the integration options from the load API call
+state.nativeDestinations.loadOnlyIntegrations.value=(_clone=clone(state.loadOptions.value.integrations))!==null&&_clone!==void 0?_clone:DEFAULT_INTEGRATIONS_CONFIG;state.nativeDestinations.loadIntegration.value=state.loadOptions.value.loadIntegration;// Filter destination that doesn't have mapping config-->Integration names
+var configSupportedDestinations=state.nativeDestinations.configuredDestinations.value.filter(function(configDest){if(destDisplayNamesToFileNamesMap[configDest.displayName]){return true;}errorHandler===null||errorHandler===void 0||errorHandler.onError(new Error(DESTINATION_NOT_SUPPORTED_ERROR(configDest.userFriendlyId)),DEVICE_MODE_DESTINATIONS_PLUGIN);return false;});// Filter destinations that are disabled through load or consent API options
+var destinationsToLoad=filterDestinations((_state$consents$postC=(_state$consents$postC2=state.consents.postConsent.value)===null||_state$consents$postC2===void 0?void 0:_state$consents$postC2.integrations)!==null&&_state$consents$postC!==void 0?_state$consents$postC:state.nativeDestinations.loadOnlyIntegrations.value,configSupportedDestinations);var consentedDestinations=destinationsToLoad.filter(function(dest){var _pluginsManager$invok;return(// if consent manager is not configured, then default to load the destination
+(_pluginsManager$invok=pluginsManager.invokeSingle("consentManager.isDestinationConsented",state,dest.config,errorHandler,logger))!==null&&_pluginsManager$invok!==void 0?_pluginsManager$invok:true);});state.nativeDestinations.activeDestinations.value=consentedDestinations;},load:function load(state,externalSrcLoader,errorHandler,logger,externalScriptOnLoad){var integrationsCDNPath=state.lifecycle.integrationsCDNPath.value;var activeDestinations=state.nativeDestinations.activeDestinations.value;activeDestinations.forEach(function(dest){var sdkName=destDisplayNamesToFileNamesMap[dest.displayName];var destSDKIdentifier="".concat(sdkName,"_RS");// this is the name of the object loaded on the window
+var sdkTypeName=sdkName;if(sdkTypeName&&!isDestinationSDKMounted(destSDKIdentifier,sdkTypeName)){var destSdkURL="".concat(integrationsCDNPath,"/").concat(sdkName,".min.js");externalSrcLoader.loadJSFile({url:destSdkURL,id:dest.userFriendlyId,callback:externalScriptOnLoad!==null&&externalScriptOnLoad!==void 0?externalScriptOnLoad:function(id){if(!id){logger===null||logger===void 0||logger.error(DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN,dest.userFriendlyId));state.nativeDestinations.failedDestinations.value=[].concat(_toConsumableArray(state.nativeDestinations.failedDestinations.value),[dest]);}else {initializeDestination(dest,state,destSDKIdentifier,sdkTypeName,errorHandler,logger);}},timeout:SCRIPT_LOAD_TIMEOUT_MS});}else if(sdkTypeName){initializeDestination(dest,state,destSDKIdentifier,sdkTypeName,errorHandler,logger);}else {logger===null||logger===void 0||logger.error(DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN,dest.displayName));}});}}};};
+
+var DEFAULT_TRANSFORMATION_QUEUE_OPTIONS={minRetryDelay:500,backoffFactor:2,maxAttempts:3};var REQUEST_TIMEOUT_MS$1=10*1000;// 10 seconds
+var QUEUE_NAME$2='rudder';var DMT_PLUGIN='DeviceModeTransformationPlugin';
+
+var DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR=function DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(context,displayName,reason,action){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Event transformation unsuccessful for destination \"").concat(displayName,"\". Reason: ").concat(reason,". ").concat(action,".");};var DMT_REQUEST_FAILED_ERROR=function DMT_REQUEST_FAILED_ERROR(context,displayName,status,action){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"[Destination: ").concat(displayName,"].Transformation request failed with status: ").concat(status,". Retries exhausted. ").concat(action,".");};var DMT_EXCEPTION=function DMT_EXCEPTION(displayName){return "[Destination:".concat(displayName,"].");};var DMT_SERVER_ACCESS_DENIED_WARNING=function DMT_SERVER_ACCESS_DENIED_WARNING(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.");};
+
+/**
+ * A helper function that will take rudderEvent and generate
+ * a batch payload that will be sent to transformation server
  *
- * @param {Object} obj The object to print out.
- * @param {Object} opts Optional options object that alters the output.
- */
-/* legacy: obj, showHidden, depth, colors*/
-function inspect$1(obj, opts) {
-  // default options
-  var ctx = {
-    seen: [],
-    stylize: stylizeNoColor
-  };
-  // legacy...
-  if (arguments.length >= 3) ctx.depth = arguments[2];
-  if (arguments.length >= 4) ctx.colors = arguments[3];
-  if (isBoolean(opts)) {
-    // legacy...
-    ctx.showHidden = opts;
-  } else if (opts) {
-    // got an "options" object
-    _extend(ctx, opts);
-  }
-  // set default options
-  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-  if (isUndefined(ctx.depth)) ctx.depth = 2;
-  if (isUndefined(ctx.colors)) ctx.colors = false;
-  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-  if (ctx.colors) ctx.stylize = stylizeWithColor;
-  return formatValue(ctx, obj, ctx.depth);
-}
-
-// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-inspect$1.colors = {
-  'bold' : [1, 22],
-  'italic' : [3, 23],
-  'underline' : [4, 24],
-  'inverse' : [7, 27],
-  'white' : [37, 39],
-  'grey' : [90, 39],
-  'black' : [30, 39],
-  'blue' : [34, 39],
-  'cyan' : [36, 39],
-  'green' : [32, 39],
-  'magenta' : [35, 39],
-  'red' : [31, 39],
-  'yellow' : [33, 39]
-};
-
-// Don't use 'blue' not visible on cmd.exe
-inspect$1.styles = {
-  'special': 'cyan',
-  'number': 'yellow',
-  'boolean': 'yellow',
-  'undefined': 'grey',
-  'null': 'bold',
-  'string': 'green',
-  'date': 'magenta',
-  // "name": intentionally not styling
-  'regexp': 'red'
-};
-
-
-function stylizeWithColor(str, styleType) {
-  var style = inspect$1.styles[styleType];
-
-  if (style) {
-    return '\u001b[' + inspect$1.colors[style][0] + 'm' + str +
-           '\u001b[' + inspect$1.colors[style][1] + 'm';
-  } else {
-    return str;
-  }
-}
-
-
-function stylizeNoColor(str, styleType) {
-  return str;
-}
-
-
-function arrayToHash(array) {
-  var hash = {};
-
-  array.forEach(function(val, idx) {
-    hash[val] = true;
-  });
-
-  return hash;
-}
-
-
-function formatValue(ctx, value, recurseTimes) {
-  // Provide a hook for user-specified inspect functions.
-  // Check that value is an object with an inspect function on it
-  if (ctx.customInspect &&
-      value &&
-      isFunction$1(value.inspect) &&
-      // Filter out the util module, it's inspect function is special
-      value.inspect !== inspect$1 &&
-      // Also filter out any prototype objects using the circular check.
-      !(value.constructor && value.constructor.prototype === value)) {
-    var ret = value.inspect(recurseTimes, ctx);
-    if (!isString(ret)) {
-      ret = formatValue(ctx, ret, recurseTimes);
-    }
-    return ret;
-  }
-
-  // Primitive types cannot have properties
-  var primitive = formatPrimitive(ctx, value);
-  if (primitive) {
-    return primitive;
-  }
-
-  // Look up the keys of the object.
-  var keys = Object.keys(value);
-  var visibleKeys = arrayToHash(keys);
-
-  if (ctx.showHidden) {
-    keys = Object.getOwnPropertyNames(value);
-  }
-
-  // IE doesn't make error fields non-enumerable
-  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-  if (isError(value)
-      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-    return formatError(value);
-  }
-
-  // Some type of object without properties can be shortcutted.
-  if (keys.length === 0) {
-    if (isFunction$1(value)) {
-      var name = value.name ? ': ' + value.name : '';
-      return ctx.stylize('[Function' + name + ']', 'special');
-    }
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    }
-    if (isDate(value)) {
-      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-    }
-    if (isError(value)) {
-      return formatError(value);
-    }
-  }
-
-  var base = '', array = false, braces = ['{', '}'];
-
-  // Make Array say that they are Array
-  if (isArray(value)) {
-    array = true;
-    braces = ['[', ']'];
-  }
-
-  // Make functions say that they are functions
-  if (isFunction$1(value)) {
-    var n = value.name ? ': ' + value.name : '';
-    base = ' [Function' + n + ']';
-  }
-
-  // Make RegExps say that they are RegExps
-  if (isRegExp(value)) {
-    base = ' ' + RegExp.prototype.toString.call(value);
-  }
-
-  // Make dates with properties first say the date
-  if (isDate(value)) {
-    base = ' ' + Date.prototype.toUTCString.call(value);
-  }
-
-  // Make error with message first say the error
-  if (isError(value)) {
-    base = ' ' + formatError(value);
-  }
-
-  if (keys.length === 0 && (!array || value.length == 0)) {
-    return braces[0] + base + braces[1];
-  }
-
-  if (recurseTimes < 0) {
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    } else {
-      return ctx.stylize('[Object]', 'special');
-    }
-  }
-
-  ctx.seen.push(value);
-
-  var output;
-  if (array) {
-    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-  } else {
-    output = keys.map(function(key) {
-      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-    });
-  }
-
-  ctx.seen.pop();
-
-  return reduceToSingleString(output, base, braces);
-}
-
-
-function formatPrimitive(ctx, value) {
-  if (isUndefined(value))
-    return ctx.stylize('undefined', 'undefined');
-  if (isString(value)) {
-    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-                                             .replace(/'/g, "\\'")
-                                             .replace(/\\"/g, '"') + '\'';
-    return ctx.stylize(simple, 'string');
-  }
-  if (isNumber(value))
-    return ctx.stylize('' + value, 'number');
-  if (isBoolean(value))
-    return ctx.stylize('' + value, 'boolean');
-  // For some reason typeof null is "object", so special case here.
-  if (isNull(value))
-    return ctx.stylize('null', 'null');
-}
-
-
-function formatError(value) {
-  return '[' + Error.prototype.toString.call(value) + ']';
-}
-
-
-function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-  var output = [];
-  for (var i = 0, l = value.length; i < l; ++i) {
-    if (hasOwnProperty(value, String(i))) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-          String(i), true));
-    } else {
-      output.push('');
-    }
-  }
-  keys.forEach(function(key) {
-    if (!key.match(/^\d+$/)) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-          key, true));
-    }
-  });
-  return output;
-}
-
-
-function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-  var name, str, desc;
-  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-  if (desc.get) {
-    if (desc.set) {
-      str = ctx.stylize('[Getter/Setter]', 'special');
-    } else {
-      str = ctx.stylize('[Getter]', 'special');
-    }
-  } else {
-    if (desc.set) {
-      str = ctx.stylize('[Setter]', 'special');
-    }
-  }
-  if (!hasOwnProperty(visibleKeys, key)) {
-    name = '[' + key + ']';
-  }
-  if (!str) {
-    if (ctx.seen.indexOf(desc.value) < 0) {
-      if (isNull(recurseTimes)) {
-        str = formatValue(ctx, desc.value, null);
-      } else {
-        str = formatValue(ctx, desc.value, recurseTimes - 1);
-      }
-      if (str.indexOf('\n') > -1) {
-        if (array) {
-          str = str.split('\n').map(function(line) {
-            return '  ' + line;
-          }).join('\n').substr(2);
-        } else {
-          str = '\n' + str.split('\n').map(function(line) {
-            return '   ' + line;
-          }).join('\n');
-        }
-      }
-    } else {
-      str = ctx.stylize('[Circular]', 'special');
-    }
-  }
-  if (isUndefined(name)) {
-    if (array && key.match(/^\d+$/)) {
-      return str;
-    }
-    name = JSON.stringify('' + key);
-    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-      name = name.substr(1, name.length - 2);
-      name = ctx.stylize(name, 'name');
-    } else {
-      name = name.replace(/'/g, "\\'")
-                 .replace(/\\"/g, '"')
-                 .replace(/(^"|"$)/g, "'");
-      name = ctx.stylize(name, 'string');
-    }
-  }
-
-  return name + ': ' + str;
-}
-
-
-function reduceToSingleString(output, base, braces) {
-  var length = output.reduce(function(prev, cur) {
-    if (cur.indexOf('\n') >= 0) ;
-    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-  }, 0);
-
-  if (length > 60) {
-    return braces[0] +
-           (base === '' ? '' : base + '\n ') +
-           ' ' +
-           output.join(',\n  ') +
-           ' ' +
-           braces[1];
-  }
-
-  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-}
-
-
-// NOTE: These type checking functions intentionally don't use `instanceof`
-// because it is fragile and can be easily faked with `Object.create()`.
-function isArray(ar) {
-  return Array.isArray(ar);
-}
-
-function isBoolean(arg) {
-  return typeof arg === 'boolean';
-}
-
-function isNull(arg) {
-  return arg === null;
-}
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-
-function isString(arg) {
-  return typeof arg === 'string';
-}
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-
-function isRegExp(re) {
-  return isObject(re) && objectToString(re) === '[object RegExp]';
-}
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-
-function isDate(d) {
-  return isObject(d) && objectToString(d) === '[object Date]';
-}
-
-function isError(e) {
-  return isObject(e) &&
-      (objectToString(e) === '[object Error]' || e instanceof Error);
-}
-
-function isFunction$1(arg) {
-  return typeof arg === 'function';
-}
-
-function isPrimitive(arg) {
-  return arg === null ||
-         typeof arg === 'boolean' ||
-         typeof arg === 'number' ||
-         typeof arg === 'string' ||
-         typeof arg === 'symbol' ||  // ES6 symbol
-         typeof arg === 'undefined';
-}
-
-function objectToString(o) {
-  return Object.prototype.toString.call(o);
-}
-
-function _extend(origin, add) {
-  // Don't do anything if add isn't an object
-  if (!add || !isObject(add)) return origin;
-
-  var keys = Object.keys(add);
-  var i = keys.length;
-  while (i--) {
-    origin[keys[i]] = add[keys[i]];
-  }
-  return origin;
-}
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-function compare(a, b) {
-  if (a === b) {
-    return 0;
-  }
-
-  var x = a.length;
-  var y = b.length;
-
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-    if (a[i] !== b[i]) {
-      x = a[i];
-      y = b[i];
-      break;
-    }
-  }
-
-  if (x < y) {
-    return -1;
-  }
-  if (y < x) {
-    return 1;
-  }
-  return 0;
-}
-var hasOwn = Object.prototype.hasOwnProperty;
-
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
-    if (hasOwn.call(obj, key)) keys.push(key);
-  }
-  return keys;
-};
-var pSlice = Array.prototype.slice;
-var _functionsHaveNames;
-function functionsHaveNames() {
-  if (typeof _functionsHaveNames !== 'undefined') {
-    return _functionsHaveNames;
-  }
-  return _functionsHaveNames = (function () {
-    return function foo() {}.name === 'foo';
-  }());
-}
-function pToString (obj) {
-  return Object.prototype.toString.call(obj);
-}
-function isView(arrbuf) {
-  if (isBuffer(arrbuf)) {
-    return false;
-  }
-  if (typeof global$1.ArrayBuffer !== 'function') {
-    return false;
-  }
-  if (typeof ArrayBuffer.isView === 'function') {
-    return ArrayBuffer.isView(arrbuf);
-  }
-  if (!arrbuf) {
-    return false;
-  }
-  if (arrbuf instanceof DataView) {
-    return true;
-  }
-  if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
-    return true;
-  }
-  return false;
-}
-// 1. The assert module provides functions that throw
-// AssertionError's when particular conditions are not met. The
-// assert module must conform to the following interface.
-
-function assert(value, message) {
-  if (!value) fail(value, true, message, '==', ok);
-}
-
-// 2. The AssertionError is defined in assert.
-// new assert.AssertionError({ message: message,
-//                             actual: actual,
-//                             expected: expected })
-
-var regex = /\s*function\s+([^\(\s]*)\s*/;
-// based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
-function getName(func) {
-  if (!isFunction$1(func)) {
-    return;
-  }
-  if (functionsHaveNames()) {
-    return func.name;
-  }
-  var str = func.toString();
-  var match = str.match(regex);
-  return match && match[1];
-}
-assert.AssertionError = AssertionError;
-function AssertionError(options) {
-  this.name = 'AssertionError';
-  this.actual = options.actual;
-  this.expected = options.expected;
-  this.operator = options.operator;
-  if (options.message) {
-    this.message = options.message;
-    this.generatedMessage = false;
-  } else {
-    this.message = getMessage(this);
-    this.generatedMessage = true;
-  }
-  var stackStartFunction = options.stackStartFunction || fail;
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, stackStartFunction);
-  } else {
-    // non v8 browsers so we can have a stacktrace
-    var err = new Error();
-    if (err.stack) {
-      var out = err.stack;
-
-      // try to strip useless frames
-      var fn_name = getName(stackStartFunction);
-      var idx = out.indexOf('\n' + fn_name);
-      if (idx >= 0) {
-        // once we have located the function frame
-        // we need to strip out everything before it (and its line)
-        var next_line = out.indexOf('\n', idx + 1);
-        out = out.substring(next_line + 1);
-      }
-
-      this.stack = out;
-    }
-  }
-}
-
-// assert.AssertionError instanceof Error
-inherits(AssertionError, Error);
-
-function truncate(s, n) {
-  if (typeof s === 'string') {
-    return s.length < n ? s : s.slice(0, n);
-  } else {
-    return s;
-  }
-}
-function inspect(something) {
-  if (functionsHaveNames() || !isFunction$1(something)) {
-    return inspect$1(something);
-  }
-  var rawname = getName(something);
-  var name = rawname ? ': ' + rawname : '';
-  return '[Function' +  name + ']';
-}
-function getMessage(self) {
-  return truncate(inspect(self.actual), 128) + ' ' +
-         self.operator + ' ' +
-         truncate(inspect(self.expected), 128);
-}
-
-// At present only the three keys mentioned above are used and
-// understood by the spec. Implementations or sub modules can pass
-// other keys to the AssertionError's constructor - they will be
-// ignored.
-
-// 3. All of the following functions must throw an AssertionError
-// when a corresponding condition is not met, with a message that
-// may be undefined if not provided.  All assertion methods provide
-// both the actual and expected values to the assertion error for
-// display purposes.
-
-function fail(actual, expected, message, operator, stackStartFunction) {
-  throw new AssertionError({
-    message: message,
-    actual: actual,
-    expected: expected,
-    operator: operator,
-    stackStartFunction: stackStartFunction
-  });
-}
-
-// EXTENSION! allows for well behaved errors defined elsewhere.
-assert.fail = fail;
-
-// 4. Pure assertion tests whether a value is truthy, as determined
-// by !!guard.
-// assert.ok(guard, message_opt);
-// This statement is equivalent to assert.equal(true, !!guard,
-// message_opt);. To test strictly for the value true, use
-// assert.strictEqual(true, guard, message_opt);.
-
-function ok(value, message) {
-  if (!value) fail(value, true, message, '==', ok);
-}
-assert.ok = ok;
-
-// 5. The equality assertion tests shallow, coercive equality with
-// ==.
-// assert.equal(actual, expected, message_opt);
-assert.equal = equal;
-function equal(actual, expected, message) {
-  if (actual != expected) fail(actual, expected, message, '==', equal);
-}
-
-// 6. The non-equality assertion tests for whether two objects are not equal
-// with != assert.notEqual(actual, expected, message_opt);
-assert.notEqual = notEqual;
-function notEqual(actual, expected, message) {
-  if (actual == expected) {
-    fail(actual, expected, message, '!=', notEqual);
-  }
-}
-
-// 7. The equivalence assertion tests a deep equality relation.
-// assert.deepEqual(actual, expected, message_opt);
-assert.deepEqual = deepEqual;
-function deepEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected, false)) {
-    fail(actual, expected, message, 'deepEqual', deepEqual);
-  }
-}
-assert.deepStrictEqual = deepStrictEqual;
-function deepStrictEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected, true)) {
-    fail(actual, expected, message, 'deepStrictEqual', deepStrictEqual);
-  }
-}
-
-function _deepEqual(actual, expected, strict, memos) {
-  // 7.1. All identical values are equivalent, as determined by ===.
-  if (actual === expected) {
-    return true;
-  } else if (isBuffer(actual) && isBuffer(expected)) {
-    return compare(actual, expected) === 0;
-
-  // 7.2. If the expected value is a Date object, the actual value is
-  // equivalent if it is also a Date object that refers to the same time.
-  } else if (isDate(actual) && isDate(expected)) {
-    return actual.getTime() === expected.getTime();
-
-  // 7.3 If the expected value is a RegExp object, the actual value is
-  // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (isRegExp(actual) && isRegExp(expected)) {
-    return actual.source === expected.source &&
-           actual.global === expected.global &&
-           actual.multiline === expected.multiline &&
-           actual.lastIndex === expected.lastIndex &&
-           actual.ignoreCase === expected.ignoreCase;
-
-  // 7.4. Other pairs that do not both pass typeof value == 'object',
-  // equivalence is determined by ==.
-  } else if ((actual === null || typeof actual !== 'object') &&
-             (expected === null || typeof expected !== 'object')) {
-    return strict ? actual === expected : actual == expected;
-
-  // If both values are instances of typed arrays, wrap their underlying
-  // ArrayBuffers in a Buffer each to increase performance
-  // This optimization requires the arrays to have the same type as checked by
-  // Object.prototype.toString (aka pToString). Never perform binary
-  // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
-  // bit patterns are not identical.
-  } else if (isView(actual) && isView(expected) &&
-             pToString(actual) === pToString(expected) &&
-             !(actual instanceof Float32Array ||
-               actual instanceof Float64Array)) {
-    return compare(new Uint8Array(actual.buffer),
-                   new Uint8Array(expected.buffer)) === 0;
-
-  // 7.5 For all other Object pairs, including Array objects, equivalence is
-  // determined by having the same number of owned properties (as verified
-  // with Object.prototype.hasOwnProperty.call), the same set of keys
-  // (although not necessarily the same order), equivalent values for every
-  // corresponding key, and an identical 'prototype' property. Note: this
-  // accounts for both named and indexed properties on Arrays.
-  } else if (isBuffer(actual) !== isBuffer(expected)) {
-    return false;
-  } else {
-    memos = memos || {actual: [], expected: []};
-
-    var actualIndex = memos.actual.indexOf(actual);
-    if (actualIndex !== -1) {
-      if (actualIndex === memos.expected.indexOf(expected)) {
-        return true;
-      }
-    }
-
-    memos.actual.push(actual);
-    memos.expected.push(expected);
-
-    return objEquiv(actual, expected, strict, memos);
-  }
-}
-
-function isArguments(object) {
-  return Object.prototype.toString.call(object) == '[object Arguments]';
-}
-
-function objEquiv(a, b, strict, actualVisitedObjects) {
-  if (a === null || a === undefined || b === null || b === undefined)
-    return false;
-  // if one is a primitive, the other must be same
-  if (isPrimitive(a) || isPrimitive(b))
-    return a === b;
-  if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b))
-    return false;
-  var aIsArgs = isArguments(a);
-  var bIsArgs = isArguments(b);
-  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
-    return false;
-  if (aIsArgs) {
-    a = pSlice.call(a);
-    b = pSlice.call(b);
-    return _deepEqual(a, b, strict);
-  }
-  var ka = objectKeys(a);
-  var kb = objectKeys(b);
-  var key, i;
-  // having the same number of owned properties (keys incorporates
-  // hasOwnProperty)
-  if (ka.length !== kb.length)
-    return false;
-  //the same set of keys (although not necessarily the same order),
-  ka.sort();
-  kb.sort();
-  //~~~cheap key test
-  for (i = ka.length - 1; i >= 0; i--) {
-    if (ka[i] !== kb[i])
-      return false;
-  }
-  //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
-  for (i = ka.length - 1; i >= 0; i--) {
-    key = ka[i];
-    if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects))
-      return false;
-  }
-  return true;
-}
-
-// 8. The non-equivalence assertion tests for any deep inequality.
-// assert.notDeepEqual(actual, expected, message_opt);
-assert.notDeepEqual = notDeepEqual;
-function notDeepEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected, false)) {
-    fail(actual, expected, message, 'notDeepEqual', notDeepEqual);
-  }
-}
-
-assert.notDeepStrictEqual = notDeepStrictEqual;
-function notDeepStrictEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected, true)) {
-    fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
-  }
-}
-
-
-// 9. The strict equality assertion tests strict equality, as determined by ===.
-// assert.strictEqual(actual, expected, message_opt);
-assert.strictEqual = strictEqual;
-function strictEqual(actual, expected, message) {
-  if (actual !== expected) {
-    fail(actual, expected, message, '===', strictEqual);
-  }
-}
-
-// 10. The strict non-equality assertion tests for strict inequality, as
-// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
-assert.notStrictEqual = notStrictEqual;
-function notStrictEqual(actual, expected, message) {
-  if (actual === expected) {
-    fail(actual, expected, message, '!==', notStrictEqual);
-  }
-}
-
-function expectedException(actual, expected) {
-  if (!actual || !expected) {
-    return false;
-  }
-
-  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
-    return expected.test(actual);
-  }
-
-  try {
-    if (actual instanceof expected) {
-      return true;
-    }
-  } catch (e) {
-    // Ignore.  The instanceof check doesn't work for arrow functions.
-  }
-
-  if (Error.isPrototypeOf(expected)) {
-    return false;
-  }
-
-  return expected.call({}, actual) === true;
-}
-
-function _tryBlock(block) {
-  var error;
-  try {
-    block();
-  } catch (e) {
-    error = e;
-  }
-  return error;
-}
-
-function _throws(shouldThrow, block, expected, message) {
-  var actual;
-
-  if (typeof block !== 'function') {
-    throw new TypeError('"block" argument must be a function');
-  }
-
-  if (typeof expected === 'string') {
-    message = expected;
-    expected = null;
-  }
-
-  actual = _tryBlock(block);
-
-  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
-            (message ? ' ' + message : '.');
-
-  if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
-  }
-
-  var userProvidedMessage = typeof message === 'string';
-  var isUnwantedException = !shouldThrow && isError(actual);
-  var isUnexpectedException = !shouldThrow && actual && !expected;
-
-  if ((isUnwantedException &&
-      userProvidedMessage &&
-      expectedException(actual, expected)) ||
-      isUnexpectedException) {
-    fail(actual, expected, 'Got unwanted exception' + message);
-  }
-
-  if ((shouldThrow && actual && expected &&
-      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
-    throw actual;
-  }
-}
-
-// 11. Expected to throw an error:
-// assert.throws(block, Error_opt, message_opt);
-assert.throws = throws;
-function throws(block, /*optional*/error, /*optional*/message) {
-  _throws(true, block, error, message);
-}
-
-// EXTENSION! This is annoying to write outside this module.
-assert.doesNotThrow = doesNotThrow;
-function doesNotThrow(block, /*optional*/error, /*optional*/message) {
-  _throws(false, block, error, message);
-}
-
-assert.ifError = ifError;
-function ifError(err) {
-  if (err) throw err;
-}
-
-// eslint-disable-next-line no-bitwise
-const MAX_SIZE=32<<10;/**
- * Validate a "track" event.
- */const validateTrackEvent=event=>{assert(event.anonymousId||event.userId,'You must pass either an "anonymousId" or a "userId".');assert(event.event,'You must pass an "event".');};/**
- * Validate a "group" event.
- */const validateGroupEvent=event=>{assert(event.anonymousId||event.userId,'You must pass either an "anonymousId" or a "userId".');assert(event.groupId,'You must pass a "groupId".');};/**
- * Validate a "identify" event.
- */const validateIdentifyEvent=event=>{assert(event.anonymousId||event.userId,'You must pass either an "anonymousId" or a "userId".');};/**
- * Validate a "page" event.
- */const validatePageEvent=event=>{assert(event.anonymousId||event.userId,'You must pass either an "anonymousId" or a "userId".');};/**
- * Validate a "screen" event.
- */const validateScreenEvent=event=>{assert(event.anonymousId||event.userId,'You must pass either an "anonymousId" or a "userId".');};/**
- * Validate an "alias" event.
- */const validateAliasEvent=event=>{assert(event.userId,'You must pass a "userId".');assert(event.previousId,'You must pass a "previousId".');};/**
- * Validation rules.
- */const genericValidationRules={anonymousId:['string','number'],category:'string',context:'object',event:'string',groupId:['string','number'],integrations:'object',name:'string',previousId:['string','number'],timestamp:'date',userId:['string','number'],type:'string'};/**
- * Validate an event object.
- */const validateGenericEvent=event=>{assert(type(event)==='object','You must pass a message object.');const json=JSON.stringify(event);// Strings are variable byte encoded, so json.length is not sufficient.
-assert(Buffer.byteLength(json,'utf8')<MAX_SIZE,'Your message must be < 32kb.');// eslint-disable-next-line guard-for-in,no-restricted-syntax
-for(const key in genericValidationRules){const val=event[key];if(!val){// eslint-disable-next-line no-continue
-continue;}let rule=genericValidationRules[key];if(type(rule)!=='array'){rule=[rule];}const a=rule[0]==='object'?'an':'a';assert(rule.some(e=>type(val)===e),`"${key}" must be ${a} ${join(rule,'or')}.`);}};/**
- * Validate an event.
- */const looselyValidateEvent=(event,type)=>{validateGenericEvent(event);// eslint-disable-next-line no-param-reassign
-type=type||event.type;assert(type,'You must pass an event type.');switch(type){case'track':return validateTrackEvent(event);case'group':return validateGroupEvent(event);case'identify':return validateIdentifyEvent(event);case'page':return validatePageEvent(event);case'screen':return validateScreenEvent(event);case'alias':return validateAliasEvent(event);default:return assert(0,`Invalid event type: "${type}"`);}};
-
-const BATCH_ENDPOINT='v1/batch';const removeTrailingSlashes=inURL=>// Disabling the rule because the optimized regex may cause
-// super-linear runtime issue due to backtracking
-// eslint-disable-next-line unicorn/better-regex
-inURL&&inURL.endsWith('/')?inURL.replace(/(?:\/+)$/,''):inURL;const isFunction=value=>typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);const noop=()=>{};const getDataPlaneUrl=dataPlaneUrl=>{// Remove trailing slashes from dataPlaneUrl
-const cleanedDataPlaneUrl=removeTrailingSlashes(dataPlaneUrl);// check if the URL ends with /v1/batch endpoint
-// if it's not present, append it to the URL and return the string
-if(cleanedDataPlaneUrl.endsWith(BATCH_ENDPOINT)){return cleanedDataPlaneUrl;}return `${cleanedDataPlaneUrl}/${BATCH_ENDPOINT}`;};
-
-const version='3.1.1';class Analytics{/**
-   * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
-   * optional dictionary of `options`.
+ */var createPayload=function createPayload(event,destinationIds,token){var orderNo=Date.now();var payload={metadata:{'Custom-Authorization':token},batch:[{orderNo:orderNo,destinationIds:destinationIds,event:event}]};return payload;};var sendTransformedEventToDestinations=function sendTransformedEventToDestinations(state,pluginsManager,destinationIds,result,status,event,errorHandler,logger){var NATIVE_DEST_EXT_POINT='destinationsEventsQueue.enqueueEventToDestination';var ACTION_TO_SEND_UNTRANSFORMED_EVENT='Sending untransformed event';var ACTION_TO_DROP_EVENT='Dropping the event';var destinations=state.nativeDestinations.initializedDestinations.value.filter(function(d){return d&&destinationIds.includes(d.id);});destinations.forEach(function(dest){try{var eventsToSend=[];switch(status){case 200:{var response=JSON.parse(result);var destTransformedResult=response.transformedBatch.find(function(e){return e.id===dest.id;});destTransformedResult===null||destTransformedResult===void 0||destTransformedResult.payload.forEach(function(tEvent){if(tEvent.status==='200'){eventsToSend.push(tEvent.event);}else {var reason='Unknown';if(tEvent.status==='410'){reason='Transformation is not available';}var action=ACTION_TO_DROP_EVENT;if(dest.propagateEventsUntransformedOnError===true){action=ACTION_TO_SEND_UNTRANSFORMED_EVENT;eventsToSend.push(event);logger===null||logger===void 0||logger.warn(DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(DMT_PLUGIN,dest.displayName,reason,action));}else {logger===null||logger===void 0||logger.error(DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(DMT_PLUGIN,dest.displayName,reason,action));}}});break;}// Transformation server access denied
+case 404:{logger===null||logger===void 0||logger.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));eventsToSend.push(event);break;}default:{if(dest.propagateEventsUntransformedOnError===true){logger===null||logger===void 0||logger.warn(DMT_REQUEST_FAILED_ERROR(DMT_PLUGIN,dest.displayName,status,ACTION_TO_SEND_UNTRANSFORMED_EVENT));eventsToSend.push(event);}else {logger===null||logger===void 0||logger.error(DMT_REQUEST_FAILED_ERROR(DMT_PLUGIN,dest.displayName,status,ACTION_TO_DROP_EVENT));}break;}}eventsToSend===null||eventsToSend===void 0||eventsToSend.forEach(function(tEvent){if(isNonEmptyObject(tEvent)){pluginsManager.invokeSingle(NATIVE_DEST_EXT_POINT,state,tEvent,dest,errorHandler,logger);}});}catch(e){errorHandler===null||errorHandler===void 0||errorHandler.onError(e,DMT_PLUGIN,DMT_EXCEPTION(dest.displayName));}});};
+
+var pluginName$a='DeviceModeTransformation';var DeviceModeTransformation=function DeviceModeTransformation(){return {name:pluginName$a,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$a]);},transformEvent:{init:function init(state,pluginsManager,httpClient,storeManager,errorHandler,logger){var writeKey=state.lifecycle.writeKey.value;httpClient.setAuthHeader(writeKey);var eventsQueue=new RetryQueue(// adding write key to the queue name to avoid conflicts
+"".concat(QUEUE_NAME$2,"_").concat(writeKey),DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,function(item,done,attemptNumber,maxRetryAttempts){var payload=createPayload(item.event,item.destinationIds,item.token);httpClient.getAsyncData({url:"".concat(state.lifecycle.activeDataplaneUrl.value,"/transform"),options:{method:'POST',data:getDMTDeliveryPayload(payload),sendRawData:true},isRawResponse:true,timeout:REQUEST_TIMEOUT_MS$1,callback:function callback(result,details){// null means item will not be requeued
+var queueErrResp=isErrRetryable(details)?details:null;if(!queueErrResp||attemptNumber===maxRetryAttempts){var _details$xhr;sendTransformedEventToDestinations(state,pluginsManager,item.destinationIds,result,details===null||details===void 0||(_details$xhr=details.xhr)===null||_details$xhr===void 0?void 0:_details$xhr.status,item.event,errorHandler,logger);}done(queueErrResp,result);}});},storeManager,MEMORY_STORAGE);return eventsQueue;},enqueue:function enqueue(state,eventsQueue,event,destinations){var destinationIds=destinations.map(function(d){return d.id;});eventsQueue.addItem({event:event,destinationIds:destinationIds,token:state.session.authToken.value});}}};};
+
+var INVALID_SOURCE_CONFIG_ERROR="Invalid source configuration or source id.";
+
+var pluginName$9='ErrorReporting';var ErrorReporting=function ErrorReporting(){return {name:pluginName$9,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$9]);},errorReporting:{init:function init(state,pluginEngine,externalSrcLoader,logger){var _state$source$value,_state$source$value2;if(!((_state$source$value=state.source.value)!==null&&_state$source$value!==void 0&&_state$source$value.config)||!((_state$source$value2=state.source.value)!==null&&_state$source$value2!==void 0&&_state$source$value2.id)){return Promise.reject(new Error(INVALID_SOURCE_CONFIG_ERROR));}return pluginEngine.invokeSingle('errorReportingProvider.init',state,externalSrcLoader,logger);},notify:function notify(pluginEngine,client,error,state,logger){pluginEngine.invokeSingle('errorReportingProvider.notify',client,error,state,logger);},breadcrumb:function breadcrumb(pluginEngine,client,message,logger){pluginEngine.invokeSingle('errorReportingProvider.breadcrumb',client,message,logger);}}};};
+
+var externallyLoadedSessionStorageKeys={segment:'ajs_anonymous_id'};
+
+var getSegmentAnonymousId=function getSegmentAnonymousId(getStorageEngine){var anonymousId;/**
+   * First check the local storage for anonymousId
+   * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
+   */var lsEngine=getStorageEngine(LOCAL_STORAGE);if(lsEngine!==null&&lsEngine!==void 0&&lsEngine.isEnabled){anonymousId=lsEngine.getItem(externallyLoadedSessionStorageKeys.segment);}// If anonymousId is not present in local storage and find it in cookies
+var csEngine=getStorageEngine(COOKIE_STORAGE);if(!anonymousId&&csEngine!==null&&csEngine!==void 0&&csEngine.isEnabled){anonymousId=csEngine.getItem(externallyLoadedSessionStorageKeys.segment);}return anonymousId;};
+
+var pluginName$8='ExternalAnonymousId';var ExternalAnonymousId=function ExternalAnonymousId(){return {name:pluginName$8,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$8]);},storage:{getAnonymousId:function getAnonymousId(getStorageEngine,options){var _options$autoCapture;var anonymousId;if(options!==null&&options!==void 0&&(_options$autoCapture=options.autoCapture)!==null&&_options$autoCapture!==void 0&&_options$autoCapture.enabled&&options.autoCapture.source){var source=options.autoCapture.source.toLowerCase();if(!Object.keys(externallyLoadedSessionStorageKeys).includes(source)){return anonymousId;}// eslint-disable-next-line sonarjs/no-small-switch
+switch(source){case'segment':anonymousId=getSegmentAnonymousId(getStorageEngine);break;}}return anonymousId;}}};};
+
+var AMP_LINKER_ANONYMOUS_ID_KEY='rs_amp_id';
+
+/* eslint-disable no-bitwise */ /**
+ * generate crc table
+ *
+ * @params none
+ * @returns array of CRC table
+ */var makeCRCTable=function makeCRCTable(){var crcTable=[];var c;for(var n=0;n<256;n++){c=n;for(var k=0;k<8;k++){c=c&1?0xedb88320^c>>>1:c>>>1;}crcTable[n]=c;}return crcTable;};/**
+ * This is utility function for crc32 algorithm
+ *
+ * @param {string} str
+ * @returns {number} crc32
+ */var crc32=function crc32(str){var crcTable=makeCRCTable();var crc=0^-1;for(var i=0;i<str.length;i++){// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+crc=crc>>>8^crcTable[(crc^str.charCodeAt(i))&0xff];}return (crc^-1)>>>0;};
+
+/**
+ * An interface to fetch user device details.
+ */var USER_INTERFACE={/**
+   * @returns {string} user language
+   */getUserLanguage:function getUserLanguage(){var _navigator;return (_navigator=navigator)===null||_navigator===void 0?void 0:_navigator.language;},/**
+   * @returns {string} userAgent
+   */getUserAgent:function getUserAgent(){var _navigator2;return (_navigator2=navigator)===null||_navigator2===void 0?void 0:_navigator2.userAgent;}};
+
+/**
+ * This is utility function for decoding from base 64 to utf8
+ *
+ * @param {string} str base64
+ *
+ * @returns {string} utf8
+ */var b64DecodeUnicode=function b64DecodeUnicode(str){return(// Going backwards: from bytestream, to percent-encoding, to original string.
+decodeURIComponent(globalThis.atob(str).split('').map(function(c){var percentEncodingChar="00".concat(c.charCodeAt(0).toString(16));return "%".concat(percentEncodingChar.slice(-2));}).join('')));};/**
+ * This is utility function for decoding from base 64 to utf8
+ *
+ * @param {string} data
+ *
+ * @return {string}
+ */var decode$1=function decode(){var data=arguments.length>0&&arguments[0]!==undefined?arguments[0]:'';var decodedData=data.endsWith('..')?data.substring(0,data.length-2):data;return b64DecodeUnicode(decodedData);};
+
+var KEY_VALIDATOR=/^[\w.-]+$/;var CHECKSUM_OFFSET_MAX_MIN=1;var VALID_VERSION=1;var DELIMITER='*';/**
+ * Parse the linker param value to version checksum and serializedParams
+ *
+ * @param {string} value
+ *
+ * @return {?Object}
+ */var parseLinkerParamValue=function parseLinkerParamValue(value){var parts=value.split(DELIMITER);var isEven=parts.length%2===0;if(parts.length<4||!isEven){// Format <version>*<checksum>*<key1>*<value1>
+// Note: linker makes sure there's at least one pair of non empty key value
+// Make sure there is at least three delimiters.
+return null;}var version=Number(parts.shift());if(version!==VALID_VERSION){return null;}var checksum=parts.shift();var serializedIds=parts.join(DELIMITER);return {checksum:checksum!==null&&checksum!==void 0?checksum:'',serializedIds:serializedIds};};/**
+ * Deserialize the serializedIds and return keyValue pairs.
+ *
+ * @param {string} serializedIds
+ *
+ * @return {!Object<string, string>}
+ */var deserialize=function deserialize(serializedIds){if(!serializedIds){return {};}var keyValuePairs={};var params=serializedIds.split(DELIMITER);for(var i=0;i<params.length;i+=2){var key=params[i];var valid=KEY_VALIDATOR.test(key);if(valid){keyValuePairs[key]=decode$1(params[i+1]);}}return keyValuePairs;};/**
+ * Generates a semi-unique value for page visitor.
+ *
+ * @return {string}
+ */var getFingerprint=function getFingerprint(userAgent,language){var date=new Date();var timezone=date.getTimezoneOffset();return [userAgent,timezone,language].join(DELIMITER);};/**
+ * Rounded time used to check if t2 - t1 is within our time tolerance.
+ * Timestamp in minutes, floored.
+ *
+ * @return {number}
+ */var getMinSinceEpoch=function getMinSinceEpoch(){return Math.floor(Date.now()/60000);};/**
+ * Create a unique checksum hashing the fingerprint and a few other values.
+ *
+ * @param {string} serializedIds
+ * @param {number=} optOffsetMin
+ * @param {string} userAgent
+ * @param {string} language
+ *
+ * @return {string}
+ */var getCheckSum=function getCheckSum(serializedIds,optOffsetMin,userAgent,language){var fingerprint=getFingerprint(userAgent,language);var offset=optOffsetMin||0;var timestamp=getMinSinceEpoch()-offset;var crc=crc32([fingerprint,timestamp,serializedIds].join(DELIMITER));// Encoded to base36 for fewer bytes.
+return crc.toString(36);};/**
+ * Check if the checksum is valid with time offset tolerance.
+ *
+ * @param {string} serializedIds
+ * @param {string} checksum
+ *
+ * @return {boolean}
+ */var isCheckSumValid=function isCheckSumValid(serializedIds,checksum){var userAgent=USER_INTERFACE.getUserAgent();var language=USER_INTERFACE.getUserLanguage();for(var i=0;i<=CHECKSUM_OFFSET_MAX_MIN;i+=1){var calculateCheckSum=getCheckSum(serializedIds,i,userAgent,language);if(calculateCheckSum===checksum){return true;}}return false;};/**
+ * AMP Linker Parser (works for Rudder, GA or any other linker created by following Google's linker standard.)
+ *
+ * @param {string} value
+ *
+ * @return {?Object<string, string>}
+ */var parseLinker=function parseLinker(value){var linkerObj=parseLinkerParamValue(value);if(!linkerObj){return null;}var checksum=linkerObj.checksum,serializedIds=linkerObj.serializedIds;if(!serializedIds||!checksum||!isCheckSumValid(serializedIds,checksum)){return null;}return deserialize(serializedIds);};
+
+var pluginName$7='GoogleLinker';var GoogleLinker=function GoogleLinker(){return {name:pluginName$7,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$7]);},userSession:{anonymousIdGoogleLinker:function anonymousIdGoogleLinker(rudderAmpLinkerParam){if(!rudderAmpLinkerParam){return null;}var parsedAnonymousIdObj=rudderAmpLinkerParam?parseLinker(rudderAmpLinkerParam):null;return parsedAnonymousIdObj?parsedAnonymousIdObj[AMP_LINKER_ANONYMOUS_ID_KEY]:null;}}};};
+
+var KETCH_CONSENT_COOKIE_READ_ERROR=function KETCH_CONSENT_COOKIE_READ_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to read the consent cookie.");};var KETCH_CONSENT_COOKIE_PARSE_ERROR=function KETCH_CONSENT_COOKIE_PARSE_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to parse the consent cookie.");};var DESTINATION_CONSENT_STATUS_ERROR$1="Failed to determine the consent status for the destination. Please check the destination configuration and try again.";
+
+var KETCH_CONSENT_MANAGER_PLUGIN='KetchConsentManagerPlugin';var KETCH_CONSENT_COOKIE_NAME_V1='_ketch_consent_v1_';
+
+/**
+ * Gets the consent data from the Ketch's consent cookie
+ * @param storeManager Store manager instance
+ * @param logger Logger instance
+ * @returns Consent data from the consent cookie
+ */var getKetchConsentData=function getKetchConsentData(storeManager,logger){var rawConsentCookieData=null;try{// Create a data store instance to read the consent cookie
+var dataStore=storeManager===null||storeManager===void 0?void 0:storeManager.setStore({id:KETCH_CONSENT_MANAGER_PLUGIN,name:KETCH_CONSENT_MANAGER_PLUGIN,type:COOKIE_STORAGE});rawConsentCookieData=dataStore===null||dataStore===void 0?void 0:dataStore.engine.getItem(KETCH_CONSENT_COOKIE_NAME_V1);}catch(err){logger===null||logger===void 0||logger.error(KETCH_CONSENT_COOKIE_READ_ERROR(KETCH_CONSENT_MANAGER_PLUGIN),err);return undefined;}if(isNullOrUndefined(rawConsentCookieData)){return undefined;}// Decode and parse the cookie data to JSON
+var consentCookieData;try{consentCookieData=JSON.parse(fromBase64(rawConsentCookieData));}catch(err){logger===null||logger===void 0||logger.error(KETCH_CONSENT_COOKIE_PARSE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN),err);return undefined;}if(!consentCookieData){return undefined;}// Convert the cookie data to consent data
+var consentPurposes={};Object.entries(consentCookieData).forEach(function(pEntry){var purposeCode=pEntry[0];var purposeValue=pEntry[1];consentPurposes[purposeCode]=(purposeValue===null||purposeValue===void 0?void 0:purposeValue.status)==='granted';});return consentPurposes;};/**
+ * Gets the consent data in the format expected by the application state
+ * @param ketchConsentData Consent data derived from the consent cookie
+ * @returns Consent data
+ */var getConsentData=function getConsentData(ketchConsentData){var allowedConsentIds=[];var deniedConsentIds=[];if(ketchConsentData){Object.entries(ketchConsentData).forEach(function(e){var purposeCode=e[0];var isConsented=e[1];if(isConsented){allowedConsentIds.push(purposeCode);}else {deniedConsentIds.push(purposeCode);}});}return {allowedConsentIds:allowedConsentIds,deniedConsentIds:deniedConsentIds};};var updateConsentStateFromData=function updateConsentStateFromData(state,ketchConsentData){var consentData=getConsentData(ketchConsentData);state.consents.initialized.value=isDefined(ketchConsentData);state.consents.data.value=consentData;};
+
+var pluginName$6='KetchConsentManager';var KetchConsentManager=function KetchConsentManager(){return {name:pluginName$6,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$6]);},consentManager:{init:function init(state,logger){// getKetchUserConsentedPurposes returns current ketch opted-in purposes
+// This will be helpful for debugging
+globalThis.getKetchUserConsentedPurposes=function(){var _state$consents$data$;return (_state$consents$data$=state.consents.data.value.allowedConsentIds)===null||_state$consents$data$===void 0?void 0:_state$consents$data$.slice();};// getKetchUserDeniedPurposes returns current ketch opted-out purposes
+// This will be helpful for debugging
+globalThis.getKetchUserDeniedPurposes=function(){var _state$consents$data$2;return (_state$consents$data$2=state.consents.data.value.deniedConsentIds)===null||_state$consents$data$2===void 0?void 0:_state$consents$data$2.slice();};// updateKetchConsent callback function to update current consent purpose state
+// this will be called from ketch rudderstack plugin
+globalThis.updateKetchConsent=function(ketchConsentData){updateConsentStateFromData(state,ketchConsentData);};},updateConsentsInfo:function updateConsentsInfo(state,storeManager,logger){// retrieve consent data and update the state
+var ketchConsentData;if(!isUndefined(globalThis.ketchConsent)){ketchConsentData=globalThis.ketchConsent;}else {ketchConsentData=getKetchConsentData(storeManager,logger);}updateConsentStateFromData(state,ketchConsentData);},isDestinationConsented:function isDestinationConsented(state,destConfig,errorHandler,logger){if(!state.consents.initialized.value){return true;}var allowedConsentIds=state.consents.data.value.allowedConsentIds;try{var ketchConsentPurposes=destConfig.ketchConsentPurposes,consentManagement=destConfig.consentManagement;var matchPredicate=function matchPredicate(consent){return allowedConsentIds.includes(consent);};// Generic consent management
+if(consentManagement){var _consentManagement$fi;// Get the corresponding consents for the destination
+var cmpConsents=(_consentManagement$fi=consentManagement.find(function(c){return c.provider===state.consents.provider.value;}))===null||_consentManagement$fi===void 0?void 0:_consentManagement$fi.consents;// If there are no consents configured for the destination for the current provider, events should be sent.
+if(!cmpConsents){return true;}var configuredConsents=cmpConsents.map(function(c){return c.consent.trim();}).filter(function(n){return n;});// match the configured consents with user provided consents as per
+// the configured resolution strategy
+switch(state.consents.resolutionStrategy.value){case'or':return configuredConsents.some(matchPredicate)||configuredConsents.length===0;case'and':default:return configuredConsents.every(matchPredicate);}// Legacy cookie consent management
+// TODO: To be removed once the source config API is updated to support generic consent management
+}else if(ketchConsentPurposes){var _configuredConsents=ketchConsentPurposes.map(function(p){return p.purpose.trim();}).filter(function(n){return n;});// Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
+return _configuredConsents.some(matchPredicate)||_configuredConsents.length===0;}// If there are no consents configured for the destination for the current provider, events should be sent.
+return true;}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,KETCH_CONSENT_MANAGER_PLUGIN,DESTINATION_CONSENT_STATUS_ERROR$1);return true;}}}};};
+
+var DEFAULT_QUEUE_OPTIONS={maxItems:100};var QUEUE_NAME$1='rudder_destinations_events';var NATIVE_DESTINATION_QUEUE_PLUGIN='NativeDestinationQueuePlugin';
+
+var DESTINATION_EVENT_FILTERING_WARNING=function DESTINATION_EVENT_FILTERING_WARNING(context,eventName,destUserFriendlyId){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"The \"").concat(eventName,"\" track event has been filtered for the \"").concat(destUserFriendlyId,"\" destination.");};var DESTINATION_EVENT_FORWARDING_ERROR=function DESTINATION_EVENT_FORWARDING_ERROR(destUserFriendlyId){return "Failed to forward event to destination \"".concat(destUserFriendlyId,"\".");};
+
+var getNormalizedQueueOptions$1=function getNormalizedQueueOptions(queueOpts){return mergeDeepRight(DEFAULT_QUEUE_OPTIONS,queueOpts);};var isValidEventName=function isValidEventName(eventName){return eventName&&typeof eventName==='string';};var isEventDenyListed=function isEventDenyListed(eventType,eventName,dest){if(eventType!=='track'){return false;}var _dest$config=dest.config,blacklistedEvents=_dest$config.blacklistedEvents,whitelistedEvents=_dest$config.whitelistedEvents,eventFilteringOption=_dest$config.eventFilteringOption;switch(eventFilteringOption){// Blacklist is chosen for filtering events
+case'blacklistedEvents':{if(!isValidEventName(eventName)){return false;}var trimmedEventName=eventName.trim();if(Array.isArray(blacklistedEvents)){return blacklistedEvents.some(function(eventObj){return eventObj.eventName.trim()===trimmedEventName;});}return false;}// Whitelist is chosen for filtering events
+case'whitelistedEvents':{if(!isValidEventName(eventName)){return true;}var _trimmedEventName=eventName.trim();if(Array.isArray(whitelistedEvents)){return !whitelistedEvents.some(function(eventObj){return eventObj.eventName.trim()===_trimmedEventName;});}return true;}case'disable':default:return false;}};var sendEventToDestination=function sendEventToDestination(item,dest,errorHandler,logger){var methodName=item.type.toString();try{var _dest$instance,_dest$instance$method;// Destinations expect the event to be wrapped under the `message` key
+// This will remain until we update the destinations to accept the event directly
+(_dest$instance=dest.instance)===null||_dest$instance===void 0||(_dest$instance$method=_dest$instance[methodName])===null||_dest$instance$method===void 0||_dest$instance$method.call(_dest$instance,{message:item});}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,NATIVE_DESTINATION_QUEUE_PLUGIN,DESTINATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId));}};
+
+var pluginName$5='NativeDestinationQueue';var NativeDestinationQueue=function NativeDestinationQueue(){return {name:pluginName$5,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$5]);},destinationsEventsQueue:{/**
+     * Initialize the queue for delivery to destinations
+     * @param state Application state
+     * @param pluginsManager PluginsManager instance
+     * @param storeManager StoreManager instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns IQueue instance
+     */init:function init(state,pluginsManager,storeManager,dmtQueue,errorHandler,logger){var finalQOpts=getNormalizedQueueOptions$1(state.loadOptions.value.destinationsQueueOptions);var writeKey=state.lifecycle.writeKey.value;var eventsQueue=new RetryQueue(// adding write key to the queue name to avoid conflicts
+"".concat(QUEUE_NAME$1,"_").concat(writeKey),finalQOpts,function(rudderEvent,done){var destinationsToSend=filterDestinations(rudderEvent.integrations,state.nativeDestinations.initializedDestinations.value);// list of destinations which are enable for DMT
+var destWithTransformationEnabled=[];var clonedRudderEvent=clone(rudderEvent);destinationsToSend.forEach(function(dest){try{var sendEvent=!isEventDenyListed(clonedRudderEvent.type,clonedRudderEvent.event,dest);if(!sendEvent){logger===null||logger===void 0||logger.warn(DESTINATION_EVENT_FILTERING_WARNING(NATIVE_DESTINATION_QUEUE_PLUGIN,clonedRudderEvent.event,dest.userFriendlyId));return;}if(dest.shouldApplyDeviceModeTransformation){destWithTransformationEnabled.push(dest);}else {sendEventToDestination(clonedRudderEvent,dest,errorHandler,logger);}}catch(e){errorHandler===null||errorHandler===void 0||errorHandler.onError(e,NATIVE_DESTINATION_QUEUE_PLUGIN);}});if(destWithTransformationEnabled.length>0){pluginsManager.invokeSingle('transformEvent.enqueue',state,dmtQueue,clonedRudderEvent,destWithTransformationEnabled,errorHandler,logger);}// Mark success always
+done(null);},storeManager,MEMORY_STORAGE);// TODO: This seems to not work as expected. Need to investigate
+// effect(() => {
+//   if (state.nativeDestinations.clientDestinationsReady.value === true) {
+//     eventsQueue.start();
+//   }
+// });
+return eventsQueue;},/**
+     * Add event to the queue for delivery to destinations
+     * @param state Application state
+     * @param eventsQueue IQueue instance
+     * @param event RudderEvent object
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns none
+     */enqueue:function enqueue(state,eventsQueue,event,errorHandler,logger){eventsQueue.addItem(event);},/**
+     * This extension point is used to directly send the transformed event to the destination
+     * @param state Application state
+     * @param event RudderEvent Object
+     * @param destination Destination Object
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     */enqueueEventToDestination:function enqueueEventToDestination(state,event,destination,errorHandler,logger){sendEventToDestination(event,destination,errorHandler);}}};};
+
+var ONETRUST_ACCESS_ERROR=function ONETRUST_ACCESS_ERROR(context){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.");};var DESTINATION_CONSENT_STATUS_ERROR="Failed to determine the consent status for the destination. Please check the destination configuration and try again.";
+
+var ONETRUST_CONSENT_MANAGER_PLUGIN='OneTrustConsentManagerPlugin';
+
+var pluginName$4='OneTrustConsentManager';var OneTrustConsentManager=function OneTrustConsentManager(){return {name:pluginName$4,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$4]);},consentManager:{init:function init(state,logger){// Nothing to initialize
+},updateConsentsInfo:function updateConsentsInfo(state,storeManager,logger){if(!globalThis.OneTrust||!globalThis.OnetrustActiveGroups){logger===null||logger===void 0||logger.error(ONETRUST_ACCESS_ERROR(ONETRUST_CONSENT_MANAGER_PLUGIN));state.consents.initialized.value=false;return;}// Get the groups (cookie categorization), user has created in OneTrust account.
+var oneTrustAllGroupsInfo=globalThis.OneTrust.GetDomainData().Groups;// OneTrustConsentManager SDK populates a data layer object OnetrustActiveGroups with
+// the cookie categories Ids that the user has consented to.
+// Eg: ',C0001,C0003,'
+// We split it and save it as an array.
+var allowedConsentIds=globalThis.OnetrustActiveGroups.split(',').filter(function(n){return n;});var deniedConsentIds=[];oneTrustAllGroupsInfo.forEach(function(_ref){var CustomGroupId=_ref.CustomGroupId;if(!allowedConsentIds.includes(CustomGroupId)){deniedConsentIds.push(CustomGroupId);}});state.consents.initialized.value=true;state.consents.data.value={allowedConsentIds:allowedConsentIds,deniedConsentIds:deniedConsentIds};},isDestinationConsented:function isDestinationConsented(state,destConfig,errorHandler,logger){if(!state.consents.initialized.value){return true;}var allowedConsentIds=state.consents.data.value.allowedConsentIds;try{// mapping of the destination with the consent group name
+var oneTrustCookieCategories=destConfig.oneTrustCookieCategories,consentManagement=destConfig.consentManagement;var matchPredicate=function matchPredicate(consent){return allowedConsentIds.includes(consent);};// Generic consent management
+if(consentManagement){var _consentManagement$fi;// Get the corresponding consents for the destination
+var cmpConsents=(_consentManagement$fi=consentManagement.find(function(c){return c.provider===state.consents.provider.value;}))===null||_consentManagement$fi===void 0?void 0:_consentManagement$fi.consents;// If there are no consents configured for the destination for the current provider, events should be sent.
+if(!cmpConsents){return true;}var configuredConsents=cmpConsents.map(function(c){return c.consent.trim();}).filter(function(n){return n;});// match the configured consents with user provided consents as per
+// the configured resolution strategy
+switch(state.consents.resolutionStrategy.value){case'or':return configuredConsents.some(matchPredicate)||configuredConsents.length===0;case'and':default:return configuredConsents.every(matchPredicate);}// Legacy cookie consent management
+// TODO: To be removed once the source config API is updated to support generic consent management
+}else if(oneTrustCookieCategories){// Change the structure of oneTrustConsentGroup as an array and filter values if empty string
+// Eg:
+// ["Performance Cookies", "Functional Cookies"]
+var _configuredConsents=oneTrustCookieCategories.map(function(c){return c.oneTrustCookieCategory.trim();}).filter(function(n){return n;});// Check if all the destination's mapped cookie categories are consented by the user in the browser.
+return _configuredConsents.every(matchPredicate);}// If there are no consents configured for the destination for the current provider, events should be sent.
+return true;}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,ONETRUST_CONSENT_MANAGER_PLUGIN,DESTINATION_CONSENT_STATUS_ERROR);return true;}}}};};
+
+var pluginName$3='StorageEncryption';var StorageEncryption=function StorageEncryption(){return {name:pluginName$3,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$3]);},storage:{encrypt:function encrypt(value){return encrypt$1(value);},decrypt:function decrypt(value){return decrypt$1(value);}}};};
+
+var _ref,_ref2,_ref3,_ref4,_ref5;/* eslint-disable no-use-before-define */var crypto$1=((_ref=typeof globalThis!='undefined'?globalThis:void 0)===null||_ref===void 0?void 0:_ref.crypto)||((_ref2=typeof global!='undefined'?global:void 0)===null||_ref2===void 0?void 0:_ref2.crypto)||((_ref3=typeof window!='undefined'?window:void 0)===null||_ref3===void 0?void 0:_ref3.crypto)||((_ref4=typeof self!='undefined'?self:void 0)===null||_ref4===void 0?void 0:_ref4.crypto)||((_ref5=typeof frames!='undefined'?frames:void 0)===null||_ref5===void 0||(_ref5=_ref5[0])===null||_ref5===void 0?void 0:_ref5.crypto);var randomWordArray;if(crypto$1){randomWordArray=function randomWordArray(nBytes){var words=[];for(var i=0,rcache;i<nBytes;i+=4){words.push(crypto$1.getRandomValues(new Uint32Array(1))[0]);}return new WordArray(words,nBytes);};}else {// Because there is no global crypto property in this context, cryptographically unsafe Math.random() is used.
+randomWordArray=function randomWordArray(nBytes){var words=[];var r=function r(m_w){var _m_w=m_w;var _m_z=0x3ade68b1;var mask=0xffffffff;return function(){_m_z=0x9069*(_m_z&0xFFFF)+(_m_z>>0x10)&mask;_m_w=0x4650*(_m_w&0xFFFF)+(_m_w>>0x10)&mask;var result=(_m_z<<0x10)+_m_w&mask;result/=0x100000000;result+=0.5;return result*(Math.random()>0.5?1:-1);};};for(var i=0,rcache;i<nBytes;i+=4){var _r=r((rcache||Math.random())*0x100000000);rcache=_r()*0x3ade67b7;words.push(_r()*0x100000000|0);}return new WordArray(words,nBytes);};}/**
+ * Base class for inheritance.
+ */var Base=/*#__PURE__*/function(){function Base(){_classCallCheck(this,Base);}return _createClass(Base,[{key:"mixIn",value:/**
+   * Copies properties into this object.
    *
-   * @param {String} writeKey
-   * @param {String} dataPlaneURL
-   * @param {Object=} options (optional)
-   * @param {Number=20} options.flushAt (default: 20)
-   * @param {Number=20000} options.flushInterval (default: 20000)
-   * @param {Boolean=true} options.enable (default: true)
-   * @param {Number=20000} options.maxInternalQueueSize (default: 20000)
-   * @param {Number} options.timeout (default: false)
-   * @param {String=info} options.logLevel (default: info)
-   * @param {Function} options.flushOverride (optional)
-   */constructor(writeKey,dataPlaneURL,options){options=options||{};if(!writeKey){throw new Error('You must pass the source write key.');}if(!isValidURL(dataPlaneURL)){throw new Error(`The provided data plane URL "${dataPlaneURL}" is invalid.`);}this.queue=[];this.writeKey=writeKey;this.host=getDataPlaneUrl(dataPlaneURL);this.timeout=options.timeout||undefined;this.flushAt=options.flushAt?Math.max(options.flushAt,1):20;this.flushInterval=options.flushInterval||20000;this.maxInternalQueueSize=options.maxInternalQueueSize||20000;this.logLevel=options.logLevel||'info';this.flushOverride=options.flushOverride&&isFunction(options.flushOverride)?options.flushOverride:undefined;this.flushed=false;this.axiosInstance=axios.create({adapter:fetchAdapter});Object.defineProperty(this,'enable',{configurable:false,writable:false,enumerable:true,value:typeof options.enable==='boolean'?options.enable:true});this.logger={error(message,...args){if(this.logLevel!=='off'){console.error(`${new Date().toISOString()} ["Rudder"] error: ${message}`,...args);}},info(message,...args){if(['silly','debug','info'].includes(this.logLevel)){console.log(`${new Date().toISOString()} ["Rudder"] info: ${message}`,...args);}},debug(message,...args){if(['silly','debug'].includes(this.logLevel)){console.debug(`${new Date().toISOString()} ["Rudder"] debug: ${message}`,...args);}},silly(message,...args){if(['silly'].includes(this.logLevel)){console.info(`${new Date().toISOString()} ["Rudder"] silly: ${message}`,...args);}}};axiosRetry(this.axiosInstance,{retries:0});}_validate(message,type){try{looselyValidateEvent(message,type);}catch(e){if(e.message==='Your message must be < 32kb.'){this.logger.info('Your message must be < 32kb. This is currently surfaced as a warning. Please update your code',message);return;}throw e;}}/**
-   * Send an identify `message`.
+   * @param {Object} properties The properties to mix in.
    *
-   * @param {Object} message
-   * @param {String=} message.userId (optional)
-   * @param {String=} message.anonymousId (optional)
-   * @param {Object=} message.context (optional)
-   * @param {Object=} message.traits (optional)
-   * @param {Object=} message.integrations (optional)
-   * @param {Date=} message.timestamp (optional)
-   * @param {Function=} callback (optional)
-   * @return {Analytics}
-   */identify(message,callback){this._validate(message,'identify');this.enqueue('identify',message,callback);return this;}/**
-   * Send a group `message`.
+   * @example
    *
-   * @param {Object} message
-   * @param {String} message.groupId
-   * @param {String=} message.userId (optional)
-   * @param {String=} message.anonymousId (optional)
-   * @param {Object=} message.context (optional)
-   * @param {Object=} message.traits (optional)
-   * @param {Object=} message.integrations (optional)
-   * @param {Date=} message.timestamp (optional)
-   * @param {Function=} callback (optional)
-   * @return {Analytics}
-   */group(message,callback){this._validate(message,'group');this.enqueue('group',message,callback);return this;}/**
-   * Send a track `message`.
+   *     MyType.mixIn({
+   *         field: 'value'
+   *     });
+   */function mixIn(properties){return Object.assign(this,properties);}/**
+   * Creates a copy of this object.
    *
-   * @param {Object} message
-   * @param {String} message.event
-   * @param {String=} message.userId (optional)
-   * @param {String=} message.anonymousId (optional)
-   * @param {Object=} message.context (optional)
-   * @param {Object=} message.properties (optional)
-   * @param {Object=} message.integrations (optional)
-   * @param {Date=} message.timestamp (optional)
-   * @param {Function=} callback (optional)
-   * @return {Analytics}
-   */track(message,callback){this._validate(message,'track');this.enqueue('track',message,callback);return this;}/**
-   * Send a page `message`.
+   * @return {Object} The clone.
    *
-   * @param {Object} message
-   * @param {String} message.name
-   * @param {String=} message.userId (optional)
-   * @param {String=} message.anonymousId (optional)
-   * @param {Object=} message.context (optional)
-   * @param {Object=} message.properties (optional)
-   * @param {Object=} message.integrations (optional)
-   * @param {Date=} message.timestamp (optional)
-   * @param {Function=} callback (optional)
-   * @return {Analytics}
-   */page(message,callback){this._validate(message,'page');this.enqueue('page',message,callback);return this;}/**
-   * Send a screen `message`.
+   * @example
    *
-   * @param {Object} message
-   * @param {Function} callback (optional)
-   * @return {Analytics}
-   */screen(message,callback){this._validate(message,'screen');this.enqueue('screen',message,callback);return this;}/**
-   * Send an alias `message`.
+   *     var clone = instance.clone();
+   */},{key:"clone",value:function clone(){var clone=new this.constructor();Object.assign(clone,this);return clone;}}],[{key:"create",value:/**
+   * Extends this object and runs the init method.
+   * Arguments to create() will be passed to init().
    *
-   * @param {Object} message
-   * @param {String} message.previousId
-   * @param {String=} message.userId (optional)
-   * @param {String=} message.anonymousId (optional)
-   * @param {Object=} message.context (optional)
-   * @param {Object=} message.properties (optional)
-   * @param {Object=} message.integrations (optional)
-   * @param {Date=} message.timestamp (optional)
-   * @param {Function=} callback (optional)
-   * @return {Analytics}
-   */alias(message,callback){this._validate(message,'alias');this.enqueue('alias',message,callback);return this;}/**
-   * Add a `message` of type `type` to the queue and
-   * check whether it should be flushed.
+   * @return {Object} The new object.
    *
-   * @param {String} type
-   * @param {Object} message
-   * @param {Function} [callback] (optional)
-   * @api private
-   */enqueue(type,message,callback){if(this.queue.length>=this.maxInternalQueueSize){this.logger.error(`not adding events for processing as queue size ${this.queue.length} >= than max configuration ${this.maxInternalQueueSize}`);return;}// Clone the incoming message object
-// before altering the data
-let lMessage=cloneDeep(message);callback=callback||noop;if(!this.enable){return setImmediate(callback);}if(type==='identify'&&lMessage.traits){if(!lMessage.context){lMessage.context={};}lMessage.context.traits=lMessage.traits;}lMessage={...lMessage};lMessage.type=type;lMessage.context={library:{name:'analytics-service-worker',version},...lMessage.context};lMessage.channel='service-worker';lMessage._metadata={serviceWorkerVersion:version,...lMessage._metadata};if(!lMessage.originalTimestamp){lMessage.originalTimestamp=new Date();}if(!lMessage.messageId){lMessage.messageId=v4();}// Historically this library has accepted strings and numbers as IDs.
-// However, our spec only allows strings. To avoid breaking compatibility,
-// we'll coerce these to strings if they aren't already.
-if(lMessage.anonymousId&&!isString$3(lMessage.anonymousId)){lMessage.anonymousId=JSON.stringify(lMessage.anonymousId);}if(lMessage.userId&&!isString$3(lMessage.userId)){lMessage.userId=JSON.stringify(lMessage.userId);}this.queue.push({message:lMessage,callback});if(!this.flushed){this.flushed=true;this.flush();return;}if(this.queue.length>=this.flushAt){this.logger.debug('flushAt reached, trying flush...');this.flush();}if(this.flushInterval&&!this.flushTimer){this.logger.debug('no existing flush timer, creating new one');this.flushTimer=setTimeout(this.flush.bind(this),this.flushInterval);}}/**
-   * Flush the current queue
+   * @static
    *
-   * @param {Function} [callback] (optional)
-   * @return {any}
-   */flush(callback){// check if earlier flush was pushed to queue
-this.logger.debug('in flush');callback=callback||noop;if(!this.enable){return setImmediate(callback);}if(this.timer){this.logger.debug('cancelling existing timer...');clearTimeout(this.timer);this.timer=null;}if(this.flushTimer){this.logger.debug('cancelling existing flushTimer...');clearTimeout(this.flushTimer);this.flushTimer=null;}if(this.queue.length===0){this.logger.debug('queue is empty, nothing to flush');return setImmediate(callback);}const items=this.queue.splice(0,this.flushAt);const callbacks=items.map(item=>item.callback);const messages=items.map(item=>{// if someone mangles directly with queue
-if(typeof item.message==='object'){item.message.sentAt=new Date();}return item.message;});const data={batch:messages,sentAt:new Date()};this.logger.debug(`batch size is ${items.length}`);this.logger.silly('===data===',data);const done=err=>{callbacks.forEach(callback_=>{if(callback_){callback_(err);}});if(callback){callback(err,data);}};// Don't set the user agent if we're not on a browser. The latest spec allows
-// the User-Agent header (see https://fetch.spec.whatwg.org/#terminology-headers
-// and https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader),
-// but browsers such as Chrome and Safari have not caught up.
-const headers={};if(typeof window==='undefined'){headers['user-agent']=`analytics-service-worker/${version}`;headers['Content-Type']=`application/json`;}const reqTimeout=typeof this.timeout==='string'?parseInt(ms$1(this.timeout),10):this.timeout;if(data.batch.length===0){this.logger.debug('batch is empty, nothing to flush');return setImmediate(callback);}if(this.flushOverride){this.flushOverride({host:`${this.host}`,writeKey:this.writeKey,data,headers,reqTimeout,flush:this.flush.bind(this),done,isErrorRetryable:this._isErrorRetryable.bind(this)});}else {const req={method:'POST',url:`${this.host}`,auth:{username:this.writeKey},data,headers};if(reqTimeout){req.timeout=reqTimeout;}this.axiosInstance({...req,'axios-retry':{retries:3,retryCondition:this._isErrorRetryable.bind(this),retryDelay:axiosRetry.exponentialDelay}})// eslint-disable-next-line @typescript-eslint/no-unused-vars
-.then(response=>{this.timer=setTimeout(this.flush.bind(this),this.flushInterval);done();}).catch(err=>{this.logger.error(err);this.logger.error(`got error while attempting send for 3 times, dropping ${items.length} events`);this.timer=setTimeout(this.flush.bind(this),this.flushInterval);if(err.response){const error=new Error(err.response.statusText);return done(error);}done(err);});}}_isErrorRetryable(error){// Retry Network Errors.
-if(axiosRetry.isNetworkError(error)){return true;}if(!error.response){// Cannot determine if the request can be retried
-return false;}this.logger.error(`error status: ${error.response.status}`);// Retry Server Errors (5xx).
-if(error.response.status>=500&&error.response.status<=599){return true;}// Retry if rate limited.
-if(error.response.status===429){return true;}return false;}}
+   * @example
+   *
+   *     var instance = MyType.create();
+   */function create(){for(var _len=arguments.length,args=new Array(_len),_key2=0;_key2<_len;_key2++){args[_key2]=arguments[_key2];}return _construct(this,args);}}]);}();/**
+ * An array of 32-bit words.
+ *
+ * @property {Array} words The array of 32-bit words.
+ * @property {number} sigBytes The number of significant bytes in this word array.
+ */var WordArray=/*#__PURE__*/function(_Base){/**
+   * Initializes a newly created word array.
+   *
+   * @param {Array} words (Optional) An array of 32-bit words.
+   * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+   *
+   * @example
+   *
+   *     var wordArray = CryptoJS.lib.WordArray.create();
+   *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+   *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
+   */function WordArray(){var _this;var words=arguments.length>0&&arguments[0]!==undefined?arguments[0]:[];var sigBytes=arguments.length>1&&arguments[1]!==undefined?arguments[1]:words.length*4;_classCallCheck(this,WordArray);_this=_callSuper(this,WordArray);var typedArray=words;// Convert buffers to uint8
+if(typedArray instanceof ArrayBuffer){typedArray=new Uint8Array(typedArray);}// Convert other array views to uint8
+if(typedArray instanceof Int8Array||typedArray instanceof Uint8ClampedArray||typedArray instanceof Int16Array||typedArray instanceof Uint16Array||typedArray instanceof Int32Array||typedArray instanceof Uint32Array||typedArray instanceof Float32Array||typedArray instanceof Float64Array){typedArray=new Uint8Array(typedArray.buffer,typedArray.byteOffset,typedArray.byteLength);}// Handle Uint8Array
+if(typedArray instanceof Uint8Array){// Shortcut
+var typedArrayByteLength=typedArray.byteLength;// Extract bytes
+var _words=[];for(var i=0;i<typedArrayByteLength;i+=1){_words[i>>>2]|=typedArray[i]<<24-i%4*8;}// Initialize this word array
+_this.words=_words;_this.sigBytes=typedArrayByteLength;}else {// Else call normal init
+_this.words=words;_this.sigBytes=sigBytes;}return _this;}/**
+   * Creates a word array filled with random bytes.
+   *
+   * @param {number} nBytes The number of random bytes to generate.
+   *
+   * @return {WordArray} The random word array.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var wordArray = CryptoJS.lib.WordArray.random(16);
+   */_inherits(WordArray,_Base);return _createClass(WordArray,[{key:"toString",value:/**
+   * Converts this word array to a string.
+   *
+   * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
+   *
+   * @return {string} The stringified word array.
+   *
+   * @example
+   *
+   *     var string = wordArray + '';
+   *     var string = wordArray.toString();
+   *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+   */function toString(){var encoder=arguments.length>0&&arguments[0]!==undefined?arguments[0]:Hex;return encoder.stringify(this);}/**
+   * Concatenates a word array to this word array.
+   *
+   * @param {WordArray} wordArray The word array to append.
+   *
+   * @return {WordArray} This word array.
+   *
+   * @example
+   *
+   *     wordArray1.concat(wordArray2);
+   */},{key:"concat",value:function concat(wordArray){// Shortcuts
+var thisWords=this.words;var thatWords=wordArray.words;var thisSigBytes=this.sigBytes;var thatSigBytes=wordArray.sigBytes;// Clamp excess bits
+this.clamp();// Concat
+if(thisSigBytes%4){// Copy one byte at a time
+for(var i=0;i<thatSigBytes;i+=1){var thatByte=thatWords[i>>>2]>>>24-i%4*8&0xff;thisWords[thisSigBytes+i>>>2]|=thatByte<<24-(thisSigBytes+i)%4*8;}}else {// Copy one word at a time
+for(var _i=0;_i<thatSigBytes;_i+=4){thisWords[thisSigBytes+_i>>>2]=thatWords[_i>>>2];}}this.sigBytes+=thatSigBytes;// Chainable
+return this;}/**
+   * Removes insignificant bits.
+   *
+   * @example
+   *
+   *     wordArray.clamp();
+   */},{key:"clamp",value:function clamp(){// Shortcuts
+var words=this.words,sigBytes=this.sigBytes;// Clamp
+words[sigBytes>>>2]&=0xffffffff<<32-sigBytes%4*8;words.length=Math.ceil(sigBytes/4);}/**
+   * Creates a copy of this word array.
+   *
+   * @return {WordArray} The clone.
+   *
+   * @example
+   *
+   *     var clone = wordArray.clone();
+   */},{key:"clone",value:function clone(){var clone=_get(_getPrototypeOf(WordArray.prototype),"clone",this).call(this);clone.words=this.words.slice(0);return clone;}}]);}(Base);/**
+ * Hex encoding strategy.
+ */_defineProperty(WordArray,"random",randomWordArray);var Hex={/**
+   * Converts a word array to a hex string.
+   *
+   * @param {WordArray} wordArray The word array.
+   *
+   * @return {string} The hex string.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
+   */stringify:function stringify(wordArray){// Shortcuts
+var words=wordArray.words,sigBytes=wordArray.sigBytes;// Convert
+var hexChars=[];for(var i=0;i<sigBytes;i+=1){var bite=words[i>>>2]>>>24-i%4*8&0xff;hexChars.push((bite>>>4).toString(16));hexChars.push((bite&0x0f).toString(16));}return hexChars.join('');},/**
+   * Converts a hex string to a word array.
+   *
+   * @param {string} hexStr The hex string.
+   *
+   * @return {WordArray} The word array.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
+   */parse:function parse(hexStr){// Shortcut
+var hexStrLength=hexStr.length;// Convert
+var words=[];for(var i=0;i<hexStrLength;i+=2){words[i>>>3]|=parseInt(hexStr.substr(i,2),16)<<24-i%8*4;}return new WordArray(words,hexStrLength/2);}};/**
+ * Latin1 encoding strategy.
+ */var Latin1={/**
+   * Converts a word array to a Latin1 string.
+   *
+   * @param {WordArray} wordArray The word array.
+   *
+   * @return {string} The Latin1 string.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
+   */stringify:function stringify(wordArray){// Shortcuts
+var words=wordArray.words,sigBytes=wordArray.sigBytes;// Convert
+var latin1Chars=[];for(var i=0;i<sigBytes;i+=1){var bite=words[i>>>2]>>>24-i%4*8&0xff;latin1Chars.push(String.fromCharCode(bite));}return latin1Chars.join('');},/**
+   * Converts a Latin1 string to a word array.
+   *
+   * @param {string} latin1Str The Latin1 string.
+   *
+   * @return {WordArray} The word array.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
+   */parse:function parse(latin1Str){// Shortcut
+var latin1StrLength=latin1Str.length;// Convert
+var words=[];for(var i=0;i<latin1StrLength;i+=1){words[i>>>2]|=(latin1Str.charCodeAt(i)&0xff)<<24-i%4*8;}return new WordArray(words,latin1StrLength);}};/**
+ * UTF-8 encoding strategy.
+ */var Utf8={/**
+   * Converts a word array to a UTF-8 string.
+   *
+   * @param {WordArray} wordArray The word array.
+   *
+   * @return {string} The UTF-8 string.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
+   */stringify:function stringify(wordArray){try{return decodeURIComponent(escape(Latin1.stringify(wordArray)));}catch(e){throw new Error('Malformed UTF-8 data');}},/**
+   * Converts a UTF-8 string to a word array.
+   *
+   * @param {string} utf8Str The UTF-8 string.
+   *
+   * @return {WordArray} The word array.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
+   */parse:function parse(utf8Str){return Latin1.parse(unescape(encodeURIComponent(utf8Str)));}};/**
+ * Abstract buffered block algorithm template.
+ *
+ * The property blockSize must be implemented in a concrete subtype.
+ *
+ * @property {number} _minBufferSize
+ *
+ *     The number of blocks that should be kept unprocessed in the buffer. Default: 0
+ */var BufferedBlockAlgorithm=/*#__PURE__*/function(_Base2){function BufferedBlockAlgorithm(){var _this2;_classCallCheck(this,BufferedBlockAlgorithm);_this2=_callSuper(this,BufferedBlockAlgorithm);_this2._minBufferSize=0;return _this2;}/**
+   * Resets this block algorithm's data buffer to its initial state.
+   *
+   * @example
+   *
+   *     bufferedBlockAlgorithm.reset();
+   */_inherits(BufferedBlockAlgorithm,_Base2);return _createClass(BufferedBlockAlgorithm,[{key:"reset",value:function reset(){// Initial values
+this._data=new WordArray();this._nDataBytes=0;}/**
+   * Adds new data to this block algorithm's buffer.
+   *
+   * @param {WordArray|string} data
+   *
+   *     The data to append. Strings are converted to a WordArray using UTF-8.
+   *
+   * @example
+   *
+   *     bufferedBlockAlgorithm._append('data');
+   *     bufferedBlockAlgorithm._append(wordArray);
+   */},{key:"_append",value:function _append(data){var m_data=data;// Convert string to WordArray, else assume WordArray already
+if(typeof m_data==='string'){m_data=Utf8.parse(m_data);}// Append
+this._data.concat(m_data);this._nDataBytes+=m_data.sigBytes;}/**
+   * Processes available data blocks.
+   *
+   * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
+   *
+   * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
+   *
+   * @return {WordArray} The processed data.
+   *
+   * @example
+   *
+   *     var processedData = bufferedBlockAlgorithm._process();
+   *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
+   */},{key:"_process",value:function _process(doFlush){var processedWords;// Shortcuts
+var data=this._data,blockSize=this.blockSize;var dataWords=data.words;var dataSigBytes=data.sigBytes;var blockSizeBytes=blockSize*4;// Count blocks ready
+var nBlocksReady=dataSigBytes/blockSizeBytes;if(doFlush){// Round up to include partial blocks
+nBlocksReady=Math.ceil(nBlocksReady);}else {// Round down to include only full blocks,
+// less the number of blocks that must remain in the buffer
+nBlocksReady=Math.max((nBlocksReady|0)-this._minBufferSize,0);}// Count words ready
+var nWordsReady=nBlocksReady*blockSize;// Count bytes ready
+var nBytesReady=Math.min(nWordsReady*4,dataSigBytes);// Process blocks
+if(nWordsReady){for(var offset=0;offset<nWordsReady;offset+=blockSize){// Perform concrete-algorithm logic
+this._doProcessBlock(dataWords,offset);}// Remove processed words
+processedWords=dataWords.splice(0,nWordsReady);data.sigBytes-=nBytesReady;}// Return processed words
+return new WordArray(processedWords,nBytesReady);}/**
+   * Creates a copy of this object.
+   *
+   * @return {Object} The clone.
+   *
+   * @example
+   *
+   *     var clone = bufferedBlockAlgorithm.clone();
+   */},{key:"clone",value:function clone(){var clone=_get(_getPrototypeOf(BufferedBlockAlgorithm.prototype),"clone",this).call(this);clone._data=this._data.clone();return clone;}}]);}(Base);/**
+ * Abstract hasher template.
+ *
+ * @property {number} blockSize
+ *
+ *     The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+ */var Hasher=/*#__PURE__*/function(_BufferedBlockAlgorit){function Hasher(cfg){var _this3;_classCallCheck(this,Hasher);_this3=_callSuper(this,Hasher);_this3.blockSize=512/32;/**
+     * Configuration options.
+     */_this3.cfg=Object.assign(new Base(),cfg);// Set initial values
+_this3.reset();return _this3;}/**
+   * Creates a shortcut function to a hasher's object interface.
+   *
+   * @param {Hasher} SubHasher The hasher to create a helper for.
+   *
+   * @return {Function} The shortcut function.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
+   */_inherits(Hasher,_BufferedBlockAlgorit);return _createClass(Hasher,[{key:"reset",value:/**
+   * Resets this hasher to its initial state.
+   *
+   * @example
+   *
+   *     hasher.reset();
+   */function reset(){// Reset data buffer
+_get(_getPrototypeOf(Hasher.prototype),"reset",this).call(this);// Perform concrete-hasher logic
+this._doReset();}/**
+   * Updates this hasher with a message.
+   *
+   * @param {WordArray|string} messageUpdate The message to append.
+   *
+   * @return {Hasher} This hasher.
+   *
+   * @example
+   *
+   *     hasher.update('message');
+   *     hasher.update(wordArray);
+   */},{key:"update",value:function update(messageUpdate){// Append
+this._append(messageUpdate);// Update the hash
+this._process();// Chainable
+return this;}/**
+   * Finalizes the hash computation.
+   * Note that the finalize operation is effectively a destructive, read-once operation.
+   *
+   * @param {WordArray|string} messageUpdate (Optional) A final message update.
+   *
+   * @return {WordArray} The hash.
+   *
+   * @example
+   *
+   *     var hash = hasher.finalize();
+   *     var hash = hasher.finalize('message');
+   *     var hash = hasher.finalize(wordArray);
+   */},{key:"finalize",value:function finalize(messageUpdate){// Final message update
+if(messageUpdate){this._append(messageUpdate);}// Perform concrete-hasher logic
+var hash=this._doFinalize();return hash;}}],[{key:"_createHelper",value:function _createHelper(SubHasher){return function(message,cfg){return new SubHasher(cfg).finalize(message);};}/**
+   * Creates a shortcut function to the HMAC's object interface.
+   *
+   * @param {Hasher} SubHasher The hasher to use in this HMAC helper.
+   *
+   * @return {Function} The shortcut function.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
+   */},{key:"_createHmacHelper",value:function _createHmacHelper(SubHasher){return function(message,key){return new HMAC(SubHasher,key).finalize(message);};}}]);}(BufferedBlockAlgorithm);/**
+ * HMAC algorithm.
+ */var HMAC=/*#__PURE__*/function(_Base3){/**
+   * Initializes a newly created HMAC.
+   *
+   * @param {Hasher} SubHasher The hash algorithm to use.
+   * @param {WordArray|string} key The secret key.
+   *
+   * @example
+   *
+   *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
+   */function HMAC(SubHasher,key){var _this4;_classCallCheck(this,HMAC);_this4=_callSuper(this,HMAC);var hasher=new SubHasher();_this4._hasher=hasher;// Convert string to WordArray, else assume WordArray already
+var _key=key;if(typeof _key==='string'){_key=Utf8.parse(_key);}// Shortcuts
+var hasherBlockSize=hasher.blockSize;var hasherBlockSizeBytes=hasherBlockSize*4;// Allow arbitrary length keys
+if(_key.sigBytes>hasherBlockSizeBytes){_key=hasher.finalize(key);}// Clamp excess bits
+_key.clamp();// Clone key for inner and outer pads
+var oKey=_key.clone();_this4._oKey=oKey;var iKey=_key.clone();_this4._iKey=iKey;// Shortcuts
+var oKeyWords=oKey.words;var iKeyWords=iKey.words;// XOR keys with pad constants
+for(var i=0;i<hasherBlockSize;i+=1){oKeyWords[i]^=0x5c5c5c5c;iKeyWords[i]^=0x36363636;}oKey.sigBytes=hasherBlockSizeBytes;iKey.sigBytes=hasherBlockSizeBytes;// Set initial values
+_this4.reset();return _this4;}/**
+   * Resets this HMAC to its initial state.
+   *
+   * @example
+   *
+   *     hmacHasher.reset();
+   */_inherits(HMAC,_Base3);return _createClass(HMAC,[{key:"reset",value:function reset(){// Shortcut
+var hasher=this._hasher;// Reset
+hasher.reset();hasher.update(this._iKey);}/**
+   * Updates this HMAC with a message.
+   *
+   * @param {WordArray|string} messageUpdate The message to append.
+   *
+   * @return {HMAC} This HMAC instance.
+   *
+   * @example
+   *
+   *     hmacHasher.update('message');
+   *     hmacHasher.update(wordArray);
+   */},{key:"update",value:function update(messageUpdate){this._hasher.update(messageUpdate);// Chainable
+return this;}/**
+   * Finalizes the HMAC computation.
+   * Note that the finalize operation is effectively a destructive, read-once operation.
+   *
+   * @param {WordArray|string} messageUpdate (Optional) A final message update.
+   *
+   * @return {WordArray} The HMAC.
+   *
+   * @example
+   *
+   *     var hmac = hmacHasher.finalize();
+   *     var hmac = hmacHasher.finalize('message');
+   *     var hmac = hmacHasher.finalize(wordArray);
+   */},{key:"finalize",value:function finalize(messageUpdate){// Shortcut
+var hasher=this._hasher;// Compute HMAC
+var innerHash=hasher.finalize(messageUpdate);hasher.reset();var hmac=hasher.finalize(this._oKey.clone().concat(innerHash));return hmac;}}]);}(Base);
 
-const rudderClient = new Analytics('1weqc5iqxRkpaUXHgDgYo3g34mg', 'https://rudderstacygnn.dataplane.rudderstack.com', {
-  logLevel: 'silly'
-});
+var parseLoop=function parseLoop(base64Str,base64StrLength,reverseMap){var words=[];var nBytes=0;for(var i=0;i<base64StrLength;i+=1){if(i%4){var bits1=reverseMap[base64Str.charCodeAt(i-1)]<<i%4*2;var bits2=reverseMap[base64Str.charCodeAt(i)]>>>6-i%4*2;var bitsCombined=bits1|bits2;words[nBytes>>>2]|=bitsCombined<<24-nBytes%4*8;nBytes+=1;}}return WordArray.create(words,nBytes);};/**
+ * Base64 encoding strategy.
+ */var Base64={/**
+   * Converts a word array to a Base64 string.
+   *
+   * @param {WordArray} wordArray The word array.
+   *
+   * @return {string} The Base64 string.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const base64String = CryptoJS.enc.Base64.stringify(wordArray);
+   */stringify:function stringify(wordArray){// Shortcuts
+var words=wordArray.words,sigBytes=wordArray.sigBytes;var map=this._map;// Clamp excess bits
+wordArray.clamp();// Convert
+var base64Chars=[];for(var i=0;i<sigBytes;i+=3){var byte1=words[i>>>2]>>>24-i%4*8&0xff;var byte2=words[i+1>>>2]>>>24-(i+1)%4*8&0xff;var byte3=words[i+2>>>2]>>>24-(i+2)%4*8&0xff;var triplet=byte1<<16|byte2<<8|byte3;for(var j=0;j<4&&i+j*0.75<sigBytes;j+=1){base64Chars.push(map.charAt(triplet>>>6*(3-j)&0x3f));}}// Add padding
+var paddingChar=map.charAt(64);if(paddingChar){while(base64Chars.length%4){base64Chars.push(paddingChar);}}return base64Chars.join('');},/**
+   * Converts a Base64 string to a word array.
+   *
+   * @param {string} base64Str The Base64 string.
+   *
+   * @return {WordArray} The word array.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const wordArray = CryptoJS.enc.Base64.parse(base64String);
+   */parse:function parse(base64Str){// Shortcuts
+var base64StrLength=base64Str.length;var map=this._map;var reverseMap=this._reverseMap;if(!reverseMap){this._reverseMap=[];reverseMap=this._reverseMap;for(var j=0;j<map.length;j+=1){reverseMap[map.charCodeAt(j)]=j;}}// Ignore padding
+var paddingChar=map.charAt(64);if(paddingChar){var paddingIndex=base64Str.indexOf(paddingChar);if(paddingIndex!==-1){base64StrLength=paddingIndex;}}// Convert
+return parseLoop(base64Str,base64StrLength,reverseMap);},_map:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='};
+
+var T=[];// Compute constants
+for(var i$1=0;i$1<64;i$1+=1){T[i$1]=Math.abs(Math.sin(i$1+1))*0x100000000|0;}var FF=function FF(a,b,c,d,x,s,t){var n=a+(b&c|~b&d)+x+t;return (n<<s|n>>>32-s)+b;};var GG=function GG(a,b,c,d,x,s,t){var n=a+(b&d|c&~d)+x+t;return (n<<s|n>>>32-s)+b;};var HH=function HH(a,b,c,d,x,s,t){var n=a+(b^c^d)+x+t;return (n<<s|n>>>32-s)+b;};var II=function II(a,b,c,d,x,s,t){var n=a+(c^(b|~d))+x+t;return (n<<s|n>>>32-s)+b;};/**
+ * MD5 hash algorithm.
+ */var MD5Algo=/*#__PURE__*/function(_Hasher){function MD5Algo(){_classCallCheck(this,MD5Algo);return _callSuper(this,MD5Algo,arguments);}_inherits(MD5Algo,_Hasher);return _createClass(MD5Algo,[{key:"_doReset",value:function _doReset(){this._hash=new WordArray([0x67452301,0xefcdab89,0x98badcfe,0x10325476]);}},{key:"_doProcessBlock",value:function _doProcessBlock(M,offset){var _M=M;// Swap endian
+for(var _i=0;_i<16;_i+=1){// Shortcuts
+var offset_i=offset+_i;var M_offset_i=M[offset_i];_M[offset_i]=(M_offset_i<<8|M_offset_i>>>24)&0x00ff00ff|(M_offset_i<<24|M_offset_i>>>8)&0xff00ff00;}// Shortcuts
+var H=this._hash.words;var M_offset_0=_M[offset+0];var M_offset_1=_M[offset+1];var M_offset_2=_M[offset+2];var M_offset_3=_M[offset+3];var M_offset_4=_M[offset+4];var M_offset_5=_M[offset+5];var M_offset_6=_M[offset+6];var M_offset_7=_M[offset+7];var M_offset_8=_M[offset+8];var M_offset_9=_M[offset+9];var M_offset_10=_M[offset+10];var M_offset_11=_M[offset+11];var M_offset_12=_M[offset+12];var M_offset_13=_M[offset+13];var M_offset_14=_M[offset+14];var M_offset_15=_M[offset+15];// Working varialbes
+var a=H[0];var b=H[1];var c=H[2];var d=H[3];// Computation
+a=FF(a,b,c,d,M_offset_0,7,T[0]);d=FF(d,a,b,c,M_offset_1,12,T[1]);c=FF(c,d,a,b,M_offset_2,17,T[2]);b=FF(b,c,d,a,M_offset_3,22,T[3]);a=FF(a,b,c,d,M_offset_4,7,T[4]);d=FF(d,a,b,c,M_offset_5,12,T[5]);c=FF(c,d,a,b,M_offset_6,17,T[6]);b=FF(b,c,d,a,M_offset_7,22,T[7]);a=FF(a,b,c,d,M_offset_8,7,T[8]);d=FF(d,a,b,c,M_offset_9,12,T[9]);c=FF(c,d,a,b,M_offset_10,17,T[10]);b=FF(b,c,d,a,M_offset_11,22,T[11]);a=FF(a,b,c,d,M_offset_12,7,T[12]);d=FF(d,a,b,c,M_offset_13,12,T[13]);c=FF(c,d,a,b,M_offset_14,17,T[14]);b=FF(b,c,d,a,M_offset_15,22,T[15]);a=GG(a,b,c,d,M_offset_1,5,T[16]);d=GG(d,a,b,c,M_offset_6,9,T[17]);c=GG(c,d,a,b,M_offset_11,14,T[18]);b=GG(b,c,d,a,M_offset_0,20,T[19]);a=GG(a,b,c,d,M_offset_5,5,T[20]);d=GG(d,a,b,c,M_offset_10,9,T[21]);c=GG(c,d,a,b,M_offset_15,14,T[22]);b=GG(b,c,d,a,M_offset_4,20,T[23]);a=GG(a,b,c,d,M_offset_9,5,T[24]);d=GG(d,a,b,c,M_offset_14,9,T[25]);c=GG(c,d,a,b,M_offset_3,14,T[26]);b=GG(b,c,d,a,M_offset_8,20,T[27]);a=GG(a,b,c,d,M_offset_13,5,T[28]);d=GG(d,a,b,c,M_offset_2,9,T[29]);c=GG(c,d,a,b,M_offset_7,14,T[30]);b=GG(b,c,d,a,M_offset_12,20,T[31]);a=HH(a,b,c,d,M_offset_5,4,T[32]);d=HH(d,a,b,c,M_offset_8,11,T[33]);c=HH(c,d,a,b,M_offset_11,16,T[34]);b=HH(b,c,d,a,M_offset_14,23,T[35]);a=HH(a,b,c,d,M_offset_1,4,T[36]);d=HH(d,a,b,c,M_offset_4,11,T[37]);c=HH(c,d,a,b,M_offset_7,16,T[38]);b=HH(b,c,d,a,M_offset_10,23,T[39]);a=HH(a,b,c,d,M_offset_13,4,T[40]);d=HH(d,a,b,c,M_offset_0,11,T[41]);c=HH(c,d,a,b,M_offset_3,16,T[42]);b=HH(b,c,d,a,M_offset_6,23,T[43]);a=HH(a,b,c,d,M_offset_9,4,T[44]);d=HH(d,a,b,c,M_offset_12,11,T[45]);c=HH(c,d,a,b,M_offset_15,16,T[46]);b=HH(b,c,d,a,M_offset_2,23,T[47]);a=II(a,b,c,d,M_offset_0,6,T[48]);d=II(d,a,b,c,M_offset_7,10,T[49]);c=II(c,d,a,b,M_offset_14,15,T[50]);b=II(b,c,d,a,M_offset_5,21,T[51]);a=II(a,b,c,d,M_offset_12,6,T[52]);d=II(d,a,b,c,M_offset_3,10,T[53]);c=II(c,d,a,b,M_offset_10,15,T[54]);b=II(b,c,d,a,M_offset_1,21,T[55]);a=II(a,b,c,d,M_offset_8,6,T[56]);d=II(d,a,b,c,M_offset_15,10,T[57]);c=II(c,d,a,b,M_offset_6,15,T[58]);b=II(b,c,d,a,M_offset_13,21,T[59]);a=II(a,b,c,d,M_offset_4,6,T[60]);d=II(d,a,b,c,M_offset_11,10,T[61]);c=II(c,d,a,b,M_offset_2,15,T[62]);b=II(b,c,d,a,M_offset_9,21,T[63]);// Intermediate hash value
+H[0]=H[0]+a|0;H[1]=H[1]+b|0;H[2]=H[2]+c|0;H[3]=H[3]+d|0;}/* eslint-ensable no-param-reassign */},{key:"_doFinalize",value:function _doFinalize(){// Shortcuts
+var data=this._data;var dataWords=data.words;var nBitsTotal=this._nDataBytes*8;var nBitsLeft=data.sigBytes*8;// Add padding
+dataWords[nBitsLeft>>>5]|=0x80<<24-nBitsLeft%32;var nBitsTotalH=Math.floor(nBitsTotal/0x100000000);var nBitsTotalL=nBitsTotal;dataWords[(nBitsLeft+64>>>9<<4)+15]=(nBitsTotalH<<8|nBitsTotalH>>>24)&0x00ff00ff|(nBitsTotalH<<24|nBitsTotalH>>>8)&0xff00ff00;dataWords[(nBitsLeft+64>>>9<<4)+14]=(nBitsTotalL<<8|nBitsTotalL>>>24)&0x00ff00ff|(nBitsTotalL<<24|nBitsTotalL>>>8)&0xff00ff00;data.sigBytes=(dataWords.length+1)*4;// Hash final blocks
+this._process();// Shortcuts
+var hash=this._hash;var H=hash.words;// Swap endian
+for(var _i2=0;_i2<4;_i2+=1){// Shortcut
+var H_i=H[_i2];H[_i2]=(H_i<<8|H_i>>>24)&0x00ff00ff|(H_i<<24|H_i>>>8)&0xff00ff00;}// Return final computed hash
+return hash;}},{key:"clone",value:function clone(){var clone=_get(_getPrototypeOf(MD5Algo.prototype),"clone",this).call(this);clone._hash=this._hash.clone();return clone;}}]);}(Hasher);/**
+ * Shortcut function to the hasher's object interface.
+ *
+ * @param {WordArray|string} message The message to hash.
+ *
+ * @return {WordArray} The hash.
+ *
+ * @static
+ *
+ * @example
+ *
+ *     var hash = CryptoJS.MD5('message');
+ *     var hash = CryptoJS.MD5(wordArray);
+ */Hasher._createHelper(MD5Algo);/**
+ * Shortcut function to the HMAC's object interface.
+ *
+ * @param {WordArray|string} message The message to hash.
+ * @param {WordArray|string} key The secret key.
+ *
+ * @return {WordArray} The HMAC.
+ *
+ * @static
+ *
+ * @example
+ *
+ *     var hmac = CryptoJS.HmacMD5(message, key);
+ */Hasher._createHmacHelper(MD5Algo);
+
+/**
+ * This key derivation function is meant to conform with EVP_BytesToKey.
+ * www.openssl.org/docs/crypto/EVP_BytesToKey.html
+ */var EvpKDFAlgo=/*#__PURE__*/function(_Base){/**
+   * Initializes a newly created key derivation function.
+   *
+   * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+   *
+   * @example
+   *
+   *     const kdf = CryptoJS.algo.EvpKDF.create();
+   *     const kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8 });
+   *     const kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8, iterations: 1000 });
+   */function EvpKDFAlgo(cfg){var _this;_classCallCheck(this,EvpKDFAlgo);_this=_callSuper(this,EvpKDFAlgo);/**
+     * Configuration options.
+     *
+     * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
+     * @property {Hasher} hasher The hash algorithm to use. Default: MD5
+     * @property {number} iterations The number of iterations to perform. Default: 1
+     */_this.cfg=Object.assign(new Base(),{keySize:128/32,hasher:MD5Algo,iterations:1},cfg);return _this;}/**
+   * Derives a key from a password.
+   *
+   * @param {WordArray|string} password The password.
+   * @param {WordArray|string} salt A salt.
+   *
+   * @return {WordArray} The derived key.
+   *
+   * @example
+   *
+   *     const key = kdf.compute(password, salt);
+   */_inherits(EvpKDFAlgo,_Base);return _createClass(EvpKDFAlgo,[{key:"compute",value:function compute(password,salt){var block;// Shortcut
+var cfg=this.cfg;// Init hasher
+var hasher=cfg.hasher.create();// Initial values
+var derivedKey=WordArray.create();// Shortcuts
+var derivedKeyWords=derivedKey.words;var keySize=cfg.keySize,iterations=cfg.iterations;// Generate key
+while(derivedKeyWords.length<keySize){if(block){hasher.update(block);}block=hasher.update(password).finalize(salt);hasher.reset();// Iterations
+for(var i=1;i<iterations;i+=1){block=hasher.finalize(block);hasher.reset();}derivedKey.concat(block);}derivedKey.sigBytes=keySize*4;return derivedKey;}}]);}(Base);
+
+var ObjectAssign=typeof Object.assign!=="function"?function(target){if(target==null){throw new TypeError('Cannot convert undefined or null to object');}target=Object(target);for(var index=1;index<arguments.length;index++){var source=arguments[index];if(source!=null){for(var key in source){if(Object.prototype.hasOwnProperty.call(source,key)){target[key]=source[key];}}}}return target;}:Object.assign;/**
+ * Abstract base cipher template.
+ *
+ * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
+ * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
+ * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
+ * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
+ */var Cipher=/*#__PURE__*/function(_BufferedBlockAlgorit){/**
+   * Initializes a newly created cipher.
+   *
+   * @param {number} xformMode Either the encryption or decryption transormation mode constant.
+   * @param {WordArray} key The key.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @example
+   *
+   *     const cipher = CryptoJS.algo.AES.create(
+   *       CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray }
+   *     );
+   */function Cipher(xformMode,key,cfg){var _this;_classCallCheck(this,Cipher);_this=_callSuper(this,Cipher);/**
+     * Configuration options.
+     *
+     * @property {WordArray} iv The IV to use for this operation.
+     */_this.cfg=ObjectAssign(new Base(),cfg);// Store transform mode and key
+_this._xformMode=xformMode;_this._key=key;// Set initial values
+_this.reset();return _this;}/**
+   * Creates this cipher in encryption mode.
+   *
+   * @param {WordArray} key The key.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {Cipher} A cipher instance.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const cipher = CryptoJS.algo.AES.createEncryptor(keyWordArray, { iv: ivWordArray });
+   */_inherits(Cipher,_BufferedBlockAlgorit);return _createClass(Cipher,[{key:"reset",value:/**
+   * Resets this cipher to its initial state.
+   *
+   * @example
+   *
+   *     cipher.reset();
+   */function reset(){// Reset data buffer
+_get(_getPrototypeOf(Cipher.prototype),"reset",this).call(this);// Perform concrete-cipher logic
+this._doReset();}/**
+   * Adds data to be encrypted or decrypted.
+   *
+   * @param {WordArray|string} dataUpdate The data to encrypt or decrypt.
+   *
+   * @return {WordArray} The data after processing.
+   *
+   * @example
+   *
+   *     const encrypted = cipher.process('data');
+   *     const encrypted = cipher.process(wordArray);
+   */},{key:"process",value:function process(dataUpdate){// Append
+this._append(dataUpdate);// Process available blocks
+return this._process();}/**
+   * Finalizes the encryption or decryption process.
+   * Note that the finalize operation is effectively a destructive, read-once operation.
+   *
+   * @param {WordArray|string} dataUpdate The final data to encrypt or decrypt.
+   *
+   * @return {WordArray} The data after final processing.
+   *
+   * @example
+   *
+   *     const encrypted = cipher.finalize();
+   *     const encrypted = cipher.finalize('data');
+   *     const encrypted = cipher.finalize(wordArray);
+   */},{key:"finalize",value:function finalize(dataUpdate){// Final data update
+if(dataUpdate){this._append(dataUpdate);}// Perform concrete-cipher logic
+var finalProcessedData=this._doFinalize();return finalProcessedData;}}],[{key:"createEncryptor",value:function createEncryptor(key,cfg){return this.create(this._ENC_XFORM_MODE,key,cfg);}/**
+   * Creates this cipher in decryption mode.
+   *
+   * @param {WordArray} key The key.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {Cipher} A cipher instance.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const cipher = CryptoJS.algo.AES.createDecryptor(keyWordArray, { iv: ivWordArray });
+   */},{key:"createDecryptor",value:function createDecryptor(key,cfg){return this.create(this._DEC_XFORM_MODE,key,cfg);}/**
+   * Creates shortcut functions to a cipher's object interface.
+   *
+   * @param {Cipher} cipher The cipher to create a helper for.
+   *
+   * @return {Object} An object with encrypt and decrypt shortcut functions.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const AES = CryptoJS.lib.Cipher._createHelper(CryptoJS.algo.AES);
+   */},{key:"_createHelper",value:function _createHelper(SubCipher){var selectCipherStrategy=function selectCipherStrategy(key){if(typeof key==='string'){return PasswordBasedCipher;}return SerializableCipher;};return {encrypt:function encrypt(message,key,cfg){return selectCipherStrategy(key).encrypt(SubCipher,message,key,cfg);},decrypt:function decrypt(ciphertext,key,cfg){return selectCipherStrategy(key).decrypt(SubCipher,ciphertext,key,cfg);}};}}]);}(BufferedBlockAlgorithm);Cipher._ENC_XFORM_MODE=1;Cipher._DEC_XFORM_MODE=2;Cipher.keySize=128/32;Cipher.ivSize=128/32;/**
+ * Abstract base block cipher mode template.
+ */var BlockCipherMode=/*#__PURE__*/function(_Base){/**
+   * Initializes a newly created mode.
+   *
+   * @param {Cipher} cipher A block cipher instance.
+   * @param {Array} iv The IV words.
+   *
+   * @example
+   *
+   *     const mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv.words);
+   */function BlockCipherMode(cipher,iv){var _this3;_classCallCheck(this,BlockCipherMode);_this3=_callSuper(this,BlockCipherMode);_this3._cipher=cipher;_this3._iv=iv;return _this3;}/**
+   * Creates this mode for encryption.
+   *
+   * @param {Cipher} cipher A block cipher instance.
+   * @param {Array} iv The IV words.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv.words);
+   */_inherits(BlockCipherMode,_Base);return _createClass(BlockCipherMode,null,[{key:"createEncryptor",value:function createEncryptor(cipher,iv){return this.Encryptor.create(cipher,iv);}/**
+   * Creates this mode for decryption.
+   *
+   * @param {Cipher} cipher A block cipher instance.
+   * @param {Array} iv The IV words.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     const mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv.words);
+   */},{key:"createDecryptor",value:function createDecryptor(cipher,iv){return this.Decryptor.create(cipher,iv);}}]);}(Base);function xorBlock(words,offset,blockSize){var _words=words;var block;// Shortcut
+var iv=this._iv;// Choose mixing block
+if(iv){block=iv;// Remove IV for subsequent blocks
+this._iv=undefined;}else {block=this._prevBlock;}// XOR blocks
+for(var i=0;i<blockSize;i+=1){_words[offset+i]^=block[i];}}/**
+ * Cipher Block Chaining mode.
+ */ /**
+ * Abstract base CBC mode.
+ */var CBC=/*#__PURE__*/function(_BlockCipherMode){function CBC(){_classCallCheck(this,CBC);return _callSuper(this,CBC,arguments);}_inherits(CBC,_BlockCipherMode);return _createClass(CBC);}(BlockCipherMode);/**
+ * CBC encryptor.
+ */CBC.Encryptor=/*#__PURE__*/function(_CBC){function _class(){_classCallCheck(this,_class);return _callSuper(this,_class,arguments);}_inherits(_class,_CBC);return _createClass(_class,[{key:"processBlock",value:/**
+   * Processes the data block at offset.
+   *
+   * @param {Array} words The data words to operate on.
+   * @param {number} offset The offset where the block starts.
+   *
+   * @example
+   *
+   *     mode.processBlock(data.words, offset);
+   */function processBlock(words,offset){// Shortcuts
+var cipher=this._cipher;var blockSize=cipher.blockSize;// XOR and encrypt
+xorBlock.call(this,words,offset,blockSize);cipher.encryptBlock(words,offset);// Remember this block to use with next block
+this._prevBlock=words.slice(offset,offset+blockSize);}}]);}(CBC);/**
+ * CBC decryptor.
+ */CBC.Decryptor=/*#__PURE__*/function(_CBC2){function _class2(){_classCallCheck(this,_class2);return _callSuper(this,_class2,arguments);}_inherits(_class2,_CBC2);return _createClass(_class2,[{key:"processBlock",value:/**
+   * Processes the data block at offset.
+   *
+   * @param {Array} words The data words to operate on.
+   * @param {number} offset The offset where the block starts.
+   *
+   * @example
+   *
+   *     mode.processBlock(data.words, offset);
+   */function processBlock(words,offset){// Shortcuts
+var cipher=this._cipher;var blockSize=cipher.blockSize;// Remember this block to use with next block
+var thisBlock=words.slice(offset,offset+blockSize);// Decrypt and XOR
+cipher.decryptBlock(words,offset);xorBlock.call(this,words,offset,blockSize);// This block becomes the previous block
+this._prevBlock=thisBlock;}}]);}(CBC);/**
+ * PKCS #5/7 padding strategy.
+ */var Pkcs7={/**
+   * Pads data using the algorithm defined in PKCS #5/7.
+   *
+   * @param {WordArray} data The data to pad.
+   * @param {number} blockSize The multiple that the data should be padded to.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     CryptoJS.pad.Pkcs7.pad(wordArray, 4);
+   */pad:function pad(data,blockSize){// Shortcut
+var blockSizeBytes=blockSize*4;// Count padding bytes
+var nPaddingBytes=blockSizeBytes-data.sigBytes%blockSizeBytes;// Create padding word
+var paddingWord=nPaddingBytes<<24|nPaddingBytes<<16|nPaddingBytes<<8|nPaddingBytes;// Create padding
+var paddingWords=[];for(var i=0;i<nPaddingBytes;i+=4){paddingWords.push(paddingWord);}var padding=WordArray.create(paddingWords,nPaddingBytes);// Add padding
+data.concat(padding);},/**
+   * Unpads data that had been padded using the algorithm defined in PKCS #5/7.
+   *
+   * @param {WordArray} data The data to unpad.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     CryptoJS.pad.Pkcs7.unpad(wordArray);
+   */unpad:function unpad(data){var _data=data;// Get number of padding bytes from last byte
+var nPaddingBytes=_data.words[_data.sigBytes-1>>>2]&0xff;// Remove padding
+_data.sigBytes-=nPaddingBytes;}};/**
+ * Abstract base block cipher template.
+ *
+ * @property {number} blockSize
+ *
+ *    The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
+ */var BlockCipher=/*#__PURE__*/function(_Cipher2){function BlockCipher(xformMode,key,cfg){var _this4;_classCallCheck(this,BlockCipher);/**
+     * Configuration options.
+     *
+     * @property {Mode} mode The block mode to use. Default: CBC
+     * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+     */_this4=_callSuper(this,BlockCipher,[xformMode,key,ObjectAssign({mode:CBC,padding:Pkcs7},cfg)]);_this4.blockSize=128/32;return _this4;}_inherits(BlockCipher,_Cipher2);return _createClass(BlockCipher,[{key:"reset",value:function reset(){var modeCreator;// Reset cipher
+_get(_getPrototypeOf(BlockCipher.prototype),"reset",this).call(this);// Shortcuts
+var cfg=this.cfg;var iv=cfg.iv,mode=cfg.mode;// Reset block mode
+if(this._xformMode===this.constructor._ENC_XFORM_MODE){modeCreator=mode.createEncryptor;}else/* if (this._xformMode == this._DEC_XFORM_MODE) */{modeCreator=mode.createDecryptor;// Keep at least one block in the buffer for unpadding
+this._minBufferSize=1;}this._mode=modeCreator.call(mode,this,iv&&iv.words);this._mode.__creator=modeCreator;}},{key:"_doProcessBlock",value:function _doProcessBlock(words,offset){this._mode.processBlock(words,offset);}},{key:"_doFinalize",value:function _doFinalize(){var finalProcessedBlocks;// Shortcut
+var padding=this.cfg.padding;// Finalize
+if(this._xformMode===this.constructor._ENC_XFORM_MODE){// Pad data
+padding.pad(this._data,this.blockSize);// Process final blocks
+finalProcessedBlocks=this._process(!!'flush');}else/* if (this._xformMode == this._DEC_XFORM_MODE) */{// Process final blocks
+finalProcessedBlocks=this._process(!!'flush');// Unpad data
+padding.unpad(finalProcessedBlocks);}return finalProcessedBlocks;}}]);}(Cipher);/**
+ * A collection of cipher parameters.
+ *
+ * @property {WordArray} ciphertext The raw ciphertext.
+ * @property {WordArray} key The key to this ciphertext.
+ * @property {WordArray} iv The IV used in the ciphering operation.
+ * @property {WordArray} salt The salt used with a key derivation function.
+ * @property {Cipher} algorithm The cipher algorithm.
+ * @property {Mode} mode The block mode used in the ciphering operation.
+ * @property {Padding} padding The padding scheme used in the ciphering operation.
+ * @property {number} blockSize The block size of the cipher.
+ * @property {Format} formatter
+ *    The default formatting strategy to convert this cipher params object to a string.
+ */var CipherParams=/*#__PURE__*/function(_Base2){/**
+   * Initializes a newly created cipher params object.
+   *
+   * @param {Object} cipherParams An object with any of the possible cipher parameters.
+   *
+   * @example
+   *
+   *     var cipherParams = CryptoJS.lib.CipherParams.create({
+   *         ciphertext: ciphertextWordArray,
+   *         key: keyWordArray,
+   *         iv: ivWordArray,
+   *         salt: saltWordArray,
+   *         algorithm: CryptoJS.algo.AES,
+   *         mode: CryptoJS.mode.CBC,
+   *         padding: CryptoJS.pad.PKCS7,
+   *         blockSize: 4,
+   *         formatter: CryptoJS.format.OpenSSL
+   *     });
+   */function CipherParams(cipherParams){var _this5;_classCallCheck(this,CipherParams);_this5=_callSuper(this,CipherParams);_this5.mixIn(cipherParams);return _this5;}/**
+   * Converts this cipher params object to a string.
+   *
+   * @param {Format} formatter (Optional) The formatting strategy to use.
+   *
+   * @return {string} The stringified cipher params.
+   *
+   * @throws Error If neither the formatter nor the default formatter is set.
+   *
+   * @example
+   *
+   *     var string = cipherParams + '';
+   *     var string = cipherParams.toString();
+   *     var string = cipherParams.toString(CryptoJS.format.OpenSSL);
+   */_inherits(CipherParams,_Base2);return _createClass(CipherParams,[{key:"toString",value:function toString(formatter){return (formatter||this.formatter).stringify(this);}}]);}(Base);/**
+ * OpenSSL formatting strategy.
+ */var OpenSSLFormatter={/**
+   * Converts a cipher params object to an OpenSSL-compatible string.
+   *
+   * @param {CipherParams} cipherParams The cipher params object.
+   *
+   * @return {string} The OpenSSL-compatible string.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
+   */stringify:function stringify(cipherParams){var wordArray;// Shortcuts
+var ciphertext=cipherParams.ciphertext,salt=cipherParams.salt;// Format
+if(salt){wordArray=WordArray.create([0x53616c74,0x65645f5f]).concat(salt).concat(ciphertext);}else {wordArray=ciphertext;}return wordArray.toString(Base64);},/**
+   * Converts an OpenSSL-compatible string to a cipher params object.
+   *
+   * @param {string} openSSLStr The OpenSSL-compatible string.
+   *
+   * @return {CipherParams} The cipher params object.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var cipherParams = CryptoJS.format.OpenSSL.parse(openSSLString);
+   */parse:function parse(openSSLStr){var salt;// Parse base64
+var ciphertext=Base64.parse(openSSLStr);// Shortcut
+var ciphertextWords=ciphertext.words;// Test for salt
+if(ciphertextWords[0]===0x53616c74&&ciphertextWords[1]===0x65645f5f){// Extract salt
+salt=WordArray.create(ciphertextWords.slice(2,4));// Remove salt from ciphertext
+ciphertextWords.splice(0,4);ciphertext.sigBytes-=16;}return CipherParams.create({ciphertext:ciphertext,salt:salt});}};/**
+ * A cipher wrapper that returns ciphertext as a serializable cipher params object.
+ */var SerializableCipher=/*#__PURE__*/function(_Base3){function SerializableCipher(){_classCallCheck(this,SerializableCipher);return _callSuper(this,SerializableCipher,arguments);}_inherits(SerializableCipher,_Base3);return _createClass(SerializableCipher,null,[{key:"encrypt",value:/**
+   * Encrypts a message.
+   *
+   * @param {Cipher} cipher The cipher algorithm to use.
+   * @param {WordArray|string} message The message to encrypt.
+   * @param {WordArray} key The key.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {CipherParams} A cipher params object.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var ciphertextParams = CryptoJS.lib.SerializableCipher
+   *       .encrypt(CryptoJS.algo.AES, message, key);
+   *     var ciphertextParams = CryptoJS.lib.SerializableCipher
+   *       .encrypt(CryptoJS.algo.AES, message, key, { iv: iv });
+   *     var ciphertextParams = CryptoJS.lib.SerializableCipher
+   *       .encrypt(CryptoJS.algo.AES, message, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+   */function encrypt(cipher,message,key,cfg){// Apply config defaults
+var _cfg=ObjectAssign(new Base(),this.cfg,cfg);// Encrypt
+var encryptor=cipher.createEncryptor(key,_cfg);var ciphertext=encryptor.finalize(message);// Shortcut
+var cipherCfg=encryptor.cfg;// Create and return serializable cipher params
+return CipherParams.create({ciphertext:ciphertext,key:key,iv:cipherCfg.iv,algorithm:cipher,mode:cipherCfg.mode,padding:cipherCfg.padding,blockSize:encryptor.blockSize,formatter:_cfg.format});}/**
+   * Decrypts serialized ciphertext.
+   *
+   * @param {Cipher} cipher The cipher algorithm to use.
+   * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+   * @param {WordArray} key The key.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {WordArray} The plaintext.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var plaintext = CryptoJS.lib.SerializableCipher
+   *       .decrypt(CryptoJS.algo.AES, formattedCiphertext, key,
+   *         { iv: iv, format: CryptoJS.format.OpenSSL });
+   *     var plaintext = CryptoJS.lib.SerializableCipher
+   *       .decrypt(CryptoJS.algo.AES, ciphertextParams, key,
+   *         { iv: iv, format: CryptoJS.format.OpenSSL });
+   */},{key:"decrypt",value:function decrypt(cipher,ciphertext,key,cfg){var _ciphertext=ciphertext;// Apply config defaults
+var _cfg=ObjectAssign(new Base(),this.cfg,cfg);// Convert string to CipherParams
+_ciphertext=this._parse(_ciphertext,_cfg.format);// Decrypt
+var plaintext=cipher.createDecryptor(key,_cfg).finalize(_ciphertext.ciphertext);return plaintext;}/**
+   * Converts serialized ciphertext to CipherParams,
+   * else assumed CipherParams already and returns ciphertext unchanged.
+   *
+   * @param {CipherParams|string} ciphertext The ciphertext.
+   * @param {Formatter} format The formatting strategy to use to parse serialized ciphertext.
+   *
+   * @return {CipherParams} The unserialized ciphertext.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var ciphertextParams = CryptoJS.lib.SerializableCipher
+   *       ._parse(ciphertextStringOrParams, format);
+   */},{key:"_parse",value:function _parse(ciphertext,format){if(typeof ciphertext==='string'){return format.parse(ciphertext,this);}return ciphertext;}}]);}(Base);/**
+ * Configuration options.
+ *
+ * @property {Formatter} format
+ *
+ *    The formatting strategy to convert cipher param objects to and from a string.
+ *    Default: OpenSSL
+ */SerializableCipher.cfg=ObjectAssign(new Base(),{format:OpenSSLFormatter});/**
+ * OpenSSL key derivation function.
+ */var OpenSSLKdf={/**
+   * Derives a key and IV from a password.
+   *
+   * @param {string} password The password to derive from.
+   * @param {number} keySize The size in words of the key to generate.
+   * @param {number} ivSize The size in words of the IV to generate.
+   * @param {WordArray|string} salt
+   *     (Optional) A 64-bit salt to use. If omitted, a salt will be generated randomly.
+   *
+   * @return {CipherParams} A cipher params object with the key, IV, and salt.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32);
+   *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32, 'saltsalt');
+   */execute:function execute(password,keySize,ivSize,salt,hasher){var _salt=salt;// Generate random salt
+if(!_salt){_salt=WordArray.random(64/8);}// Derive key and IV
+var key;if(!hasher){key=EvpKDFAlgo.create({keySize:keySize+ivSize}).compute(password,_salt);}else {key=EvpKDFAlgo.create({keySize:keySize+ivSize,hasher:hasher}).compute(password,_salt);}// Separate key and IV
+var iv=WordArray.create(key.words.slice(keySize),ivSize*4);key.sigBytes=keySize*4;// Return params
+return CipherParams.create({key:key,iv:iv,salt:_salt});}};/**
+ * A serializable cipher wrapper that derives the key from a password,
+ * and returns ciphertext as a serializable cipher params object.
+ */var PasswordBasedCipher=/*#__PURE__*/function(_SerializableCipher){function PasswordBasedCipher(){_classCallCheck(this,PasswordBasedCipher);return _callSuper(this,PasswordBasedCipher,arguments);}_inherits(PasswordBasedCipher,_SerializableCipher);return _createClass(PasswordBasedCipher,null,[{key:"encrypt",value:/**
+   * Encrypts a message using a password.
+   *
+   * @param {Cipher} cipher The cipher algorithm to use.
+   * @param {WordArray|string} message The message to encrypt.
+   * @param {string} password The password.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {CipherParams} A cipher params object.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher
+   *       .encrypt(CryptoJS.algo.AES, message, 'password');
+   *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher
+   *       .encrypt(CryptoJS.algo.AES, message, 'password', { format: CryptoJS.format.OpenSSL });
+   */function encrypt(cipher,message,password,cfg){// Apply config defaults
+var _cfg=ObjectAssign(new Base(),this.cfg,cfg);// Derive key and other params
+var derivedParams=_cfg.kdf.execute(password,cipher.keySize,cipher.ivSize,_cfg.salt,_cfg.hasher);// Add IV to config
+_cfg.iv=derivedParams.iv;// Encrypt
+var ciphertext=SerializableCipher.encrypt.call(this,cipher,message,derivedParams.key,_cfg);// Mix in derived params
+ciphertext.mixIn(derivedParams);return ciphertext;}/**
+   * Decrypts serialized ciphertext using a password.
+   *
+   * @param {Cipher} cipher The cipher algorithm to use.
+   * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+   * @param {string} password The password.
+   * @param {Object} cfg (Optional) The configuration options to use for this operation.
+   *
+   * @return {WordArray} The plaintext.
+   *
+   * @static
+   *
+   * @example
+   *
+   *     var plaintext = CryptoJS.lib.PasswordBasedCipher
+   *       .decrypt(CryptoJS.algo.AES, formattedCiphertext, 'password',
+   *         { format: CryptoJS.format.OpenSSL });
+   *     var plaintext = CryptoJS.lib.PasswordBasedCipher
+   *       .decrypt(CryptoJS.algo.AES, ciphertextParams, 'password',
+   *         { format: CryptoJS.format.OpenSSL });
+   */},{key:"decrypt",value:function decrypt(cipher,ciphertext,password,cfg){var _ciphertext=ciphertext;// Apply config defaults
+var _cfg=ObjectAssign(new Base(),this.cfg,cfg);// Convert string to CipherParams
+_ciphertext=this._parse(_ciphertext,_cfg.format);// Derive key and other params
+var derivedParams=_cfg.kdf.execute(password,cipher.keySize,cipher.ivSize,_ciphertext.salt,_cfg.hasher);// Add IV to config
+_cfg.iv=derivedParams.iv;// Decrypt
+var plaintext=SerializableCipher.decrypt.call(this,cipher,_ciphertext,derivedParams.key,_cfg);return plaintext;}}]);}(SerializableCipher);/**
+ * Configuration options.
+ *
+ * @property {KDF} kdf
+ *     The key derivation function to use to generate a key and IV from a password.
+ *     Default: OpenSSL
+ */PasswordBasedCipher.cfg=ObjectAssign(SerializableCipher.cfg,{kdf:OpenSSLKdf});
+
+var _SBOX=[];var INV_SBOX=[];var _SUB_MIX_0=[];var _SUB_MIX_1=[];var _SUB_MIX_2=[];var _SUB_MIX_3=[];var INV_SUB_MIX_0=[];var INV_SUB_MIX_1=[];var INV_SUB_MIX_2=[];var INV_SUB_MIX_3=[];// Compute lookup tables
+// Compute double table
+var d=[];for(var i=0;i<256;i+=1){if(i<128){d[i]=i<<1;}else {d[i]=i<<1^0x11b;}}// Walk GF(2^8)
+var x=0;var xi=0;for(var _i=0;_i<256;_i+=1){// Compute sbox
+var sx=xi^xi<<1^xi<<2^xi<<3^xi<<4;sx=sx>>>8^sx&0xff^0x63;_SBOX[x]=sx;INV_SBOX[sx]=x;// Compute multiplication
+var x2=d[x];var x4=d[x2];var x8=d[x4];// Compute sub bytes, mix columns tables
+var t=d[sx]*0x101^sx*0x1010100;_SUB_MIX_0[x]=t<<24|t>>>8;_SUB_MIX_1[x]=t<<16|t>>>16;_SUB_MIX_2[x]=t<<8|t>>>24;_SUB_MIX_3[x]=t;// Compute inv sub bytes, inv mix columns tables
+t=x8*0x1010101^x4*0x10001^x2*0x101^x*0x1010100;INV_SUB_MIX_0[sx]=t<<24|t>>>8;INV_SUB_MIX_1[sx]=t<<16|t>>>16;INV_SUB_MIX_2[sx]=t<<8|t>>>24;INV_SUB_MIX_3[sx]=t;// Compute next counter
+if(!x){xi=1;x=xi;}else {x=x2^d[d[d[x8^x2]]];xi^=d[d[xi]];}}// Precomputed Rcon lookup
+var RCON=[0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36];/**
+ * AES block cipher algorithm.
+ */var AESAlgo=/*#__PURE__*/function(_BlockCipher){function AESAlgo(){_classCallCheck(this,AESAlgo);return _callSuper(this,AESAlgo,arguments);}_inherits(AESAlgo,_BlockCipher);return _createClass(AESAlgo,[{key:"_doReset",value:function _doReset(){var t;// Skip reset of nRounds has been set before and key did not change
+if(this._nRounds&&this._keyPriorReset===this._key){return;}// Shortcuts
+this._keyPriorReset=this._key;var key=this._keyPriorReset;var keyWords=key.words;var keySize=key.sigBytes/4;// Compute number of rounds
+this._nRounds=keySize+6;var nRounds=this._nRounds;// Compute number of key schedule rows
+var ksRows=(nRounds+1)*4;// Compute key schedule
+this._keySchedule=[];var keySchedule=this._keySchedule;for(var ksRow=0;ksRow<ksRows;ksRow+=1){if(ksRow<keySize){keySchedule[ksRow]=keyWords[ksRow];}else {t=keySchedule[ksRow-1];if(!(ksRow%keySize)){// Rot word
+t=t<<8|t>>>24;// Sub word
+t=_SBOX[t>>>24]<<24|_SBOX[t>>>16&0xff]<<16|_SBOX[t>>>8&0xff]<<8|_SBOX[t&0xff];// Mix Rcon
+t^=RCON[ksRow/keySize|0]<<24;}else if(keySize>6&&ksRow%keySize===4){// Sub word
+t=_SBOX[t>>>24]<<24|_SBOX[t>>>16&0xff]<<16|_SBOX[t>>>8&0xff]<<8|_SBOX[t&0xff];}keySchedule[ksRow]=keySchedule[ksRow-keySize]^t;}}// Compute inv key schedule
+this._invKeySchedule=[];var invKeySchedule=this._invKeySchedule;for(var invKsRow=0;invKsRow<ksRows;invKsRow+=1){var _ksRow=ksRows-invKsRow;if(invKsRow%4){t=keySchedule[_ksRow];}else {t=keySchedule[_ksRow-4];}if(invKsRow<4||_ksRow<=4){invKeySchedule[invKsRow]=t;}else {invKeySchedule[invKsRow]=INV_SUB_MIX_0[_SBOX[t>>>24]]^INV_SUB_MIX_1[_SBOX[t>>>16&0xff]]^INV_SUB_MIX_2[_SBOX[t>>>8&0xff]]^INV_SUB_MIX_3[_SBOX[t&0xff]];}}}},{key:"encryptBlock",value:function encryptBlock(M,offset){this._doCryptBlock(M,offset,this._keySchedule,_SUB_MIX_0,_SUB_MIX_1,_SUB_MIX_2,_SUB_MIX_3,_SBOX);}},{key:"decryptBlock",value:function decryptBlock(M,offset){var _M=M;// Swap 2nd and 4th rows
+var t=_M[offset+1];_M[offset+1]=_M[offset+3];_M[offset+3]=t;this._doCryptBlock(_M,offset,this._invKeySchedule,INV_SUB_MIX_0,INV_SUB_MIX_1,INV_SUB_MIX_2,INV_SUB_MIX_3,INV_SBOX);// Inv swap 2nd and 4th rows
+t=_M[offset+1];_M[offset+1]=_M[offset+3];_M[offset+3]=t;}},{key:"_doCryptBlock",value:function _doCryptBlock(M,offset,keySchedule,SUB_MIX_0,SUB_MIX_1,SUB_MIX_2,SUB_MIX_3,SBOX){var _M=M;// Shortcut
+var nRounds=this._nRounds;// Get input, add round key
+var s0=_M[offset]^keySchedule[0];var s1=_M[offset+1]^keySchedule[1];var s2=_M[offset+2]^keySchedule[2];var s3=_M[offset+3]^keySchedule[3];// Key schedule row counter
+var ksRow=4;// Rounds
+for(var round=1;round<nRounds;round+=1){// Shift rows, sub bytes, mix columns, add round key
+var _t=SUB_MIX_0[s0>>>24]^SUB_MIX_1[s1>>>16&0xff]^SUB_MIX_2[s2>>>8&0xff]^SUB_MIX_3[s3&0xff]^keySchedule[ksRow];ksRow+=1;var _t2=SUB_MIX_0[s1>>>24]^SUB_MIX_1[s2>>>16&0xff]^SUB_MIX_2[s3>>>8&0xff]^SUB_MIX_3[s0&0xff]^keySchedule[ksRow];ksRow+=1;var _t3=SUB_MIX_0[s2>>>24]^SUB_MIX_1[s3>>>16&0xff]^SUB_MIX_2[s0>>>8&0xff]^SUB_MIX_3[s1&0xff]^keySchedule[ksRow];ksRow+=1;var _t4=SUB_MIX_0[s3>>>24]^SUB_MIX_1[s0>>>16&0xff]^SUB_MIX_2[s1>>>8&0xff]^SUB_MIX_3[s2&0xff]^keySchedule[ksRow];ksRow+=1;// Update state
+s0=_t;s1=_t2;s2=_t3;s3=_t4;}// Shift rows, sub bytes, add round key
+var t0=(SBOX[s0>>>24]<<24|SBOX[s1>>>16&0xff]<<16|SBOX[s2>>>8&0xff]<<8|SBOX[s3&0xff])^keySchedule[ksRow];ksRow+=1;var t1=(SBOX[s1>>>24]<<24|SBOX[s2>>>16&0xff]<<16|SBOX[s3>>>8&0xff]<<8|SBOX[s0&0xff])^keySchedule[ksRow];ksRow+=1;var t2=(SBOX[s2>>>24]<<24|SBOX[s3>>>16&0xff]<<16|SBOX[s0>>>8&0xff]<<8|SBOX[s1&0xff])^keySchedule[ksRow];ksRow+=1;var t3=(SBOX[s3>>>24]<<24|SBOX[s0>>>16&0xff]<<16|SBOX[s1>>>8&0xff]<<8|SBOX[s2&0xff])^keySchedule[ksRow];ksRow+=1;// Set output
+_M[offset]=t0;_M[offset+1]=t1;_M[offset+2]=t2;_M[offset+3]=t3;}}]);}(BlockCipher);AESAlgo.keySize=256/32;/**
+ * Shortcut functions to the cipher's object interface.
+ *
+ * @example
+ *
+ *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
+ *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
+ */var AES=BlockCipher._createHelper(AESAlgo);
+
+var ENCRYPTION_PREFIX_V1='RudderEncrypt:';var ENCRYPTION_KEY_V1='Rudder';
+
+var encrypt=function encrypt(value){return "".concat(ENCRYPTION_PREFIX_V1).concat(AES.encrypt(value,ENCRYPTION_KEY_V1).toString());};var decrypt=function decrypt(value){if(value.startsWith(ENCRYPTION_PREFIX_V1)){return AES.decrypt(value.substring(ENCRYPTION_PREFIX_V1.length),ENCRYPTION_KEY_V1).toString(Utf8);}return value;};
+
+var pluginName$2='StorageEncryptionLegacy';var StorageEncryptionLegacy=function StorageEncryptionLegacy(){return {name:pluginName$2,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$2]);},storage:{encrypt:function encrypt$1(value){return encrypt(value);},decrypt:function decrypt$1(value){return decrypt(value);}}};};
+
+var STORAGE_MIGRATION_ERROR=function STORAGE_MIGRATION_ERROR(key){return "Failed to retrieve or parse data for ".concat(key," from storage.");};
+
+var STORAGE_MIGRATOR_PLUGIN='StorageMigratorPlugin';
+
+var pluginName$1='StorageMigrator';var StorageMigrator=function StorageMigrator(){return {name:pluginName$1,initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName$1]);},storage:{migrate:function migrate(key,storageEngine,errorHandler,logger){try{var storedVal=storageEngine.getItem(key);if(isNullOrUndefined(storedVal)){return null;}var decryptedVal=decrypt(storedVal);// The value is not encrypted using legacy encryption
+// Try latest
+if(decryptedVal===storedVal){decryptedVal=decrypt$1(storedVal);}if(isNullOrUndefined(decryptedVal)){return null;}// storejs that is used in localstorage engine already deserializes json strings but swallows errors
+return JSON.parse(decryptedVal);}catch(err){errorHandler===null||errorHandler===void 0||errorHandler.onError(err,STORAGE_MIGRATOR_PLUGIN,STORAGE_MIGRATION_ERROR(key));return null;}}}};};
+
+var DEFAULT_RETRY_QUEUE_OPTIONS={maxRetryDelay:360000,minRetryDelay:1000,backoffFactor:2,maxAttempts:10,maxItems:100};var REQUEST_TIMEOUT_MS=30*1000;// 30 seconds
+var DATA_PLANE_API_VERSION='v1';var QUEUE_NAME='rudder';var XHR_QUEUE_PLUGIN='XhrQueuePlugin';
+
+var EVENT_DELIVERY_FAILURE_ERROR_PREFIX=function EVENT_DELIVERY_FAILURE_ERROR_PREFIX(context,url){return "".concat(context).concat(LOG_CONTEXT_SEPARATOR,"Failed to deliver event(s) to ").concat(url,".");};
+
+var getBatchDeliveryPayload=function getBatchDeliveryPayload(events,currentTime,logger){var batchPayload={batch:events,sentAt:currentTime};return stringifyWithoutCircular(batchPayload,true,undefined,logger);};var getNormalizedQueueOptions=function getNormalizedQueueOptions(queueOpts){return mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS,queueOpts);};var getDeliveryUrl=function getDeliveryUrl(dataplaneUrl,endpoint){var dpUrl=new URL(dataplaneUrl);return new URL(removeDuplicateSlashes([dpUrl.pathname,'/',DATA_PLANE_API_VERSION,'/',endpoint].join('')),dpUrl).href;};var getBatchDeliveryUrl=function getBatchDeliveryUrl(dataplaneUrl){return getDeliveryUrl(dataplaneUrl,'batch');};var logErrorOnFailure=function logErrorOnFailure(details,url,willBeRetried,attemptNumber,maxRetryAttempts,logger){if(isUndefined(details===null||details===void 0?void 0:details.error)||isUndefined(logger)){return;}var isRetryableFailure=isErrRetryable(details);var errMsg=EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN,url);var dropMsg="The event(s) will be dropped.";if(isRetryableFailure){if(willBeRetried){errMsg="".concat(errMsg," It/they will be retried.");if(attemptNumber>0){errMsg="".concat(errMsg," Retry attempt ").concat(attemptNumber," of ").concat(maxRetryAttempts,".");}}else {errMsg="".concat(errMsg," Retries exhausted (").concat(maxRetryAttempts,"). ").concat(dropMsg);}}else {errMsg="".concat(errMsg," ").concat(dropMsg);}logger===null||logger===void 0||logger.error(errMsg);};var getRequestInfo=function getRequestInfo(itemData,state,logger){var data;var headers;var url;var currentTime=getCurrentTimeFormatted();if(Array.isArray(itemData)){var finalEvents=itemData.map(function(queueItemData){return getFinalEventForDeliveryMutator(queueItemData.event,currentTime);});data=getBatchDeliveryPayload(finalEvents,currentTime,logger);headers=itemData[0]?clone(itemData[0].headers):{};url=getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value);}else {var eventUrl=itemData.url,event=itemData.event,eventHeaders=itemData.headers;var finalEvent=getFinalEventForDeliveryMutator(event,currentTime);data=getDeliveryPayload(finalEvent,logger);headers=clone(eventHeaders);url=eventUrl;}return {data:data,headers:headers,url:url};};
+
+var pluginName='XhrQueue';var XhrQueue=function XhrQueue(){return {name:pluginName,deps:[],initialize:function initialize(state){state.plugins.loadedPlugins.value=[].concat(_toConsumableArray(state.plugins.loadedPlugins.value),[pluginName]);},dataplaneEventsQueue:{/**
+     * Initialize the queue for delivery
+     * @param state Application state
+     * @param httpClient http client instance
+     * @param storeManager Store Manager instance
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns RetryQueue instance
+     */init:function init(state,httpClient,storeManager,errorHandler,logger){var writeKey=state.lifecycle.writeKey.value;httpClient.setAuthHeader(writeKey);var finalQOpts=getNormalizedQueueOptions(state.loadOptions.value.queueOptions);var eventsQueue=new RetryQueue(// adding write key to the queue name to avoid conflicts
+"".concat(QUEUE_NAME,"_").concat(writeKey),finalQOpts,function(itemData,done,attemptNumber,maxRetryAttempts,willBeRetried){var _getRequestInfo=getRequestInfo(itemData,state,logger),data=_getRequestInfo.data,url=_getRequestInfo.url,headers=_getRequestInfo.headers;httpClient.getAsyncData({url:url,options:{method:'POST',headers:headers,data:data,sendRawData:true},isRawResponse:true,timeout:REQUEST_TIMEOUT_MS,callback:function callback(result,details){// null means item will not be requeued
+var queueErrResp=isErrRetryable(details)?details:null;logErrorOnFailure(details,url,willBeRetried,attemptNumber,maxRetryAttempts,logger);done(queueErrResp,result);}});},storeManager,LOCAL_STORAGE,logger,function(itemData){var _getBatchDeliveryPayl;var currentTime=getCurrentTimeFormatted();var events=itemData.map(function(queueItemData){return queueItemData.event;});// type casting to string as we know that the event has already been validated prior to enqueue
+return (_getBatchDeliveryPayl=getBatchDeliveryPayload(events,currentTime,logger))===null||_getBatchDeliveryPayl===void 0?void 0:_getBatchDeliveryPayl.length;});return eventsQueue;},/**
+     * Add event to the queue for delivery
+     * @param state Application state
+     * @param eventsQueue RetryQueue instance
+     * @param event RudderEvent object
+     * @param errorHandler Error handler instance
+     * @param logger Logger instance
+     * @returns none
+     */enqueue:function enqueue(state,eventsQueue,event,errorHandler,logger){// sentAt is only added here for the validation step
+// It'll be updated to the latest timestamp during actual delivery
+event.sentAt=getCurrentTimeFormatted();validateEventPayloadSize(event,logger);var dataplaneUrl=state.lifecycle.activeDataplaneUrl.value;var url=getDeliveryUrl(dataplaneUrl,event.type);// Other default headers are added by the HttpClient
+// Auth header is added during initialization
+var headers={// To maintain event ordering while using the HTTP API as per is documentation,
+// make sure to include anonymousId as a header
+AnonymousId:toBase64(event.anonymousId)};eventsQueue.addItem({url:url,headers:headers,event:event});}}};};
+
+/**
+ * Map plugin names to direct code imports from plugins package
+ */var getBundledBuildPluginImports=function getBundledBuildPluginImports(){return {BeaconQueue:BeaconQueue,Bugsnag:Bugsnag,CustomConsentManager:CustomConsentManager,DeviceModeDestinations:DeviceModeDestinations,DeviceModeTransformation:DeviceModeTransformation,ErrorReporting:ErrorReporting,ExternalAnonymousId:ExternalAnonymousId,GoogleLinker:GoogleLinker,KetchConsentManager:KetchConsentManager,NativeDestinationQueue:NativeDestinationQueue,OneTrustConsentManager:OneTrustConsentManager,StorageEncryption:StorageEncryption,StorageEncryptionLegacy:StorageEncryptionLegacy,StorageMigrator:StorageMigrator,XhrQueue:XhrQueue};};
+
+/**
+ * Map of mandatory plugin names and direct imports
+ */var getMandatoryPluginsMap=function getMandatoryPluginsMap(){return {};};/**
+ * Map of optional plugin names and direct imports for legacy builds
+ */var getOptionalPluginsMap=function getOptionalPluginsMap(){return getBundledBuildPluginImports();};/**
+ * Map of optional plugin names and dynamic imports for modern builds
+ */var getRemotePluginsMap=function getRemotePluginsMap(activePluginNames){{return {};}};var pluginsInventory=_objectSpread2(_objectSpread2({},getMandatoryPluginsMap()),getOptionalPluginsMap());var remotePluginsInventory=function remotePluginsInventory(activePluginNames){return _objectSpread2({},getRemotePluginsMap());};
+
+// TODO: add retry mechanism for getting remote plugins
+// TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
+var PluginsManager=/*#__PURE__*/function(){function PluginsManager(engine,errorHandler,logger){_classCallCheck(this,PluginsManager);this.engine=engine;this.errorHandler=errorHandler;this.logger=logger;this.onError=this.onError.bind(this);}/**
+   * Orchestrate the plugin loading and registering
+   */return _createClass(PluginsManager,[{key:"init",value:function init(){state.lifecycle.status.value='pluginsLoading';// Expose pluginsCDNPath to global object, so it can be used in the promise that determines
+this.setActivePlugins();this.registerLocalPlugins();this.registerRemotePlugins();this.attachEffects();}/**
+   * Update state based on plugin loaded status
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"attachEffects",value:function attachEffects(){E(function(){var isAllPluginsReady=state.plugins.activePlugins.value.length===0||state.plugins.loadedPlugins.value.length+state.plugins.failedPlugins.value.length===state.plugins.totalPluginsToLoad.value;if(isAllPluginsReady){r(function(){state.plugins.ready.value=true;// TODO: decide what to do if a plugin fails to load for any reason.
+//  Should we stop here or should we progress?
+state.lifecycle.status.value='pluginsReady';});}});}/**
+   * Determine the list of plugins that should be loaded based on sourceConfig & load options
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"getPluginsToLoadBasedOnConfig",value:function getPluginsToLoadBasedOnConfig(){var _this=this;// This contains the default plugins if load option has been omitted by user
+var pluginsToLoadFromConfig=state.plugins.pluginsToLoadFromConfig.value;if(!pluginsToLoadFromConfig){return [];}var pluginGroupsToProcess=[{configurationStatus:function configurationStatus(){return isDefined(state.dataPlaneEvents.eventsQueuePluginName.value);},configurationStatusStr:'Data plane events delivery is enabled',activePluginName:state.dataPlaneEvents.eventsQueuePluginName.value,supportedPlugins:Object.values(DataPlaneEventsTransportToPluginNameMap),shouldAddMissingPlugins:true},{configurationStatus:function configurationStatus(){return isDefined(state.reporting.errorReportingProviderPluginName.value);},configurationStatusStr:'Error reporting is enabled',activePluginName:state.reporting.errorReportingProviderPluginName.value,basePlugins:['ErrorReporting'],supportedPlugins:Object.values(ErrorReportingProvidersToPluginNameMap)},{configurationStatus:function configurationStatus(){return getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).length>0;},configurationStatusStr:'Device mode destinations are connected to the source',supportedPlugins:['DeviceModeDestinations','NativeDestinationQueue']},{configurationStatus:function configurationStatus(){return getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).some(function(destination){return destination.shouldApplyDeviceModeTransformation;});},configurationStatusStr:'Device mode transformations are enabled for at least one destination',supportedPlugins:['DeviceModeTransformation']},{configurationStatus:function configurationStatus(){return isDefined(state.consents.activeConsentManagerPluginName.value);},configurationStatusStr:'Consent management is enabled',activePluginName:state.consents.activeConsentManagerPluginName.value,supportedPlugins:Object.values(ConsentManagersToPluginNameMap)},{configurationStatus:function configurationStatus(){return isDefined(state.storage.encryptionPluginName.value);},configurationStatusStr:'Storage encryption is enabled',activePluginName:state.storage.encryptionPluginName.value,supportedPlugins:Object.values(StorageEncryptionVersionsToPluginNameMap)},{configurationStatus:function configurationStatus(){return state.storage.migrate.value;},configurationStatusStr:'Storage migration is enabled',supportedPlugins:['StorageMigrator']}];var addMissingPlugins=false;pluginGroupsToProcess.forEach(function(group){if(group.configurationStatus()){pluginsToLoadFromConfig=pluginsToLoadFromConfig.filter(group.activePluginName?function(pluginName){return !(pluginName!==group.activePluginName&&group.supportedPlugins.includes(pluginName));}:function(pluginName){return isDefined(pluginName);}// pass through
+);_this.addMissingPlugins(group,addMissingPlugins,pluginsToLoadFromConfig);}else {pluginsToLoadFromConfig=pluginsToLoadFromConfig.filter(group.basePlugins!==undefined?function(pluginName){return !(group.basePlugins.includes(pluginName)||group.supportedPlugins.includes(pluginName));}:function(pluginName){return !group.supportedPlugins.includes(pluginName);});}});return [].concat(_toConsumableArray(Object.keys(getMandatoryPluginsMap())),_toConsumableArray(pluginsToLoadFromConfig));}},{key:"addMissingPlugins",value:function addMissingPlugins(group,_addMissingPlugins,pluginsToLoadFromConfig){var shouldAddMissingPlugins=group.shouldAddMissingPlugins||_addMissingPlugins;var pluginsToConfigure;if(group.activePluginName){pluginsToConfigure=[].concat(_toConsumableArray(group.basePlugins||[]),[group.activePluginName]);}else {pluginsToConfigure=_toConsumableArray(group.supportedPlugins);}var missingPlugins=pluginsToConfigure.filter(function(pluginName){return !pluginsToLoadFromConfig.includes(pluginName);});if(missingPlugins.length>0){var _this$logger;if(shouldAddMissingPlugins){pluginsToLoadFromConfig.push.apply(pluginsToLoadFromConfig,_toConsumableArray(missingPlugins));}(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.warn(generateMisconfiguredPluginsWarning(PLUGINS_MANAGER,group.configurationStatusStr,missingPlugins,shouldAddMissingPlugins));}}/**
+   * Determine the list of plugins that should be activated
+   */},{key:"setActivePlugins",value:function setActivePlugins(){var pluginsToLoad=this.getPluginsToLoadBasedOnConfig();// Merging available mandatory and optional plugin name list
+var availablePlugins=[].concat(_toConsumableArray(Object.keys(pluginsInventory)),_toConsumableArray(pluginNamesList));var activePlugins=[];var failedPlugins=[];pluginsToLoad.forEach(function(pluginName){if(availablePlugins.includes(pluginName)){activePlugins.push(pluginName);}else {failedPlugins.push(pluginName);}});if(failedPlugins.length>0){this.onError(new Error("Ignoring loading of unknown plugins: ".concat(failedPlugins.join(','),". Mandatory plugins: ").concat(Object.keys(getMandatoryPluginsMap()).join(','),". Load option plugins: ").concat(state.plugins.pluginsToLoadFromConfig.value.join(','))));}r(function(){state.plugins.totalPluginsToLoad.value=pluginsToLoad.length;state.plugins.activePlugins.value=activePlugins;state.plugins.failedPlugins.value=failedPlugins;});}/**
+   * Register plugins that are direct imports to PluginEngine
+   */},{key:"registerLocalPlugins",value:function registerLocalPlugins(){var _this2=this;Object.values(pluginsInventory).forEach(function(localPlugin){if(isFunction(localPlugin)&&state.plugins.activePlugins.value.includes(localPlugin().name)){_this2.register([localPlugin()]);}});}/**
+   * Register plugins that are dynamic imports to PluginEngine
+   */},{key:"registerRemotePlugins",value:function registerRemotePlugins(){var _this3=this;var remotePluginsList=remotePluginsInventory(state.plugins.activePlugins.value);Promise.all(Object.keys(remotePluginsList).map(/*#__PURE__*/function(){var _ref=_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(remotePluginKey){return _regeneratorRuntime().wrap(function _callee$(_context){while(1)switch(_context.prev=_context.next){case 0:_context.next=2;return remotePluginsList[remotePluginKey]().then(function(remotePluginModule){return _this3.register([remotePluginModule.default()]);}).catch(function(err){// TODO: add retry here if dynamic import fails
+state.plugins.failedPlugins.value=[].concat(_toConsumableArray(state.plugins.failedPlugins.value),[remotePluginKey]);_this3.onError(err,remotePluginKey);});case 2:case"end":return _context.stop();}},_callee);}));return function(_x){return _ref.apply(this,arguments);};}())).catch(function(err){_this3.onError(err);});}/**
+   * Extension point invoke that allows multiple plugins to be registered to it with error handling
+   */},{key:"invokeMultiple",value:function invokeMultiple(extPoint){try{var _this$engine;for(var _len=arguments.length,args=new Array(_len>1?_len-1:0),_key=1;_key<_len;_key++){args[_key-1]=arguments[_key];}return (_this$engine=this.engine).invokeMultiple.apply(_this$engine,[extPoint].concat(args));}catch(e){this.onError(e,extPoint);return [];}}/**
+   * Extension point invoke that allows a single plugin to be registered to it with error handling
+   */},{key:"invokeSingle",value:function invokeSingle(extPoint){try{var _this$engine2;for(var _len2=arguments.length,args=new Array(_len2>1?_len2-1:0),_key2=1;_key2<_len2;_key2++){args[_key2-1]=arguments[_key2];}return (_this$engine2=this.engine).invokeSingle.apply(_this$engine2,[extPoint].concat(args));}catch(e){this.onError(e,extPoint);return null;}}/**
+   * Plugin engine register with error handling
+   */},{key:"register",value:function register(plugins){var _this4=this;plugins.forEach(function(plugin){try{_this4.engine.register(plugin,state);}catch(e){state.plugins.failedPlugins.value=[].concat(_toConsumableArray(state.plugins.failedPlugins.value),[plugin.name]);_this4.onError(e);}});}// TODO: Implement reset API instead
+},{key:"unregisterLocalPlugins",value:function unregisterLocalPlugins(){var _this5=this;Object.values(pluginsInventory).forEach(function(localPlugin){try{_this5.engine.unregister(localPlugin().name);}catch(e){_this5.onError(e);}});}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error,customMessage){if(this.errorHandler){this.errorHandler.onError(error,PLUGINS_MANAGER,customMessage);}else {throw error;}}}]);}();
+
+/**
+ * Utility to parse XHR JSON response
+ */var responseTextToJson=function responseTextToJson(responseText,onError){try{return JSON.parse(responseText||'');}catch(err){var error=getMutatedError(err,'Failed to parse response data');if(isFunction(onError)){onError(error);}else {throw error;}}return undefined;};
+
+var DEFAULT_XHR_REQUEST_OPTIONS={headers:{Accept:'application/json','Content-Type':'application/json;charset=UTF-8'},method:'GET'};/**
+ * Utility to create request configuration based on default options
+ */var createXhrRequestOptions=function createXhrRequestOptions(url,options,basicAuthHeader){var requestOptions=mergeDeepRight(DEFAULT_XHR_REQUEST_OPTIONS,options||{});if(basicAuthHeader){requestOptions.headers=mergeDeepRight(requestOptions.headers,{Authorization:basicAuthHeader});}requestOptions.url=url;return requestOptions;};/**
+ * Utility implementation of XHR, fetch cannot be used as it requires explicit
+ * origin allowed values and not wildcard for CORS requests with credentials and
+ * this is not supported by our sourceConfig API
+ */var xhrRequest=function xhrRequest(options){var timeout=arguments.length>1&&arguments[1]!==undefined?arguments[1]:DEFAULT_XHR_TIMEOUT_MS;var logger=arguments.length>2?arguments[2]:undefined;return new Promise(function(resolve,reject){var payload;if(options.sendRawData===true){payload=options.data;}else {payload=stringifyWithoutCircular(options.data,false,[],logger);if(isNull(payload)){reject({error:new Error(XHR_PAYLOAD_PREP_ERROR),undefined:undefined,options:options});// return and don't process further if the payload could not be stringified
+return;}}var xhr=new XMLHttpRequest();// eslint-disable-next-line @typescript-eslint/no-unused-vars
+var xhrReject=function xhrReject(e){reject({error:new Error(XHR_DELIVERY_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX,xhr.status,xhr.statusText,options.url)),xhr:xhr,options:options});};var xhrError=function xhrError(e){reject({error:new Error(XHR_REQUEST_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX,e,options.url)),xhr:xhr,options:options});};xhr.ontimeout=xhrError;xhr.onerror=xhrError;xhr.onload=function(){if(xhr.status>=200&&xhr.status<400){resolve({response:xhr.responseText,xhr:xhr,options:options});}else {xhrReject();}};xhr.open(options.method,options.url);if(options.withCredentials===true){xhr.withCredentials=true;}// The timeout property may be set only in the time interval between a call to the open method
+// and the first call to the send method in legacy browsers
+xhr.timeout=timeout;Object.keys(options.headers).forEach(function(headerName){if(options.headers[headerName]){xhr.setRequestHeader(headerName,options.headers[headerName]);}});try{xhr.send(payload);}catch(err){reject({error:getMutatedError(err,XHR_SEND_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX,options.url)),xhr:xhr,options:options});}});};
+
+/**
+ * Service to handle data communication with APIs
+ */var HttpClient=/*#__PURE__*/function(){function HttpClient(errorHandler,logger){_classCallCheck(this,HttpClient);_defineProperty(this,"hasErrorHandler",false);this.errorHandler=errorHandler;this.logger=logger;this.hasErrorHandler=Boolean(this.errorHandler);this.onError=this.onError.bind(this);}/**
+   * Implement requests in a blocking way
+   */return _createClass(HttpClient,[{key:"getData",value:(function(){var _getData=_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(config){var url,options,timeout,isRawResponse,data,_error;return _regeneratorRuntime().wrap(function _callee$(_context){while(1)switch(_context.prev=_context.next){case 0:url=config.url,options=config.options,timeout=config.timeout,isRawResponse=config.isRawResponse;_context.prev=1;_context.next=4;return xhrRequest(createXhrRequestOptions(url,options,this.basicAuthHeader),timeout,this.logger);case 4:data=_context.sent;return _context.abrupt("return",{data:isRawResponse?data.response:responseTextToJson(data.response,this.onError),details:data});case 8:_context.prev=8;_context.t0=_context["catch"](1);this.onError((_error=_context.t0.error)!==null&&_error!==void 0?_error:_context.t0);return _context.abrupt("return",{data:undefined,details:_context.t0});case 12:case"end":return _context.stop();}},_callee,this,[[1,8]]);}));function getData(_x){return _getData.apply(this,arguments);}return getData;}()/**
+   * Implement requests in a non-blocking way
+   */)},{key:"getAsyncData",value:function getAsyncData(config){var _this=this;var callback=config.callback,url=config.url,options=config.options,timeout=config.timeout,isRawResponse=config.isRawResponse;var isFireAndForget=!isFunction(callback);xhrRequest(createXhrRequestOptions(url,options,this.basicAuthHeader),timeout,this.logger).then(function(data){if(!isFireAndForget){callback(isRawResponse?data.response:responseTextToJson(data.response,_this.onError),data);}}).catch(function(data){var _data$error;_this.onError((_data$error=data.error)!==null&&_data$error!==void 0?_data$error:data);if(!isFireAndForget){callback(undefined,data);}});}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error){if(this.hasErrorHandler){var _this$errorHandler;(_this$errorHandler=this.errorHandler)===null||_this$errorHandler===void 0||_this$errorHandler.onError(error,HTTP_CLIENT);}else {throw error;}}/**
+   * Set basic authentication header (eg writekey)
+   */},{key:"setAuthHeader",value:function setAuthHeader(value){var noBtoa=arguments.length>1&&arguments[1]!==undefined?arguments[1]:false;var authVal=noBtoa?value:toBase64("".concat(value,":"));this.basicAuthHeader="Basic ".concat(authVal);}/**
+   * Clear basic authentication header
+   */},{key:"resetAuthHeader",value:function resetAuthHeader(){this.basicAuthHeader=undefined;}}]);}();var defaultHttpClient=new HttpClient(defaultErrorHandler,defaultLogger);
+
+var STORAGE_TEST_COOKIE='test_rudder_cookie';var STORAGE_TEST_LOCAL_STORAGE='test_rudder_ls';var STORAGE_TEST_SESSION_STORAGE='test_rudder_ss';var STORAGE_TEST_TOP_LEVEL_DOMAIN='__tld__';var CLIENT_DATA_STORE_COOKIE='clientDataInCookie';var CLIENT_DATA_STORE_LS='clientDataInLocalStorage';var CLIENT_DATA_STORE_MEMORY='clientDataInMemory';var CLIENT_DATA_STORE_SESSION='clientDataInSessionStorage';var USER_SESSION_KEYS=['userId','userTraits','anonymousId','groupId','groupTraits','initialReferrer','initialReferringDomain','sessionInfo','authToken'];
+
+var storageClientDataStoreNameMap=_defineProperty(_defineProperty(_defineProperty(_defineProperty({},COOKIE_STORAGE,CLIENT_DATA_STORE_COOKIE),LOCAL_STORAGE,CLIENT_DATA_STORE_LS),MEMORY_STORAGE,CLIENT_DATA_STORE_MEMORY),SESSION_STORAGE,CLIENT_DATA_STORE_SESSION);
+
+var detectAdBlockers=function detectAdBlockers(errorHandler,logger){// Apparently, '?view=ad' is a query param that is blocked by majority of adblockers
+// Use source config URL here as it is very unlikely to be blocked by adblockers
+// Only the extra query param should make it vulnerable to adblockers
+// This will work even if the users proxies it.
+// The edge case where this doesn't work is when HEAD method is not allowed by the server (user's)
+var baseUrl=new URL(state.lifecycle.sourceConfigUrl.value);var url="".concat(baseUrl.origin).concat(baseUrl.pathname,"?view=ad");var httpClient=new HttpClient(errorHandler,logger);httpClient.setAuthHeader(state.lifecycle.writeKey.value);httpClient.getAsyncData({url:url,options:{// We actually don't need the response from the request, so we are using HEAD
+method:'HEAD',headers:{'Content-Type':undefined}},isRawResponse:true,callback:function callback(result,details){var _details$xhr;// not ad blocked if the request is successful or it is not internally redirected on the client side
+// Often adblockers instead of blocking the request, they redirect it to an internal URL
+state.capabilities.isAdBlocked.value=(details===null||details===void 0?void 0:details.error)!==undefined||(details===null||details===void 0||(_details$xhr=details.xhr)===null||_details$xhr===void 0?void 0:_details$xhr.responseURL)!==url;}});};
+
+var hasCrypto=function hasCrypto(){return !isNullOrUndefined(globalThis.crypto)&&isFunction(globalThis.crypto.getRandomValues);};// eslint-disable-next-line compat/compat -- We are checking for the existence of navigator.userAgentData
+var hasUAClientHints=function hasUAClientHints(){return !isNullOrUndefined(globalThis.navigator.userAgentData);};var hasBeacon=function hasBeacon(){return !isNullOrUndefined(globalThis.navigator.sendBeacon)&&isFunction(globalThis.navigator.sendBeacon);};var isIE11=function isIE11(){return Boolean(globalThis.navigator.userAgent.match(/Trident.*rv:11\./));};
+
+var getUserAgentClientHint=function getUserAgentClientHint(callback){var level=arguments.length>1&&arguments[1]!==undefined?arguments[1]:'none';if(level==='none'){callback(undefined);}if(level==='default'){callback(navigator.userAgentData);}if(level==='full'){var _navigator$userAgentD;(_navigator$userAgentD=navigator.userAgentData)===null||_navigator$userAgentD===void 0||_navigator$userAgentD.getHighEntropyValues(['architecture','bitness','brands','mobile','model','platform','platformVersion','uaFullVersion','fullVersionList','wow64']).then(function(ua){callback(ua);}).catch(function(){callback();});}};
+
+var isDatasetAvailable=function isDatasetAvailable(){var testElement=globalThis.document.createElement('div');testElement.setAttribute('data-a-b','c');return testElement.dataset?testElement.dataset.aB==='c':false;};var legacyJSEngineRequiredPolyfills={// Ideally, we should separate the checks for URL and URLSearchParams but
+// the polyfill service serves them under the same feature name, "URL".
+URL:function URL(){return !isFunction(globalThis.URL)||!isFunction(globalThis.URLSearchParams);},Promise:function Promise(){return !isFunction(globalThis.Promise);},'Number.isNaN':function NumberIsNaN(){return !isFunction(globalThis.Number.isNaN);},'Number.isInteger':function NumberIsInteger(){return !isFunction(globalThis.Number.isInteger);},'Array.from':function ArrayFrom(){return !isFunction(globalThis.Array.from);},'Array.prototype.find':function ArrayPrototypeFind(){return !isFunction(globalThis.Array.prototype.find);},'Array.prototype.includes':function ArrayPrototypeIncludes(){return !isFunction(globalThis.Array.prototype.includes);},'String.prototype.endsWith':function StringPrototypeEndsWith(){return !isFunction(globalThis.String.prototype.endsWith);},'String.prototype.startsWith':function StringPrototypeStartsWith(){return !isFunction(globalThis.String.prototype.startsWith);},'String.prototype.includes':function StringPrototypeIncludes(){return !isFunction(globalThis.String.prototype.includes);},'String.prototype.replaceAll':function StringPrototypeReplaceAll(){return !isFunction(globalThis.String.prototype.replaceAll);},'String.fromCodePoint':function StringFromCodePoint(){return !isFunction(globalThis.String.fromCodePoint);},'Object.entries':function ObjectEntries(){return !isFunction(globalThis.Object.entries);},'Object.values':function ObjectValues(){return !isFunction(globalThis.Object.values);},'Object.assign':function ObjectAssign(){return !isFunction(globalThis.Object.assign);},'Object.fromEntries':function ObjectFromEntries(){return !isFunction(globalThis.Object.fromEntries);},'Element.prototype.dataset':function ElementPrototypeDataset(){return !isDatasetAvailable();},// Ideally, we should separate the checks for TextEncoder and TextDecoder but
+// the polyfill service serves them under the same feature name, "TextEncoder".
+TextEncoder:function TextEncoder(){return !isFunction(globalThis.TextEncoder)||!isFunction(globalThis.TextDecoder);},requestAnimationFrame:function requestAnimationFrame(){return !isFunction(globalThis.requestAnimationFrame)||!isFunction(globalThis.cancelAnimationFrame);},CustomEvent:function CustomEvent(){return !isFunction(globalThis.CustomEvent);},'navigator.sendBeacon':function navigatorSendBeacon(){return !isFunction(globalThis.navigator.sendBeacon);},// Note, the polyfill service serves both ArrayBuffer and Uint8Array under the same feature name, "ArrayBuffer".
+ArrayBuffer:function ArrayBuffer(){return !isFunction(globalThis.Uint8Array);},Set:function Set(){return !isFunction(globalThis.Set);}};var isLegacyJSEngine=function isLegacyJSEngine(){var requiredCapabilitiesList=Object.keys(legacyJSEngineRequiredPolyfills);var needsPolyfill=false;/* eslint-disable-next-line unicorn/no-for-loop */for(var i=0;i<requiredCapabilitiesList.length;i++){var isCapabilityMissing=legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i]];if(isFunction(isCapabilityMissing)&&isCapabilityMissing()){needsPolyfill=true;break;}}return needsPolyfill;};
+
+var getScreenDetails=function getScreenDetails(){var screenDetails={density:0,width:0,height:0,innerWidth:0,innerHeight:0};screenDetails={width:globalThis.screen.width,height:globalThis.screen.height,density:globalThis.devicePixelRatio,innerWidth:globalThis.innerWidth,innerHeight:globalThis.innerHeight};return screenDetails;};
+
+var isStorageQuotaExceeded=function isStorageQuotaExceeded(e){var matchingNames=['QuotaExceededError','NS_ERROR_DOM_QUOTA_REACHED'];// [everything except Firefox, Firefox]
+var matchingCodes=[22,1014];// [everything except Firefox, Firefox]
+var isQuotaExceededError=matchingNames.includes(e.name)||matchingCodes.includes(e.code);return e instanceof DOMException&&isQuotaExceededError;};// TODO: also check for SecurityErrors
+//  https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage#exceptions
+var isStorageAvailable=function isStorageAvailable(){var type=arguments.length>0&&arguments[0]!==undefined?arguments[0]:LOCAL_STORAGE;var storageInstance=arguments.length>1?arguments[1]:undefined;var logger=arguments.length>2?arguments[2]:undefined;var storage;var testData;try{switch(type){case MEMORY_STORAGE:return true;case COOKIE_STORAGE:storage=storageInstance;testData=STORAGE_TEST_COOKIE;break;case LOCAL_STORAGE:storage=storageInstance!==null&&storageInstance!==void 0?storageInstance:globalThis.localStorage;testData=STORAGE_TEST_LOCAL_STORAGE;// was STORAGE_TEST_LOCAL_STORAGE in ours and generateUUID() in segment retry one
+break;case SESSION_STORAGE:storage=storageInstance!==null&&storageInstance!==void 0?storageInstance:globalThis.sessionStorage;testData=STORAGE_TEST_SESSION_STORAGE;break;default:return false;}if(!storage){return false;}storage.setItem(testData,'true');if(storage.getItem(testData)){storage.removeItem(testData);return true;}return false;}catch(err){var msgPrefix=STORAGE_UNAVAILABILITY_ERROR_PREFIX(CAPABILITIES_MANAGER,type);var reason='unavailable';if(isStorageQuotaExceeded(err)){reason='full';}logger===null||logger===void 0||logger.warn("".concat(msgPrefix).concat(reason,"."),err);return false;}};
+
+/**
+ * Encode.
+ */var encode=function encode(value,logger){try{return encodeURIComponent(value);}catch(err){logger===null||logger===void 0||logger.error(COOKIE_DATA_ENCODING_ERROR,err);return undefined;}};/**
+ * Decode
+ */var decode=function decode(value){try{return decodeURIComponent(value);}catch(err){// Do nothing as non-RS SDK cookies may not be URI encoded
+return undefined;}};/**
+ * Parse cookie `str`
+ */var parse=function parse(str){var obj={};var pairs=str.split(/\s*;\s*/);var pair;if(!pairs[0]){return obj;}// TODO: Decode only the cookies that are needed by the SDK
+pairs.forEach(function(pairItem){pair=pairItem.split('=');var keyName=pair[0]?decode(pair[0]):undefined;if(keyName){obj[keyName]=pair[1]?decode(pair[1]):undefined;}});return obj;};/**
+ * Set cookie `name` to `value`
+ */var set=function set(name,value,optionsConfig,logger){var options=_objectSpread2({},optionsConfig)||{};var cookieString="".concat(encode(name,logger),"=").concat(encode(value,logger));if(isNull(value)){options.maxage=-1;}if(options.maxage){options.expires=new Date(+new Date()+options.maxage);}if(options.path){cookieString+="; path=".concat(options.path);}if(options.domain){cookieString+="; domain=".concat(options.domain);}if(options.expires){cookieString+="; expires=".concat(options.expires.toUTCString());}if(options.samesite){cookieString+="; samesite=".concat(options.samesite);}if(options.secure){cookieString+="; secure";}globalThis.document.cookie=cookieString;};/**
+ * Return all cookies
+ */var all=function all(){var cookieStringValue=globalThis.document.cookie;return parse(cookieStringValue);};/**
+ * Get cookie `name`
+ */var get=function get(name){return all()[name];};/**
+ * Set or get cookie `name` with `value` and `options` object
+ */ // eslint-disable-next-line func-names
+var cookie=function cookie(name,value,options,logger){switch(arguments.length){case 4:case 3:case 2:return set(name,value,options,logger);case 1:if(name){return get(name);}return all();default:return all();}};
+
+var legacyGetHostname=function legacyGetHostname(href){var l=document.createElement('a');l.href=href;return l.hostname;};/**
+ * Levels returns all levels of the given url
+ *
+ * The method returns an empty array when the hostname is an ip.
+ */var levelsFunc=function levelsFunc(url){var _host$split;// This is called before the polyfills load thus new URL cannot be used
+var host=typeof globalThis.URL!=='function'?legacyGetHostname(url):new URL(url).hostname;var parts=(_host$split=host===null||host===void 0?void 0:host.split('.'))!==null&&_host$split!==void 0?_host$split:[];var last=parts[parts.length-1];var levels=[];// Ip address.
+if(parts.length===4&&last&&last===parseInt(last,10).toString()){return levels;}// Localhost.
+if(parts.length<=1){// Fix to support localhost
+if(parts[0]&&parts[0].indexOf('localhost')!==-1){return ['localhost'];}return levels;}// Create levels.
+for(var i=parts.length-2;i>=0;i-=1){levels.push(parts.slice(i).join('.'));}return levels;};/**
+ * Get the top domain.
+ *
+ * The function constructs the levels of domain and attempts to set a global
+ * cookie on each one when it succeeds it returns the top level domain.
+ *
+ * The method returns an empty string when the hostname is an ip.
+ */var domain=function domain(url){var levels=levelsFunc(url);// Lookup the real top level one.
+// eslint-disable-next-line unicorn/no-for-loop
+for(var i=0;i<levels.length;i+=1){var _domain=levels[i];var cname=STORAGE_TEST_TOP_LEVEL_DOMAIN;var opts={domain:"".concat(_domain.indexOf('localhost')!==-1?'':'.').concat(_domain)};// Set cookie on domain
+cookie(cname,1,opts);// If successful
+if(cookie(cname)){// Remove cookie from domain
+cookie(cname,null,opts);return _domain;}}return '';};
+
+var getDefaultCookieOptions=function getDefaultCookieOptions(){var topDomain=".".concat(domain(globalThis.location.href));return {maxage:DEFAULT_COOKIE_MAX_AGE_MS,path:'/',domain:!topDomain||topDomain==='.'?undefined:topDomain,samesite:'Lax',enabled:true};};var getDefaultLocalStorageOptions=function getDefaultLocalStorageOptions(){return {enabled:true};};var getDefaultSessionStorageOptions=function getDefaultSessionStorageOptions(){return {enabled:true};};var getDefaultInMemoryStorageOptions=function getDefaultInMemoryStorageOptions(){return {enabled:true};};
+
+/**
+ * A storage utility to persist values in cookies via Storage interface
+ */var CookieStorage=/*#__PURE__*/function(){function CookieStorage(){var options=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};var logger=arguments.length>1?arguments[1]:undefined;_classCallCheck(this,CookieStorage);_defineProperty(this,"isSupportAvailable",true);_defineProperty(this,"isEnabled",true);_defineProperty(this,"length",0);if(CookieStorage.globalSingleton){// eslint-disable-next-line no-constructor-return
+return CookieStorage.globalSingleton;}this.options=getDefaultCookieOptions();this.logger=logger;this.configure(options);CookieStorage.globalSingleton=this;}return _createClass(CookieStorage,[{key:"configure",value:function configure(options){var _this$options;this.options=mergeDeepRight((_this$options=this.options)!==null&&_this$options!==void 0?_this$options:{},options);if(options.sameDomainCookiesOnly){delete this.options.domain;}this.isSupportAvailable=isStorageAvailable(COOKIE_STORAGE,this,this.logger);this.isEnabled=Boolean(this.options.enabled&&this.isSupportAvailable);return this.options;}},{key:"setItem",value:function setItem(key,value){cookie(key,value,this.options,this.logger);this.length=Object.keys(cookie()).length;return true;}// eslint-disable-next-line class-methods-use-this
+},{key:"getItem",value:function getItem(key){var value=cookie(key);return isUndefined(value)?null:value;}},{key:"removeItem",value:function removeItem(key){var result=this.setItem(key,null);this.length=Object.keys(cookie()).length;return result;}// eslint-disable-next-line class-methods-use-this
+},{key:"clear",value:function clear(){// Not implemented
+// getting a list of all cookie storage keys and remove all values
+// sounds risky to do as it will take on all top domain cookies
+// better to explicitly clear specific ones if needed
+}},{key:"key",value:function key(index){var _curKeys$index;var curKeys=this.keys();return (_curKeys$index=curKeys[index])!==null&&_curKeys$index!==void 0?_curKeys$index:null;}// eslint-disable-next-line class-methods-use-this
+},{key:"keys",value:function keys(){return Object.keys(cookie());}}]);}();_defineProperty(CookieStorage,"globalSingleton",null);
+
+/**
+ * A storage utility to retain values in memory via Storage interface
+ */var InMemoryStorage=/*#__PURE__*/function(){function InMemoryStorage(options,logger){_classCallCheck(this,InMemoryStorage);_defineProperty(this,"isEnabled",true);_defineProperty(this,"length",0);_defineProperty(this,"data",{});this.options=getDefaultInMemoryStorageOptions();this.logger=logger;this.configure(options!==null&&options!==void 0?options:{});}return _createClass(InMemoryStorage,[{key:"configure",value:function configure(options){this.options=mergeDeepRight(this.options,options);this.isEnabled=Boolean(this.options.enabled);return this.options;}},{key:"setItem",value:function setItem(key,value){this.data[key]=value;this.length=Object.keys(this.data).length;return value;}},{key:"getItem",value:function getItem(key){if(key in this.data){return this.data[key];}return null;}},{key:"removeItem",value:function removeItem(key){if(key in this.data){delete this.data[key];}this.length=Object.keys(this.data).length;return null;}},{key:"clear",value:function clear(){this.data={};this.length=0;}},{key:"key",value:function key(index){var _curKeys$index;var curKeys=this.keys();return (_curKeys$index=curKeys[index])!==null&&_curKeys$index!==void 0?_curKeys$index:null;}},{key:"keys",value:function keys(){return Object.keys(this.data);}}]);}();var defaultInMemoryStorage=new InMemoryStorage({},defaultLogger);
+
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+var store$1 = {exports: {}};
+
+(function(module,exports){(function(global,factory){module.exports=factory();})(commonjsGlobal,function(){function isJSON(obj){obj=JSON.stringify(obj);if(!/^\{[\s\S]*\}$/.test(obj)){return false;}return true;}function stringify(val){return val===undefined||typeof val==="function"?val+'':JSON.stringify(val);}function deserialize(value){if(typeof value!=='string'){return undefined;}try{return JSON.parse(value);}catch(e){return value;}}function isFunction(value){return {}.toString.call(value)==="[object Function]";}function isArray(value){return Object.prototype.toString.call(value)==="[object Array]";}// https://github.com/jaywcjlove/store.js/pull/8
+// Error: QuotaExceededError
+function dealIncognito(storage){var _KEY='_Is_Incognit',_VALUE='yes';try{// NOTE: set default storage when not passed in
+if(!storage){storage=window.localStorage;}storage.setItem(_KEY,_VALUE);storage.removeItem(_KEY);}catch(e){var inMemoryStorage={};inMemoryStorage._data={};inMemoryStorage.setItem=function(id,val){return inMemoryStorage._data[id]=String(val);};inMemoryStorage.getItem=function(id){return inMemoryStorage._data.hasOwnProperty(id)?inMemoryStorage._data[id]:undefined;};inMemoryStorage.removeItem=function(id){return delete inMemoryStorage._data[id];};inMemoryStorage.clear=function(){return inMemoryStorage._data={};};storage=inMemoryStorage;}finally{if(storage.getItem(_KEY)===_VALUE)storage.removeItem(_KEY);}return storage;}// deal QuotaExceededError if user use incognito mode in browser
+var storage=dealIncognito();function Store(){if(!(this instanceof Store)){return new Store();}}Store.prototype={set:function set(key,val){if(key&&!isJSON(key)){storage.setItem(key,stringify(val));}else if(isJSON(key)){for(var a in key)this.set(a,key[a]);}return this;},get:function get(key){// Return all entries if no key
+if(key===undefined){var ret={};this.forEach(function(key,val){return ret[key]=val;});return ret;}if(key.charAt(0)==='?'){return this.has(key.substr(1));}var args=arguments;if(args.length>1){var dt={};for(var i=0,len=args.length;i<len;i++){var value=deserialize(storage.getItem(args[i]));if(this.has(args[i])){dt[args[i]]=value;}}return dt;}return deserialize(storage.getItem(key));},clear:function clear(){storage.clear();return this;},remove:function remove(key){var val=this.get(key);storage.removeItem(key);return val;},has:function has(key){return {}.hasOwnProperty.call(this.get(),key);},keys:function keys(){var d=[];this.forEach(function(k){d.push(k);});return d;},forEach:function forEach(callback){for(var i=0,len=storage.length;i<len;i++){var key=storage.key(i);callback(key,this.get(key));}return this;},search:function search(str){var arr=this.keys(),dt={};for(var i=0,len=arr.length;i<len;i++){if(arr[i].indexOf(str)>-1)dt[arr[i]]=this.get(arr[i]);}return dt;},len:function len(){return storage.length;}};var _Store=null;function store(key,data){var argm=arguments;var dt=null;if(!_Store)_Store=Store();if(argm.length===0)return _Store.get();if(argm.length===1){if(typeof key==="string")return _Store.get(key);if(isJSON(key))return _Store.set(key);}if(argm.length===2&&typeof key==="string"){if(!data)return _Store.remove(key);if(data&&typeof data==="string")return _Store.set(key,data);if(data&&isFunction(data)){dt=null;dt=data(key,_Store.get(key));store.set(key,dt);}}if(argm.length===2&&isArray(key)&&isFunction(data)){for(var i=0,len=key.length;i<len;i++){dt=data(key[i],_Store.get(key[i]));store.set(key[i],dt);}}return store;}for(var a in Store.prototype)store[a]=Store.prototype[a];return store;});})(store$1);var storeExports=store$1.exports;var store = /*@__PURE__*/getDefaultExportFromCjs(storeExports);
+
+//  check if the get, set overloads and search methods are used at all
+//  if we do, ensure we provide types to support overloads as per storejs docs
+//  https://www.npmjs.com/package/storejs
+/**
+ * A storage utility to persist values in localstorage via Storage interface
+ */var LocalStorage=/*#__PURE__*/function(){function LocalStorage(){var options=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};var logger=arguments.length>1?arguments[1]:undefined;_classCallCheck(this,LocalStorage);_defineProperty(this,"isSupportAvailable",true);_defineProperty(this,"isEnabled",true);_defineProperty(this,"length",0);this.options=getDefaultLocalStorageOptions();this.logger=logger;this.configure(options);}return _createClass(LocalStorage,[{key:"configure",value:function configure(options){this.options=mergeDeepRight(this.options,options);this.isSupportAvailable=isStorageAvailable(LOCAL_STORAGE,this,this.logger);this.isEnabled=Boolean(this.options.enabled&&this.isSupportAvailable);return this.options;}},{key:"setItem",value:function setItem(key,value){store.set(key,value);this.length=store.len();}// eslint-disable-next-line class-methods-use-this
+},{key:"getItem",value:function getItem(key){var value=store.get(key);return isUndefined(value)?null:value;}},{key:"removeItem",value:function removeItem(key){store.remove(key);this.length=store.len();}},{key:"clear",value:function clear(){store.clear();this.length=0;}},{key:"key",value:function key(index){var _curKeys$index;var curKeys=this.keys();return (_curKeys$index=curKeys[index])!==null&&_curKeys$index!==void 0?_curKeys$index:null;}// eslint-disable-next-line class-methods-use-this
+},{key:"keys",value:function keys(){return store.keys();}}]);}();var defaultLocalStorage=new LocalStorage({},defaultLogger);
+
+/**
+ * A storage utility to persist values in SessionStorage via Storage interface
+ */var SessionStorage=/*#__PURE__*/function(){function SessionStorage(){var options=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};var logger=arguments.length>1?arguments[1]:undefined;_classCallCheck(this,SessionStorage);_defineProperty(this,"isSupportAvailable",true);_defineProperty(this,"isEnabled",true);_defineProperty(this,"length",0);_defineProperty(this,"store",globalThis.sessionStorage);this.options=getDefaultSessionStorageOptions();this.logger=logger;this.configure(options);}return _createClass(SessionStorage,[{key:"configure",value:function configure(options){this.options=mergeDeepRight(this.options,options);this.isSupportAvailable=isStorageAvailable(SESSION_STORAGE,this,this.logger);this.isEnabled=Boolean(this.options.enabled&&this.isSupportAvailable);return this.options;}},{key:"setItem",value:function setItem(key,value){this.store.setItem(key,value);this.length=this.store.length;}},{key:"getItem",value:function getItem(key){var value=this.store.getItem(key);return isUndefined(value)?null:value;}},{key:"removeItem",value:function removeItem(key){this.store.removeItem(key);this.length=this.store.length;}},{key:"clear",value:function clear(){this.store.clear();this.length=0;}},{key:"key",value:function key(index){return this.store.key(index);}},{key:"keys",value:function keys(){var keys=[];for(var i=0;i<this.store.length;i+=1){var key=this.store.key(i);if(key!==null){keys.push(key);}}return keys;}}]);}();var defaultSessionStorage=new SessionStorage({},defaultLogger);
+
+/**
+ * A utility to retrieve the storage singleton instance by type
+ */var getStorageEngine=function getStorageEngine(type){switch(type){case LOCAL_STORAGE:return defaultLocalStorage;case SESSION_STORAGE:return defaultSessionStorage;case MEMORY_STORAGE:return defaultInMemoryStorage;case COOKIE_STORAGE:return new CookieStorage({},defaultLogger);default:return defaultInMemoryStorage;}};/**
+ * Configure cookie storage singleton
+ */var configureCookieStorageEngine=function configureCookieStorageEngine(options){var cookieStorageOptions=new CookieStorage({},defaultLogger).configure(options);state.storage.cookie.value={maxage:cookieStorageOptions.maxage,path:cookieStorageOptions.path,domain:cookieStorageOptions.domain,samesite:cookieStorageOptions.samesite,expires:cookieStorageOptions.expires,secure:cookieStorageOptions.secure};};/**
+ * Configure local storage singleton
+ */var configureLocalStorageEngine=function configureLocalStorageEngine(options){defaultLocalStorage.configure(options);};/**
+ * Configure in memory storage singleton
+ */var configureInMemoryStorageEngine=function configureInMemoryStorageEngine(options){defaultInMemoryStorage.configure(options);};/**
+ * Configure session storage singleton
+ */var configureSessionStorageEngine=function configureSessionStorageEngine(options){defaultSessionStorage.configure(options);};/**
+ * Configure all storage singleton instances
+ */var configureStorageEngines=function configureStorageEngines(){var cookieStorageOptions=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};var localStorageOptions=arguments.length>1&&arguments[1]!==undefined?arguments[1]:{};var inMemoryStorageOptions=arguments.length>2&&arguments[2]!==undefined?arguments[2]:{};var sessionStorageOptions=arguments.length>3&&arguments[3]!==undefined?arguments[3]:{};configureCookieStorageEngine(cookieStorageOptions);configureLocalStorageEngine(localStorageOptions);configureInMemoryStorageEngine(inMemoryStorageOptions);configureSessionStorageEngine(sessionStorageOptions);};
+
+/**
+ * Store Implementation with dedicated storage
+ */var Store=/*#__PURE__*/function(){function Store(config,engine,pluginsManager){var _config$isEncrypted,_config$validKeys,_config$errorHandler,_config$logger;_classCallCheck(this,Store);_defineProperty(this,"hasErrorHandler",false);this.id=config.id;this.name=config.name;this.isEncrypted=(_config$isEncrypted=config.isEncrypted)!==null&&_config$isEncrypted!==void 0?_config$isEncrypted:false;this.validKeys=(_config$validKeys=config.validKeys)!==null&&_config$validKeys!==void 0?_config$validKeys:{};this.engine=engine!==null&&engine!==void 0?engine:getStorageEngine(LOCAL_STORAGE);this.noKeyValidation=Object.keys(this.validKeys).length===0;this.noCompoundKey=config.noCompoundKey;this.originalEngine=this.engine;this.errorHandler=(_config$errorHandler=config.errorHandler)!==null&&_config$errorHandler!==void 0?_config$errorHandler:defaultErrorHandler;this.hasErrorHandler=Boolean(this.errorHandler);this.logger=(_config$logger=config.logger)!==null&&_config$logger!==void 0?_config$logger:defaultLogger;this.pluginsManager=pluginsManager;}/**
+   * Ensure the key is valid and with correct format
+   */return _createClass(Store,[{key:"createValidKey",value:function createValidKey(key){var name=this.name,id=this.id,validKeys=this.validKeys,noKeyValidation=this.noKeyValidation,noCompoundKey=this.noCompoundKey;if(noKeyValidation){return noCompoundKey?key:[name,id,key].join('.');}// validate and return undefined if invalid key
+var compoundKey;Object.values(validKeys).forEach(function(validKeyName){if(validKeyName===key){compoundKey=noCompoundKey?key:[name,id,key].join('.');}});return compoundKey;}/**
+   * Switch to inMemoryEngine, bringing any existing data with.
+   */},{key:"swapQueueStoreToInMemoryEngine",value:function swapQueueStoreToInMemoryEngine(){var _this=this;var name=this.name,id=this.id,validKeys=this.validKeys,noCompoundKey=this.noCompoundKey;var inMemoryStorage=getStorageEngine(MEMORY_STORAGE);// grab existing data, but only for this page's queue instance, not all
+// better to keep other queues in localstorage to be flushed later
+// than to pull them into memory and remove them from durable storage
+Object.keys(validKeys).forEach(function(key){var value=_this.get(validKeys[key]);var validKey=noCompoundKey?key:[name,id,key].join('.');inMemoryStorage.setItem(validKey,value);// TODO: are we sure we want to drop clientData
+//  if cookies are not available and localstorage is full?
+_this.remove(key);});this.engine=inMemoryStorage;}/**
+   * Set value by key.
+   */},{key:"set",value:function set(key,value){var validKey=this.createValidKey(key);if(!validKey){return;}try{// storejs that is used in localstorage engine already stringifies json
+this.engine.setItem(validKey,this.encrypt(stringifyWithoutCircular(value,false,[],this.logger)));}catch(err){if(isStorageQuotaExceeded(err)){var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.warn(STORAGE_QUOTA_EXCEEDED_WARNING("Store ".concat(this.id)));// switch to inMemory engine
+this.swapQueueStoreToInMemoryEngine();// and save it there
+this.set(key,value);}else {this.onError(getMutatedError(err,STORE_DATA_SAVE_ERROR(key)));}}}/**
+   * Get by Key.
+   */},{key:"get",value:function get(key){var validKey=this.createValidKey(key);try{if(!validKey){return null;}var str=this.decrypt(this.engine.getItem(validKey));if(isNullOrUndefined(str)){return null;}// storejs that is used in localstorage engine already deserializes json strings but swallows errors
+return JSON.parse(str);}catch(err){this.onError(new Error("".concat(STORE_DATA_FETCH_ERROR(key),": ").concat(err.message)));return null;}}/**
+   * Remove by Key.
+   */},{key:"remove",value:function remove(key){var validKey=this.createValidKey(key);if(validKey){this.engine.removeItem(validKey);}}/**
+   * Get original engine
+   */},{key:"getOriginalEngine",value:function getOriginalEngine(){return this.originalEngine;}/**
+   * Decrypt values
+   */},{key:"decrypt",value:function decrypt(value){if(isNullOrUndefined(value)){return null;}return this.crypto(value,'decrypt');}/**
+   * Encrypt value
+   */},{key:"encrypt",value:function encrypt(value){return this.crypto(value,'encrypt');}/**
+   * Extension point to use with encryption plugins
+   */},{key:"crypto",value:function crypto(value,mode){var noEncryption=!this.isEncrypted||!value||typeof value!=='string'||trim(value)==='';if(noEncryption){return value;}var extensionPointName="storage.".concat(mode);var formattedValue=this.pluginsManager?this.pluginsManager.invokeSingle(extensionPointName,value):value;return typeof formattedValue==='undefined'?value:formattedValue!==null&&formattedValue!==void 0?formattedValue:'';}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error){if(this.hasErrorHandler){var _this$errorHandler;(_this$errorHandler=this.errorHandler)===null||_this$errorHandler===void 0||_this$errorHandler.onError(error,"Store ".concat(this.id));}else {throw error;}}}]);}();
+
+var getStorageTypeFromPreConsentIfApplicable=function getStorageTypeFromPreConsentIfApplicable(state,sessionKey){var overriddenStorageType;if(state.consents.preConsent.value.enabled){var _state$consents$preCo;switch((_state$consents$preCo=state.consents.preConsent.value.storage)===null||_state$consents$preCo===void 0?void 0:_state$consents$preCo.strategy){case'none':overriddenStorageType=NO_STORAGE;break;case'session':if(sessionKey!=='sessionInfo'){overriddenStorageType=NO_STORAGE;}break;case'anonymousId':if(sessionKey!=='anonymousId'){overriddenStorageType=NO_STORAGE;}break;}}return overriddenStorageType;};
+
+/**
+ * A service to manage stores & available storage client configurations
+ */var StoreManager=/*#__PURE__*/function(){function StoreManager(pluginsManager,errorHandler,logger){_classCallCheck(this,StoreManager);_defineProperty(this,"stores",{});_defineProperty(this,"isInitialized",false);_defineProperty(this,"hasErrorHandler",false);this.errorHandler=errorHandler;this.logger=logger;this.hasErrorHandler=Boolean(this.errorHandler);this.pluginsManager=pluginsManager;this.onError=this.onError.bind(this);}/**
+   * Configure available storage client instances
+   */return _createClass(StoreManager,[{key:"init",value:function init(){var _config$cookieStorage,_state$storage$cookie,_state$storage$cookie2;if(this.isInitialized){return;}var loadOptions=state.loadOptions.value;var config={cookieStorageOptions:{samesite:loadOptions.sameSiteCookie,secure:loadOptions.secureCookie,domain:loadOptions.setCookieDomain,sameDomainCookiesOnly:loadOptions.sameDomainCookiesOnly,enabled:true},localStorageOptions:{enabled:true},inMemoryStorageOptions:{enabled:true},sessionStorageOptions:{enabled:true}};configureStorageEngines(removeUndefinedValues(mergeDeepRight((_config$cookieStorage=config.cookieStorageOptions)!==null&&_config$cookieStorage!==void 0?_config$cookieStorage:{},(_state$storage$cookie=(_state$storage$cookie2=state.storage.cookie)===null||_state$storage$cookie2===void 0?void 0:_state$storage$cookie2.value)!==null&&_state$storage$cookie!==void 0?_state$storage$cookie:{})),removeUndefinedValues(config.localStorageOptions),removeUndefinedValues(config.inMemoryStorageOptions),removeUndefinedValues(config.sessionStorageOptions));this.initClientDataStores();this.isInitialized=true;}/**
+   * Create store to persist data used by the SDK like session, used details etc
+   */},{key:"initClientDataStores",value:function initClientDataStores(){var _this=this;this.initializeStorageState();// TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
+// TODO: should we pass the keys for all in order to validate or leave free as v1.1?
+// Initializing all the enabled store because previous user data might be in different storage
+// that needs auto migration
+var storageTypes=[MEMORY_STORAGE,LOCAL_STORAGE,COOKIE_STORAGE,SESSION_STORAGE];storageTypes.forEach(function(storageType){var _getStorageEngine;if((_getStorageEngine=getStorageEngine(storageType))!==null&&_getStorageEngine!==void 0&&_getStorageEngine.isEnabled){_this.setStore({id:storageClientDataStoreNameMap[storageType],name:storageClientDataStoreNameMap[storageType],isEncrypted:true,noCompoundKey:true,type:storageType});}});}},{key:"initializeStorageState",value:function initializeStorageState(){var _state$loadOptions$va,_this2=this;var globalStorageType=state.storage.type.value;var entriesOptions=(_state$loadOptions$va=state.loadOptions.value.storage)===null||_state$loadOptions$va===void 0?void 0:_state$loadOptions$va.entries;// Use the storage options from post consent if anything is defined
+var postConsentStorageOpts=state.consents.postConsent.value.storage;if(isDefined(postConsentStorageOpts===null||postConsentStorageOpts===void 0?void 0:postConsentStorageOpts.type)||isDefined(postConsentStorageOpts===null||postConsentStorageOpts===void 0?void 0:postConsentStorageOpts.entries)){globalStorageType=postConsentStorageOpts===null||postConsentStorageOpts===void 0?void 0:postConsentStorageOpts.type;entriesOptions=postConsentStorageOpts===null||postConsentStorageOpts===void 0?void 0:postConsentStorageOpts.entries;}var trulyAnonymousTracking=true;var storageEntries={};USER_SESSION_KEYS.forEach(function(sessionKey){var _entriesOptions,_ref,_ref2;var key=sessionKey;var storageKey=sessionKey;var configuredStorageType=(_entriesOptions=entriesOptions)===null||_entriesOptions===void 0||(_entriesOptions=_entriesOptions[key])===null||_entriesOptions===void 0?void 0:_entriesOptions.type;var preConsentStorageType=getStorageTypeFromPreConsentIfApplicable(state,sessionKey);// Storage type precedence order: pre-consent strategy > entry type > global type > default
+var storageType=(_ref=(_ref2=preConsentStorageType!==null&&preConsentStorageType!==void 0?preConsentStorageType:configuredStorageType)!==null&&_ref2!==void 0?_ref2:globalStorageType)!==null&&_ref!==void 0?_ref:DEFAULT_STORAGE_TYPE;var finalStorageType=_this2.getResolvedStorageTypeForEntry(storageType,sessionKey);if(finalStorageType!==NO_STORAGE){trulyAnonymousTracking=false;}storageEntries=_objectSpread2(_objectSpread2({},storageEntries),{},_defineProperty({},sessionKey,{type:finalStorageType,key:USER_SESSION_STORAGE_KEYS[storageKey]}));});r(function(){state.storage.type.value=globalStorageType;state.storage.entries.value=storageEntries;state.storage.trulyAnonymousTracking.value=trulyAnonymousTracking;});}},{key:"getResolvedStorageTypeForEntry",value:function getResolvedStorageTypeForEntry(storageType,sessionKey){var _getStorageEngine2,_getStorageEngine3,_getStorageEngine4,_getStorageEngine5,_getStorageEngine6;var finalStorageType=storageType;switch(storageType){case LOCAL_STORAGE:if(!((_getStorageEngine2=getStorageEngine(LOCAL_STORAGE))!==null&&_getStorageEngine2!==void 0&&_getStorageEngine2.isEnabled)){finalStorageType=MEMORY_STORAGE;}break;case SESSION_STORAGE:if(!((_getStorageEngine3=getStorageEngine(SESSION_STORAGE))!==null&&_getStorageEngine3!==void 0&&_getStorageEngine3.isEnabled)){finalStorageType=MEMORY_STORAGE;}break;case MEMORY_STORAGE:case NO_STORAGE:break;case COOKIE_STORAGE:default:// First try setting the storage to cookie else to local storage
+if((_getStorageEngine4=getStorageEngine(COOKIE_STORAGE))!==null&&_getStorageEngine4!==void 0&&_getStorageEngine4.isEnabled){finalStorageType=COOKIE_STORAGE;}else if((_getStorageEngine5=getStorageEngine(LOCAL_STORAGE))!==null&&_getStorageEngine5!==void 0&&_getStorageEngine5.isEnabled){finalStorageType=LOCAL_STORAGE;}else if((_getStorageEngine6=getStorageEngine(SESSION_STORAGE))!==null&&_getStorageEngine6!==void 0&&_getStorageEngine6.isEnabled){finalStorageType=SESSION_STORAGE;}else {finalStorageType=MEMORY_STORAGE;}break;}if(finalStorageType!==storageType){var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.warn(STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER,sessionKey,storageType,finalStorageType));}return finalStorageType;}/**
+   * Create a new store
+   */},{key:"setStore",value:function setStore(storeConfig){var storageEngine=getStorageEngine(storeConfig.type);this.stores[storeConfig.id]=new Store(storeConfig,storageEngine,this.pluginsManager);return this.stores[storeConfig.id];}/**
+   * Retrieve a store
+   */},{key:"getStore",value:function getStore(id){return this.stores[id];}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error){if(this.hasErrorHandler){var _this$errorHandler;(_this$errorHandler=this.errorHandler)===null||_this$errorHandler===void 0||_this$errorHandler.onError(error,STORE_MANAGER);}else {throw error;}}}]);}();
+
+var validateWriteKey=function validateWriteKey(writeKey){if(!isString(writeKey)||writeKey.trim().length===0){throw new Error(WRITE_KEY_VALIDATION_ERROR(writeKey));}};var validateDataPlaneUrl=function validateDataPlaneUrl(dataPlaneUrl){if(!isValidURL(dataPlaneUrl)){throw new Error(DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl));}};var validateLoadArgs=function validateLoadArgs(writeKey,dataPlaneUrl){validateWriteKey(writeKey);validateDataPlaneUrl(dataPlaneUrl);};var isValidSourceConfig=function isValidSourceConfig(res){return isObjectLiteralAndNotNull(res)&&isObjectLiteralAndNotNull(res.source)&&!isNullOrUndefined(res.source.id)&&isObjectLiteralAndNotNull(res.source.config)&&Array.isArray(res.source.destinations);};var isValidStorageType=function isValidStorageType(storageType){return typeof storageType==='string'&&SUPPORTED_STORAGE_TYPES.includes(storageType);};var getTopDomainUrl=function getTopDomainUrl(url){// Create a URL object
+var urlObj=new URL(url);// Extract the host and protocol
+var host=urlObj.host,protocol=urlObj.protocol;// Split the host into parts
+var parts=host.split('.');var topDomain;// Handle different cases, especially for co.uk or similar TLDs
+if(parts.length>2){// Join the last two parts for the top-level domain
+topDomain="".concat(parts[parts.length-2],".").concat(parts[parts.length-1]);}else {// If only two parts or less, return as it is
+topDomain=host;}return "".concat(protocol,"//").concat(topDomain);};var getDataServiceUrl=function getDataServiceUrl(endpoint){var url=getTopDomainUrl(window.location.href);var formattedEndpoint=endpoint.startsWith('/')?endpoint.substring(1):endpoint;return "".concat(url,"/").concat(formattedEndpoint);};
+
+/**
+ * A function to filter enabled destinations and map to required properties only
+ * @param destinations
+ *
+ * @returns Destination[]
+ */var filterEnabledDestination=function filterEnabledDestination(destinations){var nativeDestinations=[];destinations.forEach(function(destination){if(destination.enabled&&!destination.deleted){nativeDestinations.push({id:destination.id,displayName:destination.destinationDefinition.displayName,config:destination.config,shouldApplyDeviceModeTransformation:destination.shouldApplyDeviceModeTransformation||false,propagateEventsUntransformedOnError:destination.propagateEventsUntransformedOnError||false,userFriendlyId:"".concat(destination.destinationDefinition.displayName.replaceAll(' ','-'),"___").concat(destination.id)});}});return nativeDestinations;};
+
+/**
+ * Removes trailing slash from url
+ * @param url
+ * @returns url
+ */var removeTrailingSlashes=function removeTrailingSlashes(url){return url!==null&&url!==void 0&&url.endsWith('/')?removeTrailingSlashes(url.substring(0,url.length-1)):url;};var getDomain=function getDomain(url){try{var urlObj=new URL(url);return urlObj.host;}catch(error){return null;}};/**
+ * Get the referring domain from the referrer URL
+ * @param referrer Page referrer
+ * @returns Page referring domain
+ */var getReferringDomain=function getReferringDomain(referrer){var _getDomain;return (_getDomain=getDomain(referrer))!==null&&_getDomain!==void 0?_getDomain:'';};/**
+ * Extracts UTM parameters from the URL
+ * @param url Page URL
+ * @returns UTM parameters
+ */var extractUTMParameters=function extractUTMParameters(url){var result={};try{var urlObj=new URL(url);var UTM_PREFIX='utm_';urlObj.searchParams.forEach(function(value,sParam){if(sParam.startsWith(UTM_PREFIX)){var utmParam=sParam.substring(UTM_PREFIX.length);// Not sure why we're doing this
+if(utmParam==='campaign'){utmParam='name';}result[utmParam]=value;}});}catch(error){// Do nothing
+}return result;};/**
+ * To get the URL until the hash
+ * @param url The input URL
+ * @returns URL until the hash
+ */var getUrlWithoutHash=function getUrlWithoutHash(url){var urlWithoutHash=url;try{var urlObj=new URL(url);urlWithoutHash=urlObj.origin+urlObj.pathname+urlObj.search;}catch(error){// Do nothing
+}return urlWithoutHash;};
+
+/**
+ * Determines if the SDK is running inside a chrome extension
+ * @returns boolean
+ */var isSDKRunningInChromeExtension=function isSDKRunningInChromeExtension(){return !!(window.chrome&&window.chrome.runtime&&window.chrome.runtime.id);};
+
+var DEFAULT_PRE_CONSENT_STORAGE_STRATEGY='none';var DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE='immediate';
+
+var isErrorReportingEnabled=function isErrorReportingEnabled(sourceConfig){var _sourceConfig$statsCo;return (sourceConfig===null||sourceConfig===void 0||(_sourceConfig$statsCo=sourceConfig.statsCollection)===null||_sourceConfig$statsCo===void 0||(_sourceConfig$statsCo=_sourceConfig$statsCo.errors)===null||_sourceConfig$statsCo===void 0?void 0:_sourceConfig$statsCo.enabled)===true;};var getErrorReportingProviderNameFromConfig=function getErrorReportingProviderNameFromConfig(sourceConfig){var _sourceConfig$statsCo2;return sourceConfig===null||sourceConfig===void 0||(_sourceConfig$statsCo2=sourceConfig.statsCollection)===null||_sourceConfig$statsCo2===void 0||(_sourceConfig$statsCo2=_sourceConfig$statsCo2.errors)===null||_sourceConfig$statsCo2===void 0?void 0:_sourceConfig$statsCo2.provider;};var isMetricsReportingEnabled=function isMetricsReportingEnabled(sourceConfig){var _sourceConfig$statsCo3;return (sourceConfig===null||sourceConfig===void 0||(_sourceConfig$statsCo3=sourceConfig.statsCollection)===null||_sourceConfig$statsCo3===void 0||(_sourceConfig$statsCo3=_sourceConfig$statsCo3.metrics)===null||_sourceConfig$statsCo3===void 0?void 0:_sourceConfig$statsCo3.enabled)===true;};
+
+/**
+ * Validates and normalizes the consent options provided by the user
+ * @param options Consent options provided by the user
+ * @returns Validated and normalized consent options
+ */var getValidPostConsentOptions=function getValidPostConsentOptions(options){var validOptions={sendPageEvent:false,trackConsent:false,discardPreConsentEvents:false};if(isObjectLiteralAndNotNull(options)){var clonedOptions=clone(options);validOptions.storage=clonedOptions.storage;if(isDefined(clonedOptions.integrations)){validOptions.integrations=isObjectLiteralAndNotNull(clonedOptions.integrations)?clonedOptions.integrations:DEFAULT_INTEGRATIONS_CONFIG;}validOptions.discardPreConsentEvents=clonedOptions.discardPreConsentEvents===true;validOptions.sendPageEvent=clonedOptions.sendPageEvent===true;validOptions.trackConsent=clonedOptions.trackConsent===true;if(isNonEmptyObject(clonedOptions.consentManagement)){// Override enabled value with the current state value
+validOptions.consentManagement=mergeDeepRight(clonedOptions.consentManagement,{enabled:state.consents.enabled.value});}}return validOptions;};/**
+ * Validates if the input is a valid consents data
+ * @param value Input consents data
+ * @returns true if the input is a valid consents data else false
+ */var isValidConsentsData=function isValidConsentsData(value){return isNonEmptyObject(value)||Array.isArray(value);};/**
+ * Retrieves the corresponding provider and plugin name of the selected consent manager from the supported consent managers
+ * @param consentManagementOpts consent management options
+ * @param logger logger instance
+ * @returns Corresponding provider and plugin name of the selected consent manager from the supported consent managers
+ */var getConsentManagerInfo=function getConsentManagerInfo(consentManagementOpts,logger){var provider=consentManagementOpts.provider;var consentManagerPluginName=provider?ConsentManagersToPluginNameMap[provider]:undefined;if(provider&&!consentManagerPluginName){logger===null||logger===void 0||logger.error(UNSUPPORTED_CONSENT_MANAGER_ERROR(CONFIG_MANAGER,provider,ConsentManagersToPluginNameMap));// Reset the provider value
+provider=undefined;}return {provider:provider,consentManagerPluginName:consentManagerPluginName};};/**
+ * Validates and converts the consent management options into a normalized format
+ * @param consentManagementOpts Consent management options provided by the user
+ * @param logger logger instance
+ * @returns An object containing the consent manager plugin name, initialized, enabled and consents data
+ */var getConsentManagementData=function getConsentManagementData(consentManagementOpts,logger){var consentManagerPluginName;var allowedConsentIds=[];var deniedConsentIds=[];var initialized=false;var provider;var enabled=(consentManagementOpts===null||consentManagementOpts===void 0?void 0:consentManagementOpts.enabled)===true;if(isNonEmptyObject(consentManagementOpts)&&enabled){// Get the corresponding plugin name of the selected consent manager from the supported consent managers
+var _getConsentManagerInf=getConsentManagerInfo(consentManagementOpts,logger);provider=_getConsentManagerInf.provider;consentManagerPluginName=_getConsentManagerInf.consentManagerPluginName;if(isValidConsentsData(consentManagementOpts.allowedConsentIds)){allowedConsentIds=consentManagementOpts.allowedConsentIds;initialized=true;}if(isValidConsentsData(consentManagementOpts.deniedConsentIds)){deniedConsentIds=consentManagementOpts.deniedConsentIds;initialized=true;}}var consentsData={allowedConsentIds:allowedConsentIds,deniedConsentIds:deniedConsentIds};// Enable consent management only if consent manager is supported
+enabled=enabled&&Boolean(consentManagerPluginName);return {provider:provider,consentManagerPluginName:consentManagerPluginName,initialized:initialized,enabled:enabled,consentsData:consentsData};};
+
+/**
+ * Determines the SDK URL
+ * @returns sdkURL
+ */var getSDKUrl=function getSDKUrl(){var scripts=document.getElementsByTagName('script');var sdkFileNameRegex=/(?:^|\/)rsa(\.min)?\.js$/;// eslint-disable-next-line no-restricted-syntax
+var _iterator=_createForOfIteratorHelper(scripts),_step;try{for(_iterator.s();!(_step=_iterator.n()).done;){var script=_step.value;var src=script.getAttribute('src');if(src&&sdkFileNameRegex.test(src)){return src;}}}catch(err){_iterator.e(err);}finally{_iterator.f();}return undefined;};/**
+ * Updates the reporting state variables from the source config data
+ * @param res Source config
+ * @param logger Logger instance
+ */var updateReportingState=function updateReportingState(res,logger){state.reporting.isErrorReportingEnabled.value=isErrorReportingEnabled(res.source.config)&&!isSDKRunningInChromeExtension();state.reporting.isMetricsReportingEnabled.value=isMetricsReportingEnabled(res.source.config);if(state.reporting.isErrorReportingEnabled.value){var errReportingProvider=getErrorReportingProviderNameFromConfig(res.source.config);// Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
+var errReportingProviderPlugin=errReportingProvider?ErrorReportingProvidersToPluginNameMap[errReportingProvider]:undefined;if(!isUndefined(errReportingProvider)&&!errReportingProviderPlugin){// set the default error reporting provider
+logger===null||logger===void 0||logger.warn(UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(CONFIG_MANAGER,errReportingProvider,ErrorReportingProvidersToPluginNameMap,DEFAULT_ERROR_REPORTING_PROVIDER));}state.reporting.errorReportingProviderPluginName.value=errReportingProviderPlugin!==null&&errReportingProviderPlugin!==void 0?errReportingProviderPlugin:ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];}};var updateStorageStateFromLoadOptions=function updateStorageStateFromLoadOptions(logger){var _storageOptsFromLoad$;var _state$loadOptions$va=state.loadOptions.value,useServerSideCookies=_state$loadOptions$va.useServerSideCookies,dataServiceEndpoint=_state$loadOptions$va.dataServiceEndpoint,storageOptsFromLoad=_state$loadOptions$va.storage;var storageType=storageOptsFromLoad===null||storageOptsFromLoad===void 0?void 0:storageOptsFromLoad.type;if(isDefined(storageType)&&!isValidStorageType(storageType)){logger===null||logger===void 0||logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER,storageType,DEFAULT_STORAGE_TYPE));storageType=DEFAULT_STORAGE_TYPE;}var storageEncryptionVersion=storageOptsFromLoad===null||storageOptsFromLoad===void 0||(_storageOptsFromLoad$=storageOptsFromLoad.encryption)===null||_storageOptsFromLoad$===void 0?void 0:_storageOptsFromLoad$.version;var encryptionPluginName=storageEncryptionVersion&&StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];if(!isUndefined(storageEncryptionVersion)&&isUndefined(encryptionPluginName)){// set the default encryption plugin
+logger===null||logger===void 0||logger.warn(UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(CONFIG_MANAGER,storageEncryptionVersion,StorageEncryptionVersionsToPluginNameMap,DEFAULT_STORAGE_ENCRYPTION_VERSION));storageEncryptionVersion=DEFAULT_STORAGE_ENCRYPTION_VERSION;}else if(isUndefined(storageEncryptionVersion)){storageEncryptionVersion=DEFAULT_STORAGE_ENCRYPTION_VERSION;}// Allow migration only if the configured encryption version is the default encryption version
+var configuredMigrationValue=storageOptsFromLoad===null||storageOptsFromLoad===void 0?void 0:storageOptsFromLoad.migrate;var finalMigrationVal=configuredMigrationValue&&storageEncryptionVersion===DEFAULT_STORAGE_ENCRYPTION_VERSION;if(configuredMigrationValue===true&&finalMigrationVal!==configuredMigrationValue){logger===null||logger===void 0||logger.warn(STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(CONFIG_MANAGER,storageEncryptionVersion,DEFAULT_STORAGE_ENCRYPTION_VERSION));}r(function(){var _storageOptsFromLoad$2;state.storage.type.value=storageType;var cookieOptions=(_storageOptsFromLoad$2=storageOptsFromLoad===null||storageOptsFromLoad===void 0?void 0:storageOptsFromLoad.cookie)!==null&&_storageOptsFromLoad$2!==void 0?_storageOptsFromLoad$2:{};if(useServerSideCookies){state.serverCookies.isEnabledServerSideCookies.value=useServerSideCookies;var dataServiceUrl=getDataServiceUrl(dataServiceEndpoint!==null&&dataServiceEndpoint!==void 0?dataServiceEndpoint:DEFAULT_DATA_SERVICE_ENDPOINT);if(isValidURL(dataServiceUrl)){state.serverCookies.dataServiceUrl.value=removeTrailingSlashes(dataServiceUrl);var curHost=getDomain(window.location.href);var dataServiceHost=getDomain(dataServiceUrl);// If the current host is different from the data service host, then it is a cross-site request
+// For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+if(curHost!==dataServiceHost){cookieOptions=_objectSpread2(_objectSpread2({},cookieOptions),{},{samesite:'None',secure:true});}}else {state.serverCookies.isEnabledServerSideCookies.value=false;}}state.storage.cookie.value=cookieOptions;state.storage.encryptionPluginName.value=StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];state.storage.migrate.value=finalMigrationVal;});};var updateConsentsStateFromLoadOptions=function updateConsentsStateFromLoadOptions(logger){var _preConsentOpts$stora,_preConsentOpts$stora2,_preConsentOpts$event,_preConsentOpts$event2;var _getConsentManagement=getConsentManagementData(state.loadOptions.value.consentManagement,logger),provider=_getConsentManagement.provider,consentManagerPluginName=_getConsentManagement.consentManagerPluginName,initialized=_getConsentManagement.initialized,enabled=_getConsentManagement.enabled,consentsData=_getConsentManagement.consentsData;// Pre-consent
+var preConsentOpts=state.loadOptions.value.preConsent;var storageStrategy=(_preConsentOpts$stora=preConsentOpts===null||preConsentOpts===void 0||(_preConsentOpts$stora2=preConsentOpts.storage)===null||_preConsentOpts$stora2===void 0?void 0:_preConsentOpts$stora2.strategy)!==null&&_preConsentOpts$stora!==void 0?_preConsentOpts$stora:DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;var StorageStrategies=['none','session','anonymousId'];if(isDefined(storageStrategy)&&!StorageStrategies.includes(storageStrategy)){var _preConsentOpts$stora3;storageStrategy=DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;logger===null||logger===void 0||logger.warn(UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(CONFIG_MANAGER,preConsentOpts===null||preConsentOpts===void 0||(_preConsentOpts$stora3=preConsentOpts.storage)===null||_preConsentOpts$stora3===void 0?void 0:_preConsentOpts$stora3.strategy,DEFAULT_PRE_CONSENT_STORAGE_STRATEGY));}var eventsDeliveryType=(_preConsentOpts$event=preConsentOpts===null||preConsentOpts===void 0||(_preConsentOpts$event2=preConsentOpts.events)===null||_preConsentOpts$event2===void 0?void 0:_preConsentOpts$event2.delivery)!==null&&_preConsentOpts$event!==void 0?_preConsentOpts$event:DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;var deliveryTypes=['immediate','buffer'];if(isDefined(eventsDeliveryType)&&!deliveryTypes.includes(eventsDeliveryType)){var _preConsentOpts$event3;eventsDeliveryType=DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;logger===null||logger===void 0||logger.warn(UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE(CONFIG_MANAGER,preConsentOpts===null||preConsentOpts===void 0||(_preConsentOpts$event3=preConsentOpts.events)===null||_preConsentOpts$event3===void 0?void 0:_preConsentOpts$event3.delivery,DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE));}r(function(){var _state$loadOptions$va2;state.consents.activeConsentManagerPluginName.value=consentManagerPluginName;state.consents.initialized.value=initialized;state.consents.enabled.value=enabled;state.consents.data.value=consentsData;state.consents.provider.value=provider;state.consents.preConsent.value={// Only enable pre-consent if it is explicitly enabled and
+// if it is not already initialized and
+// if consent management is enabled
+enabled:((_state$loadOptions$va2=state.loadOptions.value.preConsent)===null||_state$loadOptions$va2===void 0?void 0:_state$loadOptions$va2.enabled)===true&&initialized===false&&enabled===true,storage:{strategy:storageStrategy},events:{delivery:eventsDeliveryType}};});};/**
+ * Determines the consent management state variables from the source config data
+ * @param resp Source config response
+ * @param logger Logger instance
+ */var updateConsentsState=function updateConsentsState(resp){var resolutionStrategy=state.consents.resolutionStrategy.value;var cmpMetadata;if(isObjectLiteralAndNotNull(resp.consentManagementMetadata)){if(state.consents.provider.value){var _resp$consentManageme,_resp$consentManageme2;resolutionStrategy=(_resp$consentManageme=(_resp$consentManageme2=resp.consentManagementMetadata.providers.find(function(p){return p.provider===state.consents.provider.value;}))===null||_resp$consentManageme2===void 0?void 0:_resp$consentManageme2.resolutionStrategy)!==null&&_resp$consentManageme!==void 0?_resp$consentManageme:state.consents.resolutionStrategy.value;}cmpMetadata=resp.consentManagementMetadata;}// If the provider is custom, then the resolution strategy is not applicable
+if(state.consents.provider.value==='custom'){resolutionStrategy=undefined;}r(function(){state.consents.metadata.value=clone(cmpMetadata);state.consents.resolutionStrategy.value=resolutionStrategy;});};var updateDataPlaneEventsStateFromLoadOptions=function updateDataPlaneEventsStateFromLoadOptions(logger){if(state.dataPlaneEvents.deliveryEnabled.value){var defaultEventsQueuePluginName='XhrQueue';var eventsQueuePluginName=defaultEventsQueuePluginName;if(state.loadOptions.value.useBeacon){if(state.capabilities.isBeaconAvailable.value){eventsQueuePluginName='BeaconQueue';}else {eventsQueuePluginName=defaultEventsQueuePluginName;logger===null||logger===void 0||logger.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));}}r(function(){state.dataPlaneEvents.eventsQueuePluginName.value=eventsQueuePluginName;});}};var getSourceConfigURL=function getSourceConfigURL(configUrl,writeKey,lockIntegrationsVersion,lockPluginsVersion,logger){var defSearchParams=new URLSearchParams({p:MODULE_TYPE,v:APP_VERSION,build:BUILD_TYPE,writeKey:writeKey,lockIntegrationsVersion:lockIntegrationsVersion.toString(),lockPluginsVersion:lockPluginsVersion.toString()});var origin=DEFAULT_CONFIG_BE_URL;var searchParams=defSearchParams;var pathname='/sourceConfig/';var hash='';if(isValidURL(configUrl)){var configUrlInstance=new URL(configUrl);if(!removeTrailingSlashes(configUrlInstance.pathname).endsWith('/sourceConfig')){configUrlInstance.pathname="".concat(removeTrailingSlashes(configUrlInstance.pathname),"/sourceConfig/");}configUrlInstance.pathname=removeDuplicateSlashes(configUrlInstance.pathname);defSearchParams.forEach(function(value,key){if(configUrlInstance.searchParams.get(key)===null){configUrlInstance.searchParams.set(key,value);}});origin=configUrlInstance.origin;pathname=configUrlInstance.pathname;searchParams=configUrlInstance.searchParams;hash=configUrlInstance.hash;}else {logger===null||logger===void 0||logger.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER,configUrl));}return "".concat(origin).concat(pathname,"?").concat(searchParams).concat(hash);};
+
+var getSDKComponentBaseURL=function getSDKComponentBaseURL(componentType,pathSuffix,baseURL,currentVersion,lockVersion,customURL){var sdkComponentURL='';if(customURL){if(!isValidURL(customURL)){throw new Error(COMPONENT_BASE_URL_ERROR(componentType));}return removeTrailingSlashes(customURL);}var sdkURL=getSDKUrl();sdkComponentURL=sdkURL?sdkURL.split('/').slice(0,-1).concat(pathSuffix).join('/'):baseURL;if(lockVersion){sdkComponentURL=sdkComponentURL.replace("/".concat(CDN_ARCH_VERSION_DIR,"/").concat(BUILD_TYPE,"/").concat(pathSuffix),"/".concat(currentVersion,"/").concat(BUILD_TYPE,"/").concat(pathSuffix));}return sdkComponentURL;};/**
+ * A function that determines integration SDK loading path
+ * @param currentVersion
+ * @param lockIntegrationsVersion
+ * @param customIntegrationsCDNPath
+ * @returns
+ */var getIntegrationsCDNPath=function getIntegrationsCDNPath(currentVersion,lockIntegrationsVersion,customIntegrationsCDNPath){return getSDKComponentBaseURL('integrations',CDN_INT_DIR,DEST_SDK_BASE_URL,currentVersion,lockIntegrationsVersion,customIntegrationsCDNPath);};/**
+ * A function that determines plugins SDK loading path
+ * @param currentVersion Current SDK version
+ * @param lockPluginsVersion Flag to lock the plugins version
+ * @param customPluginsCDNPath URL to load the plugins from
+ * @returns Final plugins CDN path
+ */var getPluginsCDNPath=function getPluginsCDNPath(currentVersion,lockPluginsVersion,customPluginsCDNPath){return getSDKComponentBaseURL('plugins',CDN_PLUGINS_DIR,PLUGINS_BASE_URL,currentVersion,lockPluginsVersion,customPluginsCDNPath);};
+
+var ConfigManager=/*#__PURE__*/function(){function ConfigManager(httpClient,errorHandler,logger){_classCallCheck(this,ConfigManager);_defineProperty(this,"hasErrorHandler",false);this.errorHandler=errorHandler;this.logger=logger;this.httpClient=httpClient;this.hasErrorHandler=Boolean(this.errorHandler);this.onError=this.onError.bind(this);this.processConfig=this.processConfig.bind(this);}return _createClass(ConfigManager,[{key:"attachEffects",value:function attachEffects(){var _this=this;E(function(){var _this$logger;(_this$logger=_this.logger)===null||_this$logger===void 0||_this$logger.setMinLogLevel(state.lifecycle.logLevel.value);});}/**
+   * A function to validate, construct and store loadOption, lifecycle, source and destination
+   * config related information in global state
+   */},{key:"init",value:function init(){var _this2=this;this.attachEffects();validateLoadArgs(state.lifecycle.writeKey.value,state.lifecycle.dataPlaneUrl.value);var _state$loadOptions$va=state.loadOptions.value,logLevel=_state$loadOptions$va.logLevel,configUrl=_state$loadOptions$va.configUrl,lockIntegrationsVersion=_state$loadOptions$va.lockIntegrationsVersion,lockPluginsVersion=_state$loadOptions$va.lockPluginsVersion,destSDKBaseURL=_state$loadOptions$va.destSDKBaseURL,pluginsSDKBaseURL=_state$loadOptions$va.pluginsSDKBaseURL;state.lifecycle.activeDataplaneUrl.value=removeTrailingSlashes(state.lifecycle.dataPlaneUrl.value);// determine the path to fetch integration SDK from
+var intgCdnUrl=getIntegrationsCDNPath(APP_VERSION,lockIntegrationsVersion,destSDKBaseURL);// determine the path to fetch remote plugins from
+var pluginsCDNPath=getPluginsCDNPath(APP_VERSION,lockPluginsVersion,pluginsSDKBaseURL);updateStorageStateFromLoadOptions(this.logger);updateConsentsStateFromLoadOptions(this.logger);updateDataPlaneEventsStateFromLoadOptions(this.logger);// set application lifecycle state in global state
+r(function(){state.lifecycle.integrationsCDNPath.value=intgCdnUrl;state.lifecycle.pluginsCDNPath.value=pluginsCDNPath;if(logLevel){state.lifecycle.logLevel.value=logLevel;}state.lifecycle.sourceConfigUrl.value=getSourceConfigURL(configUrl,state.lifecycle.writeKey.value,lockIntegrationsVersion,lockPluginsVersion,_this2.logger);});this.getConfig();}/**
+   * Handle errors
+   */},{key:"onError",value:function onError(error,customMessage,shouldAlwaysThrow){if(this.hasErrorHandler){var _this$errorHandler;(_this$errorHandler=this.errorHandler)===null||_this$errorHandler===void 0||_this$errorHandler.onError(error,CONFIG_MANAGER,customMessage,shouldAlwaysThrow);}else {throw error;}}/**
+   * A callback function that is executed once we fetch the source config response.
+   * Use to construct and store information that are dependent on the sourceConfig.
+   */},{key:"processConfig",value:function processConfig(response,details){// TODO: add retry logic with backoff based on rejectionDetails.xhr.status
+// We can use isErrRetryable utility method
+if(!response){this.onError(SOURCE_CONFIG_FETCH_ERROR(details===null||details===void 0?void 0:details.error));return;}var res;try{if(isString(response)){res=JSON.parse(response);}else {res=response;}}catch(err){this.onError(err,SOURCE_CONFIG_RESOLUTION_ERROR,true);return;}if(!isValidSourceConfig(res)){this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR),undefined,true);return;}// Log error and abort if source is disabled
+if(res.source.enabled===false){var _this$logger2;(_this$logger2=this.logger)===null||_this$logger2===void 0||_this$logger2.error(SOURCE_DISABLED_ERROR);return;}// set the values in state for reporting slice
+updateReportingState(res,this.logger);var nativeDestinations=res.source.destinations.length>0?filterEnabledDestination(res.source.destinations):[];// set in the state --> source, destination, lifecycle, reporting
+r(function(){var _state$loadOptions$va2;// set source related information in state
+state.source.value={config:res.source.config,id:res.source.id,workspaceId:res.source.workspaceId};// set device mode destination related information in state
+state.nativeDestinations.configuredDestinations.value=nativeDestinations;// set the desired optional plugins
+state.plugins.pluginsToLoadFromConfig.value=(_state$loadOptions$va2=state.loadOptions.value.plugins)!==null&&_state$loadOptions$va2!==void 0?_state$loadOptions$va2:[];updateConsentsState(res);// set application lifecycle state
+state.lifecycle.status.value='configured';});}/**
+   * A function to fetch source config either from /sourceConfig endpoint
+   * or from getSourceConfig load option
+   * @returns
+   */},{key:"getConfig",value:function getConfig(){var _this3=this;var sourceConfigFunc=state.loadOptions.value.getSourceConfig;if(sourceConfigFunc){if(!isFunction(sourceConfigFunc)){throw new Error(SOURCE_CONFIG_OPTION_ERROR);}// Fetch source config from the function
+var res=sourceConfigFunc();if(res instanceof Promise){res.then(function(pRes){return _this3.processConfig(pRes);}).catch(function(err){_this3.onError(err,'SourceConfig');});}else {this.processConfig(res);}}else {// Fetch source configuration from the configured URL
+this.httpClient.getAsyncData({url:state.lifecycle.sourceConfigUrl.value,options:{headers:{'Content-Type':undefined}},callback:this.processConfig});}}}]);}();
+
+/**
+ * To get the timezone of the user
+ *
+ * @returns string
+ */var getTimezone=function getTimezone(){var timezone=new Date().toString().match(/([A-Z]+[+-]\d+)/);return timezone&&timezone[1]?timezone[1]:'NA';};
+
+/**
+ * Get the referrer URL
+ * @returns The referrer URL
+ */var getReferrer=function getReferrer(){var _document;return ((_document=document)===null||_document===void 0?void 0:_document.referrer)||'$direct';};/**
+ * To get the canonical URL of the page
+ * @returns canonical URL
+ */var getCanonicalUrl=function getCanonicalUrl(){var tags=document.getElementsByTagName('link');var canonicalUrl='';for(var i=0;tags[i];i+=1){var tag=tags[i];if(tag.getAttribute('rel')==='canonical'&&!canonicalUrl){var _tag$getAttribute;canonicalUrl=(_tag$getAttribute=tag.getAttribute('href'))!==null&&_tag$getAttribute!==void 0?_tag$getAttribute:'';break;}}return canonicalUrl;};var getUserAgent=function getUserAgent(){if(isUndefined(globalThis.navigator)){return null;}var userAgent=globalThis.navigator.userAgent;var _ref=globalThis.navigator,brave=_ref.brave;// For supporting Brave browser detection,
+// add "Brave/<version>" to the user agent with the version value from the Chrome component
+if(brave&&Object.getPrototypeOf(brave).isBrave){// Example:
+// Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
+var matchedArr=userAgent.match(/(chrome)\/([\w.]+)/i);if(matchedArr){userAgent="".concat(userAgent," Brave/").concat(matchedArr[2]);}}return userAgent;};var getLanguage=function getLanguage(){var _globalThis$navigator;if(isUndefined(globalThis.navigator)){return null;}return (_globalThis$navigator=globalThis.navigator.language)!==null&&_globalThis$navigator!==void 0?_globalThis$navigator:globalThis.navigator.browserLanguage;};/**
+ * Default page properties
+ * @returns Default page properties
+ */var getDefaultPageProperties=function getDefaultPageProperties(){var canonicalUrl=getCanonicalUrl();var path=globalThis.location.pathname;var tabUrl=globalThis.location.href;var pageUrl=tabUrl;var search=globalThis.location.search;// If valid canonical URL is provided use this as page URL.
+if(canonicalUrl){try{var urlObj=new URL(canonicalUrl);// If existing, query params of canonical URL will be used instead of the location.search ones
+if(urlObj.search===''){pageUrl=canonicalUrl+search;}else {pageUrl=canonicalUrl;}path=urlObj.pathname;}catch(err){// Do nothing
+}}var url=getUrlWithoutHash(pageUrl);var _document2=document,title=_document2.title;var referrer=getReferrer();return {path:path,referrer:referrer,referring_domain:getReferringDomain(referrer),search:search,title:title,url:url,tab_url:tabUrl};};
+
+var POLYFILL_URL="https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=".concat(Object.keys(legacyJSEngineRequiredPolyfills).join('%2C'));var POLYFILL_LOAD_TIMEOUT=10*1000;// 10 seconds
+var POLYFILL_SCRIPT_ID='rudderstackPolyfill';
+
+var CapabilitiesManager=/*#__PURE__*/function(){function CapabilitiesManager(errorHandler,logger){_classCallCheck(this,CapabilitiesManager);this.logger=logger;this.errorHandler=errorHandler;this.externalSrcLoader=new ExternalSrcLoader(this.errorHandler,this.logger);this.onError=this.onError.bind(this);this.onReady=this.onReady.bind(this);}return _createClass(CapabilitiesManager,[{key:"init",value:function init(){try{this.prepareBrowserCapabilities();this.attachWindowListeners();}catch(err){this.onError(err);}}/**
+   * Detect supported capabilities and set values in state
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"detectBrowserCapabilities",value:function detectBrowserCapabilities(){var _this=this;r(function(){// Storage related details
+state.capabilities.storage.isCookieStorageAvailable.value=isStorageAvailable(COOKIE_STORAGE,getStorageEngine(COOKIE_STORAGE),_this.logger);state.capabilities.storage.isLocalStorageAvailable.value=isStorageAvailable(LOCAL_STORAGE,undefined,_this.logger);state.capabilities.storage.isSessionStorageAvailable.value=isStorageAvailable(SESSION_STORAGE,undefined,_this.logger);// Browser feature detection details
+state.capabilities.isBeaconAvailable.value=hasBeacon();state.capabilities.isUaCHAvailable.value=hasUAClientHints();state.capabilities.isCryptoAvailable.value=hasCrypto();state.capabilities.isIE11.value=isIE11();state.capabilities.isOnline.value=globalThis.navigator.onLine;// Get page context details
+state.context.userAgent.value=getUserAgent();state.context.locale.value=getLanguage();state.context.screen.value=getScreenDetails();state.context.timezone.value=getTimezone();if(hasUAClientHints()){getUserAgentClientHint(function(uach){state.context['ua-ch'].value=uach;},state.loadOptions.value.uaChTrackLevel);}});// Ad blocker detection
+E(function(){if(state.loadOptions.value.sendAdblockPage===true&&state.lifecycle.sourceConfigUrl.value!==undefined){detectAdBlockers(_this.errorHandler,_this.logger);}});}/**
+   * Detect if polyfills are required and then load script from polyfill URL
+   */},{key:"prepareBrowserCapabilities",value:function prepareBrowserCapabilities(){var _this2=this;state.capabilities.isLegacyDOM.value=isLegacyJSEngine();var customPolyfillUrl=state.loadOptions.value.polyfillURL;var polyfillUrl=POLYFILL_URL;if(isDefinedAndNotNull(customPolyfillUrl)){if(isValidURL(customPolyfillUrl)){polyfillUrl=customPolyfillUrl;}else {var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER,customPolyfillUrl));}}var shouldLoadPolyfill=state.loadOptions.value.polyfillIfRequired&&state.capabilities.isLegacyDOM.value&&isValidURL(polyfillUrl);if(shouldLoadPolyfill){var isDefaultPolyfillService=polyfillUrl!==state.loadOptions.value.polyfillURL;if(isDefaultPolyfillService){// write key specific callback
+// NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
+var polyfillCallbackName="RS_polyfillCallback_".concat(state.lifecycle.writeKey.value);var polyfillCallback=function polyfillCallback(){_this2.onReady();// Remove the entry from window so we don't leave room for calling it again
+delete globalThis[polyfillCallbackName];};globalThis[polyfillCallbackName]=polyfillCallback;polyfillUrl="".concat(polyfillUrl,"&callback=").concat(polyfillCallbackName);}this.externalSrcLoader.loadJSFile({url:polyfillUrl,id:POLYFILL_SCRIPT_ID,async:true,timeout:POLYFILL_LOAD_TIMEOUT,callback:function callback(scriptId){if(!scriptId){_this2.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID,polyfillUrl)));}else if(!isDefaultPolyfillService){_this2.onReady();}}});}else {this.onReady();}}/**
+   * Attach listeners to window to observe event that update capabilities state values
+   */},{key:"attachWindowListeners",value:function attachWindowListeners(){globalThis.addEventListener('offline',function(){state.capabilities.isOnline.value=false;});globalThis.addEventListener('online',function(){state.capabilities.isOnline.value=true;});globalThis.addEventListener('resize',debounce(function(){state.context.screen.value=getScreenDetails();},this));}/**
+   * Set the lifecycle status to next phase
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"onReady",value:function onReady(){this.detectBrowserCapabilities();state.lifecycle.status.value='browserCapabilitiesReady';}/**
+   * Handles error
+   * @param error The error object
+   */},{key:"onError",value:function onError(error){if(this.errorHandler){this.errorHandler.onError(error,CAPABILITIES_MANAGER);}else {throw error;}}}]);}();
+
+var CHANNEL='web';// These are the top-level elements in the standard RudderStack event spec
+var TOP_LEVEL_ELEMENTS=['integrations','anonymousId','originalTimestamp'];// Reserved elements in the context of standard RudderStack event spec
+// Typically, these elements are not allowed to be overridden by the user
+var CONTEXT_RESERVED_ELEMENTS=['library','consentManagement','userAgent','ua-ch','screen'];// Reserved elements in the standard RudderStack event spec
+var RESERVED_ELEMENTS=['id','anonymous_id','user_id','sent_at','timestamp','received_at','original_timestamp','event','event_text','channel','context_ip','context_request_ip','context_passed_ip','group_id','previous_id'];
+
+/**
+ * A function to check given value is a number or not
+ * @param num input value
+ * @returns boolean
+ */var isNumber=function isNumber(num){return typeof num==='number'&&!Number.isNaN(num);};/**
+ * A function to check given number has minimum length or not
+ * @param minimumLength     minimum length
+ * @param num               input number
+ * @returns boolean
+ */var hasMinLength=function hasMinLength(minimumLength,num){return num.toString().length>=minimumLength;};/**
+ * A function to check given value is a positive integer or not
+ * @param num input value
+ * @returns boolean
+ */var isPositiveInteger=function isPositiveInteger(num){return isNumber(num)&&num>=0&&Number.isInteger(num);};
+
+var MIN_SESSION_ID_LENGTH=10;/**
+ * A function to validate current session and return true/false depending on that
+ * @returns boolean
+ */var hasSessionExpired=function hasSessionExpired(expiresAt){var timestamp=Date.now();return Boolean(!expiresAt||timestamp>expiresAt);};/**
+ * A function to generate session id
+ * @returns number
+ */var generateSessionId=function generateSessionId(){return Date.now();};/**
+ * Function to validate user provided sessionId
+ * @param {number} sessionId
+ * @param logger logger
+ * @returns
+ */var isManualSessionIdValid=function isManualSessionIdValid(sessionId,logger){if(!sessionId||!isPositiveInteger(sessionId)||!hasMinLength(MIN_SESSION_ID_LENGTH,sessionId)){logger===null||logger===void 0||logger.warn(INVALID_SESSION_ID_WARNING(USER_SESSION_MANAGER,sessionId,MIN_SESSION_ID_LENGTH));return false;}return true;};/**
+ * A function to generate new auto tracking session
+ * @param sessionTimeout current timestamp
+ * @returns SessionInfo
+ */var generateAutoTrackingSession=function generateAutoTrackingSession(sessionTimeout){var timestamp=Date.now();var timeout=sessionTimeout||DEFAULT_SESSION_TIMEOUT_MS;return {id:timestamp,// set the current timestamp
+expiresAt:timestamp+timeout,// set the expiry time of the session
+timeout:timeout,sessionStart:undefined,autoTrack:true};};/**
+ * A function to generate new manual tracking session
+ * @param id Provided sessionId
+ * @param logger Logger module
+ * @returns SessionInfo
+ */var generateManualTrackingSession=function generateManualTrackingSession(id,logger){var sessionId=isManualSessionIdValid(id,logger)?id:generateSessionId();return {id:sessionId,sessionStart:undefined,manualTrack:true};};var isStorageTypeValidForStoringData=function isStorageTypeValidForStoringData(storageType){return Boolean(storageType===COOKIE_STORAGE||storageType===LOCAL_STORAGE||storageType===SESSION_STORAGE||storageType===MEMORY_STORAGE);};/**
+ * Generate a new anonymousId
+ * @returns string anonymousID
+ */var generateAnonymousId=function generateAnonymousId(){return generateUUID();};
+
+/**
+ * To get the page properties for context object
+ * @param pageProps Page properties
+ * @returns page properties object for context
+ */var getContextPageProperties=function getContextPageProperties(pageProps){// Need to get updated page details on each event as an event to notify on SPA URL changes does not seem to exist
+var curPageProps=getDefaultPageProperties();var ctxPageProps={};Object.keys(curPageProps).forEach(function(key){ctxPageProps[key]=(pageProps===null||pageProps===void 0?void 0:pageProps[key])||curPageProps[key];});ctxPageProps.initial_referrer=(pageProps===null||pageProps===void 0?void 0:pageProps.initial_referrer)||state.session.initialReferrer.value;ctxPageProps.initial_referring_domain=(pageProps===null||pageProps===void 0?void 0:pageProps.initial_referring_domain)||state.session.initialReferringDomain.value;return ctxPageProps;};/**
+ * Add any missing default page properties using values from options and defaults
+ * @param properties Input page properties
+ * @param options API options
+ */var getUpdatedPageProperties=function getUpdatedPageProperties(properties,options){var optionsPageProps=(options===null||options===void 0?void 0:options.page)||{};var pageProps=properties;// Need to get updated page details on each event as an event to notify on SPA URL changes does not seem to exist
+var curPageProps=getDefaultPageProperties();Object.keys(curPageProps).forEach(function(key){if(isUndefined(pageProps[key])){pageProps[key]=optionsPageProps[key]||curPageProps[key];}});if(isUndefined(pageProps.initial_referrer)){pageProps.initial_referrer=optionsPageProps.initial_referrer||state.session.initialReferrer.value;}if(isUndefined(pageProps.initial_referring_domain)){pageProps.initial_referring_domain=optionsPageProps.initial_referring_domain||state.session.initialReferringDomain.value;}return pageProps;};/**
+ * Utility to check for reserved keys in the input object
+ * @param obj Generic object
+ * @param parentKeyPath Object's parent key path
+ * @param logger Logger instance
+ */var checkForReservedElementsInObject=function checkForReservedElementsInObject(obj,parentKeyPath,logger){if(isObjectLiteralAndNotNull(obj)){Object.keys(obj).forEach(function(property){if(RESERVED_ELEMENTS.includes(property)||RESERVED_ELEMENTS.includes(property.toLowerCase())){logger===null||logger===void 0||logger.warn(RESERVED_KEYWORD_WARNING(EVENT_MANAGER,property,parentKeyPath,RESERVED_ELEMENTS));}});}};/**
+ * Checks for reserved keys in traits, properties, and contextual traits
+ * @param rudderEvent Generated rudder event
+ * @param logger Logger instance
+ */var checkForReservedElements=function checkForReservedElements(rudderEvent,logger){//  properties, traits, contextualTraits are either undefined or object
+var properties=rudderEvent.properties,traits=rudderEvent.traits,context=rudderEvent.context;var contextualTraits=context.traits;checkForReservedElementsInObject(properties,'properties',logger);checkForReservedElementsInObject(traits,'traits',logger);checkForReservedElementsInObject(contextualTraits,'context.traits',logger);};/**
+ * Overrides the top-level event properties with data from API options
+ * @param rudderEvent Generated rudder event
+ * @param options API options
+ */var updateTopLevelEventElements=function updateTopLevelEventElements(rudderEvent,options){if(options.anonymousId&&isString(options.anonymousId)){// eslint-disable-next-line no-param-reassign
+rudderEvent.anonymousId=options.anonymousId;}if(isObjectLiteralAndNotNull(options.integrations)){// eslint-disable-next-line no-param-reassign
+rudderEvent.integrations=options.integrations;}if(options.originalTimestamp&&isString(options.originalTimestamp)){// eslint-disable-next-line no-param-reassign
+rudderEvent.originalTimestamp=options.originalTimestamp;}};/**
+ * To merge the contextual information in API options with existing data
+ * @param rudderContext Generated rudder event
+ * @param options API options
+ * @param logger Logger instance
+ */var getMergedContext=function getMergedContext(rudderContext,options,logger){var context=rudderContext;Object.keys(options).forEach(function(key){if(!TOP_LEVEL_ELEMENTS.includes(key)&&!CONTEXT_RESERVED_ELEMENTS.includes(key)){if(key!=='context'){context=mergeDeepRight(context,_defineProperty({},key,options[key]));}else if(!isUndefined(options[key])&&isObjectLiteralAndNotNull(options[key])){var tempContext={};Object.keys(options[key]).forEach(function(e){if(!CONTEXT_RESERVED_ELEMENTS.includes(e)){tempContext[e]=options[key][e];}});context=mergeDeepRight(context,_objectSpread2({},tempContext));}else;}});return context;};/**
+ * A function to determine whether SDK should use the integration option provided in load call
+ * @returns boolean
+ */var shouldUseGlobalIntegrationsConfigInEvents=function shouldUseGlobalIntegrationsConfigInEvents(){var _state$consents$postC;return state.loadOptions.value.useGlobalIntegrationsConfigInEvents&&(isObjectLiteralAndNotNull((_state$consents$postC=state.consents.postConsent.value)===null||_state$consents$postC===void 0?void 0:_state$consents$postC.integrations)||isObjectLiteralAndNotNull(state.nativeDestinations.loadOnlyIntegrations.value));};/**
+ * Updates rudder event object with data from the API options
+ * @param rudderEvent Generated rudder event
+ * @param options API options
+ */var processOptions=function processOptions(rudderEvent,options){// Only allow object type for options
+if(isObjectLiteralAndNotNull(options)){updateTopLevelEventElements(rudderEvent,options);// eslint-disable-next-line no-param-reassign
+rudderEvent.context=getMergedContext(rudderEvent.context,options);}};/**
+ * Returns the final integrations config for the event based on the global config and event's config
+ * @param integrationsConfig Event's integrations config
+ * @returns Final integrations config
+ */var getEventIntegrationsConfig=function getEventIntegrationsConfig(integrationsConfig){var finalIntgConfig;if(shouldUseGlobalIntegrationsConfigInEvents()){var _state$consents$postC2,_state$consents$postC3;finalIntgConfig=clone((_state$consents$postC2=(_state$consents$postC3=state.consents.postConsent.value)===null||_state$consents$postC3===void 0?void 0:_state$consents$postC3.integrations)!==null&&_state$consents$postC2!==void 0?_state$consents$postC2:state.nativeDestinations.loadOnlyIntegrations.value);}else if(isObjectLiteralAndNotNull(integrationsConfig)){finalIntgConfig=integrationsConfig;}else {finalIntgConfig=DEFAULT_INTEGRATIONS_CONFIG;}return finalIntgConfig;};/**
+ * Enrich the base event object with data from state and the API options
+ * @param rudderEvent RudderEvent object
+ * @param options API options
+ * @param pageProps Page properties
+ * @param logger logger
+ * @returns Enriched RudderEvent object
+ */var getEnrichedEvent=function getEnrichedEvent(rudderEvent,options,pageProps,logger){var _state$storage$entrie;var commonEventData={channel:CHANNEL,context:_objectSpread2(_objectSpread2({traits:clone(state.session.userTraits.value),sessionId:state.session.sessionInfo.value.id||undefined,sessionStart:state.session.sessionInfo.value.sessionStart||undefined},state.consents.enabled.value&&{consentManagement:{deniedConsentIds:clone(state.consents.data.value.deniedConsentIds),allowedConsentIds:clone(state.consents.data.value.allowedConsentIds),provider:state.consents.provider.value,resolutionStrategy:state.consents.resolutionStrategy.value}}),{},{'ua-ch':state.context['ua-ch'].value,app:state.context.app.value,library:state.context.library.value,userAgent:state.context.userAgent.value,os:state.context.os.value,locale:state.context.locale.value,screen:state.context.screen.value,campaign:extractUTMParameters(globalThis.location.href),page:getContextPageProperties(pageProps),timezone:state.context.timezone.value}),originalTimestamp:getCurrentTimeFormatted(),integrations:DEFAULT_INTEGRATIONS_CONFIG,messageId:generateUUID(),userId:rudderEvent.userId||state.session.userId.value};if(!isStorageTypeValidForStoringData((_state$storage$entrie=state.storage.entries.value.anonymousId)===null||_state$storage$entrie===void 0?void 0:_state$storage$entrie.type)){// Generate new anonymous id for each request
+commonEventData.anonymousId=generateAnonymousId();}else {// Type casting to string as the user session manager will take care of initializing the value
+commonEventData.anonymousId=state.session.anonymousId.value;}// set truly anonymous tracking flag
+if(state.storage.trulyAnonymousTracking.value){commonEventData.context.trulyAnonymousTracking=true;}if(rudderEvent.type==='identify'){var _state$storage$entrie2;commonEventData.context.traits=((_state$storage$entrie2=state.storage.entries.value.userTraits)===null||_state$storage$entrie2===void 0?void 0:_state$storage$entrie2.type)!==NO_STORAGE?clone(state.session.userTraits.value):rudderEvent.context.traits;}if(rudderEvent.type==='group'){if(rudderEvent.groupId||state.session.groupId.value){commonEventData.groupId=rudderEvent.groupId||state.session.groupId.value;}if(rudderEvent.traits||state.session.groupTraits.value){var _state$storage$entrie3;commonEventData.traits=((_state$storage$entrie3=state.storage.entries.value.groupTraits)===null||_state$storage$entrie3===void 0?void 0:_state$storage$entrie3.type)!==NO_STORAGE?clone(state.session.groupTraits.value):rudderEvent.traits;}}var processedEvent=mergeDeepRight(rudderEvent,commonEventData);// Set the default values for the event properties
+// matching with v1.1 payload
+if(processedEvent.event===undefined){processedEvent.event=null;}if(processedEvent.properties===undefined){processedEvent.properties=null;}processOptions(processedEvent,options);checkForReservedElements(processedEvent,logger);// Update the integrations config for the event
+processedEvent.integrations=getEventIntegrationsConfig(processedEvent.integrations);return processedEvent;};
+
+var RudderEventFactory=/*#__PURE__*/function(){function RudderEventFactory(logger){_classCallCheck(this,RudderEventFactory);this.logger=logger;}/**
+   * Generate a 'page' event based on the user-input fields
+   * @param category Page's category
+   * @param name Page name
+   * @param properties Page properties
+   * @param options API options
+   */return _createClass(RudderEventFactory,[{key:"generatePageEvent",value:function generatePageEvent(category,name,properties,options){var props=properties!==null&&properties!==void 0?properties:{};props.name=name;props.category=category;props=getUpdatedPageProperties(props,options);var pageEvent={properties:props,name:name,category:category,type:'page'};return getEnrichedEvent(pageEvent,options,props,this.logger);}/**
+   * Generate a 'track' event based on the user-input fields
+   * @param event The event name
+   * @param properties Event properties
+   * @param options API options
+   */},{key:"generateTrackEvent",value:function generateTrackEvent(event,properties,options){var trackEvent={properties:properties,event:event,type:'track'};return getEnrichedEvent(trackEvent,options,undefined,this.logger);}/**
+   * Generate an 'identify' event based on the user-input fields
+   * @param userId New user ID
+   * @param traits new traits
+   * @param options API options
+   */},{key:"generateIdentifyEvent",value:function generateIdentifyEvent(userId,traits,options){var identifyEvent={userId:userId,type:'identify',context:{traits:traits}};return getEnrichedEvent(identifyEvent,options,undefined,this.logger);}/**
+   * Generate an 'alias' event based on the user-input fields
+   * @param to New user ID
+   * @param from Old user ID
+   * @param options API options
+   */},{key:"generateAliasEvent",value:function generateAliasEvent(to,from,options){var aliasEvent={previousId:from,type:'alias'};var enrichedEvent=getEnrichedEvent(aliasEvent,options,undefined,this.logger);// override the User ID from the API inputs
+enrichedEvent.userId=to!==null&&to!==void 0?to:enrichedEvent.userId;return enrichedEvent;}/**
+   * Generate a 'group' event based on the user-input fields
+   * @param groupId New group ID
+   * @param traits new group traits
+   * @param options API options
+   */},{key:"generateGroupEvent",value:function generateGroupEvent(groupId,traits,options){var groupEvent={type:'group'};if(groupId){groupEvent.groupId=groupId;}if(traits){groupEvent.traits=traits;}return getEnrichedEvent(groupEvent,options,undefined,this.logger);}/**
+   * Generates a new RudderEvent object based on the user-input fields
+   * @param event API event parameters object
+   * @returns A RudderEvent object
+   */},{key:"create",value:function create(event){var eventObj;switch(event.type){case'page':eventObj=this.generatePageEvent(event.category,event.name,event.properties,event.options);break;case'track':eventObj=this.generateTrackEvent(event.name,event.properties,event.options);break;case'identify':eventObj=this.generateIdentifyEvent(event.userId,event.traits,event.options);break;case'alias':eventObj=this.generateAliasEvent(event.to,event.from,event.options);break;case'group':eventObj=this.generateGroupEvent(event.groupId,event.traits,event.options);break;}return eventObj;}}]);}();
+
+/**
+ * A service to generate valid event payloads and queue them for processing
+ */var EventManager=/*#__PURE__*/function(){/**
+   *
+   * @param eventRepository Event repository instance
+   * @param userSessionManager UserSession Manager instance
+   * @param errorHandler Error handler object
+   * @param logger Logger object
+   */function EventManager(eventRepository,userSessionManager,errorHandler,logger){_classCallCheck(this,EventManager);this.eventRepository=eventRepository;this.userSessionManager=userSessionManager;this.errorHandler=errorHandler;this.logger=logger;this.eventFactory=new RudderEventFactory(this.logger);this.onError=this.onError.bind(this);}/**
+   * Initializes the event manager
+   */return _createClass(EventManager,[{key:"init",value:function init(){this.eventRepository.init();}},{key:"resume",value:function resume(){this.eventRepository.resume();}/**
+   * Consumes a new incoming event
+   * @param event Incoming event data
+   */},{key:"addEvent",value:function addEvent(event){this.userSessionManager.refreshSession();var rudderEvent=this.eventFactory.create(event);if(rudderEvent){this.eventRepository.enqueue(rudderEvent,event.callback);}else {this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));}}/**
+   * Handles error
+   * @param error The error object
+   */},{key:"onError",value:function onError(error,customMessage,shouldAlwaysThrow){if(this.errorHandler){this.errorHandler.onError(error,EVENT_MANAGER,customMessage,shouldAlwaysThrow);}else {throw error;}}}]);}();
+
+var UserSessionManager=/*#__PURE__*/function(){function UserSessionManager(errorHandler,logger,pluginsManager,storeManager,httpClient){_classCallCheck(this,UserSessionManager);this.storeManager=storeManager;this.pluginsManager=pluginsManager;this.logger=logger;this.errorHandler=errorHandler;this.httpClient=httpClient;this.onError=this.onError.bind(this);}/**
+   * Initialize User session with values from storage
+   */return _createClass(UserSessionManager,[{key:"init",value:function init(){this.syncStorageDataToState();// Register the effect to sync with storage
+this.registerEffects();}},{key:"syncStorageDataToState",value:function syncStorageDataToState(){var _externalAnonymousId;this.migrateStorageIfNeeded();this.migrateDataFromPreviousStorage();// get the values from storage and set it again
+this.setUserId(this.getUserId());this.setUserTraits(this.getUserTraits());this.setGroupId(this.getGroupId());this.setGroupTraits(this.getGroupTraits());var _state$loadOptions$va=state.loadOptions.value,externalAnonymousIdCookieName=_state$loadOptions$va.externalAnonymousIdCookieName,anonymousIdOptions=_state$loadOptions$va.anonymousIdOptions;var externalAnonymousId;if(isDefinedAndNotNull(externalAnonymousIdCookieName)&&typeof externalAnonymousIdCookieName==='string'){externalAnonymousId=this.getExternalAnonymousIdByCookieName(externalAnonymousIdCookieName);}this.setAnonymousId((_externalAnonymousId=externalAnonymousId)!==null&&_externalAnonymousId!==void 0?_externalAnonymousId:this.getAnonymousId(anonymousIdOptions));this.setAuthToken(this.getAuthToken());this.setInitialReferrerInfo();this.configureSessionTracking();}},{key:"configureSessionTracking",value:function configureSessionTracking(){var sessionInfo=this.getSessionInfo();if(this.isPersistenceEnabledForStorageEntry('sessionInfo')){var _sessionInfo;var configuredSessionTrackingInfo=this.getConfiguredSessionTrackingInfo();var initialSessionInfo=(_sessionInfo=sessionInfo)!==null&&_sessionInfo!==void 0?_sessionInfo:defaultSessionConfiguration;sessionInfo=_objectSpread2(_objectSpread2(_objectSpread2({},initialSessionInfo),configuredSessionTrackingInfo),{},{autoTrack:configuredSessionTrackingInfo.autoTrack&&initialSessionInfo.manualTrack!==true});}state.session.sessionInfo.value=this.isPersistenceEnabledForStorageEntry('sessionInfo')?sessionInfo:DEFAULT_USER_SESSION_VALUES.sessionInfo;// If auto session tracking is enabled start the session tracking
+if(state.session.sessionInfo.value.autoTrack){this.startOrRenewAutoTracking(state.session.sessionInfo.value);}}},{key:"setInitialReferrerInfo",value:function setInitialReferrerInfo(){var persistedInitialReferrer=this.getInitialReferrer();var persistedInitialReferringDomain=this.getInitialReferringDomain();if(persistedInitialReferrer&&persistedInitialReferringDomain){this.setInitialReferrer(persistedInitialReferrer);this.setInitialReferringDomain(persistedInitialReferringDomain);}else {var initialReferrer=persistedInitialReferrer||getReferrer();this.setInitialReferrer(initialReferrer);this.setInitialReferringDomain(getReferringDomain(initialReferrer));}}},{key:"isPersistenceEnabledForStorageEntry",value:function isPersistenceEnabledForStorageEntry(entryName){var _state$storage$entrie;return isStorageTypeValidForStoringData((_state$storage$entrie=state.storage.entries.value[entryName])===null||_state$storage$entrie===void 0?void 0:_state$storage$entrie.type);}},{key:"migrateDataFromPreviousStorage",value:function migrateDataFromPreviousStorage(){var _this=this;var entries=state.storage.entries.value;var storageTypesForMigration=[COOKIE_STORAGE,LOCAL_STORAGE,SESSION_STORAGE];Object.keys(entries).forEach(function(entry){var _entries$key,_this$storeManager;var key=entry;var currentStorage=(_entries$key=entries[key])===null||_entries$key===void 0?void 0:_entries$key.type;var curStore=(_this$storeManager=_this.storeManager)===null||_this$storeManager===void 0?void 0:_this$storeManager.getStore(storageClientDataStoreNameMap[currentStorage]);if(curStore){storageTypesForMigration.forEach(function(storage){var _this$storeManager2;var store=(_this$storeManager2=_this.storeManager)===null||_this$storeManager2===void 0?void 0:_this$storeManager2.getStore(storageClientDataStoreNameMap[storage]);if(store&&storage!==currentStorage){var value=store.get(USER_SESSION_STORAGE_KEYS[key]);if(isDefinedNotNullAndNotEmptyString(value)){curStore.set(USER_SESSION_STORAGE_KEYS[key],value);}store.remove(USER_SESSION_STORAGE_KEYS[key]);}});}});}},{key:"migrateStorageIfNeeded",value:function migrateStorageIfNeeded(){var _this2=this;if(!state.storage.migrate.value){return;}var persistentStoreNames=[CLIENT_DATA_STORE_COOKIE,CLIENT_DATA_STORE_LS,CLIENT_DATA_STORE_SESSION];var stores=[];persistentStoreNames.forEach(function(storeName){var _this2$storeManager;var store=(_this2$storeManager=_this2.storeManager)===null||_this2$storeManager===void 0?void 0:_this2$storeManager.getStore(storeName);if(store){stores.push(store);}});Object.keys(USER_SESSION_STORAGE_KEYS).forEach(function(storageKey){var storageEntry=USER_SESSION_STORAGE_KEYS[storageKey];stores.forEach(function(store){var _this2$pluginsManager;var migratedVal=(_this2$pluginsManager=_this2.pluginsManager)===null||_this2$pluginsManager===void 0?void 0:_this2$pluginsManager.invokeSingle('storage.migrate',storageEntry,store.engine,_this2.errorHandler,_this2.logger);// Skip setting the value if it is null or undefined
+// as those values indicate there is no need for migration or
+// migration failed
+if(!isNullOrUndefined(migratedVal)){store.set(storageEntry,migratedVal);}});});}},{key:"getConfiguredSessionTrackingInfo",value:function getConfiguredSessionTrackingInfo(){var _state$loadOptions$va2,_state$loadOptions$va3;var autoTrack=((_state$loadOptions$va2=state.loadOptions.value.sessions)===null||_state$loadOptions$va2===void 0?void 0:_state$loadOptions$va2.autoTrack)!==false;// Do not validate any further if autoTrack is disabled
+if(!autoTrack){return {autoTrack:autoTrack};}var timeout;var configuredSessionTimeout=(_state$loadOptions$va3=state.loadOptions.value.sessions)===null||_state$loadOptions$va3===void 0?void 0:_state$loadOptions$va3.timeout;if(!isPositiveInteger(configuredSessionTimeout)){var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.warn(TIMEOUT_NOT_NUMBER_WARNING(USER_SESSION_MANAGER,configuredSessionTimeout,DEFAULT_SESSION_TIMEOUT_MS));timeout=DEFAULT_SESSION_TIMEOUT_MS;}else {timeout=configuredSessionTimeout;}if(timeout===0){var _this$logger2;(_this$logger2=this.logger)===null||_this$logger2===void 0||_this$logger2.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));autoTrack=false;}// In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
+// and will proceed with it
+if(timeout>0&&timeout<MIN_SESSION_TIMEOUT_MS){var _this$logger3;(_this$logger3=this.logger)===null||_this$logger3===void 0||_this$logger3.warn(TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER,timeout,MIN_SESSION_TIMEOUT_MS));}return {timeout:timeout,autoTrack:autoTrack};}/**
+   * Handles error
+   * @param error The error object
+   */},{key:"onError",value:function onError(error,customMessage){if(this.errorHandler){this.errorHandler.onError(error,USER_SESSION_MANAGER,customMessage);}else {throw error;}}/**
+   * A function to encrypt the cookie value and return the encrypted data
+   * @param cookieData
+   * @param store
+   * @returns
+   */},{key:"getEncryptedCookieData",value:function getEncryptedCookieData(cookieData,store){var _this3=this;var encryptedCookieData=[];cookieData.forEach(function(e){var encryptedValue=store===null||store===void 0?void 0:store.encrypt(stringifyWithoutCircular(e.value,false,[],_this3.logger));if(isDefinedAndNotNull(encryptedValue)){encryptedCookieData.push({name:e.name,value:encryptedValue});}});return encryptedCookieData;}/**
+   * A function that makes request to data service to set the cookie
+   * @param encryptedCookieData
+   * @param callback
+   */},{key:"makeRequestToSetCookie",value:function makeRequestToSetCookie(encryptedCookieData,callback){var _this$httpClient,_state$source$value,_state$storage$cookie,_state$storage$cookie2,_state$storage$cookie3,_state$storage$cookie4,_state$storage$cookie5,_state$storage$cookie6;(_this$httpClient=this.httpClient)===null||_this$httpClient===void 0||_this$httpClient.getAsyncData({url:state.serverCookies.dataServiceUrl.value,options:{method:'POST',data:stringifyWithoutCircular({reqType:'setCookies',workspaceId:(_state$source$value=state.source.value)===null||_state$source$value===void 0?void 0:_state$source$value.workspaceId,data:{options:{maxAge:(_state$storage$cookie=state.storage.cookie.value)===null||_state$storage$cookie===void 0?void 0:_state$storage$cookie.maxage,path:(_state$storage$cookie2=state.storage.cookie.value)===null||_state$storage$cookie2===void 0?void 0:_state$storage$cookie2.path,domain:(_state$storage$cookie3=state.storage.cookie.value)===null||_state$storage$cookie3===void 0?void 0:_state$storage$cookie3.domain,sameSite:(_state$storage$cookie4=state.storage.cookie.value)===null||_state$storage$cookie4===void 0?void 0:_state$storage$cookie4.samesite,secure:(_state$storage$cookie5=state.storage.cookie.value)===null||_state$storage$cookie5===void 0?void 0:_state$storage$cookie5.secure,expires:(_state$storage$cookie6=state.storage.cookie.value)===null||_state$storage$cookie6===void 0?void 0:_state$storage$cookie6.expires},cookies:encryptedCookieData}}),sendRawData:true,withCredentials:true},isRawResponse:true,callback:callback});}/**
+   * A function to make an external request to set the cookie from server side
+   * @param key       cookie name
+   * @param value     encrypted cookie value
+   */},{key:"setServerSideCookie",value:function setServerSideCookie(cookieData,cb,store){var _this4=this;try{// encrypt cookies values
+var encryptedCookieData=this.getEncryptedCookieData(cookieData,store);if(encryptedCookieData.length>0){// make request to data service to set the cookie from server side
+this.makeRequestToSetCookie(encryptedCookieData,function(res,details){var _details$xhr;if((details===null||details===void 0||(_details$xhr=details.xhr)===null||_details$xhr===void 0?void 0:_details$xhr.status)===200){cookieData.forEach(function(each){var cookieValue=store===null||store===void 0?void 0:store.get(each.name);var before=stringifyWithoutCircular(each.value,false,[]);var after=stringifyWithoutCircular(cookieValue,false,[]);if(after!==before){var _this4$logger,_this4$logger2,_this4$logger3;(_this4$logger=_this4.logger)===null||_this4$logger===void 0||_this4$logger.debug('Cookie value sent to server side',before);(_this4$logger2=_this4.logger)===null||_this4$logger2===void 0||_this4$logger2.debug('Cookie value set from server side',after);(_this4$logger3=_this4.logger)===null||_this4$logger3===void 0||_this4$logger3.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(each.name));if(cb){cb(each.name,each.value);}}});}else {var _this4$logger4,_details$xhr2;(_this4$logger4=_this4.logger)===null||_this4$logger4===void 0||_this4$logger4.error(DATA_SERVER_REQUEST_FAIL_ERROR(details===null||details===void 0||(_details$xhr2=details.xhr)===null||_details$xhr2===void 0?void 0:_details$xhr2.status));cookieData.forEach(function(each){if(cb){cb(each.name,each.value);}});}});}}catch(e){this.onError(e,FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);cookieData.forEach(function(each){if(cb){cb(each.name,each.value);}});}}/**
+   * A function to sync values in storage
+   * @param sessionKey
+   * @param value
+   */},{key:"syncValueToStorage",value:function syncValueToStorage(sessionKey,value){var _entries$sessionKey;var entries=state.storage.entries.value;var storageType=(_entries$sessionKey=entries[sessionKey])===null||_entries$sessionKey===void 0?void 0:_entries$sessionKey.type;if(isStorageTypeValidForStoringData(storageType)){var _this$storeManager3,_entries$sessionKey2;var curStore=(_this$storeManager3=this.storeManager)===null||_this$storeManager3===void 0?void 0:_this$storeManager3.getStore(storageClientDataStoreNameMap[storageType]);var key=(_entries$sessionKey2=entries[sessionKey])===null||_entries$sessionKey2===void 0?void 0:_entries$sessionKey2.key;if(value&&(isString(value)||isNonEmptyObject(value))){// if useServerSideCookies load option is set to true
+// set the cookie from server side
+if(state.serverCookies.isEnabledServerSideCookies.value&&storageType===COOKIE_STORAGE){this.setServerSideCookie([{name:key,value:value}],function(cookieName,cookieValue){curStore===null||curStore===void 0||curStore.set(cookieName,cookieValue);},curStore);}else {curStore===null||curStore===void 0||curStore.set(key,value);}}else {curStore===null||curStore===void 0||curStore.remove(key);}}}/**
+   * Function to update storage whenever state value changes
+   */},{key:"registerEffects",value:function registerEffects(){var _this5=this;// This will work as long as the user session entry key names are same as the state keys
+USER_SESSION_KEYS.forEach(function(sessionKey){E(function(){_this5.syncValueToStorage(sessionKey,state.session[sessionKey].value);});});}/**
+   * Sets anonymous id in the following precedence:
+   *
+   * 1. anonymousId: Id directly provided to the function.
+   * 2. rudderAmpLinkerParam: value generated from linker query parm (rudderstack)
+   *    using parseLinker util.
+   * 3. generateUUID: A new unique id is generated and assigned.
+   */},{key:"setAnonymousId",value:function setAnonymousId(anonymousId,rudderAmpLinkerParam){var finalAnonymousId=anonymousId;if(this.isPersistenceEnabledForStorageEntry('anonymousId')){if(!finalAnonymousId&&rudderAmpLinkerParam){var _this$pluginsManager;var linkerPluginsResult=(_this$pluginsManager=this.pluginsManager)===null||_this$pluginsManager===void 0?void 0:_this$pluginsManager.invokeSingle('userSession.anonymousIdGoogleLinker',rudderAmpLinkerParam);finalAnonymousId=linkerPluginsResult;}finalAnonymousId=finalAnonymousId||generateAnonymousId();}else {finalAnonymousId=DEFAULT_USER_SESSION_VALUES.anonymousId;}state.session.anonymousId.value=finalAnonymousId;}/**
+   * Fetches anonymousId
+   * @param options option to fetch it from external source
+   * @returns anonymousId
+   */},{key:"getAnonymousId",value:function getAnonymousId(options){var _state$storage$entrie2;var storage=(_state$storage$entrie2=state.storage.entries.value.anonymousId)===null||_state$storage$entrie2===void 0?void 0:_state$storage$entrie2.type;// fetch the anonymousId from storage
+if(isStorageTypeValidForStoringData(storage)){var persistedAnonymousId=this.getEntryValue('anonymousId');if(!persistedAnonymousId&&options){var _this$pluginsManager2;// fetch anonymousId from external source
+var autoCapturedAnonymousId=(_this$pluginsManager2=this.pluginsManager)===null||_this$pluginsManager2===void 0?void 0:_this$pluginsManager2.invokeSingle('storage.getAnonymousId',getStorageEngine,options);persistedAnonymousId=autoCapturedAnonymousId;}state.session.anonymousId.value=persistedAnonymousId||generateAnonymousId();}return state.session.anonymousId.value;}},{key:"getEntryValue",value:function getEntryValue(sessionKey){var _entries$sessionKey3;var entries=state.storage.entries.value;var storageType=(_entries$sessionKey3=entries[sessionKey])===null||_entries$sessionKey3===void 0?void 0:_entries$sessionKey3.type;if(isStorageTypeValidForStoringData(storageType)){var _this$storeManager4,_entries$sessionKey4,_store$get;var store=(_this$storeManager4=this.storeManager)===null||_this$storeManager4===void 0?void 0:_this$storeManager4.getStore(storageClientDataStoreNameMap[storageType]);var storageKey=(_entries$sessionKey4=entries[sessionKey])===null||_entries$sessionKey4===void 0?void 0:_entries$sessionKey4.key;return (_store$get=store===null||store===void 0?void 0:store.get(storageKey))!==null&&_store$get!==void 0?_store$get:null;}return null;}},{key:"getExternalAnonymousIdByCookieName",value:function getExternalAnonymousIdByCookieName(key){var storageEngine=getStorageEngine(COOKIE_STORAGE);if(storageEngine!==null&&storageEngine!==void 0&&storageEngine.isEnabled){var _storageEngine$getIte;return (_storageEngine$getIte=storageEngine.getItem(key))!==null&&_storageEngine$getIte!==void 0?_storageEngine$getIte:null;}return null;}/**
+   * Fetches User Id
+   * @returns
+   */},{key:"getUserId",value:function getUserId(){return this.getEntryValue('userId');}/**
+   * Fetches User Traits
+   * @returns
+   */},{key:"getUserTraits",value:function getUserTraits(){return this.getEntryValue('userTraits');}/**
+   * Fetches Group Id
+   * @returns
+   */},{key:"getGroupId",value:function getGroupId(){return this.getEntryValue('groupId');}/**
+   * Fetches Group Traits
+   * @returns
+   */},{key:"getGroupTraits",value:function getGroupTraits(){return this.getEntryValue('groupTraits');}/**
+   * Fetches Initial Referrer
+   * @returns
+   */},{key:"getInitialReferrer",value:function getInitialReferrer(){return this.getEntryValue('initialReferrer');}/**
+   * Fetches Initial Referring domain
+   * @returns
+   */},{key:"getInitialReferringDomain",value:function getInitialReferringDomain(){return this.getEntryValue('initialReferringDomain');}/**
+   * Fetches session tracking information from storage
+   * @returns
+   */},{key:"getSessionInfo",value:function getSessionInfo(){return this.getEntryValue('sessionInfo');}/**
+   * Fetches auth token from storage
+   * @returns
+   */},{key:"getAuthToken",value:function getAuthToken(){return this.getEntryValue('authToken');}/**
+   * If session is active it returns the sessionId
+   * @returns
+   */},{key:"getSessionId",value:function getSessionId(){var _this$getSessionInfo;var sessionInfo=(_this$getSessionInfo=this.getSessionInfo())!==null&&_this$getSessionInfo!==void 0?_this$getSessionInfo:DEFAULT_USER_SESSION_VALUES.sessionInfo;if(sessionInfo.autoTrack&&!hasSessionExpired(sessionInfo.expiresAt)||sessionInfo.manualTrack){var _sessionInfo$id;return (_sessionInfo$id=sessionInfo.id)!==null&&_sessionInfo$id!==void 0?_sessionInfo$id:null;}return null;}/**
+   * A function to keep the session information up to date in the state
+   * before using it for building event payloads.
+   */},{key:"refreshSession",value:function refreshSession(){var _this$getSessionInfo2;var sessionInfo=(_this$getSessionInfo2=this.getSessionInfo())!==null&&_this$getSessionInfo2!==void 0?_this$getSessionInfo2:DEFAULT_USER_SESSION_VALUES.sessionInfo;if(sessionInfo.autoTrack||sessionInfo.manualTrack){if(sessionInfo.autoTrack){this.startOrRenewAutoTracking(sessionInfo);sessionInfo=state.session.sessionInfo.value;}// Note that if sessionStart is false, then it's an active session.
+// So, we needn't update the session info.
+//
+// For other scenarios,
+// 1. If sessionStart is undefined, then it's a new session.
+//   Mark it as sessionStart.
+// 2. If sessionStart is true, then need to flip it for the future events.
+if(sessionInfo.sessionStart===undefined){sessionInfo=_objectSpread2(_objectSpread2({},sessionInfo),{},{sessionStart:true});}else if(sessionInfo.sessionStart){sessionInfo=_objectSpread2(_objectSpread2({},sessionInfo),{},{sessionStart:false});}}// Always write to state (in-turn to storage) to keep the session info up to date.
+state.session.sessionInfo.value=sessionInfo;if(state.lifecycle.status.value!=='readyExecuted'){// Force update the storage as the 'effect' blocks are not getting triggered
+// when processing preload buffered requests
+this.syncValueToStorage('sessionInfo',sessionInfo);}}/**
+   * Reset state values
+   * @param resetAnonymousId
+   * @param noNewSessionStart
+   * @returns
+   */},{key:"reset",value:function reset(resetAnonymousId,noNewSessionStart){var _this6=this;var session=state.session;var _session$sessionInfo$=session.sessionInfo.value,manualTrack=_session$sessionInfo$.manualTrack,autoTrack=_session$sessionInfo$.autoTrack;r(function(){session.userId.value=DEFAULT_USER_SESSION_VALUES.userId;session.userTraits.value=DEFAULT_USER_SESSION_VALUES.userTraits;session.groupId.value=DEFAULT_USER_SESSION_VALUES.groupId;session.groupTraits.value=DEFAULT_USER_SESSION_VALUES.groupTraits;session.authToken.value=DEFAULT_USER_SESSION_VALUES.authToken;if(resetAnonymousId){// This will generate a new anonymous ID
+_this6.setAnonymousId();}if(noNewSessionStart){return;}if(autoTrack){session.sessionInfo.value=DEFAULT_USER_SESSION_VALUES.sessionInfo;_this6.startOrRenewAutoTracking(session.sessionInfo.value);}else if(manualTrack){_this6.startManualTrackingInternal();}});}/**
+   * Set user Id
+   * @param userId
+   */},{key:"setUserId",value:function setUserId(userId){state.session.userId.value=this.isPersistenceEnabledForStorageEntry('userId')&&userId?userId:DEFAULT_USER_SESSION_VALUES.userId;}/**
+   * Set user traits
+   * @param traits
+   */},{key:"setUserTraits",value:function setUserTraits(traits){var _state$session$userTr;state.session.userTraits.value=this.isPersistenceEnabledForStorageEntry('userTraits')&&traits?mergeDeepRight((_state$session$userTr=state.session.userTraits.value)!==null&&_state$session$userTr!==void 0?_state$session$userTr:DEFAULT_USER_SESSION_VALUES.userTraits,traits):DEFAULT_USER_SESSION_VALUES.userTraits;}/**
+   * Set group Id
+   * @param groupId
+   */},{key:"setGroupId",value:function setGroupId(groupId){state.session.groupId.value=this.isPersistenceEnabledForStorageEntry('groupId')&&groupId?groupId:DEFAULT_USER_SESSION_VALUES.groupId;}/**
+   * Set group traits
+   * @param traits
+   */},{key:"setGroupTraits",value:function setGroupTraits(traits){var _state$session$groupT;state.session.groupTraits.value=this.isPersistenceEnabledForStorageEntry('groupTraits')&&traits?mergeDeepRight((_state$session$groupT=state.session.groupTraits.value)!==null&&_state$session$groupT!==void 0?_state$session$groupT:DEFAULT_USER_SESSION_VALUES.groupTraits,traits):DEFAULT_USER_SESSION_VALUES.groupTraits;}/**
+   * Set initial referrer
+   * @param referrer
+   */},{key:"setInitialReferrer",value:function setInitialReferrer(referrer){state.session.initialReferrer.value=this.isPersistenceEnabledForStorageEntry('initialReferrer')&&referrer?referrer:DEFAULT_USER_SESSION_VALUES.initialReferrer;}/**
+   * Set initial referring domain
+   * @param {String} referringDomain
+   */},{key:"setInitialReferringDomain",value:function setInitialReferringDomain(referringDomain){state.session.initialReferringDomain.value=this.isPersistenceEnabledForStorageEntry('initialReferringDomain')&&referringDomain?referringDomain:DEFAULT_USER_SESSION_VALUES.initialReferringDomain;}/**
+   * A function to check for existing session details and depending on that create a new session
+   */},{key:"startOrRenewAutoTracking",value:function startOrRenewAutoTracking(sessionInfo){if(hasSessionExpired(sessionInfo.expiresAt)){state.session.sessionInfo.value=generateAutoTrackingSession(sessionInfo.timeout);}else {var timestamp=Date.now();var timeout=sessionInfo.timeout;state.session.sessionInfo.value=mergeDeepRight(sessionInfo,{expiresAt:timestamp+timeout// set the expiry time of the session
+});}}/**
+   * A function method to start a manual session
+   * @param {number} id     session identifier
+   * @returns
+   */},{key:"start",value:function start(id){state.session.sessionInfo.value=generateManualTrackingSession(id,this.logger);}/**
+   * An internal function to start manual session
+   */},{key:"startManualTrackingInternal",value:function startManualTrackingInternal(){this.start(Date.now());}/**
+   * A public method to end an ongoing session.
+   */},{key:"end",value:function end(){state.session.sessionInfo.value=DEFAULT_USER_SESSION_VALUES.sessionInfo;}/**
+   * Set auth token
+   * @param userId
+   */},{key:"setAuthToken",value:function setAuthToken(token){state.session.authToken.value=this.isPersistenceEnabledForStorageEntry('authToken')&&token?token:DEFAULT_USER_SESSION_VALUES.authToken;}}]);}();
+
+/**
+ * Plugins to be loaded in the plugins loadOption is not defined
+ */var defaultOptionalPluginsList=['BeaconQueue','Bugsnag','CustomConsentManager','DeviceModeDestinations','DeviceModeTransformation','ErrorReporting','ExternalAnonymousId','GoogleLinker','KetchConsentManager','NativeDestinationQueue','OneTrustConsentManager','StorageEncryption','StorageEncryptionLegacy','StorageMigrator','XhrQueue'];
+
+var normalizeLoadOptions=function normalizeLoadOptions(loadOptionsFromState,loadOptions){var _normalizedLoadOpts$p,_normalizedLoadOpts$s2;// TODO: Maybe add warnings for invalid values
+var normalizedLoadOpts=clone(loadOptions);if(!isString(normalizedLoadOpts.setCookieDomain)){delete normalizedLoadOpts.setCookieDomain;}var cookieSameSiteValues=['Strict','Lax','None'];if(!cookieSameSiteValues.includes(normalizedLoadOpts.sameSiteCookie)){delete normalizedLoadOpts.sameSiteCookie;}normalizedLoadOpts.secureCookie=normalizedLoadOpts.secureCookie===true;var uaChTrackLevels=['none','default','full'];if(!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel)){delete normalizedLoadOpts.uaChTrackLevel;}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.integrations)){delete normalizedLoadOpts.integrations;}normalizedLoadOpts.plugins=(_normalizedLoadOpts$p=normalizedLoadOpts.plugins)!==null&&_normalizedLoadOpts$p!==void 0?_normalizedLoadOpts$p:defaultOptionalPluginsList;normalizedLoadOpts.useGlobalIntegrationsConfigInEvents=normalizedLoadOpts.useGlobalIntegrationsConfigInEvents===true;normalizedLoadOpts.bufferDataPlaneEventsUntilReady=normalizedLoadOpts.bufferDataPlaneEventsUntilReady===true;normalizedLoadOpts.sendAdblockPage=normalizedLoadOpts.sendAdblockPage===true;normalizedLoadOpts.useServerSideCookies=normalizedLoadOpts.useServerSideCookies===true;if(normalizedLoadOpts.dataServiceEndpoint&&typeof normalizedLoadOpts.dataServiceEndpoint!=='string'){delete normalizedLoadOpts.dataServiceEndpoint;}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)){delete normalizedLoadOpts.sendAdblockPageOptions;}if(!isDefined(normalizedLoadOpts.loadIntegration)){delete normalizedLoadOpts.loadIntegration;}else {normalizedLoadOpts.loadIntegration=normalizedLoadOpts.loadIntegration===true;}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.storage)){delete normalizedLoadOpts.storage;}else {var _normalizedLoadOpts$s;normalizedLoadOpts.storage=removeUndefinedAndNullValues(normalizedLoadOpts.storage);normalizedLoadOpts.storage.migrate=((_normalizedLoadOpts$s=normalizedLoadOpts.storage)===null||_normalizedLoadOpts$s===void 0?void 0:_normalizedLoadOpts$s.migrate)===true;}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.beaconQueueOptions)){delete normalizedLoadOpts.beaconQueueOptions;}else {normalizedLoadOpts.beaconQueueOptions=removeUndefinedAndNullValues(normalizedLoadOpts.beaconQueueOptions);}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)){delete normalizedLoadOpts.destinationsQueueOptions;}else {normalizedLoadOpts.destinationsQueueOptions=removeUndefinedAndNullValues(normalizedLoadOpts.destinationsQueueOptions);}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)){delete normalizedLoadOpts.queueOptions;}else {normalizedLoadOpts.queueOptions=removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);}normalizedLoadOpts.lockIntegrationsVersion=normalizedLoadOpts.lockIntegrationsVersion===true;normalizedLoadOpts.lockPluginsVersion=normalizedLoadOpts.lockPluginsVersion===true;if(!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)){delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;}if(!isObjectLiteralAndNotNull((_normalizedLoadOpts$s2=normalizedLoadOpts.storage)===null||_normalizedLoadOpts$s2===void 0?void 0:_normalizedLoadOpts$s2.cookie)){var _normalizedLoadOpts$s3;(_normalizedLoadOpts$s3=normalizedLoadOpts.storage)===null||_normalizedLoadOpts$s3===void 0||delete _normalizedLoadOpts$s3.cookie;}else {var _normalizedLoadOpts$s4;normalizedLoadOpts.storage.cookie=removeUndefinedAndNullValues((_normalizedLoadOpts$s4=normalizedLoadOpts.storage)===null||_normalizedLoadOpts$s4===void 0?void 0:_normalizedLoadOpts$s4.cookie);}if(!isObjectLiteralAndNotNull(normalizedLoadOpts.preConsent)){delete normalizedLoadOpts.preConsent;}else {normalizedLoadOpts.preConsent=removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);}var mergedLoadOptions=mergeDeepRight(loadOptionsFromState,normalizedLoadOpts);return mergedLoadOptions;};
+
+var DATA_PLANE_QUEUE_EXT_POINT_PREFIX='dataplaneEventsQueue';var DESTINATIONS_QUEUE_EXT_POINT_PREFIX='destinationsEventsQueue';var DMT_EXT_POINT_PREFIX='transformEvent';
+
+/**
+ * Filters and returns the user supplied integrations config that should take preference over the destination specific integrations config
+ * @param eventIntgConfig User supplied integrations config at event level
+ * @param destinationsIntgConfig Cumulative integrations config from all destinations
+ * @returns Filtered user supplied integrations config
+ */var getOverriddenIntegrationOptions=function getOverriddenIntegrationOptions(eventIntgConfig,destinationsIntgConfig){return Object.keys(eventIntgConfig).filter(function(intgName){return eventIntgConfig[intgName]!==true||!destinationsIntgConfig[intgName];}).reduce(function(obj,key){var retVal=clone(obj);retVal[key]=eventIntgConfig[key];return retVal;},{});};/**
+ * Returns the event object with final integrations config
+ * @param event RudderEvent object
+ * @param state Application state
+ * @returns Mutated event with final integrations config
+ */var getFinalEvent=function getFinalEvent(event,state){var _event$integrations;var finalEvent=clone(event);// Merge the destination specific integrations config with the event's integrations config
+// In general, the preference is given to the event's integrations config
+var eventIntgConfig=(_event$integrations=event.integrations)!==null&&_event$integrations!==void 0?_event$integrations:DEFAULT_INTEGRATIONS_CONFIG;var destinationsIntgConfig=state.nativeDestinations.integrationsConfig.value;var overriddenIntgOpts=getOverriddenIntegrationOptions(eventIntgConfig,destinationsIntgConfig);finalEvent.integrations=mergeDeepRight(destinationsIntgConfig,overriddenIntgOpts);return finalEvent;};var shouldBufferEventsForPreConsent=function shouldBufferEventsForPreConsent(state){var _state$consents$preCo,_state$consents$preCo2,_state$consents$preCo3;return state.consents.preConsent.value.enabled&&((_state$consents$preCo=state.consents.preConsent.value.events)===null||_state$consents$preCo===void 0?void 0:_state$consents$preCo.delivery)==='buffer'&&(((_state$consents$preCo2=state.consents.preConsent.value.storage)===null||_state$consents$preCo2===void 0?void 0:_state$consents$preCo2.strategy)==='session'||((_state$consents$preCo3=state.consents.preConsent.value.storage)===null||_state$consents$preCo3===void 0?void 0:_state$consents$preCo3.strategy)==='none');};
+
+/**
+ * Event repository class responsible for queuing events for further processing and delivery
+ */var EventRepository=/*#__PURE__*/function(){/**
+   *
+   * @param pluginsManager Plugins manager instance
+   * @param storeManager Store Manager instance
+   * @param errorHandler Error handler object
+   * @param logger Logger object
+   */function EventRepository(pluginsManager,storeManager,errorHandler,logger){_classCallCheck(this,EventRepository);this.pluginsManager=pluginsManager;this.errorHandler=errorHandler;this.logger=logger;this.httpClient=new HttpClient(errorHandler,logger);this.storeManager=storeManager;this.onError=this.onError.bind(this);}/**
+   * Initializes the event repository
+   */return _createClass(EventRepository,[{key:"init",value:function init(){var _this=this;try{this.dataplaneEventsQueue=this.pluginsManager.invokeSingle("".concat(DATA_PLANE_QUEUE_EXT_POINT_PREFIX,".init"),state,this.httpClient,this.storeManager,this.errorHandler,this.logger);}catch(e){this.onError(e,DATAPLANE_PLUGIN_INITIALIZE_ERROR);}try{this.dmtEventsQueue=this.pluginsManager.invokeSingle("".concat(DMT_EXT_POINT_PREFIX,".init"),state,this.pluginsManager,this.httpClient,this.storeManager,this.errorHandler,this.logger);}catch(e){this.onError(e,DMT_PLUGIN_INITIALIZE_ERROR);}try{this.destinationsEventsQueue=this.pluginsManager.invokeSingle("".concat(DESTINATIONS_QUEUE_EXT_POINT_PREFIX,".init"),state,this.pluginsManager,this.storeManager,this.dmtEventsQueue,this.errorHandler,this.logger);}catch(e){this.onError(e,NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);}// Start the queue once the client destinations are ready
+E(function(){if(state.nativeDestinations.clientDestinationsReady.value===true){var _this$destinationsEve,_this$dmtEventsQueue;(_this$destinationsEve=_this.destinationsEventsQueue)===null||_this$destinationsEve===void 0||_this$destinationsEve.start();(_this$dmtEventsQueue=_this.dmtEventsQueue)===null||_this$dmtEventsQueue===void 0||_this$dmtEventsQueue.start();}});var bufferEventsBeforeConsent=shouldBufferEventsForPreConsent(state);// Start the queue processing only when the destinations are ready or hybrid mode destinations exist
+// However, events will be enqueued for now.
+// At the time of processing the events, the integrations config data from destinations
+// is merged into the event object
+var timeoutId;E(function(){var _this$dataplaneEvents;var shouldBufferDpEvents=state.loadOptions.value.bufferDataPlaneEventsUntilReady===true&&state.nativeDestinations.clientDestinationsReady.value===false;var hybridDestExist=state.nativeDestinations.activeDestinations.value.some(function(dest){return isHybridModeDestination(dest);});if((hybridDestExist===false||shouldBufferDpEvents===false)&&!bufferEventsBeforeConsent&&((_this$dataplaneEvents=_this.dataplaneEventsQueue)===null||_this$dataplaneEvents===void 0?void 0:_this$dataplaneEvents.scheduleTimeoutActive)!==true){var _this$dataplaneEvents2;globalThis.clearTimeout(timeoutId);(_this$dataplaneEvents2=_this.dataplaneEventsQueue)===null||_this$dataplaneEvents2===void 0||_this$dataplaneEvents2.start();}});// Force start the data plane events queue processing after a timeout
+if(state.loadOptions.value.bufferDataPlaneEventsUntilReady===true){timeoutId=globalThis.setTimeout(function(){var _this$dataplaneEvents3;if(((_this$dataplaneEvents3=_this.dataplaneEventsQueue)===null||_this$dataplaneEvents3===void 0?void 0:_this$dataplaneEvents3.scheduleTimeoutActive)!==true){var _this$dataplaneEvents4;(_this$dataplaneEvents4=_this.dataplaneEventsQueue)===null||_this$dataplaneEvents4===void 0||_this$dataplaneEvents4.start();}},state.loadOptions.value.dataPlaneEventsBufferTimeout);}}},{key:"resume",value:function resume(){var _this$dataplaneEvents5;if(((_this$dataplaneEvents5=this.dataplaneEventsQueue)===null||_this$dataplaneEvents5===void 0?void 0:_this$dataplaneEvents5.scheduleTimeoutActive)!==true){var _this$dataplaneEvents7;if(state.consents.postConsent.value.discardPreConsentEvents){var _this$dataplaneEvents6,_this$destinationsEve2;(_this$dataplaneEvents6=this.dataplaneEventsQueue)===null||_this$dataplaneEvents6===void 0||_this$dataplaneEvents6.clear();(_this$destinationsEve2=this.destinationsEventsQueue)===null||_this$destinationsEve2===void 0||_this$destinationsEve2.clear();}(_this$dataplaneEvents7=this.dataplaneEventsQueue)===null||_this$dataplaneEvents7===void 0||_this$dataplaneEvents7.start();}}/**
+   * Enqueues the event for processing
+   * @param event RudderEvent object
+   * @param callback API callback function
+   */},{key:"enqueue",value:function enqueue(event,callback){var dpQEvent;try{dpQEvent=getFinalEvent(event,state);this.pluginsManager.invokeSingle("".concat(DATA_PLANE_QUEUE_EXT_POINT_PREFIX,".enqueue"),state,this.dataplaneEventsQueue,dpQEvent,this.errorHandler,this.logger);}catch(e){this.onError(e,DATAPLANE_PLUGIN_ENQUEUE_ERROR);}try{var dQEvent=clone(event);this.pluginsManager.invokeSingle("".concat(DESTINATIONS_QUEUE_EXT_POINT_PREFIX,".enqueue"),state,this.destinationsEventsQueue,dQEvent,this.errorHandler,this.logger);}catch(e){this.onError(e,NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);}// Invoke the callback if it exists
+try{// Using the event sent to the data plane queue here
+// to ensure the mutated (if any) event is sent to the callback
+callback===null||callback===void 0||callback(dpQEvent);}catch(error){this.onError(error,API_CALLBACK_INVOKE_ERROR);}}/**
+   * Handles error
+   * @param error The error object
+   * @param customMessage a message
+   * @param shouldAlwaysThrow if it should throw or use logger
+   */},{key:"onError",value:function onError(error,customMessage,shouldAlwaysThrow){if(this.errorHandler){this.errorHandler.onError(error,EVENT_REPOSITORY,customMessage,shouldAlwaysThrow);}else {throw error;}}}]);}();
+
+var dispatchSDKEvent=function dispatchSDKEvent(event){var customEvent=new CustomEvent(event,{detail:{analyticsInstance:globalThis.rudderanalytics},bubbles:true,cancelable:true,composed:true});globalThis.document.dispatchEvent(customEvent);};
+
+/*
+ * Analytics class with lifecycle based on state ad user triggered events
+ */var Analytics=/*#__PURE__*/function(){/**
+   * Initialize services and components or use default ones if singletons
+   */function Analytics(){_classCallCheck(this,Analytics);this.preloadBuffer=new BufferQueue();this.initialized=false;this.errorHandler=defaultErrorHandler;this.logger=defaultLogger;this.externalSrcLoader=new ExternalSrcLoader(this.errorHandler,this.logger);this.capabilitiesManager=new CapabilitiesManager(this.errorHandler,this.logger);this.httpClient=defaultHttpClient;}/**
+   * Start application lifecycle if not already started
+   */return _createClass(Analytics,[{key:"load",value:function load(writeKey,dataPlaneUrl){var loadOptions=arguments.length>2&&arguments[2]!==undefined?arguments[2]:{};if(state.lifecycle.status.value){return;}var clonedDataPlaneUrl=clone(dataPlaneUrl);var clonedLoadOptions=clone(loadOptions);// dataPlaneUrl is not provided
+if(isObjectAndNotNull(dataPlaneUrl)){clonedLoadOptions=dataPlaneUrl;clonedDataPlaneUrl=undefined;}// Set initial state values
+r(function(){state.lifecycle.writeKey.value=writeKey;state.lifecycle.dataPlaneUrl.value=clonedDataPlaneUrl;state.loadOptions.value=normalizeLoadOptions(state.loadOptions.value,clonedLoadOptions);state.lifecycle.status.value='mounted';});// set log level as early as possible
+if(state.loadOptions.value.logLevel){var _this$logger;(_this$logger=this.logger)===null||_this$logger===void 0||_this$logger.setMinLogLevel(state.loadOptions.value.logLevel);}// Expose state to global objects
+setExposedGlobal('state',state,writeKey);// Configure initial config of any services or components here
+// State application lifecycle
+this.startLifecycle();}// Start lifecycle methods
+/**
+   * Orchestrate the lifecycle of the application phases/status
+   */},{key:"startLifecycle",value:function startLifecycle(){var _this=this;E(function(){try{switch(state.lifecycle.status.value){case'mounted':_this.onMounted();break;case'browserCapabilitiesReady':_this.onBrowserCapabilitiesReady();break;case'configured':_this.onConfigured();break;case'pluginsLoading':break;case'pluginsReady':_this.onPluginsReady();break;case'initialized':_this.onInitialized();break;case'loaded':_this.onLoaded();break;case'destinationsLoading':break;case'destinationsReady':_this.onDestinationsReady();break;case'ready':_this.onReady();break;case'readyExecuted':default:break;}}catch(err){var issue='Failed to load the SDK';_this.errorHandler.onError(getMutatedError(err,issue),ANALYTICS_CORE);}});}},{key:"onBrowserCapabilitiesReady",value:function onBrowserCapabilitiesReady(){// initialize the preloaded events enqueuing
+retrievePreloadBufferEvents(this);this.prepareInternalServices();this.loadConfig();}},{key:"onLoaded",value:function onLoaded(){this.processBufferedEvents();// Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
+if(state.consents.preConsent.value.enabled===true){state.lifecycle.status.value='ready';}else {this.loadDestinations();}}/**
+   * Load browser polyfill if required
+   */},{key:"onMounted",value:function onMounted(){this.capabilitiesManager.init();}/**
+   * Enqueue in SDK preload buffer events, used from preloadBuffer component
+   */},{key:"enqueuePreloadBufferEvents",value:function enqueuePreloadBufferEvents(bufferedEvents){var _this2=this;if(Array.isArray(bufferedEvents)){bufferedEvents.forEach(function(bufferedEvent){return _this2.preloadBuffer.enqueue(clone(bufferedEvent));});}}/**
+   * Process the buffer preloaded events by passing their arguments to the respective facade methods
+   */},{key:"processDataInPreloadBuffer",value:function processDataInPreloadBuffer(){while(this.preloadBuffer.size()>0){var eventToProcess=this.preloadBuffer.dequeue();if(eventToProcess){consumePreloadBufferedEvent(_toConsumableArray(eventToProcess),this);}}}},{key:"prepareInternalServices",value:function prepareInternalServices(){this.pluginsManager=new PluginsManager(defaultPluginEngine,this.errorHandler,this.logger);this.storeManager=new StoreManager(this.pluginsManager,this.errorHandler,this.logger);this.configManager=new ConfigManager(this.httpClient,this.errorHandler,this.logger);this.userSessionManager=new UserSessionManager(this.errorHandler,this.logger,this.pluginsManager,this.storeManager,this.httpClient);this.eventRepository=new EventRepository(this.pluginsManager,this.storeManager,this.errorHandler,this.logger);this.eventManager=new EventManager(this.eventRepository,this.userSessionManager,this.errorHandler,this.logger);}/**
+   * Load configuration
+   */},{key:"loadConfig",value:function loadConfig(){var _this$configManager;if(state.lifecycle.writeKey.value){this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);}(_this$configManager=this.configManager)===null||_this$configManager===void 0||_this$configManager.init();}/**
+   * Initialize the storage and event queue
+   */},{key:"onPluginsReady",value:function onPluginsReady(){var _this$storeManager,_this$userSessionMana,_this$eventManager;this.errorHandler.init(this.externalSrcLoader);// Initialize storage
+(_this$storeManager=this.storeManager)===null||_this$storeManager===void 0||_this$storeManager.init();(_this$userSessionMana=this.userSessionManager)===null||_this$userSessionMana===void 0||_this$userSessionMana.init();// Initialize the appropriate consent manager plugin
+if(state.consents.enabled.value&&!state.consents.initialized.value){var _this$pluginsManager;(_this$pluginsManager=this.pluginsManager)===null||_this$pluginsManager===void 0||_this$pluginsManager.invokeSingle("consentManager.init",state,this.logger);if(state.consents.preConsent.value.enabled===false){var _this$pluginsManager2;(_this$pluginsManager2=this.pluginsManager)===null||_this$pluginsManager2===void 0||_this$pluginsManager2.invokeSingle("consentManager.updateConsentsInfo",state,this.storeManager,this.logger);}}// Initialize event manager
+(_this$eventManager=this.eventManager)===null||_this$eventManager===void 0||_this$eventManager.init();// Mark the SDK as initialized
+state.lifecycle.status.value='initialized';}/**
+   * Load plugins
+   */},{key:"onConfigured",value:function onConfigured(){var _this$pluginsManager3;(_this$pluginsManager3=this.pluginsManager)===null||_this$pluginsManager3===void 0||_this$pluginsManager3.init();// TODO: are we going to enable custom plugins to be passed as load options?
+// registerCustomPlugins(state.loadOptions.value.customPlugins);
+}/**
+   * Trigger onLoaded callback if any is provided in config & emit initialised event
+   */},{key:"onInitialized",value:function onInitialized(){// Process any preloaded events
+this.processDataInPreloadBuffer();// TODO: we need to avoid passing the window object to the callback function
+// as this will prevent us from supporting multiple SDK instances in the same page
+// Execute onLoaded callback if provided in load options
+if(isFunction(state.loadOptions.value.onLoaded)){state.loadOptions.value.onLoaded(globalThis.rudderanalytics);}// Set lifecycle state
+r(function(){state.lifecycle.loaded.value=true;state.lifecycle.status.value='loaded';});this.initialized=true;// Emit an event to use as substitute to the onLoaded callback
+dispatchSDKEvent('RSA_Initialised');}/**
+   * Emit ready event
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"onReady",value:function onReady(){var _this3=this;state.lifecycle.status.value='readyExecuted';state.eventBuffer.readyCallbacksArray.value.forEach(function(callback){try{callback();}catch(err){_this3.errorHandler.onError(err,ANALYTICS_CORE,READY_CALLBACK_INVOKE_ERROR);}});// Emit an event to use as substitute to the ready callback
+dispatchSDKEvent('RSA_Ready');}/**
+   * Consume preloaded events buffer
+   */},{key:"processBufferedEvents",value:function processBufferedEvents(){// This logic has been intentionally implemented without a simple
+// for-loop as the individual events that are processed may
+// add more events to the buffer (this is needed for the consent API)
+var bufferedEvents=state.eventBuffer.toBeProcessedArray.value;while(bufferedEvents.length>0){var bufferedEvent=bufferedEvents.shift();state.eventBuffer.toBeProcessedArray.value=bufferedEvents;if(bufferedEvent){var methodName=bufferedEvent[0];if(isFunction(this[methodName])){var _ref;// Send additional arg 'true' to indicate that this is a buffered invocation
+(_ref=this)[methodName].apply(_ref,_toConsumableArray(bufferedEvent.slice(1)).concat([true]));}}bufferedEvents=state.eventBuffer.toBeProcessedArray.value;}}/**
+   * Load device mode destinations
+   */},{key:"loadDestinations",value:function loadDestinations(){var _this$pluginsManager4,_this$pluginsManager5;if(state.nativeDestinations.clientDestinationsReady.value){return;}// Set in state the desired activeDestinations to inject in DOM
+(_this$pluginsManager4=this.pluginsManager)===null||_this$pluginsManager4===void 0||_this$pluginsManager4.invokeSingle('nativeDestinations.setActiveDestinations',state,this.pluginsManager,this.errorHandler,this.logger);var totalDestinationsToLoad=state.nativeDestinations.activeDestinations.value.length;if(totalDestinationsToLoad===0){state.lifecycle.status.value='destinationsReady';return;}// Start loading native integration scripts and create instances
+state.lifecycle.status.value='destinationsLoading';(_this$pluginsManager5=this.pluginsManager)===null||_this$pluginsManager5===void 0||_this$pluginsManager5.invokeSingle('nativeDestinations.load',state,this.externalSrcLoader,this.errorHandler,this.logger);// Progress to next lifecycle phase if all native destinations are initialized or failed
+E(function(){var areAllDestinationsReady=totalDestinationsToLoad===0||state.nativeDestinations.initializedDestinations.value.length+state.nativeDestinations.failedDestinations.value.length===totalDestinationsToLoad;if(areAllDestinationsReady){r(function(){state.lifecycle.status.value='destinationsReady';state.nativeDestinations.clientDestinationsReady.value=true;});}});}/**
+   * Move to the ready state
+   */ // eslint-disable-next-line class-methods-use-this
+},{key:"onDestinationsReady",value:function onDestinationsReady(){// May be do any destination specific actions here
+// Mark the ready status if not already done
+if(state.lifecycle.status.value!=='ready'){state.lifecycle.status.value='ready';}}// End lifecycle methods
+// Start consumer exposed methods
+},{key:"ready",value:function ready(callback){var type='ready';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,callback]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," invocation"));if(!isFunction(callback)){this.logger.error(READY_API_CALLBACK_ERROR(READY_API));return;}/**
+     * If destinations are loaded or no integration is available for loading
+     * execute the callback immediately else push the callbacks to a queue that
+     * will be executed after loading completes
+     */if(state.lifecycle.status.value==='readyExecuted'){try{callback();}catch(err){this.errorHandler.onError(err,ANALYTICS_CORE,READY_CALLBACK_INVOKE_ERROR);}}else {state.eventBuffer.readyCallbacksArray.value=[].concat(_toConsumableArray(state.eventBuffer.readyCallbacksArray.value),[callback]);}}},{key:"page",value:function page(payload){var _this$eventManager2;var type='page';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,payload]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," event"));state.metrics.triggered.value+=1;(_this$eventManager2=this.eventManager)===null||_this$eventManager2===void 0||_this$eventManager2.addEvent({type:'page',category:payload.category,name:payload.name,properties:payload.properties,options:payload.options,callback:payload.callback});// TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
+// Send automatic ad blocked page event if ad-blockers are detected on the page
+// Check page category to avoid infinite loop
+if(state.capabilities.isAdBlocked.value===true&&payload.category!==ADBLOCK_PAGE_CATEGORY){this.page(pageArgumentsToCallOptions(ADBLOCK_PAGE_CATEGORY,ADBLOCK_PAGE_NAME,{// 'title' is intentionally omitted as it does not make sense
+// in v3 implementation
+path:ADBLOCK_PAGE_PATH},state.loadOptions.value.sendAdblockPageOptions));}}},{key:"track",value:function track(payload){var _this$eventManager3;var type='track';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,payload]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," event"));state.metrics.triggered.value+=1;(_this$eventManager3=this.eventManager)===null||_this$eventManager3===void 0||_this$eventManager3.addEvent({type:type,name:payload.name||undefined,properties:payload.properties,options:payload.options,callback:payload.callback});}},{key:"identify",value:function identify(payload){var _this$userSessionMana3,_this$eventManager4;var type='identify';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,payload]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," event"));state.metrics.triggered.value+=1;var shouldResetSession=Boolean(payload.userId&&state.session.userId.value&&payload.userId!==state.session.userId.value);if(shouldResetSession){this.reset();}// `null` value indicates that previous user ID needs to be retained
+if(!isNull(payload.userId)){var _this$userSessionMana2;(_this$userSessionMana2=this.userSessionManager)===null||_this$userSessionMana2===void 0||_this$userSessionMana2.setUserId(payload.userId);}(_this$userSessionMana3=this.userSessionManager)===null||_this$userSessionMana3===void 0||_this$userSessionMana3.setUserTraits(payload.traits);(_this$eventManager4=this.eventManager)===null||_this$eventManager4===void 0||_this$eventManager4.addEvent({type:type,userId:payload.userId,traits:payload.traits,options:payload.options,callback:payload.callback});}},{key:"alias",value:function alias(payload){var _ref2,_payload$from,_this$userSessionMana4,_this$userSessionMana5,_this$eventManager5;var type='alias';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,payload]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," event"));state.metrics.triggered.value+=1;var previousId=(_ref2=(_payload$from=payload.from)!==null&&_payload$from!==void 0?_payload$from:(_this$userSessionMana4=this.userSessionManager)===null||_this$userSessionMana4===void 0?void 0:_this$userSessionMana4.getUserId())!==null&&_ref2!==void 0?_ref2:(_this$userSessionMana5=this.userSessionManager)===null||_this$userSessionMana5===void 0?void 0:_this$userSessionMana5.getAnonymousId();(_this$eventManager5=this.eventManager)===null||_this$eventManager5===void 0||_this$eventManager5.addEvent({type:type,to:payload.to,from:previousId,options:payload.options,callback:payload.callback});}},{key:"group",value:function group(payload){var _this$userSessionMana7,_this$eventManager6;var type='group';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,payload]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," event"));state.metrics.triggered.value+=1;// `null` value indicates that previous group ID needs to be retained
+if(!isNull(payload.groupId)){var _this$userSessionMana6;(_this$userSessionMana6=this.userSessionManager)===null||_this$userSessionMana6===void 0||_this$userSessionMana6.setGroupId(payload.groupId);}(_this$userSessionMana7=this.userSessionManager)===null||_this$userSessionMana7===void 0||_this$userSessionMana7.setGroupTraits(payload.traits);(_this$eventManager6=this.eventManager)===null||_this$eventManager6===void 0||_this$eventManager6.addEvent({type:type,groupId:payload.groupId,traits:payload.traits,options:payload.options,callback:payload.callback});}},{key:"reset",value:function reset(resetAnonymousId){var _this$userSessionMana8;var type='reset';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,resetAnonymousId]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," invocation, resetAnonymousId: ").concat(resetAnonymousId));(_this$userSessionMana8=this.userSessionManager)===null||_this$userSessionMana8===void 0||_this$userSessionMana8.reset(resetAnonymousId);}},{key:"getAnonymousId",value:function getAnonymousId(options){var _this$userSessionMana9;return (_this$userSessionMana9=this.userSessionManager)===null||_this$userSessionMana9===void 0?void 0:_this$userSessionMana9.getAnonymousId(options);}},{key:"setAnonymousId",value:function setAnonymousId(anonymousId,rudderAmpLinkerParam){var _this$userSessionMana10;var type='setAnonymousId';// Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
+if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,anonymousId,rudderAmpLinkerParam]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," invocation"));(_this$userSessionMana10=this.userSessionManager)===null||_this$userSessionMana10===void 0||_this$userSessionMana10.setAnonymousId(anonymousId,rudderAmpLinkerParam);}// eslint-disable-next-line class-methods-use-this
+},{key:"getUserId",value:function getUserId(){return state.session.userId.value;}// eslint-disable-next-line class-methods-use-this
+},{key:"getUserTraits",value:function getUserTraits(){return state.session.userTraits.value;}// eslint-disable-next-line class-methods-use-this
+},{key:"getGroupId",value:function getGroupId(){return state.session.groupId.value;}// eslint-disable-next-line class-methods-use-this
+},{key:"getGroupTraits",value:function getGroupTraits(){return state.session.groupTraits.value;}},{key:"startSession",value:function startSession(sessionId){var _this$userSessionMana11;var type='startSession';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,sessionId]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," invocation"));(_this$userSessionMana11=this.userSessionManager)===null||_this$userSessionMana11===void 0||_this$userSessionMana11.start(sessionId);}},{key:"endSession",value:function endSession(){var _this$userSessionMana12;var type='endSession';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type]]);return;}this.errorHandler.leaveBreadcrumb("New ".concat(type," invocation"));(_this$userSessionMana12=this.userSessionManager)===null||_this$userSessionMana12===void 0||_this$userSessionMana12.end();}// eslint-disable-next-line class-methods-use-this
+},{key:"getSessionId",value:function getSessionId(){var _this$userSessionMana13;var sessionId=(_this$userSessionMana13=this.userSessionManager)===null||_this$userSessionMana13===void 0?void 0:_this$userSessionMana13.getSessionId();return sessionId!==null&&sessionId!==void 0?sessionId:null;}},{key:"consent",value:function consent(options){var _this4=this,_this$storeManager2,_this$userSessionMana14,_this$eventManager7;var isBufferedInvocation=arguments.length>1&&arguments[1]!==undefined?arguments[1]:false;var type='consent';if(!state.lifecycle.loaded.value){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[[type,options]]);return;}this.errorHandler.leaveBreadcrumb("New consent invocation");r(function(){state.consents.preConsent.value=_objectSpread2(_objectSpread2({},state.consents.preConsent.value),{},{enabled:false});state.consents.postConsent.value=getValidPostConsentOptions(options);var _getConsentManagement=getConsentManagementData(state.consents.postConsent.value.consentManagement,_this4.logger),initialized=_getConsentManagement.initialized,consentsData=_getConsentManagement.consentsData;state.consents.initialized.value=initialized||state.consents.initialized.value;state.consents.data.value=consentsData;});// Update consents data in state
+if(state.consents.enabled.value&&!state.consents.initialized.value){var _this$pluginsManager6;(_this$pluginsManager6=this.pluginsManager)===null||_this$pluginsManager6===void 0||_this$pluginsManager6.invokeSingle("consentManager.updateConsentsInfo",state,this.storeManager,this.logger);}// Re-init store manager
+(_this$storeManager2=this.storeManager)===null||_this$storeManager2===void 0||_this$storeManager2.initializeStorageState();// Re-init user session manager
+(_this$userSessionMana14=this.userSessionManager)===null||_this$userSessionMana14===void 0||_this$userSessionMana14.syncStorageDataToState();// Resume event manager to process the events to destinations
+(_this$eventManager7=this.eventManager)===null||_this$eventManager7===void 0||_this$eventManager7.resume();this.loadDestinations();this.sendTrackingEvents(isBufferedInvocation);}},{key:"sendTrackingEvents",value:function sendTrackingEvents(isBufferedInvocation){// If isBufferedInvocation is true, then the tracking events will be added to the end of the
+// events buffer array so that any other preload events (mainly from query string API) will be processed first.
+if(state.consents.postConsent.value.trackConsent){var trackOptions=trackArgumentsToCallOptions(CONSENT_TRACK_EVENT_NAME);if(isBufferedInvocation){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[['track',trackOptions]]);}else {this.track(trackOptions);}}if(state.consents.postConsent.value.sendPageEvent){var pageOptions=pageArgumentsToCallOptions();if(isBufferedInvocation){state.eventBuffer.toBeProcessedArray.value=[].concat(_toConsumableArray(state.eventBuffer.toBeProcessedArray.value),[['page',pageOptions]]);}else {this.page(pageOptions);}}}},{key:"setAuthToken",value:function setAuthToken(token){var _this$userSessionMana15;(_this$userSessionMana15=this.userSessionManager)===null||_this$userSessionMana15===void 0||_this$userSessionMana15.setAuthToken(token);}// End consumer exposed methods
+}]);}();
+
+/*
+ * RudderAnalytics facade singleton that is exposed as global object and will:
+ * expose overloaded methods
+ * handle multiple Analytics instances
+ * consume SDK preload event buffer
+ */var RudderAnalytics=/*#__PURE__*/function(){// Singleton with constructor bind methods
+function RudderAnalytics(){_classCallCheck(this,RudderAnalytics);_defineProperty(this,"analyticsInstances",{});_defineProperty(this,"defaultAnalyticsKey",'');_defineProperty(this,"logger",defaultLogger);if(RudderAnalytics.globalSingleton){// START-NO-SONAR-SCAN
+// eslint-disable-next-line no-constructor-return
+return RudderAnalytics.globalSingleton;// END-NO-SONAR-SCAN
+}defaultErrorHandler.attachErrorListeners();this.setDefaultInstanceKey=this.setDefaultInstanceKey.bind(this);this.getAnalyticsInstance=this.getAnalyticsInstance.bind(this);this.load=this.load.bind(this);this.ready=this.ready.bind(this);this.triggerBufferedLoadEvent=this.triggerBufferedLoadEvent.bind(this);this.page=this.page.bind(this);this.track=this.track.bind(this);this.identify=this.identify.bind(this);this.alias=this.alias.bind(this);this.group=this.group.bind(this);this.reset=this.reset.bind(this);this.getAnonymousId=this.getAnonymousId.bind(this);this.setAnonymousId=this.setAnonymousId.bind(this);this.getUserId=this.getUserId.bind(this);this.getUserTraits=this.getUserTraits.bind(this);this.getGroupId=this.getGroupId.bind(this);this.getGroupTraits=this.getGroupTraits.bind(this);this.startSession=this.startSession.bind(this);this.endSession=this.endSession.bind(this);this.getSessionId=this.getSessionId.bind(this);this.setAuthToken=this.setAuthToken.bind(this);this.consent=this.consent.bind(this);RudderAnalytics.globalSingleton=this;// start loading if a load event was buffered or wait for explicit load call
+this.triggerBufferedLoadEvent();// Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
+// for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
+globalThis.rudderanalytics=this;}/**
+   * Set instance to use if no specific writeKey is provided in methods
+   * automatically for the first created instance
+   * TODO: to support multiple analytics instances in the near future
+   */return _createClass(RudderAnalytics,[{key:"setDefaultInstanceKey",value:function setDefaultInstanceKey(writeKey){if(writeKey){this.defaultAnalyticsKey=writeKey;}}/**
+   * Retrieve an existing analytics instance
+   */},{key:"getAnalyticsInstance",value:function getAnalyticsInstance(writeKey){var instanceId=writeKey!==null&&writeKey!==void 0?writeKey:this.defaultAnalyticsKey;var analyticsInstanceExists=Boolean(this.analyticsInstances[instanceId]);if(!analyticsInstanceExists){this.analyticsInstances[instanceId]=new Analytics();}return this.analyticsInstances[instanceId];}/**
+   * Create new analytics instance and trigger application lifecycle start
+   */},{key:"load",value:function load(writeKey,dataPlaneUrl,loadOptions){if(!isString(writeKey)){this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP,writeKey));return;}if(this.analyticsInstances[writeKey]){return;}this.setDefaultInstanceKey(writeKey);this.analyticsInstances[writeKey]=new Analytics();this.getAnalyticsInstance(writeKey).load(writeKey,dataPlaneUrl,loadOptions);}/**
+   * Trigger load event in buffer queue if exists and stores the
+   * remaining preloaded events array in global object
+   */},{key:"triggerBufferedLoadEvent",value:function triggerBufferedLoadEvent(){var preloadedEventsArray=Array.isArray(globalThis.rudderanalytics)?globalThis.rudderanalytics:[];// The array will be mutated in the below method
+promotePreloadedConsentEventsToTop(preloadedEventsArray);// Get any load method call that is buffered if any
+// BTW, load method is also removed from the array
+// So, the Analytics object can directly consume the remaining events
+var loadEvent=getPreloadedLoadEvent(preloadedEventsArray);// Set the final preloaded events array in global object
+setExposedGlobal(GLOBAL_PRELOAD_BUFFER,clone(preloadedEventsArray));// Process load method if present in the buffered requests
+if(loadEvent.length>0){// Remove the event name from the Buffered Event array and keep only arguments
+loadEvent.shift();// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+this.load.apply(null,loadEvent);}}/**
+   * Get ready callback arguments and forward to ready call
+   */},{key:"ready",value:function ready(callback){this.getAnalyticsInstance().ready(callback);}/**
+   * Process page arguments and forward to page call
+   */},{key:"page",value:function page(category,name,properties,options,callback){this.getAnalyticsInstance().page(pageArgumentsToCallOptions(category,name,properties,options,callback));}/**
+   * Process track arguments and forward to page call
+   */},{key:"track",value:function track(event,properties,options,callback){this.getAnalyticsInstance().track(trackArgumentsToCallOptions(event,properties,options,callback));}/**
+   * Process identify arguments and forward to page call
+   */},{key:"identify",value:function identify(userId,traits,options,callback){this.getAnalyticsInstance().identify(identifyArgumentsToCallOptions(userId,traits,options,callback));}/**
+   * Process alias arguments and forward to page call
+   */},{key:"alias",value:function alias(to,from,options,callback){this.getAnalyticsInstance().alias(aliasArgumentsToCallOptions(to,from,options,callback));}/**
+   * Process group arguments and forward to page call
+   */},{key:"group",value:function group(groupId,traits,options,callback){if(arguments.length===0){this.logger.error(EMPTY_GROUP_CALL_ERROR(RS_APP));return;}this.getAnalyticsInstance().group(groupArgumentsToCallOptions(groupId,traits,options,callback));}},{key:"reset",value:function reset(resetAnonymousId){this.getAnalyticsInstance().reset(resetAnonymousId);}},{key:"getAnonymousId",value:function getAnonymousId(options){return this.getAnalyticsInstance().getAnonymousId(options);}},{key:"setAnonymousId",value:function setAnonymousId(anonymousId,rudderAmpLinkerParam){this.getAnalyticsInstance().setAnonymousId(anonymousId,rudderAmpLinkerParam);}},{key:"getUserId",value:function getUserId(){return this.getAnalyticsInstance().getUserId();}},{key:"getUserTraits",value:function getUserTraits(){return this.getAnalyticsInstance().getUserTraits();}},{key:"getGroupId",value:function getGroupId(){return this.getAnalyticsInstance().getGroupId();}},{key:"getGroupTraits",value:function getGroupTraits(){return this.getAnalyticsInstance().getGroupTraits();}},{key:"startSession",value:function startSession(sessionId){return this.getAnalyticsInstance().startSession(sessionId);}},{key:"endSession",value:function endSession(){return this.getAnalyticsInstance().endSession();}},{key:"getSessionId",value:function getSessionId(){return this.getAnalyticsInstance().getSessionId();}},{key:"setAuthToken",value:function setAuthToken(token){return this.getAnalyticsInstance().setAuthToken(token);}},{key:"consent",value:function consent(options){return this.getAnalyticsInstance().consent(options);}}]);}();_defineProperty(RudderAnalytics,"globalSingleton",null);
+
+const rudderClient = new RudderAnalytics();
+rudderClient.load('2hmMXVYeeZvTdIHHjR4bKsh8177', 'https://rudderstacygnn.dataplane.rudderstack.com');
 
 // document.addEventListener('DOMContentLoaded', () => {
 //   const pageBtn = document.getElementById('btn-page');
@@ -4901,16 +3817,59 @@ const rudderClient = new Analytics('1weqc5iqxRkpaUXHgDgYo3g34mg', 'https://rudde
 document.addEventListener('DOMContentLoaded', () => {
   const pageBtn = document.getElementById('btn-page');
   pageBtn.addEventListener('click', () => {
-    rudderClient.page({
-      name: 'Sample page name',
-      userId: '12345',
-      properties: {
-        tabName: "Sample tab name",
+    rudderClient.page(
+      'Home',
+      'Cart Viewed',
+      {
+        path: '',
+        referrer: '',
+        search: '',
+        title: '',
+        url: '',
       },
-    },
-    (err) => {
-      document.getElementById("action").innerText = "Page tracked";
-    }
+      function (rudderElement) {
+        console.log('in page call');
+        document.getElementById('action').innerHTML = 'Page called';
+        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+      }
+    );
+
+    // rudderClient.page({
+    //   name: 'Sample page name',
+    //   userId: '12345',
+    //   properties: {
+    //     tabName: "Sample tab name",
+    //   },
+    // },
+    // (err) => {
+    //   document.getElementById("action").innerText = "Page tracked";
+    // }
+    // );
+  });
+
+  const identifyBtn = document.getElementById('btn-identify');
+  identifyBtn.addEventListener('click', () => {
+    rudderClient.identify(
+      'customUserID',
+      {
+        name: 'John Doe',
+        title: 'CEO',
+        email: 'name.surname@domain.com',
+        company: 'Company123',
+        phone: '123-456-7890',
+        rating: 'Hot',
+        city: 'Austin',
+        postalCode: '12345',
+        country: 'US',
+        street: 'Sample Address',
+        state: 'TX',
+      },
+      {},
+      function (rudderElement) {
+        console.log('in identify call');
+        document.getElementById('action').innerHTML = 'Identify called';
+        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+      }
     );
   });
 });
