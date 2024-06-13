@@ -1,0 +1,21 @@
+diff --git a/node_modules/@digitalroute/cz-conventional-changelog-for-jira/engine.js b/node_modules/@digitalroute/cz-conventional-changelog-for-jira/engine.js
+index c211667..e5ab7f5 100644
+--- a/node_modules/@digitalroute/cz-conventional-changelog-for-jira/engine.js
++++ b/node_modules/@digitalroute/cz-conventional-changelog-for-jira/engine.js
+@@ -3,7 +3,6 @@
+ var wrap = require('word-wrap');
+ var map = require('lodash.map');
+ var longest = require('longest');
+-var rightPad = require('right-pad');
+ var chalk = require('chalk');
+ const { execSync } = require('child_process');
+ const boxen = require('boxen');
+@@ -72,7 +71,7 @@ module.exports = function(options) {
+   var length = longest(Object.keys(types)).length + 1;
+   var choices = map(types, function(type, key) {
+     return {
+-      name: rightPad(key + ':', length) + ' ' + type.description,
++      name: String.prototype.rightPad(key + ':', length) + ' ' + type.description,
+       value: key
+     };
+   });

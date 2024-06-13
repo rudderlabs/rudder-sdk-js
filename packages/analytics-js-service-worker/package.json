@@ -70,22 +70,18 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js-common": "*",
-    "axios-retry": "4.3.0",
+    "axios-retry": "4.4.0",
     "ms": "2.1.3",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
     "axios": "1.7.2",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
-    "lodash.clonedeep": "4.5.0",
-    "lodash.isstring": "4.0.1",
     "@lukeed/uuid": "2.0.1"
   },
   "devDependencies": {
     "@types/ms": "0.7.34",
-    "@types/lodash.clonedeep": "4.5.9",
-    "@types/lodash.isstring": "4.0.9",
-    "@types/node": "20.12.12",
+    "@types/node": "20.14.2",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
