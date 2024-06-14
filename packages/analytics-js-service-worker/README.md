@@ -22,7 +22,7 @@
 # @rudderstack/analytics-js-service-worker
 
 RudderStack JavaScript SDK service worker that can be used in browser extensions and serverless runtimes.
-It exposes the same interface and features as the [NodeJS SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/).
+It exposes the same interface and features as the [Node.js SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/).
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
@@ -54,13 +54,13 @@ const rudderClient = new Analytics('<WRITE_KEY>', '<DATA_PLANE_URL>');
 
 RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script (via the JavaScript SDK package) or as a background script service worker (via the [service worker package](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker)).
 
-For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md).
+For more details, see [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/chrome-extension/USAGE.md).
 
 ## Usage in Serverless runtimes
 
 RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker) can be used in serverless runtimes like Cloudflare Workers or Vercel Edge functions.
 
-For examples and specific details look into:
+For more details see:
 
 - [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 - [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
@@ -69,4 +69,4 @@ For examples and specific details look into:
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run build:package`: This outputs **dist/npm** folder that contains the NPM package contents.
+  - `npm run build:package`: This command outputs the **dist/npm** folder that contains the NPM package contents.

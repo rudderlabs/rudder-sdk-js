@@ -27,14 +27,14 @@ RudderStack JavaScript SDK sanity suite for manual and automated testing via our
 
 ## Table of Contents
 
-- [**Sanity Suite Public URLs**](#Sanity-Suite-Public-URLs)
+- [**Sanity Suites**](#Sanity-Suites)
 
-## Sanity Suite Public URLs
+## Sanity Suites
 
-- https://cdn.rudderlabs.com/sanity-suite/v3/cdn/index.html
-- https://cdn.rudderlabs.com/sanity-suite/v3/npm/index.html
+- [CDN](https://cdn.rudderlabs.com/sanity-suite/v3/cdn/index.html)
+- [NPM](https://cdn.rudderlabs.com/sanity-suite/v3/npm/index.html)
 
 ### Legacy SDK
 
-- https://cdn.rudderlabs.com/sanity-suite/v1.1/npm/index.html
-- https://cdn.rudderlabs.com/sanity-suite/v1.1/cdn/index.html
+- [CDN](https://cdn.rudderlabs.com/sanity-suite/v1.1/cdn/index.html)
+- [NPM](https://cdn.rudderlabs.com/sanity-suite/v1.1/npm/index.html)

@@ -28,15 +28,15 @@ RudderStack JavaScript SDK plugins code that is used within the related analytic
 ## Table of Contents
 
 - [**List of plugins**](#list-of-plugins)
-- [**How to build the plugins**](#How-to-build-the-plugins)
+- [**How to build the plugins**](#how-to-build-the-plugins)
 
 ## List of plugins
 
-Plugins are JavaScript SDK v3 features that you can optionally load on demand. Full list of available plugins can be explored [here](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/#plugins).
+Plugins are JavaScript SDK v3 features that you can optionally load on demand. A full list of available plugins can be explored [here](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/#plugins).
 
 ## How to build the plugins
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run build:browser:modern`: This outputs **dist/cdn** folder that contains the CDN package contents.
-  - `npm run build:npm`: This outputs **dist/npm** folder that contains the NPM package contents.
+  - `npm run build:browser:modern`: This outputs the **dist/cdn** folder that contains the CDN package contents.
+  - `npm run build:npm`: This outputs the **dist/npm** folder that contains the NPM package contents.
