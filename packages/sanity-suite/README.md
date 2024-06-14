@@ -21,7 +21,7 @@
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/sanity-suite/README.md#@rudderstack-sanity-suite)@rudderstack/sanity-suite
 
-RudderStack JavaScript SDK sanity suite for manual and automated testing via our testing framework [here](https://github.com/rudderlabs/rudder-sdk-test).
+RudderStack JavaScript SDK sanity suite for manual and automated testing via our testing framework [here](https://github.com/rudderlabs/rudder-client-side-test).
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
@@ -31,7 +31,10 @@ RudderStack JavaScript SDK sanity suite for manual and automated testing via our
 
 ## Sanity Suite Public URLs
 
-- https://cdn.rudderlabs.com/sanity-suite/cdn/v1.1/index.html
-- https://cdn.rudderlabs.com/sanity-suite/npm/v1.1/index.html
-- https://cdn.rudderlabs.com/sanity-suite/cdn/v3/index.html
-- https://cdn.rudderlabs.com/sanity-suite/npm/v3/index.html
+- https://cdn.rudderlabs.com/sanity-suite/v3/cdn/index.html
+- https://cdn.rudderlabs.com/sanity-suite/v3/npm/index.html
+
+### Legacy SDK
+
+- https://cdn.rudderlabs.com/sanity-suite/v1.1/npm/index.html
+- https://cdn.rudderlabs.com/sanity-suite/v1.1/cdn/index.html

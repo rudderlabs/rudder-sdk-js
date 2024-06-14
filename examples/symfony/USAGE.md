@@ -37,7 +37,6 @@ integrate the sdk:
     const analytics = new RudderAnalytics();
     const loadOptions = {};
     analytics.load('<writeKey>', '<dataplaneUrl>', loadOptions);
-    window.rudderanalytics = analytics;
 
     window.rudderanalytics.page();
 
