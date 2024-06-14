@@ -18,6 +18,11 @@ const ignoredProperties = [
     optional: true,
   },
   {
+    key: 'message.context.app.installType',
+    type: 'string',
+    optional: true,
+  },
+  {
     key: 'message.context.locale',
     type: 'string',
   },
