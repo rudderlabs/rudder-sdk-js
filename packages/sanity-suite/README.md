@@ -27,7 +27,7 @@ RudderStack JavaScript SDK sanity suite for manual and automated testing via our
 
 ## Table of Contents
 
-- [**Sanity Suites**](#Sanity-Suites)
+- [**Sanity Suites**](#sanity-suites)
 
 ## Sanity Suites
 

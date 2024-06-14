@@ -264,11 +264,11 @@ More information on obtaining the `CONTROL_PLANE_URL` can be found [**here**](ht
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run build:browser`: This outputs **dist/cdn/legacy/rsa.min.js**.
-  - `npm run build:npm`: This outputs **dist/npm** folder that contains the npm package contents.
-  - `npm run build:integration:all`: This outputs **dist/cdn/legacy** folder that contains the integrations.
+  - `npm run build:browser`: This outputs the **dist/cdn/legacy/rsa.min.js**.
+  - `npm run build:npm`: This outputs the **dist/npm** folder that contains the NPM package contents.
+  - `npm run build:integration:all`: This outputs the **dist/cdn/legacy** folder that contains the integrations.
 
-> We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` directory.
+> We use **rollup** to build our SDKs. The configuration for it is present in the `rollup-configs` directory.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `src/integrations` folder.
 
