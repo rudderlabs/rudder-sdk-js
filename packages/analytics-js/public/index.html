@@ -84,17 +84,17 @@
               configUrl: '__CONFIG_SERVER_HOST__',
               destSDKBaseURL:
             '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
-              pluginsSDKBaseURL: 'http://localhost:3002/cdn/' + window.rudderAnalyticsBuildType + '/plugins',
+              pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
               // useServerSideCookies:true,
               // queueOptions: {
               //   batch: {
               //     maxSize: 5 * 1024, // 5KB
               //   },
               // },
-              useBeacon: true,
-              beaconQueueOptions: {
-                maxItems: 5,
-              },
+              // useBeacon: true,
+              // beaconQueueOptions: {
+              //   maxItems: 5,
+              // },
               // sessions: {
               //   autoTrack: true,
               //   timeout: 30 * 1000
