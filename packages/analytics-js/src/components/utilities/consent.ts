@@ -13,9 +13,9 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
+import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
 import { clone } from 'ramda';
-import { state } from '@rudderstack/analytics-js/state';
+import { state } from '../../state';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';

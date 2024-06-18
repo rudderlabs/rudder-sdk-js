@@ -12,7 +12,7 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import { state } from '@rudderstack/analytics-js/state';
+import { state } from '../../../state';
 import { defaultLogger } from '../../Logger';
 import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';

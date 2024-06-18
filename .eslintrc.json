@@ -117,7 +117,7 @@
           "error",
           {
             "allow": [],
-            "banTransitiveDependencies": false,
+            "banTransitiveDependencies": true,
             "depConstraints": [
               {
                 "sourceTag": "type:lib",
