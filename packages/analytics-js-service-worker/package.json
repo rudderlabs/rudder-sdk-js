@@ -69,19 +69,19 @@
     "node": ">=v12"
   },
   "dependencies": {
+    "@lukeed/uuid": "2.0.1",
     "@rudderstack/analytics-js-common": "*",
-    "axios-retry": "4.4.0",
-    "ms": "2.1.3",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
     "axios": "1.7.2",
+    "axios-retry": "4.4.0",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
-    "@lukeed/uuid": "2.0.1"
+    "ms": "2.1.3"
   },
   "devDependencies": {
     "@types/ms": "0.7.34",
-    "@types/node": "20.14.2",
+    "@types/node": "20.14.5",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
