@@ -13,11 +13,11 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
 import { clone } from 'ramda';
-import { state } from '../../state';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { state } from '../../state';
+import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**

@@ -19,8 +19,6 @@ import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 import { defaultSessionStorage } from './sessionStorage';
 
-// TODO: create session storage client (similar to localstorage if needed)
-
 /**
  * A utility to retrieve the storage singleton instance by type
  */
