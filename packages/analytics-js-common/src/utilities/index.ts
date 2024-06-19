@@ -12,3 +12,4 @@ export * as url from './url';
 export * as uuId from './uuId';
 export * as timezone from './timezone';
 export * as detect from './detect';
+export * as page from './page';

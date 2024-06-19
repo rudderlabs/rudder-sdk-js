@@ -13,7 +13,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { generateMisconfiguredPluginsWarning } from '@rudderstack/analytics-js/constants/logMessages';
+import { generateMisconfiguredPluginsWarning } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {

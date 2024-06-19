@@ -5,9 +5,14 @@ import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { isDefined, isFunction, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isFunction,
+  isNullOrUndefined,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
+import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import type {
   IQueue,
   QueueItem,
@@ -134,8 +139,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead = this.processHead.bind(this);
     this.flushBatch = this.flushBatch.bind(this);
 
-    // Attach visibility change listener to flush the queue
-    this.attachListeners();
+    // Flush the queue on page leave
+    this.flushBatchOnPageLeave();
 
     this.scheduleTimeoutActive = false;
   }
@@ -167,13 +172,9 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
   }
 
-  attachListeners() {
+  flushBatchOnPageLeave() {
     if (this.batch.enabled) {
-      (globalThis as typeof window).addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          this.flushBatch();
-        }
-      });
+      onPageLeave(this.flushBatch);
     }
   }
 

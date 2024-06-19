@@ -20,8 +20,8 @@ import type {
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
-import { MODULE_TYPE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
 import {
   INVALID_CONFIG_URL_WARNING,
@@ -311,6 +311,7 @@ const getSourceConfigURL = (
   configUrl: string | undefined,
   writeKey: string,
   lockIntegrationsVersion: boolean,
+  lockPluginsVersion: boolean,
   logger?: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
@@ -319,6 +320,7 @@ const getSourceConfigURL = (
     build: BUILD_TYPE,
     writeKey,
     lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+    lockPluginsVersion: lockPluginsVersion.toString(),
   });
 
   let origin = DEFAULT_CONFIG_BE_URL;

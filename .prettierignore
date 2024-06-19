@@ -15,3 +15,4 @@ examples/**/index.html
 **/public/index.html
 
 /.nx/cache
+/.nx/workspace-data

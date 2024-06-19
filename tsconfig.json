@@ -1,6 +1,19 @@
 {
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@rudderstack/analytics-js/*": ["./packages/analytics-js/src/*"],
+      "@rudderstack/analytics-js-common/*": ["./packages/analytics-js-common/src/*"],
+      "@rudderstack/analytics-js-integrations/*": ["./packages/analytics-js-integrations/src/*"],
+      "@rudderstack/analytics-js-plugins/*": ["./packages/analytics-js-plugins/src/*"],
+      "@rudderstack/analytics-js-service-worker/*": [
+        "./packages/analytics-js-service-worker/src/*"
+      ],
+      "rudder-sdk-js/*": ["./packages/analytics-v1.1/src/*"],
+      "@rudderstack/analytics-js-loading-script/*": ["./packages/loading-scripts/src/*"],
+      "@rudderstack/analytics-js-sanity-suite/*": ["./packages/sanity-suite/src/*"]
+    },
     "composite": true,
     "outDir": "./dist",
     "rootDir": ".",

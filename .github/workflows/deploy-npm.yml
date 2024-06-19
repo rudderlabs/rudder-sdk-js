@@ -98,9 +98,18 @@ jobs:
           new_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
           echo "NEW_NPM_VERSION_SW=$new_npm_version_sw" >> $GITHUB_ENV
 
+      - name: Debug environment variables
+        continue-on-error: true
+        run: |
+          echo "CURRENT_NPM_VERSION=${{ env.CURRENT_NPM_VERSION }}"
+          echo "NEW_NPM_VERSION=${{ env.NEW_NPM_VERSION }}"
+          echo "CURRENT_NPM_VERSION_SW=${{ env.CURRENT_NPM_VERSION_SW }}"
+          echo "NEW_NPM_VERSION_SW=${{ env.NEW_NPM_VERSION_SW }}"
+
       - name: Send message to Slack channel
-        if: ${{ env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'}}
+        if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack
+        continue-on-error: true
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -148,8 +157,9 @@ jobs:
             }
 
       - name: Send message to Slack channel for Service Worker
-        if: ${{ env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'}}
+        if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'
         id: slackSw
+        continue-on-error: true
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
