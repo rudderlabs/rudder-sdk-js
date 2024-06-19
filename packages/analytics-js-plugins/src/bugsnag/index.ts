@@ -48,11 +48,7 @@ const Bugsnag = (): ExtensionPlugin => ({
       state: ApplicationState,
       logger?: ILogger,
     ): void => {
-      client?.notify(error, {
-        metaData: {
-          state: getAppStateForMetadata(state),
-        },
-      });
+      client?.notify(error);
     },
     breadcrumb: (client: BugsnagLib.Client, message: string, logger?: ILogger): void => {
       client?.leaveBreadcrumb(message);

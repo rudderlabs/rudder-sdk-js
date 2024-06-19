@@ -64,10 +64,16 @@ const isRudderSDKError = (event: BugsnagLib.Report) => {
   );
 };
 
-const enhanceErrorEventMutator = (event: BugsnagLib.Report): void => {
+const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
+  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  return stateStr !== null ? JSON.parse(stateStr) : undefined;
+};
+
+const enhanceErrorEventMutator = (state: ApplicationState, event: BugsnagLib.Report): void => {
   event.updateMetaData('source', {
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
+  event.updateMetaData('state', getAppStateForMetadata(state) ?? {});
 
   const { errorMessage } = event;
   // eslint-disable-next-line no-param-reassign
@@ -85,7 +91,7 @@ const enhanceErrorEventMutator = (event: BugsnagLib.Report): void => {
 };
 
 const onError =
-  (logger?: ILogger): BugsnagLib.BeforeSend =>
+  (state: ApplicationState, logger?: ILogger): BugsnagLib.BeforeSend =>
   (event: BugsnagLib.Report): boolean => {
     try {
       // Discard the event if it's not originated at the SDK
@@ -93,7 +99,7 @@ const onError =
         return false;
       }
 
-      enhanceErrorEventMutator(event);
+      enhanceErrorEventMutator(state, event);
 
       return true;
     } catch {
@@ -123,7 +129,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
         installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError(logger),
+    beforeSend: onError(state, logger),
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
@@ -194,11 +200,6 @@ const initBugsnagClient = (
       time + SDK_LOAD_POLL_INTERVAL_MS,
     );
   }
-};
-
-const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
-  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
-  return stateStr !== null ? JSON.parse(stateStr) : undefined;
 };
 
 export {

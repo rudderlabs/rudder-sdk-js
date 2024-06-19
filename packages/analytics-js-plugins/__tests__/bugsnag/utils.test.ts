@@ -21,8 +21,26 @@ import {
 import { server } from '../../__fixtures__/msw.server';
 import type { BugsnagLib } from '../../src/types/plugins';
 
+let state: ApplicationState;
+
 beforeEach(() => {
   window.RudderSnippetVersion = '3.0.0';
+  state = {
+    context: {
+      app: signal({
+        name: 'test-app',
+        namespace: 'test-namespace',
+        version: '1.0.0',
+        installType: 'npm',
+      }),
+    },
+    source: signal({
+      id: 'dummy-source-id',
+    }),
+    lifecycle: {
+      writeKey: signal('dummy-write-key'),
+    },
+  };
 });
 
 afterEach(() => {
@@ -196,11 +214,27 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'test error message',
       };
 
-      enhanceErrorEventMutator(event);
+      enhanceErrorEventMutator(state, event);
 
       expect(event.metadata).toEqual({
         source: {
           snippetVersion: '3.0.0',
+        },
+        state: {
+          source: {
+            id: 'dummy-source-id',
+          },
+          lifecycle: {
+            writeKey: 'dummy-write-key',
+          },
+          context: {
+            app: {
+              name: 'test-app',
+              namespace: 'test-namespace',
+              version: '1.0.0',
+              installType: 'npm',
+            },
+          },
         },
       });
 
@@ -222,11 +256,27 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       };
 
-      enhanceErrorEventMutator(event, 'dummyMetadataVal');
+      enhanceErrorEventMutator(state, event, 'dummyMetadataVal');
 
       expect(event.metadata).toEqual({
         source: {
           snippetVersion: '3.0.0',
+        },
+        state: {
+          source: {
+            id: 'dummy-source-id',
+          },
+          lifecycle: {
+            writeKey: 'dummy-write-key',
+          },
+          context: {
+            app: {
+              name: 'test-app',
+              namespace: 'test-namespace',
+              version: '1.0.0',
+              installType: 'npm',
+            },
+          },
         },
       });
 
@@ -236,27 +286,6 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('initBugsnagClient', () => {
-    let state: ApplicationState;
-
-    beforeEach(() => {
-      state = {
-        context: {
-          app: signal({
-            name: 'test-app',
-            namespace: 'test-namespace',
-            version: '1.0.0',
-            installType: 'npm',
-          }),
-        },
-        source: signal({
-          id: 'dummy-source-id',
-        }),
-        lifecycle: {
-          writeKey: signal('dummy-write-key'),
-        },
-      };
-    });
-
     const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
 
     const mountBugsnagSDK = () => {
@@ -448,7 +477,7 @@ describe('Bugsnag utilities', () => {
 
   describe('onError', () => {
     it('should return a function', () => {
-      expect(typeof onError()).toBe('function');
+      expect(typeof onError(state)).toBe('function');
     });
 
     it('should return a function that returns false if the error is not from RudderStack SDK', () => {
@@ -460,7 +489,7 @@ describe('Bugsnag utilities', () => {
         ],
       };
 
-      const onErrorFn = onError();
+      const onErrorFn = onError(state);
 
       expect(onErrorFn(error)).toBe(false);
     });
@@ -476,11 +505,28 @@ describe('Bugsnag utilities', () => {
         updateMetaData: jest.fn(),
       } as any;
 
-      const onErrorFn = onError();
+      const onErrorFn = onError(state);
 
       expect(onErrorFn(error)).toBe(true);
-      expect(error.updateMetaData).toHaveBeenCalledWith('source', {
+      expect(error.updateMetaData).toHaveBeenCalledTimes(2);
+      expect(error.updateMetaData).toHaveBeenNthCalledWith(1, 'source', {
         snippetVersion: '3.0.0',
+      });
+      expect(error.updateMetaData).toHaveBeenNthCalledWith(2, 'state', {
+        source: {
+          id: 'dummy-source-id',
+        },
+        lifecycle: {
+          writeKey: 'dummy-write-key',
+        },
+        context: {
+          app: {
+            name: 'test-app',
+            namespace: 'test-namespace',
+            version: '1.0.0',
+            installType: 'npm',
+          },
+        },
       });
       expect(error.severity).toBe('error');
       expect(error.context).toBe('Script load failures');
@@ -497,7 +543,7 @@ describe('Bugsnag utilities', () => {
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
       } as any;
 
-      const onErrorFn = onError();
+      const onErrorFn = onError(state);
 
       expect(onErrorFn(error)).toBe(false);
     });
@@ -519,7 +565,7 @@ describe('Bugsnag utilities', () => {
         }),
       } as any;
 
-      const onErrorFn = onError(mockLogger);
+      const onErrorFn = onError(state, mockLogger);
 
       expect(onErrorFn(error)).toBe(false);
       expect(mockLogger.error).toHaveBeenCalledWith('BugsnagPlugin:: Failed to filter the error.');

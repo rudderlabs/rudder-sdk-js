@@ -93,31 +93,9 @@ describe('Plugin - Bugsnag', () => {
 
     const mockError = new Error('Test Error');
 
-    Bugsnag().errorReportingProvider.notify(bsClient, mockError, state);
+    Bugsnag().errorReportingProvider.notify(bsClient, mockError);
 
-    expect(bsClient.notify).toHaveBeenCalledWith(mockError, {
-      metaData: {
-        state: {
-          plugins: {
-            loadedPlugins: [],
-          },
-          source: {
-            id: 'test-source-id',
-          },
-          lifecycle: {
-            writeKey: 'dummy-write-key',
-          },
-          context: {
-            app: {
-              name: 'test-app',
-              namespace: 'test-namespace',
-              version: '1.0.0',
-              installType: 'npm',
-            },
-          },
-        },
-      },
-    });
+    expect(bsClient.notify).toHaveBeenCalledWith(mockError);
   });
 
   it('should leave a breadcrumb', () => {
