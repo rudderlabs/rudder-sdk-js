@@ -1,14 +1,13 @@
-## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.3.0...@rudderstack/analytics-js-common@3.4.0) (2024-06-07)
+## [3.5.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.4.0...@rudderstack/analytics-js-common@3.5.0) (2024-06-21)
 
 
 ### Features
 
-* add install type to context ([#1740](https://github.com/rudderlabs/rudder-sdk-js/issues/1740)) ([3d25b65](https://github.com/rudderlabs/rudder-sdk-js/commit/3d25b654a70b0f39c412e80465e29e2bdb578aa7))
+* add the ability to lock plugins version ([#1749](https://github.com/rudderlabs/rudder-sdk-js/issues/1749)) ([e2e1620](https://github.com/rudderlabs/rudder-sdk-js/commit/e2e1620677c90169fca35ed3e9057ced3b88a299))
 
 
 ### Bug Fixes
 
-* handle cross domain server-side cookie requests ([#1741](https://github.com/rudderlabs/rudder-sdk-js/issues/1741)) ([68a2d3b](https://github.com/rudderlabs/rudder-sdk-js/commit/68a2d3b025a45311cc3639b140d33a9659e93e8f))
-* improve sdk loading snippet ([#1745](https://github.com/rudderlabs/rudder-sdk-js/issues/1745)) ([d4e0f66](https://github.com/rudderlabs/rudder-sdk-js/commit/d4e0f663a4d0cdb55563ed380166d55e99cf3fc8))
-* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+* remove data residency feature ([#1748](https://github.com/rudderlabs/rudder-sdk-js/issues/1748)) ([870a7ec](https://github.com/rudderlabs/rudder-sdk-js/commit/870a7ecf3cd251d88c207d9815c2f16c6e9a6883))
 
