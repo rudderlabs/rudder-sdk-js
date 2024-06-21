@@ -117,7 +117,7 @@ class TestBook {
                         <td style="word-wrap: break-word; position: relative;">
                           <pre class="testCaseResult" id="test-case-result-${
                             testCase.id
-                          }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;"></pre>
+                          }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;" data-actual-result></pre>
                           <button type="button" class="btn btn-secondary bi bi-clipboard" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#test-case-result-${
                             testCase.id
                           }"">
@@ -229,6 +229,10 @@ class TestBook {
           };
         }
         resultContainer.innerHTML = JSON.stringify(normalisedResultData, undefined, 2);
+
+        // Force trigger DOM update to trigger MutationObserver in IE11
+        resultContainer.setAttribute('data-dummy', 'dummyValue');
+        resultContainer.removeAttribute('data-dummy');
       };
 
       triggerElement.addEventListener('click', () => {
@@ -298,7 +302,7 @@ class TestBook {
       const { testCaseId } = resultContainerElement.dataset;
 
       const observer = new MutationObserver(mutationList => {
-        const resultDataElement = mutationList[0].addedNodes[0].parentNode;
+        const resultDataElement = resultRowElement.querySelector('[data-actual-result]');
         const resultData = resultDataElement.textContent.trim();
 
         const expectedResultElement = resultRowElement.querySelector('[data-expected-result]');
@@ -313,7 +317,7 @@ class TestBook {
 
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
-        statusElement.className = `badge badge-${assertionResult}`;
+        statusElement.className = `badge badge-${assertionResult} testCaseStatus`;
         statusElement.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -337,6 +341,7 @@ class TestBook {
 
       observer.observe(resultContainerElement, {
         childList: true,
+        attributes: true
       });
     }
   }
@@ -375,11 +380,12 @@ class TestBook {
   }
 
   executeSuites() {
-    const totalTestCases = document.getElementsByClassName('testCaseStatus');
-    for (const totalTestCase of totalTestCases) {
-      totalTestCase.textContent = 'pending';
-      totalTestCase.className = 'badge badge-warning';
-    }
+    const totalTestCases = Array.from(document.getElementsByClassName('testCaseStatus'));
+    // iterate all the test cases and set them to pending
+    totalTestCases.forEach(testCase => {
+      testCase.textContent = 'pending';
+      testCase.className = 'badge badge-warning testCaseStatus';
+    });
 
     const resultSummaryElement = document.getElementById('resultSummary');
     resultSummaryElement.innerHTML = 'N/A';
