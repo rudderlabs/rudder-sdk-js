@@ -44,7 +44,7 @@ Additionally setting the background script type as module will allow you to impo
         "type": "module"
     },
 
-After that you should be able to follow the [NodeJS SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
+After that you should be able to follow the [Node.js SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 for further usage.
 
 You can react to events that are available in background scripts via the [Chrome API](https://developer.chrome.com/docs/extensions/reference/).

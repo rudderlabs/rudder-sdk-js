@@ -76,7 +76,7 @@
   "dependencies": {
     "crypto-es": "2.1.0",
     "@rudderstack/analytics-js-common": "*",
-    "ramda": "0.30.0"
+    "ramda": "0.30.1"
   },
   "devDependencies": {
     "@bugsnag/js": "6.5.2"

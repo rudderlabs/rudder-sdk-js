@@ -39,6 +39,8 @@ jest.mock('../../../src/services/ErrorHandler/processError', () => {
   };
 });
 
+const extSrcLoader = {} as IExternalSrcLoader;
+
 describe('ErrorHandler', () => {
   let errorHandlerInstance: ErrorHandler;
 
@@ -58,13 +60,23 @@ describe('ErrorHandler', () => {
     );
   });
 
-  it('should notifyError if plugin engine is provided', () => {
+  it('should not notify error if error reporting client is not defined', () => {
+    // since we're not initializing the error handler instance,
+    // the error reporting client will not be defined
+    errorHandlerInstance.notifyError(new Error('notify'));
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+  });
+
+  it('should notify error if plugin engine is provided', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     errorHandlerInstance.notifyError(new Error('notify'));
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      undefined,
+      {},
       expect.any(Error),
       state,
       expect.any(Object),
@@ -72,13 +84,16 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error for Errors with context and custom message if logger exists', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
 
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      undefined,
+      {},
       expect.any(Error),
       state,
       expect.any(Object),
@@ -91,13 +106,16 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error for messages with context and custom message if logger exists', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
 
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      undefined,
+      {},
       expect.any(Error),
       state,
       expect.any(Object),
@@ -110,6 +128,9 @@ describe('ErrorHandler', () => {
   });
 
   it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     try {
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message', true);
     } catch (err) {
@@ -117,7 +138,7 @@ describe('ErrorHandler', () => {
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
         'errorReporting.notify',
         defaultPluginEngine,
-        undefined,
+        {},
         expect.any(Error),
         state,
         expect.any(Object),
@@ -161,6 +182,9 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error on notifyError if invoking plugin results in an exception', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     defaultPluginEngine.invokeSingle = jest.fn(() => {
       throw new Error('dummy error');
     });
@@ -192,8 +216,6 @@ describe('ErrorHandler', () => {
   });
 
   describe('init', () => {
-    const extSrcLoader = {} as IExternalSrcLoader;
-
     it('reporting client should not be defined if the plugin engine is not supplied', () => {
       errorHandlerInstance = new ErrorHandler(defaultLogger);
       errorHandlerInstance.init(extSrcLoader);

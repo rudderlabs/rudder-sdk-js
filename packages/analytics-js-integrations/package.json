@@ -96,7 +96,7 @@
     "@ndhoule/extend": "2.0.0",
     "@lukeed/uuid": "2.0.1",
     "get-value": "3.0.1",
-    "ramda": "0.30.0"
+    "ramda": "0.30.1"
   },
   "devDependencies": {},
   "overrides": {},
