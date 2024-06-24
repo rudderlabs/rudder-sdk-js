@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
     <script>
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.9";
+        window.RudderSnippetVersion = "3.0.10";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -68,7 +69,10 @@
                 __globalThis_magic__.globalThis = __globalThis_magic__;
                 delete Object.prototype.__globalThis_magic__;
               }
-              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
+
+              // Commented out SDK script addition
+              // as the build process automatically adds the script
+              // window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
@@ -89,7 +93,6 @@
               // },
               // useBeacon: true,
               // beaconQueueOptions: {
-              //   flushQueueInterval: 10 * 1000,
               //   maxItems: 5,
               // },
               // sessions: {
@@ -148,6 +151,7 @@
         }
       })();
 
+      const localRudderAnalyticsRef = window.rudderanalytics;
 
       rudderanalytics.identify(
         'customUserID',
@@ -222,6 +226,20 @@
 
       rudderanalytics.ready(function () {
         console.log('All ready!!!');
+
+        // Once the SDK is ready, fire an event from a cached reference to 
+        // window.rudderanalytics
+        localRudderAnalyticsRef.track(
+          'Test track event with cached RS reference',
+          {
+            revenue: 10003,
+            currency: 'EUR',
+            user_actual_id: 5678,
+          },
+          function (message) {
+            console.log('in track call 4', message);
+          }
+        );
       });
 
       document.addEventListener('RSA_Initialised', function (e) {

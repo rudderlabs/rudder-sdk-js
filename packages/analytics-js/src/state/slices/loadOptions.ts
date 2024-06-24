@@ -25,6 +25,7 @@ const defaultLoadOptions: LoadOptions = {
   destinationsQueueOptions: {},
   queueOptions: {},
   lockIntegrationsVersion: false,
+  lockPluginsVersion: false,
   uaChTrackLevel: 'none',
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,

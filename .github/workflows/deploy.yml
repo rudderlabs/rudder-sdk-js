@@ -171,13 +171,14 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
+        continue-on-error: true
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK Browser Package${{ inputs.action_type }} - ${{ inputs.environment }}'
-          CDN_URL: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/rsa.min.js'
+          PROJECT_NAME: ${{ format('JS SDK Browser Package {0} - {1}', inputs.action_type, inputs.environment) }}
+          CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', inputs.s3_dir_path) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
-          LINK_TEXT: ${{ inputs.environment == 'development' && 'Development' || ((inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
+          LINK_TEXT: ${{ (inputs.environment == 'development' && 'Development') || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE) }}
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
@@ -206,9 +207,9 @@ jobs:
                     "alt_text": "JavaScript Icon"
                   }
                 }
-                ${{ inputs.environment == 'production' && format(',{"type": "context", "elements": [{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}]}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || '' }}
+                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || ''  }}
               ]
-            }          
+            }
 
       # Below steps are for v1.1 SDK (legacy)
 

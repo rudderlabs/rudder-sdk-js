@@ -21,7 +21,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 describe('CDN path utilities', () => {
   describe('getIntegrationsCDNPath', () => {
     const dummyCustomURL = 'https://www.dummy.url/integrations';
-    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
+    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/modern/rsa.min.js';
     const dummyVersion = '3.x.x';
 
     beforeEach(() => {
@@ -40,18 +40,22 @@ describe('CDN path utilities', () => {
     it('should throw error if invalid custom url is provided', () => {
       const integrationsCDNPath = () => getIntegrationsCDNPath(dummyVersion, false, '/');
       expect(integrationsCDNPath).toThrow(
-        'Failed to load the SDK as the CDN base URL for integrations is not valid.',
+        'Failed to load the SDK as the base URL for integrations is not valid.',
       );
     });
 
     it('should return script src path if script src exists and integrations version is not locked', () => {
       const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false, undefined);
-      expect(integrationsCDNPath).toBe('https://www.dummy.url/fromScript/v3/js-integrations');
+      expect(integrationsCDNPath).toBe(
+        'https://www.dummy.url/fromScript/v3/modern/js-integrations',
+      );
     });
 
     it('should return script src path with versioned folder if script src exists and integrations version is locked', () => {
       const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, undefined);
-      expect(integrationsCDNPath).toBe('https://www.dummy.url/fromScript/3.x.x/js-integrations');
+      expect(integrationsCDNPath).toBe(
+        'https://www.dummy.url/fromScript/3.x.x/modern/js-integrations',
+      );
     });
 
     it('should return default path if no script src exists and integrations version is not locked', () => {
@@ -71,34 +75,51 @@ describe('CDN path utilities', () => {
 
   describe('getPluginsCDNPath', () => {
     const dummyCustomURL = 'https://www.dummy.url/plugins/';
-    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
+    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/modern/rsa.min.js';
+    const dummyVersion = '3.x.x';
+
+    beforeEach(() => {
+      getSDKUrl.mockImplementation(() => dummyScriptURL);
+    });
 
     afterEach(() => {
       jest.resetAllMocks();
     });
 
     it('should return plugins CDN URL if a valid custom URL is provided', () => {
-      const pluginsCDNPath = getPluginsCDNPath(dummyCustomURL);
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, dummyCustomURL);
       expect(pluginsCDNPath).toBe('https://www.dummy.url/plugins');
     });
 
     it('should throw error if invalid custom url is provided', () => {
-      const pluginsCDNPath = () => getPluginsCDNPath('htp:/some.broken.url');
+      const pluginsCDNPath = () => getPluginsCDNPath(dummyVersion, false, 'htp:/some.broken.url');
       expect(pluginsCDNPath).toThrow(
-        'Failed to load the SDK as the CDN base URL for plugins is not valid.',
+        'Failed to load the SDK as the base URL for plugins is not valid.',
       );
     });
 
-    it('should return default plugins CDN URL if no custom URL is provided and no script src exists', () => {
-      const pluginsCDNPath = getPluginsCDNPath(undefined);
+    it('should return script src path if script src exists and plugins version is not locked', () => {
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false);
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/fromScript/v3/modern/plugins');
+    });
+
+    it('should return script src path with versioned folder if script src exists and plugins version is locked', () => {
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true);
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/fromScript/3.x.x/modern/plugins');
+    });
+
+    it('should return default path if no script src exists and plugins version is not locked', () => {
+      getSDKUrl.mockImplementation(() => undefined);
+
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, undefined);
       expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/plugins');
     });
 
-    it('should return plugins CDN URL if core SDK script is loaded', () => {
-      getSDKUrl.mockImplementation(() => dummyScriptURL);
+    it('should return default path if no script src exists but plugins version is locked', () => {
+      getSDKUrl.mockImplementation(() => undefined);
 
-      const pluginsCDNPath = getPluginsCDNPath(undefined);
-      expect(pluginsCDNPath).toBe('https://www.dummy.url/fromScript/v3/plugins');
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined);
+      expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/plugins');
     });
   });
 });

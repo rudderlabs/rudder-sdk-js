@@ -8,7 +8,7 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 import type { BugsnagLib } from '../types/plugins';
 import { BUGSNAG_API_KEY_VALIDATION_ERROR, BUGSNAG_SDK_URL_ERROR } from './logMessages';
 import { API_KEY } from './constants';
-import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid, getAppStateForMetadata } from './utils';
+import { initBugsnagClient, loadBugsnagSDK, isApiKeyValid } from './utils';
 
 const pluginName: PluginName = 'Bugsnag';
 
@@ -48,11 +48,7 @@ const Bugsnag = (): ExtensionPlugin => ({
       state: ApplicationState,
       logger?: ILogger,
     ): void => {
-      client?.notify(error, {
-        metaData: {
-          state: getAppStateForMetadata(state),
-        },
-      });
+      client.notify(error);
     },
     breadcrumb: (client: BugsnagLib.Client, message: string, logger?: ILogger): void => {
       client?.leaveBreadcrumb(message);
