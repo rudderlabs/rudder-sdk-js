@@ -1,4 +1,4 @@
-import { cookie } from '../../../../src/services/StoreManager/component-cookie';
+import { cookie } from '../../src/component-cookie';
 
 // TODO: clean up structure here, clean up cookie before each test
 describe('cookie(name, value)', () => {

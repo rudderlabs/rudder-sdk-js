@@ -19,8 +19,48 @@
 
 ---
 
-# @rudderstack/analytics-js-common
+# @rudderstack/analytics-js-cookies
 
-RudderStack JavaScript SDK common code that is used within the related analytics, plugins, integrations and service worker packages.
+RudderStack JavaScript SDK utility for cookies.
+
+## APIs
+
+### `getDecryptedCookie`
+
+This function decrypts and returns the RudderStack JavaScript SDK cookie values.
+
+The return type is either a `string` or an `object` as some cookies like user ID, anonymous user ID have string values while user traits are objects.
+
+It returns `null` in either of the following scenarios:
+
+- If the cookie is not present.
+- If the cookie is not properly encrypted.
+  - It only decrypts the cookies that are created by the RudderStack JavaScript SDK encryption version "v3".
+- If the decrypted cookie value is not a valid JSON string.
+- If the provided cookie name is not a valid RudderStack JavaScript SDK cookie name.
+
+> If the cookie is not encrypted at all, it will return the cookie value as is.
+
+> The function swallows any errors that occur during the decryption process and returns `null` in such cases.
+
+```javascript
+import {
+  getDecryptedCookie,
+  anonymousUserIdKey,
+  userTraitsKey,
+} from '@rudderstack/analytics-js-cookies';
+
+const anonymousId = getDecryptedCookie(anonymousUserIdKey);
+console.log('Anonymous User ID: ', anonymousId);
+// Output: Anonymous User ID: 2c5b6d48-ea90-43a2-a2f6-457d27f90328
+
+const userTraits = getDecryptedCookie(userTraitsKey);
+console.log('User Traits: ', userTraits);
+// Output: User Traits: {"email":"abc@xyz.com","name":"John Doe"}
+
+const invalidCookie = getDecryptedCookie('invalid-cookie-name');
+console.log('Invalid Cookie: ', invalidCookie);
+// Output: Invalid Cookie: null
+```
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).

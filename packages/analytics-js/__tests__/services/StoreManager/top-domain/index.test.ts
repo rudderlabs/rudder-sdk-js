@@ -1,14 +1,12 @@
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Store';
+import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
+import { cookie } from '@rudderstack/analytics-js-cookies/component-cookie';
 import { domain } from '../../../../src/services/StoreManager/top-domain';
-import { cookie } from '../../../../src/services/StoreManager/component-cookie';
 
 let cookies: Record<string, any> = {};
 
-jest.mock('../../../../src/services/StoreManager/component-cookie', () => {
-  const originalModule = jest.requireActual(
-    '../../../../src/services/StoreManager/component-cookie',
-  );
+jest.mock('@rudderstack/analytics-js-cookies/component-cookie', () => {
+  const originalModule = jest.requireActual('@rudderstack/analytics-js-cookies/component-cookie');
 
   return {
     __esModule: true,

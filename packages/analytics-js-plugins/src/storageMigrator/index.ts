@@ -7,7 +7,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { checks, encryption } from '../shared-chunks/common';
+import { checks, decrypt } from '../shared-chunks/common';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
@@ -37,7 +37,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // The value is not encrypted using legacy encryption
         // Try latest
         if (decryptedVal === storedVal) {
-          decryptedVal = encryption.decrypt(storedVal);
+          decryptedVal = decrypt(storedVal);
         }
 
         if (checks.isNullOrUndefined(decryptedVal)) {

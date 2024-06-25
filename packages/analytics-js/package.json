@@ -111,6 +111,7 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
     "@preact/signals-core": "1.6.1",
     "ramda": "0.30.1",

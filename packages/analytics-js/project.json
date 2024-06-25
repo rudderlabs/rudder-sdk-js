@@ -84,7 +84,8 @@
       },
       "configurations": {
         "ci": {
-          "ci": true
+          "ci": true,
+          "codeCoverage": true
         }
       },
       "dependsOn": ["build-browser"]
