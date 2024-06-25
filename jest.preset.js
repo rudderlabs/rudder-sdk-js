@@ -71,7 +71,7 @@ module.exports = {
   },
   testEnvironmentOptions: {
     ...nxPreset.testEnvironmentOptions,
-    url: 'http://www.test-host.com',
+    url: 'https://www.test-host.com',
     runScripts: 'dangerously',
     resources: 'usable',
   },

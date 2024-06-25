@@ -36,6 +36,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   // Note, the polyfill service serves both ArrayBuffer and Uint8Array under the same feature name, "ArrayBuffer".
   ArrayBuffer: () => !isFunction(globalThis.Uint8Array),
   Set: () => !isFunction(globalThis.Set),
+  atob: () => !isFunction(globalThis.atob),
 };
 
 const isLegacyJSEngine = (): boolean => {

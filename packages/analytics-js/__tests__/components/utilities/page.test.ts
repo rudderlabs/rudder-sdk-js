@@ -222,13 +222,13 @@ describe('utilities - page', () => {
       documentSpy.mockRestore();
 
       expect(getDefaultPageProperties()).toEqual({
-        url: 'http://www.test-host.com/',
+        url: 'https://www.test-host.com/',
         path: '/',
         search: '',
         title: '',
         referrer: '$direct',
         referring_domain: '',
-        tab_url: 'http://www.test-host.com/',
+        tab_url: 'https://www.test-host.com/',
       });
     });
   });

@@ -1,9 +1,9 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import type { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import type { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { batch } from '@preact/signals-core';
+import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
+import type { IEventManager } from '../../../src/components/eventManager/types';
 import {
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
@@ -569,39 +569,39 @@ describe('Core - Analytics', () => {
       expect(state.storage.entries.value).toStrictEqual({
         userId: {
           type: 'sessionStorage',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
         userTraits: {
           type: 'localStorage',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
         anonymousId: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
         groupId: {
           type: 'memoryStorage',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
         groupTraits: {
           type: 'memoryStorage',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
         initialReferrer: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
         initialReferringDomain: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
         sessionInfo: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+          key: COOKIE_KEYS.sessionInfo,
         },
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       });
 

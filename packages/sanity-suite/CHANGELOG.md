@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.1...@rudderstack/analytics-js-sanity-suite@3.1.2) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.1`
+
+### Bug Fixes
+
+* **analytics-js-sanity-suite:** avoid using iterators and force trigger mutation observer ([bbc66e4](https://github.com/rudderlabs/rudder-sdk-js/commit/bbc66e4d4f75b0c52bb8391cd6775b3d84d573ee))
+
 ## [3.1.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.0...@rudderstack/analytics-js-sanity-suite@3.1.1) (2024-06-21)
 
 ### Dependency Updates

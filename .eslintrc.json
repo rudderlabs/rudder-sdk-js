@@ -29,7 +29,8 @@
       "cancelAnimationFrame",
       "navigator.sendBeacon",
       "Uint8Array",
-      "Set"
+      "Set",
+      "atob"
     ]
   },
   "env": {
