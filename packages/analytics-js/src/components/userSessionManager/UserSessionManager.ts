@@ -32,6 +32,7 @@ import type {
   IHttpClient,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import {
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
@@ -60,11 +61,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import {
-  DEFAULT_USER_SESSION_VALUES,
-  SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
-  USER_SESSION_STORAGE_KEYS,
-} from './constants';
+import { DEFAULT_USER_SESSION_VALUES, SERVER_SIDE_COOKIES_DEBOUNCE_TIME } from './constants';
 import type {
   CallbackFunction,
   CookieData,
@@ -189,12 +186,12 @@ class UserSessionManager implements IUserSessionManager {
             storageClientDataStoreNameMap[storage] as string,
           );
           if (store && storage !== currentStorage) {
-            const value = store.get(USER_SESSION_STORAGE_KEYS[key]);
+            const value = store.get(COOKIE_KEYS[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
-              curStore.set(USER_SESSION_STORAGE_KEYS[key], value);
+              curStore.set(COOKIE_KEYS[key], value);
             }
 
-            store.remove(USER_SESSION_STORAGE_KEYS[key]);
+            store.remove(COOKIE_KEYS[key]);
           }
         });
       }
@@ -220,8 +217,8 @@ class UserSessionManager implements IUserSessionManager {
       }
     });
 
-    Object.keys(USER_SESSION_STORAGE_KEYS).forEach(storageKey => {
-      const storageEntry = USER_SESSION_STORAGE_KEYS[storageKey as UserSessionStorageKeysType];
+    Object.keys(COOKIE_KEYS).forEach(storageKey => {
+      const storageEntry = COOKIE_KEYS[storageKey as UserSessionStorageKeysType];
       stores.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',

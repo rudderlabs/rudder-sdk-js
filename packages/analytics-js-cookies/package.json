@@ -1,7 +1,7 @@
 {
-  "name": "@rudderstack/analytics-js",
-  "version": "3.4.0",
-  "description": "RudderStack JavaScript SDK",
+  "name": "@rudderstack/analytics-js-cookies",
+  "version": "1.0.0",
+  "description": "RudderStack JavaScript SDK Cookies Module",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
   "exports": {
@@ -14,16 +14,6 @@
       "types": "./dist/npm/index.d.ts",
       "require": "./dist/npm/legacy/cjs/index.js",
       "import": "./dist/npm/legacy/esm/index.js"
-    },
-    "./bundled": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/bundled/cjs/index.js",
-      "import": "./dist/npm/modern/bundled/esm/index.js"
-    },
-    "./content-script": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/content-script/cjs/index.js",
-      "import": "./dist/npm/modern/content-script/esm/index.js"
     }
   },
   "types": "./dist/npm/index.d.ts",
@@ -52,30 +42,26 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
-    "directory": "packages/analytics-js"
+    "directory": "packages/analytics-js-cookies"
   },
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-cookies/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
-    "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
-    "start:modern": "BROWSERSLIST_ENV=modern npm run start",
+    "start": "exit 0",
     "build": "npm run build:browser && npm run build:package",
-    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
-    "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
+    "build:browser:modern": "exit 0",
+    "build:browser": "exit 0",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
-    "build:npm:bundled": "BUNDLED_PLUGINS=all npm run build:npm:modern",
-    "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
-    "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDK.js",
-    "test": "npm run build:browser:test && nx test --maxWorkers=50%",
-    "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "build:package": "npm run build:npm:modern",
+    "test": "nx test --maxWorkers=50%",
+    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package",
+    "check:size:build": "npm run build",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -83,12 +69,15 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "check:pub": "npx publint",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
     "package": "npm pack",
     "release": "npm publish"
   },
+  "dependencies": {
+    "@rudderstack/analytics-js-common": "*"
+  },
   "devDependencies": {},
+  "overrides": {},
   "browserslist": {
     "production": [
       "defaults",
@@ -100,7 +89,8 @@
       "Opera >= 43"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import"
+      "defaults",
+      "supports es6-module-dynamic-import"
     ],
     "development": [
       "last 1 chrome version",
@@ -108,13 +98,5 @@
       "last 1 edge version",
       "last 1 safari version"
     ]
-  },
-  "dependencies": {
-    "@rudderstack/analytics-js-common": "*",
-    "@rudderstack/analytics-js-cookies": "*",
-    "@rudderstack/analytics-js-plugins": "*",
-    "@preact/signals-core": "1.6.1",
-    "ramda": "0.30.1",
-    "storejs": "2.1.0"
   }
 }
