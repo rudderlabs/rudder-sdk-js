@@ -25,6 +25,23 @@ RudderStack JavaScript SDK utility for cookies.
 
 ## APIs
 
+### `getDecryptedValue`
+
+This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
+
+> The encrypted value should be a string starting with `RS_ENC_v3_`.
+
+> If the provided value is not properly encrypted, the function will throw an exception.
+
+```javascript
+import { decrypt } from '@rudderstack/analytics-js-cookies';
+
+const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
+const decryptedCookieValue = decrypt(encryptedCookieValue);
+console.log('Decrypted Cookie Value: ', decryptedCookieValue);
+// Output: Decrypted Cookie Value: test-data
+```
+
 ### `getDecryptedCookie`
 
 This function decrypts and returns the RudderStack JavaScript SDK cookie values.
@@ -39,11 +56,10 @@ It returns `null` in either of the following scenarios:
 - If the decrypted cookie value is not a valid JSON string.
 - If the provided cookie name is not a valid RudderStack JavaScript SDK cookie name.
 
-> If unencrypted, the cookie value will be returned as is.
-
 > Any errors during decryption are swallowed by the function, returning `null`.
 
 The following are the available cookie key exports:
+
 - `userIdKey`: The key for the user ID cookie.
 - `userTraitsKey`: The key for the user traits cookie.
 - `anonymousUserIdKey`: The key for the anonymous user ID cookie.
@@ -53,7 +69,6 @@ The following are the available cookie key exports:
 - `pageInitialReferringDomainKey`: The key for the page initial referring domain cookie.
 - `sessionInfoKey`: The key for the session ID cookie.
 - `authTokenKey`: The key for the auth token cookie.
-
 
 ```javascript
 import {

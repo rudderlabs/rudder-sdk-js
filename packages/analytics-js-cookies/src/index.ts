@@ -1,4 +1,4 @@
-export { getDecryptedCookie } from './cookiesUtilities';
+export { getDecryptedCookie, getDecryptedValue } from './cookiesUtilities';
 
 export {
   userIdKey,

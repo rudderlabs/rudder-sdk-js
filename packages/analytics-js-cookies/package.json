@@ -1,7 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-cookies",
-  "version": "0.1.0",
-  "description": "RudderStack JavaScript SDK Cookies Module",
+  "version": "0.2.0",
+  "description": "RudderStack JavaScript SDK Cookies Utilities",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
   "exports": {
@@ -56,7 +56,7 @@
     "build:browser": "exit 0",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern",
+    "build:package": "npm run build:npm:modern && npm run build:npm",
     "test": "nx test --maxWorkers=50%",
     "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
