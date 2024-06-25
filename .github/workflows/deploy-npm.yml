@@ -46,9 +46,11 @@ jobs:
         run: |
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
           current_version_sw=$(jq -r .version packages/analytics-js-service-worker/package.json)
+          current_version_cookie_utils=$(jq -r .version packages/analytics-js-cookies/package.json)
           current_version=$(jq -r .version packages/analytics-js/package.json)
           echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_SW_VALUE=$current_version_sw" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_COOKIE_UTILS_VALUE=$current_version_cookie_utils" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
 
       - name: Get versions in NPM
@@ -58,6 +60,9 @@ jobs:
 
           current_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
           echo "CURRENT_NPM_VERSION_SW=$current_npm_version_sw" >> $GITHUB_ENV
+
+          current_npm_version_cookie_utils=$(npm show @rudderstack/analytics-js-cookies version 2>/dev/null || echo "not found")
+          echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -92,19 +97,27 @@ jobs:
 
       - name: Get versions in NPM after publish
         run: |
+          npm cache clean --force
           new_npm_version=$(npm show @rudderstack/analytics-js version 2>/dev/null || echo "not found")
           echo "NEW_NPM_VERSION=$new_npm_version" >> $GITHUB_ENV
 
           new_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
           echo "NEW_NPM_VERSION_SW=$new_npm_version_sw" >> $GITHUB_ENV
 
+          new_npm_version_cookie_utils=$(npm show @rudderstack/analytics-js-cookies version 2>/dev/null || echo "not found")
+          echo "NEW_NPM_VERSION_COOKIE_UTILS=$new_npm_version_cookie_utils" >> $GITHUB_ENV
+
       - name: Debug environment variables
         continue-on-error: true
         run: |
           echo "CURRENT_NPM_VERSION=${{ env.CURRENT_NPM_VERSION }}"
           echo "NEW_NPM_VERSION=${{ env.NEW_NPM_VERSION }}"
+
           echo "CURRENT_NPM_VERSION_SW=${{ env.CURRENT_NPM_VERSION_SW }}"
           echo "NEW_NPM_VERSION_SW=${{ env.NEW_NPM_VERSION_SW }}"
+
+          echo "CURRENT_NPM_VERSION_COOKIE_UTILS=${{ env.CURRENT_NPM_VERSION_COOKIE_UTILS }}"
+          echo "NEW_NPM_VERSION_COOKIE_UTILS=${{ env.NEW_NPM_VERSION_COOKIE_UTILS }}"
 
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
@@ -200,6 +213,56 @@ jobs:
                     {
                       "type": "mrkdwn",
                       "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_SW_VALUE }}|here>."
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Send message to Slack channel for cookie utilities
+        if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.CURRENT_NPM_VERSION_COOKIE_UTILS && env.CURRENT_NPM_VERSION_COOKIE_UTILS != 'not found'
+        id: slack-cookie-utils
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK Cookies Utilities'
+          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New Release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ env.NPM_PACKAGE_URL }}|v${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://img.icons8.com/color/452/npm.png",
+                    "alt_text": "NPM Icon"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}|here>."
                     }
                   ]
                 }

@@ -15,22 +15,26 @@ const decrypt = (value: string | undefined): string | undefined => {
   return value;
 };
 
-const getDecryptedCookie = (cookieKey: string): Nullable<string | ApiObject> => {
+const getDecryptedValue = (value: string): Nullable<string | ApiObject> => {
   const fallbackValue = null;
   try {
-    if (Object.values(COOKIE_KEYS).includes(cookieKey)) {
-      const decryptedVal = decrypt(cookie(cookieKey));
+    const decryptedVal = decrypt(value);
 
-      if (isNullOrUndefined(decryptedVal)) {
-        return fallbackValue;
-      }
-
-      return JSON.parse(decryptedVal as string);
+    if (isNullOrUndefined(decryptedVal)) {
+      return fallbackValue;
     }
-    return fallbackValue;
+
+    return JSON.parse(decryptedVal as string);
   } catch (err) {
     return fallbackValue;
   }
 };
 
-export { getDecryptedCookie, encrypt, decrypt };
+const getDecryptedCookie = (cookieKey: string): Nullable<string | ApiObject> => {
+  if (Object.values(COOKIE_KEYS).includes(cookieKey)) {
+    return getDecryptedValue(cookie(cookieKey));
+  }
+  return null;
+};
+
+export { getDecryptedCookie, encrypt, decrypt, getDecryptedValue };

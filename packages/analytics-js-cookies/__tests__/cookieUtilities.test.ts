@@ -9,7 +9,7 @@ import {
   userIdKey,
   userTraitsKey,
 } from '../src';
-import { encrypt, decrypt, getDecryptedCookie } from '../src/cookiesUtilities';
+import { encrypt, decrypt, getDecryptedCookie, getDecryptedValue } from '../src/cookiesUtilities';
 
 describe('Cookie Utilities', () => {
   describe('encrypt', () => {
@@ -117,6 +117,28 @@ describe('Cookie Utilities', () => {
       document.cookie = 'rl_page_init_referring_domain=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
       document.cookie = 'rl_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
       document.cookie = 'rl_auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    });
+  });
+
+  describe('getDecryptedValue', () => {
+    it('should return the decrypted value', () => {
+      expect(getDecryptedValue('RS_ENC_v3_InRlc3QtZGF0YSI=')).toBe('test-data');
+    });
+
+    it('should return null if it is not encrypted', () => {
+      expect(getDecryptedValue('test-data')).toBeNull();
+    });
+
+    it('should return null if the value is not properly encrypted', () => {
+      expect(getDecryptedValue('RS_ENC_v3_InRlc3QtZGF0YSI-some-random-data')).toBeNull();
+    });
+
+    it('should return null if the input is null', () => {
+      expect(getDecryptedValue(null)).toBeNull();
+    });
+
+    it('should return null if the input is undefined', () => {
+      expect(getDecryptedValue(undefined)).toBeNull();
     });
   });
 });
