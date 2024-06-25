@@ -2,7 +2,20 @@
   "name": "@rudderstack/analytics-js-cookies",
   "version": "1.0.0",
   "description": "RudderStack JavaScript SDK Cookies Module",
-  "module": "dist/npm/index.js",
+  "main": "dist/npm/modern/cjs/index.js",
+  "module": "dist/npm/modern/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/npm/index.d.ts",
+      "require": "./dist/npm/modern/cjs/index.js",
+      "import": "./dist/npm/modern/esm/index.js"
+    },
+    "./legacy": {
+      "types": "./dist/npm/index.d.ts",
+      "require": "./dist/npm/legacy/cjs/index.js",
+      "import": "./dist/npm/legacy/esm/index.js"
+    }
+  },
   "types": "./dist/npm/index.d.ts",
   "typesVersions": {
     "*": {
