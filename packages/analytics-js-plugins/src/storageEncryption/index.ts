@@ -15,7 +15,7 @@ const StorageEncryption = (): ExtensionPlugin => ({
     encrypt(value: any): string {
       return encrypt(value);
     },
-    decrypt(value: string): string {
+    decrypt(value: string): string | undefined {
       return decrypt(value);
     },
   },

@@ -32,7 +32,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
           return null;
         }
 
-        let decryptedVal = decryptLegacy(storedVal as string);
+        let decryptedVal: string | undefined = decryptLegacy(storedVal as string);
 
         // The value is not encrypted using legacy encryption
         // Try latest
@@ -45,7 +45,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         }
 
         // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-        return JSON.parse(decryptedVal);
+        return JSON.parse(decryptedVal as string);
       } catch (err) {
         errorHandler?.onError(err, STORAGE_MIGRATOR_PLUGIN, STORAGE_MIGRATION_ERROR(key));
         return null;

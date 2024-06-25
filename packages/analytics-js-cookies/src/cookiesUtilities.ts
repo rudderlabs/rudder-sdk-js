@@ -7,8 +7,8 @@ import { cookie } from './component-cookie';
 
 const encrypt = (value: string): string => `${ENCRYPTION_PREFIX_V3}${toBase64(value)}`;
 
-const decrypt = (value: string): string => {
-  if (value.startsWith(ENCRYPTION_PREFIX_V3)) {
+const decrypt = (value: string | undefined): string | undefined => {
+  if (value?.startsWith(ENCRYPTION_PREFIX_V3)) {
     return fromBase64(value.substring(ENCRYPTION_PREFIX_V3.length));
   }
 
