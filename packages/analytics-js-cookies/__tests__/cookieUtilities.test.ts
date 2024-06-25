@@ -1,3 +1,14 @@
+import {
+  anonymousUserIdKey,
+  authTokenKey,
+  groupIdKey,
+  groupTraitsKey,
+  pageInitialReferrerKey,
+  pageInitialReferringDomainKey,
+  sessionInfoKey,
+  userIdKey,
+  userTraitsKey,
+} from '../src';
 import { encrypt, decrypt, getDecryptedCookie } from '../src/cookiesUtilities';
 
 describe('Cookie Utilities', () => {
@@ -71,6 +82,41 @@ describe('Cookie Utilities', () => {
 
       // delete cookie
       document.cookie = 'rl_trait=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    });
+
+    it('should return decrypted cookie values for all the allowed cookies', () => {
+      document.cookie = 'rl_user_id=RS_ENC_v3_InRlc3QtdXNlcl9pZCI=';
+      document.cookie = 'rl_trait=RS_ENC_v3_ewogICJ0ZXN0LWtleSI6ICJ0ZXN0LXZhbHVlIgp9';
+      document.cookie = 'rl_anonymous_id=RS_ENC_v3_InRlc3QtZGF0YSI=';
+      document.cookie = 'rl_group_id=RS_ENC_v3_InRlc3QtZ3JvdXBfaWQi';
+      document.cookie = 'rl_group_trait=RS_ENC_v3_ewogICJ0ZXN0LWtleSI6ICJ0ZXN0LXZhbHVlIgp9';
+      document.cookie = 'rl_page_init_referrer=RS_ENC_v3_InRlc3QtcGFnZV9pbml0X3JlZmVycmVyIg==';
+      document.cookie =
+        'rl_page_init_referring_domain=RS_ENC_v3_InRlc3QtcGFnZV9pbml0X3JlZmVycmluZ19kb21haW4i';
+      document.cookie = 'rl_session=RS_ENC_v3_ewogICJ0ZXN0LWtleSI6ICJ0ZXN0LXZhbHVlIgp9';
+      document.cookie = 'rl_auth_token=RS_ENC_v3_InRlc3QtdG9rZW4i';
+      expect(getDecryptedCookie(userIdKey)).toBe('test-user_id');
+      expect(getDecryptedCookie(userTraitsKey)).toEqual({ 'test-key': 'test-value' });
+      expect(getDecryptedCookie(anonymousUserIdKey)).toBe('test-data');
+      expect(getDecryptedCookie(groupIdKey)).toBe('test-group_id');
+      expect(getDecryptedCookie(groupTraitsKey)).toEqual({ 'test-key': 'test-value' });
+      expect(getDecryptedCookie(pageInitialReferrerKey)).toBe('test-page_init_referrer');
+      expect(getDecryptedCookie(pageInitialReferringDomainKey)).toBe(
+        'test-page_init_referring_domain',
+      );
+      expect(getDecryptedCookie(sessionInfoKey)).toEqual({ 'test-key': 'test-value' });
+      expect(getDecryptedCookie(authTokenKey)).toBe('test-token');
+
+      // delete cookies
+      document.cookie = 'rl_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_trait=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_anonymous_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_group_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_group_trait=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_page_init_referrer=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_page_init_referring_domain=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = 'rl_auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
     });
   });
 });

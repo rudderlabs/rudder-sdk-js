@@ -62,7 +62,7 @@ const set = (
   optionsConfig?: CookieOptions,
   logger?: ILogger,
 ) => {
-  const options: CookieOptions = { ...optionsConfig } || {};
+  const options: CookieOptions = { ...(optionsConfig || {}) };
   let cookieString = `${encode(name, logger)}=${encode(value, logger)}`;
 
   if (isNull(value)) {

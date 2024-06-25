@@ -3,8 +3,8 @@ const userTraitsKey = 'rl_trait';
 const anonymousUserIdKey = 'rl_anonymous_id';
 const groupIdKey = 'rl_group_id';
 const groupTraitsKey = 'rl_group_trait';
-const initialReferrerKey = 'rl_page_init_referrer';
-const initialReferringDomainKey = 'rl_page_init_referring_domain';
+const pageInitialReferrerKey = 'rl_page_init_referrer';
+const pageInitialReferringDomainKey = 'rl_page_init_referring_domain';
 const sessionInfoKey = 'rl_session';
 const authTokenKey = 'rl_auth_token';
 
@@ -14,8 +14,8 @@ const COOKIE_KEYS = {
   anonymousId: anonymousUserIdKey,
   groupId: groupIdKey,
   groupTraits: groupTraitsKey,
-  initialReferrer: initialReferrerKey,
-  initialReferringDomain: initialReferringDomainKey,
+  initialReferrer: pageInitialReferrerKey,
+  initialReferringDomain: pageInitialReferringDomainKey,
   sessionInfo: sessionInfoKey,
   authToken: authTokenKey,
 };
@@ -30,8 +30,8 @@ export {
   anonymousUserIdKey,
   groupIdKey,
   groupTraitsKey,
-  initialReferrerKey,
-  initialReferringDomainKey,
+  pageInitialReferrerKey,
+  pageInitialReferringDomainKey,
   sessionInfoKey,
   authTokenKey,
 };

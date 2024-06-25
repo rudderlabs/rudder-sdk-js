@@ -39,9 +39,9 @@ It returns `null` in either of the following scenarios:
 - If the decrypted cookie value is not a valid JSON string.
 - If the provided cookie name is not a valid RudderStack JavaScript SDK cookie name.
 
-> If the cookie is not encrypted at all, it will return the cookie value as is.
+> If unencrypted, the cookie value will be returned as is.
 
-> The function swallows any errors that occur during the decryption process and returns `null` in such cases.
+> Any errors during decryption are swallowed by the function, returning `null`.
 
 ```javascript
 import {

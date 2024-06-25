@@ -6,8 +6,8 @@ export {
   anonymousUserIdKey,
   groupIdKey,
   groupTraitsKey,
-  initialReferrerKey,
-  initialReferringDomainKey,
+  pageInitialReferrerKey,
+  pageInitialReferringDomainKey,
   sessionInfoKey,
   authTokenKey,
 } from './constants/cookies';
