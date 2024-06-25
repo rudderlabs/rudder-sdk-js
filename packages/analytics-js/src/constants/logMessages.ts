@@ -208,8 +208,6 @@ const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefin
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
 
-const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
-
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
   selectedStrategy: StorageStrategy | undefined,
@@ -294,7 +292,6 @@ export {
   API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
-  COOKIE_DATA_ENCODING_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,

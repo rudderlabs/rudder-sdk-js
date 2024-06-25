@@ -2,7 +2,7 @@ import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { COOKIE_DATA_ENCODING_ERROR } from '../../../constants/logMessages';
+import { COOKIE_DATA_ENCODING_ERROR } from '../constants/logMessages';
 
 /**
  * Encode.
@@ -62,7 +62,7 @@ const set = (
   optionsConfig?: CookieOptions,
   logger?: ILogger,
 ) => {
-  const options: CookieOptions = { ...optionsConfig } || {};
+  const options: CookieOptions = { ...(optionsConfig || {}) };
   let cookieString = `${encode(name, logger)}=${encode(value, logger)}`;
 
   if (isNull(value)) {
