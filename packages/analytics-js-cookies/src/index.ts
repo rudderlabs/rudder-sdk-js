@@ -1,9 +1,6 @@
-export { getDecryptedCookie, encrypt, decrypt } from './cookiesUtilities';
-
-export { cookie } from './component-cookie';
+export { getDecryptedCookie } from './cookiesUtilities';
 
 export {
-  COOKIE_KEYS,
   userIdKey,
   userTraitsKey,
   anonymousUserIdKey,
