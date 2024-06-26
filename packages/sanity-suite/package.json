@@ -51,7 +51,7 @@
     "build:all": "npm run build:cdn:v1.1 && npm run build:cdn:v3 && npm run build:npm:v1.1 && npm run build:npm:v3 && rimraf -rf ./dist/dts"
   },
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "@rudderstack/analytics-js": "*",
     "rudder-sdk-js": "*",

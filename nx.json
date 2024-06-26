@@ -119,7 +119,7 @@
       "{projectRoot}/**/*",
       "!{projectRoot}/.env.example",
       "!{projectRoot}/public/**/*",
-      "!{projectRoot}/LICENSE",
+      "!{projectRoot}/LICENSE.md",
       "!{projectRoot}/**/*.md",
       "!{projectRoot}/**/*.txt",
       "!{projectRoot}/serve.json",

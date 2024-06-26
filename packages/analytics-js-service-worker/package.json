@@ -22,7 +22,7 @@
   },
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -31,7 +31,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
