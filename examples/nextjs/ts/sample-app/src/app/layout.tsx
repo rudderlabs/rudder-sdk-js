@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`
             (function() {
               "use strict";
-              window.RudderSnippetVersion = "3.0.9";
+              window.RudderSnippetVersion = "3.0.10";
               var identifier = "rudderanalytics";
               if (!window[identifier]) {
                 window[identifier] = [];

@@ -20,8 +20,8 @@ import type {
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
-import { MODULE_TYPE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
-import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
 import {
   INVALID_CONFIG_URL_WARNING,

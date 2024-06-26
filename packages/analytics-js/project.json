@@ -84,7 +84,8 @@
       },
       "configurations": {
         "ci": {
-          "ci": true
+          "ci": true,
+          "codeCoverage": true
         }
       },
       "dependsOn": ["build-browser"]
@@ -119,9 +120,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.3.0",
-        "title": "@rudderstack/analytics-js@3.3.0",
-        "discussion-category": "@rudderstack/analytics-js@3.3.0",
+        "tag": "@rudderstack/analytics-js@3.5.1",
+        "title": "@rudderstack/analytics-js@3.5.1",
+        "discussion-category": "@rudderstack/analytics-js@3.5.1",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }

@@ -2,6 +2,32 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.2...@rudderstack/analytics-js-sanity-suite@3.1.3) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.2`
+## [3.1.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.1...@rudderstack/analytics-js-sanity-suite@3.1.2) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.1`
+
+### Bug Fixes
+
+* **analytics-js-sanity-suite:** avoid using iterators and force trigger mutation observer ([bbc66e4](https://github.com/rudderlabs/rudder-sdk-js/commit/bbc66e4d4f75b0c52bb8391cd6775b3d84d573ee))
+
+## [3.1.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.0...@rudderstack/analytics-js-sanity-suite@3.1.1) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.0`
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+* remove data residency feature ([#1748](https://github.com/rudderlabs/rudder-sdk-js/issues/1748)) ([870a7ec](https://github.com/rudderlabs/rudder-sdk-js/commit/870a7ecf3cd251d88c207d9815c2f16c6e9a6883))
+
 ## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.0.10...@rudderstack/analytics-js-sanity-suite@3.1.0) (2024-06-07)
 
 ### Dependency Updates

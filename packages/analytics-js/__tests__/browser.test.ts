@@ -55,6 +55,8 @@ describe('Test suite for the SDK', () => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
 
+    window.rudderanalytics = undefined;
+
     window.XMLHttpRequest = originalXMLHttpRequest;
   });
 

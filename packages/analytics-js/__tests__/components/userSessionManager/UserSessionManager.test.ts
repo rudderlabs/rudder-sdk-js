@@ -1,10 +1,8 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
-import {
-  DEFAULT_USER_SESSION_VALUES,
-  USER_SESSION_STORAGE_KEYS,
-} from '../../../src/components/userSessionManager/constants';
+import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
 import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -74,7 +72,7 @@ describe('User session manager', () => {
   };
 
   const clearStorage = () => {
-    Object.values(USER_SESSION_STORAGE_KEYS).forEach(key => {
+    Object.values(COOKIE_KEYS).forEach(key => {
       clientDataStoreCookie.remove(key);
       clientDataStoreLS.remove(key);
       clientDataStoreSession.remove(key);
@@ -601,7 +599,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         anonymousId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
       };
       userSessionManager.init();
@@ -651,7 +649,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
       };
       userSessionManager.init();
@@ -684,7 +682,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
       };
       userSessionManager.init();
@@ -717,7 +715,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
       };
       userSessionManager.init();
@@ -750,7 +748,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
       };
       userSessionManager.init();
@@ -788,7 +786,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferrer: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
       };
       userSessionManager.init();
@@ -822,7 +820,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferringDomain: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
       };
       userSessionManager.init();
@@ -855,7 +853,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       };
       userSessionManager.init();
@@ -893,7 +891,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         sessionInfo: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+          key: COOKIE_KEYS.sessionInfo,
         },
       };
       userSessionManager.init();
@@ -916,7 +914,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         anonymousId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
       };
       userSessionManager.init();
@@ -948,7 +946,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
       };
       userSessionManager.init();
@@ -978,7 +976,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
       };
       userSessionManager.init();
@@ -1012,7 +1010,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
       };
       userSessionManager.init();
@@ -1042,7 +1040,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
       };
       userSessionManager.init();
@@ -1076,7 +1074,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferrer: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
       };
       userSessionManager.init();
@@ -1107,7 +1105,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferringDomain: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
       };
       userSessionManager.init();
@@ -1141,7 +1139,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       };
       userSessionManager.init();

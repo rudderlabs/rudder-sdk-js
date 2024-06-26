@@ -181,9 +181,9 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: Error) {
-    if (this.pluginEngine && isAllowedToBeNotified(error)) {
+    if (this.errReportingClient && isAllowedToBeNotified(error)) {
       try {
-        this.pluginEngine.invokeSingle(
+        this.pluginEngine?.invokeSingle(
           'errorReporting.notify',
           this.pluginEngine,
           this.errReportingClient,
