@@ -48,7 +48,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "Elastic License 2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",

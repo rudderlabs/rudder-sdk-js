@@ -51,7 +51,7 @@
     "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
   "author": "RudderStack",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "Elastic License 2.0",
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
