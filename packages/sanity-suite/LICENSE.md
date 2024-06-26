@@ -1,6 +1,6 @@
 ### Elastic License 2.0 (ELv2)
 
-## Acceptance ## 
+## Acceptance
 By using the software, you agree to all of the terms and conditions below.
 
 ## Copyright License

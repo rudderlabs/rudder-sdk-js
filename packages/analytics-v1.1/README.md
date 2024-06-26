@@ -322,7 +322,7 @@ If you have any questions about licensing, please [contact us](#contact-us) or r
 
 ## Contribute
 
-We would love to see you contribute to this project. Get more information on how to contribute [**here**](../../CONTRIBUTING.md).
+We invite you to contribute to this project. For more information on how to contribute, please see [**here**](../../CONTRIBUTING.md).
 
 ## Contact us
 
