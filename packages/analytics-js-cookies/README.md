@@ -21,7 +21,7 @@
 
 # @rudderstack/analytics-js-cookies
 
-RudderStack JavaScript SDK utility for cookies.
+[RudderStack JavaScript SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/) utilities for cookies.
 
 ## APIs
 
@@ -29,22 +29,22 @@ RudderStack JavaScript SDK utility for cookies.
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
 
-> The encrypted value should be a string starting with `RS_ENC_v3_`.
+> If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
 
-> If the provided value is not properly encrypted, the function will throw an exception.
+> Any errors during decryption are swallowed by the function, returning `null`.
 
 ```javascript
-import { decrypt } from '@rudderstack/analytics-js-cookies';
+import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
 
 const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
-const decryptedCookieValue = decrypt(encryptedCookieValue);
+const decryptedCookieValue = getDecryptedValue(encryptedCookieValue);
 console.log('Decrypted Cookie Value: ', decryptedCookieValue);
 // Output: Decrypted Cookie Value: test-data
 ```
 
 ### `getDecryptedCookie`
 
-This function decrypts and returns the RudderStack JavaScript SDK cookie values.
+This function takes the name of the RudderStack JavaScript SDK cookie and returns the decrypted value.
 
 The return type is either a `string` or an `object` as some cookies like user ID, anonymous user ID have string values while user traits are objects.
 
@@ -58,7 +58,7 @@ It returns `null` in either of the following scenarios:
 
 > Any errors during decryption are swallowed by the function, returning `null`.
 
-The following are the available cookie key exports:
+The following are the exported cookie keys that can be used with this function:
 
 - `userIdKey`: The key for the user ID cookie.
 - `userTraitsKey`: The key for the user traits cookie.
@@ -90,4 +90,46 @@ console.log('Invalid Cookie: ', invalidCookie);
 // Output: Invalid Cookie: null
 ```
 
-> For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
+## License
+
+This project is licensed under the terms of the Elastic License 2.0. Please see the [LICENSE.md](LICENSE.md) file for license rights and limitations. We recommend that you review the license terms to understand the permissions and restrictions that apply.
+
+If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
+
+## Contribute
+
+We would love to see you contribute to this project. Get more information on how to contribute [**here**](../../CONTRIBUTING.md).
+
+## Contact us
+
+For more information on any of the sections covered in this readme, you can [**contact us**](mailto:%20docs@rudderstack.com) or start a conversation on our [**Slack**](https://resources.rudderstack.com/join-rudderstack-slack) channel.
+
+## Follow Us
+
+- [RudderStack Blog][rudderstack-blog]
+- [Slack][slack]
+- [Twitter][twitter]
+- [LinkedIn][linkedin]
+- [dev.to][devto]
+- [Medium][medium]
+- [YouTube][youtube]
+- [HackerNews][hackernews]
+- [Product Hunt][producthunt]
+
+## :clap: Our Supporters
+
+[![Stargazers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/stars/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/stargazers)
+
+[![Forkers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/forks/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/network/members)
+
+<!----variables---->
+
+[rudderstack-blog]: https://rudderstack.com/blog/
+[slack]: https://resources.rudderstack.com/join-rudderstack-slack
+[twitter]: https://twitter.com/rudderstack
+[linkedin]: https://www.linkedin.com/company/rudderlabs/
+[devto]: https://dev.to/rudderstack
+[medium]: https://rudderstack.medium.com/
+[youtube]: https://www.youtube.com/channel/UCgV-B77bV_-LOmKYHw8jvBw
+[hackernews]: https://news.ycombinator.com/item?id=21081756
+[producthunt]: https://www.producthunt.com/posts/rudderstack
