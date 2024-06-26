@@ -19,9 +19,10 @@
 
 ---
 
+| :warning: This package is deprecated. Please switch to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for improved features and support. <br>For more details, visit [link](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/). |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
 # RudderStack JavaScript SDK
-| :warning: This package is deprecated. Please switch to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package. For more details visit, https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/. |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 The JavaScript SDK lets you track customer event data from your website and send it to your specified destinations via RudderStack.
 
@@ -38,8 +39,8 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
 - [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
-| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK NPM package and decoupled it to a new package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK NPM package and moved it to a separate package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
 
@@ -316,7 +317,7 @@ For examples and specific details look into:
 
 ## License
 
-This project is licensed under the terms of the Elastic License 2.0. Please see the [LICENSE.md](LICENSE.md) file for license rights and limitations. We recommend that you review the license terms to understand the permissions and restrictions that apply.
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
 
 If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
 

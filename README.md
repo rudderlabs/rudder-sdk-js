@@ -289,13 +289,13 @@ For more details, see:
 
 ## License
 
-This project is licensed under the terms of the Elastic License 2.0. Please see the [LICENSE.md](LICENSE.md) file for license rights and limitations. We recommend that you review the license terms to understand the permissions and restrictions that apply.
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
 
 If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
 
 ## Contribute
 
-We invite you to contribute to this project. For more information on how to contribute, please see [**here**](./CONTRIBUTING.md).
+We encourage contributions to this project. For detailed guidelines on how to contribute, please refer to [**here**](./CONTRIBUTING.md).
 
 ## Contact us
 
