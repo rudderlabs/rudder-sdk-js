@@ -60,10 +60,11 @@ export function getDefaultConfig(distName) {
         ecma: 5,
         keep_fnames: true,
         format: {
+          beautify: !shouldUglify,
           comments: false,
           braces: true,
+          indent_level: 2,
           max_line_len: 120,
-          width: 100,
           ecma: 5,
           safari10: true,
           webkit: true,
