@@ -9,26 +9,31 @@ import {
   userIdKey,
   userTraitsKey,
 } from '../src';
-import { encrypt, decrypt, getDecryptedCookie, getDecryptedValue } from '../src/cookiesUtilities';
+import {
+  encryptBrowser,
+  decryptBrowser,
+  getDecryptedCookie,
+  getDecryptedValue,
+} from '../src/cookiesUtilities';
 
 describe('Cookie Utilities', () => {
-  describe('encrypt', () => {
-    it('should encrypt the value', () => {
-      expect(encrypt('test-data')).toBe('RS_ENC_v3_dGVzdC1kYXRh');
+  describe('encryptBrowser', () => {
+    it('should encryptBrowser the value', () => {
+      expect(encryptBrowser('test-data')).toBe('RS_ENC_v3_dGVzdC1kYXRh');
     });
   });
 
-  describe('decrypt', () => {
-    it('should decrypt the value', () => {
-      expect(decrypt('RS_ENC_v3_dGVzdC1kYXRh')).toBe('test-data');
+  describe('decryptBrowser', () => {
+    it('should decryptBrowser the value', () => {
+      expect(decryptBrowser('RS_ENC_v3_dGVzdC1kYXRh')).toBe('test-data');
     });
 
     it('should return same data if it is not a supported encryption format', () => {
-      expect(decrypt('test-data')).toBe('test-data');
+      expect(decryptBrowser('test-data')).toBe('test-data');
     });
 
     it('should throw error if the value is not properly encrypted', () => {
-      expect(() => decrypt('RS_ENC_v3_dGVzdC1kYXRh-some-random-data')).toThrow();
+      expect(() => decryptBrowser('RS_ENC_v3_dGVzdC1kYXRh-some-random-data')).toThrow();
     });
   });
 
