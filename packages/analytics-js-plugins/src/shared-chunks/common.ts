@@ -7,6 +7,9 @@ export * as http from '@rudderstack/analytics-js-common/utilities/http';
 export * as string from '@rudderstack/analytics-js-common/utilities/string';
 export * as json from '@rudderstack/analytics-js-common/utilities/json';
 export * as timestamp from '@rudderstack/analytics-js-common/utilities/timestamp';
-export { encrypt, decrypt } from '@rudderstack/analytics-js-cookies/cookiesUtilities';
+export {
+  encryptBrowser as encrypt,
+  decryptBrowser as decrypt,
+} from '@rudderstack/analytics-js-cookies/cookiesUtilities';
 // eslint-disable-next-line import/no-cycle
 export * as eventsDelivery from '../utilities/eventsDelivery';
