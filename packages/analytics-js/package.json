@@ -97,7 +97,7 @@
     "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
     "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
-    "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "npm run build:browser:test && nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package",
