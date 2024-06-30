@@ -57,7 +57,7 @@ export function getDefaultConfig(distName) {
       }),
       terser({
         safari10: true,
-        ecma: 2015,
+        ecma: 5,
         keep_fnames: true,
         format: {
           beautify: !shouldUglify,
@@ -65,26 +65,34 @@ export function getDefaultConfig(distName) {
           braces: true,
           indent_level: 2,
           max_line_len: 120,
+          ecma: 5,
+          safari10: true,
+          webkit: true,
         },
         compress: shouldUglify ? {
           evaluate: false,
           join_vars: false,
           toplevel: true,
+          dead_code: false,
+          unused: false,
           top_retain: [
             'sdkBaseUrl',
             'sdkName',
-            'asyncScript',
-            'loadOptions'
+            'loadOptions',
+            'scriptLoadingMode',
+            'rudderanalytics'
           ],
           booleans: false
         } : false,
         mangle: shouldUglify ? {
           eval: false,
+          keep_fnames: true,
           reserved: [
             'sdkBaseUrl',
             'sdkName',
-            'asyncScript',
-            'loadOptions'
+            'loadOptions',
+            'scriptLoadingMode',
+            'rudderanalytics'
           ],
           toplevel: true,
           safari10: true,
