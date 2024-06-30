@@ -1,9 +1,52 @@
 import { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS, ENCRYPTION_PREFIX_V3 } from './constants/cookies';
 import { cookie } from './component-cookie';
+
+const getEncryptedValueInternal = (
+  value: string | ApiObject,
+  encryptFn: (value: string) => string,
+  debug: boolean,
+): Nullable<string> => {
+  const fallbackValue = null;
+  try {
+    const strValue = stringifyWithoutCircular(value, false);
+    if (isNull(strValue)) {
+      return null;
+    }
+    return encryptFn(strValue);
+  } catch (err) {
+    if (debug) {
+      console.error('Error occurred during encryption: ', err);
+    }
+    return fallbackValue;
+  }
+};
+
+const getDecryptedValueInternal = (
+  value: string,
+  decryptFn: (value: string | undefined) => string | undefined,
+  debug: boolean,
+): Nullable<string | ApiObject> => {
+  const fallbackValue = null;
+  try {
+    const decryptedVal = decryptFn(value);
+
+    if (isNullOrUndefined(decryptedVal)) {
+      return fallbackValue;
+    }
+
+    return JSON.parse(decryptedVal as string);
+  } catch (err) {
+    if (debug) {
+      console.error('Error occurred during decryption: ', err);
+    }
+    return fallbackValue;
+  }
+};
 
 const encryptBrowser = (value: string): string => `${ENCRYPTION_PREFIX_V3}${toBase64(value)}`;
 
@@ -13,6 +56,26 @@ const decryptBrowser = (value: string | undefined): string | undefined => {
   }
 
   return value;
+};
+
+const getEncryptedValueBrowser = (
+  value: string | ApiObject,
+  debug: boolean = false,
+): Nullable<string> => getEncryptedValueInternal(value, encryptBrowser, debug);
+
+const getDecryptedValueBrowser = (
+  value: string,
+  debug: boolean = false,
+): Nullable<string | ApiObject> => getDecryptedValueInternal(value, decryptBrowser, debug);
+
+const getDecryptedCookieBrowser = (
+  cookieKey: string,
+  debug: boolean = false,
+): Nullable<string | ApiObject> => {
+  if (Object.values(COOKIE_KEYS).includes(cookieKey)) {
+    return getDecryptedValueBrowser(cookie(cookieKey), debug);
+  }
+  return null;
 };
 
 const encrypt = (value: string): string =>
@@ -26,47 +89,18 @@ const decrypt = (value: string | undefined): string | undefined => {
   return value;
 };
 
-const getDecryptedValueBrowser = (value: string): Nullable<string | ApiObject> => {
-  const fallbackValue = null;
-  try {
-    const decryptedVal = decryptBrowser(value);
+const getDecryptedValue = (value: string, debug: boolean = false): Nullable<string | ApiObject> =>
+  getDecryptedValueInternal(value, decrypt, debug);
 
-    if (isNullOrUndefined(decryptedVal)) {
-      return fallbackValue;
-    }
-
-    return JSON.parse(decryptedVal as string);
-  } catch (err) {
-    return fallbackValue;
-  }
-};
-
-const getDecryptedValue = (value: string): Nullable<string | ApiObject> => {
-  const fallbackValue = null;
-  try {
-    const decryptedVal = decrypt(value);
-
-    if (isNullOrUndefined(decryptedVal)) {
-      return fallbackValue;
-    }
-
-    return JSON.parse(decryptedVal as string);
-  } catch (err) {
-    return fallbackValue;
-  }
-};
-
-const getDecryptedCookie = (cookieKey: string): Nullable<string | ApiObject> => {
-  if (Object.values(COOKIE_KEYS).includes(cookieKey)) {
-    return getDecryptedValue(cookie(cookieKey));
-  }
-  return null;
-};
+const getEncryptedValue = (value: string | ApiObject, debug: boolean = false): Nullable<string> =>
+  getEncryptedValueInternal(value, encrypt, debug);
 
 export {
-  getDecryptedCookie,
   encryptBrowser,
   decryptBrowser,
-  getDecryptedValue,
   getDecryptedValueBrowser,
+  getDecryptedCookieBrowser,
+  getEncryptedValueBrowser,
+  getDecryptedValue,
+  getEncryptedValue,
 };

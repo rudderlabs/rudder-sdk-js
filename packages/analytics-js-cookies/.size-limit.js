@@ -6,6 +6,6 @@ module.exports = [
   {
     name: 'Cookies Utilities',
     path: 'dist/**/*.js',
-    limit: '2 KiB',
+    limit: '3 KiB',
   },
 ];
