@@ -26,6 +26,7 @@
 ## APIs
 
 ### `getDecryptedValueBrowser`
+
 > :warning: Only for browser environments
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
@@ -45,6 +46,7 @@ console.log('Decrypted Cookie Value: ', decryptedCookieValue);
 ```
 
 ### `getDecryptedValue`
+
 > :warning: Only for Node.js environments
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
@@ -117,6 +119,7 @@ console.log('Invalid Cookie: ', invalidCookie);
 ```
 
 ## Debugging
+
 As all the above APIs swallow the errors, you can set the `debug` argument to `true` to log the errors.
 
 ```javascript
