@@ -3,25 +3,38 @@
   "version": "3.2.1",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
-  "main": "dist/npm/modern/cjs/index.js",
-  "module": "dist/npm/modern/esm/index.js",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/cjs/index.js",
-      "import": "./dist/npm/modern/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
     },
     "./legacy": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/legacy/cjs/index.js",
-      "import": "./dist/npm/legacy/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
     }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },

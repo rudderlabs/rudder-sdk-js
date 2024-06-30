@@ -5,9 +5,7 @@
   },
   "defaultBase": "main",
   "release": {
-    "projects": [
-      "*"
-    ],
+    "projects": ["*"],
     "projectsRelationship": "independent",
     "releaseTagPattern": "{projectName}@{version}",
     "version": {
@@ -26,10 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": [
-        "default",
-        "^test"
-      ],
+      "inputs": ["default", "^test"],
       "cache": true
     },
     "version": [
@@ -39,67 +34,43 @@
       }
     ],
     "build": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-browser": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-browser-modern": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-npm": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-npm-modern": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-package": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "build-check-size": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:build": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:json": {
-      "inputs": [
-        "default",
-        "^production",
-        "{projectRoot}/.size-limit.js"
-      ],
+      "inputs": ["default", "^production", "{projectRoot}/.size-limit.js"],
+      "cache": true
+    },
+    "check:pub": {
+      "inputs": ["{projectRoot}/package.json"],
       "cache": true
     }
   },
