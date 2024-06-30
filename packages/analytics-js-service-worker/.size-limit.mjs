@@ -10,7 +10,12 @@ export default [
   },
   {
     name: 'Service Worker Module CJS - NPM',
-    path: 'dist/npm/esm/index.mjs',
+    path: 'dist/npm/cjs/index.cjs',
     limit: '24 KiB',
+  },
+  {
+    name: 'Service Worker Module NPM',
+    path: 'dist/npm/umd/index.js',
+    limit: '25 KiB',
   },
 ];
