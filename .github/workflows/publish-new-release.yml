@@ -37,6 +37,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      # In order to make a commit, we need to initialize a user.
+      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub actions"
+          git config user.email noreply@github.com
+
+      - name: Create monorepo release tag
+        id: create_monorepo_release
+        run: |
+          # We're trying to create the tags as early as possible here,
+          # for the deploy NPM workflow to grab the latest tag.
+          # Similarly, we've timed the other workflow to delay.
+          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
+          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -48,19 +64,6 @@ jobs:
           HUSKY: 0
         run: |
           npm run setup:ci
-
-      # In order to make a commit, we need to initialize a user.
-      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
-      - name: Initialize mandatory git config
-        run: |
-          git config user.name "GitHub actions"
-          git config user.email noreply@github.com
-
-      - name: Create monorepo release tag
-        id: create_monorepo_release
-        run: |
-          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
-          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
       - name: Get the two latest versions
         run: |

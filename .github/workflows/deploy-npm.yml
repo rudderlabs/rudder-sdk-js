@@ -30,18 +30,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get the two latest monorepo versions
-        run: |
-          CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
-          LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
-
-          echo "Current version: $CURRENT_VERSION"
-          echo "Previous version: $LAST_VERSION"
-
-          echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
-          echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
-
       - name: Get new version number
         run: |
           current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
@@ -79,6 +67,21 @@ jobs:
         run: |
           npm run setup:ci
 
+      - name: Get the two latest monorepo versions
+        run: |
+          # We're trying to grab the tags as late as possible here,
+          # since we've to wait for publish to github workflow to create the tag.
+          # Similarly, we've timed the other workflow to create tag as early as possible.
+          CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
+          LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $LAST_VERSION"
+
+          echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
+          echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
       - name: Publish package to NPM
         env:
           HUSKY: 0
@@ -94,6 +97,12 @@ jobs:
           # Reset the changes made to package.json
           git reset --hard
           git clean -fd
+
+      - name: Wait for NPM propagation
+        run: |
+          # It has been observed that the NPM package is not immediately available after publish.
+          echo "Waiting for NPM propagation..."
+          sleep 15
 
       - name: Get versions in NPM after publish
         run: |
