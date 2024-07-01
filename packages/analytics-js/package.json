@@ -2,35 +2,60 @@
   "name": "@rudderstack/analytics-js",
   "version": "3.5.1",
   "description": "RudderStack JavaScript SDK",
-  "main": "dist/npm/modern/cjs/index.js",
-  "module": "dist/npm/modern/esm/index.js",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/cjs/index.js",
-      "import": "./dist/npm/modern/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
     },
     "./legacy": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/legacy/cjs/index.js",
-      "import": "./dist/npm/legacy/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
     },
     "./bundled": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/bundled/cjs/index.js",
-      "import": "./dist/npm/modern/bundled/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/bundled/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/bundled/esm/index.mjs"
+      }
     },
     "./content-script": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/content-script/cjs/index.js",
-      "import": "./dist/npm/modern/content-script/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/content-script/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/content-script/esm/index.mjs"
+      }
     }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },
@@ -72,7 +97,7 @@
     "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
     "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
-    "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "npm run build:browser:test && nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package",

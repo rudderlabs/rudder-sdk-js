@@ -2,18 +2,25 @@
   "name": "@rudderstack/analytics-js-service-worker",
   "version": "3.1.2",
   "description": "RudderStack JavaScript Service Worker SDK",
-  "main": "dist/npm/umd/index.js",
-  "module": "dist/npm/esm/index.js",
+  "main": "dist/npm/cjs/index.cjs",
+  "module": "dist/npm/esm/index.mjs",
+  "type": "module",
   "exports": {
-    "require": "./dist/npm/umd/index.js",
-    "import": "./dist/npm/esm/index.js",
-    "types": "./dist/npm/index.d.ts"
+    "types": "./dist/npm/index.d.mts",
+    "require": {
+      "types": "./dist/npm/index.d.cts",
+      "default": "./dist/npm/cjs/index.cjs"
+    },
+    "import": {
+      "types": "./dist/npm/index.d.mts",
+      "default": "./dist/npm/esm/index.mjs"
+    }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },
@@ -51,7 +58,7 @@
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:package": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build:package",
@@ -62,6 +69,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
+    "check:pub": "npx publint",
     "package": "cd dist/npm && npm pack --pack-destination ../../",
     "release": "npm publish"
   },

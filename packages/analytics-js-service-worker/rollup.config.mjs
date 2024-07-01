@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -12,6 +13,8 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
+import del from 'rollup-plugin-delete';
+import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -102,6 +105,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
+    entryFileNames: `index.mjs`,
     dir: outDir + '/esm/',
     format: 'esm',
     name: modName,
@@ -111,6 +115,17 @@ const outputFilesNpm = [
     }
   },
   {
+    entryFileNames: `index.cjs`,
+    dir: outDir + '/cjs/',
+    format: 'cjs',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: 'es5',
+    }
+  },
+  {
+    entryFileNames: `index.js`,
     dir: outDir + '/umd',
     format: 'umd',
     name: modName,
@@ -129,11 +144,32 @@ const buildEntries = [
   },
   {
     input: `dist/dts/packages/analytics-js-service-worker/src/index.d.ts`,
-    plugins: [dts()],
-    output: {
-      file: `${outDir}/index.d.ts`,
-      format: 'es',
-    },
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-service-worker',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-service-worker/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
+          }
+        ]
+      }),
+      dts(),
+      del({ hook: "buildEnd", targets: "./dist/dts" }),
+    ],
+    output: [
+      {
+        file: `${outDir}/index.d.mts`,
+        format: 'es',
+      },
+      {
+        file: `${outDir}/index.d.cts`,
+        format: 'es',
+      }
+    ]
   },
 ];
 

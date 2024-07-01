@@ -27,7 +27,7 @@
     "build:browser:minified": "rollup -c --environment VERSION:$npm_package_version,UGLIFY",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version && npm run build:browser:minified",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
