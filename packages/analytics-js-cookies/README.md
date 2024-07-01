@@ -21,17 +21,39 @@
 
 # @rudderstack/analytics-js-cookies
 
-[RudderStack JavaScript SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/) utilities for cookies.
+[RudderStack JavaScript SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/) utilities for cookies in browser and Node.js environments. Use the appropriate functions for your environment.
 
 ## APIs
 
-### `getDecryptedValue`
+### `getDecryptedValueBrowser`
+
+> :warning: Only for browser environments
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
 
 > If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
 
-> Any errors during decryption are swallowed by the function, returning `null`.
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
+
+```javascript
+import { getDecryptedValueBrowser } from '@rudderstack/analytics-js-cookies';
+
+const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
+const decryptedCookieValue = getDecryptedValueBrowser(encryptedCookieValue);
+console.log('Decrypted Cookie Value: ', decryptedCookieValue);
+// Output:
+// Decrypted Cookie Value: test-data
+```
+
+### `getDecryptedValue`
+
+> :warning: Only for Node.js environments
+
+This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
+
+> If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
+
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
 ```javascript
 import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
@@ -39,10 +61,13 @@ import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
 const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
 const decryptedCookieValue = getDecryptedValue(encryptedCookieValue);
 console.log('Decrypted Cookie Value: ', decryptedCookieValue);
-// Output: Decrypted Cookie Value: test-data
+// Output:
+// Decrypted Cookie Value: test-data
 ```
 
-### `getDecryptedCookie`
+### `getDecryptedCookieBrowser`
+
+> :warning: Only for browser environments
 
 This function takes the name of the RudderStack JavaScript SDK cookie and returns the decrypted value.
 
@@ -56,9 +81,9 @@ It returns `null` in either of the following scenarios:
 - If the decrypted cookie value is not a valid JSON string.
 - If the provided cookie name is not a valid RudderStack JavaScript SDK cookie name.
 
-> Any errors during decryption are swallowed by the function, returning `null`.
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
-The following are the exported cookie keys that can be used with this function:
+The following cookie keys are exported which can be used with this function:
 
 - `userIdKey`: The key for the user ID cookie.
 - `userTraitsKey`: The key for the user traits cookie.
@@ -72,22 +97,43 @@ The following are the exported cookie keys that can be used with this function:
 
 ```javascript
 import {
-  getDecryptedCookie,
+  getDecryptedCookieBrowser,
   anonymousUserIdKey,
   userTraitsKey,
 } from '@rudderstack/analytics-js-cookies';
 
-const anonymousId = getDecryptedCookie(anonymousUserIdKey);
+const anonymousId = getDecryptedCookieBrowser(anonymousUserIdKey);
 console.log('Anonymous User ID: ', anonymousId);
-// Output: Anonymous User ID: 2c5b6d48-ea90-43a2-a2f6-457d27f90328
+// Output:
+// Anonymous User ID: 2c5b6d48-ea90-43a2-a2f6-457d27f90328
 
-const userTraits = getDecryptedCookie(userTraitsKey);
+const userTraits = getDecryptedCookieBrowser(userTraitsKey);
 console.log('User Traits: ', userTraits);
-// Output: User Traits: {"email":"abc@xyz.com","name":"John Doe"}
+// Output:
+// User Traits: {"email":"abc@xyz.com","name":"John Doe"}
 
-const invalidCookie = getDecryptedCookie('invalid-cookie-name');
+const invalidCookie = getDecryptedCookieBrowser('invalid-cookie-name');
 console.log('Invalid Cookie: ', invalidCookie);
-// Output: Invalid Cookie: null
+// Output:
+// Invalid Cookie: null
+```
+
+## Debugging
+
+As all the above APIs swallow the errors, you can set the `debug` argument to `true` to log the errors.
+
+```javascript
+import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
+
+const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI-some-random-data';
+
+// Set the debug flag to true
+const decryptedCookieValue = getDecryptedValue(encryptedCookieValue, true);
+console.log('Decrypted Cookie Value: ', decryptedCookieValue);
+
+// Output:
+// Error occurred during decryption: Unexpected non-whitespace character after JSON at position 11
+// Decrypted Cookie Value: null
 ```
 
 ## License
