@@ -58,8 +58,8 @@ const getTopDomainUrl = (url: string) => {
   return `${protocol}//${topDomain}`;
 };
 
-const getDataServiceUrl = (endpoint: string) => {
-  const url = getTopDomainUrl(window.location.href);
+const getDataServiceUrl = (endpoint: string, useExactDomain: boolean) => {
+  const url = useExactDomain ? window.location.origin : getTopDomainUrl(window.location.href);
   const formattedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
   return `${url}/${formattedEndpoint}`;
 };

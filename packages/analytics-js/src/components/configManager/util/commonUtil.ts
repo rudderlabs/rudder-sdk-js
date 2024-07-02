@@ -20,6 +20,7 @@ import type {
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { removeLeadingDot } from '@rudderstack/analytics-js-common/utilities/string';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
@@ -110,6 +111,8 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     useServerSideCookies,
     dataServiceEndpoint,
     storage: storageOptsFromLoad,
+    setCookieDomain,
+    sameDomainCookiesOnly,
   } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
@@ -160,9 +163,19 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
     if (useServerSideCookies) {
       state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
-      const dataServiceUrl = getDataServiceUrl(
-        dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
-      );
+      let dataServiceUrl;
+      if (isDefined(setCookieDomain || sameDomainCookiesOnly)) {
+        dataServiceUrl = getDataServiceUrl(
+          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+          true,
+        );
+      } else {
+        dataServiceUrl = getDataServiceUrl(
+          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+          false,
+        );
+      }
+
       if (isValidURL(dataServiceUrl)) {
         state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
 
@@ -177,6 +190,14 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
             samesite: 'None',
             secure: true,
           };
+        }
+        console.log('dataServiceHost', dataServiceHost);
+        console.log('setCookieDomain', setCookieDomain);
+        if (
+          isDefined(setCookieDomain) &&
+          dataServiceHost !== removeLeadingDot(setCookieDomain as string)
+        ) {
+          state.serverCookies.isEnabledServerSideCookies.value = false;
         }
       } else {
         state.serverCookies.isEnabledServerSideCookies.value = false;

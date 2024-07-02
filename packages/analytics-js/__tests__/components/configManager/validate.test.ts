@@ -46,12 +46,16 @@ describe('Config manager util - validate load arguments', () => {
   });
   describe('getDataServiceUrl', () => {
     it('should return dataServiceUrl', () => {
-      const dataServiceUrl = getDataServiceUrl('endpoint');
+      const dataServiceUrl = getDataServiceUrl('endpoint', false);
       expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
     });
     it('should prepare the dataServiceUrl with endpoint without leading slash', () => {
-      const dataServiceUrl = getDataServiceUrl('/endpoint');
+      const dataServiceUrl = getDataServiceUrl('/endpoint', false);
       expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
+    });
+    it('should return dataServiceUrl with exact domain', () => {
+      const dataServiceUrl = getDataServiceUrl('endpoint', true);
+      expect(dataServiceUrl).toBe('https://www.test-host.com/endpoint');
     });
   });
 });
