@@ -191,8 +191,6 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
             secure: true,
           };
         }
-        console.log('dataServiceHost', dataServiceHost);
-        console.log('setCookieDomain', setCookieDomain);
         if (
           isDefined(setCookieDomain) &&
           dataServiceHost !== removeLeadingDot(setCookieDomain as string)
