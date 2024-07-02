@@ -4,6 +4,7 @@ import {
   tryStringify,
   toBase64,
   fromBase64,
+  removeLeadingDot,
 } from '../../src/utilities/string';
 
 describe('Common Utils - String', () => {
@@ -99,6 +100,14 @@ describe('Common Utils - String', () => {
 
     it('should convert base64 with emoji to string', () => {
       expect(fromBase64('8J+Riw==')).toBe('👋');
+    });
+  });
+
+  describe('removeLeadingDot', () => {
+    it('should remove leading dot from the string if any', () => {
+      expect(removeLeadingDot('.sample')).toBe('sample');
+      expect(removeLeadingDot('sample')).toBe('sample');
+      expect(removeLeadingDot('sample.com')).toBe('sample.com');
     });
   });
 });
