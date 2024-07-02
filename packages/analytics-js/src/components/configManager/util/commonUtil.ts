@@ -164,7 +164,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     if (useServerSideCookies) {
       state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
       let dataServiceUrl;
-      if (isDefined(setCookieDomain || sameDomainCookiesOnly)) {
+      if (isDefined(setCookieDomain) || sameDomainCookiesOnly) {
         dataServiceUrl = getDataServiceUrl(
           dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
           true,
