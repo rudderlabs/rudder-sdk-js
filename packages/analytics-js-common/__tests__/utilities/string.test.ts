@@ -4,7 +4,7 @@ import {
   tryStringify,
   toBase64,
   fromBase64,
-  removeLeadingDot,
+  removeLeadingPeriod,
 } from '../../src/utilities/string';
 
 describe('Common Utils - String', () => {
@@ -103,11 +103,13 @@ describe('Common Utils - String', () => {
     });
   });
 
-  describe('removeLeadingDot', () => {
+  describe('removeLeadingPeriod', () => {
     it('should remove leading dot from the string if any', () => {
-      expect(removeLeadingDot('.sample')).toBe('sample');
-      expect(removeLeadingDot('sample')).toBe('sample');
-      expect(removeLeadingDot('sample.com')).toBe('sample.com');
+      expect(removeLeadingPeriod('.sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample.')).toBe('sample.');
+      expect(removeLeadingPeriod('..sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample.com')).toBe('sample.com');
     });
   });
 });

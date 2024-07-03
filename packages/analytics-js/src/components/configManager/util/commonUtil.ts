@@ -20,7 +20,7 @@ import type {
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
-import { removeLeadingDot } from '@rudderstack/analytics-js-common/utilities/string';
+import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
@@ -33,6 +33,7 @@ import {
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 } from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
@@ -163,18 +164,12 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
     if (useServerSideCookies) {
       state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
-      let dataServiceUrl;
-      if (isDefined(setCookieDomain) || sameDomainCookiesOnly) {
-        dataServiceUrl = getDataServiceUrl(
-          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
-          true,
-        );
-      } else {
-        dataServiceUrl = getDataServiceUrl(
-          dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
-          false,
-        );
-      }
+      const providedCookieDomain = cookieOptions.domain ?? setCookieDomain;
+      const useExactDomain = isDefined(providedCookieDomain) || sameDomainCookiesOnly;
+      const dataServiceUrl = getDataServiceUrl(
+        dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+        useExactDomain ?? false,
+      );
 
       if (isValidURL(dataServiceUrl)) {
         state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
@@ -192,10 +187,18 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
           };
         }
         if (
-          isDefined(setCookieDomain) &&
-          dataServiceHost !== removeLeadingDot(setCookieDomain as string)
+          !sameDomainCookiesOnly &&
+          isDefined(providedCookieDomain) &&
+          dataServiceHost !== removeLeadingPeriod(providedCookieDomain as string)
         ) {
           state.serverCookies.isEnabledServerSideCookies.value = false;
+          logger?.warn(
+            SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING(
+              CONFIG_MANAGER,
+              providedCookieDomain,
+              dataServiceHost as string,
+            ),
+          );
         }
       } else {
         state.serverCookies.isEnabledServerSideCookies.value = false;

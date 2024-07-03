@@ -6,7 +6,7 @@ const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
 
 const removeDoubleSpaces = (value: string): string => value.replace(/ {2,}/g, ' ');
 
-const removeLeadingDot = (value: string): string => value.replace(/^\./, '');
+const removeLeadingPeriod = (value: string): string => value.replace(/^\.+/, '');
 
 /**
  * A function to convert values to string
@@ -63,4 +63,4 @@ const toBase64 = (value: string): string => bytesToBase64(new TextEncoder().enco
  */
 const fromBase64 = (value: string): string => new TextDecoder().decode(base64ToBytes(value));
 
-export { trim, removeDoubleSpaces, tryStringify, toBase64, fromBase64, removeLeadingDot };
+export { trim, removeDoubleSpaces, tryStringify, toBase64, fromBase64, removeLeadingPeriod };
