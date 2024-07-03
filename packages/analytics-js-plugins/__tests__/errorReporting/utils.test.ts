@@ -34,9 +34,9 @@ describe('Error Reporting utilities', () => {
 
   describe('getURLWithoutQueryString', () => {
     it('should return url without query param ', () => {
-      (window as any).location.href = 'http://www.test-host.com?key1=1234&key2=true';
+      (window as any).location.href = 'https://www.test-host.com?key1=1234&key2=true';
       const urlWithoutSearchParam = getURLWithoutQueryString();
-      expect(urlWithoutSearchParam).toEqual('http://www.test-host.com/');
+      expect(urlWithoutSearchParam).toEqual('https://www.test-host.com/');
     });
   });
   describe('getReleaseStage', () => {
@@ -355,7 +355,7 @@ describe('Error Reporting utilities', () => {
               time: expect.any(Date),
             },
             request: {
-              url: 'http://www.test-host.com/',
+              url: 'https://www.test-host.com/',
               clientIp: '[NOT COLLECTED]',
             },
             breadcrumbs: [],
@@ -449,7 +449,7 @@ describe('Error Reporting utilities', () => {
               time: expect.any(Date),
             },
             request: {
-              url: 'http://www.test-host.com/',
+              url: 'https://www.test-host.com/',
               clientIp: '[NOT COLLECTED]',
             },
             breadcrumbs: [],

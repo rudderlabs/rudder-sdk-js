@@ -116,7 +116,7 @@ class PluginsManager implements IPluginsManager {
         shouldAddMissingPlugins: true,
       },
       {
-        configurationStatus: () => isDefined(state.reporting.isErrorReportingEnabled.value),
+        configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
         configurationStatusStr: 'Error reporting is enabled',
         supportedPlugins: ['ErrorReporting'] as PluginName[],
       },
